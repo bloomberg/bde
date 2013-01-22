@@ -8,6 +8,8 @@ BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
 
 #include <bsl_streambuf.h>
 
+#include <baejsn_parserutil.h>                 // for testing only
+
 // IMPLEMENTATION NOTES
 // --------------------
 // The following table provides the various transitions that need to be

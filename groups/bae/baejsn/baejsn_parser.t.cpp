@@ -1,6 +1,8 @@
 // baejsn_parser.t.cpp                                                -*-C++-*-
 #include <baejsn_parser.h>
 
+#include <baejsn_parserutil.h>
+
 #include <bsl_sstream.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
@@ -15,6 +17,8 @@
 #include <bdesb_memoutstreambuf.h>            // for testing only
 #include <bdesb_fixedmemoutstreambuf.h>       // for testing only
 #include <bdesb_fixedmeminstreambuf.h>        // for testing only
+
+#include <bcem_aggregate.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -200,6 +204,116 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Extracting JSON data into an object
+///----------------------------------------------
+// For this example, we will use 'baejsn_Parser' to read each node in a
+// JSON document and populate a simple 'Employee' object.
+//
+// First, we will define the JSON data that the parser will traverse over:
+//..
+    const char *INPUT = "    {\n"
+                        "        \"street\" : \"Lexington Ave\",\n"
+                        "        \"state\" : \"New York\",\n"
+                        "        \"zipcode\" : 10022\n"
+                        "    }";
+//..
+// Next, we will construct populate a 'streambuf' with this data:
+//..
+    bdesb_FixedMemInStreamBuf isb(INPUT, bsl::strlen(INPUT));
+//..
+// Then, we will create a 'baejsn_Parser' object and associate the above
+// streambuf with it:
+//..
+    baejsn_Parser parser;
+    parser.reset(&isb);
+//..
+// Next, we will create a 'bcem_Aggregate' representing an employee:
+//..
+    bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+//
+    bdem_RecordDef *addressRecord = schema->createRecord("Address");
+    addressRecord->appendField(bdem_ElemType::BDEM_STRING, "street");
+    addressRecord->appendField(bdem_ElemType::BDEM_STRING, "state");
+    addressRecord->appendField(bdem_ElemType::BDEM_INT, "zipcode");
+//
+    bcem_Aggregate address(schema, "Address");
+//..
+// Then, we will traverse the JSON data one node at a time:
+//..
+    // Read '{'
+
+    int rc = parser.advanceToNextToken();
+    ASSERT(!rc);
+
+    baejsn_Parser::TokenType token = parser.tokenType();
+    ASSERT(baejsn_Parser::BAEJSN_START_OBJECT == token);
+
+    rc = parser.advanceToNextToken();
+    ASSERT(!rc);
+    token = parser.tokenType();
+
+    // Continue reading elements till '}' is encountered
+
+    while (baejsn_Parser::BAEJSN_END_OBJECT != token) {
+        ASSERT(baejsn_Parser::BAEJSN_ELEMENT_NAME == token);
+
+        // Read element name
+
+        bslstl::StringRef nodeValue;
+        rc = parser.value(&nodeValue);
+        ASSERT(!rc);
+
+        bsl::string elementName = nodeValue;
+
+        // Read element value
+
+        int rc = parser.advanceToNextToken();
+        ASSERT(!rc);
+
+        token = parser.tokenType();
+        ASSERT(baejsn_Parser::BAEJSN_ELEMENT_VALUE == token);
+
+        rc = parser.value(&nodeValue);
+        ASSERT(!rc);
+
+        // Extract the simple type with the data
+
+        if (bdem_ElemType::BDEM_STRING == address.fieldType(elementName)) {
+
+            bsl::string data;
+            rc = baejsn_ParserUtil::getValue(&data, nodeValue);
+            ASSERT(!rc);
+
+            // Populate the element with the read value
+
+            address.setField(elementName, data);
+        }
+        else if (bdem_ElemType::BDEM_INT == address.fieldType(elementName)) {
+            int data;
+            rc = baejsn_ParserUtil::getValue(&data, nodeValue);
+            ASSERT(!rc);
+
+            // Populate the element with the read value
+
+            address.setField(elementName, data);
+        }
+
+        rc = parser.advanceToNextToken();
+        ASSERT(!rc);
+        token = parser.tokenType();
+    }
+//..
+// Finally, we will verify that the 'address' aggregate has the correct values:
+//..
+    ASSERT("Lexington Ave" == address["street"].asString());
+    ASSERT("New York"      == address["state"].asString());
+    ASSERT(10022           == address["zipcode"].asInt());
+//..
       } break;
       case 9: {
         // --------------------------------------------------------------------

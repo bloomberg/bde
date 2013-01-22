@@ -130,33 +130,51 @@ struct baejsn_ParserUtil {
     static int getDateAndTimeValue(TYPE              *value,
                                    bslstl::StringRef  data,
                                    int                maxLength);
+        // Load into the specified 'value' the date or time value represented
+        // as a string in the ISO 8601 format in the specified 'data' and
+        // having a maximum data length of the specified 'maxLength'.  Return 0
+        // on success and a non-zero value otherwise.  Note that an error is
+        // returned if 'data.length() > maxLength'.
 
     template <typename TYPE>
     static int getIntegralValue(TYPE *value, bslstl::StringRef data);
+        // Load into the specified 'value' the integer value in the specified
+        // 'data'.  Return 0 on success and a non-zero value otherwise.
 
     template <typename TYPE>
     static int getUnsignedIntegralValue(TYPE *value, bslstl::StringRef data);
+        // Load into the specified 'value' the unsigned integer value in the
+        // specified 'data'.  Return 0 on success and a non-zero value
+        // otherwise.
 
     static int getUint64(bsls::Types::Uint64 *value, bslstl::StringRef data);
+        // Load into the specified 'value' the value in the specified 'data'.
+        // Return 0 on success and a non-zero value otherwise.
 
     static int getString(bsl::string *value, bslstl::StringRef data);
+        // Load into the specified 'value' the string value in the specified
+        // 'data'.  Return 0 on success and a non-zero value otherwise.
 
     template <typename TYPE>
     static int getDateAndTimeValue(bsl::streambuf *streamBuf,
                                    TYPE           *value,
                                    int             maxLength);
-        // DEPRECATED:
+        // DEPRECATED: Use the 'getDateAndTimeValue' overload that takes a
+        // 'bslstl::StringRef' as an argument instead.
 
     template <typename TYPE>
     static int getIntegralValue(bsl::streambuf *streamBuf, TYPE *value);
-        // DEPRECATED:
+        // DEPRECATED: Use the 'getIntegralValue' overload that takes a
+        // 'bslstl::StringRef' as an argument instead.
 
     static int getUint64(bsl::streambuf      *streamBuf,
                          bsls::Types::Uint64 *value);
-        // DEPRECATED:
+        // DEPRECATED: Use the 'getUint64' overload that takes a
+        // 'bslstl::StringRef' as an argument instead.
 
     static int getDouble(bsl::streambuf *streamBuf, double *value);
-        // DEPRECATED:
+        // DEPRECATED: Use the 'getValue' overload that takes a 'double' as an
+        // argument instead.
 
   public:
     // CLASS METHODS
