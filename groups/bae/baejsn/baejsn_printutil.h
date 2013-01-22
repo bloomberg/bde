@@ -7,19 +7,20 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a JSON printutil class.
+//@PURPOSE: Provide a utility for encoding simple types in the JSON format.
 //
 //@CLASSES:
-// baejsn_PrintUtil: JSON print utility class
+//  baejsn_PrintUtil: utility for printing simple types in JSON
 //
 //@SEE_ALSO: baejsn_encoder, baejsn_parserutil
 //
-//@AUTHOR: Raymond Chiu (schiu49)
+//@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides utility functions for encoding a
-// 'bdeat' Simple type into JSON string.  The primary method is 'printValue',
-// which encode specified object and is overloaded for all 'bdeat' Simple type.
-// The following table describes how various Simple types are encoded.
+// 'bdeat' Simple type in the JSON format.  The primary method is 'printValue',
+// which encodes a specified object and is overloaded for all 'bdeat' Simple
+// types.  The following table describes the format in which various Simple
+// types are encoded.
 //..
 //  Simple Type          JSON Type  Notes
 //  -----------          ---------  -----
@@ -183,7 +184,8 @@ class baejsn_PrintUtil {
     static int printValue(bsl::ostream& stream, const bdet_DateTz&      value);
     static int printValue(bsl::ostream& stream, const bdet_DatetimeTz&  value);
         // Encode the specified 'value' into JSON format and output the result
-        // to the specified 'stream'.
+        // to the specified 'stream'.  Return 0 on success and a non-zero
+        // value otherwise.
 };
 
 // ============================================================================

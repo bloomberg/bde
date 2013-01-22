@@ -16,8 +16,74 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides utility functions for encoding and
-// decoding of primitive JSON constructs into fundamental C++ types.
+//@DESCRIPTION: This component provides utility functions for decoding data in
+// the JSON format into a 'bdeat' Simple type.  The primary method is
+// 'getValue', which decodes into a specified object and is overloaded for all
+// 'bdeat' Simple types.  The following table describes the format in which
+// various Simple types are decoded.
+//..
+//  Simple Type          JSON Type  Notes
+//  -----------          ---------  -----
+//  char                 number
+//  unsigned char        number
+//  int                  number
+//  unsigned int         number
+//  bsls::Types::Int64   number
+//  bsls::Types::Uint64  number
+//  float                number
+//  double               number
+//  char *               string
+//  bsl::string          string
+//  bdet_Date            string     ISO 8601 format
+//  bdet_DateTz          string     ISO 8601 format
+//  bdet_Time            string     ISO 8601 format
+//  bdet_TimeTz          string     ISO 8601 format
+//  bdet_DatetimeTz      string     ISO 8601 format
+//  bdet_DatetimeTz      string     ISO 8601 format
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Decoding into a Simple 'struct' from JSON data
+///---------------------------------------------------------
+// Suppose we want to deserialize some JSON data into an object.
+//
+// First, we define a struct, 'Employee', to contain the data:
+//..
+//  struct Employee {
+//      bsl::string d_name;
+//      bdet_Date   d_date;
+//      int         d_age;
+//  };
+//..
+// Then, we create an 'Employee' object:
+//..
+//  Employee employee;
+//..
+// Next, we specify the string values in JSON format used to represent the
+// object data.  Note that the birth date is specified in the ISO 8601 format:
+//..
+//  const char *name = "\"John Smith\"";
+//  const char *date = "\"1985-06-24\"";
+//  const char *age  = "21";
+//
+//  bslstl::StringRef nameRef(name);
+//  bslstl::StringRef dateRef(date);
+//  bslstl::StringRef ageRef(age);
+//..
+// Now, we use the created string refs to populate the employee object:
+//..
+//  assert(0 == baejsn_ParserUtil::getValue(&employee.d_name, nameRef));
+//  assert(0 == baejsn_ParserUtil::getValue(&employee.d_date, dateRef));
+//  assert(0 == baejsn_ParserUtil::getValue(&employee.d_age, ageRef));
+//..
+// Finally, we will verify that the values are as expected:
+//..
+//  assert("John Smith"            == employee.d_name);
+//  assert(bdet_Date(1985, 06, 24) == employee.d_date);
+//  assert(21                      == employee.d_age);
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>

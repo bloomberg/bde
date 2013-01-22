@@ -14,7 +14,7 @@ namespace {
 
 char getEscapeChar(char value)
     // Return the JSON escape character for the specified 'value' if 'value'
-    // needs to be escaped, return 0 otherwise.
+    // needs to be escaped, and '\0' otherwise.
 {
     switch (value) {
       case '"':                                                 // FALL THROUGH
