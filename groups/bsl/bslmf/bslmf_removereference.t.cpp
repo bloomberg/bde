@@ -17,9 +17,9 @@ using namespace std;
 //                                Overview
 //                                --------
 // The component under test defines two meta-function, 'bsl::remove_reference'
-// and 'bslmf::RemoveReference', both of which removes the reference-ness of
-// the (template parameter) 'TYPE'.  Thus, we need to ensure that the value
-// returned by this meta-functions is correct for each possible category of
+// and 'bslmf::RemoveReference', both of which remove the reference-ness of the
+// (template parameter) 'TYPE'.  Thus, we need to ensure that the values
+// returned by this meta-functions are correct for each possible category of
 // types.
 //
 // ----------------------------------------------------------------------------
@@ -158,9 +158,8 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to remove reference-ness on a set of types.
 //
-// Now, we instantiate the 'bsl::remove_reference' template for each of these
-// types, and use the 'bsl::is_same' meta-function to assert the 'type' static
-// data member of each instantiation:
+// Now, for a set of types, we remove the reference-ness of each type using
+// 'bsl::remove_reference' and verify the result:
 //..
     ASSERT(true  ==
                (bsl::is_same<bsl::remove_reference<int&>::type, int >::value));

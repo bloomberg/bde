@@ -18,8 +18,8 @@ using namespace std;
 //                                --------
 // The object under test is a meta-function, 'bsl::add_rvalue_reference', which
 // transform a template parameter 'TYPE' to its rvalue reference type.  Thus,
-// we need to ensure that the value returned by this meta-functions is correct
-// for each possible category of types.
+// we need to ensure that the values returned by this meta-functions are
+// correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -205,9 +205,8 @@ int main(int argc, char *argv[])
 // Suppose that we want to transform a couple of types to rvalue reference
 // types.
 //
-// Now, we instantiate the 'bsl::add_rvalue_reference' template for these
-// types, and use the 'bsl::is_same' meta-function to assert the 'type' static
-// data member of each instantiation:
+// Now, for a set of types, we transform each type to the corresponding rvalue
+// reference of that type using 'bsl::remove_reference' and verify the result:
 //..
   #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     ASSERT(true  ==
