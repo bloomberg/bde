@@ -6,8 +6,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
-#include <bslmf_issame.h>
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 
@@ -140,7 +140,7 @@ void aSsErT(bool b, const char *s, int i)
 // defaults to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int',
 // a specialization of 'bsl::hash' is already defined:
 
-template <typename TYPE, typename HASHER = bsl::hash<TYPE> >
+template <class TYPE, class HASHER = bsl::hash<TYPE> >
 class HashCrossReference {
     // This table leverages a hash table to provide a fast lookup of an
     // external, non-owned, array of values of configurable type.
@@ -654,7 +654,7 @@ int main(int argc, char *argv[])
         //: 3
         //
         // Testing:
-        //   operator()(const char*, const char *) const
+        //   operator()(const T&) const
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTION CALL OPERATOR"
@@ -691,6 +691,22 @@ int main(int argc, char *argv[])
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+        // special test for hash<const char *>
+        const char STRING_1[] = "Hello World";
+        const char STRING_2[] = "Hello World";
+
+        const char *C_STRING_1 = STRING_1;
+        const char *C_STRING_2 = STRING_2;
+        ASSERT(C_STRING_1 != C_STRING_2);
+
+        const ::bsl::hash<const char *> C_STRING_HASH =
+                                                   ::bsl::hash<const char *>();
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
+        ASSERT(C_STRING_HASH(C_STRING_1) == C_STRING_HASH(C_STRING_2));
+#else
+        ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
+#endif        
       } break;
       case 2: {
         // --------------------------------------------------------------------

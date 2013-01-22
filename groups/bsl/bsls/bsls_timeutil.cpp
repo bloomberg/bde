@@ -21,8 +21,10 @@ BSLS_IDENT("$Id$ $CSID$")
     #error "Don't know how to get nanosecond time for this platform"
 #endif
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
     #include <sys/time.h>  // gethrtime()
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+    #include <sys/time.h>  // gettimeofday()
 #endif
 
 namespace BloombergLP {
@@ -74,7 +76,7 @@ void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
                                         clock_t *userTimer)
 {
     struct tms processTimes;
-    if (-1 == ::times(&processTimes)) {
+    if (static_cast<clock_t>(-1) == ::times(&processTimes)) {
         *systemTimer = 0;
         *userTimer   = 0;
         return;                                                       // RETURN
@@ -393,12 +395,12 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
 
         const bsls::Types::Int64 high32Bits =
             static_cast<bsls::Types::Int64>(rawTime >> 32);
-        const bsls::Types::Int64 low32Bits  =
+        const bsls::Types::Uint64 low32Bits  =
             static_cast<bsls::Types::Uint64> (rawTime & LOW_MASK);
 
         return high32Bits * highPartDivisionFactor +
-             ((high32Bits * highPartRemainderFactor + low32Bits * G)
-                                                  / timerFrequency);  // RETURN
+              (high32Bits * highPartRemainderFactor) / timerFrequency +
+              (low32Bits * G) / timerFrequency;                       // RETURN
 
         // Note that this code runs as fast as the original implementation.  It
         // works for counters representing time values up to 292 years (the

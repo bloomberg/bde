@@ -1,6 +1,8 @@
 // baea_serializableobjectproxy.cpp                                   -*-C++-*-
 #include <baea_serializableobjectproxy.h>
 
+#include <bdeat_formattingmode.h>
+
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baea_serializableobjectproxy_cpp,"$Id$ $CSID$")
 
@@ -36,6 +38,10 @@ bool areEqual(const char* string1, int length1,
 // will still pass in a 'baea_SerializableObjectProxy_NullableAdapter'.  This
 // will break compilation, which is why an overload for 'bdef_Function' is
 // necessary.
+
+                     // ----------------------------------
+                     // class baea_SerializableObjectProxy
+                     // ----------------------------------
 
 // PRIVATE CLASS METHODS
 int baea_SerializableObjectProxy::manipulateContainedElement(
@@ -82,6 +88,9 @@ void baea_SerializableObjectProxy::loadArrayElementDecodeProxy(
     BSLS_ASSERT(d_objectInfo.is<ArrayDecodeInfo>());
 
     const ArrayDecodeInfo& info = d_objectInfo.the<ArrayDecodeInfo>();
+
+    BSLS_ASSERT_SAFE(0 <= index && index <= info.d_length);
+
     void* address = (char*)info.d_begin + info.d_elementSize * index;
     info.d_loader(elementProxy, address);
 }
@@ -96,7 +105,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
     for(int i = 0; i < info.d_numAttributes; ++i) {
         if (info.d_attributeInfo_p[i].id() == elementId) {
-            info.d_loader(proxy, *this, elementId);
+            info.d_elementLoader(proxy, *this, elementId);
             *attrInfo = info.d_attributeInfo_p + i;
             return 0;                                                 // RETURN
         }
@@ -114,6 +123,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
 
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
 
+    const bdeat_AttributeInfo *untaggedAttrInfo = 0;
     for(int i = 0; i < info.d_numAttributes; ++i) {
         *attrInfo = info.d_attributeInfo_p + i;
 
@@ -121,11 +131,48 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
                      elementNameLength,
                      (*attrInfo)->name(),
                      (*attrInfo)->nameLength())) {
-            info.d_loader(proxy, *this, (*attrInfo)->id());
+            info.d_elementLoader(proxy, *this, (*attrInfo)->id());
             return 0;                                                 // RETURN
+        }
+        if ((*attrInfo)->formattingMode()
+            & bdeat_FormattingMode::BDEAT_UNTAGGED) {
+            untaggedAttrInfo = *attrInfo;
+
+            // If this UNTAGGED element is a Choice, it may contain 
+            // a selection having 'elementName' (this is called an 
+            // "anonymous Choice").  Testing whether this is the case
+            // requires populating 'proxy' to represent this element.  
+
+            info.d_elementLoader(proxy, *this, untaggedAttrInfo->id());
+            if (proxy->d_objectInfo.is<ChoiceDecodeInfo>() &&
+                proxy->choiceHasSelection(elementName, elementNameLength)) {
+                // This is indeed an anonymous Choice having a selection 
+                // with 'elementName', and 'proxy' is already populated to 
+                // represent it.  
+                *attrInfo = untaggedAttrInfo;
+                return 0;                                             // RETURN
+            }
+        }
+    }
+
+    if (untaggedAttrInfo) {
+        // The preceding loop finds any UNTAGGED ("anonymous") Choice element
+        // having a selection named 'elementName'.  If there is no such Choice,
+        // and no ordinary element having the name, but there is an UNTAGGED
+        // Nullable element, it might hold an anonymous Choice with the 
+        // necessary selection.  It's not possible to test this, so 
+        // optimistically give the UNTAGGED Nullable element back to the 
+        // decoder to attempt to decode into it.  
+
+        info.d_elementLoader(proxy, *this, untaggedAttrInfo->id());
+
+        if (proxy->d_objectInfo.is<NullableDecodeInfo>()) {
+            *attrInfo = untaggedAttrInfo;
+            return 0;                                                // RETURN
         }
     }
     return -1;
+
 }
 
 // MANIPULATORS
@@ -197,11 +244,22 @@ int baea_SerializableObjectProxy::enumFromString(const char *value, int length)
                                                              length);
 }
 
+void baea_SerializableObjectProxy::makeNull()
+{
+    BSLS_ASSERT(d_objectInfo.is<NullableDecodeInfo>());
+    const NullableDecodeInfo& info = d_objectInfo.the<NullableDecodeInfo>();
+    if (0 != info.d_fetcher(d_object_p)) {
+        info.d_nullToggler(d_object_p);
+    }
+}
+
 void baea_SerializableObjectProxy::makeValue()
 {
     BSLS_ASSERT(d_objectInfo.is<NullableDecodeInfo>());
-
-    d_objectInfo.the<NullableDecodeInfo>().d_valueMaker(d_object_p);
+    const NullableDecodeInfo& info = d_objectInfo.the<NullableDecodeInfo>();
+    if (0 == info.d_fetcher(d_object_p)) {
+        info.d_nullToggler(d_object_p);
+    }
 }
 
 // 'load' implementations
@@ -441,12 +499,12 @@ void baea_SerializableObjectProxy::loadNullableForEncoding(
 void baea_SerializableObjectProxy::loadNullableForDecoding(
             void                                                 *object,
             baea_SerializableObjectProxyFunctions::Loader         loader,
-            baea_SerializableObjectProxyFunctions::ValueMaker     valueMaker,
+            baea_SerializableObjectProxyFunctions::NullToggler    nullToggler,
             baea_SerializableObjectProxyFunctions::ObjectFetcher  valueFetcher)
 {
     d_object_p = object;
     d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
-    NullableDecodeInfo info = { valueMaker, valueFetcher, loader };
+    NullableDecodeInfo info = { nullToggler, valueFetcher, loader };
     new (d_objectInfoArena.buffer()) ObjectInfo(info);
 }
 
@@ -596,12 +654,50 @@ bool baea_SerializableObjectProxy::sequenceHasAttribute(
     BSLS_ASSERT(d_objectInfo.is<SequenceInfo>());
 
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
+    int untaggedAttributeId = -1;
     for(int i = 0; i < info.d_numAttributes; ++i) {
         if (areEqual(name, nameLength,
                      info.d_attributeInfo_p[i].name(),
                      info.d_attributeInfo_p[i].nameLength()))
         {
             return true;                                              // RETURN
+        }
+        if (info.d_attributeInfo_p[i].formattingMode()
+            & bdeat_FormattingMode::BDEAT_UNTAGGED) {
+
+            untaggedAttributeId = info.d_attributeInfo_p[i].id();
+
+            baea_SerializableObjectProxy untaggedInfo;
+
+            // If this UNTAGGED element is a Choice, it may contain 
+            // a selection having 'elementName' (this is called an 
+            // "anonymous Choice").  Testing whether this is the case
+            // requires populating a temporary proxy object to represent 
+            // this element.  
+
+            info.d_elementLoader(&untaggedInfo, *this, untaggedAttributeId);
+            if (untaggedInfo.d_objectInfo.is<ChoiceDecodeInfo>() &&
+                untaggedInfo.choiceHasSelection(name, nameLength)) {
+                return true; // RETURN
+            }
+        }
+    }
+
+    if (0 <= untaggedAttributeId) {
+
+        // The preceding loop finds any UNTAGGED ("anonymous") Choice element
+        // having a selection named 'elementName'.  If there is no such Choice,
+        // and no ordinary element having the name, but there is an UNTAGGED
+        // Nullable element, it might hold an anonymous Choice with the 
+        // necessary selection.  It's not possible to test this, so 
+        // optimistically answer that this Sequence contains the element 
+        // because the element might be inside a Choice in this Nullable.  
+
+        baea_SerializableObjectProxy untaggedInfo;
+        info.d_elementLoader(&untaggedInfo, *this, untaggedAttributeId);
+
+        if (untaggedInfo.d_objectInfo.is<NullableDecodeInfo>()) {
+            return true;                                             // RETURN
         }
     }
     return false;

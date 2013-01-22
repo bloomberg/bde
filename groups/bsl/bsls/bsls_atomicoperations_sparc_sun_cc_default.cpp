@@ -5,6 +5,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_annotation.h>
+
 #if (defined(BSLS_PLATFORM_CPU_SPARC_V9)                                     \
                                      || defined(BSLS_PLATFORM_CPU_SPARC_32)) \
     && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
@@ -18,9 +20,13 @@ namespace BloombergLP {
 // the SPARC V9 manual for details.
 
 static
+void bsls_AtomicOperations_Sparc_AssemblyContainer() BSLS_ANNOTATION_USED;
+    // Never called, just holds aseembly code.
+
 void bsls_AtomicOperations_Sparc_AssemblyContainer()
 {
     // int bsls_AtomicOperations_Sparc_GetInt(const volatile int*);
+
     asm(".global bsls_AtomicOperations_Sparc_GetInt\n"
         ".type bsls_AtomicOperations_Sparc_GetInt,#function\n"
         "bsls_AtomicOperations_Sparc_GetInt:\n"
@@ -29,6 +35,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "ld [%o0], %o0");
 
     // void bsls_AtomicOperations_Sparc_SetInt(volatile int*, int);
+
     asm(".global bsls_AtomicOperations_Sparc_SetInt\n"
         ".type bsls_AtomicOperations_Sparc_SetInt,#function\n"
         "bsls_AtomicOperations_Sparc_SetInt:\n"
@@ -37,6 +44,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "membar #StoreLoad");
 
     // int bsls_AtomicOperations_Sparc_SwapInt(volatile int*, int);
+
     asm(".global bsls_AtomicOperations_Sparc_SwapInt\n"
         ".type bsls_AtomicOperations_Sparc_SwapInt,#function\n"
         "bsls_AtomicOperations_Sparc_SwapInt:\n"
@@ -52,6 +60,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "membar #StoreLoad");
 
     // int bsls_AtomicOperations_Sparc_SwapIntAcqRel(volatile int*, int);
+
     asm(".global bsls_AtomicOperations_Sparc_SwapIntAcqRel\n"
         ".type bsls_AtomicOperations_Sparc_SwapIntAcqRel,#function\n"
         "bsls_AtomicOperations_Sparc_SwapIntAcqRel:\n"
@@ -66,6 +75,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "mov %o3, %o0");
 
     // int bsls_AtomicOperations_Sparc_TestAndSwapInt(volatile int*, int, int);
+
     asm(".global bsls_AtomicOperations_Sparc_TestAndSwapInt\n"
         ".type bsls_AtomicOperations_Sparc_TestAndSwapInt,#function\n"
         "bsls_AtomicOperations_Sparc_TestAndSwapInt:\n"
@@ -76,6 +86,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
 
     // int bsls_AtomicOperations_Sparc_TestAndSwapIntAcqRel(
     //                                                volatile int*, int, int);
+
     asm(".global bsls_AtomicOperations_Sparc_TestAndSwapIntAcqRel\n"
         ".type bsls_AtomicOperations_Sparc_TestAndSwapIntAcqRel,#function\n"
         "bsls_AtomicOperations_Sparc_TestAndSwapIntAcqRel:\n"
@@ -84,6 +95,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "mov %o2, %o0");
 
     // int bsls_AtomicOperations_Sparc_AddInt(volatile int*, int);
+
     asm(".global bsls_AtomicOperations_Sparc_AddInt\n"
         ".type bsls_AtomicOperations_Sparc_AddInt,#function\n"
         "bsls_AtomicOperations_Sparc_AddInt:\n"
@@ -99,6 +111,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "membar #StoreLoad");
 
     // int bsls_AtomicOperations_Sparc_AddIntRelaxed(volatile int*, int);
+
     asm(".global bsls_AtomicOperations_Sparc_AddIntRelaxed\n"
         ".type bsls_AtomicOperations_Sparc_AddIntRelaxed,#function\n"
         "bsls_AtomicOperations_Sparc_AddIntRelaxed:\n"

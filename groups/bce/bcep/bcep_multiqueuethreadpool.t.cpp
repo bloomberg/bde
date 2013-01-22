@@ -167,6 +167,9 @@ static bcemt_Mutex coutMutex;
 // windows tends to sleep slightly less time than requested
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     static const double jumpTheGun = 0.0002;
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+// and mac os appears to be even more aggressive
+    static const double jumpTheGun = 0.001;
 #else
     static const double jumpTheGun = 0.0;
 #endif

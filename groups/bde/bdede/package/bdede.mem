@@ -1,5 +1,6 @@
 bdede_base64decoder
 bdede_base64encoder
+bdede_charconvertstatus
 bdede_charconvertucs2
 bdede_charconvertutf16
 bdede_crc32

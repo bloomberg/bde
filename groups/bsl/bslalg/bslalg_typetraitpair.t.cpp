@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
                             "\n==============");
 
         Obj mX;
+        (void) mX;
 
       } break;
 

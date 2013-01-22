@@ -282,7 +282,6 @@ int main(int argc, char *argv[])
         //   review.  However, it is important to record the limits of this
         //   component in corner cases, so we add tests for known issues as
         //   they arise.
-        // Concerns:
         //
         // Plan:
         //   Ensure that types using (possibly a combination of) virtual

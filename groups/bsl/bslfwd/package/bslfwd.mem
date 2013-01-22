@@ -39,7 +39,6 @@ bslfwd_bsls_assertfailurehandlerguard
 bslfwd_bsls_asserttest
 bslfwd_bsls_asserttestexception
 bslfwd_bsls_blockgrowth
-bslfwd_bsls_no64bitbuildtarget
 bslfwd_bsls_noexcbuildtarget
 bslfwd_bsls_nomtbuildtarget
 bslfwd_bsls_performancehint
@@ -48,7 +47,6 @@ bslfwd_bsls_stopwatch
 bslfwd_bsls_timeutil
 bslfwd_bsls_types
 bslfwd_bsls_util
-bslfwd_bsls_yes64bitbuildtarget
 bslfwd_bsls_yesexcbuildtarget
 bslfwd_bsls_yesmtbuildtarget
 bslfwd_bslscm_version

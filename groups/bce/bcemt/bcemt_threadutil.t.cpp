@@ -11,6 +11,7 @@
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -75,6 +76,16 @@ typedef bcemt_ThreadUtil    Obj;
 
 int verbose;
 int veryVerbose;
+int veryVeryVerbose;
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr)      BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr)      BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_FAIL_RAW(expr)  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
+#define ASSERT_PASS_RAW(expr)  BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
 
 //=============================================================================
 //                  GLOBAL FUNCTIONS FOR TESTING
@@ -175,21 +186,27 @@ namespace MULTIPRIORITY_USAGE_TEST_CASE {
 struct MostUrgentThreadFunctor {
     void operator()() const
     {
-        bsl::printf("Most urgent\n");
+        if (verbose) {
+            bsl::printf("Most urgent\n");
+        }
     }
 };
 
 struct FairlyUrgentThreadFunctor {
     void operator()() const
     {
-        bsl::printf("Fairly urgent\n");
+        if (verbose) {
+            bsl::printf("Fairly urgent\n");
+        }
     }
 };
 
 struct LeastUrgentThreadFunctor {
     void operator()() const
     {
-        bsl::printf("Least urgent\n");
+        if (verbose) {
+            bsl::printf("Least urgent\n");
+        }
     }
 };
 
@@ -654,10 +671,109 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING: sleepUntil
+        //
+        // Note that this is a system-call wrapper, and this test is intended
+        // to ensure the system call is correctly called by the 
+        // 'bcem_threadutil'.  This test specifically does *not* test the
+        // accuracy of the underlying system call.  Also note that
+        // due to the nature of the system call, testing values at the upper
+        // bound of the valid range is not reasonable.  Test case -5, has been
+        // created and run by hand to verify (slightly) longer time periods.
+        //
+        // Concerns:
+        //: 1 'sleepUntil' suspends the current thread until the indicated
+        //:    time in the future (within some reasonable limit).
+        //: 
+        //: 2 'sleepUntil' does not suspend the current thread (or suspends it
+        //:    very briefly), for the current time, or times in the past.
+        //:
+        //: 3  QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Call 'sleepUntil' for a series of values less than a second in
+        //:   the future, and verify that system time after sleeping is within
+        //:   a reasonable range of the expected target time. (C-1)
+        //:
+        //: 2 Call 'sleepUntil' for a value in the past, and verify that
+        //:   the function returns to the caller in a reasonably small amount
+        //:   of time. (C-2)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid time-interval values. (using the
+        //:   'BSLS_ASSERTTEST_*' macros (C-3)
+        //
+        // Testing:
+        //   void sleepUntil(const bdet_TimeInterval& );        
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl 
+                 << "CLASS METHOD 'sleepUntil'" << endl
+                 << "=========================" << endl;
+        }
+
+        if (veryVerbose) {
+            cout << "sleepUntil for times in the future" << endl;
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            if (veryVeryVerbose) {
+                cout << "sleepUntil for " << i * 100 << "ms" << endl;
+            }
+
+            bdet_TimeInterval expectedTime = bdetu_SystemTime::now();
+            
+            expectedTime.addMilliseconds(i * 100);
+            
+            Obj::sleepUntil(expectedTime);
+            
+            bdet_TimeInterval actualTime = bdetu_SystemTime::now();
+            
+            ASSERT(actualTime >= expectedTime);
+            LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                        (actualTime - expectedTime).totalMilliseconds() < 50);
+        }
+
+        if (veryVerbose) {
+            cout << "sleepUntil for times in the past" << endl;
+        }
+        {
+            bdet_TimeInterval expectedTime = bdetu_SystemTime::now();
+                      
+            Obj::sleepUntil(expectedTime - bdet_TimeInterval(1));
+            
+            bdet_TimeInterval actualTime = bdetu_SystemTime::now();
+            
+            ASSERT(actualTime >= expectedTime);
+            LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                        (actualTime - expectedTime).totalMilliseconds() < 50);
+            
+        }
+        if (verbose) { 
+            cout << "Negative Testing." << endl;
+        }
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            // Note that we must use 'RAW' handlers as the assertions are
+            // generated by implementation components.
+
+            ASSERT_PASS(Obj::sleepUntil(bdet_TimeInterval(0)));
+            ASSERT_FAIL_RAW(Obj::sleepUntil(bdet_TimeInterval(-1, 0)));
+            ASSERT_FAIL_RAW(Obj::sleepUntil(bdet_TimeInterval(0, -1)));
+            ASSERT_FAIL_RAW(Obj::sleepUntil(bdet_TimeInterval(253402300800LL,
+                                                              0)));
+        }
+    }  break;
       case 11: {
         // --------------------------------------------------------------------
         // Usgae Example 3: MULTIPLE PRIORITY THREADS
@@ -1442,6 +1558,57 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         rc = bcemt_ThreadUtil::join(handle);
       }  break;
+      case -5: {
+        // --------------------------------------------------------------------
+        // TESTING: sleepUntil (Longer duration)
+        //
+        // Note that this test case is intended to be run manually, and is an 
+        // extension to test case 2 that tests for longer durations than should
+        // be run in a typical build cycle.
+        //
+        // Concerns:
+        //: 1 'sleepUntil' suspends the current thread until the indicated
+        //:    time in the future (within some reasonable limit).  For
+        //:    times > 1s in the future.
+        //
+        // Plan:
+        //: 1 Call 'sleepUntil' for a series of values less than a second in
+        //:   the future, and verify that system time after sleeping is within
+        //:   a reasonable range of the expected target time. (C-1)
+        //
+        // Testing:
+        //   void sleepUntil(const bdet_TimeInterval& );        
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl 
+                 << "CLASS METHOD 'sleepUntil'" << endl
+                 << "=========================" << endl;
+        }
+
+        if (veryVerbose) {
+            cout << "sleepUntil for times in the future" << endl;
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            if (veryVeryVerbose) {
+                cout << "sleepUntil for " << i * 30 << "s" << endl;
+            }
+
+            bdet_TimeInterval expectedTime = bdetu_SystemTime::now();
+            
+            expectedTime.addSeconds(i * 30);
+            
+            Obj::sleepUntil(expectedTime);
+            
+            bdet_TimeInterval actualTime = bdetu_SystemTime::now();
+            
+            ASSERT(actualTime >= expectedTime);
+            LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                        (actualTime - expectedTime).totalMilliseconds() < 50);
+        }
+        
+    }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

@@ -94,10 +94,10 @@ dbg_print(const bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
 {
     if (iter.blockPtr() && iter.valuePtr()) {
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-        printf("[0x%06p,0x%016p]", iter.blockPtr(), iter.valuePtr());
+        printf("[0x%016p,0x%016p]", iter.blockPtr(), iter.valuePtr());
         fflush(stdout);
 #else
-        printf("[0x%08x,0x%08x]", iter.blockPtr(), iter.valuePtr());
+        printf("[0x%08p,0x%08p]", iter.blockPtr(), iter.valuePtr());
         fflush(stdout);
 #endif
     }
@@ -113,7 +113,7 @@ template <typename T>
 void dbg_print(const char* s, const T& val, const char* nl)
 {
     printf("%s", s); dbg_print(val);
-    printf(nl);
+    printf("%s", nl);
     fflush(stdout);
 }
 

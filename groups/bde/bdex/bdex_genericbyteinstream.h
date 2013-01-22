@@ -897,7 +897,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt64(bsls_Types::Int64& variable)
 {
     typedef union {
         bsls_Types::Int64 d_variable;
-        char              d_bytes[1];
+        char              d_bytes[sizeof(bsls_Types::Int64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -937,7 +937,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt56(bsls_Types::Int64& variable)
 {
     typedef union {
         bsls_Types::Int64 d_variable;
-        char              d_bytes[1];
+        char              d_bytes[sizeof(bsls_Types::Int64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -979,7 +979,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint56(bsls_Types::Uint64& variable)
 {
     typedef union {
         bsls_Types::Uint64 d_variable;
-        char               d_bytes[1];
+        char               d_bytes[sizeof(bsls_Types::Uint64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1021,7 +1021,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt48(bsls_Types::Int64& variable)
 {
     typedef union {
         bsls_Types::Int64 d_variable;
-        char              d_bytes[1];
+        char              d_bytes[sizeof(bsls_Types::Int64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1062,7 +1062,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint48(bsls_Types::Uint64& variable)
 {
     typedef union {
         bsls_Types::Uint64 d_variable;
-        char               d_bytes[1];
+        char               d_bytes[sizeof(bsls_Types::Uint64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1103,7 +1103,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt40(bsls_Types::Int64& variable)
 {
     typedef union {
         bsls_Types::Int64 d_variable;
-        char              d_bytes[1];
+        char              d_bytes[sizeof(bsls_Types::Int64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1143,7 +1143,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint40(bsls_Types::Uint64& variable)
 {
     typedef union {
         bsls_Types::Uint64 d_variable;
-        char               d_bytes[1];
+        char               d_bytes[sizeof(bsls_Types::Uint64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1181,7 +1181,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt32(int& variable)
 {
     typedef union {
         int  d_variable;
-        char d_bytes[1];
+        char d_bytes[sizeof(int)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1211,7 +1211,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint32(unsigned int& variable)
 {
     typedef union {
         int  d_variable;
-        char d_bytes[1];
+        char d_bytes[sizeof(int)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1243,7 +1243,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt24(int& variable)
 {
     typedef union {
         int  d_variable;
-        char d_bytes[1];
+        char d_bytes[sizeof(int)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1281,7 +1281,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint24(unsigned int& variable)
 {
     typedef union {
         int  d_variable;
-        char d_bytes[1];
+        char d_bytes[sizeof(int)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1317,7 +1317,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt16(short& variable)
 {
     typedef union {
         short d_variable;
-        char  d_bytes[1];
+        char  d_bytes[sizeof(short)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1347,7 +1347,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint16(unsigned short& variable)
 {
     typedef union {
         short d_variable;
-        char  d_bytes[1];
+        char  d_bytes[sizeof(short)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1377,7 +1377,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt8(char& variable)
 {
     typedef union {
         short d_variable;
-        char  d_bytes[1];
+        char  d_bytes[sizeof(short)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1426,7 +1426,7 @@ bdex_GenericByteInStream<StreamBuf>::getFloat64(double& variable)
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
         bsls_Types::Uint64 d_longlong;
 #endif
-        char               d_bytes[1];
+        char               d_bytes[sizeof(double)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1459,7 +1459,7 @@ bdex_GenericByteInStream<StreamBuf>::getFloat32(float& variable)
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
         int   d_int;
 #endif
-        char  d_bytes[1];
+        char  d_bytes[sizeof(float)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {

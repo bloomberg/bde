@@ -232,52 +232,52 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
 // my_shortarray.t.cpp
 
 #ifdef BDE_BUILD_TARGET_EXC
-#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {                        \
-    {                                                                     \
-        static int firstTime = 1;                                         \
-        if (veryVerbose && firstTime) cout <<                             \
-            "### BSLMA EXCEPTION TEST -- (ENABLED) --" << endl;           \
-        firstTime = 0;                                                    \
-    }                                                                     \
-    if (veryVeryVerbose) cout <<                                          \
-        "### Begin bslma exception test." << endl;                        \
-    int bslmaExceptionCounter = 0;                                        \
-    static int bslmaExceptionLimit = 100;                                 \
-    testAllocator.setAllocationLimit(bslmaExceptionCounter);              \
-    do {                                                                  \
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {                          \
+    {                                                                       \
+        static int firstTime = 1;                                           \
+        if (veryVerbose && firstTime) cout <<                               \
+            "### BSLMA EXCEPTION TEST -- (ENABLED) --" << endl;             \
+        firstTime = 0;                                                      \
+    }                                                                       \
+    if (veryVeryVerbose) cout <<                                            \
+        "### Begin bslma exception test." << endl;                          \
+    int bslmaExceptionCounter = 0;                                          \
+    static int bslmaExceptionLimit = 100;                                   \
+    testAllocator.setAllocationLimit(bslmaExceptionCounter);                \
+    do {                                                                    \
         try {
 
-#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                            \
-        } catch (bslma::TestAllocatorException& e) {                      \
-            if (veryVerbose && bslmaExceptionLimit || veryVeryVerbose) {  \
-                --bslmaExceptionLimit;                                    \
-                cout << "(*** " << bslmaExceptionCounter << ')';          \
-                if (veryVeryVerbose) { cout << " BEDMA_EXCEPTION: "       \
-                    << "alloc limit = " << bslmaExceptionCounter << ", "  \
-                    << "last alloc size = " << e.numBytes();              \
-                }                                                         \
-                else if (0 == bslmaExceptionLimit) {                      \
-                    cout << " [ Note: 'bslmaExceptionLimit' reached. ]";  \
-                }                                                         \
-                cout << endl;                                             \
-            }                                                             \
-            testAllocator.setAllocationLimit(++bslmaExceptionCounter);    \
-            continue;                                                     \
-        }                                                                 \
-        testAllocator.setAllocationLimit(-1);                             \
-        break;                                                            \
-    } while (1);                                                          \
-    if (veryVeryVerbose) cout <<                                          \
-        "### End bslma exception test." << endl;                          \
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                              \
+        } catch (bslma::TestAllocatorException& e) {                        \
+            if ((veryVerbose && bslmaExceptionLimit) || veryVeryVerbose) {  \
+                --bslmaExceptionLimit;                                      \
+                cout << "(*** " << bslmaExceptionCounter << ')';            \
+                if (veryVeryVerbose) { cout << " BEDMA_EXCEPTION: "         \
+                    << "alloc limit = " << bslmaExceptionCounter << ", "    \
+                    << "last alloc size = " << e.numBytes();                \
+                }                                                           \
+                else if (0 == bslmaExceptionLimit) {                        \
+                    cout << " [ Note: 'bslmaExceptionLimit' reached. ]";    \
+                }                                                           \
+                cout << endl;                                               \
+            }                                                               \
+            testAllocator.setAllocationLimit(++bslmaExceptionCounter);      \
+            continue;                                                       \
+        }                                                                   \
+        testAllocator.setAllocationLimit(-1);                               \
+        break;                                                              \
+    } while (1);                                                            \
+    if (veryVeryVerbose) cout <<                                            \
+        "### End bslma exception test." << endl;                            \
 }
 #else
-#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN                          \
-{                                                                         \
-    static int firstTime = 1;                                             \
-    if (verbose && firstTime) { cout <<                                   \
-        "### BSLMA EXCEPTION TEST -- (NOT ENABLED) --" << endl;           \
-        firstTime = 0;                                                    \
-    }                                                                     \
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN                            \
+{                                                                           \
+    static int firstTime = 1;                                               \
+    if (verbose && firstTime) { cout <<                                     \
+        "### BSLMA EXCEPTION TEST -- (NOT ENABLED) --" << endl;             \
+        firstTime = 0;                                                      \
+    }                                                                       \
 }
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif

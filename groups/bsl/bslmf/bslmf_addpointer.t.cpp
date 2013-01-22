@@ -19,13 +19,13 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-functions, 'bsl::add_pointer', that
+// The component under test defines a meta-function, 'bsl::add_pointer', that
 // transforms a type to a pointer type to that type.  We need to ensure that
-// the values returned by the meta-function is correct for each possible
+// the values returned by the meta-function are correct for each possible
 // category of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
+// PUBLIC TYPE
 // [ 1] bsl::add_pointer::type
 //
 // ----------------------------------------------------------------------------
@@ -64,11 +64,15 @@ void aSsErT(bool b, const char *s, int i)
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
 namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for a template parameter..
+   // argument for a template parameter.
 };
 
 }  // close unnamed namespace
@@ -83,8 +87,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void) verbose;
-    (void) veryVerbose;
+    (void)veryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -117,18 +120,18 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to transform a type to a pointer type to that type.
 //
-// First, we create two 'typedef's -- a pointer type ('MyPtrType')
-// and the type pointed to by the pointer type ('MyType'):
+// First, we create two 'typedef's -- a pointer type ('MyPtrType') and the type
+// pointed to by the pointer type ('MyType'):
 //..
-        typedef int   MyType;
-        typedef int * MyPtrType;
+    typedef int   MyType;
+    typedef int * MyPtrType;
 //..
 // Now, we transform 'MyType' to a pointer type to 'MyType' using
 // 'bsl::add_pointer' and verify that the resulting type is the same as
 // 'MyPtrType':
 //..
-        ASSERT((bsl::is_same<bsl::add_pointer<MyType>::type,
-                             MyPtrType>::value));
+    ASSERT((bsl::is_same<bsl::add_pointer<MyType>::type,
+                         MyPtrType>::value));
 //..
 
       } break;
@@ -150,11 +153,11 @@ int main(int argc, char *argv[])
         //   each concern.
         //
         // Testing:
-        //   bsl::remove_pointer::type
+        //   bsl::add_pointer::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbsl::add_pointer::type\n"
-                            "\n======================\n");
+        if (verbose) printf("\n'bsl::add_pointer::type'\n"
+                            "\n========================\n");
 
         // C-1
         ASSERT((is_same<add_pointer<int>::type, int *>::value));
@@ -185,11 +188,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

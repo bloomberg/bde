@@ -1,6 +1,8 @@
 // bslstl_unorderedmultiset.cpp                                       -*-C++-*-
 #include <bslstl_unorderedmultiset.h>
 
+#include <bslstl_iterator.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
