@@ -123,6 +123,10 @@ class bdet_DatetimeTz;
                             // ========================
 
 struct baejsn_ParserUtil {
+    //This class provides utility functions for decoding data in the JSON
+    //format into a 'bdeat' Simple type.  The primary method is 'getValue',
+    //which decodes into a specified object and is overloaded for all 'bdeat'
+    //Simple types.
 
   private:
     // PRIVATE CLASS METHODS
@@ -159,20 +163,36 @@ struct baejsn_ParserUtil {
     static int getDateAndTimeValue(bsl::streambuf *streamBuf,
                                    TYPE           *value,
                                    int             maxLength);
+        // Load into the specified 'value' the date or time value available on
+        // the specified 'streamBuf' as a string in the ISO 8601 format and
+        // having a maximum data length of the specified 'maxLength'.  Return 0
+        // on success and a non-zero value otherwise.  Note that an error is
+        // returned if 'data.length() > maxLength'.
+        //
         // DEPRECATED: Use the 'getDateAndTimeValue' overload that takes a
         // 'bslstl::StringRef' as an argument instead.
 
     template <typename TYPE>
     static int getIntegralValue(bsl::streambuf *streamBuf, TYPE *value);
+        // Load into the specified 'value' the integer value available in the
+        // specified 'streamBuf'.  Return 0 on success and a non-zero value
+        // otherwise.
+        //
         // DEPRECATED: Use the 'getIntegralValue' overload that takes a
         // 'bslstl::StringRef' as an argument instead.
 
     static int getUint64(bsl::streambuf      *streamBuf,
                          bsls::Types::Uint64 *value);
+        // Load into the specified 'value' the value available in the specified
+        // 'streamBuf'.  Return 0 on success and a non-zero value otherwise.
+        //
         // DEPRECATED: Use the 'getUint64' overload that takes a
         // 'bslstl::StringRef' as an argument instead.
 
     static int getDouble(bsl::streambuf *streamBuf, double *value);
+        // Load into the specified 'value' the value available in the specified
+        // 'streamBuf'.  Return 0 on success and a non-zero value otherwise.
+        //
         // DEPRECATED: Use the 'getValue' overload that takes a 'double' as an
         // argument instead.
 

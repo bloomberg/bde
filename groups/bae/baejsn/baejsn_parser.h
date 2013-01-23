@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  baejsn_Parser: parser for parsing JSON data from a 'streambuf'
 //
-//@SEE_ALSO: baejsn_decoder
+//@SEE_ALSO: baejsn_decoder, baejsn_parserutil
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
@@ -228,23 +228,26 @@ class baejsn_Parser {
                                                                   // type
 
     // PRIVATE MANIPULATORS
+    int extractStringValue();
+        // Extract the string value starting at the current data cursor and
+        // update the value begin and end pointers to refer to the begin and
+        // end of the extracted string.  Return 0 on success and a non-zero
+        // value otherwise.
+
     int reloadStringBuffer();
         // Reload the string buffer with new data read from the underlying
-        // 'streambuf' overwriting the current buffer.  Return 0 on success
-        // and a non-zero value otherwise.
+        // 'streambuf' and overwriting the current buffer.  After reading
+        // update the cursor to the new read location.  Return the number of
+        // bytes read from the 'streamBuf'.
 
     int skipWhitespace();
-        // Skip all whitespace and position the cursor onto the first available
-        // non-whitespace character.  Return 0 on success and a non-zero value
-        // otherwise.
+        // Skip all whitespace characters and position the cursor onto the
+        // first non-whitespace character.  Return 0 on success and a non-zero
+        // value otherwise.
 
     int skipNonWhitespaceOrTillToken();
         // Skip all characters until a whitespace or a token character is
         // encountered and position the cursor onto the first such character.
-        // Return 0 on success and a non-zero value otherwise.
-
-    int extractStringValue();
-        // Extract the string value starting at the current data cursor.
         // Return 0 on success and a non-zero value otherwise.
 
   public:
@@ -261,7 +264,7 @@ class baejsn_Parser {
     void reset(bsl::streambuf *streamBuf);
         // Reset this parser to read data from the specified 'streamBuf'.  Note
         // that the reader will not be on a valid node until
-        // 'advanceToNextNode' is called.
+        // 'advanceToNextToken' is called.
 
     int advanceToNextToken();
         // Move to the next token in the data steam.  Return 0 on success and a
@@ -271,11 +274,13 @@ class baejsn_Parser {
 
     // ACCESSORS
     TokenType tokenType() const;
-        // Return the token type of the current node.
+        // Return the token type of the current token.
 
     int value(bslstl::StringRef *data) const;
-        // Load into the specified 'data' the value of the specified token.
-        // Return 0 on success and a non-zero value otherwise.
+        // Load into the specified 'data' the value of the specified token if
+        // the current token's type is 'BAEJSN_ELEMENT_NAME' or
+        // 'BAEJSN_ELEMENT_VALUE' or leave 'data' unmodified otherwise.  Return
+        // 0 on success and a non-zero value otherwise.
 };
 
 // ============================================================================
