@@ -29,8 +29,10 @@ bslalg::HashTableBucket *HashTable_ImpDetails::defaultBucketAddress()
                                                   // Aggregative initialization
                                                   // of a POD should be thread-
                                                   // safe static initialization
+
     // These two tests should not be necessary, but will catch corruption in
     // components that try to write to the shared bucket.
+
     BSLS_ASSERT_SAFE(!s_bucket.first());
     BSLS_ASSERT_SAFE(!s_bucket.last());
 
@@ -81,13 +83,32 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     static const double MAX_AS_DBL = static_cast<double>(MAX_SIZE_T);
 
     struct Impl {
-        static size_t roundToMax(double d) {
+        // This local utility class provides a couple of methods for converting
+        // 'double' values to 'size_t' values, applying different policies in
+        // event of an overflow.  This clarifies the main logic of the function
+        // rather than placing this logic inline a number of times.
+
+        // CLASS METHODS
+        static size_t roundToMax(double d)
+            // Return the integer value corresponding to the specified 'd', or
+            // the highest unsigned value representable by 'size_t' if 'd' is
+            // larger.  The behaviour is undefine unless '0.0 <= d'.
+        {
+            BSLS_ASSERT_SAFE(0.0 <= d);
+
             return d < MAX_AS_DBL
                  ? static_cast<size_t>(d)
                  : MAX_SIZE_T;
         }
 
-        static size_t throwIfOverMax(double d) {
+        static size_t throwIfOverMax(double d)
+            // Throw a 'std::length_error' exception if 'd' is  larger than the
+            // highest unsigned value representable by 'size_t'.  Return the
+            // integer value corresponding to the specified 'd', rounding down.
+            // The behaviour is undefine unless '0.0 <= d'.
+        {
+            BSLS_ASSERT_SAFE(0.0 <= d);
+
             if (d > MAX_AS_DBL) {
                 StdExceptUtil::throwLengthError(
                                            "The number of buckets overflows.");
@@ -104,6 +125,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     // it a pre-condition of the function, as some callers have contextual
     // knowledge that the argument must be non-zero, and so avoid a redundant
     // 'min' call.
+
     size_t result = native_std::max(
                             requestedBuckets,
                             Impl::throwIfOverMax(minElements / maxLoadFactor));

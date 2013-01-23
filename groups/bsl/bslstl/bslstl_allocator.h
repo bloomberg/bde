@@ -162,8 +162,8 @@ BSLS_IDENT("$Id: $")
 //  // CREATORS
 //  template<class T, class ALLOC>
 //  my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(int          length,
-//                                                const ALLOC& alloc)
-//  : d_allocator(alloc), d_length(length)
+//                                                const ALLOC& allocator)
+//  : d_allocator(allocator), d_length(length)
 //  {
 //      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 //
@@ -175,9 +175,9 @@ BSLS_IDENT("$Id: $")
 //
 //  template<class T, class ALLOC>
 //  my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(
-//                                              const my_FixedSizeArray& rhs,
-//                                              const ALLOC&             alloc)
-//  : d_allocator(alloc), d_length(rhs.d_length)
+//                                          const my_FixedSizeArray& rhs,
+//                                          const ALLOC&             allocator)
+//  : d_allocator(allocator), d_length(rhs.d_length)
 //  {
 //      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 //
@@ -463,15 +463,16 @@ class allocator {
         //  this->mechanism() == bslma::Default::defaultAllocator();
         //..
 
-    allocator(BloombergLP::bslma::Allocator *mechanism);
+    allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
         // Convert a 'bslma::Allocator' pointer to a 'allocator' object which
         // forwards allocation calls to the object pointed to by the specified
         // 'mechanism'.  If 'mechanism' is 0, then the currently installed
         // default allocator is used instead.  Postcondition:
         // '0 == mechanism || this->mechanism() == mechanism'.
 
-    allocator(const allocator& rhs);
-        // Copy construct a proxy object using the same mechanism as rhs.
+    allocator(const allocator& original);
+        // Create a proxy object using the same mechanism as the specified
+        // 'original'.
         // Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
     template <class U>
@@ -568,15 +569,16 @@ class allocator<void> {
         // Construct a proxy object which will forward allocation calls to the
         // object pointed to by 'bslma::Default::defaultAllocator()'.
 
-    allocator(BloombergLP::bslma::Allocator *mechanism);
+    allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
         // Convert a 'bslma::Allocator' pointer to a 'allocator' object which
         // forwards allocation calls to the object pointed to by the specified
         // 'mechanism'.  If 'mechanism' is 0, then the current default
         // allocator is used instead.  Postcondition:
         // '0 == mechanism || this->mechanism() == mechanism'.
 
-    allocator(const allocator& rhs);
-        // Copy construct a proxy object using the same mechanism as rhs.
+    allocator(const allocator& original);
+        // Create a proxy object using the same mechanism as the specified
+        // 'original'.
         // Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
     template <class U>
@@ -678,8 +680,8 @@ allocator<T>::allocator(BloombergLP::bslma::Allocator *mechanism)
 
 template <class T>
 inline
-allocator<T>::allocator(const allocator& rhs)
-: d_mechanism(rhs.mechanism())
+allocator<T>::allocator(const allocator& original)
+: d_mechanism(original.mechanism())
 {
 }
 
@@ -796,8 +798,8 @@ allocator<void>::allocator(BloombergLP::bslma::Allocator *mechanism)
 template <>
 #endif
 inline
-allocator<void>::allocator(const allocator<void>& rhs)
-: d_mechanism(rhs.mechanism())
+allocator<void>::allocator(const allocator<void>& original)
+: d_mechanism(original.mechanism())
 {
 }
 

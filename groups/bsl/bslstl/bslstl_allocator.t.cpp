@@ -199,8 +199,8 @@ template <class T, class ALLOC>
     // CREATORS
     template<class T, class ALLOC>
     my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(int          length,
-                                                  const ALLOC& alloc)
-    : d_allocator(alloc), d_length(length)
+                                                  const ALLOC& allocator)
+    : d_allocator(allocator), d_length(length)
 {
     d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 
@@ -212,9 +212,9 @@ template <class T, class ALLOC>
 
 template<class T, class ALLOC>
     my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(
-        const my_FixedSizeArray& rhs,
-    const ALLOC&               alloc)
-    : d_allocator(alloc), d_length(rhs.d_length)
+                                            const my_FixedSizeArray& rhs,
+                                            const ALLOC&             allocator)
+    : d_allocator(allocator), d_length(rhs.d_length)
 {
     d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 

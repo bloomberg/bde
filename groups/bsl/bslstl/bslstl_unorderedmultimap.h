@@ -674,7 +674,7 @@ class unordered_multimap
 
     unordered_multimap(const unordered_multimap& original);
     unordered_multimap(const unordered_multimap& original,
-                        const allocator_type&    allocator);
+                       const allocator_type&     allocator);
         // Construct an unordered multi map having the same value as that of
         // the specified 'original'.  Use a default-constructed object of type
         // 'hasher' to generate hash values for the key-value pairs contained

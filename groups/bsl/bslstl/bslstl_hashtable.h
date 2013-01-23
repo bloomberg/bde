@@ -1769,14 +1769,14 @@ class HashTable {
             // Return a modifiable reference to the 'nodeFactory' owned by
             // this object.
 
-        void quickSwapRetainAllocators(ImplParameters& other);
+        void quickSwapRetainAllocators(ImplParameters *other);
             // Efficiently exchange the value and functors this object with
             // those of the specified 'other' object.  This method provides the
             // no-throw exception-safety guarantee.  The behavior is undefined
             // unless this object was created with the same allocator as
             // 'other'.
 
-        void quickSwapExchangeAllocators(ImplParameters& other);
+        void quickSwapExchangeAllocators(ImplParameters *other);
             // Efficiently exchange the value, functor, and allocator of this
             // object with those of the specified 'other' object.  This method
             // provides the no-throw exception-safety guarantee.
@@ -1838,13 +1838,13 @@ class HashTable {
         // consistent with the class invariants until after this method is
         // called.
 
-    void quickSwapRetainAllocators(HashTable& other);
+    void quickSwapRetainAllocators(HashTable *other);
         // Efficiently exchange the value and functors this object with those
         // of the specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee.  The behavior is undefined unless this
         // object was created with the same allocator as 'other'.
 
-    void quickSwapExchangeAllocators(HashTable& other);
+    void quickSwapExchangeAllocators(HashTable *other);
         // Efficiently exchange the value, functors, and allocator of this
         // object with those of the specified 'other' object.  This method
         // provides the no-throw exception-safety guarantee.
@@ -2632,34 +2632,34 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-quickSwapRetainAllocators(ImplParameters& other)
+quickSwapRetainAllocators(ImplParameters *other)
 {
-    bslalg::SwapUtil::swap(
-                   static_cast<BaseHasher*>(this),
-                   static_cast<BaseHasher*>(bsls::Util::addressOf(other)));
+    BSLS_ASSERT_SAFE(other);
 
-    bslalg::SwapUtil::swap(
-               static_cast<BaseComparator*>(this),
-               static_cast<BaseComparator*>(bsls::Util::addressOf(other)));
+    bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
+                           static_cast<BaseHasher*>(other));
 
-    nodeFactory().swapRetainAllocators(other.nodeFactory());
+    bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
+                           static_cast<BaseComparator*>(other));
+
+    nodeFactory().swapRetainAllocators(other->nodeFactory());
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-quickSwapExchangeAllocators(ImplParameters& other)
+quickSwapExchangeAllocators(ImplParameters *other)
 {
-    bslalg::SwapUtil::swap(
-                   static_cast<BaseHasher*>(this),
-                   static_cast<BaseHasher*>(bsls::Util::addressOf(other)));
+    BSLS_ASSERT_SAFE(other);
 
-    bslalg::SwapUtil::swap(
-               static_cast<BaseComparator*>(this),
-               static_cast<BaseComparator*>(bsls::Util::addressOf(other)));
+    bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
+                           static_cast<BaseHasher*>(other));
 
-    nodeFactory().swapExchangeAllocators(other.nodeFactory());
+    bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
+                           static_cast<BaseComparator*>(other));
+
+    nodeFactory().swapExchangeAllocators(other->nodeFactory());
 }
 
 // OBSERVERS
@@ -2926,33 +2926,36 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-quickSwapRetainAllocators(HashTable& other)
+quickSwapRetainAllocators(HashTable *other)
 {
-    BSLS_ASSERT_SAFE(this->allocator() == other.allocator());
+    BSLS_ASSERT_SAFE(other);
+    BSLS_ASSERT_SAFE(this->allocator() == other->allocator());
 
-    d_parameters.quickSwapRetainAllocators(other.d_parameters);
+    d_parameters.quickSwapRetainAllocators(&other->d_parameters);
 
     using native_std::swap;  // otherwise it is hidden by this very definition!
 
-    swap(d_anchor,        other.d_anchor);
-    swap(d_size,          other.d_size);
-    swap(d_capacity,      other.d_capacity);
-    swap(d_maxLoadFactor, other.d_maxLoadFactor);
+    swap(d_anchor,        other->d_anchor);
+    swap(d_size,          other->d_size);
+    swap(d_capacity,      other->d_capacity);
+    swap(d_maxLoadFactor, other->d_maxLoadFactor);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-quickSwapExchangeAllocators(HashTable& other)
+quickSwapExchangeAllocators(HashTable *other)
 {
-    d_parameters.quickSwapExchangeAllocators(other.d_parameters);
+    BSLS_ASSERT_SAFE(other);
+
+    d_parameters.quickSwapExchangeAllocators(&other->d_parameters);
 
     using native_std::swap;  // otherwise it is hidden by this very definition!
 
-    swap(d_anchor,        other.d_anchor);
-    swap(d_size,          other.d_size);
-    swap(d_capacity,      other.d_capacity);
-    swap(d_maxLoadFactor, other.d_maxLoadFactor);
+    swap(d_anchor,        other->d_anchor);
+    swap(d_size,          other->d_size);
+    swap(d_capacity,      other->d_capacity);
+    swap(d_maxLoadFactor, other->d_maxLoadFactor);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -3131,11 +3134,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
 
         if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
             HashTable other(rhs, rhs.allocator());
-            quickSwapExchangeAllocators(other);
+            quickSwapExchangeAllocators(&other);
         }
         else {
             HashTable other(rhs, this->allocator());
-            quickSwapRetainAllocators(other);
+            quickSwapRetainAllocators(&other);
         }
     }
     return *this;
@@ -3454,7 +3457,7 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 {
     if (AllocatorTraits::propagate_on_container_swap::VALUE) {
-        quickSwapExchangeAllocators(other);
+        quickSwapExchangeAllocators(&other);
     }
     else {
         // C++11 behavior: undefined for unequal allocators
@@ -3465,15 +3468,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                d_parameters.nodeFactory().allocator() ==
                other.d_parameters.nodeFactory().allocator())) {
-            quickSwapRetainAllocators(other);
+            quickSwapRetainAllocators(&other);
         }
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             HashTable thisCopy(*this, other.allocator());
             HashTable otherCopy(other, this->allocator());
 
-            quickSwapRetainAllocators(otherCopy);
-            other.quickSwapRetainAllocators(thisCopy);
+            quickSwapRetainAllocators(&otherCopy);
+            other.quickSwapRetainAllocators(&thisCopy);
         }
     }
 }
