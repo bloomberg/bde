@@ -48,6 +48,15 @@
 #  define ZU "%zu"
 #endif
 
+// Note that some compilers struggle with the number of template instantiations
+// in this test driver.  We define this macro to simplify the test driver for
+// them, until such time as we can provide a more specific review of the type
+// based concerns, and narrow the range of tests needed for confirmed coverage.
+
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
+#endif
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -7968,7 +7977,7 @@ void mainTestCase14()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
@@ -8090,9 +8099,9 @@ void mainTestCase14()
                       bsltf::NonDefaultConstructibleTestType);
 #endif
 
-#endif
+#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 
-    // Remaining special cases
+        // Remaining special cases
         if (verbose) printf("\nTesting degenerate map-like"
                             "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase14();
@@ -8113,7 +8122,7 @@ void mainTestCase13()
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
@@ -8129,7 +8138,7 @@ void mainTestCase13()
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-#endif
+#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase13();
@@ -8173,7 +8182,7 @@ void mainTestCase11()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
@@ -8280,7 +8289,7 @@ void mainTestCase11()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
-#endif
+#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 
         // Remaining special cases
         if (verbose) printf("\nTesting degenerate map-like"
@@ -8320,7 +8329,7 @@ void mainTestCase9()
                       bsltf::NonDefaultConstructibleTestType);
 
 #if !defined(RUN_ALL_TESTS_IGNORE_THE_COST)
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
@@ -8462,7 +8471,7 @@ void mainTestCase9()
                       bsltf::NonDefaultConstructibleTestType);
 #endif
 
-#endif  // IBM simplification
+#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif  // RUN_ALL_TESTS_IGNORE_THE_COST
 
         // Remaining special cases
@@ -8489,7 +8498,7 @@ void mainTestCase8()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
@@ -8589,7 +8598,7 @@ void mainTestCase8()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
-#endif
+#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 
         // Remaining special cases
         if (verbose) printf("\nTesting degenerate map-like"
@@ -8615,7 +8624,7 @@ void mainTestCase7()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
@@ -8729,7 +8738,7 @@ void mainTestCase7()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
-#endif
+#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 
         // Remaining special cases
         if (verbose) printf("\nTesting degenerate map-like"
@@ -8754,7 +8763,7 @@ void mainTestCase6()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
@@ -8800,7 +8809,7 @@ void mainTestCase6()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
-#endif
+#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 
         // Remaining special cases
         TestDriverForCase6_AwkwardMaplike::testCase6();
