@@ -1278,6 +1278,7 @@ void TemplateTestFacility::emplace<TemplateTestFacility::MethodPtr>(
       case 125: *address = &TemplateTestFacility_StubClass::method<125>; break;
       case 126: *address = &TemplateTestFacility_StubClass::method<126>; break;
       case 127: *address = &TemplateTestFacility_StubClass::method<127>; break;
+      default : BSLS_ASSERT_OPT(false);
     }
 }
 
@@ -1323,7 +1324,9 @@ int TemplateTestFacility::getIdentifier<
     bsltf::TemplateTestFacility::MethodPtr>(
                              const bsltf::TemplateTestFacility::MethodPtr& ptr)
 {
-    TemplateTestFacility_StubClass object;
+    BSLS_ASSERT_OPT(ptr);
+
+    TemplateTestFacility_StubClass object = TemplateTestFacility_StubClass();
     return (object.*ptr)();
 }
 

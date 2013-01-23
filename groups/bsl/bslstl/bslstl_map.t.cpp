@@ -5,27 +5,31 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bslma_default.h>
 #include <bslma_allocator.h>
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_mallocfreeallocator.h>
+#include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
+#include <bslmf_issame.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdexcept>
-#include <algorithm>
-#include <functional>
-
+#include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
-#include <bsltf_stdtestallocator.h>
+
+#include <algorithm>
+#include <functional>
+#include <stdexcept>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -762,6 +766,7 @@ struct CharToPairConverter {
                               char                         value,
                               bslma::Allocator            *allocator)
     {
+#define ALISDAIR_HAS_RESOLVED_DEFAULT_ALLOCATIONS
 #if !defined(ALISDAIR_HAS_RESOLVED_DEFAULT_ALLOCATIONS)
         bslalg::ScalarPrimitives::copyConstruct(
                              address,
@@ -773,17 +778,29 @@ struct CharToPairConverter {
         BSLS_ASSERT_OPT(address);
         BSLS_ASSERT_OPT(allocator);
         BSLS_ASSERT_OPT(0 < value);
+
+        // If creating the 'key' and 'value' temporary objects requires an
+        // allocator, it should not be the default allocator as that will
+        // confuse the arithmetic of our test machinery.  Therefore, we will
+        // use the global MallocFree allocator, as being the simplest, least
+        // obtrusive allocator that is also unlikely to be employed by an end
+        // user.
+
+        bslma::Allocator *privateAllocator =
+                                      &bslma::MallocFreeAllocator::singleton();
         
 if (veryVerbose) printf("\t\templace\n");
         bsls::ObjectBuffer<KEY> tempKey;
-        bsltf::TemplateTestFacility::emplace(tempKey.buffer(),
-                                             value,
-                                             allocator);
+        bsltf::TemplateTestFacility::emplace(
+                                       bsls::Util::addressOf(tempKey.object()),
+                                       value,
+                                       privateAllocator);
 
         bsls::ObjectBuffer<VALUE> tempValue;
-        bsltf::TemplateTestFacility::emplace(tempValue.buffer(),
-                                             value - 'A' + '0',
-                                             allocator);
+        bsltf::TemplateTestFacility::emplace(
+                                     bsls::Util::addressOf(tempValue.object()),
+                                     value - 'A' + '0',
+                                     privateAllocator);
 
 if (veryVerbose) printf("\t\tconstruct\n");
         bslalg::ScalarPrimitives::construct(address,
@@ -803,9 +820,23 @@ if (veryVerbose) printf("\t\tcompare\n");
         bslalg::ScalarPrimitives::construct(p,
                                             rK,
                                             rV,
-                                            allocator);
+                                            privateAllocator);
 
         BSLS_ASSERT_OPT(checkPair.object() == *address);
+
+        int keyID =
+                  bsltf::TemplateTestFacility::getIdentifier(tempKey.object());
+        int valueID =
+                bsltf::TemplateTestFacility::getIdentifier(tempValue.object());
+
+        int pairKeyID =
+                  bsltf::TemplateTestFacility::getIdentifier(address->first);
+        int pairValueID =
+                 bsltf::TemplateTestFacility::getIdentifier(address->second);
+
+        ASSERTV(  keyID,   pairKeyID,   keyID ==   pairKeyID);
+        ASSERTV(valueID, pairValueID, valueID == pairValueID);
+
 #endif
 
 if (veryVerbose) printf("\t\treturn\n");
