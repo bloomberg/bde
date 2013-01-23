@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $")
 // registered with a 'baem_MetricsManager' will be invoked by a function
 // holding mutex locks that provide synchronized access to data in that
 // 'baem_MetricsManager'.  Therefore registered implementations of
-// 'RecordsCollectionCallback'must *not* make any re-entrant calls (either
+// 'RecordsCollectionCallback' must *not* make any re-entrant calls (either
 // directly or indirectly) to member functions of the 'baem_MetricManager'
 // object with which they are registered.
 //
