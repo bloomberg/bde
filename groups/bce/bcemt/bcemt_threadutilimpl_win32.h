@@ -248,7 +248,9 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
 
     static NativeHandle nativeHandle(const Handle& threadHandle);
         // Return the platform specific identifier associated with the thread
-        // specified by 'threadHandle'.
+        // specified by 'threadHandle'.  Note that the returned handle should
+        // *not* be cast to a numeric type, as the resulting integer may not
+        // uniquely identify the thread (see 'selfIdAsUint64').
 
     static bool areEqual(const Handle& a, const Handle& b);
         // Return 'true' if the specified 'a' and 'b' thread handles
