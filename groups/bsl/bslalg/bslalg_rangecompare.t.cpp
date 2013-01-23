@@ -2153,8 +2153,8 @@ int main(int argc, char *argv[])
         //   CharEquivalentNonBitwiseWithOpEqual.
         //
         // Testing:
-        //  bool lexicographical(start1, end1, start2, end2);
-        //  bool lexicographical(start1, end1, length1, start2, end2, length2);
+        //   bool lexicographical(start1, end1, start2, end2);
+        //   bool lexicographical(start1, end1, length1, start2, end2, length2);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'lexicographical'"
