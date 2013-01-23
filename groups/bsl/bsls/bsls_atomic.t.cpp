@@ -354,12 +354,58 @@ void joinThread(thread_t thr)
 #endif
 }
 
+void sleepSeconds(int sec)
+{
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    Sleep(sec * 1000);
+#else
+    sleep(sec);
+#endif
+}
+
+
+struct MemOrderLoopParam
+{
+    bsls::AtomicInt cancel;
+    bsls::AtomicInt iterations;
+};
+
+void *runMemOrderLoop(void *arg)
+    // Run a simulation of the memory ordering test case to determine the
+    // number of iterations for the real test.
+{
+    MemOrderLoopParam *params = static_cast<MemOrderLoopParam *>(arg);
+
+    LockData<bsls::AtomicInt64> ld;
+    PetersonsLockSeqCst<bsls::AtomicInt64> lock(0, ld);
+
+    for (;!params->cancel; ++params->iterations)
+    {
+        Guard<PetersonsLockSeqCst<bsls::AtomicInt64> > guard(lock);
+    }
+
+    return 0;
+}
+
+int getCaseMemOrderIterations()
+    // Return a reasonable experimentally determined number of iterations for
+    // the memory ordering test case.
+{
+    MemOrderLoopParam params;
+    thread_t loopThr = createThread(&runMemOrderLoop, &params);
+
+    sleepSeconds(5);            // the real test runs for about 1.5 min
+
+    params.cancel = 1;
+    joinThread(loopThr);
+
+    return params.iterations;
+}
+
 
 template <template <class> class LOCK, class INT>
-void testCaseMemOrder()
+void testCaseMemOrder(int iterations)
 {
-    int iterations = 10000000;
-
     LockData<INT> lockData;
     LOCK<INT> lock0(0, lockData);
     LOCK<INT> lock1(1, lockData);
@@ -1056,21 +1102,25 @@ int main(int argc, char *argv[])
                           << "\n=================================="
                           << endl;
 
+        int iterations = getCaseMemOrderIterations();
+        if (veryVerbose) cout << "\tRunning the test loop for "
+                              << iterations << " iterations" << endl;
+
         if (verbose) cout << "\tTesting sequencial consistency" << endl;
 
         if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
-        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt>();
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt>(iterations);
 
         if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
-        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt64>();
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt64>(iterations);
 
         if (verbose) cout << "\tTesting acquire/release" << endl;
 
         if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
-        testCaseMemOrder<PetersonsLock, bsls::AtomicInt>();
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt>(iterations);
 
         if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
-        testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>();
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>(iterations);
       } break;
       case 6: {
         // --------------------------------------------------------------------
