@@ -426,8 +426,8 @@ bool TestCallback::resetFlag() const
 
 class LockAndModifyWorker {
     // This class owns a thread in which manipulators of a
-    // 'baem_MetricsManager' are invoked under the scope of another lock, 
-    // repeatedly.  
+    // 'baem_MetricsManager' are invoked under the scope of another lock,
+    // repeatedly.
 
     bcemt_Mutex                *d_mutex_p;
     baem_MetricsManager        *d_obj_p;
@@ -436,12 +436,12 @@ class LockAndModifyWorker {
     const baem_Category        *d_myCategory_p;
 
     void worker();
-    static void dummyCallback(bsl::vector<baem_MetricRecord>*, 
+    static void dummyCallback(bsl::vector<baem_MetricRecord>*,
                               bool) {}
 
 public:
     // CREATORS
-    LockAndModifyWorker(bcemt_Mutex *mutex, 
+    LockAndModifyWorker(bcemt_Mutex *mutex,
                         baem_MetricsManager *obj)
     : d_mutex_p(mutex)
     , d_obj_p(obj)
@@ -451,8 +451,8 @@ public:
     int start() {
         d_done = 0;
         return bcemt_ThreadUtil::create(
-                      &d_thread, 
-                      bdef_MemFnUtil::memFn(&LockAndModifyWorker::worker, 
+                      &d_thread,
+                      bdef_MemFnUtil::memFn(&LockAndModifyWorker::worker,
                                             this));
     }
 
@@ -461,13 +461,13 @@ public:
         bcemt_ThreadUtil::join(d_thread);
     }
 };
-  
+
 void
 LockAndModifyWorker::worker() {
     while (!d_done) {
         bcemt_LockGuard<bcemt_Mutex> guard(d_mutex_p);
-        
-        baem_MetricsManager::CallbackHandle handle = 
+
+        baem_MetricsManager::CallbackHandle handle =
             d_obj_p->registerCollectionCallback(
                                           d_myCategory_p,
                                           &LockAndModifyWorker::dummyCallback);
@@ -480,28 +480,28 @@ LockAndModifyWorker::worker() {
                     // ======================
 
 class LockingPublisher : public baem_Publisher {
-    // This class defines a test implementation of 'baem_Publisher' that 
-    // locks and unlocks a specified mutex when publish() is invoked.  
+    // This class defines a test implementation of 'baem_Publisher' that
+    // locks and unlocks a specified mutex when publish() is invoked.
 
     bcemt_Mutex *d_mutex_p;
 
 public:
-    
+
     // CREATORS
-    LockingPublisher(bcemt_Mutex *mutex) 
+    LockingPublisher(bcemt_Mutex *mutex)
     : d_mutex_p(mutex)
     {}
 
     // MANIPULATORS
     virtual void publish(const baem_MetricSample&);
-       // Lock and unlock the mutex specified at construction.  
+       // Lock and unlock the mutex specified at construction.
 };
 
 void
 LockingPublisher::publish(const baem_MetricSample&) {
     bcemt_LockGuard<bcemt_Mutex> guard(d_mutex_p);
 }
-    
+
                       // ===================
                       // class TestPublisher
                       // ===================
@@ -1589,8 +1589,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //: o Thread-safety of 'baem_MetricsManager' operations.
-        //: o publish() is invoked outside the scope of the 
-        //    'baem_MetricsManager' lock.  
+        //: o publish() is invoked outside the scope of the
+        //    'baem_MetricsManager' lock.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
@@ -1611,11 +1611,11 @@ int main(int argc, char *argv[])
         {
             bcemt_Mutex lock;
             bcema_SharedPtr<baem_Publisher> publisher
-                (new (testAllocator) LockingPublisher(&lock), 
+                (new (testAllocator) LockingPublisher(&lock),
                  &testAllocator);
             baem_MetricsManager manager(&testAllocator);
             manager.addGeneralPublisher(publisher);
-            
+
             LockAndModifyWorker worker(&lock, &manager);
             worker.start();
             {

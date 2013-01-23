@@ -629,15 +629,15 @@ void baem_MetricsManager_PublicationHelper::publish(
         baem_MetricsManager_PublisherRegistry::specific_iterator sEnd =
                                      manager->d_publishers->upperBound(*catIt);
         for (; sIt != sEnd; ++sIt) {
-            updateSampleCache(&sampleCache, sIt->second, 
+            updateSampleCache(&sampleCache, sIt->second,
                               sampleGroup, timeStamp);
         }
     }
 
-    // SampleCache does not hold any pointers to internal state of 
-    // MetricsManager, so we can release the lock.  This frees the 
-    // implementations of the concrete 'publish' methods from any deadlock 
-    // concerns. 
+    // SampleCache does not hold any pointers to internal state of
+    // MetricsManager, so we can release the lock.  This frees the
+    // implementations of the concrete 'publish' methods from any deadlock
+    // concerns.
     propertiesGuard.release()->unlock();
 
     // We now have a 'sampleCache' containing a map from a publisher to the

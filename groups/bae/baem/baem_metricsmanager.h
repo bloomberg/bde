@@ -38,24 +38,24 @@ BDES_IDENT("$Id: $")
 // operations on a given instance can be safely invoked simultaneously from
 // multiple threads.  To avoid synchronization problems with user functions
 // invoked by 'baem_MetricsManager', special consideration must be taken when
-// implementing these functions as specified below.  
+// implementing these functions as specified below.
 //
 ///Registered Concrete 'baem_Publisher' Implementations
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Concrete implementations of the 'baem_Publisher' protocol (pure abstract
-// base-class) registered with a 'baem_MetricsManager' object must *not* 
-// call (either directly or indirectly) the 'publish' method on the 
-// 'baem_MetricsManager' object with which they are registered.  
+// base-class) registered with a 'baem_MetricsManager' object must *not*
+// call (either directly or indirectly) the 'publish' method on the
+// 'baem_MetricsManager' object with which they are registered.
 //
 ///Registered 'RecordsCollectionCallback' Implementations
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Implementations of 'baem_MetricsManager::RecordsCollectionCallback' 
-// registered with a 'baem_MetricsManager' will be invoked by a function 
+// Implementations of 'baem_MetricsManager::RecordsCollectionCallback'
+// registered with a 'baem_MetricsManager' will be invoked by a function
 // holding mutex locks that provide synchronized access to data in that
 // 'baem_MetricsManager'.  Therefore registered implementations of
 // 'RecordsCollectionCallback'must *not* make any re-entrant calls (either
-// directly or indirectly) to member functions of the 'baem_MetricManager' 
-// object with which they are registered.  
+// directly or indirectly) to member functions of the 'baem_MetricManager'
+// object with which they are registered.
 //
 ///Usage
 ///-----
