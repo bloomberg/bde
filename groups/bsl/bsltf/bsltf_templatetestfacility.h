@@ -604,8 +604,7 @@ struct TemplateTestFacility {
                         bslma::Allocator  *allocator);
         // Create a pointer to the parameterized 'TYPE' at the specified
         // 'address' whose value is unique for the specified 'identifier'.  The
-        // behavior is undefined unless '0 <= value < 128' and 'TYPE' is
-        // contained in the macro 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
+        // behavior is undefined unless '0 <= value < 128'.
 
     template <class TYPE>
     static int getIdentifier(const TYPE& object);
