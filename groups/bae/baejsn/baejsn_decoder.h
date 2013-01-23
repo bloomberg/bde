@@ -763,7 +763,10 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::NullableValue)
         }
 
         if (BAEJSN_NULL_VALUE_LENGTH == dataValue.length()
-         && 0 == bsl::strcmp("null", dataValue.data())) {
+         && 'n'                      == dataValue[0]
+         && 'u'                      == dataValue[1]
+         && 'l'                      == dataValue[2]
+         && 'l'                      == dataValue[3]) {
             return 0;                                                 // RETURN
         }
     }

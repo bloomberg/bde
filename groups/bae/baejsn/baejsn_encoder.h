@@ -696,8 +696,17 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
         baejsn_Encoder_ElementVisitor visitor = { this };
 
+        bool isArrayElement = d_isArrayElement;
+        d_isArrayElement = false;
+
         if (0 != bdeat_ChoiceFunctions::accessSelection(value, visitor)) {
             return -1;                                                // RETURN
+        }
+
+        d_isArrayElement = isArrayElement;
+
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+            d_outputStream << '\n';
         }
 
         --d_indentLevel;
@@ -709,10 +718,6 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
         }
 
         d_outputStream << '}';
-
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-            d_outputStream << '\n';
-        }
     }
     else {
         logStream() << "Undefined selection for Choice object" << bsl::endl;
@@ -776,15 +781,15 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
     d_outputStream << '[';
 
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-        d_outputStream << '\n';
-    }
-
-    ++d_indentLevel;
-
     int size = static_cast<int>(bdeat_ArrayFunctions::size(value));
 
     if (0 < size) {
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+            d_outputStream << '\n';
+        }
+
+        ++d_indentLevel;
+
         baejsn_Encoder_ElementVisitor visitor = { this };
 
         d_isArrayElement = true;
@@ -806,9 +811,9 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
         }
 
         d_isArrayElement = false;
-    }
 
-    --d_indentLevel;
+        --d_indentLevel;
+    }
 
     if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
         d_outputStream << '\n';
@@ -826,6 +831,16 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::NullableValue)
 {
     if (bdeat_NullableValueFunctions::isNull(value)) {
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+            if (d_isArrayElement) {
+                bdeu_Print::indent(d_outputStream,
+                                   d_indentLevel,
+                                   d_spacesPerLevel);
+            } else {
+                d_outputStream << ' ';
+            }
+        }
+
         d_outputStream << "null";
         return 0;                                                     // RETURN
     }
