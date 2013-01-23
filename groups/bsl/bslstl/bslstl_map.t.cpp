@@ -17,8 +17,10 @@
 #include <bslmf_issame.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_objectbuffer.h>
 
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -766,18 +768,10 @@ struct CharToPairConverter {
                               char                         value,
                               bslma::Allocator            *allocator)
     {
-#define ALISDAIR_HAS_RESOLVED_DEFAULT_ALLOCATIONS
-#if !defined(ALISDAIR_HAS_RESOLVED_DEFAULT_ALLOCATIONS)
-        bslalg::ScalarPrimitives::copyConstruct(
-                             address,
-                             bsl::pair<const KEY, VALUE> (
-                bsltf::TemplateTestFacility::create<KEY>(value),
-                bsltf::TemplateTestFacility::create<VALUE>(value - 'A' + '0')),
-                             allocator);
-#else
-        BSLS_ASSERT_OPT(address);
-        BSLS_ASSERT_OPT(allocator);
-        BSLS_ASSERT_OPT(0 < value);
+        BSLS_ASSERT(address);
+        BSLS_ASSERT(allocator);
+        BSLS_ASSERT(0 < value);
+        BSLS_ASSERT(value < 128);
 
         // If creating the 'key' and 'value' temporary objects requires an
         // allocator, it should not be the default allocator as that will
@@ -789,7 +783,6 @@ struct CharToPairConverter {
         bslma::Allocator *privateAllocator =
                                       &bslma::MallocFreeAllocator::singleton();
         
-if (veryVerbose) printf("\t\templace\n");
         bsls::ObjectBuffer<KEY> tempKey;
         bsltf::TemplateTestFacility::emplace(
                                        bsls::Util::addressOf(tempKey.object()),
@@ -802,45 +795,10 @@ if (veryVerbose) printf("\t\templace\n");
                                      value - 'A' + '0',
                                      privateAllocator);
 
-if (veryVerbose) printf("\t\tconstruct\n");
         bslalg::ScalarPrimitives::construct(address,
                                             tempKey.object(),
                                             tempValue.object(),
                                             allocator);
-
-
-#if !defined(ALISDAIR_THINKS_HAS_HAS_SOLVED_THE_SEGFAULT)
-if (veryVerbose) printf("\t\tcompare\n");
-        bsls::ObjectBuffer<bsl::pair<const KEY, VALUE> > checkPair;
-
-        bsl::pair<const KEY, VALUE> *p =
-           reinterpret_cast<bsl::pair<const KEY, VALUE> *>(checkPair.buffer());
-        const KEY&   rK = tempKey.object();
-        const VALUE& rV = tempValue.object();
-        bslalg::ScalarPrimitives::construct(p,
-                                            rK,
-                                            rV,
-                                            privateAllocator);
-
-        BSLS_ASSERT_OPT(checkPair.object() == *address);
-
-        int keyID =
-                  bsltf::TemplateTestFacility::getIdentifier(tempKey.object());
-        int valueID =
-                bsltf::TemplateTestFacility::getIdentifier(tempValue.object());
-
-        int pairKeyID =
-                  bsltf::TemplateTestFacility::getIdentifier(address->first);
-        int pairValueID =
-                 bsltf::TemplateTestFacility::getIdentifier(address->second);
-
-        ASSERTV(  keyID,   pairKeyID,   keyID ==   pairKeyID);
-        ASSERTV(valueID, pairValueID, valueID == pairValueID);
-
-#endif
-
-if (veryVerbose) printf("\t\treturn\n");
-#endif
     }
 };
 
@@ -1062,14 +1020,6 @@ int TestDriver<KEY, VALUE, COMP, ALLOC>::ggg(Obj        *object,
                                       const char *spec,
                                       int         verbose)
 {
-    // This allocator guard should not be necessary, but there are still a
-    // small number of default allocations occurring when populating some kinds
-    // of 'pair'.
-
-#if !defined(ALISDAIR_HAS_RESOLVED_DEFAULT_ALLOCATIONS)
-    bslma::DefaultAllocatorGuard guard(
-                                      &bslma::NewDeleteAllocator::singleton());
-#endif
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };

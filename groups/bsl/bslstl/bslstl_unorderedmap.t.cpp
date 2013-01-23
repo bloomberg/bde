@@ -9,14 +9,17 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_mallocfreeallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_issame.h>
 
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_objectbuffer.h>
 
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -5735,16 +5738,41 @@ struct CharToPairConverter {
     // 'VALUE' type.
 
     // CLASS METHODS
-    static void createInplace(bsl::pair<const KEY, VALUE> *objPtr,
+    static void createInplace(bsl::pair<const KEY, VALUE> *address,
                               char                         value,
                               bslma::Allocator            *allocator)
     {
-        bslalg::ScalarPrimitives::copyConstruct(
-                             objPtr,
-                             bsl::pair<const KEY, VALUE> (
-                bsltf::TemplateTestFacility::create<KEY>(value),
-                bsltf::TemplateTestFacility::create<VALUE>(value - 'A' + '0')),
-                             allocator);
+        BSLS_ASSERT(address);
+        BSLS_ASSERT(allocator);
+        BSLS_ASSERT(0 < value);
+        BSLS_ASSERT(value < 128);
+
+        // If creating the 'key' and 'value' temporary objects requires an
+        // allocator, it should not be the default allocator as that will
+        // confuse the arithmetic of our test machinery.  Therefore, we will
+        // use the global MallocFree allocator, as being the simplest, least
+        // obtrusive allocator that is also unlikely to be employed by an end
+        // user.
+
+        bslma::Allocator *privateAllocator =
+                                      &bslma::MallocFreeAllocator::singleton();
+        
+        bsls::ObjectBuffer<KEY> tempKey;
+        bsltf::TemplateTestFacility::emplace(
+                                       bsls::Util::addressOf(tempKey.object()),
+                                       value,
+                                       privateAllocator);
+
+        bsls::ObjectBuffer<VALUE> tempValue;
+        bsltf::TemplateTestFacility::emplace(
+                                     bsls::Util::addressOf(tempValue.object()),
+                                     value - 'A' + '0',
+                                     privateAllocator);
+
+        bslalg::ScalarPrimitives::construct(address,
+                                            tempKey.object(),
+                                            tempValue.object(),
+                                            allocator);
     }
 };
 
@@ -5980,12 +6008,6 @@ int TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
                                                     const char *spec,
                                                     int         verbose)
 {
-    // This allocator guard should not be necessary, but there are still a
-    // small number of default allocations occurring when populating some kinds
-    // of 'pair'.
-
-    bslma::DefaultAllocatorGuard guard(
-                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
