@@ -1,6 +1,6 @@
-// btemt_channelerror.t.cpp                                           -*-C++-*-
+// btemt_channelstatus.t.cpp                                          -*-C++-*-
 
-#include <btemt_channelerror.h>
+#include <btemt_channelstatus.h>
 
 #include <bcema_blob.h>
 #include <bslma_default.h>
@@ -18,51 +18,31 @@
 
 using namespace BloombergLP;
 using namespace bsl;
-using namespace BloombergLP::btemt;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements a set of enumerations listing status
-// codes returned from certain channel operations.  The enumerators in each
+// The component under test implements a namespace for an enumeration listing
+// status codes returned from channel operations.  The enumerators in the
 // enumeration do not start from 0 and are not sequential, because the status
 // codes represented by the enumerators maybe written before their definition.
 //
-// We will therefore follow our standard 3-step approach to testing enumeration
-// types, with certain exceptions:
-//
-//: o The test for 'BDEX' streaming ommitted because these operations are not
-//:   defined.
-//:
-//: o The test for enumerator values does not verify that they are sequential.
+// We will therefore follow our standard 3-step approach to testing
+// enumeration.
 // ----------------------------------------------------------------------------
-// struct ChannelErrorRead
-//
 // TYPES
-// [ 1] enum ChannelErrorRead::Enum { ... };
+// [ 1] enum ChannelStatus::Enum { ... };
 //
 // CLASS METHODS
-// [ 5] ostream& ChannelErrorRead::print(s, val, level = 0, sPL = 4);
-// [ 1] const char *ChannelErrorRead::toAscii(val);
+// [ 3] ostream& ChannelStatus::print(s, val, level = 0, sPL = 4);
+// [ 1] const char *ChannelStatus::toAscii(val);
 //
 // FREE OPERATORS
-// [ 3] operator<<(ostream& s, ChannelErrorRead::Enum val);
-//
-// struct ChannelErrorWrite
-//
-// TYPES
-// [ 2] enum ChannelErrorRead::Enum { ... };
-//
-// CLASS METHODS
-// [ 6] ostream& ChannelErrorRead::print(s, val, level = 0, sPL = 4);
-// [ 2] const char *ChannelErrorRead::toAscii(val);
-//
-// FREE OPERATORS
-// [ 4] operator<<(ostream& s, ChannelErrorWrite::Enum val);
+// [ 2] operator<<(ostream& s, ChannelStatus::Enum val);
 // ----------------------------------------------------------------------------
-// [ 7] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -171,7 +151,7 @@ class MyChannel {
 int MyChannel::write(const bcema_Blob& blob)
 {
     (void)blob;
-    return btemt::ChannelErrorWrite::BTEMT_SUCCESS;
+    return btemt_ChannelStatus::BTEMT_SUCCESS;
 }
 
 }  // close unnamed namespace
@@ -191,7 +171,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 7: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -233,26 +213,26 @@ int main(int argc, char *argv[])
 //..
         int rc = channel.write(blob);
 //..
-// Now, we compare the return code the enumerators in
-// 'btemt::ChannelErrorRead::Enum' to handle the different error conditions:
+// Now, we compare the return code to the enumerators in
+// 'btemt_ChannelStatus::Enum' to handle the different error conditions:
 //..
         switch(rc) {
-          case btemt::ChannelErrorWrite::BTEMT_SUCCESS:  // Success
+          case btemt_ChannelStatus::BTEMT_SUCCESS:  // Success
           {
               // ...
           } break;
 
           // We handle the different types of failures in the cases below.
 
-          case btemt::ChannelErrorWrite::BTEMT_CACHE_HIWAT:
+          case btemt_ChannelStatus::BTEMT_CACHE_OVERFLOW:
           {
               // ...
           } break;
-          case btemt::ChannelErrorWrite::BTEMT_HIT_CACHE_HIWAT:
+          case btemt_ChannelStatus::BTEMT_CACHE_HIGHWATER:
           {
               // ...
           } break;
-          case btemt::ChannelErrorWrite::BTEMT_CHANNEL_DOWN:
+          case btemt_ChannelStatus::BTEMT_WRITE_CHANNEL_DOWN:
           {
               // ...
           } break;
@@ -263,497 +243,76 @@ int main(int argc, char *argv[])
         };
 //..
       } break;
-      case 6: {
-        // --------------------------------------------------------------------
-        // 'ChannelErrorWrite::print'
-        //
-        // Concerns:
-        //: 1 The 'print' method writes the output to the specified stream.
-        //:
-        //: 2 The 'print' method writes the string representation of each
-        //:   enumerator in the intended format.
-        //:
-        //: 3 The 'print' method writes a distinguished string when passed an
-        //:   out-of-band value.
-        //:
-        //: 4 There is no output when the stream is invalid.
-        //:
-        //: 5 The 'print' method has the expected signature.
-        //
-        // Plan:
-        //: 1 Use table-based approach, for each enumerator, some out-of-band
-        //:   values, and a range of level and spacing per level values that
-        //:   can be specified to the 'print' method:
-        //:
-        //:   1 Verify that the 'print' method produces the expected results
-        //:     (C-1..3)
-        //:
-        //:   2 Verify that there is no output when the stream is invalid.
-        //:     (C-4)
-        //:
-        //: 2 Take the address of the 'print' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.  (C-5)
-        //
-        // Testing:
-        //   ostream& ChannelErrorWrite::print(s, val, level = 0, sPL = 4);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "'ChannelErrorWrite::print'" << endl
-                          << "==========================" << endl;
-
-        typedef ChannelErrorWrite Obj;
-
-        static const struct {
-            int         d_lineNum;        // source line number
-            int         d_level;          // level
-            int         d_spacePerLevel;  // spaces per level
-            Obj::Enum   d_enumerator;     // enumerator
-            const char *d_expString;      // expected ascii value
-        } DATA[] = {
-#define NL "\n"
-          // line level spl enumerator                  result
-          // ---- ----- --- --------------------------- -------------------
-          {  L_,     0,  4, Obj::BTEMT_SUCCESS,         "SUCCESS"NL          },
-          {  L_,     0,  4, Obj::BTEMT_CACHE_HIWAT,     "CACHE_HIWAT"NL      },
-          {  L_,     0,  4, Obj::BTEMT_HIT_CACHE_HIWAT, "HIT_CACHE_HIWAT"NL  },
-          {  L_,     0,  4, Obj::BTEMT_CHANNEL_DOWN,    "CHANNEL_DOWN"NL     },
-          {  L_,     0,  4, Obj::BTEMT_ENQUEUE_WAT,     "ENQUEUE_WAT"NL      },
-          {  L_,     0,  4, Obj::BTEMT_UNKNOWN_ID,      "UNKNOWN_ID"NL       },
-          {  L_,     0,  4, (Obj::Enum) 1,              UNKNOWN_FORMAT NL    },
-
-          {  L_,     0,  0, Obj::BTEMT_SUCCESS,         "SUCCESS"NL          },
-          {  L_,     0, -1, Obj::BTEMT_SUCCESS,         "SUCCESS"            },
-          {  L_,     0,  2, Obj::BTEMT_SUCCESS,         "SUCCESS"NL          },
-          {  L_,     1,  1, Obj::BTEMT_SUCCESS,         " SUCCESS"NL         },
-          {  L_,     1,  2, Obj::BTEMT_SUCCESS,         "  SUCCESS"NL        },
-          {  L_,    -1,  2, Obj::BTEMT_SUCCESS,         "SUCCESS"NL          },
-          {  L_,    -2,  1, Obj::BTEMT_SUCCESS,         "SUCCESS"NL          },
-          {  L_,     2,  1, Obj::BTEMT_SUCCESS,         "  SUCCESS"NL        },
-          {  L_,     1,  3, Obj::BTEMT_SUCCESS,         "   SUCCESS"NL       },
-#undef NL
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        const int   SIZE = 128;         // big enough to hold output string
-        const char  XX   = (char)0xFF;  // value of an unset 'char'
-              char  buf[SIZE];          // output buffer
-
-              char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
-        const char *CTRL = mCtrl;
-
-        // Verify enumerators.
-        for (int ti = 0; ti < NUM_DATA; ++ti)
-        {
-            const int        LINE  = DATA[ti].d_lineNum;
-            const int        LEVEL = DATA[ti].d_level;
-            const int        SPL   = DATA[ti].d_spacePerLevel;
-            const Obj::Enum  ENUM  = DATA[ti].d_enumerator;
-            const char      *STR   = DATA[ti].d_expString;
-
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
-            ostrstream out(buf, sizeof buf);
-
-            Obj::print(out, ENUM, LEVEL, SPL) << ends;
-
-
-            const int SZ = strlen(STR) + 1;
-
-            // Verify that the buffer is large enough.
-            ASSERTV(LINE, ti, SZ  < SIZE);
-
-            ASSERTV(LINE, ti, buf, STR, 0 == memcmp(buf, STR, SZ));
-
-            // Check for overrun.
-            ASSERTV(LINE, ti, XX == buf[SIZE - 1]);
-            ASSERTV(LINE, ti,  0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
-
-            // Repeat for 'print' default arguments.
-            if (0 == LEVEL && 4 == SPL) {
-
-                memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
-                                          // values.
-
-                ostrstream out(buf, sizeof buf);
-                Obj::print(out, ENUM) << ends;
-
-                ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
-
-                // Check for overrun.
-                ASSERTV(LINE, ti, XX == buf[SIZE - 1]);
-                ASSERTV(LINE, ti,
-                        0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
-            }
-        }
-
-        // Verify that nothing is written to a bad stream.
-        for (int ti = 0; ti < NUM_DATA; ++ti)
-        {
-            const int        LINE  = DATA[ti].d_lineNum;
-            const int        LEVEL = DATA[ti].d_level;
-            const int        SPL   = DATA[ti].d_spacePerLevel;
-            const Obj::Enum  ENUM  = DATA[ti].d_enumerator;
-
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
-            Obj::print(out, ENUM, LEVEL, SPL);
-
-            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
-        }
-
-        // Verify 'print' signature.
-        {
-            typedef bsl::ostream& (*FuncPtr)(bsl::ostream&,
-                                             Obj::Enum,
-                                             int,
-                                             int);
-
-            const FuncPtr FP = &Obj::print;
-            (void) FP;  // quash potential compiler warning
-        }
-      } break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // 'ChannelErrorRead::print'
-        //
-        // Concerns:
-        //: 1 The 'print' method writes the output to the specified stream.
-        //:
-        //: 2 The 'print' method writes the string representation of each
-        //:   enumerator in the intended format.
-        //:
-        //: 3 The 'print' method writes a distinguished string when passed an
-        //:   out-of-band value.
-        //:
-        //: 4 There is no output when the stream is invalid.
-        //:
-        //: 5 The 'print' method has the expected signature.
-        //
-        // Plan:
-        //: 1 Use table-based approach, for each enumerator, some out-of-band
-        //:   values, and a range of level and spacing per level values that
-        //:   can be specified to the 'print' method:
-        //:
-        //:   1 Verify that the 'print' method produces the expected results
-        //:     (C-1..3)
-        //:
-        //:   2 Verify that there is no output when the stream is invalid.
-        //:     (C-4)
-        //:
-        //: 2 Take the address of the 'print' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.  (C-5)
-        //
-        // Testing:
-        //   ostream& ChannelErrorRead::print(s, val, level = 0, sPL = 4);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "'ChannelErrorRead::print'" << endl
-                          << "=========================" << endl;
-
-        typedef ChannelErrorRead Obj;
-
-        static const struct {
-            int         d_lineNum;        // source line number
-            int         d_level;          // level
-            int         d_spacePerLevel;  // spaces per level
-            Obj::Enum   d_enumerator;     // enumerator
-            const char *d_expString;      // expected ascii value
-        } DATA[] = {
-#define NL "\n"
-            // line level spl enumerator                 result
-            // ---- ----- --- -------------------------- ------------------
-            {  L_,     0,  4, Obj::BTEMT_SUCCESS,        "SUCCESS"NL         },
-            {  L_,     0,  4, Obj::BTEMT_CHANNEL_CLOSED, "CHANNEL_CLOSED"NL  },
-            {  L_,     0,  4, (Obj::Enum) 1,             UNKNOWN_FORMAT NL   },
-
-            {  L_,     0,  0, Obj::BTEMT_SUCCESS,        "SUCCESS"NL         },
-            {  L_,     0, -1, Obj::BTEMT_SUCCESS,        "SUCCESS"           },
-            {  L_,     0,  2, Obj::BTEMT_SUCCESS,        "SUCCESS"NL         },
-            {  L_,     1,  1, Obj::BTEMT_SUCCESS,        " SUCCESS"NL        },
-            {  L_,     1,  2, Obj::BTEMT_SUCCESS,        "  SUCCESS"NL       },
-            {  L_,    -1,  2, Obj::BTEMT_SUCCESS,        "SUCCESS"NL         },
-            {  L_,    -2,  1, Obj::BTEMT_SUCCESS,        "SUCCESS"NL         },
-            {  L_,     2,  1, Obj::BTEMT_SUCCESS,        "  SUCCESS"NL       },
-            {  L_,     1,  3, Obj::BTEMT_SUCCESS,        "   SUCCESS"NL      },
-#undef NL
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        const int   SIZE = 128;         // big enough to hold output string
-        const char  XX   = (char)0xFF;  // value of an unset 'char'
-              char  buf[SIZE];          // output buffer
-
-              char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
-        const char *CTRL = mCtrl;
-
-        // Verify enumerators.
-        for (int ti = 0; ti < NUM_DATA; ++ti)
-        {
-            const int        LINE  = DATA[ti].d_lineNum;
-            const int        LEVEL = DATA[ti].d_level;
-            const int        SPL   = DATA[ti].d_spacePerLevel;
-            const Obj::Enum  ENUM  = DATA[ti].d_enumerator;
-            const char      *STR   = DATA[ti].d_expString;
-
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
-            ostrstream out(buf, sizeof buf);
-
-            Obj::print(out, ENUM, LEVEL, SPL) << ends;
-
-
-            const int SZ = strlen(STR) + 1;
-
-            // Verify that the buffer is large enough.
-            ASSERTV(LINE, ti, SZ  < SIZE);
-
-            ASSERTV(LINE, ti, buf, STR, 0 == memcmp(buf, STR, SZ));
-
-            // Check for overrun.
-            ASSERTV(LINE, ti, XX == buf[SIZE - 1]);
-            ASSERTV(LINE, ti,  0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
-
-            // Repeat for 'print' default arguments.
-            if (0 == LEVEL && 4 == SPL) {
-
-                memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
-                                          // values.
-
-                ostrstream out(buf, sizeof buf);
-                Obj::print(out, ENUM) << ends;
-
-                ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
-
-                // Check for overrun.
-                ASSERTV(LINE, ti, XX == buf[SIZE - 1]);
-                ASSERTV(LINE, ti,
-                        0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
-            }
-        }
-
-        // Verify that nothing is written to a bad stream.
-        for (int ti = 0; ti < NUM_DATA; ++ti)
-        {
-            const int        LINE  = DATA[ti].d_lineNum;
-            const int        LEVEL = DATA[ti].d_level;
-            const int        SPL   = DATA[ti].d_spacePerLevel;
-            const Obj::Enum  ENUM  = DATA[ti].d_enumerator;
-
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
-            Obj::print(out, ENUM, LEVEL, SPL);
-
-            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
-        }
-
-        // Verify 'print' signature.
-        {
-            typedef bsl::ostream& (*FuncPtr)(bsl::ostream&,
-                                             Obj::Enum,
-                                             int,
-                                             int);
-
-            const FuncPtr FP = &Obj::print;
-            (void) FP;  // quash potential compiler warning
-        }
-      } break;
-      case 4: {
-        // --------------------------------------------------------------------
-        // '<<' OPERATOR FOR 'ChannelErrorWrite::Enum'
-        //
-        // Concerns:
-        //: 1 The '<<' operator writes the output to the specified stream.
-        //:   (P-1)
-        //:
-        //: 2 The '<<' operator writes the string representation of each
-        //:   enumerator in the intended format.
-        //:
-        //: 3 The '<<' operator writes a distinguished string when passed an
-        //:   out-of-band value.
-        //:
-        //: 4 The output produced by 'stream << value' is the same as that
-        //:   produced by 'Obj::print(stream, value, 0, -1)'.
-        //:
-        //: 5 There is no output when the stream is invalid.
-        //:
-        //: 6 The '<<' operator has the expected signature.
-        //
-        // Plan:
-        //: 1 Use table-based approach, for each enumerator and some
-        //:   out-of-band values:
-        //:
-        //:   1 Verify that the '<<' operator produces the expected results.
-        //:     (C-1..3)
-        //:
-        //:   2 Verify that 'Obj::print(stream, value, 0, -1)' produces the
-        //:     same results.  (C-4)
-        //:
-        //:   3 Verify that there is no output when stream is invalid.  (C-5)
-        //:
-        //: 5 Take the address of the '<<' (free) operator and use the result
-        //:   to initialize a variable of the appropriate type.  (C-6)
-        //
-        // Testing:
-        //   operator<<(ostream& s, ChannelErrorWrite::Enum val);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                      << "'<<' OPERATOR FOR 'ChannelErrorWrite::Enum'" << endl
-                      << "===========================================" << endl;
-
-        typedef ChannelErrorWrite Obj;
-
-        static const struct {
-            int         d_lineNum;     // source line number
-            Obj::Enum   d_enumerator;  // enumerator
-            const char *d_expString;   // expected ascii value
-        } DATA[] = {
-            // line  enumerator                   result
-            // ----  ---------------------------  -----------------
-            {  L_,   Obj::BTEMT_SUCCESS,          "SUCCESS"          },
-            {  L_,   Obj::BTEMT_CACHE_HIWAT,      "CACHE_HIWAT"      },
-            {  L_,   Obj::BTEMT_HIT_CACHE_HIWAT,  "HIT_CACHE_HIWAT"  },
-            {  L_,   Obj::BTEMT_CHANNEL_DOWN,     "CHANNEL_DOWN"     },
-            {  L_,   Obj::BTEMT_ENQUEUE_WAT,      "ENQUEUE_WAT"      },
-            {  L_,   Obj::BTEMT_UNKNOWN_ID,       "UNKNOWN_ID"       },
-
-            {  L_,   (Obj::Enum) 1,              UNKNOWN_FORMAT    },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        const int   SIZE = 128;         // big enough to hold output string
-        const char  XX   = (char)0xFF;  // value of an unset 'char'
-              char  buf[SIZE];          // output buffer
-
-              char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
-        const char *CTRL = mCtrl;
-
-        // Verify enumerators.
-        for (int ti = 0; ti < NUM_DATA; ++ti)
-        {
-            const int        LINE = DATA[ti].d_lineNum;
-            const Obj::Enum  ENUM = DATA[ti].d_enumerator;
-            const char      *STR  = DATA[ti].d_expString;
-
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
-            ostrstream out(buf, sizeof buf);
-
-            out << ENUM << ends;
-
-            const int SZ = strlen(STR) + 1;
-
-            // Verify that the buffer is large enough.
-            ASSERTV(LINE, ti, SZ  < SIZE);
-
-            ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
-
-            // Check for overrun.
-            ASSERTV(LINE, ti, XX == buf[SIZE - 1]);
-            ASSERTV(LINE, ti,  0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
-
-
-            // Verify that 'Obj::print(stream, value, 0, -1)' produces the same
-            // results.
-            {
-                memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
-                                          // values.
-
-                ostrstream out(buf, sizeof buf);
-                Obj::print(out, ENUM, 0, -1) << ends;
-
-                ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
-
-                // Check for overrun.
-                ASSERTV(LINE, ti, XX == buf[SIZE - 1]);
-                ASSERTV(LINE, ti,
-                        0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
-            }
-        }
-
-        // Verify that nothing is written to a bad stream.
-        for (int ti = 0; ti < NUM_DATA; ++ti)
-        {
-            const int        LINE = DATA[ti].d_lineNum;
-            const Obj::Enum  ENUM = DATA[ti].d_enumerator;
-
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
-            out << ENUM;
-
-            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
-        }
-
-        // Verify '<<' operator signature.
-        {
-            typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Obj::Enum);
-
-            const FuncPtr FP = &operator<<;
-            (void) FP;  // quash potential compiler warning
-        }
-
-      } break;
       case 3: {
         // --------------------------------------------------------------------
-        // '<<' OPERATOR FOR 'ChannelErrorRead::Enum'
+        // 'btemt_ChannelStatus::print'
         //
         // Concerns:
-        //: 1 The '<<' operator writes the output to the specified stream.
-        //:   (P-1)
+        //: 1 The 'print' method writes the output to the specified stream.
         //:
-        //: 2 The '<<' operator writes the string representation of each
+        //: 2 The 'print' method writes the string representation of each
         //:   enumerator in the intended format.
         //:
-        //: 3 The '<<' operator writes a distinguished string when passed an
+        //: 3 The 'print' method writes a distinguished string when passed an
         //:   out-of-band value.
         //:
-        //: 4 The output produced by 'stream << value' is the same as that
-        //:   produced by 'Obj::print(stream, value, 0, -1)'.
+        //: 4 There is no output when the stream is invalid.
         //:
-        //: 5 There is no output when the stream is invalid.
-        //:
-        //: 6 The '<<' operator has the expected signature.
+        //: 5 The 'print' method has the expected signature.
         //
         // Plan:
-        //: 1 Use table-based approach, for each enumerator and some
-        //:   out-of-band values:
+        //: 1 Use table-based approach, for each enumerator, some out-of-band
+        //:   values, and a range of level and spacing per level values that
+        //:   can be specified to the 'print' method:
         //:
-        //:   1 Verify that the '<<' operator produces the expected results.
+        //:   1 Verify that the 'print' method produces the expected results
         //:     (C-1..3)
         //:
-        //:   2 Verify that 'Obj::print(stream, value, 0, -1)' produces the
-        //:     same results.  (C-4)
+        //:   2 Verify that there is no output when the stream is invalid.
+        //:     (C-4)
         //:
-        //:   3 Verify that there is no output when stream is invalid.  (C-5)
-        //:
-        //: 5 Take the address of the '<<' (free) operator and use the result
-        //:   to initialize a variable of the appropriate type.  (C-6)
+        //: 2 Take the address of the 'print' (class) method and use the
+        //:   result to initialize a variable of the appropriate type.  (C-5)
         //
         // Testing:
-        //   operator<<(ostream& s, ChannelErrorRead::Enum val);
+        //   ostream& btemt_ChannelStatus::print(s, val, level = 0, sPL = 4);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                       << "'<<' OPERATOR FOR 'ChannelErrorRead::Enum'" << endl
-                       << "==========================================" << endl;
+                          << "'btemt_ChannelStatus::print'" << endl
+                          << "============================" << endl;
 
-        typedef ChannelErrorRead Obj;
+        typedef btemt_ChannelStatus Obj;
 
         static const struct {
-            int         d_lineNum;     // source line number
-            Obj::Enum   d_enumerator;  // enumerator
-            const char *d_expString;   // expected ascii value
+            int         d_lineNum;        // source line number
+            int         d_level;          // level
+            int         d_spacePerLevel;  // spaces per level
+            Obj::Enum   d_enumerator;     // enumerator
+            const char *d_expString;      // expected ascii value
         } DATA[] = {
-            // line  enumerator                  result
-            // ----  --------------------------  ----------------
-            {  L_,   Obj::BTEMT_SUCCESS,         "SUCCESS"         },
-            {  L_,   Obj::BTEMT_CHANNEL_CLOSED,  "CHANNEL_CLOSED"  },
-            {  L_,   (Obj::Enum) 1,              UNKNOWN_FORMAT    },
+#define NL "\n"
+        //line lvl spl enumerator                     result
+        //---- --- --- -----------------------------  ----------------------
+        { L_,   0,  4, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
+        { L_,   0,  4, Obj::BTEMT_CACHE_OVERFLOW,     "CACHE_OVERFLOW"NL     },
+        { L_,   0,  4, Obj::BTEMT_CACHE_HIGHWATER,    "CACHE_HIGHWATER"NL    },
+        { L_,   0,  4, Obj::BTEMT_READ_CHANNEL_DOWN,  "READ_CHANNEL_DOWN"NL  },
+        { L_,   0,  4, Obj::BTEMT_WRITE_CHANNEL_DOWN, "WRITE_CHANNEL_DOWN"NL },
+        { L_,   0,  4, Obj::BTEMT_ENQUEUE_HIGHWATER,  "ENQUEUE_HIGHWATER"NL  },
+        { L_,   0,  4, Obj::BTEMT_UNKNOWN_ID,         "UNKNOWN_ID"NL         },
+        { L_,   0,  4, (Obj::Enum) 1,                 UNKNOWN_FORMAT NL      },
+
+        { L_,   0,  0, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
+        { L_,   0, -1, Obj::BTEMT_SUCCESS,            "SUCCESS"              },
+        { L_,   0,  2, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
+        { L_,   1,  1, Obj::BTEMT_SUCCESS,            " SUCCESS"NL           },
+        { L_,   1,  2, Obj::BTEMT_SUCCESS,            "  SUCCESS"NL          },
+        { L_,  -1,  2, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
+        { L_,  -2,  1, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
+        { L_,   2,  1, Obj::BTEMT_SUCCESS,            "  SUCCESS"NL          },
+        { L_,   1,  3, Obj::BTEMT_SUCCESS,            "   SUCCESS"NL         },
+#undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -767,36 +326,38 @@ int main(int argc, char *argv[])
         // Verify enumerators.
         for (int ti = 0; ti < NUM_DATA; ++ti)
         {
-            const int        LINE = DATA[ti].d_lineNum;
-            const Obj::Enum  ENUM = DATA[ti].d_enumerator;
-            const char      *STR  = DATA[ti].d_expString;
+            const int        LINE  = DATA[ti].d_lineNum;
+            const int        LEVEL = DATA[ti].d_level;
+            const int        SPL   = DATA[ti].d_spacePerLevel;
+            const Obj::Enum  ENUM  = DATA[ti].d_enumerator;
+            const char      *STR   = DATA[ti].d_expString;
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
             ostrstream out(buf, sizeof buf);
 
-            out << ENUM << ends;
+            Obj::print(out, ENUM, LEVEL, SPL) << ends;
+
 
             const int SZ = strlen(STR) + 1;
 
             // Verify that the buffer is large enough.
             ASSERTV(LINE, ti, SZ  < SIZE);
 
-            ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
+            ASSERTV(LINE, ti, buf, STR, 0 == memcmp(buf, STR, SZ));
 
             // Check for overrun.
             ASSERTV(LINE, ti, XX == buf[SIZE - 1]);
             ASSERTV(LINE, ti,  0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
 
+            // Repeat for 'print' default arguments.
+            if (0 == LEVEL && 4 == SPL) {
 
-            // Verify that 'Obj::print(stream, value, 0, -1)' produces the same
-            // results.
-            {
                 memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
                                           // values.
 
                 ostrstream out(buf, sizeof buf);
-                Obj::print(out, ENUM, 0, -1) << ends;
+                Obj::print(out, ENUM) << ends;
 
                 ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
 
@@ -810,118 +371,171 @@ int main(int argc, char *argv[])
         // Verify that nothing is written to a bad stream.
         for (int ti = 0; ti < NUM_DATA; ++ti)
         {
-            const int        LINE = DATA[ti].d_lineNum;
-            const Obj::Enum  ENUM = DATA[ti].d_enumerator;
+            const int        LINE  = DATA[ti].d_lineNum;
+            const int        LEVEL = DATA[ti].d_level;
+            const int        SPL   = DATA[ti].d_spacePerLevel;
+            const Obj::Enum  ENUM  = DATA[ti].d_enumerator;
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
             ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
-            out << ENUM;
+            Obj::print(out, ENUM, LEVEL, SPL);
 
             LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
         }
 
-        // Verify '<<' operator signature.
+        // Verify 'print' signature.
         {
-            typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Obj::Enum);
+            typedef bsl::ostream& (*FuncPtr)(bsl::ostream&,
+                                             Obj::Enum,
+                                             int,
+                                             int);
 
-            const FuncPtr FP = &operator<<;
+            const FuncPtr FP = &Obj::print;
             (void) FP;  // quash potential compiler warning
         }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'ChannelErrorWrite::Enum' AND 'ChannelErrorWrite::toAscii'
+        // '<<' OPERATOR FOR 'btemt_ChannelStatus::Enum'
         //
         // Concerns:
-        //: 1 The enumerators have the correct values.
+        //: 1 The '<<' operator writes the output to the specified stream.
+        //:   (P-1)
         //:
-        //: 2 The 'toAscii' method returns the expected string representation
-        //:   for each enumerator.
+        //: 2 The '<<' operator writes the string representation of each
+        //:   enumerator in the intended format.
         //:
-        //: 3 The 'toAscii' method returns a distinguished string when passed
-        //:   an out-of-band value.
+        //: 3 The '<<' operator writes a distinguished string when passed an
+        //:   out-of-band value.
         //:
-        //: 4 The string returned by 'toAscii' is non-modifiable.
+        //: 4 The output produced by 'stream << value' is the same as that
+        //:   produced by 'Obj::print(stream, value, 0, -1)'.
         //:
-        //: 5 The 'toAscii' method has the expected signature.
+        //: 5 There is no output when the stream is invalid.
+        //:
+        //: 6 The '<<' operator has the expected signature.
         //
         // Plan:
-        //: 1 Use table-based approach, for each enumerator:
+        //: 1 Use table-based approach, for each enumerator and some
+        //:   out-of-band values:
         //:
-        //:   1 Verify that it has the correct value.  (C-1)
+        //:   1 Verify that the '<<' operator produces the expected results.
+        //:     (C-1..3)
         //:
-        //:   2 Verify that the 'toAscii' method returns the expected string.
-        //:     (C-2)
+        //:   2 Verify that 'Obj::print(stream, value, 0, -1)' produces the
+        //:     same results.  (C-4)
         //:
-        //: 3 Verify that the 'toAscii' method returns a distinguished string
-        //:   when passed an out-of-band value.  (C-3)
+        //:   3 Verify that there is no output when stream is invalid.  (C-5)
         //:
-        //: 4 Take the address of the 'toAscii' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.
-        //:   (C-4, C-5)
+        //: 5 Take the address of the '<<' (free) operator and use the result
+        //:   to initialize a variable of the appropriate type.  (C-6)
         //
         // Testing:
-        //   enum ChannelErrorWrite::Enum { ... };
-        //   const char *ChannelErrorWrite::toAscii(val);
+        //   operator<<(ostream& s, btemt_ChannelStatus::Enum val);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                << "'ChannelErrorWrite::Enum' AND 'ChannelErrorWrite::toAscii'"
-                << endl
-                << "=========================================================="
-                << endl;
+                    << "'<<' OPERATOR FOR 'btemt_ChannelStatus::Enum'" << endl
+                    << "=============================================" << endl;
 
-        typedef ChannelErrorWrite Obj;
+        typedef btemt_ChannelStatus Obj;
 
         static const struct {
             int         d_lineNum;     // source line number
             Obj::Enum   d_enumerator;  // enumerator
-            int         d_expValue;    // expected value
             const char *d_expString;   // expected ascii value
         } DATA[] = {
-            // line  enumerator                   value  ascii
-            // ----  ---------------------------  -----  -----------------
-            {  L_,   Obj::BTEMT_SUCCESS,             0,  "SUCCESS"          },
-            {  L_,   Obj::BTEMT_CACHE_HIWAT,        -1,  "CACHE_HIWAT"      },
-            {  L_,   Obj::BTEMT_HIT_CACHE_HIWAT,    -2,  "HIT_CACHE_HIWAT"  },
-            {  L_,   Obj::BTEMT_CHANNEL_DOWN,       -3,  "CHANNEL_DOWN"     },
-            {  L_,   Obj::BTEMT_ENQUEUE_WAT,        -4,  "ENQUEUE_WAT"      },
-            {  L_,   Obj::BTEMT_UNKNOWN_ID,         -5,  "UNKNOWN_ID"       },
+            //line  enumerator                      result
+            //----  ------------------------------  --------------------
+            { L_,   Obj::BTEMT_SUCCESS,             "SUCCESS"            },
+            { L_,   Obj::BTEMT_CACHE_OVERFLOW,      "CACHE_OVERFLOW"     },
+            { L_,   Obj::BTEMT_CACHE_HIGHWATER,     "CACHE_HIGHWATER"    },
+            { L_,   Obj::BTEMT_READ_CHANNEL_DOWN,   "READ_CHANNEL_DOWN"  },
+            { L_,   Obj::BTEMT_WRITE_CHANNEL_DOWN,  "WRITE_CHANNEL_DOWN" },
+            { L_,   Obj::BTEMT_ENQUEUE_HIGHWATER,   "ENQUEUE_HIGHWATER"  },
+            { L_,   Obj::BTEMT_UNKNOWN_ID,          "UNKNOWN_ID"         },
+
+            { L_,   (Obj::Enum) 1,                  UNKNOWN_FORMAT       },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        const int   SIZE = 128;         // big enough to hold output string
+        const char  XX   = (char)0xFF;  // value of an unset 'char'
+              char  buf[SIZE];          // output buffer
+
+              char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
+        const char *CTRL = mCtrl;
 
         // Verify enumerators.
         for (int ti = 0; ti < NUM_DATA; ++ti)
         {
+            const int        LINE = DATA[ti].d_lineNum;
             const Obj::Enum  ENUM = DATA[ti].d_enumerator;
-            const int        VAL  = DATA[ti].d_expValue;
             const char      *STR  = DATA[ti].d_expString;
 
-            ASSERTV(ENUM, VAL, VAL == ENUM);
+            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
-            const char *result = Obj::toAscii(ENUM);
+            ostrstream out(buf, sizeof buf);
 
-            ASSERTV(STR, result, 0 == strcmp(result, STR));
+            out << ENUM << ends;
+
+            const int SZ = strlen(STR) + 1;
+
+            // Verify that the buffer is large enough.
+            ASSERTV(LINE, ti, SZ  < SIZE);
+
+            ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
+
+            // Check for overrun.
+            ASSERTV(LINE, ti, XX == buf[SIZE - 1]);
+            ASSERTV(LINE, ti,  0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
+
+
+            // Verify that 'Obj::print(stream, value, 0, -1)' produces the same
+            // results.
+            {
+                memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
+                                          // values.
+
+                ostrstream out(buf, sizeof buf);
+                Obj::print(out, ENUM, 0, -1) << ends;
+
+                ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
+
+                // Check for overrun.
+                ASSERTV(LINE, ti, XX == buf[SIZE - 1]);
+                ASSERTV(LINE, ti,
+                        0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
+            }
         }
 
-        // Verify out-of-band values.
-        const char *result = Obj::toAscii(static_cast<Obj::Enum>(1));
-        ASSERTV(result, 0 == strcmp(UNKNOWN_FORMAT, result));
-
-
-        // Verify 'toAscii' signature.
+        // Verify that nothing is written to a bad stream.
+        for (int ti = 0; ti < NUM_DATA; ++ti)
         {
-            typedef const char *(*FuncPtr)(Obj::Enum);
+            const int        LINE = DATA[ti].d_lineNum;
+            const Obj::Enum  ENUM = DATA[ti].d_enumerator;
 
-            const FuncPtr FP = &Obj::toAscii;
+            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
+
+            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            out << ENUM;
+
+            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
+        }
+
+        // Verify '<<' operator signature.
+        {
+            typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Obj::Enum);
+
+            const FuncPtr FP = &operator<<;
             (void) FP;  // quash potential compiler warning
         }
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'ChannelErrorRead::Enum' AND 'ChannelErrorRead::toAscii'
+        // 'btemt_ChannelStatus::Enum' AND 'btemt_ChannelStatus::toAscii'
         //
         // Concerns:
         //: 1 The enumerators have the correct values.
@@ -952,17 +566,18 @@ int main(int argc, char *argv[])
         //:   (C-4, C-5)
         //
         // Testing:
-        //   enum ChannelErrorRead::Enum { ... };
-        //   const char *ChannelErrorRead::toAscii(val);
+        //   enum ChannelStatus::Enum { ... };
+        //   const char *ChannelStatus::toAscii(val);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                  << "'ChannelErrorRead::Enum' AND 'ChannelErrorRead::toAscii'"
-                  << endl
-                  << "========================================================"
-                  << endl;
+            << "'btemt_ChannelStatus::Enum' AND 'btemt_ChannelStatus::toAscii'"
+            << endl
+            << "=============================================================="
+            << endl;
 
-        typedef ChannelErrorRead Obj;
+
+        typedef btemt_ChannelStatus Obj;
 
         static const struct {
             int         d_lineNum;     // source line number
@@ -970,10 +585,15 @@ int main(int argc, char *argv[])
             int         d_expValue;    // expected value
             const char *d_expString;   // expected ascii value
         } DATA[] = {
-            // line  enumerator                  value  ascii
-            // ----  --------------------------  -----  ----------------
-            {  L_,   Obj::BTEMT_SUCCESS,            0,  "SUCCESS"         },
-            {  L_,   Obj::BTEMT_CHANNEL_CLOSED,    -2,  "CHANNEL_CLOSED"  },
+         //line  enumerator                      value  ascii
+         //----  ------------------------------  -----  --------------------
+         { L_,   Obj::BTEMT_SUCCESS,                0,  "SUCCESS"            },
+         { L_,   Obj::BTEMT_CACHE_OVERFLOW,        -1,  "CACHE_OVERFLOW"     },
+         { L_,   Obj::BTEMT_CACHE_HIGHWATER,       -2,  "CACHE_HIGHWATER"    },
+         { L_,   Obj::BTEMT_READ_CHANNEL_DOWN,     -6,  "READ_CHANNEL_DOWN"  },
+         { L_,   Obj::BTEMT_WRITE_CHANNEL_DOWN,    -3,  "WRITE_CHANNEL_DOWN" },
+         { L_,   Obj::BTEMT_ENQUEUE_HIGHWATER,     -4,  "ENQUEUE_HIGHWATER"  },
+         { L_,   Obj::BTEMT_UNKNOWN_ID,            -5,  "UNKNOWN_ID"         },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

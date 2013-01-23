@@ -40,7 +40,7 @@ int btemt_ChannelPoolChannel::addReadQueueEntry(
                                              const bdet_TimeInterval& timeOut)
 {
     if (d_closed) {
-        return -2;
+        return -6;
     }
 
     BSLS_ASSERT(0 < numBytes);

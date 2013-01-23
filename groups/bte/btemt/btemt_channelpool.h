@@ -1628,7 +1628,7 @@ class btemt_ChannelPool {
         // 'enqueueWaterMark' to limit the size of the enqueued portion of the
         // message.  Return 0 on success, and a non-zero value otherwise.  On
         // error, the return value *may* equal to one of the enumerators in
-        // 'btemt::ChannelErrorWrite::Enum'.
+        // 'btemt_ChannelStatus::Enum'.
 
     int write(int                   channelId,
               const btemt_DataMsg&  message);
@@ -1640,7 +1640,7 @@ class btemt_ChannelPool {
         // 'enqueueWaterMark' to limit the size of the enqueued portion of the
         // message.  Return 0 on success, and a non-zero value otherwise.  On
         // error, the return value *may* equal to one of the enumerators in
-        // 'btemt::ChannelErrorWrite::Enum'.
+        // 'btemt_ChannelStatus::Enum'.
 
     int write(int                   channelId,
               const btemt_DataMsg&  message,
@@ -1660,12 +1660,12 @@ class btemt_ChannelPool {
         // Enqueue a request to write the specified 'vecs' into the channel
         // having the specified 'channelId'.  Return 0 on success, and a
         // non-zero value otherwise.  On error, the return value *may* equal to
-        // one of the enumerators in 'btemt::ChannelErrorWrite::Enum'.  Note
-        // that you should prefer this method over the other 'write()' method
-        // *only* *if* you expect that this object will be able to write most
-        // of the data contained in the specified 'vecs' atomically.  If the
-        // 'vecs' must be enqueued, an inefficient data copy will occur to
-        // allow to control the lifetime of the data.
+        // one of the enumerators in 'btemt_ChannelStatus::Enum'.  Note that
+        // you should prefer this method over the other 'write()' method *only*
+        // *if* you expect that this object will be able to write most of the
+        // data contained in the specified 'vecs' atomically.  If the 'vecs'
+        // must be enqueued, an inefficient data copy will occur to allow to
+        // control the lifetime of the data.
 
                                   // *** Clock management ***
 
