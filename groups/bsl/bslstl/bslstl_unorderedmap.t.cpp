@@ -135,12 +135,10 @@ void aSsErT(bool b, const char *s, int i)
 //                      TEST CONFIGURATION MACRO 
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_SUN)   && \
-    defined(BDE_BUILD_TARGET_NO_EXC) && \
-    defined(BDE_BUILD_TARGET_OPT)
-    // The Sun compiler segfaults when trying to compile an optimized build
-    // with exceptions disabled.  We have not investigated further, as this
-    // is such a rare corner to test.
+#if defined(BSLS_PLATFORM_CMP_SUN) && defined(BDE_BUILD_TARGET_OPT)
+    // The Sun compiler segfaults when trying to compile the usage example in
+    // an optimized build.  It was initially though specific to no-excpetion
+    // builds as well, but it now appears to affect all optimized builds.
 #   define BSLSTL_UNORDEREDMAP_DO_NOT_TEST_USAGE
 #endif
 
