@@ -1,3 +1,9 @@
+bde-core (2.16.0.99) unstable; urgency=low
+
+  * BDE 2.16.0 official release.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Jan 2013 15:45:08 -0500
+
 bde-core (2.16.0.4) unstable; urgency=low
 
   * baem metrics improvements.
