@@ -309,11 +309,12 @@ class bdecs_CalendarCache {
     const bdecs_Calendar *calendar(const char *calendarName);
         // Return the non-modifiable address of the calendar corresponding to
         // the specified 'calendarName' in this cache.  If the calendar entry
-        // doesn't exist, or if the calendar entry is invalid (its timeout has
-        // expired), then this method first loads 'calendarName' using the
-        // loader of this cache.  If the loader fails and no previous calendar
-        // entry exists, then return 0.  If the loader fails and an invalid
-        // calendar entry exists, then return that invalid calendar.
+        // doesn't exist, or if the calendar entry is invalid (i.e., it has
+        // timed out, or for which 'invalidate' has been called), then this
+        // method first loads 'calendarName' using the loader of this cache.
+        // If the loader fails and no previous calendar entry exists, then
+        // return 0.  If the loader fails and an invalid calendar entry exists,
+        // then return that invalid calendar.
 
     void invalidate(const char *calendarName);
         // Mark the cache entry for the specified 'calendarName' as invalid if
