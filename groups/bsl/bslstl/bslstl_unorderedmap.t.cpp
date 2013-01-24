@@ -19,6 +19,8 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_buildtarget.h>
+#include <bsls_exceptionutil.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
@@ -128,6 +130,19 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
+//                      TEST CONFIGURATION MACRO 
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN)   && \
+    defined(BDE_BUILD_TARGET_NO_EXC) && \
+    defined(BDE_BUILD_TARGET_OPT)
+    // The Sun compiler segfaults when trying to compile an optimized build
+    // with exceptions disabled.  We have not investigated further, as this
+    // is such a rare corner to test.
+#   define BSLSTL_UNORDEREDMAP_DO_NOT_TEST_USAGE
+#endif
 
 //=============================================================================
 //                              TEST SUPPORT
@@ -241,11 +256,12 @@ void debugprint(const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC>& s)
 
 }  // close namespace bsl
 
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-#ifndef DONT_DO_USAGE
+#if !defined(BSLSTL_UNORDEREDMAP_DO_NOT_TEST_USAGE)
 #if defined(BSLS_PLATFORM_CMP_SUN) // Work around per internal ticket D36282765
 static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
                              bsl::vector<int>::const_iterator end,
@@ -374,7 +390,7 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
 //..
 void usage()
 {
-#ifndef DONT_DO_USAGE
+#if !defined(BSLSTL_UNORDEREDMAP_DO_NOT_TEST_USAGE)
     static char document0[] =
     " IN CONGRESS, July 4, 1776.\n"
     "\n"
@@ -7983,7 +7999,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
                 const VALUE& VZ = VALUES['Z' - 'A'].second;
                 VALUE v;
 
-                try {
+                BSLS_TRY {
                     v = mX.at(K);
                     ASSERTV(LENGTH == X.size());
                     ASSERTV(V == v);
@@ -7994,7 +8010,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
                     ASSERTV(LENGTH == X.size());
                     ASSERTV(V == v);
                 }
-                catch (...) {
+                BSLS_CATCH(...) {
                     ASSERTV(0 && "at threw unexpectedly");
                 }
 
@@ -9489,6 +9505,7 @@ void testImplicitInsert(CONTAINER& mX)
     ASSERT(mX[key_type()] == mapped_type());
     ASSERT(x.size() == 1);  // want to see an error here before continuing
 
+#ifndef BDE_BUILD_TARGET_NO_EXC
     try {
         mapped_type v = x.at(key_type());
         ASSERT(mapped_type() == v);
@@ -9504,6 +9521,7 @@ void testImplicitInsert(CONTAINER& mX)
     catch(const std::exception&) {
         ASSERT(false); // default key has been inserted, should not throw
     }
+#endif
 }
 
 }  // close namespace BREATHING_TEST
@@ -9526,7 +9544,8 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 17: {
+#if !defined(BSLSTL_UNORDEREDMAP_DO_NOT_TEST_USAGE)
+        case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -9546,6 +9565,7 @@ int main(int argc, char *argv[])
                             "\n=============\n");
         usage();
       } break;
+#endif
       case 16: {
         // --------------------------------------------------------------------
         // GROWING FUNCTIONS

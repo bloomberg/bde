@@ -1558,6 +1558,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
 
             ASSERTV(LINE, 0 == da.numBlocksTotal());
 
+#if defined(BDE_BUILD_TARGET_EXC)
             if (veryVeryVerbose) printf("Test correct exception is thrown\n");
             {
                 bool exceptionCaught = false;
@@ -1608,6 +1609,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
                 }
                 ASSERTV(LINE, SIZE, SIZE + 1 == X.size());
             }
+#endif
 
             ASSERTV(LINE, 0 == da.numBlocksInUse());
         }

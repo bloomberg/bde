@@ -254,14 +254,16 @@ int main(int argc, char *argv[]) {
             new (arr) Obj();
             arr[0].~Obj();
 
+#if defined(BDE_BUILD_TARGET_EXC)
+            if (verbose) printf("\nNegative Testing.\n");
             {
-                bsls::AssertFailureHandlerGuard hG(
-                                              bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 new (arr) Obj();
                 std::memmove(arr+1, arr, sizeof(Obj));
                 ASSERT_OPT_FAIL(arr[1].~Obj());
             }
+#endif
 
             scratch.deallocate(reinterpret_cast<void*>(arr));
         }

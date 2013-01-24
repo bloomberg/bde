@@ -8498,7 +8498,7 @@ void mainTestCase8()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
@@ -8624,7 +8624,7 @@ void mainTestCase7()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
@@ -8763,7 +8763,7 @@ void mainTestCase6()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
 
