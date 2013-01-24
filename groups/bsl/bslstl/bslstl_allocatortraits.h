@@ -414,9 +414,13 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_nativestd.h>
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
 #ifndef INCLUDED_UTILITY
 #include <utility>         // 'std::forward'
 #define INCLUDED_UTILITY
+#endif
+
 #endif
 
 

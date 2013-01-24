@@ -95,6 +95,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 namespace BloombergLP {
 namespace bsltf {
 
@@ -187,6 +191,11 @@ bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs);
                         // class AllocTestType
                         // -------------------
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(push)
+#pragma warning(disable:4355) // ctor uses 'this' used in member-initializer
+#endif
+
 // CREATORS
 inline
 AllocTestType::AllocTestType(bslma::Allocator *basicAllocator)
@@ -215,6 +224,10 @@ AllocTestType::AllocTestType(const AllocTestType& original,
     d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = *original.d_data_p;
 }
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(pop)
+#endif
 
 inline
 AllocTestType::~AllocTestType()
