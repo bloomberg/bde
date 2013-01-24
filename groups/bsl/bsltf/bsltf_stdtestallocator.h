@@ -358,12 +358,12 @@ class StdTestAllocator<void> {
 template <class TYPE1, class TYPE2>
 bool operator==(const StdTestAllocator<TYPE1>& lhs,
                 const StdTestAllocator<TYPE2>& rhs);
-    // Return 'true' because StdTestAllocator does not hold a state.
+    // Return 'true' because 'StdTestAllocator' does not hold a state.
 
 template <class TYPE1, class TYPE2>
 bool operator!=(const StdTestAllocator<TYPE1>& lhs,
                 const StdTestAllocator<TYPE2>& rhs);
-    // Return 'false' because StdTestAllocator does not hold a state.
+    // Return 'false' because 'StdTestAllocator' does not hold a state.
 
 // ===========================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
@@ -376,12 +376,12 @@ bool operator!=(const StdTestAllocator<TYPE1>& lhs,
 // CREATORS
 inline
 StdTestAllocatorConfigurationGuard::StdTestAllocatorConfigurationGuard(
-                                                   bslma::Allocator *temporary)
+                                          bslma::Allocator *temporaryAllocator)
 : d_original_p(StdTestAllocatorConfiguration::delegateAllocator())
 {
-    BSLS_ASSERT(temporary);
+    BSLS_ASSERT(temporaryAllocator);
 
-    StdTestAllocatorConfiguration::setDelegateAllocatorRaw(temporary);
+    StdTestAllocatorConfiguration::setDelegateAllocatorRaw(temporaryAllocator);
 }
 
 inline
@@ -413,7 +413,7 @@ StdTestAllocator<TYPE>::StdTestAllocator(const StdTestAllocator<OTHER>&)
 template <class TYPE>
 inline
 typename StdTestAllocator<TYPE>::pointer
-StdTestAllocator<TYPE>::allocate(typename StdTestAllocator<TYPE>::size_type 
+StdTestAllocator<TYPE>::allocate(typename StdTestAllocator<TYPE>::size_type
                                                                    numElements)
 {
     return

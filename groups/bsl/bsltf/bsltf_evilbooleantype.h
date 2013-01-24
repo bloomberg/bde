@@ -32,6 +32,10 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - -
 // First, we ...
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bsltf {
@@ -61,6 +65,7 @@ struct EvilBooleanType {
     BoolResult d_value;
 
   private:
+    // NOT IMPLEMENTED
     void operator=(const EvilBooleanType&);  // = delete;
         // not implemented
 
@@ -74,7 +79,6 @@ struct EvilBooleanType {
     template<class T>
     void operator,(T&); // = delete;
         // not implemented
-
 
   public:
     // CREATORS

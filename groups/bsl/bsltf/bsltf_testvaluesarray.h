@@ -255,7 +255,7 @@ class TestValuesArrayIterator {
         // 'end' is allowed to be dereferenced and is not yet invalidated
         // respectively.
 
-    TestValuesArrayIterator(const TestValuesArrayIterator& other);
+    TestValuesArrayIterator(const TestValuesArrayIterator& original);
 
     // MANIPULATORS
     TestValuesArrayIterator& operator=(const TestValuesArrayIterator& other);
@@ -394,6 +394,7 @@ class TestValuesArray {
 
 template <class VALUE>
 struct TestValuesArray_DefaultConverter {
+    // CLASS METHODS
     static
     void createInplace(VALUE *objPtr, char value, bslma::Allocator *allocator);
 };
@@ -462,18 +463,19 @@ TestValuesArrayIterator<VALUE>::TestValuesArrayIterator(
     BSLS_ASSERT_SAFE(end);
     BSLS_ASSERT_SAFE(dereferenceable);
     BSLS_ASSERT_SAFE(isValid);
+    BSLS_ASSERT_SAFE(*isValid);
 }
 
 template <class VALUE>
 inline
 TestValuesArrayIterator<VALUE>::TestValuesArrayIterator(
-                                          const TestValuesArrayIterator& other)
-: d_data_p(other.d_data_p)
-, d_end_p(other.d_end_p)
-, d_dereferenceable_p(other.d_dereferenceable_p)
-, d_isValid_p(other.d_isValid_p)
+                                       const TestValuesArrayIterator& original)
+: d_data_p(original.d_data_p)
+, d_end_p(original.d_end_p)
+, d_dereferenceable_p(original.d_dereferenceable_p)
+, d_isValid_p(original.d_isValid_p)
 {
-    BSLS_ASSERT_OPT(*other.d_isValid_p);
+    BSLS_ASSERT_OPT(*original.d_isValid_p);
 }
 
 // MANIPULATORS

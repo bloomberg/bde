@@ -1,9 +1,10 @@
 // bsltf_nonequalcomparabletesttype.t.cpp                             -*-C++-*-
 #include <bsltf_nonequalcomparabletesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
@@ -168,16 +169,16 @@ bool isNotEqual(const bsltf::NonEqualComparableTestType& lhs,
 namespace check {
 
 typedef char no[7];
-template<typename T> no& operator == (const T&, const T&);
-template<typename T> no& operator != (const T&, const T&);
+template<class T> no& operator == (const T&, const T&);
+template<class T> no& operator != (const T&, const T&);
 
-template <typename T>
+template <class T>
 struct op_equal_exist
 {
     enum { value = (sizeof(*(T*)(0) == *(T*)(0)) != sizeof(no)) };
 };
 
-template <typename T>
+template <class T>
 struct op_not_equal_exist
 {
     enum { value = (sizeof(*(T*)(0) != *(T*)(0)) != sizeof(no)) };

@@ -75,6 +75,10 @@ BSLS_IDENT("$Id: $")
 //  Type does not define bslmf::IsBitwiseMoveable.
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -163,17 +167,6 @@ class AllocTestType {
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
 };
-
-}
-
-// TRAITS
-namespace bslma {
-template <>
-struct UsesBslmaAllocator<bsltf::AllocTestType>
-    : bsl::true_type {};
-}
-
-namespace bsltf {
 
 // FREE OPERATORS
 bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);
@@ -269,20 +262,28 @@ bslma::Allocator *AllocTestType::allocator() const
     return d_allocator_p;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const AllocTestType& lhs, const AllocTestType& rhs)
+bool bsltf::operator==(const AllocTestType& lhs, const AllocTestType& rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
+bool bsltf::operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+// TRAITS
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<bsltf::AllocTestType>
+    : bsl::true_type {};
+}  // close namespace bslma
+
 }  // close enterprise namespace
 
 #endif

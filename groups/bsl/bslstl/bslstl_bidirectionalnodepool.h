@@ -406,7 +406,7 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::createNode()
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
-                               BSLS_UTIL_ADDRESSOF(node->value()));
+                               bsls::Util::addressOf(node->value()));
 
     proctor.release();
     return node;
@@ -422,7 +422,7 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::createNode(const SOURCE& value)
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
-                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               bsls::Util::addressOf(node->value()),
                                value);
     proctor.release();
     return node;
@@ -439,7 +439,7 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::createNode(const FIRST_ARG&  first,
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
-                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               bsls::Util::addressOf(node->value()),
                                first,
                                second);
     proctor.release();
@@ -466,7 +466,7 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::deleteNode(
     bslalg::BidirectionalNode<VALUE> *node =
                      static_cast<bslalg::BidirectionalNode<VALUE> *>(linkNode);
     AllocatorTraits::destroy(allocator(),
-                             BSLS_UTIL_ADDRESSOF(node->value()));
+                             bsls::Util::addressOf(node->value()));
     d_pool.deallocate(node);
 }
 

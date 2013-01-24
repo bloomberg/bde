@@ -3,9 +3,9 @@
 
 #include <bslalg_scalardestructionprimitives.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>

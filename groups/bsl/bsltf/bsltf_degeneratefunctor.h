@@ -26,6 +26,18 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - -
 // First, we ...
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>  // 'swap', supplied by <utility> in C++11
 #define INCLUDED_ALGORITHM
@@ -52,10 +64,13 @@ class DegenerateFunctor : private FUNCTOR {
     // inherited by a derived class.
 
   private:
+    // PRIVATE CREATORS
     explicit DegenerateFunctor(const FUNCTOR& base);
         // Create a 'DegenerateFunctor' wrapping a copy of the specified
         // 'base'.
 
+  private:
+    // NOT IMPLEMENTED
     DegenerateFunctor& operator=(const DegenerateFunctor&); // = delete;
         // Not implemented
 
@@ -86,20 +101,23 @@ class DegenerateFunctor : private FUNCTOR {
         // 'base'.  Note that this method is supplied so that the only
         // publicly accessible constructor is the copy constructor.
 
+    // CREATORS
     DegenerateFunctor(const DegenerateFunctor& original);
         // Create a 'DegenerateFunctor' having the same value the specified
         // 'original'.
 
+    // MANIPULATORS
     using FUNCTOR::operator();
         // Expose the overloaded function call operator from the parameterizing
         // class 'FUNCTOR'.
 
-    void exchangeValues(DegenerateFunctor& other);
+    void exchangeValues(DegenerateFunctor *other);
         // Swap the wrapped 'FUNCTOR' object, using ADL with 'std::swap' in
-        // the lookup set.  Note that this function is deliberately *not* named
-        // 'swap' as some "clever" template libraries may try to call a member-
-        // swap function when they can find it, and ADL-swap is not available.
-        // Also note that this overload is needed only so that the ADL-enabling
+        // the lookup set, with the functor wrapper by the specified '*other'.
+        // Note that this function is deliberately *not* named 'swap' as some
+        // "clever" template libraries may try to call a member-swap function
+        // when they can find it, and ADL-swap is not available.  Also note
+        // that this overload is needed only so that the ADL-enabling
         // free-function 'swap' can be defined, as the native std library
         // 'swap' function does will not accept this class on AIX or Visual C++
         // prior to VC2010.
@@ -147,10 +165,12 @@ template <class FUNCTOR, bool ENABLE_SWAP>
 inline
 void
 DegenerateFunctor<FUNCTOR, ENABLE_SWAP>::exchangeValues(
-                                                      DegenerateFunctor& other)
+                                                      DegenerateFunctor *other)
 {
+    BSLS_ASSERT_SAFE(other);
+
     using std::swap;
-    swap(static_cast<FUNCTOR&>(*this), static_cast<FUNCTOR&>(other));
+    swap(static_cast<FUNCTOR&>(*this), static_cast<FUNCTOR&>(*other));
 }
 
 }  // close package namespace
@@ -160,7 +180,7 @@ inline
 void bsltf::swap(DegenerateFunctor<FUNCTOR, true>& lhs,
                  DegenerateFunctor<FUNCTOR, true>& rhs)
 {
-    lhs.exchangeValues(rhs);
+    lhs.exchangeValues(bsls::Util::addressOf(rhs));
 }
 
 }  // close enterprise namespace

@@ -252,13 +252,13 @@ class StdStatefulAllocator {
 
     template <class OTHER_TYPE>
     StdStatefulAllocator(const StdStatefulAllocator<
-                               OTHER_TYPE,
-                               PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
-                               PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
-                               PROPAGATE_ON_CONTAINER_SWAP,
-                               PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& other);
+                            OTHER_TYPE,
+                            PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
+                            PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
+                            PROPAGATE_ON_CONTAINER_SWAP,
+                            PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& original);
         // Create a 'StdStatefulAllocator' object wrapping the same test
-        // allocator as the specified 'other'.
+        // allocator as the specified 'original'.
 
     // ~StdStatefulAllocator() = default;
         // Destroy this object.
@@ -376,12 +376,12 @@ StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_SWAP,
                      PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
 StdStatefulAllocator(const StdStatefulAllocator<
-                                OTHER_TYPE,
-                                PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
-                                PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
-                                PROPAGATE_ON_CONTAINER_SWAP,
-                                PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& other)
-: d_allocator_p(other.testAllocator())
+                             OTHER_TYPE,
+                             PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
+                             PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
+                             PROPAGATE_ON_CONTAINER_SWAP,
+                             PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& original)
+: d_allocator_p(original.testAllocator())
 {
 }
 
@@ -460,6 +460,7 @@ select_on_container_copy_construction() const
     }
 
     // else
+
     return StdStatefulAllocator(dynamic_cast<bslma::TestAllocator *>(
                                           bslma::Default::defaultAllocator()));
 }

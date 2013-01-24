@@ -53,6 +53,10 @@ BSLS_IDENT("$Id: $")
 // assert(Z == X);
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 namespace BloombergLP {
 namespace bsltf {
 

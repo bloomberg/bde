@@ -386,12 +386,12 @@ BSLS_IDENT("$Id: $")
 //      if (verbose) printf("\nTesting default constructor.\n");
 //
 //      Obj mW; const Obj& W = mW;
-//      ASSERT(true == W.isNull());
+//      assert(true == W.isNull());
 //
 //      Obj mX; const Obj& X = mX;
 //      const TYPE XV = TemplateTestFacility::create<TYPE>(1);
 //      mX.makeValue(XV);
-//      ASSERT(1 == TemplateTestFacility::getIdentifier<TYPE>(X.value()));
+//      assert(1 == TemplateTestFacility::getIdentifier<TYPE>(X.value()));
 //
 //      if (verbose) printf("\nTesting primary manipulators.\n");
 //
@@ -400,16 +400,16 @@ BSLS_IDENT("$Id: $")
 //          if (veryVerbose) { T_ P(ti) }
 //
 //          Obj mL; const Obj& L = mL;
-//          ASSERT(true == L.isNull());
+//          assert(true == L.isNull());
 //
 //          const TYPE LV = TemplateTestFacility::create<TYPE>(ti);
 //
 //          mL.makeValue(LV);
-//          ASSERT(false == L.isNull());
-//          ASSERT(LV == L.value());
+//          assert(false == L.isNull());
+//          assert(LV == L.value());
 //
 //          mL.makeNull();
-//          ASSERT(true == L.isNull());
+//          assert(true == L.isNull());
 //      }
 //
 //      if (verbose) printf("\nTesting destructor.\n");
@@ -417,8 +417,8 @@ BSLS_IDENT("$Id: $")
 //          Obj Z;
 //      }
 //
-//      ASSERT(true == W.isNull());
-//      ASSERT(XV == X.value());
+//      assert(true == W.isNull());
+//      assert(XV == X.value());
 //  }
 //..
 // Notice that, we create objects of the parameterized 'TYPE' using the
@@ -455,6 +455,10 @@ BSLS_IDENT("$Id: $")
 //    RUN_EACH_TYPE(MyTestDriver, testCase2, TEST_TYPES_REGULAR);
 //  } break;
 //..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLTF_ALLOCBITWISEMOVEABLETESTTYPE
 #include <bsltf_allocbitwisemoveabletesttype.h>
@@ -500,18 +504,22 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
 
-#ifndef INCLUDED_CSTDDEF
+#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>  // for 'size_t'
-#define INCLUDED_CSTDDEF
+#define INCLUDED_STDDEF_H
 #endif
 
-#ifndef INCLUDED_CSTDIO
+#ifndef INCLUDED_STDIO_H
 #include <stdio.h>  // for 'printf'
-#define INCLUDED_CSTDIO
+#define INCLUDED_STDIO_H
 #endif
 
 namespace BloombergLP {
@@ -529,6 +537,7 @@ class TemplateTestFacility_StubClass {
     // respectively.
 
   public:
+    // MANIPULATORS
     template <int IDENTIFIER>
     int method();
         // Return the parameterized 'IDENTIFIER'.
@@ -540,6 +549,7 @@ class TemplateTestFacility_StubClass {
 
 class TemplateTestFacility_CompareHelper {
   public:
+    // CLASS METHODS
     template <class TYPE>
     static bool areEqual(const TYPE& lhs, const TYPE& rhs);
 

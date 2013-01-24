@@ -394,12 +394,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
-#include <bslalg_scalarprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #include <bslalg_scalardestructionprimitives.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR

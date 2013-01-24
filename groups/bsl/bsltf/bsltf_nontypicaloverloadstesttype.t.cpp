@@ -1,9 +1,9 @@
 // bsltf_nontypicaloverloadstesttype.t.cpp                            -*-C++-*-
 #include <bsltf_nontypicaloverloadstesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -195,7 +195,7 @@ int main(int argc, char *argv[]) {
 // assertion:
 //..
           NonTypicalOverloadsTestType obj;
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete &obj);
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete bsls::Util::addressOf(obj));
 //..
 
       } break;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
           BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
 
           NonTypicalOverloadsTestType obj;
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete &obj);
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete bsls::Util::addressOf(obj));
 
 
           bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);

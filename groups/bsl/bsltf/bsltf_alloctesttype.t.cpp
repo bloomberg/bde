@@ -13,11 +13,12 @@
 #include <bsls_bsltestutil.h>
 
 #include <climits>
+#include <cstring>
+#include <new>
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <cstring>
 
-#include <new>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;

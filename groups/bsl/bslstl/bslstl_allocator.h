@@ -175,15 +175,15 @@ BSLS_IDENT("$Id: $")
 //
 //  template<class T, class ALLOC>
 //  my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(
-//                                          const my_FixedSizeArray& rhs,
+//                                          const my_FixedSizeArray& original,
 //                                          const ALLOC&             allocator)
-//  : d_allocator(allocator), d_length(rhs.d_length)
+//  : d_allocator(allocator), d_length(original.d_length)
 //  {
 //      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 //
 //      // copy construct each element of the array:
 //      for (int i = 0; i < d_length; ++i) {
-//          d_allocator.construct(&d_array[i], rhs.d_array[i]);
+//          d_allocator.construct(&d_array[i], original.d_array[i]);
 //      }
 //  }
 //
