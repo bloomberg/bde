@@ -231,7 +231,10 @@ int main(int argc, char *argv[]) {
 
           scratch.deallocate(reinterpret_cast<void*>(arr));
 
-#ifdef BSLS_PLATFORM_CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC && 0
+          // If 'operator&' is private, this test is not necessary, and in fact
+          // will not compile.
+
           NonTypicalOverloadsTestType X;
           BSLS_ASSERTTEST_ASSERT_OPT_FAIL(&X);
 #endif

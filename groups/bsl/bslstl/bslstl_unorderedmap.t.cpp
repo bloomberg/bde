@@ -20,6 +20,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_util.h>
 
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -8847,7 +8848,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                 int numPasses = 0;
                 EXCEPTION_TEST_BEGIN(mX) {
                     ++numPasses;
-                    pv = &mX[VALUES[tj].first];
+                    pv = bsls::Util::addressOf(mX[VALUES[tj].first]);
                 } EXCEPTION_TEST_END
                 ASSERTV(1 == numPasses);
                 ASSERTV(LENGTH == X.size());
