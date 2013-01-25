@@ -7,6 +7,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>

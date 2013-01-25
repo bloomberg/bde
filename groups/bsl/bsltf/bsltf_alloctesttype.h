@@ -91,10 +91,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
-#include <bslmf_isbitwisemoveable.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
