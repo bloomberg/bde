@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time type transformation to rvalue reference.
 //
 //@CLASSES:
-//  bsl::add_rvalue_reference: standard meta-function for transforming type
+//  bsl::add_rvalue_reference: standard meta-function for transforming types
 //
 //@SEE_ALSO: bslmf_integralconstant, bslmf_addlvaluereference
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::add_rvalue_reference', which may be used to transform a type to its
+// 'bsl::add_rvalue_reference', that may be used to transform a type to its
 // rvalue reference type.
 //
 // 'bsl::add_rvalue_reference' meets the requirements of the
@@ -30,11 +30,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Transform to Rvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a couple of types to rvalue reference
-// types.
+// Suppose that we want to transform some types to rvalue reference types.
 //
 // Now, for a set of types, we transform each type to the corresponding rvalue
-// reference of that type using 'bsl::remove_reference' and verify the result:
+// reference of that type using 'bsl::add_rvalue_reference' and verify the
+// result:
 //..
 //#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 //  assert(true  ==
@@ -47,10 +47,10 @@ BSLS_IDENT("$Id: $")
 //       (bsl::is_same<bsl::add_rvalue_reference<int&&>::type, int&&>::value));
 //#endif
 //..
-// Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.  Note also that according to 'reference collapsing' semantics
-// [8.3.2], 'add_rvalue_reference' does not transform 'TYPE' to rvalue
-// reference type if 'TYPE' is a lvalue reference type.
+// Note that rvalue reference was introduced in C++11 and may not be supported
+// by all compilers.  Note also that according to 'reference collapsing'
+// semantics [8.3.2], 'add_rvalue_reference' does not transform 'TYPE' to
+// rvalue reference type if 'TYPE' is an lvalue reference type.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

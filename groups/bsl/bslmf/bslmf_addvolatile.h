@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::add_volatile: meta-function for adding top-level 'volatile'-qualifier
 //
-//@SEE_ALSO: bslmf_addvolatile
+//@SEE_ALSO: bslmf_removevolatile
 //
 //@AUTHOR:
 //

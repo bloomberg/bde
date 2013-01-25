@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::add_cv: meta-function for adding top-level cv-qualifiers
 //
-//@SEE_ALSO: bslmf_cv
+//@SEE_ALSO: bslmf_removecv
 //
 //@AUTHOR:
 //

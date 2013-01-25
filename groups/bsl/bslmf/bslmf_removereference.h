@@ -13,12 +13,14 @@ BSLS_IDENT("$Id: $")
 //  bsl::remove_reference: standard meta-function for stripping reference-ness
 //  bslmf::RemoveReference: meta-function for stripping reference-ness
 //
+//@SEE_ALSO: bslmf_addreference
+//
 //@AUTHOR: Oleg Grunin (ogrunin)
 //
 //@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::remove_reference' and 'BloombergLP::bslmf::RemoveReference', both of
 // which may be used to strip reference-ness (including both lvalue and rvalue
-// reference-ness, if the latter is supported by compiler) from a type.
+// reference-ness, if the latter is supported by the compiler) from a type.
 //
 // 'bsl::remove_reference' meets the requirements of the 'remove_reference'
 // template defined in the C++11 standard [meta.trans.ref], while
@@ -37,8 +39,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Remove Types' Reference-ness
-///- - - - - - - - - - - - - - - - - - - -
+///Example 1: Remove Reference-ness of Types
+///- - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to remove the reference-ness of a set of types.
 //
 // Now, remove the reference-ness of a set of types using
@@ -67,9 +69,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-                         // ======================
-                         // struct RemoveReference
-                         // ======================
+                         // =======================
+                         // struct remove_reference
+                         // =======================
 
 namespace bsl {
 
@@ -81,7 +83,7 @@ struct remove_reference {
     // (template parameter) 'TYPE' except with reference-ness removed.  Note
     // that this generic default template provides a 'type' that is an alias to
     // 'TYPE' for when 'TYPE' is not a reference.  A template specialization is
-    // provided (below) that removes the 'const'-qualifier for when 'TYPE' is a
+    // provided (below) that removes reference-ness for when 'TYPE' is a
     // reference.
 
     typedef TYPE type;
@@ -89,10 +91,10 @@ struct remove_reference {
 };
 
 template <class TYPE>
-struct remove_reference<TYPE &> {
-     // This partial specialization of 'bsl::remove_reference', for when the
-     // (template parameter) 'TYPE' is a reference, provides a 'typedef',
-     // 'type', that has reference-ness of 'TYPE' removed.
+struct remove_reference<TYPE&> {
+    // This partial specialization of 'bsl::remove_reference', for when the
+    // (template parameter) 'TYPE' is an rvalue reference, provides a
+    // 'typedef', 'type', that has reference-ness of 'TYPE' removed.
 
     typedef TYPE type;
         // This 'typedef' is an alias to the same type as the (template
@@ -102,9 +104,14 @@ struct remove_reference<TYPE &> {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
 template <class TYPE>
-struct remove_reference<TYPE &&>
-{
+struct remove_reference<TYPE&&> {
+    // This partial specialization of 'bsl::remove_reference', for when the
+    // (template parameter) 'TYPE' is a reference, provides a 'typedef',
+    // 'type', that has reference-ness of 'TYPE' removed.
+
     typedef TYPE type;
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE' except with the reference-ness removed.
 };
 
 #endif

@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for testing if two types are same.
+//@PURPOSE: Provide a meta-function for testing if two types are the same.
 //
 //@CLASSES:
-//  bsl::is_same: standard meta-function for testing if two types are same
+//  bsl::is_same: standard meta-function for testing if two types are the same
 //  bslmf::IsSame: meta-function for testing if two types are the same
 //
 //@AUTHOR: Shawn Edwards (sedwards)
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Determine Same Types
 ///- - - - - - - - - - - - - - - -
 // Suppose that we have several pairs of types and want to assert whether
-// the types in each pair are same.
+// the types in each pair are the same.
 //
 // First, we define several 'typedef's:
 //..

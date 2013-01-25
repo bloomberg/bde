@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
         //:   the same.
         //:
         //: 2 'IsSame::VALUE' is 0 when the two template parameter types are
-        //:   not of the same.
+        //:   not the same.
         //
         // Plan:
         //   Instantiate 'bslmf::IsSame' with various combinations of types and
