@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Conditional Type Transformation Based on Boolean Value
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Conditional Select From Two Types
+/// - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to select between two types based on a 'bool' value.
 //
 // Now, we use 'bsl::conditional' to select between two types, 'int' and

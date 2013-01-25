@@ -430,7 +430,7 @@ namespace bsl {
                          // struct enable_if
                          // ================
 
-template <bool COND, typename TYPE = void>
+template <bool COND, class TYPE = void>
 struct enable_if {
     // This 'struct' template implements the 'enable_if' meta-function defined
     // in the C++11 standard [meta.trans.ptr].  This 'struct' template provides
@@ -448,7 +448,7 @@ struct enable_if {
                          // struct enable_if<false, TYPE>
                          // =============================
 
-template <typename TYPE>
+template <class TYPE>
 struct enable_if<false, TYPE> {
     // This partial specialization of the 'enable_if', for when the (template
     // parameter) 'COND' is 'false', guarantees that no 'typedef' 'type' is
