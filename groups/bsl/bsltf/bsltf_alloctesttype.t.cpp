@@ -1,6 +1,7 @@
 // bsltf_alloctesttype.t.cpp                                          -*-C++-*-
 #include <bsltf_alloctesttype.h>
 
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -14,11 +15,11 @@
 #include <bsls_bsltestutil.h>
 
 #include <climits>
-#include <cstring>
 #include <new>
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 using namespace BloombergLP;
@@ -261,7 +262,7 @@ int main(int argc, char *argv[]) {
                 bsls::AssertTestHandlerGuard hG;
 
                 new (arr) Obj();
-                std::memmove(arr+1, arr, sizeof(Obj));
+                memmove(arr+1, arr, sizeof(Obj));
                 ASSERT_OPT_FAIL(arr[1].~Obj());
             }
 #endif

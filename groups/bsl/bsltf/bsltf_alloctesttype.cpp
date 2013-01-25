@@ -4,10 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
-
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable:4355) // ctor uses 'this' used in member-initializer
@@ -44,6 +45,15 @@ AllocTestType::AllocTestType(const AllocTestType& original,
 {
     d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = *original.d_data_p;
+}
+
+AllocTestType::~AllocTestType()
+{
+    d_allocator_p->deallocate(d_data_p);
+
+    // Ensure that this objects has not been bitwise moved.
+
+    BSLS_ASSERT_OPT(this == d_self_p);
 }
 
 // MANIPULATORS

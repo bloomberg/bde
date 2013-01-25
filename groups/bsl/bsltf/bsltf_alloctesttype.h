@@ -79,20 +79,17 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
+namespace BloombergLP
+{
 
-namespace BloombergLP {
-namespace bsltf {
+namespace bslma { class Allocator; }
+
+namespace bsltf
+{
 
                         // ===================
                         // class AllocTestType
@@ -182,17 +179,6 @@ bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs);
                         // -------------------
                         // class AllocTestType
                         // -------------------
-
-// CREATORS
-inline
-AllocTestType::~AllocTestType()
-{
-    d_allocator_p->deallocate(d_data_p);
-
-    // Ensure that this objects has not been bitwise moved.
-
-    BSLS_ASSERT_OPT(this == d_self_p);
-}
 
 // MANIPULATORS
 inline
