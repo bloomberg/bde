@@ -1231,6 +1231,15 @@ unix-*                  _   RATIONAL_WIN_OPT = -windows=no
 !! *            _   BBINC       = $(BBSRCBBINC)/bbinc
 !! *            _   CINCLUDE    = $(BBSRCBBINC)/Cinclude
 
+# Package-based build refroot computation
+unix-AIX-*         _ BDE_REFROOT_PLATFORM_NAME = aix6-powerpc
+unix-SunOS-*       _ BDE_REFROOT_PLATFORM_NAME = solaris10-sparc
+unix-Linux-*       _ BDE_REFROOT_PLATFORM_NAME = amd64
+
+unix-*             _ BDE_REFROOT_VER           = $(shell cat /bb/build/share/stage/etc/distribution.conf)
+unix-*             _ BDE_REFROOT               = /bb/build/share/packages/refroot/$(BDE_REFROOT_PLATFORM_NAME)
+unix-*             _ BDE_LIBREFROOT            = $(BDE_REFROOT)/$(BDE_REFROOT_VER)/bb/lib$(BDE_WORD64)
+
 #==============================================================================
 # User Customisation
 #==============================================================================
