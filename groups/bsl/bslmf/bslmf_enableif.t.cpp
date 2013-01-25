@@ -2,11 +2,12 @@
 
 #include <bslmf_enableif.h>
 
-#include <bslmf_isconvertible.h>
-#include <bslmf_isfundamental.h>
-#include <bslmf_ispolymorphic.h>
-#include <bslmf_issame.h>
-#include <bsls_bsltestutil.h>
+#include <bslmf_isconvertible.h>  // for testing only
+#include <bslmf_isfundamental.h>  // for testing only
+#include <bslmf_ispolymorphic.h>  // for testing only
+#include <bslmf_issame.h>         // for testing only
+
+#include <bsls_bsltestutil.h>     // for testing only
 
 // limit ourselves to the "C" library for packages below 'bslstl'
 #include <iso646.h>  // required only by the Microsoft compiler
@@ -25,9 +26,9 @@ using namespace BloombergLP;
 //                                --------
 // The objects under test are two meta-functions, 'bsl::enable_if' and
 // 'bslmf::EnableIf', that provides a 'typedef' 'type' only if a (template
-// parameter) condition is 'true'.  Since both meta-functions provides idential
-// functionality, they are both tested by enumeration of all combinations of
-// 'true' and 'false' ocnditions.
+// parameter) condition is 'true'.  Since both meta-functions provides
+// identical functionality, they are both tested by verifying their behavior
+// against a the enumerations of 'true' and 'false' conditions.
 //-----------------------------------------------------------------------------
 // [ 2] bsl::enable_if
 // [ 1] bslmf::EnableIf
@@ -126,6 +127,8 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 // meta-function.  We will demonstrate how to use this utility to control
 // overload sets with three increasingly complex examples.
 //
+///Example 1: Implementing a Simple Function with 'bsl::enable_if'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For the first example we will implement a simple 'Swap' function template
 // to exchange two arbitrary values, as if declared as below:
 //..
@@ -279,6 +282,9 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         ASSERT( 3 == y.front());
    }
 //..
+
+///Example 2: Using the 'bsl::enable_if' Result Type
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // For the next example, we will demonstrate the use of the second template
 // parameter in the 'bsl::enable_if' template, which serves as the "result"
 // type if the test condition passes.  Assume we want to write a generic
@@ -287,7 +293,6 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 // two seemingly unrelated types.  However, if either type is not polymorphic
 // then the attempt to use 'dynamic_cast' would be a compile-time failure, and
 // we must use 'static_cast' instead.
-//
 //..
     template<class TO, class FROM>
     typename bsl::enable_if<bsl::is_polymorphic<FROM>::value &&
@@ -364,6 +369,9 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         // C *pC3 = smart_cast<C>(pA);
     }
 //..
+
+///Example 3: Controlling Constructor Selection with 'bsl::enable_if'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The final example demonstrates controlling the selection of a constructor
 // template in a class with (potentially) many constructors.  We define a
 // simple container template based on 'std::vector', that illustrates a problem
@@ -569,7 +577,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::enable_if'
+        // 'bsl::enable_if'
         //   Test the 'bsl::enable_if' meta-function.
         //
         // Concerns:
@@ -612,12 +620,10 @@ int main(int argc, char *argv[])
         //   bsl::enable_if<CONDITION, RESULT_TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n"
-                            "bsl::enable_if\n"
+        if (verbose) printf("bsl::enable_if\n"
                             "==============\n");
 
         if (veryVerbose) printf("\nTest the return type\n");
-
         {
             {
                 const bool R =
@@ -726,12 +732,10 @@ int main(int argc, char *argv[])
         //   bslmf::EnableIf<CONDITION, RESULT_TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n"
-                            "bslmf::EnableIf\n"
+        if (verbose) printf("bslmf::EnableIf\n"
                             "===============\n");
 
         if (veryVerbose) printf("\nTest the return type\n");
-
         {
             {
                 const bool R =
@@ -809,11 +813,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

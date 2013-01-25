@@ -220,7 +220,6 @@ BSLS_IDENT("$Id: $")
 // two seemingly unrelated types.  However, if either type is not polymorphic
 // then the attempt to use 'dynamic_cast' would be a compile-time failure, and
 // we must use 'static_cast' instead.
-//
 //..
 //  template<class TO, class FROM>
 //  typename bsl::enable_if<bsl::is_polymorphic<FROM>::value &&
@@ -438,7 +437,7 @@ struct enable_if {
     // a 'typedef' 'type' that is an alias to the (template parameter) 'TYPE'
     // if the (template parameter) 'COND' is 'true'; otherwise, 'type' is not
     // provided.  Note that this generic default template provides 'type' for
-    // when 'COND' is 'true'; a template specialization is sprovided (below)
+    // when 'COND' is 'true'; a template specialization is provided (below)
     // that omits 'type' for when 'COND' is 'false'.
 
     typedef TYPE type;
@@ -512,11 +511,11 @@ struct EnableIf <false, BSLMA_TYPE> {
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
