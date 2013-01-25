@@ -83,16 +83,12 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 namespace BloombergLP {
@@ -187,44 +183,7 @@ bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs);
                         // class AllocTestType
                         // -------------------
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(push)
-#pragma warning(disable:4355) // ctor uses 'this' used in member-initializer
-#endif
-
 // CREATORS
-inline
-AllocTestType::AllocTestType(bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = 0;
-}
-
-inline
-AllocTestType::AllocTestType(int data, bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = data;
-}
-
-inline
-AllocTestType::AllocTestType(const AllocTestType& original,
-                             bslma::Allocator     *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = *original.d_data_p;
-}
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(pop)
-#endif
-
 inline
 AllocTestType::~AllocTestType()
 {
@@ -236,20 +195,6 @@ AllocTestType::~AllocTestType()
 }
 
 // MANIPULATORS
-inline
-AllocTestType& AllocTestType::operator=(const AllocTestType& rhs)
-{
-    if (&rhs != this)
-    {
-        int *newData = reinterpret_cast<int *>(
-                                         d_allocator_p->allocate(sizeof(int)));
-        d_allocator_p->deallocate(d_data_p);
-        d_data_p = newData;
-        *d_data_p = *rhs.d_data_p;
-    }
-    return *this;
-}
-
 inline
 void AllocTestType::setData(int value)
 {
