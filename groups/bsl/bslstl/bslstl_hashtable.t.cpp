@@ -5557,7 +5557,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
                                                               MAX_LF2);
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                const ALLOCATOR objAlloc     = AllocMaker::make(&oa);
+                const ALLOCATOR objAlloc  = AllocMaker::make(&oa);
 
                 {
                     Obj mX(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, objAlloc);
@@ -5586,18 +5586,23 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
 
                     ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
 
+                    // Should test that alloctor propagates if, and only if,
+                    // the allocator has the propogate_on_container_copy_assign
+                    // trait.  Currently we assme (and test) that allocators
+                    // never propagate.
+
                     ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
                     ASSERTV(LINE1, LINE2, scratchAlloc == Z.allocator());
 
                     ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
-#if !defined(BDE_BUILD_TARGET_SAFE_2)
+//#if !defined(BDE_BUILD_TARGET_SAFE_2)
                     // The invariant check in the destructor uses the default
                     // allocator in SAFE_2 builds.
                     // Otherwise, no memory should be allocated by the default
                     // allocator.
                     ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
-#endif
+//#endif
                 }
 
                 // Verify all memory is released on object destruction.
@@ -6733,6 +6738,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                      bsl::allocator<int> >::value;
 
     if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
+    if (verbose) { P(ALLOCATOR_IS_BSL_ALLOCATOR); }
 
     static const struct {
         int         d_line;           // source line number
@@ -6878,7 +6884,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
                 // Verify no allocation from the non-object allocator.
 
-#if !defined(BDE_BUILD_TARGET_SAFE_2)
+//#if !defined(BDE_BUILD_TARGET_SAFE_2)
                 // The invariant check in the destructor uses the default
                 // allocator in SAFE_2 builds.
 
@@ -6899,7 +6905,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
                 ASSERTV(LINE, CONFIG, EXP_NUM_BLOCKS, noa->numBlocksTotal(),
                         EXP_NUM_BLOCKS == noa->numBlocksTotal());
-#endif
+//#endif
 
                 // Verify all memory is released on object destruction.
 
