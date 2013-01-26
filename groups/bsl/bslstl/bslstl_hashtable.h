@@ -1488,6 +1488,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_MALLOCFREEALLOCATOR
+#include <bslma_mallocfreeallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -2854,11 +2858,21 @@ inline
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
 {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-    // ASSERT class invariant only in SAFE_2 builds.
+    // ASSERT class invariant only in SAFE_2 builds.  Note that we specifically
+    // use the MallocFree allocator, rather than allowing the default allocator
+    // to supply memory to this state-checking function, in case the object
+    // allocator *is* the default allocator, and so may be restricted during
+    // testing.  This would cause the test below to fail by throwing a bad
+    // allocation exception, and so result in a throwing destructor.  While the
+    // MallocFree alloctor might also run out of resources, that is not the
+    // kind of catastrophic failure we are concerned with handling in an
+    // invariant check that runs only in SAFE_2 builds from a destructor.
+    //
 
     BSLS_ASSERT_SAFE(bslalg::HashTableImpUtil::isWellFormed<KEY_CONFIG>(
-                                                 this->d_anchor,
-                                                 this->d_parameters.hasher()));
+                                    this->d_anchor,
+                                    this->d_parameters.hasher(),
+                                    &bslma::MallocFreeAllocator::singleton()));
 
     // TBD This forces a check for corruption that should be otherwise picked
     //     up by a test driver.  It should be removed before releasing the

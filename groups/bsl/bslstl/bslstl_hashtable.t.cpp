@@ -4788,10 +4788,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
                     P(X);
                 }
 
-                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator scratch1("scratch1", veryVeryVeryVerbose);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*oa) {
-                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch);
+                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch1);
 
                     // This will fail on the initial insert as we must also
                     // create the bucket array, so there is an extra pass.
@@ -4939,10 +4939,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
                     P(X);
                 }
 
-                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator scratch2("scratch2", veryVeryVeryVerbose);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*oa) {
-                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch);
+                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch2);
 
                     bslma::TestAllocatorMonitor tam(oa);
                     Link *RESULT = mX.insert(VALUES[LENGTH - 1]);

@@ -266,7 +266,6 @@ class TestValuesArrayIterator {
         // behavior is undefined unless this iterator refers to a valid value
         // in the container.
 
-#if defined(BILL_HAS_FINSHED_TESTING_UINORDERED_CONTAINERS)
     TestValuesArray_PostIncrementPtr<VALUE> operator++(int);
         // Move this iterator to the next element in the container, and return
         // an object that can be dereferenced to refer to the same object that
@@ -274,7 +273,6 @@ class TestValuesArrayIterator {
         // of this iterator are no longer dereferenceable or comparable.  The
         // behavior is undefined unless this iterator refers to a valid value
         // in the container.
-#endif
 
     // ACCESSORS
     const VALUE& operator *() const;
@@ -286,7 +284,6 @@ class TestValuesArrayIterator {
         // Return the address of the value (of the parameterized 'VALUE_TYPE')
         // of the element at which this iterator is positioned.  The behavior
         // is undefined unless this iterator dereferenceable.
-
 };
 
 template <class VALUE>
@@ -509,7 +506,6 @@ TestValuesArrayIterator<VALUE>::operator++()
     return *this;
 }
 
-#if defined(BILL_HAS_FINSHED_TESTING_UINORDERED_CONTAINERS)
 template <class VALUE>
 TestValuesArray_PostIncrementPtr<VALUE>
 TestValuesArrayIterator<VALUE>::operator++(int)
@@ -521,7 +517,6 @@ TestValuesArrayIterator<VALUE>::operator++(int)
     this->operator++();
     return result;
 }
-#endif
 
 // ACCESSORS
 template <class VALUE>

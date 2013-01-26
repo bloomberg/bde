@@ -504,8 +504,16 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_MALLOCFREEALLOCATOR
+#include <bslma_mallocfreeallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -956,7 +964,11 @@ template <class TYPE>
 inline
 TYPE TemplateTestFacility::create(int identifier)
 {
-    return TYPE(identifier);
+    bsls::ObjectBuffer<TYPE> obj;
+    emplace(reinterpret_cast<TYPE *>(obj.buffer()),
+            identifier,
+            &bslma::MallocFreeAllocator::singleton());
+    return obj.object();
 }
 
 template <class TYPE>
@@ -982,14 +994,6 @@ void TemplateTestFacility::emplace(TYPE             **address,
 
 template <>
 inline
-EnumeratedTestType::Enum TemplateTestFacility::create<
-                                      EnumeratedTestType::Enum>(int identifier)
-{
-    return static_cast<EnumeratedTestType::Enum>(identifier);
-}
-
-template <>
-inline
 void TemplateTestFacility::emplace<EnumeratedTestType::Enum>(
                                           EnumeratedTestType::Enum *address,
                                           int                       identifier,
@@ -999,146 +1003,6 @@ void TemplateTestFacility::emplace<EnumeratedTestType::Enum>(
                              address,
                              static_cast<EnumeratedTestType::Enum>(identifier),
                              allocator);
-}
-
-template <>
-inline
-TemplateTestFacility::MethodPtr TemplateTestFacility::create<
-                               TemplateTestFacility::MethodPtr>(int identifier)
-{
-    BSLS_ASSERT(0 <= identifier);  BSLS_ASSERT(identifier < 128);
-
-    switch (identifier) {
-      case 0:   return &TemplateTestFacility_StubClass::method<0>;
-      case 1:   return &TemplateTestFacility_StubClass::method<1>;
-      case 2:   return &TemplateTestFacility_StubClass::method<2>;
-      case 3:   return &TemplateTestFacility_StubClass::method<3>;
-      case 4:   return &TemplateTestFacility_StubClass::method<4>;
-      case 5:   return &TemplateTestFacility_StubClass::method<5>;
-      case 6:   return &TemplateTestFacility_StubClass::method<6>;
-      case 7:   return &TemplateTestFacility_StubClass::method<7>;
-      case 8:   return &TemplateTestFacility_StubClass::method<8>;
-      case 9:   return &TemplateTestFacility_StubClass::method<9>;
-      case 10:  return &TemplateTestFacility_StubClass::method<10>;
-      case 11:  return &TemplateTestFacility_StubClass::method<11>;
-      case 12:  return &TemplateTestFacility_StubClass::method<12>;
-      case 13:  return &TemplateTestFacility_StubClass::method<13>;
-      case 14:  return &TemplateTestFacility_StubClass::method<14>;
-      case 15:  return &TemplateTestFacility_StubClass::method<15>;
-      case 16:  return &TemplateTestFacility_StubClass::method<16>;
-      case 17:  return &TemplateTestFacility_StubClass::method<17>;
-      case 18:  return &TemplateTestFacility_StubClass::method<18>;
-      case 19:  return &TemplateTestFacility_StubClass::method<19>;
-      case 20:  return &TemplateTestFacility_StubClass::method<20>;
-      case 21:  return &TemplateTestFacility_StubClass::method<21>;
-      case 22:  return &TemplateTestFacility_StubClass::method<22>;
-      case 23:  return &TemplateTestFacility_StubClass::method<23>;
-      case 24:  return &TemplateTestFacility_StubClass::method<24>;
-      case 25:  return &TemplateTestFacility_StubClass::method<25>;
-      case 26:  return &TemplateTestFacility_StubClass::method<26>;
-      case 27:  return &TemplateTestFacility_StubClass::method<27>;
-      case 28:  return &TemplateTestFacility_StubClass::method<28>;
-      case 29:  return &TemplateTestFacility_StubClass::method<29>;
-      case 30:  return &TemplateTestFacility_StubClass::method<30>;
-      case 31:  return &TemplateTestFacility_StubClass::method<31>;
-      case 32:  return &TemplateTestFacility_StubClass::method<32>;
-      case 33:  return &TemplateTestFacility_StubClass::method<33>;
-      case 34:  return &TemplateTestFacility_StubClass::method<34>;
-      case 35:  return &TemplateTestFacility_StubClass::method<35>;
-      case 36:  return &TemplateTestFacility_StubClass::method<36>;
-      case 37:  return &TemplateTestFacility_StubClass::method<37>;
-      case 38:  return &TemplateTestFacility_StubClass::method<38>;
-      case 39:  return &TemplateTestFacility_StubClass::method<39>;
-      case 40:  return &TemplateTestFacility_StubClass::method<40>;
-      case 41:  return &TemplateTestFacility_StubClass::method<41>;
-      case 42:  return &TemplateTestFacility_StubClass::method<42>;
-      case 43:  return &TemplateTestFacility_StubClass::method<43>;
-      case 44:  return &TemplateTestFacility_StubClass::method<44>;
-      case 45:  return &TemplateTestFacility_StubClass::method<45>;
-      case 46:  return &TemplateTestFacility_StubClass::method<46>;
-      case 47:  return &TemplateTestFacility_StubClass::method<47>;
-      case 48:  return &TemplateTestFacility_StubClass::method<48>;
-      case 49:  return &TemplateTestFacility_StubClass::method<49>;
-      case 50:  return &TemplateTestFacility_StubClass::method<50>;
-      case 51:  return &TemplateTestFacility_StubClass::method<51>;
-      case 52:  return &TemplateTestFacility_StubClass::method<52>;
-      case 53:  return &TemplateTestFacility_StubClass::method<53>;
-      case 54:  return &TemplateTestFacility_StubClass::method<54>;
-      case 55:  return &TemplateTestFacility_StubClass::method<55>;
-      case 56:  return &TemplateTestFacility_StubClass::method<56>;
-      case 57:  return &TemplateTestFacility_StubClass::method<57>;
-      case 58:  return &TemplateTestFacility_StubClass::method<58>;
-      case 59:  return &TemplateTestFacility_StubClass::method<59>;
-      case 60:  return &TemplateTestFacility_StubClass::method<60>;
-      case 61:  return &TemplateTestFacility_StubClass::method<61>;
-      case 62:  return &TemplateTestFacility_StubClass::method<62>;
-      case 63:  return &TemplateTestFacility_StubClass::method<63>;
-      case 64:  return &TemplateTestFacility_StubClass::method<64>;
-      case 65:  return &TemplateTestFacility_StubClass::method<65>;
-      case 66:  return &TemplateTestFacility_StubClass::method<66>;
-      case 67:  return &TemplateTestFacility_StubClass::method<67>;
-      case 68:  return &TemplateTestFacility_StubClass::method<68>;
-      case 69:  return &TemplateTestFacility_StubClass::method<69>;
-      case 70:  return &TemplateTestFacility_StubClass::method<70>;
-      case 71:  return &TemplateTestFacility_StubClass::method<71>;
-      case 72:  return &TemplateTestFacility_StubClass::method<72>;
-      case 73:  return &TemplateTestFacility_StubClass::method<73>;
-      case 74:  return &TemplateTestFacility_StubClass::method<74>;
-      case 75:  return &TemplateTestFacility_StubClass::method<75>;
-      case 76:  return &TemplateTestFacility_StubClass::method<76>;
-      case 77:  return &TemplateTestFacility_StubClass::method<77>;
-      case 78:  return &TemplateTestFacility_StubClass::method<78>;
-      case 79:  return &TemplateTestFacility_StubClass::method<79>;
-      case 80:  return &TemplateTestFacility_StubClass::method<80>;
-      case 81:  return &TemplateTestFacility_StubClass::method<81>;
-      case 82:  return &TemplateTestFacility_StubClass::method<82>;
-      case 83:  return &TemplateTestFacility_StubClass::method<83>;
-      case 84:  return &TemplateTestFacility_StubClass::method<84>;
-      case 85:  return &TemplateTestFacility_StubClass::method<85>;
-      case 86:  return &TemplateTestFacility_StubClass::method<86>;
-      case 87:  return &TemplateTestFacility_StubClass::method<87>;
-      case 88:  return &TemplateTestFacility_StubClass::method<88>;
-      case 89:  return &TemplateTestFacility_StubClass::method<89>;
-      case 90:  return &TemplateTestFacility_StubClass::method<90>;
-      case 91:  return &TemplateTestFacility_StubClass::method<91>;
-      case 92:  return &TemplateTestFacility_StubClass::method<92>;
-      case 93:  return &TemplateTestFacility_StubClass::method<93>;
-      case 94:  return &TemplateTestFacility_StubClass::method<94>;
-      case 95:  return &TemplateTestFacility_StubClass::method<95>;
-      case 96:  return &TemplateTestFacility_StubClass::method<96>;
-      case 97:  return &TemplateTestFacility_StubClass::method<97>;
-      case 98:  return &TemplateTestFacility_StubClass::method<98>;
-      case 99:  return &TemplateTestFacility_StubClass::method<99>;
-      case 100: return &TemplateTestFacility_StubClass::method<100>;
-      case 101: return &TemplateTestFacility_StubClass::method<101>;
-      case 102: return &TemplateTestFacility_StubClass::method<102>;
-      case 103: return &TemplateTestFacility_StubClass::method<103>;
-      case 104: return &TemplateTestFacility_StubClass::method<104>;
-      case 105: return &TemplateTestFacility_StubClass::method<105>;
-      case 106: return &TemplateTestFacility_StubClass::method<106>;
-      case 107: return &TemplateTestFacility_StubClass::method<107>;
-      case 108: return &TemplateTestFacility_StubClass::method<108>;
-      case 109: return &TemplateTestFacility_StubClass::method<109>;
-      case 110: return &TemplateTestFacility_StubClass::method<110>;
-      case 111: return &TemplateTestFacility_StubClass::method<111>;
-      case 112: return &TemplateTestFacility_StubClass::method<112>;
-      case 113: return &TemplateTestFacility_StubClass::method<113>;
-      case 114: return &TemplateTestFacility_StubClass::method<114>;
-      case 115: return &TemplateTestFacility_StubClass::method<115>;
-      case 116: return &TemplateTestFacility_StubClass::method<116>;
-      case 117: return &TemplateTestFacility_StubClass::method<117>;
-      case 118: return &TemplateTestFacility_StubClass::method<118>;
-      case 119: return &TemplateTestFacility_StubClass::method<119>;
-      case 120: return &TemplateTestFacility_StubClass::method<120>;
-      case 121: return &TemplateTestFacility_StubClass::method<121>;
-      case 122: return &TemplateTestFacility_StubClass::method<122>;
-      case 123: return &TemplateTestFacility_StubClass::method<123>;
-      case 124: return &TemplateTestFacility_StubClass::method<124>;
-      case 125: return &TemplateTestFacility_StubClass::method<125>;
-      case 126: return &TemplateTestFacility_StubClass::method<126>;
-      case 127: return &TemplateTestFacility_StubClass::method<127>;
-    }
-    return 0;
 }
 
 template <>
@@ -1391,7 +1255,7 @@ int TemplateTestFacility::getIdentifier<bsltf::NonTypicalOverloadsTestType>(
 template <>
 inline
 int TemplateTestFacility::getIdentifier<bsltf::NonAssignableTestType>(
-                             const bsltf::NonAssignableTestType& object)
+                                    const bsltf::NonAssignableTestType& object)
 {
     return object.data();
 }
