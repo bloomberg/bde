@@ -602,7 +602,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 
     pos_type outputPos = currentOutputPosition - dataPtr;
     this->setp(dataPtr, dataPtr + dataSize);
-    this->pbump(outputPos);
+    this->pbump(int(outputPos));
     return outputPos;
 }
 
@@ -630,7 +630,7 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
         native_std::size_t dataSize = d_str.size();
         this->setp(dataPtr, dataPtr + dataSize);
         if (outputOffset) {
-            this->pbump(outputOffset);
+            this->pbump(int(outputOffset));
         }
     }
 }
@@ -660,7 +660,7 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
     pos_type size = native_std::max<off_type>(d_lastWrittenChar,
                                               this->pptr() - this->pbase());
 
-    BSLS_ASSERT(size <= d_str.size());
+    BSLS_ASSERT(size <= off_type(d_str.size()));
 
     return size;
 }
@@ -776,7 +776,7 @@ native_std::streamsize
                                                            numCharacters);
 
         traits_type::copy(result, this->gptr(), readChars);
-        this->gbump(readChars);
+        this->gbump(int(readChars));
 
         return readChars;                                             // RETURN
     }
