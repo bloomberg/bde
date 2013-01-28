@@ -1071,7 +1071,7 @@ int main(int argc, char *argv[]) {
                       } break;
                       default: {
                         ASSERTV(CONFIG, !"Bad allocator config.");
-                      } break;
+                      } return;
                     }
                     ASSERTV(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
@@ -1240,7 +1240,7 @@ int main(int argc, char *argv[]) {
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
-              } break;
+              } return;
             }
 
             bslma::TestAllocator&  oa = *objAllocatorPtr;
@@ -1262,7 +1262,7 @@ int main(int argc, char *argv[]) {
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                  } break;
+                  } return;
                 }
                 ASSERTV(CONFIG, tam.isInUseUp());
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
