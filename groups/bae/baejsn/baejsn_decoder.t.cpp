@@ -129,12 +129,13 @@ static void aSsErT(int c, const char *s, int i)
 typedef baejsn_Decoder Obj;
 
 const char XML_SCHEMA[] =
+
 "<?xml version='1.0' encoding='UTF-8'?>"
 "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'"
 "           xmlns:bdem='http://bloomberg.com/schemas/bdem'"
 "           bdem:package='baea'"
 "           elementFormDefault='qualified'>"
-
+""
 "<xs:complexType name='Choice1'>"
 "  <xs:choice>"
 "    <xs:element name='selection1' type='xs:int'/>"
@@ -143,7 +144,7 @@ const char XML_SCHEMA[] =
 "    <xs:element name='selection4' type='Choice2'/>"
 "  </xs:choice>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='Choice2'>"
 "  <xs:choice>"
 "    <xs:element name='selection1' type='xs:boolean'/>"
@@ -152,7 +153,7 @@ const char XML_SCHEMA[] =
 "    <xs:element name='selection4' type='xs:unsignedInt'/>    "
 "  </xs:choice>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='Choice3'>"
 "  <xs:choice>"
 "    <xs:element name='selection1' type='Sequence6'/>"
@@ -161,19 +162,19 @@ const char XML_SCHEMA[] =
 "    <xs:element name='selection4' type='CustomInt'/>"
 "  </xs:choice>"
 "</xs:complexType>"
-
+""
 "<xs:simpleType name='CustomInt'>"
 "  <xs:restriction base='xs:int'>"
 "    <xs:maxInclusive value='1000'/>"
 "  </xs:restriction>"
 "</xs:simpleType>"
-
+""
 "<xs:simpleType name='CustomString'>"
 "  <xs:restriction base='xs:string'>"
 "    <xs:maxLength value='8'/>"
 "  </xs:restriction>"
 "</xs:simpleType>"
-
+""
 "<xs:simpleType name='Enumerated' bdem:preserveEnumOrder='true'>"
 "  <xs:restriction base='xs:string'>"
 "     <xs:enumeration value='NEW_YORK'/>"
@@ -181,7 +182,7 @@ const char XML_SCHEMA[] =
 "     <xs:enumeration value='LONDON'/>"
 "  </xs:restriction>"
 "</xs:simpleType>"
-
+""
 "<xs:complexType name='Sequence1'>"
 "  <xs:sequence>"
 "    <xs:element name='element1' type='Choice3' minOccurs='0'/>"
@@ -191,7 +192,7 @@ const char XML_SCHEMA[] =
 "    <xs:element name='element5' type='Choice3' minOccurs='0' maxOccurs='unbounded'/>"
 "  </xs:sequence>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='Sequence2'>"
 "  <xs:sequence>"
 "    <xs:element name='element1' type='CustomString' />"
@@ -201,7 +202,7 @@ const char XML_SCHEMA[] =
 "    <xs:element name='element5' type='xs:double' minOccurs='0'/>"
 "  </xs:sequence>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='Sequence3'>"
 "  <xs:sequence>"
 "    <xs:element name='element1' type='Enumerated' minOccurs='0' maxOccurs='unbounded'/>"
@@ -212,7 +213,7 @@ const char XML_SCHEMA[] =
 "    <xs:element name='element6' type='Enumerated' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
 "  </xs:sequence>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='Sequence4'>"
 "  <xs:sequence>"
 "    <xs:element name='element1' type='Sequence3' minOccurs='0' maxOccurs='unbounded'/>"
@@ -230,25 +231,25 @@ const char XML_SCHEMA[] =
 "    <xs:element name='element13' type='Enumerated' />"
 "    <xs:element name='element14' type='xs:boolean' minOccurs='0' maxOccurs='unbounded'/>"
 "    <xs:element name='element15' type='xs:double' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element16' type='xs:hexBinary' minOccurs='0' maxOccurs='unbounded'/>"
+// "    <xs:element name='element16' type='xs:hexBinary' minOccurs='0' maxOccurs='unbounded'/>"
 "    <xs:element name='element17' type='xs:int' minOccurs='0' maxOccurs='unbounded'/>"
 "    <xs:element name='element18' type='xs:dateTime' minOccurs='0' maxOccurs='unbounded'/>"
 "    <xs:element name='element19' type='CustomString' minOccurs='0' maxOccurs='unbounded'/>"
 "  </xs:sequence>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='Sequence5'>"
 "  <xs:sequence>"
 "    <xs:element name='element1' type='Sequence3' />"
 "    <xs:element name='element2' type='xs:boolean' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
 "    <xs:element name='element3' type='xs:double' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element4' type='xs:hexBinary' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
+// "    <xs:element name='element4' type='xs:hexBinary' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
 "    <xs:element name='element5' type='xs:int' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
 "    <xs:element name='element6' type='xs:dateTime' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
 "    <xs:element name='element7' type='Sequence3' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
 "  </xs:sequence>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='Sequence6'>"
 "  <xs:sequence>"
 "    <xs:element name='element1' type='xs:unsignedByte' minOccurs='0'/>"
@@ -268,11 +269,11 @@ const char XML_SCHEMA[] =
 "    <xs:element name='element15' type='xs:unsignedInt' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
 "  </xs:sequence>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='VoidSequence'>"
 "  <xs:sequence/>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='UnsignedSequence'>"
 "  <xs:sequence>"
 "    <xs:element name='element1' type='xs:unsignedInt'/>"
@@ -280,7 +281,7 @@ const char XML_SCHEMA[] =
 "    <xs:element name='element3' type='xs:unsignedLong'/>"
 "  </xs:sequence>"
 "</xs:complexType>"
-
+""
 "<xs:complexType name='SequenceWithAnonymity'>"
 "  <xs:sequence>"
 "    <xs:choice>"
@@ -300,7 +301,7 @@ const char XML_SCHEMA[] =
 "    <xs:element name='element4' type='Sequence6'/>"
 "  </xs:sequence>"
 "</xs:complexType>    "
-
+""
 "<xs:complexType name='FeatureTestMessage'>"
 "  <xs:choice>"
 "    <xs:element name='selection1'  type='Sequence1'/>"
@@ -316,14 +317,14 @@ const char XML_SCHEMA[] =
 "    <xs:element name='selection11' type='SequenceWithAnonymity'/>"
 "  </xs:choice>"
 "</xs:complexType>"
-
+""
 "  <xs:complexType name='SimpleRequest'>"
 "    <xs:sequence>"
 "      <xs:element name='data'           type='xs:string'/>"
 "      <xs:element name='responseLength' type='xs:int'/>"
 "    </xs:sequence>"
 "  </xs:complexType>"
-
+""
 "  <xs:complexType name='Request'>"
 "    <xs:choice>"
 "      <xs:element name='simpleRequest' type='SimpleRequest'/>"
@@ -337,7 +338,9 @@ const char XML_SCHEMA[] =
 "      <xs:element name='featureResponse' type='FeatureTestMessage'/>"
 "    </xs:choice>"
 "  </xs:complexType>"
-
+""
+"  <xs:element name='Obj' type='FeatureTestMessage'/>"
+""
 "</xs:schema>";
 
 static const struct {
@@ -12333,8 +12336,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "ONDON</element7><element8>true</element8><element9>arbitrary string value</el"
 "ement9><element10>1.5</element10><element11>FF0001</element11><element12>2</e"
 "lement12><element13>LONDON</element13><element14>true</element14><element14>t"
-"rue</element14><element15>1.5</element15><element15>1.5</element15><element16"
-">FF0001</element16><element16>FF0001</element16><element17>2</element17><elem"
+"rue</element14><element15>1.5</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><elem"
 "ent17>2</element17><element18>2012-08-18T13:25:00</element18><element18>2012-"
 "08-18T13:25:00</element18><element19>custom</element19><element19>custom</ele"
 "ment19></selection3></element2><element2><selection3><element1><element1>LOND"
@@ -12381,8 +12383,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "ment7>LONDON</element7><element8>true</element8><element9>arbitrary string va"
 "lue</element9><element10>1.5</element10><element11>FF0001</element11><element"
 "12>2</element12><element13>LONDON</element13><element14>true</element14><elem"
-"ent14>true</element14><element15>1.5</element15><element15>1.5</element15><el"
-"ement16>FF0001</element16><element16>FF0001</element16><element17>2</element1"
+"ent14>true</element14><element15>1.5</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element1"
 "7><element17>2</element17><element18>2012-08-18T13:25:00</element18><element1"
 "8>2012-08-18T13:25:00</element18><element19>custom</element19><element19>cust"
 "om</element19></selection3></element2><element3>FF0001</element3><element4>2<"
@@ -12466,8 +12467,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "N</element7><element8>true</element8><element9>arbitrary string value</elemen"
 "t9><element10>1.5</element10><element11>FF0001</element11><element12>2</eleme"
 "nt12><element13>LONDON</element13><element14>true</element14><element14>true<"
-"/element14><element15>1.5</element15><element15>1.5</element15><element16>FF0"
-"001</element16><element16>FF0001</element16><element17>2</element17><element1"
+"/element14><element15>1.5</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><element1"
 "7>2</element17><element18>2012-08-18T13:25:00</element18><element18>2012-08-1"
 "8T13:25:00</element18><element19>custom</element19><element19>custom</element"
 "19></selection3></element2><element2><selection3><element1><element1>LONDON</"
@@ -12514,8 +12514,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "7>LONDON</element7><element8>true</element8><element9>arbitrary string value<"
 "/element9><element10>1.5</element10><element11>FF0001</element11><element12>2"
 "</element12><element13>LONDON</element13><element14>true</element14><element1"
-"4>true</element14><element15>1.5</element15><element15>1.5</element15><elemen"
-"t16>FF0001</element16><element16>FF0001</element16><element17>2</element17><e"
+"4>true</element14><element15>1.5</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><e"
 "lement17>2</element17><element18>2012-08-18T13:25:00</element18><element18>20"
 "12-08-18T13:25:00</element18><element19>custom</element19><element19>custom</"
 "element19></selection3></element2><element3>FF0001</element3><element4>2</ele"
@@ -12523,8 +12522,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "ment7>LONDON</element7><element8>true</element8><element9>arbitrary string va"
 "lue</element9><element10>1.5</element10><element11>FF0001</element11><element"
 "12>2</element12><element13>LONDON</element13><element14>true</element14><elem"
-"ent14>true</element14><element15>1.5</element15><element15>1.5</element15><el"
-"ement16>FF0001</element16><element16>FF0001</element16><element17>2</element1"
+"ent14>true</element14><element15>1.5</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element1"
 "7><element17>2</element17><element18>2012-08-18T13:25:00</element18><element1"
 "8>2012-08-18T13:25:00</element18><element19>custom</element19><element19>cust"
 "om</element19></selection3></element2><element3><selection3><selection3><elem"
@@ -12689,8 +12687,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "lement7><element8>true</element8><element9>arbitrary string value</element9><"
 "element10>1.5</element10><element11>FF0001</element11><element12>2</element12"
 "><element13>LONDON</element13><element14>true</element14><element14>true</ele"
-"ment14><element15>1.5</element15><element15>1.5</element15><element16>FF0001<"
-"/element16><element16>FF0001</element16><element17>2</element17><element17>2<"
+"ment14><element15>1.5</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><element17>2<"
 "/element17><element18>2012-08-18T13:25:00</element18><element18>2012-08-18T13"
 ":25:00</element18><element19>custom</element19><element19>custom</element19><"
 "/selection3></element2><element2><selection3><element1><element1>LONDON</elem"
@@ -12737,8 +12734,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "NDON</element7><element8>true</element8><element9>arbitrary string value</ele"
 "ment9><element10>1.5</element10><element11>FF0001</element11><element12>2</el"
 "ement12><element13>LONDON</element13><element14>true</element14><element14>tr"
-"ue</element14><element15>1.5</element15><element15>1.5</element15><element16>"
-"FF0001</element16><element16>FF0001</element16><element17>2</element17><eleme"
+"ue</element14><element15>1.5</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><eleme"
 "nt17>2</element17><element18>2012-08-18T13:25:00</element18><element18>2012-0"
 "8-18T13:25:00</element18><element19>custom</element19><element19>custom</elem"
 "ent19></selection3></element2><element3>FF0001</element3><element4>2</element"
@@ -12746,8 +12742,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "7>LONDON</element7><element8>true</element8><element9>arbitrary string value<"
 "/element9><element10>1.5</element10><element11>FF0001</element11><element12>2"
 "</element12><element13>LONDON</element13><element14>true</element14><element1"
-"4>true</element14><element15>1.5</element15><element15>1.5</element15><elemen"
-"t16>FF0001</element16><element16>FF0001</element16><element17>2</element17><e"
+"4>true</element14><element15>1.5</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><e"
 "lement17>2</element17><element18>2012-08-18T13:25:00</element18><element18>20"
 "12-08-18T13:25:00</element18><element19>custom</element19><element19>custom</"
 "element19></selection3></selection3></element3></selection1></Obj>",
@@ -12838,8 +12833,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "lement8>true</element8><element9>arbitrary string value</element9><element10>"
 "1.5</element10><element11>FF0001</element11><element12>2</element12><element1"
 "3>LONDON</element13><element14>true</element14><element14>true</element14><el"
-"ement15>1.5</element15><element15>1.5</element15><element16>FF0001</element16"
-"><element16>FF0001</element16><element17>2</element17><element17>2</element17"
+"ement15>1.5</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><element17>2</element17"
 "><element18>2012-08-18T13:25:00</element18><element18>2012-08-18T13:25:00</el"
 "ement18><element19>custom</element19><element19>custom</element19></selection"
 "3></element4><element5>1.5</element5></selection3></Obj>",
@@ -12937,8 +12931,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "><element9>arbitrary string value</element9><element10>1.5</element10><elemen"
 "t11>FF0001</element11><element12>2</element12><element13>LONDON</element13><e"
 "lement14>true</element14><element14>true</element14><element15>1.5</element15"
-"><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</el"
-"ement16><element17>2</element17><element17>2</element17><element18>2012-08-18"
+"><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><element17>2</element17><element18>2012-08-18"
 "T13:25:00</element18><element18>2012-08-18T13:25:00</element18><element19>cus"
 "tom</element19><element19>custom</element19></selection3></element2><element2"
 "><selection3><element1><element1>LONDON</element1><element1>LONDON</element1>"
@@ -12985,8 +12978,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "lement8><element9>arbitrary string value</element9><element10>1.5</element10>"
 "<element11>FF0001</element11><element12>2</element12><element13>LONDON</eleme"
 "nt13><element14>true</element14><element14>true</element14><element15>1.5</el"
-"ement15><element15>1.5</element15><element16>FF0001</element16><element16>FF0"
-"001</element16><element17>2</element17><element17>2</element17><element18>201"
+"ement15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><element17>2</element17><element18>201"
 "2-08-18T13:25:00</element18><element18>2012-08-18T13:25:00</element18><elemen"
 "t19>custom</element19><element19>custom</element19></selection3></element2><e"
 "lement3>FF0001</element3><element4>2</element4><element5>2012-08-18T13:25:00<"
@@ -12994,8 +12986,7 @@ static const char* XML_TEST_MESSAGES[] = {
 "e</element8><element9>arbitrary string value</element9><element10>1.5</elemen"
 "t10><element11>FF0001</element11><element12>2</element12><element13>LONDON</e"
 "lement13><element14>true</element14><element14>true</element14><element15>1.5"
-"</element15><element15>1.5</element15><element16>FF0001</element16><element16"
-">FF0001</element16><element17>2</element17><element17>2</element17><element18"
+"</element15><element15>1.5</element15><element16>FF0001</element16><element16>FF0001</element16><element17>2</element17><element17>2</element17><element18"
 ">2012-08-18T13:25:00</element18><element18>2012-08-18T13:25:00</element18><el"
 "ement19>custom</element19><element19>custom</element19></selection3></element"
 "4><element5>1.5</element5></selection3></Obj>",
@@ -13851,8 +13842,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            2,\n"
@@ -14092,8 +14081,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            2,\n"
@@ -14340,8 +14327,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            2,\n"
@@ -14581,8 +14566,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            2,\n"
@@ -14663,8 +14646,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -14691,8 +14672,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -14750,8 +14729,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -14778,8 +14755,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -14872,8 +14847,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -14900,8 +14873,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -14959,8 +14930,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -14987,8 +14956,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -15088,8 +15055,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -15116,8 +15081,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -15175,8 +15138,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -15203,8 +15164,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -15297,8 +15256,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -15325,8 +15282,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -15384,8 +15339,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -15412,8 +15365,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -15692,8 +15643,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "          ],\n"
@@ -15914,8 +15863,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "          ],\n"
@@ -16166,8 +16113,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "          ],\n"
@@ -16388,8 +16333,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "          ],\n"
@@ -16820,8 +16763,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -17061,8 +17002,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -17497,8 +17436,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -17738,8 +17675,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -18005,8 +17940,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            2,\n"
@@ -18419,8 +18352,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -18660,8 +18591,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -19096,8 +19025,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -19337,8 +19264,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -19471,8 +19396,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -19499,8 +19422,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -19567,8 +19488,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -19595,8 +19514,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -19659,8 +19576,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -19687,8 +19602,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -19746,8 +19659,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -19774,8 +19685,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -19868,8 +19777,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -19896,8 +19803,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -19955,8 +19860,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -19983,8 +19886,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -20055,8 +19956,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            -980123,\n"
@@ -20124,8 +20023,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -20152,8 +20049,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -20220,8 +20115,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -20248,8 +20141,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -20312,8 +20203,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -20340,8 +20229,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -20399,8 +20286,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -20427,8 +20312,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -20521,8 +20404,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -20549,8 +20430,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -20608,8 +20487,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -20636,8 +20513,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -20708,8 +20583,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            -980123,\n"
@@ -20770,8 +20643,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -20798,8 +20669,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -20857,8 +20726,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -20885,8 +20752,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  -980123,\n"
@@ -20990,8 +20855,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -21018,8 +20881,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -21086,8 +20947,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -21114,8 +20973,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -21178,8 +21035,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -21206,8 +21061,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -21265,8 +21118,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -21293,8 +21144,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -21387,8 +21236,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -21415,8 +21262,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -21474,8 +21319,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -21502,8 +21345,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -21574,8 +21415,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            -980123,\n"
@@ -21643,8 +21482,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -21671,8 +21508,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -21739,8 +21574,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -21767,8 +21600,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -21831,8 +21662,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -21859,8 +21688,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -21918,8 +21745,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -21946,8 +21771,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -22040,8 +21863,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -22068,8 +21889,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -22127,8 +21946,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -22155,8 +21972,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -22227,8 +22042,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            -980123,\n"
@@ -22520,8 +22333,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "          ],\n"
@@ -23007,8 +22818,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -23248,8 +23057,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element16\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element17\" : [\n"
     "                  2,\n"
@@ -23489,8 +23296,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -23517,8 +23322,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -23585,8 +23388,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      null,\n"
@@ -23613,8 +23414,6 @@ static const struct {
     "                  1.5\n"
     "                ],\n"
     "                \"element4\" : [\n"
-    "                  \"\\/wAB\",\n"
-    "                  \"\\/wAB\"\n"
     "                ],\n"
     "                \"element5\" : [\n"
     "                  null,\n"
@@ -23677,8 +23476,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -23705,8 +23502,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -23764,8 +23559,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -23792,8 +23585,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -23886,8 +23677,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -23914,8 +23703,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -23973,8 +23760,6 @@ static const struct {
     "                            1.5\n"
     "                          ],\n"
     "                          \"element4\" : [\n"
-    "                            \"\\/wAB\",\n"
-    "                            \"\\/wAB\"\n"
     "                          ],\n"
     "                          \"element5\" : [\n"
     "                            -980123,\n"
@@ -24001,8 +23786,6 @@ static const struct {
     "                        1.5\n"
     "                      ],\n"
     "                      \"element4\" : [\n"
-    "                        \"\\/wAB\",\n"
-    "                        \"\\/wAB\"\n"
     "                      ],\n"
     "                      \"element5\" : [\n"
     "                        -980123,\n"
@@ -24073,8 +23856,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element16\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element17\" : [\n"
     "            -980123,\n"
@@ -24710,8 +24491,6 @@ static const struct {
     "          1.5\n"
     "        ],\n"
     "        \"element16\" : [\n"
-    "          \"\\/wAB\",\n"
-    "          \"\\/wAB\"\n"
     "        ],\n"
     "        \"element17\" : [\n"
     "          2,\n"
@@ -24782,8 +24561,6 @@ static const struct {
     "                    1.5\n"
     "                  ],\n"
     "                  \"element4\" : [\n"
-    "                    \"\\/wAB\",\n"
-    "                    \"\\/wAB\"\n"
     "                  ],\n"
     "                  \"element5\" : [\n"
     "                    -980123,\n"
@@ -24810,8 +24587,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element4\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element5\" : [\n"
     "                -980123,\n"
@@ -24869,8 +24644,6 @@ static const struct {
     "                    1.5\n"
     "                  ],\n"
     "                  \"element4\" : [\n"
-    "                    \"\\/wAB\",\n"
-    "                    \"\\/wAB\"\n"
     "                  ],\n"
     "                  \"element5\" : [\n"
     "                    -980123,\n"
@@ -24897,8 +24670,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element4\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element5\" : [\n"
     "                -980123,\n"
@@ -25168,8 +24939,6 @@ static const struct {
     "          1.5\n"
     "        ],\n"
     "        \"element16\" : [\n"
-    "          \"\\/wAB\",\n"
-    "          \"\\/wAB\"\n"
     "        ],\n"
     "        \"element17\" : [\n"
     "        ],\n"
@@ -25590,8 +25359,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element16\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element17\" : [\n"
     "                2,\n"
@@ -25831,8 +25598,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element16\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element17\" : [\n"
     "                2,\n"
@@ -25937,8 +25702,6 @@ static const struct {
     "                    1.5\n"
     "                  ],\n"
     "                  \"element4\" : [\n"
-    "                    \"\\/wAB\",\n"
-    "                    \"\\/wAB\"\n"
     "                  ],\n"
     "                  \"element5\" : [\n"
     "                    null,\n"
@@ -25965,8 +25728,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element4\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element5\" : [\n"
     "                null,\n"
@@ -26033,8 +25794,6 @@ static const struct {
     "                    1.5\n"
     "                  ],\n"
     "                  \"element4\" : [\n"
-    "                    \"\\/wAB\",\n"
-    "                    \"\\/wAB\"\n"
     "                  ],\n"
     "                  \"element5\" : [\n"
     "                    null,\n"
@@ -26061,8 +25820,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element4\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element5\" : [\n"
     "                null,\n"
@@ -26125,8 +25882,6 @@ static const struct {
     "                          1.5\n"
     "                        ],\n"
     "                        \"element4\" : [\n"
-    "                          \"\\/wAB\",\n"
-    "                          \"\\/wAB\"\n"
     "                        ],\n"
     "                        \"element5\" : [\n"
     "                          -980123,\n"
@@ -26153,8 +25908,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -26212,8 +25965,6 @@ static const struct {
     "                          1.5\n"
     "                        ],\n"
     "                        \"element4\" : [\n"
-    "                          \"\\/wAB\",\n"
-    "                          \"\\/wAB\"\n"
     "                        ],\n"
     "                        \"element5\" : [\n"
     "                          -980123,\n"
@@ -26240,8 +25991,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -26334,8 +26083,6 @@ static const struct {
     "                          1.5\n"
     "                        ],\n"
     "                        \"element4\" : [\n"
-    "                          \"\\/wAB\",\n"
-    "                          \"\\/wAB\"\n"
     "                        ],\n"
     "                        \"element5\" : [\n"
     "                          -980123,\n"
@@ -26362,8 +26109,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -26421,8 +26166,6 @@ static const struct {
     "                          1.5\n"
     "                        ],\n"
     "                        \"element4\" : [\n"
-    "                          \"\\/wAB\",\n"
-    "                          \"\\/wAB\"\n"
     "                        ],\n"
     "                        \"element5\" : [\n"
     "                          -980123,\n"
@@ -26449,8 +26192,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -26521,8 +26262,6 @@ static const struct {
     "          1.5\n"
     "        ],\n"
     "        \"element16\" : [\n"
-    "          \"\\/wAB\",\n"
-    "          \"\\/wAB\"\n"
     "        ],\n"
     "        \"element17\" : [\n"
     "          -980123,\n"
@@ -26792,8 +26531,6 @@ static const struct {
     "            1.5\n"
     "          ],\n"
     "          \"element4\" : [\n"
-    "            \"\\/wAB\",\n"
-    "            \"\\/wAB\"\n"
     "          ],\n"
     "          \"element5\" : [\n"
     "            -980123,\n"
@@ -26820,8 +26557,6 @@ static const struct {
     "        1.5\n"
     "      ],\n"
     "      \"element4\" : [\n"
-    "        \"\\/wAB\",\n"
-    "        \"\\/wAB\"\n"
     "      ],\n"
     "      \"element5\" : [\n"
     "        -980123,\n"
@@ -27227,7 +26962,6 @@ static const struct {
     L_,
     " {\n"
     "  \"selection11\" : {\n"
-    "    \"Choice\" : {\n"
     "      \"selection1\" : {\n"
     "        \"element4\" : 3123123123,\n"
     "        \"element5\" : 255,\n"
@@ -27248,10 +26982,10 @@ static const struct {
     "        \"element15\" : [\n"
     "        ]\n"
     "      }\n"
-    "    },\n"
-    "    \"Choice-1\" : {\n"
+//     "    },\n"
+//     "    \"Choice-1\" : {\n"
     "      \"selection5\" : true\n"
-    "    },\n"
+//     "    },\n"
     "    \"element4\" : {\n"
     "      \"element4\" : 3123123123,\n"
     "      \"element5\" : 255,\n"
@@ -27548,8 +27282,6 @@ static const struct {
     "          1.5\n"
     "        ],\n"
     "        \"element16\" : [\n"
-    "          \"\\/wAB\",\n"
-    "          \"\\/wAB\"\n"
     "        ],\n"
     "        \"element17\" : [\n"
     "          2,\n"
@@ -27689,8 +27421,6 @@ static const struct {
     "                    1.5\n"
     "                  ],\n"
     "                  \"element4\" : [\n"
-    "                    \"\\/wAB\",\n"
-    "                    \"\\/wAB\"\n"
     "                  ],\n"
     "                  \"element5\" : [\n"
     "                    -980123,\n"
@@ -27717,8 +27447,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element4\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element5\" : [\n"
     "                -980123,\n"
@@ -27776,8 +27504,6 @@ static const struct {
     "                    1.5\n"
     "                  ],\n"
     "                  \"element4\" : [\n"
-    "                    \"\\/wAB\",\n"
-    "                    \"\\/wAB\"\n"
     "                  ],\n"
     "                  \"element5\" : [\n"
     "                    -980123,\n"
@@ -27804,8 +27530,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element4\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element5\" : [\n"
     "                -980123,\n"
@@ -28136,8 +27860,6 @@ static const struct {
     "          1.5\n"
     "        ],\n"
     "        \"element16\" : [\n"
-    "          \"\\/wAB\",\n"
-    "          \"\\/wAB\"\n"
     "        ],\n"
     "        \"element17\" : [\n"
     "        ],\n"
@@ -28592,8 +28314,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element16\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element17\" : [\n"
     "                2,\n"
@@ -28833,8 +28553,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element16\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element17\" : [\n"
     "                2,\n"
@@ -28968,8 +28686,6 @@ static const struct {
     "                    1.5\n"
     "                  ],\n"
     "                  \"element4\" : [\n"
-    "                    \"\\/wAB\",\n"
-    "                    \"\\/wAB\"\n"
     "                  ],\n"
     "                  \"element5\" : [\n"
     "                    null,\n"
@@ -28996,8 +28712,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element4\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element5\" : [\n"
     "                null,\n"
@@ -29064,8 +28778,6 @@ static const struct {
     "                    1.5\n"
     "                  ],\n"
     "                  \"element4\" : [\n"
-    "                    \"\\/wAB\",\n"
-    "                    \"\\/wAB\"\n"
     "                  ],\n"
     "                  \"element5\" : [\n"
     "                    null,\n"
@@ -29092,8 +28804,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element4\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element5\" : [\n"
     "                null,\n"
@@ -29156,8 +28866,6 @@ static const struct {
     "                          1.5\n"
     "                        ],\n"
     "                        \"element4\" : [\n"
-    "                          \"\\/wAB\",\n"
-    "                          \"\\/wAB\"\n"
     "                        ],\n"
     "                        \"element5\" : [\n"
     "                          -980123,\n"
@@ -29184,8 +28892,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -29243,8 +28949,6 @@ static const struct {
     "                          1.5\n"
     "                        ],\n"
     "                        \"element4\" : [\n"
-    "                          \"\\/wAB\",\n"
-    "                          \"\\/wAB\"\n"
     "                        ],\n"
     "                        \"element5\" : [\n"
     "                          -980123,\n"
@@ -29271,8 +28975,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -29365,8 +29067,6 @@ static const struct {
     "                          1.5\n"
     "                        ],\n"
     "                        \"element4\" : [\n"
-    "                          \"\\/wAB\",\n"
-    "                          \"\\/wAB\"\n"
     "                        ],\n"
     "                        \"element5\" : [\n"
     "                          -980123,\n"
@@ -29393,8 +29093,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -29452,8 +29150,6 @@ static const struct {
     "                          1.5\n"
     "                        ],\n"
     "                        \"element4\" : [\n"
-    "                          \"\\/wAB\",\n"
-    "                          \"\\/wAB\"\n"
     "                        ],\n"
     "                        \"element5\" : [\n"
     "                          -980123,\n"
@@ -29480,8 +29176,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element4\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element5\" : [\n"
     "                      -980123,\n"
@@ -29552,8 +29246,6 @@ static const struct {
     "          1.5\n"
     "        ],\n"
     "        \"element16\" : [\n"
-    "          \"\\/wAB\",\n"
-    "          \"\\/wAB\"\n"
     "        ],\n"
     "        \"element17\" : [\n"
     "          -980123,\n"
@@ -29834,8 +29526,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element16\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element17\" : [\n"
     "              ],\n"
@@ -30056,8 +29746,6 @@ static const struct {
     "                1.5\n"
     "              ],\n"
     "              \"element16\" : [\n"
-    "                \"\\/wAB\",\n"
-    "                \"\\/wAB\"\n"
     "              ],\n"
     "              \"element17\" : [\n"
     "              ],\n"
@@ -30721,8 +30409,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element16\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element17\" : [\n"
     "                      2,\n"
@@ -30962,8 +30648,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element16\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element17\" : [\n"
     "                      2,\n"
@@ -31398,8 +31082,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element16\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element17\" : [\n"
     "                      2,\n"
@@ -31639,8 +31321,6 @@ static const struct {
     "                      1.5\n"
     "                    ],\n"
     "                    \"element16\" : [\n"
-    "                      \"\\/wAB\",\n"
-    "                      \"\\/wAB\"\n"
     "                    ],\n"
     "                    \"element17\" : [\n"
     "                      2,\n"
@@ -31701,8 +31381,6 @@ static const struct {
     "          1.5\n"
     "        ],\n"
     "        \"element16\" : [\n"
-    "          \"\\/wAB\",\n"
-    "          \"\\/wAB\"\n"
     "        ],\n"
     "        \"element17\" : [\n"
     "          2,\n"
@@ -35145,6 +34823,104 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) {
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING COMPLEX MESSAGES USING 'bcem_Aggregate'
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        const char                *SCHEMA     = XML_SCHEMA;
+        const int                  SCHEMA_LEN = sizeof(XML_SCHEMA);
+        bdesb_FixedMemInStreamBuf  schema(SCHEMA, SCHEMA_LEN);
+        baexml_MiniReader          reader;
+        baexml_ErrorInfo           errInfo;
+
+        bcema_SharedPtr<bdem_Schema> schemaPtr;
+        schemaPtr.createInplace();
+
+        baexml_SchemaParser schemaParser(&reader, &errInfo);
+        int rc = schemaParser.parse(&schema, schemaPtr.ptr());
+        ASSERT(!rc);
+
+        baexml_DecoderOptions options;
+        baexml_Decoder xmlDecoder(&options, &reader, &errInfo, &bsl::cout, &bsl::cout);
+
+        const bsl::string INPUT =
+            " {\n"
+            "  \"selection3\" : {\n"
+            "    \"element1\" : \"custom\",\n"
+            "    \"element2\" : 0,\n"
+            "    \"element3\" : \"2012-08-18T13:25:00.000+00:00\",\n"
+            "    \"element4\" : {\n"
+            "      \"selection3\" : {\n"
+            "        \"element1\" : [\n"
+            "        ],\n"
+            "        \"element2\" : [\n"
+            "        ],\n"
+            "        \"element8\" : true,\n"
+            "        \"element9\" : \"\",\n"
+            "        \"element10\" : 1.5,\n"
+            "        \"element11\" : \"\\/wAB\",\n"
+            "        \"element12\" : -980123,\n"
+            "        \"element13\" : \"LONDON\",\n"
+            "        \"element14\" : [\n"
+            "        ],\n"
+            "        \"element15\" : [\n"
+            "        ],\n"
+            "        \"element16\" : [\n"
+            "        ],\n"
+            "        \"element17\" : [\n"
+            "        ],\n"
+            "        \"element18\" : [\n"
+            "        ],\n"
+            "        \"element19\" : [\n"
+            "        ]\n"
+            "      }\n"
+            "    },\n"
+            "    \"element5\" : 1.5\n"
+            "  }\n"
+            "}\n";
+
+        const bsl::string XML = 
+" <Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>"
+"  <selection3>"
+"    <element1>custom</element1>"
+"    <element2>0</element2>"
+"    <element3>2012-08-18T13:25:00.000+00:00</element3>"
+"    <element4>"
+"      <selection3>"
+"        <element8>true</element8>"
+"        <element9></element9>"
+"        <element10>1.5</element10>"
+"        <element11>FF0001</element11>"
+"        <element12>-980123</element12>"
+"        <element13>LONDON</element13>"
+"      </selection3>"
+"    </element4>"
+"    <element5>1.5</element5>"
+"  </selection3>"
+    "</Obj>";
+
+        bdesb_FixedMemInStreamBuf data(XML.data(), XML.length());
+
+        bcem_Aggregate exp(schemaPtr, "Obj");
+        rc = xmlDecoder.decode(&data, &exp);
+        ASSERTV(!rc);
+
+        bcem_Aggregate value(schemaPtr, "Obj");
+
+        baejsn_Decoder jsonDecoder;
+        bdesb_FixedMemInStreamBuf isb(INPUT.data(),
+                                      INPUT.length());
+        rc = jsonDecoder.decode(&isb, &value);
+        ASSERTV(!rc);
+        P(jsonDecoder.loggedMessages());
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -36078,7 +35854,6 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-#if 0
         const char                *SCHEMA     = XML_SCHEMA;
         const int                  SCHEMA_LEN = sizeof(XML_SCHEMA);
         bdesb_FixedMemInStreamBuf  schema(SCHEMA, SCHEMA_LEN);
@@ -36091,6 +35866,8 @@ int main(int argc, char *argv[])
         baexml_SchemaParser schemaParser(&reader, &errInfo);
         int rc = schemaParser.parse(&schema, schemaPtr.ptr());
         ASSERT(!rc);
+
+        schemaPtr->print(bsl::cout, 1, 4);
 
         baexml_DecoderOptions options;
         baexml_Decoder xmlDecoder(&options, &reader, &errInfo);
@@ -36111,14 +35888,16 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, !rc);
 
                 if (veryVerbose) {
-                    P(ti) P(LINE) P(PRETTY)
-                    exp.print(bsl::cout, 1, 4);
+                    bsl::string S(DATA);
+                    P(ti) P(LINE) P(PRETTY) P(S)
+//                     exp.print(bsl::cout, 1, 4);
                 }
 
                 if (IS_VALID) {
                     bcem_Aggregate value(schemaPtr, "Obj");
 
-                    baejsn_Decoder jsonDecoder;
+                    baejsn_DecoderOptions options;
+                    baejsn_Decoder jsonDecoder(&options);
                     bdesb_FixedMemInStreamBuf isb(PRETTY.data(),
                                                   PRETTY.length());
                     const int rc = jsonDecoder.decode(&isb, &value);
@@ -36130,56 +35909,59 @@ int main(int argc, char *argv[])
                     }
                     else {
                         ASSERTV(LINE, isb.length(), 0 == isb.length());
-                        ASSERTV(LINE, ti, exp, value,
+                        ASSERTV(LINE, ti,
                                 bcem_Aggregate::areEquivalent(exp, value));
-                    }
-                }
-            }
-        }
-
-        for (int ti = 0; ti < NUM_JSON_COMPACT_MESSAGES; ++ti) {
-            {
-                const int          LINE   = JSON_COMPACT_MESSAGES[ti].d_line;
-                const bsl::string& COMPACT =
-                                           JSON_COMPACT_MESSAGES[ti].d_input_p;
-                const bool         IS_VALID =
-                               JSON_COMPACT_MESSAGES[ti].d_isValidForAggregate;
-                const char         *DATA     = XML_TEST_MESSAGES[ti].d_text_p;
-                const int           DATA_LEN = strlen(DATA);
-
-                bdesb_FixedMemInStreamBuf data(DATA, DATA_LEN);
-
-                bcem_Aggregate exp(schemaPtr, "Obj");
-                rc = xmlDecoder.decode(&data, &exp);
-
-                if (veryVerbose) {
-                    P(ti) P(LINE) P(COMPACT)
-                    exp.print(bsl::cout, 1, 4);
-                }
-
-                if (IS_VALID) {
-                    bcem_Aggregate value(schemaPtr, "Obj");
-
-                    baejsn_Decoder jsonDecoder;
-                    bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
-                                                  COMPACT.length());
-                    const int rc = jsonDecoder.decode(&isb, &value);
-                    ASSERT(!rc);
-                    if (rc) {
-                        if (veryVerbose) {
-                            P(LINE) P(jsonDecoder.loggedMessages());
+                        if (!bcem_Aggregate::areEquivalent(exp, value)) {
+                            exp.print(bsl::cout, 1, 4);
+                            value.print(bsl::cout, 1, 4);
                         }
                     }
-                    else {
-                        ASSERTV(LINE, isb.length(), 0 == isb.length());
-                        ASSERTV(LINE, ti, exp, value,
-                                bcem_Aggregate::areEquivalent(exp, value));
-                    }
                 }
             }
         }
 
-#endif
+//         for (int ti = 0; ti < NUM_JSON_COMPACT_MESSAGES; ++ti) {
+//             {
+//                 const int          LINE   = JSON_COMPACT_MESSAGES[ti].d_line;
+//                 const bsl::string& COMPACT =
+//                                            JSON_COMPACT_MESSAGES[ti].d_input_p;
+//                 const bool         IS_VALID =
+//                                JSON_COMPACT_MESSAGES[ti].d_isValidForAggregate;
+//                 const char         *DATA     = XML_TEST_MESSAGES[ti].d_text_p;
+//                 const int           DATA_LEN = strlen(DATA);
+
+//                 bdesb_FixedMemInStreamBuf data(DATA, DATA_LEN);
+
+//                 bcem_Aggregate exp(schemaPtr, "Obj");
+//                 rc = xmlDecoder.decode(&data, &exp);
+
+//                 if (veryVerbose) {
+//                     P(ti) P(LINE) P(COMPACT)
+//                     exp.print(bsl::cout, 1, 4);
+//                 }
+
+//                 if (IS_VALID) {
+//                     bcem_Aggregate value(schemaPtr, "Obj");
+
+//                     baejsn_Decoder jsonDecoder;
+//                     bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
+//                                                   COMPACT.length());
+//                     const int rc = jsonDecoder.decode(&isb, &value);
+//                     ASSERT(!rc);
+//                     if (rc) {
+//                         if (veryVerbose) {
+//                             P(LINE) P(jsonDecoder.loggedMessages());
+//                         }
+//                     }
+//                     else {
+//                         ASSERTV(LINE, isb.length(), 0 == isb.length());
+//                         ASSERTV(LINE, ti, exp, value,
+//                                 bcem_Aggregate::areEquivalent(exp, value));
+//                     }
+//                 }
+//             }
+//         }
+
       } break;
       case 3: {
         // --------------------------------------------------------------------

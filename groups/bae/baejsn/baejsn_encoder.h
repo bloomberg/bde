@@ -241,6 +241,10 @@ BDES_IDENT("$Id: $")
 #include <bdeat_enumfunctions.h>
 #endif
 
+#ifndef INCLUDED_BDEAT_FORMATTINGMODE
+#include <bdeat_formattingmode.h>
+#endif
+
 #ifndef INCLUDED_BDEAT_SEQUENCEFUNCTIONS
 #include <bdeat_sequencefunctions.h>
 #endif
@@ -373,6 +377,9 @@ class baejsn_Encoder_EncodeImpl {
     bool                                  d_isArrayElement;   // is current
                                                               // element part
                                                               // of an array
+    bool                                  d_isUntaggedElement;// is current
+                                                              // element
+                                                              // untagged
 
     // FRIENDS
     friend struct baejsn_Encoder_DynamicTypeDispatcher;
@@ -623,58 +630,7 @@ template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Sequence)
 {
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-        if (!d_isArrayElement) {
-            d_outputStream << ' ';
-        }
-        else {
-            bdeu_Print::indent(d_outputStream,
-                               d_indentLevel,
-                               d_spacesPerLevel);
-        }
-    }
-
-    d_outputStream << '{';
-
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-        d_outputStream << '\n';
-    }
-
-    ++d_indentLevel;
-
-    baejsn_Encoder_SequenceVisitor visitor(this);
-
-    bool isArrayElement = d_isArrayElement;
-    d_isArrayElement = false;
-
-    int rc = bdeat_SequenceFunctions::accessAttributes(value, visitor);
-    if (0 != rc) {
-        return rc;                                                    // RETURN
-    }
-
-    d_isArrayElement = isArrayElement;
-
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-        d_outputStream << '\n';
-    }
-
-    --d_indentLevel;
-
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-        bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
-    }
-
-    d_outputStream << '}';
-
-    return 0;
-}
-
-template <typename TYPE>
-int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
-                                         bdeat_TypeCategory::Choice)
-{
-    if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
-                                   bdeat_ChoiceFunctions::selectionId(value)) {
+    if (!d_isUntaggedElement) {
         if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
             if (!d_isArrayElement) {
                 d_outputStream << ' ';
@@ -693,31 +649,94 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
         }
 
         ++d_indentLevel;
+    }
 
-        baejsn_Encoder_ElementVisitor visitor = { this };
+    baejsn_Encoder_SequenceVisitor visitor(this);
 
-        bool isArrayElement = d_isArrayElement;
-        d_isArrayElement = false;
+    bool isArrayElement    = d_isArrayElement;
+    bool isUntaggedElement = d_isUntaggedElement;
 
-        if (0 != bdeat_ChoiceFunctions::accessSelection(value, visitor)) {
-            return -1;                                                // RETURN
-        }
+    d_isArrayElement    = false;
+    d_isUntaggedElement = false;
 
-        d_isArrayElement = isArrayElement;
+    int rc = bdeat_SequenceFunctions::accessAttributes(value, visitor);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
 
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-            d_outputStream << '\n';
-        }
+    d_isArrayElement    = isArrayElement;
+    d_isUntaggedElement = isUntaggedElement;
 
+    if (!d_isUntaggedElement) {
         --d_indentLevel;
 
         if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+            d_outputStream << '\n';
             bdeu_Print::indent(d_outputStream,
                                d_indentLevel,
                                d_spacesPerLevel);
         }
 
         d_outputStream << '}';
+    }
+
+    return 0;
+}
+
+template <typename TYPE>
+int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+                                         bdeat_TypeCategory::Choice)
+{
+    if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
+                                   bdeat_ChoiceFunctions::selectionId(value)) {
+        if (!d_isUntaggedElement) {
+            if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+                if (!d_isArrayElement) {
+                    d_outputStream << ' ';
+                }
+                else {
+                    bdeu_Print::indent(d_outputStream,
+                                       d_indentLevel,
+                                       d_spacesPerLevel);
+                }
+            }
+
+            d_outputStream << '{';
+
+            if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+                d_outputStream << '\n';
+            }
+
+            ++d_indentLevel;
+        }
+
+        baejsn_Encoder_ElementVisitor visitor = { this };
+
+        bool isArrayElement    = d_isArrayElement;
+        bool isUntaggedElement = d_isUntaggedElement;
+
+        d_isArrayElement = false;
+        d_isUntaggedElement = false;
+
+        if (0 != bdeat_ChoiceFunctions::accessSelection(value, visitor)) {
+            return -1;                                                // RETURN
+        }
+
+        d_isArrayElement    = isArrayElement;
+        d_isUntaggedElement = isUntaggedElement;
+
+        if (!d_isUntaggedElement) {
+            --d_indentLevel;
+
+            if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+                d_outputStream << '\n';
+                bdeu_Print::indent(d_outputStream,
+                                   d_indentLevel,
+                                   d_spacesPerLevel);
+            }
+
+            d_outputStream << '}';
+        }
     }
     else {
         logStream() << "Undefined selection for Choice object" << bsl::endl;
@@ -866,6 +885,7 @@ baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(
 : d_encoder(encoder)
 , d_outputStream(streambuf)
 , d_isArrayElement(false)
+, d_isUntaggedElement(false)
 {
     if (encoderOptions && baejsn_EncoderOptions::BAEJSN_PRETTY ==
                                              encoderOptions->encodingStyle()) {
@@ -968,30 +988,42 @@ inline
 int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
                                               const INFO& info)
 {
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encoder->d_encodingStyle) {
-        bdeu_Print::indent(d_encoder->d_outputStream,
-                           d_encoder->d_indentLevel,
-                           d_encoder->d_spacesPerLevel);
+    // Skip encoding of anonymous elements
+
+    if (!(info.formattingMode() & bdeat_FormattingMode::BDEAT_UNTAGGED)) {
+
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY ==
+                                                  d_encoder->d_encodingStyle) {
+            bdeu_Print::indent(d_encoder->d_outputStream,
+                               d_encoder->d_indentLevel,
+                               d_encoder->d_spacesPerLevel);
+        }
+
+        int rc = baejsn_PrintUtil::printValue(d_encoder->d_outputStream,
+                                              info.name());
+        if (0 != rc) {
+            d_encoder->logStream()
+                << "Unable to encode the name of the element, '"
+                << info.name()
+                << "'."
+                << bsl::endl;
+            return rc;                                                // RETURN
+        }
+
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY ==
+                                                  d_encoder->d_encodingStyle) {
+            d_encoder->d_outputStream << ' ';
+        }
+
+        d_encoder->d_outputStream << ':';
+        d_encoder->d_isUntaggedElement = false;
+    }
+    else {
+        d_encoder->d_isUntaggedElement = true;
     }
 
-    int rc = baejsn_PrintUtil::printValue(d_encoder->d_outputStream,
-                                          info.name());
-    if (0 != rc) {
-        d_encoder->logStream()
-            << "Unable to encode the name of the element, '"
-            << info.name()
-            << "'."
-            << bsl::endl;
-        return rc;                                                    // RETURN
-    }
+    int rc = d_encoder->encode(value);
 
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encoder->d_encodingStyle) {
-        d_encoder->d_outputStream << ' ';
-    }
-
-    d_encoder->d_outputStream << ':';
-
-    rc = d_encoder->encode(value);
     if (0 != rc) {
         d_encoder->logStream()
             << "Unable to encode the value of the element, '"

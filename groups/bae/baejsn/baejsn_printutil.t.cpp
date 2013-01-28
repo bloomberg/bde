@@ -157,6 +157,10 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+//       case 7: {
+//           bsl::size_t i = 10;
+//           baejsn_PrintUtil::printValue(bsl::cout, i);
+//       } break;
       case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

@@ -15,10 +15,6 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdesb_memoutstreambuf.h>            // for testing only
-#include <bdesb_fixedmemoutstreambuf.h>       // for testing only
-#include <bdesb_fixedmeminstreambuf.h>        // for testing only
-
 using namespace BloombergLP;
 using namespace bsl;
 using bsl::cout;

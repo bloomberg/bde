@@ -515,6 +515,8 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
                     << "missing terminator '}' or seperator ','\n";
         return -1;                                                    // RETURN
     }
+
+    --d_currentDepth;
     return 0;
 }
 
@@ -608,6 +610,8 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
                     << "missing terminator '}'\n";
         return -1;                                                    // RETURN
     }
+
+    --d_currentDepth;
     return 0;
 }
 
@@ -739,6 +743,10 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
                             << " value\n";
                 return -1;                                            // RETURN
             }
+        }
+        else {
+            d_logStream << "Erroneous token found instead of array element\n";
+            return -1;                                                // RETURN
         }
     }
 
