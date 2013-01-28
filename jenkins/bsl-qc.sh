@@ -56,14 +56,14 @@ ccache -s
 # Clear workspace
 git clean -fdx
 
-# Run a build using GCC for code coverage analysis
+# Run a build using GCC for running unit tests
 python tools/bsl_gyp.py
-make -k -j${NUMCPUS} -C build CXX="ccache /usr/bin/g++-4.7" BUILDTYPE=Profile all_tests_build
+make -k -j${NUMCPUS} -C build CXX="ccache /usr/bin/g++-4.7" BUILDTYPE=Debug all_tests_build
 make_result=${PIPESTATUS[0]}
 if [ $make_result -ne 0 ]; then exit $make_result; fi
 
 # Prepare for code coverage analysis
-tools/bsl_coverage init -j${NUMCPUS}
+#tools/bsl_coverage init -j${NUMCPUS}
 
 # Prepare to run unit tests
 export HOST=VM
@@ -72,7 +72,7 @@ mkdir test-results
 
 # Construct a Makefile so unit tests can be run in parallel
 echo "result-list = " > unit-tests.mk
-for bsltest in `ls build/Profile/*.t | sort`
+for bsltest in `ls build/Debug/*.t | sort`
 do
     result=test-results/${bsltest##*/}-junit.xml
     echo "result-list += ${result}" >> unit-tests.mk
@@ -96,5 +96,5 @@ sloccount --wide --details groups > sloccount.sc
 
 # Perform code coverage analysis
 # (Note: 'gather' step fails if run in parallel)
-tools/bsl_coverage gather
-tools/bsl_coverage coverage -j${NUMCPUS}
+#tools/bsl_coverage gather
+#tools/bsl_coverage coverage -j${NUMCPUS}
