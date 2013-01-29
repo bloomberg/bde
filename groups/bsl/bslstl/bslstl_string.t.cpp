@@ -12243,7 +12243,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int NITER,
 {
     // --------------------------------------------------------------------
     // PERFORMANCE TEST
-    // We have the following concerns:
+    //
+    // Concerns: 
+    //   We have the following concerns:
     //   1) That performance does not regress between versions.
     //   2) That no surprising performance (both extremely fast or slow) is
     //      detected, which might be indicating missed optimizations or
@@ -12253,7 +12255,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int NITER,
     //      in a uniform benchmark (e.g., measuring the overhead of allocating
     //      for empty strings).
     //
-    // Plan:  We follow a simple benchmark which performs the operation under
+    // Plan:  
+    //   We follow a simple benchmark which performs the operation under
     //   timing test in a loop.  Specifically, we wish to measure the time
     //   taken by:
     //     C1) The various constructors.
