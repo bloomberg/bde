@@ -654,7 +654,7 @@ int main(int argc, char *argv[])
         //: 3
         //
         // Testing:
-        //   operator()(const char*, const char *) const
+        //   operator()(const T&) const
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTION CALL OPERATOR"
@@ -691,6 +691,18 @@ int main(int argc, char *argv[])
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+        // special test for hash<const char *>
+        const char STRING_1[] = "Hello World";
+        const char STRING_2[] = "Hello World";
+
+        const char *C_STRING_1 = STRING_1;
+        const char *C_STRING_2 = STRING_2;
+        ASSERT(C_STRING_1 != C_STRING_2);
+
+        const ::bsl::hash<const char *> C_STRING_HASH =
+                                                   ::bsl::hash<const char *>();
+        ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
       } break;
       case 2: {
         // --------------------------------------------------------------------
