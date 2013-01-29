@@ -101,7 +101,7 @@ using namespace bsl;
 // [16] iterator end();
 // [16] reverse_iterator rbegin();
 // [16] reverse_iterator rend();
-// [14] void resize(size_type n);
+// [  ] void resize(size_type n);
 // [14] void resize(size_type n, const T& val);
 // [14] void reserve(size_type n);
 // [ 2] void clear();
@@ -4851,7 +4851,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
     //
     // Testing:
     //   template <class InputIter>
-    //     assign(InputIter first, InputIter last);
+    //     void assign(InputIter first, InputIter last);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -8652,10 +8652,10 @@ int main(int argc, char *argv[])
         //   iterator end();
         //   reverse_iterator rbegin();
         //   reverse_iterator rend();
-        //   const_iterator begin() const;
-        //   const_iterator end() const;
-        //   const_reverse_iterator rbegin() const;
-        //   const_reverse_iterator rend() const;
+        //   const_iterator cbegin() const;
+        //   const_iterator cend() const;
+        //   const_reverse_iterator crbegin() const;
+        //   const_reverse_iterator crend() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Iterators"
@@ -8677,8 +8677,10 @@ int main(int argc, char *argv[])
         //   reference at(size_type n);
         //   reference front();
         //   reference back();
-        //   const reference front() const;
-        //   const reference back() const;
+        //   VALUE_TYPE *data();
+        //   const_reference front() const;
+        //   const_reference back() const;
+        //   const VALUE_TYPE *data() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Element Access"
@@ -8855,6 +8857,7 @@ int main(int argc, char *argv[])
         //  correct overload was called should suffice.
         //
         // Testing:
+        //   vector<T,A>(size_type n, const A& a = A());
         //   vector<T,A>(size_type n, const T& val, const A& a = A());
         //   template<class InputIter>
         //     vector<T,A>(InputIter first, InputIter last, const A& a = A());
@@ -8930,7 +8933,15 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING ALLOCATOR-RELATED CONCERNS
         //
+        // Concerns:
+        //   (see Test Case Function)
+        //
+        // Plan:
+        //   (see Test Case Function)
+        //
         // Testing:
+        //   TRAITS
+        //   ALLOCATOR-RELATED CONCERNS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Allocator concerns"
@@ -8961,7 +8972,7 @@ int main(int argc, char *argv[])
         //   See that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Obj& operator=(const Obj& rhs);
+        //   operator=(vector<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Assignment Operator"
@@ -8987,7 +8998,7 @@ int main(int argc, char *argv[])
         //   that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Obj g(const char *spec);
+        //   vector<T,A> g(const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Function g"
@@ -9019,8 +9030,7 @@ int main(int argc, char *argv[])
         //   that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Vector_Imp(const Vector_Imp& original);
-        //   Vector_Imp(const Vector_Imp& original, alloc);
+        //   vector<T,A>(const vector<T,A>& orig, const A& = A());
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Copy Constructors"
@@ -9058,7 +9068,8 @@ int main(int argc, char *argv[])
         //   plan.
         //
         // Testing:
-        //   operator==(const Obj&, const Obj&);
+        //   bool operator==(const vector<T,A>&, const vector<T,A>&);
+        //   bool operator!=(const vector<T,A>&, const vector<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Equality Operators"
@@ -9132,8 +9143,8 @@ int main(int argc, char *argv[])
         //   function for a list of concerns and a test plan.
         //
         // Testing:
-        //   void ggg(Obj *object, const char *spec);
-        //   Obj& gg(Obj *object, const char *spec, );
+        //   int ggg(vector<T,A> *object, const char *spec, int vF = 1);
+        //   vector<T,A>& gg(vector<T,A> *object, const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Functions"
@@ -9167,8 +9178,10 @@ int main(int argc, char *argv[])
         //   plan.
         //
         // Testing:
-        //   void push_back(T const& v);
+        //   vector<T,A>(const A& a = A());
+        //   ~vector<T,A>();
         //   void clear();
+        //   void push_back(const T&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Primary Manipulators"
@@ -9203,7 +9216,7 @@ int main(int argc, char *argv[])
         //   work as expected in normal operation.
         //
         // Testing:
-        //   This "test" *exercises* basic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
