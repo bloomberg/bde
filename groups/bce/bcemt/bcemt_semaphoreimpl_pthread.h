@@ -69,7 +69,7 @@ class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> {
     // DATA
 #if defined(BSLS_PLATFORM_OS_DARWIN)
     sem_t *d_sem_p;             // pointer to native semaphore handle
-    static const char * s_semaphoreName;
+    static const char *s_semaphorePrefix;
 #else
     sem_t d_sem;                // native semaphore handle
 #endif
@@ -157,18 +157,20 @@ int bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::tryWait()
 inline
 int bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::getValue() const
 {
-    int value;
-
 #if defined(BSLS_PLATFORM_OS_DARWIN)
-    int result = ::sem_getvalue(d_sem_p, &value);
+    // Not implemented on Darwin, but sem_getvalue still returns success.
+    BSLS_ASSERT(false &&
+            "sem_getvalue is optional in POSIX and not implemented on Darwin");
+    return 0;
 #else
+    int value = 0;
     int result = ::sem_getvalue(const_cast<sem_t *>(&d_sem), &value);
-#endif
 
     (void) result;
     BSLS_ASSERT_SAFE(result == 0);
 
     return value;
+#endif
 }
 
 }  // close namespace BloombergLP
