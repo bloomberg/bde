@@ -357,7 +357,8 @@ int baejsn_ParserUtil::getValue(bsls::Types::Int64 *value,
         return -1;                                                    // RETURN
     }
 
-    if (isNegative && tmp <= static_cast<bsls::Types::Uint64>(
+    if (isNegative
+     && tmp <= static_cast<bsls::Types::Uint64>(
                          bsl::numeric_limits<bsls::Types::Int64>::max() + 1)) {
         *value = static_cast<bsls::Types::Int64>(tmp) * -1;
     }

@@ -206,6 +206,10 @@ BDES_IDENT("$Id: $")
 #include <baejsn_parser.h>
 #endif
 
+#ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
+#include <bdeat_attributeinfo.h>
+#endif
+
 #ifndef INCLUDED_BDEAT_CHOICEFUNCTIONS
 #include <bdeat_choicefunctions.h>
 #endif
@@ -216,6 +220,14 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEAT_ENUMFUNCTIONS
 #include <bdeat_enumfunctions.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_FORMATTINGMODE
+#include <bdeat_formattingmode.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_SELECTIONINFO
+#include <bdeat_selectioninfo.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_SEQUENCEFUNCTIONS
@@ -289,22 +301,42 @@ class baejsn_Decoder {
         // referred to by the parser owned by this object.  Return 0 on success
         // and a non-zero value otherwise.
 
-    template <typename TYPE>
-    int decodeImp(TYPE *value, bdeat_TypeCategory::DynamicType);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, bdeat_TypeCategory::Sequence);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, bdeat_TypeCategory::Choice);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, bdeat_TypeCategory::CustomizedType);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, bdeat_TypeCategory::Simple);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, bdeat_TypeCategory::Array);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, bdeat_TypeCategory::NullableValue);
+    template <typename TYPE, typename INFO>
+    int decodeImp(TYPE        *value,
+                  const INFO&  info,
+                  bdeat_TypeCategory::DynamicType);
+    template <typename TYPE, typename INFO>
+    int decodeImp(TYPE        *value,
+                  const INFO&  info,
+                  bdeat_TypeCategory::Sequence);
+    template <typename TYPE, typename INFO>
+    int decodeImp(TYPE        *value,
+                  const INFO&  info,
+                  bdeat_TypeCategory::Choice);
+    template <typename TYPE, typename INFO>
+    int decodeImp(TYPE        *value,
+                  const INFO&  info,
+                  bdeat_TypeCategory::Enumeration);
+    template <typename TYPE, typename INFO>
+    int decodeImp(TYPE        *value,
+                  const INFO&  info,
+                  bdeat_TypeCategory::CustomizedType);
+    template <typename TYPE, typename INFO>
+    int decodeImp(TYPE        *value,
+                  const INFO&  info,
+                  bdeat_TypeCategory::Simple);
+    template <typename TYPE, typename INFO>
+    int decodeImp(TYPE        *value,
+                  const INFO&  info,
+                  bdeat_TypeCategory::Array);
+    template <typename INFO>
+    int decodeImp(bsl::vector<char> *value,
+                  const INFO&,
+                  bdeat_TypeCategory::Array);
+    template <typename TYPE, typename INFO>
+    int decodeImp(TYPE        *value,
+                  const INFO&  info,
+                  bdeat_TypeCategory::NullableValue);
     template <typename TYPE, typename ANY_CATEGORY>
     int decodeImp(TYPE *object, ANY_CATEGORY category);
         // Decode into the specified 'value' of the corresponding 'bdeat' type
@@ -367,6 +399,7 @@ struct baejsn_Decoder_ElementVisitor {
 
     // DATA
     baejsn_Decoder *d_decoder_p;       // decoder (held, not owned)
+    int             d_formattingMode;  // formatting mode
 
     // CREATORS
     // Creators have been omitted to allow simple static initialization of
@@ -396,6 +429,7 @@ struct baejsn_Decoder_DecodeImpProxy {
 
     // DATA
     baejsn_Decoder *d_decoder_p;       // decoder (held, not owned)
+    int             d_formattingMode;  // formatting mode
 
     // CREATORS
     // Creators have been omitted to allow simple static initialization of
@@ -420,75 +454,45 @@ struct baejsn_Decoder_DecodeImpProxy {
                         // --------------------
 
 // PRIVATE MANIPULATORS
-template <typename TYPE>
+template <typename TYPE, typename INFO>
 inline
-int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::DynamicType)
+int baejsn_Decoder::decodeImp(TYPE        *value,
+                              const INFO&  info,
+                              bdeat_TypeCategory::DynamicType)
 {
-    baejsn_Decoder_DecodeImpProxy proxy = { this };
+    baejsn_Decoder_DecodeImpProxy proxy = { this, info.formattingMode() };
     return bdeat_TypeCategoryUtil::manipulateByCategory(value, proxy);
 }
 
-template <typename TYPE>
-int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
+template <typename TYPE, typename INFO>
+int baejsn_Decoder::decodeImp(TYPE        *value,
+                              const INFO&  info,
+                              bdeat_TypeCategory::Sequence)
 {
-    ++d_currentDepth;
-    if (d_decoderOptions_p
-     && d_currentDepth > d_decoderOptions_p->maxDepth()) {
-        d_logStream << "Maximum allowed decoding depth reached: "
-                    << d_currentDepth << "\n";
-        return -1;                                                    // RETURN
-    }
-
-    if (baejsn_Parser::BAEJSN_START_OBJECT != d_parser.tokenType()) {
-        d_logStream << "Could not decode sequence, missing starting '{'\n";
-        return -1;                                                    // RETURN
-    }
-
-    int rc = d_parser.advanceToNextToken();
-    if (rc) {
-        d_logStream << "Could not decode sequence, "
-                    << "error reading token after '{'\n";
-        return -1;                                                    // RETURN
-    }
-
-    while (baejsn_Parser::BAEJSN_ELEMENT_NAME == d_parser.tokenType()) {
-        bslstl::StringRef elementName;
-        rc = d_parser.value(&elementName);
-        if (rc) {
-            d_logStream << "Error reading attribute name after '{'\n";
-            return -1;                                                // RETURN
-        }
-
+    if (info.formattingMode() == bdeat_FormattingMode::BDEAT_UNTAGGED) {
         if (!bdeat_SequenceFunctions::hasAttribute(
-                                     *value,
-                                     elementName.data(),
-                                     static_cast<int>(elementName.length()))) {
+                                   *value,
+                                   d_elementName.data(),
+                                   static_cast<int>(d_elementName.length()))) {
             if (d_decoderOptions_p
              && d_decoderOptions_p->skipUnknownElements()) {
-                rc = skipUnknownElement(elementName);
+                const int rc = skipUnknownElement(d_elementName);
                 if (rc) {
                     d_logStream << "Error reading unknown element '"
-                                << elementName << "' or after that element\n";
+                                << d_elementName << "' or after it\n";
                     return -1;                                        // RETURN
                 }
             }
             else {
-                d_logStream << "Unknown element '"
-                            << elementName << "' found\n";
+                d_logStream << "Unknown element '" << d_elementName
+                            << "' found\n";
                 return -1;                                            // RETURN
             }
         }
         else {
-            d_elementName = elementName;
+            baejsn_Decoder_ElementVisitor visitor = { this,
+                                                      info.formattingMode() };
 
-            rc = d_parser.advanceToNextToken();
-            if (rc) {
-                d_logStream << "Error reading value for attribute '"
-                            << d_elementName << "' \n";
-                return -1;                                            // RETURN
-            }
-
-            baejsn_Decoder_ElementVisitor visitor = { this };
             if (0 != bdeat_SequenceFunctions::manipulateAttribute(
                                    value,
                                    visitor,
@@ -500,66 +504,119 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
                 return -1;                                            // RETURN
             }
         }
-
-        rc = d_parser.advanceToNextToken();
-        if (rc) {
-            d_logStream << "Could not decode sequence, error reading token"
-                        << " after value for attribute '"
-                        << d_elementName << "' \n";
+    }
+    else {
+        ++d_currentDepth;
+        if (d_decoderOptions_p
+         && d_currentDepth > d_decoderOptions_p->maxDepth()) {
+            d_logStream << "Maximum allowed decoding depth reached: "
+                        << d_currentDepth << "\n";
             return -1;                                                // RETURN
         }
-    }
 
-    if (baejsn_Parser::BAEJSN_END_OBJECT != d_parser.tokenType()) {
-        d_logStream << "Could not decode sequence, "
-                    << "missing terminator '}' or seperator ','\n";
-        return -1;                                                    // RETURN
-    }
+        if (baejsn_Parser::BAEJSN_START_OBJECT != d_parser.tokenType()) {
+            d_logStream << "Could not decode sequence, missing starting '{'\n";
+            return -1;                                                // RETURN
+        }
 
-    --d_currentDepth;
+        int rc = d_parser.advanceToNextToken();
+        if (rc) {
+            d_logStream << "Could not decode sequence, "
+                        << "error reading token after '{'\n";
+            return -1;                                                // RETURN
+        }
+
+        while (baejsn_Parser::BAEJSN_ELEMENT_NAME == d_parser.tokenType()) {
+            bslstl::StringRef elementName;
+            rc = d_parser.value(&elementName);
+            if (rc) {
+                d_logStream << "Error reading attribute name after '{'\n";
+                return -1;                                            // RETURN
+            }
+
+            if (!bdeat_SequenceFunctions::hasAttribute(
+                                     *value,
+                                     elementName.data(),
+                                     static_cast<int>(elementName.length()))) {
+                if (d_decoderOptions_p
+                    && d_decoderOptions_p->skipUnknownElements()) {
+                    rc = skipUnknownElement(elementName);
+                    if (rc) {
+                        d_logStream << "Error reading unknown element '"
+                                    << elementName << "' or after it\n";
+                        return -1;                                    // RETURN
+                    }
+                }
+                else {
+                    d_logStream << "Unknown element '"
+                                << elementName << "' found\n";
+                    return -1;                                        // RETURN
+                }
+            }
+            else {
+                d_elementName = elementName;
+
+                rc = d_parser.advanceToNextToken();
+                if (rc) {
+                    d_logStream << "Error reading value for attribute '"
+                                << d_elementName << "' \n";
+                    return -1;                                        // RETURN
+                }
+
+                baejsn_Decoder_ElementVisitor visitor = { this,
+                                                          info.formattingMode()
+                };
+
+                if (0 != bdeat_SequenceFunctions::manipulateAttribute(
+                                   value,
+                                   visitor,
+                                   d_elementName.data(),
+                                   static_cast<int>(d_elementName.length()))) {
+                    d_logStream << "Could not decode sequence, error decoding "
+                                << "element or bad element name '"
+                                << d_elementName << "' \n";
+                    return -1;                                        // RETURN
+                }
+            }
+
+            rc = d_parser.advanceToNextToken();
+            if (rc) {
+                d_logStream << "Could not decode sequence, error reading token"
+                            << " after value for attribute '"
+                            << d_elementName << "' \n";
+                return -1;                                            // RETURN
+            }
+        }
+
+        if (baejsn_Parser::BAEJSN_END_OBJECT != d_parser.tokenType()) {
+            d_logStream << "Could not decode sequence, "
+                        << "missing terminator '}' or seperator ','\n";
+            return -1;                                                // RETURN
+        }
+
+        --d_currentDepth;
+    }
     return 0;
 }
 
-template <typename TYPE>
-int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
+template <typename TYPE, typename INFO>
+int baejsn_Decoder::decodeImp(TYPE        *value,
+                              const INFO&  info,
+                              bdeat_TypeCategory::Choice)
 {
-    ++d_currentDepth;
-    if (d_decoderOptions_p
-     && d_currentDepth > d_decoderOptions_p->maxDepth()) {
-        d_logStream << "Maximum allowed decoding depth reached: "
-                    << d_currentDepth << "\n";
-        return -1;                                                    // RETURN
-    }
-
-    if (baejsn_Parser::BAEJSN_START_OBJECT != d_parser.tokenType()) {
-        d_logStream << "Could not decode choice, missing starting {\n";
-        return -1;                                                    // RETURN
-    }
-
-    int rc = d_parser.advanceToNextToken();
-    if (rc) {
-        d_logStream << "Could not decode choice, "
-                    << "error reading token after {\n";
-        return -1;                                                    // RETURN
-    }
-
-    if (baejsn_Parser::BAEJSN_ELEMENT_NAME == d_parser.tokenType()) {
+    if (info.formattingMode() == bdeat_FormattingMode::BDEAT_UNTAGGED) {
         bslstl::StringRef selectionName;
-        rc = d_parser.value(&selectionName);
-        if (rc) {
-            d_logStream << "Error reading selection name after '{'\n";
-            return -1;                                                // RETURN
-        }
+        selectionName.assign(d_elementName.begin(), d_elementName.end());
 
         if (!bdeat_ChoiceFunctions::hasSelection(
                                    *value,
                                    selectionName.data(),
                                    static_cast<int>(selectionName.length()))) {
             if (d_decoderOptions_p
-             && d_decoderOptions_p->skipUnknownElements()) {
-                rc = skipUnknownElement(selectionName);
+                && d_decoderOptions_p->skipUnknownElements()) {
+                const int rc = skipUnknownElement(selectionName);
                 if (rc) {
-                    d_logStream << "Error reading unknown element '"
+                     d_logStream << "Error reading unknown element '"
                                 << selectionName << "' or after that "
                                 << "element\n";
                     return -1;                                        // RETURN
@@ -581,14 +638,9 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
                 return -1;                                            // RETURN
             }
 
-            rc = d_parser.advanceToNextToken();
-            if (rc) {
-                d_logStream << "Could not decode choice, "
-                            << "error reading value \n";
-                return -1;                                            // RETURN
-            }
+            baejsn_Decoder_ElementVisitor visitor = { this,
+                                                      info.formattingMode() };
 
-            baejsn_Decoder_ElementVisitor visitor = { this };
             if (0 != bdeat_ChoiceFunctions::manipulateSelection(value,
                                                                 visitor)) {
                 d_logStream << "Could not decode choice, selection "
@@ -596,28 +648,107 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
                 return -1;                                            // RETURN
             }
         }
-
-        rc = d_parser.advanceToNextToken();
-        if (rc) {
-            d_logStream << "Could not decode sequence, error reading "
-                        << "token after value for selection \n";
+    }
+    else {
+        ++d_currentDepth;
+        if (d_decoderOptions_p
+         && d_currentDepth > d_decoderOptions_p->maxDepth()) {
+            d_logStream << "Maximum allowed decoding depth reached: "
+                        << d_currentDepth << "\n";
             return -1;                                                // RETURN
         }
-    }
 
-    if (baejsn_Parser::BAEJSN_END_OBJECT != d_parser.tokenType()) {
-        d_logStream << "Could not decode choice, "
-                    << "missing terminator '}'\n";
-        return -1;                                                    // RETURN
-    }
+        if (baejsn_Parser::BAEJSN_START_OBJECT != d_parser.tokenType()) {
+            d_logStream << "Could not decode choice, missing starting {\n";
+            return -1;                                                // RETURN
+        }
 
-    --d_currentDepth;
+        int rc = d_parser.advanceToNextToken();
+        if (rc) {
+            d_logStream << "Could not decode choice, "
+                        << "error reading token after {\n";
+            return -1;                                                // RETURN
+        }
+
+        if (baejsn_Parser::BAEJSN_ELEMENT_NAME == d_parser.tokenType()) {
+            bslstl::StringRef selectionName;
+            rc = d_parser.value(&selectionName);
+            if (rc) {
+                d_logStream << "Error reading selection name after '{'\n";
+                return -1;                                            // RETURN
+            }
+
+            if (!bdeat_ChoiceFunctions::hasSelection(
+                                   *value,
+                                   selectionName.data(),
+                                   static_cast<int>(selectionName.length()))) {
+                if (d_decoderOptions_p
+                    && d_decoderOptions_p->skipUnknownElements()) {
+                    rc = skipUnknownElement(selectionName);
+                    if (rc) {
+                        d_logStream << "Error reading unknown element '"
+                                    << selectionName << "' or after that "
+                                    << "element\n";
+                        return -1;                                    // RETURN
+                    }
+                }
+                else {
+                    d_logStream << "Unknown element '"
+                                << selectionName << "' found\n";
+                    return -1;                                        // RETURN
+                }
+            }
+            else {
+                if (0 != bdeat_ChoiceFunctions::makeSelection(
+                                   value,
+                                   selectionName.data(),
+                                   static_cast<int>(selectionName.length()))) {
+                    d_logStream << "Could not decode choice, bad selection "
+                                << "name '" << selectionName << "' \n";
+                    return -1;                                        // RETURN
+                }
+
+                rc = d_parser.advanceToNextToken();
+                if (rc) {
+                    d_logStream << "Could not decode choice, "
+                                << "error reading value \n";
+                    return -1;                                        // RETURN
+                }
+
+                baejsn_Decoder_ElementVisitor visitor = { this,
+                                                       info.formattingMode() };
+
+                if (0 != bdeat_ChoiceFunctions::manipulateSelection(value,
+                                                                    visitor)) {
+                    d_logStream << "Could not decode choice, selection "
+                                << "was not decoded\n";
+                    return -1;                                        // RETURN
+                }
+            }
+
+            rc = d_parser.advanceToNextToken();
+            if (rc) {
+                d_logStream << "Could not decode choice, error reading "
+                            << "token after value for selection \n";
+                return -1;                                            // RETURN
+            }
+        }
+
+        if (baejsn_Parser::BAEJSN_END_OBJECT != d_parser.tokenType()) {
+            d_logStream << "Could not decode choice, "
+                        << "missing terminator '}'\n";
+            return -1;                                                // RETURN
+        }
+
+        --d_currentDepth;
+    }
     return 0;
 }
 
-template <typename TYPE>
-inline
-int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
+template <typename TYPE, typename INFO>
+int baejsn_Decoder::decodeImp(TYPE        *value,
+                              const INFO&  info,
+                              bdeat_TypeCategory::Enumeration)
 {
     enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
 
@@ -648,8 +779,10 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
     return rc;
 }
 
-template <typename TYPE>
-int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::CustomizedType)
+template <typename TYPE, typename INFO>
+int baejsn_Decoder::decodeImp(TYPE        *value,
+                              const INFO&  info,
+                              bdeat_TypeCategory::CustomizedType)
 {
     if (baejsn_Parser::BAEJSN_ELEMENT_VALUE != d_parser.tokenType()) {
         d_logStream << "Error reading customized type value\n";
@@ -681,8 +814,10 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::CustomizedType)
     return rc;
 }
 
-template <typename TYPE>
-int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Simple)
+template <typename TYPE, typename INFO>
+int baejsn_Decoder::decodeImp(TYPE        *value,
+                              const INFO&  info,
+                              bdeat_TypeCategory::Simple)
 {
     if (baejsn_Parser::BAEJSN_ELEMENT_VALUE != d_parser.tokenType()) {
         d_logStream << "Error reading simple value\n";
@@ -699,16 +834,18 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Simple)
     return baejsn_ParserUtil::getValue(value, dataValue);
 }
 
-template <>
-inline
+template <typename INFO>
 int baejsn_Decoder::decodeImp(bsl::vector<char> *value,
+                              const INFO&,
                               bdeat_TypeCategory::Array)
 {
     return decodeBinaryArray(value);
 }
 
-template <typename TYPE>
-int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
+template <typename TYPE, typename INFO>
+int baejsn_Decoder::decodeImp(TYPE        *value,
+                              const INFO&  info,
+                              bdeat_TypeCategory::Array)
 {
     if (baejsn_Parser::BAEJSN_START_ARRAY != d_parser.tokenType()) {
         d_logStream << "Could not decode vector, missing start [\n";
@@ -729,7 +866,9 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
             ++i;
             bdeat_ArrayFunctions::resize(value, i);
 
-            baejsn_Decoder_ElementVisitor visitor = { this };
+            baejsn_Decoder_ElementVisitor visitor = { this,
+                                                      info.formattingMode() };
+
             if (0 != bdeat_ArrayFunctions::manipulateElement(value,
                                                              visitor,
                                                              i - 1)) {
@@ -758,8 +897,10 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
     return 0;
 }
 
-template <typename TYPE>
-int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::NullableValue)
+template <typename TYPE, typename INFO>
+int baejsn_Decoder::decodeImp(TYPE        *value,
+                              const INFO&  info,
+                              bdeat_TypeCategory::NullableValue)
 {
     enum { BAEJSN_NULL_VALUE_LENGTH = 4 };
 
@@ -781,7 +922,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::NullableValue)
 
     bdeat_NullableValueFunctions::makeValue(value);
 
-    baejsn_Decoder_ElementVisitor visitor = { this };
+    baejsn_Decoder_ElementVisitor visitor = { this, info.formattingMode() };
     return bdeat_NullableValueFunctions::manipulateValue(value, visitor);
 }
 
@@ -848,7 +989,8 @@ int baejsn_Decoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
         return -1;
     }
 
-    return decodeImp(variable, TypeCategory());
+    bdeat_AttributeInfo info;
+    return decodeImp(variable, info, TypeCategory());
 }
 
 template <typename TYPE>
@@ -881,15 +1023,17 @@ template <typename TYPE>
 inline
 int baejsn_Decoder_ElementVisitor::operator()(TYPE *value)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-    return d_decoder_p->decodeImp(value, TypeCategory());
+    bdeat_AttributeInfo info;
+    info.formattingMode() = d_formattingMode;
+    return (*this)(value, info);
 }
 
 template <typename TYPE, typename INFO>
 inline
-int baejsn_Decoder_ElementVisitor::operator()(TYPE *value, const INFO&)
+int baejsn_Decoder_ElementVisitor::operator()(TYPE *value, const INFO& info)
 {
-    return (*this)(value);
+    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    return d_decoder_p->decodeImp(value, info, TypeCategory());
 }
 
                     // ------------------------------------
@@ -911,7 +1055,9 @@ inline
 int baejsn_Decoder_DecodeImpProxy::operator()(TYPE         *object,
                                               ANY_CATEGORY  category)
 {
-    return d_decoder_p->decodeImp(object, category);
+    bdeat_AttributeInfo info;
+    info.formattingMode() = d_formattingMode;
+    return d_decoder_p->decodeImp(object, info, category);
 }
 
 }  // close namespace BloombergLP
