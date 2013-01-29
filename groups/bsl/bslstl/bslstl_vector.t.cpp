@@ -129,10 +129,10 @@ using namespace bsl;
 // [14] size_type max_size() const;
 // [14] size_type capacity() const;
 // [14] bool empty() const;
-// [16] const_iterator cbegin() const;
-// [16] const_iterator cend() const;
-// [16] const_reverse_iterator crbegin() const;
-// [16] const_reverse_iterator crend() const;
+// [16] const_iterator begin() const;
+// [16] const_iterator end() const;
+// [16] const_reverse_iterator rbegin() const;
+// [16] const_reverse_iterator rend() const;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const vector<T,A>&, const vector<T,A>&);
@@ -4017,10 +4017,10 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     //   iterator end();
     //   reverse_iterator rbegin();
     //   reverse_iterator rend();
-    //   const_iterator cbegin();
-    //   const_iterator cend();
-    //   const_reverse_iterator crbegin();
-    //   const_reverse_iterator crend();
+    //   const_iterator begin() const;
+    //   const_iterator end() const;
+    //   const_reverse_iterator rbegin() const;
+    //   const_reverse_iterator rend() const;
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -8652,10 +8652,10 @@ int main(int argc, char *argv[])
         //   iterator end();
         //   reverse_iterator rbegin();
         //   reverse_iterator rend();
-        //   const_iterator cbegin() const;
-        //   const_iterator cend() const;
-        //   const_reverse_iterator crbegin() const;
-        //   const_reverse_iterator crend() const;
+        //   const_iterator begin() const;
+        //   const_iterator end() const;
+        //   const_reverse_iterator rbegin() const;
+        //   const_reverse_iterator rend() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Iterators"
