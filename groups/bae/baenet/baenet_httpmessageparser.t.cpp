@@ -11,6 +11,8 @@
 #include <bcema_pooledblobbufferfactory.h>
 #include <bcema_sharedptr.h>
 
+#include <bdesb_fixedmeminstreambuf.h>  // for testing only
+
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
@@ -1009,6 +1011,13 @@ int main(int argc, char *argv[])
                 }
 
                 int ret = parser.addData(bsl::cerr, &osb);
+                LOOP_ASSERT(i, 0 == ret);
+            }
+        }
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                bdesb_FixedMemInStreamBuf fmisb(DATA[i], strlen(DATA[i]));
+                int ret = parser.addData(bsl::cerr, &fmisb);
                 LOOP_ASSERT(i, 0 == ret);
             }
         }

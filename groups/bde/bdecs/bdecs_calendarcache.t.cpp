@@ -1024,7 +1024,7 @@ int main(int argc, char *argv[])
                 // *** REVERSE ITERATOR TESTS ***
                 // The following tests are very simple because
                 // 'HolidayReverseIterator' is implemented using a TESTED
-                // bsl::reserse_iterator<Iterator>-like template.
+                // bsl::reverse_iterator<Iterator>-like template.
 
                 if (veryVerbose) cout << "\treverse iterator tests" << endl;
 
@@ -1088,6 +1088,65 @@ int main(int argc, char *argv[])
         ASSERT(0 == X.calendar("NOTFOUND"));
         ASSERT(0 != X.calendar("VALID"));
 
+      } break;
+
+      case -1: {
+        // --------------------------------------------------------------------
+        // TESTING TIMEOUT GREATER THAN 60 SECONDS
+        //
+        // Concerns:
+        //: 1 An object having a timeout value greater than 60 seconds
+        //    correctly expire any of its cache entries.
+        //
+        // Plan:
+        //: 1 Create an object that has a timeout of greater than 60 seconds,
+        //:   and use the 'calendar' method to load a calendar using the
+        //:   object.
+        //:
+        //: 2 Wait a period less than the timeout and use the 'calendar' method
+        //:   to retrieve the calendar loaded in P-1.  Verify that the calendar
+        //:   was not reloaded.  (C-1)
+        //:
+        //: 3 Wait a period so that the cumulative waiting period for P-2 to
+        //:   P-3 is greater than the timeout.  Use the 'calendar' method to
+        //:   retrieve the calendar loaded in P-1.  Verify that the calendar
+        //:   was reloaded.  (C-1)
+        //
+        //  Testing:
+        //      const bdecs_Calendar *calendar(const char *calendarName);
+        // --------------------------------------------------------------------
+
+        testLoader loaderY;
+        Obj Y(&loaderY, bdet_TimeInterval(70), &testAllocator);
+        const bdecs_Calendar *cal, *calValid;
+        bdet_Date date1, date2;
+
+        cal = Y.calendar("VALID");
+        ASSERT(0 != cal);
+        calValid = cal;
+        loaderY.getFirstDate(&date1);
+
+        #ifdef BSLS_PLATFORM_CMP_MSVC
+        Sleep(2 * 1000);
+        #else
+        sleep(2);
+        #endif
+
+        cal = Y.calendar("VALID");
+        ASSERT(calValid == cal);
+        loaderY.getFirstDate(&date2);
+        ASSERT(date1 == date2);
+
+        #ifdef BSLS_PLATFORM_CMP_MSVC
+        Sleep(70 * 1000);
+        #else
+        sleep(70);
+        #endif
+
+        cal = Y.calendar("VALID");
+        ASSERT(calValid == cal);
+        loaderY.getFirstDate(&date2);
+        ASSERT(date1 != date2);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -67,7 +67,12 @@ class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> {
     // proxy for the 'sem_t' pthread type, and related operations.
 
     // DATA
-    sem_t d_sem;  // TBD doc
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    sem_t *d_sem_p;             // pointer to native semaphore handle
+    static const char * s_semaphoreName;
+#else
+    sem_t d_sem;                // native semaphore handle
+#endif
 
     // NOT IMPLEMENTED
     bcemt_SemaphoreImpl(const bcemt_SemaphoreImpl&);
@@ -112,29 +117,40 @@ class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> {
 
 // CREATORS
 inline
-bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::bcemt_SemaphoreImpl(
-                                                                     int count)
-{
-    ::sem_init(&d_sem, 0, count);
-}
-
-inline
 bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::~bcemt_SemaphoreImpl()
 {
-    ::sem_destroy(&d_sem);
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    int result = ::sem_close(d_sem_p);
+#else
+    int result = ::sem_destroy(&d_sem);
+#endif
+
+    (void) result;
+    BSLS_ASSERT(result == 0);
 }
 
 // MANIPULATORS
 inline
 void bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::post()
 {
-    ::sem_post(&d_sem);
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    int result = ::sem_post(d_sem_p);
+#else
+    int result = ::sem_post(&d_sem);
+#endif
+
+    (void) result;
+    BSLS_ASSERT(result == 0);
 }
 
 inline
 int bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::tryWait()
 {
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    return ::sem_trywait(d_sem_p);
+#else
     return ::sem_trywait(&d_sem);
+#endif
 }
 
 // ACCESSORS
@@ -142,9 +158,16 @@ inline
 int bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::getValue() const
 {
     int value;
-    const int rc = ::sem_getvalue(const_cast<sem_t *>(&d_sem), &value);
-    (void) rc;
-    BSLS_ASSERT_SAFE(0 == rc);
+
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    int result = ::sem_getvalue(d_sem_p, &value);
+#else
+    int result = ::sem_getvalue(const_cast<sem_t *>(&d_sem), &value);
+#endif
+
+    (void) result;
+    BSLS_ASSERT_SAFE(result == 0);
+
     return value;
 }
 

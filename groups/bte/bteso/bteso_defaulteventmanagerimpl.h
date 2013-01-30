@@ -66,26 +66,25 @@ namespace BloombergLP {
 template <class POLLING_MECHANISM = bteso_Platform::DEFAULT_POLLING_MECHANISM>
 class bteso_DefaultEventManager;
 
+}  // close namespace BloombergLP
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-// Ascribe 'HANDLE' with 'bslalg_TypeTraitBitwiseCopyable' trait to use it in
+// Ascribe 'HANDLE' with 'bsl::is_trivially_copyable' trait to use it in
 // 'bsl::vector' efficiently.
-template <>
-struct bslalg_TypeTraits<HANDLE> : public bslalg_TypeTraitBitwiseCopyable {
-};
+namespace bsl {
+template <> struct is_trivially_copyable<HANDLE> : true_type {};
+}
 
 #else
 
-// Ascribe 'pollfd' with 'bslalg_TypeTraitBitwiseCopyable' trait to use it in
+// Ascribe 'pollfd' with 'bsl::is_trivially_copyable' trait to use it in
 // 'bsl::vector' efficiently.
-template <>
-struct bslalg_TypeTraits<struct ::pollfd> :
-                                       public bslalg_TypeTraitBitwiseCopyable {
-};
+namespace bsl {
+template <> struct is_trivially_copyable<pollfd> : true_type {};
+}
 
 #endif // BSLS_PLATFORM_OS_WINDOWS
-
-}  // close namespace BloombergLP
 
 #endif
 

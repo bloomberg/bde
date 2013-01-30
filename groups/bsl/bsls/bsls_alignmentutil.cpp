@@ -8,16 +8,17 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_types.h>       // for testing only
 
 namespace BloombergLP {
+namespace bsls {
 
 template <int INTEGER>
-struct bsls_AlignmentUtil_Assert;
+struct AlignmentUtil_Assert;
     // This parameterized 'struct' is declared but not defined except for the
     // single specialization below.  It is used with the 'sizeof' operator to
     // verify the assumption that 'BSLS_MAX_ALIGNMENT' is a positive, integral
     // power of 2.  Note that 'bslmf_assert' cannot be used in 'bsls'.
 
 template <>
-struct bsls_AlignmentUtil_Assert<1> {
+struct AlignmentUtil_Assert<1> {
     // Applying 'sizeof' to this specialization will allow compilation to
     // succeed (i.e., the associated compile-time assert will succeed).
 
@@ -29,15 +30,16 @@ struct bsls_AlignmentUtil_Assert<1> {
 
 enum {
 
-    assertion1 = sizeof(bsls_AlignmentUtil_Assert<
+    assertion1 = sizeof(AlignmentUtil_Assert<
                                 1 <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT>),
 
-    assertion2 = sizeof(bsls_AlignmentUtil_Assert<
+    assertion2 = sizeof(AlignmentUtil_Assert<
                            0 <= (bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
                              & (bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1))>)
 
 };
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ---------------------------------------------------------------------------

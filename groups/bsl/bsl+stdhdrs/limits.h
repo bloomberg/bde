@@ -8,7 +8,7 @@
 BSLS_IDENT("$Id: $")
 
 /*
-//@PURPOSE: Provide functionality of the corresponding C++ Standard header
+//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
 //@SEE_ALSO: package bsl+stdhdrs
 //
@@ -24,32 +24,15 @@ BSLS_IDENT("$Id: $")
 */
 
 /*
-// Note that 'limits.h' is meant for multiple inclusion on linux - therefore
-// only the ident is protected by the guard.
+// Note that 'limits.h' is meant for multiple inclusion on Linux, so only the
+// ident is protected by the include guard.
 */
 
-#if !defined(INCLUDED_BSLS_PLATFORM) && defined(__cplusplus)
-#  include <bsls_platform.h>
-#else
-
-// Workaround to detect the GCC compiler version, until bsls_platform.h is
-// fixed to compile by a C compiler.
-#if !defined(__cplusplus)
-    #if defined (__GNUC__)
-        #define BSLS_PLATFORM_CMP_GNU 1
-        #if defined(__GNU_PATCHLEVEL__)
-            #define BSLS_PLATFORM_CMP_VER_MAJOR (__GNUC__ * 10000 \
-                        + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-        #else
-            #define BSLS_PLATFORM_CMP_VER_MAJOR (__GNUC__ * 10000 \
-                        + __GNUC_MINOR__ * 100)
-        #endif
-    #endif
-#endif
-
-#endif
-
 #endif  /* INCLUDED_NATIVE_C_LIMITS */
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
@@ -57,8 +40,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM_CMP_GNU) && \
-       (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <limits.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(limits.h)
@@ -79,8 +61,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM_CMP_GNU) && \
-       (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <limits.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(limits.h)
@@ -98,12 +79,12 @@ BSLS_IDENT("$Id: $")
 #endif  /* BSL_OVERRIDES_STD */
 
 /*
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 */

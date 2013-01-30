@@ -6,7 +6,7 @@
 //
 //@CLASSES:
 //
-//@MCROS:
+//@MACROS:
 //: BSLS_IDENT(identifier): inset 'identifier' into '.comment' section
 //: BSLS_IDENT_RCSID(tag, identifier): alternatively, use add 'tag' as static
 //: BSLS_IDENT_PRAGMA_ONCE: encapsulate '_Pragma("once")'
@@ -103,12 +103,13 @@
 BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #endif
 
-// Enabling BSLS_IDENT by default causes significant bloat - see DRQS 29644737.
+// Enabling BSLS_IDENT by default causes significant bloat - see internal
+// ticket D29644737.
 #ifndef BSLS_IDENT_ON
 #ifndef BSLS_IDENT_OFF
 #define BSLS_IDENT_OFF
-#endif // ndef BSLS_IDENT_OFF
-#endif // ndef BSLS_IDENT_ON
+#endif // ifndef BSLS_IDENT_OFF
+#endif // ifndef BSLS_IDENT_ON
 
 
 #ifdef BSLS_IDENT_OFF

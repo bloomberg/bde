@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslalg_arrayprimitives.h>              // for testing purposes only
 #include <bslalg_arraydestructionprimitives.h>   // for testing purposes only
+#include <bslalg_arrayprimitives.h>              // for testing purposes only
 #include <bslalg_rangecompare.h>                 // for testing purposes only
 
 #include <bsls_assert.h>
@@ -442,7 +442,7 @@ void RbTreeUtil::remove(RbTreeAnchor *tree, RbTreeNode *node)
 
 void RbTreeUtil::printTreeStructure(
                     FILE             *file,
-                    const RbTreeNode *node,
+                    const RbTreeNode *subtree,
                     void (*printNodeValueCallback)(FILE *, const RbTreeNode *),
                     int               level,
                     int               spacesPerLevel)
@@ -451,27 +451,27 @@ void RbTreeUtil::printTreeStructure(
     indent(file, level, spacesPerLevel);
     fprintf(file, "[");
     char SEP = (spacesPerLevel < 0) ? ' ' : '\n';
-    if (node) {
+    if (subtree) {
         fprintf(file, " ");
-        printNodeValueCallback(file, node);
+        printNodeValueCallback(file, subtree);
         fprintf(file,
                 " {%s}%c",
-                node->color() == RbTreeNode::BSLALG_RED ? "RED" : "BLACK",
+                subtree->color() == RbTreeNode::BSLALG_RED ? "RED" : "BLACK",
                 SEP);
-        if (node->leftChild()) {
+        if (subtree->leftChild()) {
             indent(file, level, spacesPerLevel);
             fprintf(file, "left:\n");
             printTreeStructure(file,
-                               node->leftChild(),
+                               subtree->leftChild(),
                                printNodeValueCallback,
                                level+1,
                                spacesPerLevel);
         }
-        if (node->rightChild()) {
+        if (subtree->rightChild()) {
             indent(file, level, spacesPerLevel);
             fprintf(file, "right:\n");
             printTreeStructure(file,
-                               node->rightChild(),
+                               subtree->rightChild(),
                                printNodeValueCallback,
                                level+1,
                                spacesPerLevel);

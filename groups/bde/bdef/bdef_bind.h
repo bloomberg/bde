@@ -751,12 +751,16 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_HASTRAIT
+#include <bslalg_hastrait.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
 #include <bslalg_typetraithaspointersemantics.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ARRAYTOPOINTER
@@ -3998,11 +4002,12 @@ class bdef_Bind_MemFnObjectWrapper {
     // DATA
     TYPE *d_object;  // held, not owned
 
+  public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdef_Bind_MemFnObjectWrapper,
                                   bslalg_TypeTraitHasPointerSemantics,
                                   bslalg_TypeTraitBitwiseMoveable);
-  public:
+
     // CREATORS
     bdef_Bind_MemFnObjectWrapper(TYPE  *object) : d_object(object) {}
     bdef_Bind_MemFnObjectWrapper(TYPE&  object) : d_object(&object) {}

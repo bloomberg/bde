@@ -31,8 +31,8 @@
 #error "bslstp_alloc is not for publication"
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATORPROXY
-#include <bslstl_allocatorproxy.h>
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include <bslalg_containerbase.h>
 #endif
 
 namespace bsl {
@@ -54,9 +54,9 @@ struct _Alloc_traits
 // inheritance is being used for EBO optimization
 template <class _Value, class _Tp, class _MaybeReboundAlloc>
 class _STLP_alloc_proxy
-    : public BloombergLP::bslstl::AllocatorProxy<_MaybeReboundAlloc> {
+    : public BloombergLP::bslalg::ContainerBase<_MaybeReboundAlloc> {
 private:
-  typedef BloombergLP::bslstl::AllocatorProxy<_MaybeReboundAlloc> _Base;
+  typedef BloombergLP::bslalg::ContainerBase<_MaybeReboundAlloc> _Base;
 
   typedef _STLP_alloc_proxy<_Value, _Tp, _MaybeReboundAlloc> _Self;
 public:

@@ -531,7 +531,8 @@ class bael_FileObserver2 : public bael_Observer {
         // this file observer attempts perform a log file rotation.  The
         // behavior is undefined if the supplied function calls either
         // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
-        // file observer.
+        // file observer (i.e., the supplied callback should *not* attempt to
+        // write to the 'bael' log).
 
     // ACCESSORS
     bool isFileLoggingEnabled() const;

@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X): print args if '!X'
 //  BSLS_BSLTESTUTIL_Q(X): quote identifier literally
 //  BSLS_BSLTESTUTIL_P(X): print identifier and value
-//  BSLS_BSLTESTUTIL_P_(X): print identifer and value without '\n'
+//  BSLS_BSLTESTUTIL_P_(X): print identifier and value without '\n'
 //  BSLS_BSLTESTUTIL_L_: current line number
 //  BSLS_BSLTESTUTIL_T_: print tab without '\n'
 //
@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 //
 //: o The 'printf' function requires a format string to specify the way to
 //:   print an object; so, unlike 'iostream', printing different types of
-//:   objects using 'printf' requires different synatxes due to the need for
+//:   objects using 'printf' requires different syntaxes due to the need for
 //:   different format strings.
 //:
 //: o While the format strings for built-in types can be included as part of
@@ -225,10 +225,20 @@ BSLS_IDENT("$Id: $")
 //  obj = MyType<9>
 //..
 
+// Note that one of the requirements of this component is that it is the
+// lowest level component in the 'bsls' package, so that it can be used without
+// making cycles in any other 'bsl' test driver.  Therefore, we cannot rely on
+// <bsls_platform.h>, and must check the compiler version directly.
 #if defined(_MSC_VER)
-#include <stddef.h>
+#   ifndef INCLUDED_STDDEF
+#   include <stddef.h>
+#   define INCLUDED_STDDEF
+#   endif
 #else
-#include <stdint.h>
+#   ifndef INCLUDED_STDINT
+#   include <stdint.h>
+#   define INCLUDED_STDINT
+#   endif
 #endif
 
                        // =================
@@ -284,7 +294,7 @@ BSLS_IDENT("$Id: $")
                 aSsErT(!(X), #X, __LINE__); } }
 
 // The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
+// pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in
 // the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
 #define BSLS_BSLTESTUTIL_EXPAND(X)                                            \
     X
@@ -410,7 +420,7 @@ void debugprint(const volatile void *v);
 template <typename RESULT>
 void debugprint(RESULT (*v)());
     // Print to the console the specified function pointer, 'v', formatted as a
-    // hexidecimal integer. On some platforms (notably Windows), a function
+    // hexadecimal integer. On some platforms (notably Windows), a function
     // pointer is treated differently from an object pointer, and the compiler
     // will not be able to determine which 'void *' overload of 'debugprint'
     // should be used for a function pointer. Therefore an overload of

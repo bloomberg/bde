@@ -81,16 +81,15 @@ BSLS_IDENT("$Id: $")
 // memory to store a user-defined type.  A 'my_AlignedBuffer' object is useful
 // in situations where efficient (e.g., stack-based) storage is required.
 //
-// The 'my_AlignedBuffer' 'union' (defined below) takes a 'TYPE' and the
-// 'ALIGNMENT' requirements for that type as template parameters, and provides
-// an appropriately sized and aligned block of memory via the 'buffer'
-// functions.  Note that 'my_AlignedBuffer' ensures that the returned memory is
-// aligned correctly for the specified size by using
+// The 'my_AlignedBuffer' 'union' (defined below) takes a template parameter
+// 'TYPE', and provides an appropriately sized and aligned block of memory via
+// the 'buffer' functions.  Note that 'my_AlignedBuffer' ensures that the
+// returned memory is aligned correctly for the specified size by using
 // 'bsls::AlignmentFromType<TYPE>::Type', which provides a primitive type
-// having the 'ALIGNMENT' requirement.  The class definition of
+// having the same alignment requirement as 'TYPE'.  The class definition of
 // 'my_AlignedBuffer' is as follows:
 //..
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE>
 //  union my_AlignedBuffer {
 //    private:
 //      // DATA
@@ -124,31 +123,31 @@ BSLS_IDENT("$Id: $")
 // The function definitions of 'my_AlignedBuffer' are as follows:
 //..
 //  // MANIPULATORS
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE>
 //  inline
-//  char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer()
+//  char *my_AlignedBuffer<TYPE>::buffer()
 //  {
 //      return d_buffer;
 //  }
 //
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE>
 //  inline
-//  TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object()
+//  TYPE& my_AlignedBuffer<TYPE>::object()
 //  {
 //      return *reinterpret_cast<TYPE *>(this);
 //  }
 //
 //  // ACCESSORS
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE>
 //  inline
-//  const char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer() const
+//  const char *my_AlignedBuffer<TYPE>::buffer() const
 //  {
 //      return d_buffer;
 //  }
 //
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE>
 //  inline
-//  const TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object() const
+//  const TYPE& my_AlignedBuffer<TYPE>::object() const
 //  {
 //      return *reinterpret_cast<const TYPE *>(this);
 //  }
@@ -157,24 +156,20 @@ BSLS_IDENT("$Id: $")
 // with varied alignment requirements.  Consider that we want to construct an
 // object that stores the response of a floating-point operation.  If the
 // operation is successful, then the response object stores a 'double' result;
-// otherwise, it stores an error string.  Here is the definition for the
-// 'Response' class:
+// otherwise, it stores an error string of type 'string', which is based on the
+// standard type 'string' (see 'bslstl_string').  For the sake of brevity, the
+// implementation of 'string' is not explored here.  Here is the definition for
+// the 'Response' class:
 //..
 //  class Response {
-//..
-// To create a 'my_AlignedBuffer' object we must specify the alignment value
-// for our types.  For simplicity, we use a maximum alignment value for all
-// types (assumed to be 8 here):
-//..
-//  enum { MAX_ALIGNMENT = 8 };
 //..
 // Note that we use 'my_AlignedBuffer' to allocate sufficient, aligned memory
 // to store the result of the operation or an error message:
 //..
 //  private:
 //    union {
-//        my_AlignedBuffer<double, MAX_ALIGNMENT>      d_result;
-//        my_AlignedBuffer<std::string, MAX_ALIGNMENT> d_errorMessage;
+//        my_AlignedBuffer<double>      d_result;
+//        my_AlignedBuffer<string> d_errorMessage;
 //    };
 //..
 // The 'isError' flag indicates whether the response object stores valid data
@@ -189,7 +184,7 @@ BSLS_IDENT("$Id: $")
 //    Response(double result);
 //        // Create a response object that stores the specified 'result'.
 //
-//    Response(const std::string& errorMessage);
+//    Response(const string& errorMessage);
 //        // Create a response object that stores the specified
 //        // 'errorMessage'.
 //
@@ -204,7 +199,7 @@ BSLS_IDENT("$Id: $")
 //      // Update this object to store the specified 'result'.  After this
 //      // operation 'isError' returns 'false'.
 //
-//  void setErrorMessage(const std::string& errorMessage);
+//  void setErrorMessage(const string& errorMessage);
 //      // Update this object to store the specified 'errorMessage'.  After
 //      // this operation 'isError' returns 'true'.
 //..
@@ -220,7 +215,7 @@ BSLS_IDENT("$Id: $")
 //          // Return the result value stored by this object.  The behavior is
 //          // undefined unless 'false == isError()'.
 //
-//      const std::string& errorMessage() const;
+//      const string& errorMessage() const;
 //          // Return a reference to the non-modifiable error message stored by
 //          // this object.  The behavior is undefined unless
 //          // 'true == isError()'.
@@ -242,16 +237,16 @@ BSLS_IDENT("$Id: $")
 //      d_isError = false;
 //  }
 //
-//  Response::Response(const std::string& errorMessage)
+//  Response::Response(const string& errorMessage)
 //  {
-//      new (d_errorMessage.buffer()) std::string(errorMessage);
+//      new (d_errorMessage.buffer()) string(errorMessage);
 //      d_isError = true;
 //  }
 //
 //  Response::~Response()
 //  {
 //      if (d_isError) {
-//          typedef std::string Type;
+//          typedef string Type;
 //          d_errorMessage.object().~Type();
 //      }
 //  }
@@ -263,20 +258,20 @@ BSLS_IDENT("$Id: $")
 //          d_result.object() = result;
 //      }
 //      else {
-//          typedef std::string Type;
+//          typedef string Type;
 //          d_errorMessage.object().~Type();
 //          new (d_result.buffer()) double(result);
 //          d_isError = false;
 //      }
 //  }
 //
-//  void Response::setErrorMessage(const std::string& errorMessage)
+//  void Response::setErrorMessage(const string& errorMessage)
 //  {
 //      if (d_isError) {
 //          d_errorMessage.object() = errorMessage;
 //      }
 //      else {
-//          new (d_errorMessage.buffer()) std::string(errorMessage);
+//          new (d_errorMessage.buffer()) string(errorMessage);
 //          d_isError = true;
 //      }
 //  }
@@ -294,7 +289,7 @@ BSLS_IDENT("$Id: $")
 //      return d_result.object();
 //  }
 //
-//  const std::string& Response::errorMessage() const
+//  const string& Response::errorMessage() const
 //  {
 //      assert(d_isError);
 //
@@ -333,7 +328,7 @@ namespace bsls {
                            // struct AlignmentFromType
                            // ========================
 
-template <typename TYPE>
+template <class TYPE>
 struct AlignmentFromType {
     // This 'struct' computes (at compile time) a constant integral 'VALUE'
     // that specifies the required alignment for 'TYPE' objects.  Also provided

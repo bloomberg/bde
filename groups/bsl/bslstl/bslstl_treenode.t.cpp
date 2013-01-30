@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Manipulators can set value.
         //:
-        //: 2 Accessor return value set by maninpulator.
+        //: 2 Accessor return value set by manipulator.
         //:
         //: 3 Accessor is declared const.
         //

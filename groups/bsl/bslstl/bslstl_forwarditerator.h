@@ -143,7 +143,7 @@ class ForwardIterator
     //..
 
     // PRIVATE TYPES
-    typedef typename bslmf::RemoveCvq<T>::Type UnCvqT;  // value type without
+    typedef typename bsl::remove_cv<T>::type UnCvqT;   // value type without
                                                        // 'const' and
                                                        // 'volatile'
                                                        // qualifications

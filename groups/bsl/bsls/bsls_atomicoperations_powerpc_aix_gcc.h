@@ -2,7 +2,12 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC_AIX_GCC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC_AIX_GCC
 
-//@PURPOSE: Provide implentations of atomic operations for PowerPC/AIX/GCC.
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for PowerPC/AIX/GCC.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_POWERPC_AIX_GCC: atomics for PPC/AIX/GCC.
@@ -12,23 +17,22 @@
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the AIX PowerPC platform in 32bit/64bit mode with the GCC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and
-// 'bsls_atomic' for the public inteface to atomics.
+// 'bsls_atomic' for the public interface to atomics.
 //
 // NOTE: this implementation is incorrect and only minimally complete.  It is
 // provided for the sole purpose of passing cscheckin validation tests
 // performed on AIX with the GCC compiler.
 
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
+#include <bsls_atomicoperations_default.h>
 #endif
-BSLS_IDENT("$Id: $")
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
-#include <bsls_atomicoperations_default.h>
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_GNU)

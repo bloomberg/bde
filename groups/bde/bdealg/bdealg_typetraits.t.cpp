@@ -1,6 +1,7 @@
 // bdealg_typetraits.t.cpp                  -*-C++-*-
 
 #include <bdealg_typetraits.h>
+#include <bslalg_typetraits.h>
 
 #include <bslalg_typetraitnil.h>
 #include <bslma_testallocator.h>
@@ -21,7 +22,6 @@ using namespace bsl;
 #define bdealg_HasTrait bslalg_HasTrait
 #define BDEALG_DECLARE_NESTED_TRAITS(T, TRAITS)                               \
     BSLALG_DECLARE_NESTED_TRAITS(T, TRAITS)
-#define bdealg_TypeTraitsGroupPod bslalg_TypeTraitsGroupPod
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 //=============================================================================
@@ -175,26 +175,26 @@ struct my_Class1
 };
 
 namespace BloombergLP {
-
-    template <>
-        struct bdealg_TypeTraits<my_Class1>
-        : bslalg_TypeTraitUsesBslmaAllocator {};
-
-}  // close namespace BloombergLP
+    namespace bslma {
+        template <> struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
+    }  // close bslma namespace
+}  // close BloombergLP namespace
 
 template <class T>
 struct my_Class2
 {
     // Class template that has nested type traits
-    BDEALG_DECLARE_NESTED_TRAITS(my_Class2,
-                                 BloombergLP::bdealg_TypeTraitsGroupPod);
+    BSLALG_DECLARE_NESTED_TRAITS2(my_Class2,
+                    BloombergLP::bslalg_TypeTraitBitwiseCopyable,
+                    BloombergLP::bslalg_TypeTraitHasTrivialDefaultConstructor);
 };
 
-struct my_Class3
-{
-    // Class with no declared traits but implicitly uses allocator.
-    my_Class3(bslma_Allocator*);
-};
+// OBSOLETE: auto-detect of bdema traits is no longer supported
+// struct my_Class3
+// {
+//     // Class with no declared traits but implicitly uses allocator.
+//     my_Class3(bslma_Allocator*);
+// };
 
 struct my_Class4
 {
@@ -334,7 +334,7 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
         static void copyConstruct(TYPE            *location,
                                   const TYPE&      value,
                                   bslma_Allocator *allocator,
-                                  bslalg_TypeTraitUsesBslmaAllocator)
+                                  bsl::true_type)
             // Create a copy of the specified 'value' at the specified
             // 'location', using the specified 'allocator' to allocate memory.
         {
@@ -350,7 +350,7 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
         static void copyConstruct(TYPE            *location,
                                   const TYPE&      value,
                                   bslma_Allocator *allocator,
-                                  bslalg_TypeTraitNil)
+                                  bsl::false_type)
             // Create a copy of the specified 'value' at the specified
             // 'location'.  Note that the specified 'allocator' is ignored.
         {
@@ -367,10 +367,10 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
             // Create a copy of the specified 'value' at the specified
             // 'location', optionally using the specified 'allocator' to supply
             // memory if the parameterized 'TYPE' possesses the
-            // 'bslalg_TypeTraitUsesBslmaAllocator'.
+            // 'bslma::UsesBslmaAllocator' trait.
         {
             copyConstruct(location, value, allocator,
-                          bdealg_TypeTraits<TYPE>());
+                          bslma::UsesBslmaAllocator<TYPE>());
         }
 
     };
@@ -601,8 +601,9 @@ int main(int argc, char *argv[])
         TRAIT_TEST(my_Class1, TRAIT_USESBDEMAALLOCATOR);
         TRAIT_TEST(my_Class2<int>, TRAIT_POD);
 
-        // Auto-detect bdema traits
-        TRAIT_TEST(my_Class3, TRAIT_USESBDEMAALLOCATOR);
+        // OBSOLETE: auto-detect of bdema traits is no longer supported
+        // // Auto-detect bdema traits
+        // TRAIT_TEST(my_Class3, TRAIT_USESBDEMAALLOCATOR);
 
         // Implied traits ???
 

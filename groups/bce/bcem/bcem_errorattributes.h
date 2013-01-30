@@ -12,9 +12,9 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bcem_ErrorAttributes: type for descriptive errors
 //
-//@SEE_ALSO: bcem_aggregate, bcem_aggregateraw
+//@SEE_ALSO: bcem_aggregate, bcem_aggregateraw, bcem_errorcode
 //
-//@AUTHOR: David Schumann (dschumann1)
+//@AUTHOR: David Schumann (dschumann1), Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides a simply-constrained value-semantic
 // class, 'bcem_ErrorAttributes', combining an enumerated error code with
@@ -90,7 +90,7 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 // 'bcem_ErrorAttributes' is a vocabulary type for communicating errors from
-// operations on a 'bcem_Aggregate' objects.  In this example, we elide the
+// operations on 'bcem_Aggregate' objects.  In this example, we elide the
 // actual function invocation and instead focus on handling the error
 // condition:
 //..
@@ -129,10 +129,6 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSL_CLIMITS
-#include <bsl_climits.h>
-#endif
-
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -149,12 +145,23 @@ namespace BloombergLP {
 
 class bcem_ErrorAttributes {
     // This value-semantic attribute class provides an enumerated error code
-    // and a human-readable message to describe errors arising from the
-    // the usage of dynamically-typed objects.
+    // and a human-readable message to describe errors arising from the usage
+    // of dynamically-typed objects.  See the Attributes section under
+    // @DESCRIPTION in the component-level documentation for information on the
+    // class attributes.  Note that the class invariants are identically the
+    // constraints on the individual attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for 'bdex' serialization
+    //: o is *exception-neutral* (agnostic)
+    //: o is *alias-safe*
+    //: o is 'const' *thread-safe*
+    // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    bsl::string          d_description;                // description of error
-    bcem_ErrorCode::Code d_code;                       // error code
+    bsl::string          d_description;  // description of error
+    bcem_ErrorCode::Code d_code;         // error code
 
   public:
     // TRAITS
@@ -189,8 +196,9 @@ class bcem_ErrorAttributes {
 
     // MANIPULATORS
     // bcem_ErrorAttributes& operator=(const bcem_ErrorAttributes& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // Note that the compiler generated default is used.
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that the compiler generated default is used.
 
     void setCode(bcem_ErrorCode::Code value);
         // Set the 'code' attribute of this object to the specified 'value'.
@@ -201,8 +209,7 @@ class bcem_ErrorAttributes {
 
     // ACCESSORS
     bcem_ErrorCode::Code code() const;
-        // Return a reference providing non-modifiable access to the 'code'
-        // attribute of this object.
+        // Return the 'code' attribute of this object.
 
     const bsl::string& description() const;
         // Return a reference providing non-modifiable access to the
@@ -231,7 +238,7 @@ bool operator==(const bcem_ErrorAttributes& lhs,
                 const bcem_ErrorAttributes& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'bcem_ErrorAttributes' objects have
-    // the same value if all of the corresponding values of their 'code', and
+    // the same value if all of the corresponding values of their 'code' and
     // 'description' attributes are the same.
 
 bool operator!=(const bcem_ErrorAttributes& lhs,
@@ -239,7 +246,7 @@ bool operator!=(const bcem_ErrorAttributes& lhs,
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'bcem_ErrorAttributes' objects
     // do not have the same value if any of the corresponding values of their
-    // 'code', or 'description' attributes are not the same.
+    // 'code' or 'description' attributes are not the same.
 
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          const bcem_ErrorAttributes& object);

@@ -420,6 +420,88 @@ bool TestCallback::resetFlag() const
     return d_reset;
 }
 
+                  // =========================
+                  // class LockAndModifyWorker
+                  // =========================
+
+class LockAndModifyWorker {
+    // This class owns a thread in which manipulators of a
+    // 'baem_MetricsManager' are invoked under the scope of another lock,
+    // repeatedly.
+
+    bcemt_Mutex                *d_mutex_p;
+    baem_MetricsManager        *d_obj_p;
+    bcemt_ThreadUtil::Handle    d_thread;
+    bces_AtomicInt              d_done;
+    const baem_Category        *d_myCategory_p;
+
+    void worker();
+    static void dummyCallback(bsl::vector<baem_MetricRecord>*,
+                              bool) {}
+
+public:
+    // CREATORS
+    LockAndModifyWorker(bcemt_Mutex *mutex,
+                        baem_MetricsManager *obj)
+    : d_mutex_p(mutex)
+    , d_obj_p(obj)
+    , d_myCategory_p(obj->metricRegistry().addCategory("LOCKANDMODIFYWORKER"))
+    {}
+
+    int start() {
+        d_done = 0;
+        return bcemt_ThreadUtil::create(
+                      &d_thread,
+                      bdef_MemFnUtil::memFn(&LockAndModifyWorker::worker,
+                                            this));
+    }
+
+    void stop() {
+        d_done = 1;
+        bcemt_ThreadUtil::join(d_thread);
+    }
+};
+
+void
+LockAndModifyWorker::worker() {
+    while (!d_done) {
+        bcemt_LockGuard<bcemt_Mutex> guard(d_mutex_p);
+
+        baem_MetricsManager::CallbackHandle handle =
+            d_obj_p->registerCollectionCallback(
+                                          d_myCategory_p,
+                                          &LockAndModifyWorker::dummyCallback);
+        d_obj_p->removeCollectionCallback(handle);
+    }
+}
+
+                    // ======================
+                    // class LockingPublisher
+                    // ======================
+
+class LockingPublisher : public baem_Publisher {
+    // This class defines a test implementation of 'baem_Publisher' that
+    // locks and unlocks a specified mutex when publish() is invoked.
+
+    bcemt_Mutex *d_mutex_p;
+
+public:
+
+    // CREATORS
+    LockingPublisher(bcemt_Mutex *mutex)
+    : d_mutex_p(mutex)
+    {}
+
+    // MANIPULATORS
+    virtual void publish(const baem_MetricSample&);
+       // Lock and unlock the mutex specified at construction.
+};
+
+void
+LockingPublisher::publish(const baem_MetricSample&) {
+    bcemt_LockGuard<bcemt_Mutex> guard(d_mutex_p);
+}
+
                       // ===================
                       // class TestPublisher
                       // ===================
@@ -1506,21 +1588,41 @@ int main(int argc, char *argv[])
         // CONCURRENCY TEST
         //
         // Testing:
-        //     Thread-safety of 'baem_MetricsManager' operations.
-        //
+        //: o Thread-safety of 'baem_MetricsManager' operations.
+        //: o publish() is invoked outside the scope of the
+        //    'baem_MetricsManager' lock.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         bcema_TestAllocator testAllocator;
-        baem_MetricsManager manager(&testAllocator);;
         {
-            ConcurrencyTest tester(10, &manager, &defaultAllocator);
-            tester.runTest();
+            baem_MetricsManager manager(&testAllocator);
+            {
+                ConcurrencyTest tester(10, &manager, &defaultAllocator);
+                tester.runTest();
+            }
+        }
+
+        {
+            bcemt_Mutex lock;
+            bcema_SharedPtr<baem_Publisher> publisher
+                (new (testAllocator) LockingPublisher(&lock),
+                 &testAllocator);
+            baem_MetricsManager manager(&testAllocator);
+            manager.addGeneralPublisher(publisher);
+
+            LockAndModifyWorker worker(&lock, &manager);
+            worker.start();
+            {
+                ConcurrencyTest tester(2, &manager, &defaultAllocator);
+                tester.runTest();
+            }
+            worker.stop();
         }
       } break;
       case 24: {

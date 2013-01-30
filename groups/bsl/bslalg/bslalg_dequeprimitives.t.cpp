@@ -11,6 +11,7 @@
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_testallocatorexception.h> // for testing only
 #include <bsls_alignmentutil.h>           // for testing only
+#include <bsls_bsltestutil.h>             // for testing only
 #include <bsls_objectbuffer.h>            // for testing only
 #include <bsls_platform.h>                // for testing only
 #include <bsls_stopwatch.h>               // for testing only
@@ -110,51 +111,53 @@ namespace {
 //-----------------------------------------------------------------------------
 
 #ifdef BDE_BUILD_TARGET_EXC
-#define BEGIN_bslma_EXCEPTION_TEST {                                       \
-    {                                                                      \
-        static int firstTime = 1;                                          \
-        if (veryVerbose && firstTime) printf(                              \
-            "### bslma EXCEPTION TEST -- (ENABLED) --\n");                 \
-        firstTime = 0;                                                     \
-    }                                                                      \
-    if (veryVeryVerbose) printf("### Begin bslma exception test.\n");      \
-    int bslmaExceptionCounter = 0;                                         \
-    static int bslmaExceptionLimit = 1000;                                 \
-    testAllocator.setAllocationLimit(bslmaExceptionCounter);               \
-    do {                                                                   \
+#define BEGIN_bslma_EXCEPTION_TEST {                                         \
+    {                                                                        \
+        static int firstTime = 1;                                            \
+        if (veryVerbose && firstTime) printf(                                \
+            "### bslma EXCEPTION TEST -- (ENABLED) --\n");                   \
+        firstTime = 0;                                                       \
+    }                                                                        \
+    if (veryVeryVerbose) printf("### Begin bslma exception test.\n");        \
+    int bslmaExceptionCounter = 0;                                           \
+    static int bslmaExceptionLimit = 1000;                                   \
+    testAllocator.setAllocationLimit(bslmaExceptionCounter);                 \
+    do {                                                                     \
         try {
 
-#define END_bslma_EXCEPTION_TEST                                           \
-        } catch (bslma::TestAllocatorException& e) {                       \
-            if (veryVerbose && bslmaExceptionLimit || veryVeryVerbose) {   \
-                --bslmaExceptionLimit;                                     \
-                printf("(*** %d)", bslmaExceptionCounter);                 \
-                if (veryVeryVerbose) {                                     \
-                    printf(" bslma::EXCEPTION:"                            \
-                           " alloc limit = %d,"                            \
-                           " last alloc size = %d\n",                      \
-                           bslmaExceptionCounter, e.numBytes());           \
-                }                                                          \
-                else if (0 == bslmaExceptionLimit) {                       \
-                    printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n"); \
-                }                                                          \
-            }                                                              \
-            testAllocator.setAllocationLimit(++bslmaExceptionCounter);     \
-            continue;                                                      \
-        }                                                                  \
-        testAllocator.setAllocationLimit(-1);                              \
-        break;                                                             \
-    } while (1);                                                           \
-    if (veryVeryVerbose) printf("### End bslma exception test.\n");        \
+#define END_bslma_EXCEPTION_TEST                                             \
+        } catch (bslma::TestAllocatorException& e) {                         \
+            if ((veryVerbose && bslmaExceptionLimit) || veryVeryVerbose) {   \
+                --bslmaExceptionLimit;                                       \
+                printf("(*** %d)", bslmaExceptionCounter);                   \
+                if (veryVeryVerbose) {                                       \
+                    printf(" bslma::EXCEPTION:"                              \
+                           " alloc limit = %d,",                             \
+                           bslmaExceptionCounter);                           \
+                    printf(" last alloc size = ");                           \
+                    bsls::BslTestUtil::callDebugprint(e.numBytes());         \
+                    printf("\n");                                            \
+                }                                                            \
+                else if (0 == bslmaExceptionLimit) {                         \
+                    printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n");   \
+                }                                                            \
+            }                                                                \
+            testAllocator.setAllocationLimit(++bslmaExceptionCounter);       \
+            continue;                                                        \
+        }                                                                    \
+        testAllocator.setAllocationLimit(-1);                                \
+        break;                                                               \
+    } while (1);                                                             \
+    if (veryVeryVerbose) printf("### End bslma exception test.\n");          \
 }
 #else
-#define BEGIN_bslma_EXCEPTION_TEST                                         \
-{                                                                          \
-    static int firstTime = 1;                                              \
-    if (verbose && firstTime) { printf(                                    \
-        "### bslma EXCEPTION TEST -- (NOT ENABLED) --\n");                 \
-        firstTime = 0;                                                     \
-    }                                                                      \
+#define BEGIN_bslma_EXCEPTION_TEST                                           \
+{                                                                            \
+    static int firstTime = 1;                                                \
+    if (verbose && firstTime) { printf(                                      \
+        "### bslma EXCEPTION TEST -- (NOT ENABLED) --\n");                   \
+        firstTime = 0;                                                       \
+    }                                                                        \
 }
 #define END_bslma_EXCEPTION_TEST
 #endif
@@ -325,10 +328,6 @@ class TestType {
     bslma::Allocator *d_allocator_p;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
@@ -399,6 +398,13 @@ class TestType {
         }
     }
 };
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
+}
+}
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
@@ -491,11 +497,6 @@ class BitwiseMoveableTestType : public TestType {
     // bit-wise moveable trait.  All members are inherited.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
-
     // CREATORS
     BitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
@@ -514,6 +515,19 @@ class BitwiseMoveableTestType : public TestType {
     }
 };
 
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<BitwiseMoveableTestType>
+    : bsl::true_type {};
+}
+
+namespace bslmf {
+template <> struct IsBitwiseMoveable<BitwiseMoveableTestType>
+    : bsl::true_type {};
+}
+}
+
                        // =============================
                        // class BitwiseCopyableTestType
                        // =============================
@@ -523,10 +537,6 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     // bit-wise copyable trait.  All members are inherited.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg::TypeTraitBitwiseCopyable);
-
     // CREATORS
     BitwiseCopyableTestType()
     : TestTypeNoAlloc()
@@ -544,6 +554,12 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     {
     }
 };
+
+// TRAITS
+namespace bsl {
+template <> struct is_trivially_copyable<BitwiseCopyableTestType>
+    : true_type {};
+}
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING

@@ -3,6 +3,8 @@
 #include <bslstp_alloc.h>
 #include <bslstl_allocator.h>
 
+#include <bslstl_allocator.h>
+
 namespace bsl {
 
 // Force instantiation.

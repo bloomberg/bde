@@ -8925,7 +8925,7 @@ int TestValueFunctions_Imp::loadTestValue(TYPE *object,
 {
     BSLMF_ASSERT((bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE));
     BSLS_ASSERT_SAFE(index >= 0);
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     index = index % Wrapper::NUM_ENUMERATORS;
     bdeat_EnumeratorInfo info = Wrapper::ENUMERATOR_INFO_ARRAY[index];
     *object = static_cast<TYPE>(info.value());

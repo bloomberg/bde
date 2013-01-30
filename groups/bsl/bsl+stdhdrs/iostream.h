@@ -14,6 +14,7 @@
 #include <bsl_iostream.h>
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
     // Permit reliance on transitive includes within robo.
 #include <ios.h>
 #include <ostream.h>
@@ -24,6 +25,7 @@ using std::ifstream;
 using std::istream;
 using std::ofstream;
 using std::ostream;
+#endif
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 using std::cin;

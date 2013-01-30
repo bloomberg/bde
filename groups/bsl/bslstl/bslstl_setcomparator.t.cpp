@@ -98,14 +98,15 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i) {
+void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-}  // close unamed namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -313,7 +314,7 @@ void TestDriver<TYPE>::test4()
     //:   'COMPARATOR' passing another object exchanges their 'COMPARATOR'
     //:   objects.
     //:
-    //: 2 Inovking the 'swap' method or free function on an object with
+    //: 2 Invoking the 'swap' method or free function on an object with
     //:   function pointer 'COMPARATOR' passing another object exchanges their
     //:   'COMPARATOR' function pointers.
     //:
@@ -678,7 +679,7 @@ void TestDriver<TYPE>::test2()
     //:   pointer returned by 'keyComparator' points to the same address as
     //:   the function pointer used on construction.  (C-3)
     //:
-    //: 4 Manually verify that defualt-constructing an object with a function
+    //: 4 Manually verify that default-constructing an object with a function
     //:   pointer as the parameterized 'COMPARATOR' type causes the compilation
     //:   to fail.  (C-4)
     //
@@ -895,7 +896,7 @@ int main(int argc, char *argv[])
 
           while (nodeIterator != tree.sentinel()) {
               printf("Node value: %d\n",
-                     static_cast<const TreeNode<int> *>(nodeIterator)->value());
+                    static_cast<const TreeNode<int> *>(nodeIterator)->value());
               nodeIterator = bslalg::RbTreeUtil::next(nodeIterator);
           }
 //..

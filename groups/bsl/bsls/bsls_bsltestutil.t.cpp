@@ -95,18 +95,13 @@
 #include <limits.h>      // PATH_MAX on linux
 #include <float.h>       // FLT_MAX, etc.
 
+#include <sys/types.h> // struct stat: required on Sun and Windows only
+#include <sys/stat.h>  // struct stat: required on Sun and Windows only
+
 #if defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
 # include <windows.h>    // MAX_PATH
 # include <io.h>         // _dup2
-# include <sys/types.h>  // struct stat: required on Sun and Windows only
-# include <sys/stat.h>   // struct stat: required on Sun and Windows only
 #else
-# if defined(BSLS_BSLTESTUTIL_OS_SUNOS) || \
-     defined(BSLS_BSLTESTUTIL_OS_SOLARIS) || \
-     defined(BSLS_BSLTESTUTIL_OS_DARWIN)
-#  include <sys/types.h> // struct stat: required on Sun and Windows only
-#  include <sys/stat.h>  // struct stat: required on Sun and Windows only
-# endif
 # include <unistd.h>
 #endif
 
@@ -217,7 +212,7 @@ using namespace BloombergLP;
 //                VARIATIONS ON STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 //
-// In order to accomodate the use of the identifiers 'testStatus' and 'aSsErT'
+// In order to accommodate the use of the identifiers 'testStatus' and 'aSsErT'
 // in the usage example, the rest of the test driver uses the identifiers
 // 'realTestStatus' and 'realaSsErT' instead.
 //
@@ -247,7 +242,7 @@ static void realaSsErT(bool b, const char *s, int i)
 // ostream to provide a uniform interface for all types.  The purpose of
 // 'bsls_bsltestutil' is precisely to provide a similar overloading mechanism
 // for 'printf'-based output.  In order to use the standard macros in this test
-// driver, we would have to define a test appartus of equivalent complexity to
+// driver, we would have to define a test apparatus of equivalent complexity to
 // the class we are testing.  Therefore, instead of the standard test macros we
 // define alternate macros that take pairs of variables and 'printf'-style
 // format strings instead of just variables alone.  For convenience, all of the
@@ -300,7 +295,7 @@ static void realaSsErT(bool b, const char *s, int i)
 // Usage example code assumes that 'BSLS_BSLTESTUTIL_*' macros have been
 // renamed to replace the standard test macros.  In order to simplify the rest
 // of the test driver, the standard macros are redefined after 'main', and the
-// usage example case just calls a funtion, 'executeUsageExample'.
+// usage example case just calls a function, 'executeUsageExample'.
 //
 ///Example 1: Writing a test driver
 /// - - - - - - - - - - - - - - - -
@@ -1245,7 +1240,7 @@ void TestDriver::testCase8(OutputRedirector *output)
     //:   increments each time the loop assert macro is called, and that the
     //:   expected error output is captured by the output redirection
     //:   apparatus.  Note that using distinct values for each loop variable
-    //:   allows us to detect omissions, repititions or mis-ordering of the
+    //:   allows us to detect omissions, repetitions or mis-ordering of the
     //:   loop assert macro's arguments.  Also note that we test the loop
     //:   assert macro with only one set of variable types, since we test
     //:   separately in test case 3 the ability of the underlying apparatus to
@@ -2102,7 +2097,7 @@ int main(int argc, char *argv[])
         //:   delegated to 'TestDriver::testCase3'.  Note that in the data
         //:   table supplied to 'TestDriver::testCase3', the 'OUTPUT' column
         //:   may be set to null, in which case the intended format is taken to
-        //:   be the 'INPUT' column formated by 'printf' using the last
+        //:   be the 'INPUT' column formatted by 'printf' using the last
         //:   argument to 'TestDriver::testCase3'.
         //:
         //: 2 For fundamental types, much coverage of concern 3 is covered by

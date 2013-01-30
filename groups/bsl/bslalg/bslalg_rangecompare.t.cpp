@@ -2,7 +2,10 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bslalg_typetraitusesbslmaallocator.h>             // for testing only
+#include <bslmf_isbitwiseequalitycomparable.h>          // for testing only
+#include <bslma_usesbslmaallocator.h>                   // for testing only
+#include <bslmf_nestedtraitdeclaration.h>               // for testing only
+#include <bsls_bsltestutil.h>                           // for testing only
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -232,7 +235,7 @@ struct ScalarPrimitives {
     static void doCopyConstruct(TARGET_TYPE         *address,
                                 const TARGET_TYPE&   original,
                                 bslma::Allocator    *allocator,
-                                bslmf::MetaInt<0>);
+                                bsl::false_type);
         // Build an object of the (template parameter) type 'TARGET_TYPE',
         // which does not use a 'bslma::Allocator', from the specified
         // 'original' object of the same 'TARGET_TYPE' in the uninitialized
@@ -243,7 +246,7 @@ struct ScalarPrimitives {
     static void doCopyConstruct(TARGET_TYPE         *address,
                                 const TARGET_TYPE&   original,
                                 bslma::Allocator    *allocator,
-                                bslmf::MetaInt<1>);
+                                bsl::true_type);
         // Build an object of the (template parameter) type 'TARGET_TYPE',
         // which uses a 'bslma::Allocator', from the specified 'original'
         // object of the same 'TARGET_TYPE' in the uninitialized memory at the
@@ -274,8 +277,9 @@ template <typename TARGET_TYPE>
 void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
                                        const TARGET_TYPE&   original,
                                        bslma::Allocator    *allocator,
-                                       bslmf::MetaInt<0>)
+                                       bsl::false_type)
 {
+    (void) allocator;
     new (address) TARGET_TYPE(original);
 }
 
@@ -283,7 +287,7 @@ template <typename TARGET_TYPE>
 void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
                                        const TARGET_TYPE&   original,
                                        bslma::Allocator    *allocator,
-                                       bslmf::MetaInt<1>)
+                                       bsl::true_type)
 {
     new (address) TARGET_TYPE(original, allocator);
 }
@@ -295,9 +299,7 @@ void ScalarPrimitives::copyConstruct(TARGET_TYPE               *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    typedef typename bslalg::HasTrait<TARGET_TYPE,
-                              bslalg::TypeTraitUsesBslmaAllocator>::Type Trait;
-
+    typedef typename bslma::UsesBslmaAllocator<TARGET_TYPE>::type Trait;
     doCopyConstruct(address, original, allocator, Trait());
 }
 
@@ -622,8 +624,8 @@ class MyString {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MyString,
-                     BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MyString,
+                                   BloombergLP::bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit MyString(const char       *string,
@@ -776,8 +778,8 @@ class MyPoint {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MyPoint,
-                  BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+    BSLMF_NESTED_TRAIT_DECLARATION(MyPoint,
+                          BloombergLP::bslmf::IsBitwiseEqualityComparable);
 
     // CREATORS
     MyPoint(int x, int y);
@@ -844,7 +846,7 @@ bool operator!=(const MyPoint& lhs, const MyPoint& rhs)
 // of its data members, and that no padding is required for alignment.
 // Furthermore, 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects
 // are bit-wise comparable, and we can correctly declare the
-// 'bslalg::TypeTraitBitwiseEqualityComparable' trait for the class, as shown
+// 'bslmf::IsBitwiseEqualityComparable' trait for the class, as shown
 // above under the public 'TRAITS' section.
 //
 // Now, we create two 'MyContainer<MyPoint>' objects and compare them using
@@ -870,7 +872,7 @@ void usageTestMyPoint()
 // contained in the 'MyContainer<MyPoint>' objects.  This comparison can
 // provide a significant performance boost over the comparison between two
 // 'MyContainer<MyPoint>' objects in which the nested
-// 'TypeTraitBitwiseEqualityComparable' trait is not associated with the
+// 'bslmf::IsBitwiseEqualityComparable' trait is not associated with the
 // 'MyPoint' class.
 //
 // Finally, note that we can instantiate 'MyContainer' with 'int' or any other
@@ -984,6 +986,14 @@ class BitWiseNoOpEqual {
     char datum() const;
 };
 
+// TRAITS
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseEqualityComparable<BitWiseNoOpEqual>
+    : bsl::true_type {};
+}
+}
+
 // CREATORS
 BitWiseNoOpEqual::BitWiseNoOpEqual(char value)
 : d_char(value)
@@ -1001,15 +1011,6 @@ bool operator<(const BitWiseNoOpEqual& lhs, const BitWiseNoOpEqual& rhs)
 {
     return lhs.datum() < rhs.datum();
 }
-
-// TRAITS
-namespace BloombergLP {
-
-template <>
-struct bslalg_TypeTraits<BitWiseNoOpEqual>
-: bslalg::TypeTraitBitwiseEqualityComparable { };
-
-}  // close enterprise namespace
 
                  // =========================================
                  // class CharEquivalentNonBitwiseWithOpEqual
@@ -1450,12 +1451,12 @@ void testLexicographicalBuiltin(bool                    verboseFlag,
                        LINE1, LEN1, LINE2, LEN2);
                 printf("LHS = [ ");
                 for (k = 0; k < LHS_LEN; ++k) {
-                    printf("%s", k ? (char*)", " : (char*)"");
+                    printf("%s", k ? ", " : "");
                     dbg_print(LHS_BEGIN[k]);
                 }
                 printf(" ]\nRHS = [ ");
                 for (k = 0; k < RHS_LEN; ++k) {
-                    printf("%s", k ? (char*)", " : (char*)"");
+                    printf("%s", k ? ", " : "");
                     dbg_print(RHS_BEGIN[k]);
                 }
                 printf(" ]\nEXP = %d, result = %d\n", EXP, result);
@@ -1571,7 +1572,7 @@ static const struct {
 };
 const int NUM_DATA_CASE3 = sizeof DATA_CASE3 / sizeof *DATA_CASE3;
 
-void testGenericEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
+void testGenericEqual(bool verboseFlag)
     // Compare every pair of strings in the 'DATA_CASE3' array, and verify that
     // they are equal according to the generic 'equal' implementation (using
     // four arguments) if and only if they are equal.
@@ -1845,7 +1846,9 @@ void testGG(bool verbose, bool veryVerbose)
             const int         LENGTH = (int)strlen(SPEC);
 
             TEST_TYPE array[MAX_LENGTH];
-            const TEST_TYPE& X = gg(array, SPEC);   // first element
+            const TEST_TYPE& X = gg(array, SPEC);
+            (void) X; // Supress variable unused warnings
+                // first element
 
             if (LENGTH != oldLen) {
                 if (verbose) printf("\tof length %d:\n", LENGTH);
@@ -1873,12 +1876,16 @@ void testGG(bool verbose, bool veryVerbose)
 //                  GLOBAL HELPER FUNCTIONS FOR CASE -1
 //-----------------------------------------------------------------------------
 
-struct TestPairType
-{
-    BSLALG_DECLARE_NESTED_TRAITS(TestPairType,
-                                 bslalg::TypeTraitBitwiseEqualityComparable);
+struct TestPairType {
     int first, second;
 };
+
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseEqualityComparable<TestPairType>
+    : bsl::true_type {};
+}
+}
 
 bool operator==(const TestPairType& lhs, const TestPairType& rhs)
 {
@@ -1920,8 +1927,8 @@ void generateNonNullValue(TestPairType *value, int j)
 template <class TYPE>
 void timeEqualAlgorithm(const char *typeName,
                         int         rawBufferSize,
-                        const char *rawBuffer1,
-                        const char *rawBuffer2,
+                        char       *rawBuffer1,
+                        char       *rawBuffer2,
                         int         numIter)
 {
     printf("\n\tcompare with '%s'\n", typeName);
@@ -1994,8 +2001,8 @@ void timeEqualAlgorithm(const char *typeName,
 template <class TYPE>
 void timeLexicographicalAlgorithm(const char *typeName,
                                   int         rawBufferSize,
-                                  const char *rawBuffer1,
-                                  const char *rawBuffer2,
+                                  char       *rawBuffer1,
+                                  char       *rawBuffer2,
                                   int         numIter)
 {
     printf("\n\tcompare with '%s'\n", typeName);
@@ -2274,7 +2281,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("\t... generic 'equal' (four arguments).\n");
 
         if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
-        testGenericEqual(veryVerbose, testAllocator);
+        testGenericEqual(veryVerbose);
 
         if (veryVerbose) printf("\t... with 'char'.\n");
         {

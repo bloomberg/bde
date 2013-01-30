@@ -9,7 +9,7 @@
 #include <cassert>
 
 #include <cstdio>    // 'fprintf'
-#include <cstdlib>   // 'atio'
+#include <cstdlib>   // 'atoi'
 #include <cstring>   // 'strcmp'
 #include <iostream>  // 'cout'
 
@@ -1965,7 +1965,8 @@ int main(int argc, char *argv[])
 // construct that is not supported inside a function definition, such as
 // declaring a template or defining a "local" function.  consequently, we must
 // provide a deeper "include-guard" inside the component header itself to
-// protect the non-macro parts of this compont against the repeated inclusion.
+// protect the non-macro parts of this component against the repeated
+// inclusion.
 //
 // For each test iteration that '#include <bsls_assert.h>', each of the macros
 // listed above should be undefined, along with each of the following that are
@@ -1975,7 +1976,7 @@ int main(int argc, char *argv[])
 //   BSLS_ASSERT_OPT
 //   BSLS_ASSERT_ASSERT
 //
-// Note that each test contains a certain ammount of "boilerplate" code that
+// Note that each test contains a certain amount of "boilerplate" code that
 // looks like it might be refactored into a common function or two.  This would
 // be a mistake, as the "bodies" that looks similar will actually have quite
 // meanings as the macros expand in different ways according to the

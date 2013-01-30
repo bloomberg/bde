@@ -122,10 +122,10 @@ int main(int argc, char *argv[])
         ASSERT(  bdemf_IsEnum<const myEnum>::VALUE);
         ASSERT(  bdemf_IsEnum<volatile myEnum>::VALUE);
         ASSERT(  bdemf_IsEnum<const volatile myEnum>::VALUE);
-        ASSERT(  bdemf_IsEnum<myEnum&>::VALUE);
-        ASSERT(  bdemf_IsEnum<const myEnum&>::VALUE);
-        ASSERT(  bdemf_IsEnum<volatile myEnum&>::VALUE);
-        ASSERT(  bdemf_IsEnum<const volatile myEnum&>::VALUE);
+        ASSERT(! bdemf_IsEnum<myEnum&>::VALUE);
+        ASSERT(! bdemf_IsEnum<const myEnum&>::VALUE);
+        ASSERT(! bdemf_IsEnum<volatile myEnum&>::VALUE);
+        ASSERT(! bdemf_IsEnum<const volatile myEnum&>::VALUE);
 
         ASSERT(! bdemf_IsEnum<bool>::VALUE);
         ASSERT(! bdemf_IsEnum<char>::VALUE);

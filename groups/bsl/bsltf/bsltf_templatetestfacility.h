@@ -13,8 +13,7 @@ BSLS_IDENT("$Id: $")
 //  bsltf::TemplateTestFacility: namespace for template-testing utilities
 //
 //@MACROS:
-//  BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(CLASS, METHOD, TYPE...):
-//      invoke CLASS<TYPE>.METHOD for each listed TYPE 
+//  BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(CLASS, METHOD, TYPE...): run all
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE: list of primitive types
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED: list user types
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR: list of typical types
@@ -124,19 +123,19 @@ BSLS_IDENT("$Id: $")
 //
 //  AllocTestType                       class that allocates memory, defines
 //                                      the
-//                                      'bslalg::TypeTraitUsesBslmaAllocator'
+//                                      'bslma::UsesBslmaAllocator'
 //                                      trait, and ensures it is not bitwise
 //                                      moved
 //
 //  BitwiseMoveableTestType             class that is bitwise-moveable and
 //                                      defines the
-//                                      'bslalg::TypeTraitBitwiseMoveable'
+//                                      'bslmf::IsBitwiseMoveable'
 //                                      trait
 //
 //  AllocatingBitwiseMoveableTestType   class that allocates memory, is
 //                                      bitwisemoveable, and defines the
-//                                      'bslalg::TypeTraitUsesBslmaAllocator'
-//                                      and 'bslalg::TypeTraitBitwiseMoveable'
+//                                      'bslma::UsesBslmaAllocator'
+//                                      and 'bslmf::IsBitwiseMoveable'
 //                                      traits
 //
 //  NonTypicalOverloadsTestType         class that defines and assert on
@@ -531,6 +530,25 @@ class TemplateTestFacility_StubClass {
         // Return the parameterized 'IDENTIFIER'.
 };
 
+                        // ========================================
+                        // class TemplateTestFacility_CompareHelper
+                        // ========================================
+
+class TemplateTestFacility_CompareHelper {
+  public:
+    template <class TYPE>
+    static bool areEqual(const TYPE& lhs, const TYPE& rhs);
+
+    static bool areEqual(const NonEqualComparableTestType& lhs,
+                         const NonEqualComparableTestType& rhs);
+
+    template <class TYPE>
+    static bool areNotEqual(const TYPE& lhs, const TYPE& rhs);
+
+    static bool areNotEqual(const NonEqualComparableTestType& lhs,
+                            const NonEqualComparableTestType& rhs);
+};
+
                         // ===========================
                         // struct TemplateTestFacility
                         // ===========================
@@ -583,7 +601,9 @@ void debugprint(const AllocTestType& obj);
 void debugprint(const BitwiseMoveableTestType& obj);
 void debugprint(const AllocBitwiseMoveableTestType& obj);
 void debugprint(const NonTypicalOverloadsTestType& obj);
+void debugprint(const NonAssignableTestType& obj);
 void debugprint(const NonDefaultConstructibleTestType& obj);
+void debugprint(const NonEqualComparableTestType& obj);
     // Print the value of the specified 'obj' to the console.  Note that this
     // free function is provided to allow 'bsls_bsltestutil' to support these
     // types intended for testing.  See the component-level documentation for
@@ -836,6 +856,16 @@ void debugprint(const NonDefaultConstructibleTestType& obj);
     // FIXME: Change this to integrate with Alisdair's test driver print
     // facility once its ready.
 
+#define BSLTF_TEMPLATETESTFACILITY_COMPARE_EQUAL(FIRST_ARGUMENT,              \
+                                                 SECOND_ARGUMENT)             \
+        ::BloombergLP::bsltf::TemplateTestFacility_CompareHelper::            \
+                                    areEqual(FIRST_ARGUMENT, SECOND_ARGUMENT)
+
+#define BSLTF_TEMPLATETESTFACILITY_COMPARE_NOT_EQUAL(FIRST_ARGUMENT,          \
+                                                 SECOND_ARGUMENT)             \
+        ::BloombergLP::bsltf::TemplateTestFacility_CompareHelper::            \
+                                 areNotEqual(FIRST_ARGUMENT, SECOND_ARGUMENT)
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -848,6 +878,42 @@ template <int IDENTIFIER>
 int TemplateTestFacility_StubClass::method()
 {
     return IDENTIFIER;
+}
+
+                        // ----------------------------------------
+                        // class TemplateTestFacility_CompareHelper
+                        // ----------------------------------------
+
+template <class TYPE>
+inline
+bool TemplateTestFacility_CompareHelper::areEqual(const TYPE& lhs,
+                                                  const TYPE& rhs)
+{
+    return lhs == rhs;
+}
+
+template <class TYPE>
+inline
+bool TemplateTestFacility_CompareHelper::areNotEqual(const TYPE& lhs,
+                                                     const TYPE& rhs)
+{
+    return lhs != rhs;
+}
+
+inline
+bool TemplateTestFacility_CompareHelper::areEqual(
+                                         const NonEqualComparableTestType& lhs,
+                                         const NonEqualComparableTestType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool TemplateTestFacility_CompareHelper::areNotEqual(
+                                         const NonEqualComparableTestType& lhs,
+                                         const NonEqualComparableTestType& rhs)
+{
+    return lhs.data() != rhs.data();
 }
 
                         // ---------------------------
@@ -1173,7 +1239,19 @@ void debugprint(const NonTypicalOverloadsTestType& obj)
 }
 
 inline
+void debugprint(const NonAssignableTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
 void debugprint(const NonDefaultConstructibleTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const NonEqualComparableTestType& obj)
 {
     printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
 }

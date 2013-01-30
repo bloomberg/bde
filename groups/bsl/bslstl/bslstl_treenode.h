@@ -333,7 +333,7 @@ BSLS_IDENT("$Id: $")
 //  assert(2 == set.numElements());
 //..
 
-#ifndef BSLALG_RBTREENODE
+#ifndef INCLUDED_BSLALG_RBTREENODE
 #include <bslalg_rbtreenode.h>
 #endif
 

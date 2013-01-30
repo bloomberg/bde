@@ -1372,9 +1372,9 @@ int my_CountedHandleRep<INSTANCE>::decrement()
 
 template <class INSTANCE>
 inline
-my_CountedHandle<INSTANCE>::my_CountedHandle(INSTANCE *object)
+my_CountedHandle<INSTANCE>::my_CountedHandle(INSTANCE *instance)
 {
-    d_rep_p = new my_CountedHandleRep<INSTANCE>(object);
+    d_rep_p = new my_CountedHandleRep<INSTANCE>(instance);
 }
 //..
 // Then, we define the copy constructor; the new object copies the underlying

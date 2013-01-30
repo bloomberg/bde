@@ -8,7 +8,7 @@
 BSLS_IDENT("$Id: $")
 
 /*
-//@PURPOSE: Provide functionality of the corresponding C++ Standard header
+//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
 //@SEE_ALSO: package bsl+stdhdrs
 //
@@ -24,15 +24,23 @@ BSLS_IDENT("$Id: $")
 */
 
 /*
-// Note that 'math.h' is meant for multiple inclusion on ibm - therefore only
-// the ident is protected by the guard.
+// Note that 'math.h' is meant for multiple inclusion on IBM, so only the ident
+// is protected by the include guard.
 */
 
 #endif  /* INCLUDED_NATIVE_C_MATH */
 
-// <math.h> header on Sun defines 'struct exception' which interferes with
-// 'std::exception'.  RW library has a workaround for this, but STLPort
-// doesn't.
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+// '<math.h>' on Sun defines 'struct exception', which interferes with
+// 'std::exception'.  The RW library has a workaround for this, but STLPort
+// does not.
 #if defined(BSLS_PLATFORM_CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
 #   define exception math_exception
 #endif
@@ -43,8 +51,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM_CMP_GNU) && \
-                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <math.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(math.h)
@@ -65,8 +72,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM_CMP_GNU) && \
-                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <math.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(math.h)
@@ -88,12 +94,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 /*
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 */

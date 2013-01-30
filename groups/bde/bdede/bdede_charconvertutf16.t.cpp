@@ -2,9 +2,13 @@
 
 #include <bdede_charconvertutf16.h>
 
+#include <bdede_charconvertstatus.h>
+
+#include <bslma_testallocator.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 
@@ -145,7 +149,8 @@ int testStatus = 0;
 int testFailures = 0;
 int testFailureLim = 100;        // <0 => no limit.
 
-bool aSsErT(int c, const char *s, int i) {
+bool aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -160,7 +165,7 @@ bool aSsErT(int c, const char *s, int i) {
     return c == 0;
 }
 
-}  // close anonymous namespace
+}  // close unnamed namespace
 
 #define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
 
@@ -207,14 +212,21 @@ bool aSsErT(int c, const char *s, int i) {
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
 //=============================================================================
-//                     CUSTOM TEST OUTPUT MACROS
+//                         CUSTOM TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 
 #define R(X) #X " = " << (X)
 #define R_(X) #X " = " << (X) << " "
 
 //=============================================================================
-//                       CUSTOM TEST APPARATUS
+//                               GLOBAL TYPEDEFS
+//-----------------------------------------------------------------------------
+
+typedef bdede_CharConvertUtf16  Util;
+typedef bdede_CharConvertStatus Status;
+
+//=============================================================================
+//                           CUSTOM TEST APPARATUS
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
@@ -283,6 +295,61 @@ int aSsErT(int v, const char *cv,
         aSsErT(!y, cy, line);
         aSsErT(!z, cz, line);
         return v && w && x && y && z;
+}
+
+//-----------------------------------------------------------------------------
+// Encode a 4-byte UTF-8 value, print as a sequence of deimal ints.
+//-----------------------------------------------------------------------------
+
+#if 0
+void fourByteUtf8Val(unsigned val)
+{
+    unsigned bs[4];
+
+    ASSERT(0 == (val & ~((1 << 21) - 1)));
+
+    bs[0] = ((val &  (7 << 18)) >> 18) | 0xf0;
+    bs[1] = ((val & (63 << 12)) >> 12) | 0x80;
+    bs[2] = ((val & (63 <<  6)) >>  6) | 0x80;
+    bs[3] = ((val &  63       )      ) | 0x80;
+
+    cout << setw(3);
+    cout << bs[0] << ", " << bs[1] << ", " << bs[2] << ", " << bs[3] << endl;
+}
+
+void threeByteUtf8Val(unsigned val)
+{
+    unsigned bs[3];
+
+    ASSERT(0 == (val & ~((1 << 16) - 1)));
+
+    bs[0] = ((val & (15 << 12)) >> 12) | 0xe0;
+    bs[1] = ((val & (63 <<  6)) >>  6) | 0x80;
+    bs[2] = ((val &  63       )      ) | 0x80;
+
+    cout << setw(3);
+    cout << bs[0] << ", " << bs[1] << ", " << bs[2] << endl;
+}
+
+void twoByteUtf8Val(unsigned val)
+{
+    unsigned bs[3];
+
+    ASSERT(0 == (val & ~((1 << 16) - 1)));
+
+    bs[0] = ((val & (31 <<  6)) >>  6) | 0xc0;
+    bs[1] = ((val &  63       )      ) | 0x80;
+
+    cout << setw(3);
+    cout << bs[0] << ", " << bs[1] << endl;
+}
+#endif
+
+void *hc(unsigned char c)
+{
+    // convert a char value into a 'void *' so '<<' will print it in hex
+
+    return (void *) (unsigned long) c;
 }
 
 //-----------------------------------------------------------------------------
@@ -385,8 +452,9 @@ bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h)
 // destroying them.  FixedVector<TYPE, N> requires that TYPE allow default-
 // initialization.
 
-template<typename VALUE_TYPE, bsl::size_t ARRAY_SIZE> class FixedVector {
-public:
+template<typename VALUE_TYPE, bsl::size_t ARRAY_SIZE>
+class FixedVector {
+  public:
     typedef VALUE_TYPE           value_type;
     typedef VALUE_TYPE&          reference;
     typedef VALUE_TYPE const&    const_reference;
@@ -407,6 +475,7 @@ public:
     {
     }
 
+    explicit
     FixedVector(size_type initial_size)
     : d_size(initial_size)
     {
@@ -464,7 +533,8 @@ public:
 //  We'll have a const and non-const version, and define appropriate
 //  comparisons and conversions.
 //  Non-const:
-template<typename VALUE_TYPE> struct ArrayRange {
+template<typename VALUE_TYPE>
+struct ArrayRange {
     // ArrayRange<> allows iteration through an array.  It combines the
     // starting pointer and the length in one object.
     // It is used to unify the handling of array, pointer/length, and
@@ -495,13 +565,16 @@ template<typename VALUE_TYPE> struct ArrayRange {
     {
     }
 
-    template<bsl::size_t LEN> ArrayRange(FixedVector<VALUE_TYPE, LEN> &v)
+    template<bsl::size_t LEN>
+    explicit
+    ArrayRange(FixedVector<VALUE_TYPE, LEN> &v)
         // Create an ArrayRange that spans a given FixedVector<>
     : d_array(&v[0]), d_size(v.size())
     {
     }
 
-    template<bsl::size_t LEN> ArrayRange(VALUE_TYPE (&a)[LEN])
+    template<bsl::size_t LEN>
+    ArrayRange(VALUE_TYPE (&a)[LEN])
         // Create an ArrayRange that spans a given array.
     : d_array(&a[0]), d_size(LEN)
     {
@@ -529,7 +602,8 @@ template<typename VALUE_TYPE> struct ArrayRange {
 };
 
 //  Const:
-template<typename VALUE_TYPE> struct ConstArrayRange {
+template<typename VALUE_TYPE>
+struct ConstArrayRange {
     typedef VALUE_TYPE           value_type;
     typedef VALUE_TYPE const&    const_reference;
     typedef const value_type    *const_iterator;
@@ -545,17 +619,20 @@ template<typename VALUE_TYPE> struct ConstArrayRange {
     }
 
     template<bsl::size_t LEN>
-                        ConstArrayRange(const FixedVector<VALUE_TYPE, LEN> &v)
+    explicit
+    ConstArrayRange(const FixedVector<VALUE_TYPE, LEN> &v)
     : d_array(&v[0]), d_size(v.size())
     {
     }
 
+    explicit
     ConstArrayRange(ArrayRange<VALUE_TYPE>& av)
     : d_array(av.d_array), d_size(av.d_size)
     {
     }
 
-    template<bsl::size_t LEN> ConstArrayRange(const VALUE_TYPE (&a)[LEN])
+    template<bsl::size_t LEN>
+    ConstArrayRange(const VALUE_TYPE (&a)[LEN])
     : d_array(&a[0]), d_size(LEN)
     {
     }
@@ -581,8 +658,8 @@ template<typename VALUE_TYPE> struct ConstArrayRange {
 
 template<typename VALUE_TYPE>
 inline
-bool operator!=(ConstArrayRange<VALUE_TYPE>& lhs,
-                ConstArrayRange<VALUE_TYPE>& rhs)
+bool operator!=(const ConstArrayRange<VALUE_TYPE>& lhs,
+                const ConstArrayRange<VALUE_TYPE>& rhs)
 {
     return !(lhs == rhs);
 }
@@ -611,7 +688,8 @@ bool operator!=(ConstArrayRange<VALUE_TYPE>& lhs,
 //        object, and false otherwise.
 
 // Generate/Check built from an ArrayRange
-template<typename ARRAY_RANGE> struct GenCheckArrRange {
+template<typename ARRAY_RANGE>
+struct GenCheckArrRange {
     typedef ARRAY_RANGE        RangeType;
     typedef typename RangeType::value_type value_type;
     typedef value_type&        reference;
@@ -624,7 +702,7 @@ template<typename ARRAY_RANGE> struct GenCheckArrRange {
     RangeType& d_range;
 
     // CREATORS
-
+    explicit
     GenCheckArrRange(RangeType& range)
     : d_range(range)
     {
@@ -639,8 +717,9 @@ template<typename ARRAY_RANGE> struct GenCheckArrRange {
     // it as the parameter in 'fill()'  So 'fill()' is a template on the
     // copy-to type, and we verify that they are comparable by doing one
     // character's copy by assignment.
+
     template<typename TO_TYPE>
-        void fill(TO_TYPE* toBuffer) const
+    void fill(TO_TYPE* toBuffer) const
     {
         if (size() > 0) {
             *toBuffer = *d_range.begin();  // (Only compiles if 'TO_TYPE' and
@@ -656,18 +735,19 @@ template<typename ARRAY_RANGE> struct GenCheckArrRange {
     // 'fill()'.  Note that in order to prevent signed/unsigned promotions on
     // chars and short from messing up the tests, we have to force a static
     // cast to the value type in the equality comparison.
+
     template<typename CHECK_TYPE>
-        bool check(const CHECK_TYPE* checkBuffer) const
+    bool check(const CHECK_TYPE* checkBuffer) const
         // Return true if the contents of the array addressed by '*checkBuffer'
         // are identical to the contents of the source buffer held by
         // 'd_range', up to the length 'd_range.size()', and false otherwise.
     {
         return 0 == size()
-            ||  static_cast<value_type>(checkBuffer[0]) == d_range.begin()[0]
+            ||  (static_cast<value_type>(checkBuffer[0]) == d_range.begin()[0]
              && ( 1 == size()
                || 0 == memcmp(checkBuffer + 1,
                               d_range.begin() + 1,
-                              sizeof(value_type) * (size() - 1)));
+                              sizeof(value_type) * (size() - 1))));
     }
 };
 
@@ -734,7 +814,8 @@ struct hexPrImpl {
     { }
 };
 
-template <typename T> ostream &operator <<(ostream& os, const hexPrImpl<T>& t);
+template <typename T>
+ostream &operator <<(ostream& os, const hexPrImpl<T>& t);
 
 template <typename T>
 struct mixedPrImpl {
@@ -745,13 +826,15 @@ struct mixedPrImpl {
     { }
 };
 
-template <typename T> ostream &operator <<(ostream&              os,
-                                           const mixedPrImpl<T>& t);
+template <typename T>
+ostream &operator <<(ostream& os, const mixedPrImpl<T>& t);
 
 // Three forms of array range print-in-hex (using a hexPrImpl object)
 
-template <typename T> hexPrImpl<T> prHexRange(const T *ptr, size_t size);
-template <typename T> hexPrImpl<T> prHexRange(const T *first, const T *last);
+template <typename T>
+hexPrImpl<T> prHexRange(const T *ptr, size_t size);
+template <typename T>
+hexPrImpl<T> prHexRange(const T *first, const T *last);
 template <typename T, bsl::size_t N>
 inline
 hexPrImpl<T> prHexRange(const FixedVector<T, N>& v)
@@ -768,9 +851,11 @@ hexPrImpl<T> prHexRange(const ArrayRange<T>& v)
 
 // Three forms of array range print-in-mixed (using a mixedPrImpl object)
 
-template <typename T> mixedPrImpl<T> prMixedRange(const T *ptr, size_t size);
-template <typename T> mixedPrImpl<T> prMixedRange(const T *first,
-                                                  const T *last);
+
+template <typename T>
+mixedPrImpl<T> prMixedRange(const T *ptr, size_t size);
+template <typename T>
+mixedPrImpl<T> prMixedRange(const T *first, const T *last);
 template <typename T, bsl::size_t N>
 inline
 mixedPrImpl<T> prMixedRange(const FixedVector<T, N>& v)
@@ -810,7 +895,8 @@ int checkFill(ITER      first,
 //    OdomIter: Run multiple nested iterators by means of a single, flat loop
 //-----------------------------------------------------------------------------
 
-template<typename ITER, int N_ITER_PARM> struct OdomIter {
+template<typename ITER, int N_ITER_PARM>
+struct OdomIter {
     // Compound "iterator" based on the odometer algorithm.  Note that this is
     // not really an iterator but a generator.  (It's big enough that to return
     // instances via begin() and end() is a good deal more costly than we
@@ -830,7 +916,7 @@ template<typename ITER, int N_ITER_PARM> struct OdomIter {
     //
     // Why use it?  Well, we go four loops deep in places and that tends to
     // nest things off the page.  OdomIter flattens the loops out.
-// @+@+@+@ Need a range iterator to use this in the other places!
+    // @+@+@+@ Need a range iterator to use this in the other places!
 
     typedef ITER Iter;
     enum { N_ITER = N_ITER_PARM };
@@ -838,21 +924,24 @@ template<typename ITER, int N_ITER_PARM> struct OdomIter {
     struct Wheel {
         // The Wheel represents a single 'odometer wheel'.  Each has its own
         // begin and end values, and its own current position.
+
         Iter d_begin;
         Iter d_end;
         Iter d_pos;
     };
 
     Wheel d_wheels[N_ITER];
-       // The array of wheels.  The last wheel (N_ITER - 1) turns fastest, and
-       // corresponds to the innermost loop.
+        // The array of wheels.  The last wheel (N_ITER - 1) turns fastest, and
+        // corresponds to the innermost loop.
 
     // The general algorithm is to turn the lowest wheel, then if it rolls
     // over, to turn the next wheel, and so forth.  But it's a little trickier
     // because we want the behavior of a fixed end state and explicit
     // return-to-beginning from the end state rather that just rolling over.
 
-    template<typename COLLECTION> explicit OdomIter(COLLECTION *const *init)
+    template<typename COLLECTION>
+    explicit
+    OdomIter(COLLECTION *const *init)
         // Create the Odom-Iter from the homogeneous list of collections
         // passed as 'COLLECTION** init'
     {
@@ -877,7 +966,7 @@ template<typename ITER, int N_ITER_PARM> struct OdomIter {
     {
         for (int i = 0 ; i < N_ITER ; i++) {
             if (d_wheels[i].d_pos != d_wheels[i].d_end)
-                return false;
+                return false;                                         // RETURN
         }
         return true;
     }
@@ -934,7 +1023,7 @@ template<typename ITER, int N_ITER_PARM> struct OdomIter {
             }
 
             if (i == 0) {
-                return false;
+                return false;                                         // RETURN
             }
         }
 
@@ -950,7 +1039,8 @@ template<typename ITER, int N_ITER_PARM> struct OdomIter {
 //  HighBit<> and BufferSizes<>: compile-time computations to help size arrays.
 //-----------------------------------------------------------------------------
 
-template<unsigned long X> struct HighBit {
+template<unsigned long X>
+struct HighBit {
   private:
     // Isolate the highest bit set in X.  (Compile-time metaprogramming.)
     // Used below in BufferSizes.  There need be no instances of this object,
@@ -970,7 +1060,8 @@ template<unsigned long X> struct HighBit {
 template<bsl::size_t N_CHARS_P,
                  int FROM_SIZE_P,
                  int TO_SIZE_P,
-                 int MARGIN_P> struct BufferSizes {
+                 int MARGIN_P>
+struct BufferSizes {
     // Calculate the sizes needed for various buffers.  Compile-time
     // metaprogramming.  There need be no instances of this object, as
     // all its products are enums.
@@ -1021,6 +1112,7 @@ struct convRslt {
 
     // These mutators apply a change and return a reference to *this, allowing
     // changes to be applied one after the other.  (Evolvers, not mutators?)
+
     convRslt& sym(bsl::size_t newSymbol)
     {
         d_symbols = newSymbol;
@@ -1060,7 +1152,8 @@ ostream& operator<<(ostream& os, const convRslt& cvr);
 // use for a test.  It does not contain the expected return and
 // return-by-argument values, which are stored in convRslt.
 
-template<typename CHAR_TYPE> struct SrcSpec {
+template<typename CHAR_TYPE>
+struct SrcSpec {
     const CHAR_TYPE  *d_source;
     CHAR_TYPE   d_errorChar;
     bsl::size_t d_dstBufSize;
@@ -1083,7 +1176,8 @@ template<typename CHAR_TYPE> struct SrcSpec {
 // It does not itself own the buffer because in some cases we run multiple
 // tests and buffers with the same WorkPiece.
 
-template<typename CHAR_TYPE> struct WorkPiece {
+template<typename CHAR_TYPE>
+struct WorkPiece {
     bsl::size_t d_memLength;
     bsl::size_t d_margin;
     bsl::size_t d_winLength; // 2*d_margin + d_winLength <= d_memLength
@@ -1093,10 +1187,10 @@ template<typename CHAR_TYPE> struct WorkPiece {
               bsl::size_t winLength,
               CHAR_TYPE   fillChar,
               bsl::size_t margin = 32)
-    : d_memLength(memLength),
-      d_winLength(winLength),
-      d_fillChar(fillChar),
-      d_margin(margin)
+    : d_memLength(memLength)
+    , d_margin(margin)
+    , d_winLength(winLength)
+    , d_fillChar(fillChar)
     {
     }
 
@@ -1128,7 +1222,8 @@ template<typename CHAR_TYPE> struct WorkPiece {
 // with the WorkPiece.  The interface parallels that of the WorkPiece; there
 // is no buffer pointer argument in the various individual member functions
 // and the buffer pointer and WorkPiece are both accessible.
-template<typename CHAR_TYPE> struct BufferedWPiece {
+template<typename CHAR_TYPE>
+struct BufferedWPiece {
     CHAR_TYPE *const d_buf;
     WorkPiece<CHAR_TYPE> d_wp;
 
@@ -1189,7 +1284,8 @@ template<typename CHAR_TYPE> struct BufferedWPiece {
 //  The Conversion template is written as a struct so that each conversion can
 //  be represented by an object with a short local instance name.
 
-template <typename TO_CHAR, typename FROM_CHAR> struct Conversion {
+template <typename TO_CHAR, typename FROM_CHAR>
+struct Conversion {
     typedef int (*Function)(TO_CHAR         *dstBuf,
                             bsl::size_t      toSize,
                             const FROM_CHAR *srcBuf,
@@ -1202,6 +1298,7 @@ template <typename TO_CHAR, typename FROM_CHAR> struct Conversion {
 
     Function d_converter;
 
+    explicit
     Conversion(Function converter)
     : d_converter(converter)
     {
@@ -1212,23 +1309,25 @@ template <typename TO_CHAR, typename FROM_CHAR> struct Conversion {
                         const SrcSpec<FROM_CHAR>& from,
                         const convRslt&           expected)
     {
+        enum { INF = (bsl::size_t) -1 };
+
         convRslt result;
 
         result.d_retVal = (d_converter)(to.begin(dstBuf),
                                         to.d_winLength,
                                         from.d_source,
-                                        expected.d_symbols == -1 ?
+                                        expected.d_symbols == INF ?
                                                     0 : &result.d_symbols,
-                                        expected.d_units == -1 ?
+                                        expected.d_units == INF ?
                                                     0 : &result.d_units,
                                         from.d_errorChar);
 
-        if (-1 == expected.d_symbols) {
-            result.d_symbols = -1;
+        if (INF == expected.d_symbols) {
+            result.d_symbols = INF;
         }
 
-        if (-1 == expected.d_units) {
-            result.d_units = -1;
+        if (INF == expected.d_units) {
+            result.d_units = INF;
         }
 
         return result;
@@ -1239,23 +1338,28 @@ template <typename TO_CHAR, typename FROM_CHAR> struct Conversion {
 // ConversionArg<>: Metaprogram find of the function needed for a conversion
 //-----------------------------------------------------------------------------
 
-template<typename TO_CHAR, typename FROM_CHAR> struct ConversionArg {
+template<typename TO_CHAR, typename FROM_CHAR>
+struct ConversionArg {
     // This template exists to be specialized; the specializations (below)
     // provide the arg needed for Conversion<>::Conversion.
 };
 
-template<> struct ConversionArg<unsigned short, char> {
+template<>
+struct ConversionArg<unsigned short, char> {
     // Specialization of 'ConversionArg' to provide (in template fashion) the
     // arg needed to initialize 'Conversion<unsigned short, char>'
+
     static Conversion<unsigned short, char>::Function arg()
     {
         return bdede_CharConvertUtf16::utf8ToUtf16;
     }
 };
 
-template<> struct ConversionArg<char, unsigned short> {
+template<>
+struct ConversionArg<char, unsigned short> {
     // Specialization of 'ConversionArg' to provide (in template fashion) the
     // arg needed to initialize 'Conversion<char, unsigned short>'
+
     static Conversion<char, unsigned short>::Function arg()
     {
         return bdede_CharConvertUtf16::utf16ToUtf8;
@@ -1283,9 +1387,9 @@ template<> struct ConversionArg<char, unsigned short> {
 // used in the debugging macros--which have also been simplified.)
 // @+@+@+@+@  Have to get a better way to print out failure.
 
-template<typename ARRAY_TYPE, bsl::size_t N_WAY> void
-            equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
-                          const ARRAY_TYPE&                             sv);
+template<typename ARRAY_TYPE, bsl::size_t N_WAY>
+void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
+                   const ARRAY_TYPE&                             sv);
 
 // The 'RUN_FOUR_WAYS' macros contains the basic test sequence, set up four
 // times to run with all four combinations of return-by-argument.  It does the
@@ -1298,7 +1402,8 @@ template<typename ARRAY_TYPE, bsl::size_t N_WAY> void
 // The run-four-way mechanism is a mixture of a struct (to propagate the types
 // through the template and to hold state) with macros (to keep __LINE__
 // useful.)
-template <typename TO_CHAR, typename FROM_CHAR> struct FourWayRunner {
+template <typename TO_CHAR, typename FROM_CHAR>
+struct FourWayRunner {
     enum { N_WAY = 4 };
     typedef TO_CHAR ToChar;
     typedef FROM_CHAR FromChar;
@@ -1348,8 +1453,9 @@ template <typename TO_CHAR, typename FROM_CHAR> struct FourWayRunner {
 #endif
 
     ArrayRange<TO_CHAR> begin(int n)
-    { return ArrayRange<TO_CHAR>(d_wp.begin(d_outBuf[n]),
-                        d_wp.end(d_outBuf[n]) - d_wp.begin(d_outBuf[n]));
+    {
+        return ArrayRange<TO_CHAR>(d_wp.begin(d_outBuf[n]),
+                              d_wp.end(d_outBuf[n]) - d_wp.begin(d_outBuf[n]));
     }
 
     bool runAndCheck(int bufferN, int line);
@@ -1373,8 +1479,8 @@ template <typename TO_CHAR, typename FROM_CHAR> struct FourWayRunner {
 //                               USAGE EXAMPLE 1
 //-----------------------------------------------------------------------------
 
-///Usage
-///-----
+///Usage Example 1
+///---------------
 // The following snippets of code illustrate a typical use of the
 // 'bdede_CharConvertUtf16' struct's utility functions, first converting from
 // UTF-8 to UTF-16, and then converting back to make sure the round trip
@@ -1382,112 +1488,112 @@ template <typename TO_CHAR, typename FROM_CHAR> struct FourWayRunner {
 //..
 void testFunction1()
 {
-    unsigned short buffer[256];  // arbitrary "wide-enough" size
-    bsl::size_t    buffSize = sizeof buffer / sizeof *buffer;
-    bsl::size_t    charsWritten;
+    // First, we declare a string of utf8 containing double-, triple-, and
+    // quadruple-octet characters.
 
-    int retVal =
-              BloombergLP::bdede_CharConvertUtf16::utf8ToUtf16(buffer,
-                                                             buffSize,
-                                                             "Hello",
-                                                             &charsWritten);
+    const char utf8MultiLang[] = {
+        "\xce\x97"         "\xce\x95"         "\xce\xbb"    // -- Greek
+        "\xe4\xb8\xad"     "\xe5\x8d\x8e"                   // -- Chinese
+        "\xe0\xa4\xad"     "\xe0\xa4\xbe"                   // -- Hindi
+        "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };            // -- Quad octets
 
-    ASSERT( 0  == retVal);
-    ASSERT('H' == buffer[0]);
-    ASSERT('e' == buffer[1]);
-    ASSERT('l' == buffer[2]);
-    ASSERT('l' == buffer[3]);
-    ASSERT('o' == buffer[4]);
-    ASSERT( 0  == buffer[5]);
-    ASSERT( 6  == charsWritten);
+    // Then, we declare an enum summarizing the counts of characters in the
+    // string and verify that the counts add up to the length of the string.
 
-    // "&Eacute;cole", the French word for School
-    retVal =
-          BloombergLP::bdede_CharConvertUtf16::utf8ToUtf16(buffer,
-                                                         buffSize,
-                                                         "\xc3\x89" "cole",
-                                                         &charsWritten);
+    enum { NUM_CHINESE_CHARS = 2,
+           NUM_HINDI_CHARS   = 2,
+           NUM_GREEK_CHARS   = 3,
+           NUM_QUAD_CHARS    = 2 };
 
-    ASSERT( 0   == retVal);
-    ASSERT(0xc9 == buffer[0]); // Unicode-E WITH ACUTE, LATIN CAPITAL LETTER
-    ASSERT('c'  == buffer[1]);
-    ASSERT('o'  == buffer[2]);
-    ASSERT('l'  == buffer[3]);
-    ASSERT('e'  == buffer[4]);
-    ASSERT( 0   == buffer[5]);
-    ASSERT( 6   == charsWritten);
+    ASSERT(3 * NUM_CHINESE_CHARS +
+           3 * NUM_HINDI_CHARS +
+           2 * NUM_GREEK_CHARS +
+           4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
 
-    char           buffer2[256];  // arbitrary "wide-enough" size
-    bsl::size_t    buffer2Size  = sizeof buffer2 / sizeof *buffer2;
-    bsl::size_t    bytesWritten = 0;
+    // Next, we declare the vector where our utf16 output will go, and a
+    // variable into which the number of characters (characters, not bytes or
+    // words) written will be stored.  It is not necessary to initialize
+    // 'utf16CharsWritten'.
 
-    // Reversing the conversion returns the original string:
-    retVal =
-          BloombergLP::bdede_CharConvertUtf16::utf16ToUtf8(buffer2,
-                                                         buffer2Size,
-                                                         buffer,
-                                                         &charsWritten,
-                                                         &bytesWritten);
+    bsl::vector<unsigned short> v16;
+    bsl::size_t utf16CharsWritten;
 
-    ASSERT( 0 == retVal);
-    ASSERT( 0 == strcmp(buffer2, "\xc3\x89" "cole"));
+    // Note that for performance, we should
+    // 'v16.reserve(sizeof(utf8MultiLang))', but it's not strictly necessary --
+    // it will automatically be grown to the correct size.  Note also that if
+    // 'v16' were not empty, that wouldn't be a problem -- any contents will be
+    // discarded.
 
-    // 6 characters written, but 7 bytes, since the first character takes 2
-    // octets.
+    // Then, we do the translation to 'utf16'.
 
-    ASSERT( 6 == charsWritten);
-    ASSERT( 7 == bytesWritten);
+    int retVal = bdede_CharConvertUtf16::utf8ToUtf16(&v16,
+                                                     utf8MultiLang,
+                                                     &utf16CharsWritten);
+
+    ASSERT(0 == retVal);        // verify success
+    ASSERT(0 == v16.back());    // verify null terminated
+
+    // Next, we verify that the number of characters (characters, not bytes or
+    // words) that was returned is correct.
+
+    enum { EXPECTED_CHARS_WRITTEN = NUM_CHINESE_CHARS + NUM_HINDI_CHARS +
+                                        NUM_GREEK_CHARS + NUM_QUAD_CHARS + 1 };
+    ASSERT(EXPECTED_CHARS_WRITTEN == utf16CharsWritten);
+
+    // Then, we verify that the number of 16-bit words written was correct.
+    // The quad octet chars each require 2 short words of output
+
+    enum { EXPECTED_UTF16_WORDS_WRITTEN = NUM_CHINESE_CHARS + NUM_HINDI_CHARS +
+                                    NUM_GREEK_CHARS + NUM_QUAD_CHARS * 2 + 1 };
+
+    ASSERT(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
+
+    // Next, we calculate and confirm the difference betwen the number of utf16
+    // words output and the number of bytes input.  The Greek chars are double
+    // octets that will become single shorts, the Chinese chars are encoded as
+    // utf8 triple octets that will turn into single 16-bit words, the same for
+    // the Hindi chars, and the quad chars are quadruple octets that will turn
+    // into double shorts.
+
+    enum { SHRINKAGE = NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
+                       NUM_GREEK_CHARS   * (2-1) + NUM_QUAD_CHARS  * (4-2) };
+
+    ASSERT(v16.size() == sizeof(utf8MultiLang) - SHRINKAGE);
+
+    // Then, we got on to do the reverse 'utf16ToUtf8' transform to turn it
+    // back into utf8, and we should get a result identical to our original
+    // input.
+
+    // Next, declare a 'bsl::string' for our output, and a variable to count
+    // the number of characters (characters, not bytes or words) translated.
+
+    bsl::string    s;
+    bsl::size_t    utf8CharsWritten;
+
+    // Again, note that for performance, we should ideally
+    // 's.reserve(3 * v16.size())' but it's not really necessary.
+
+    // Now, we do the reverse transform:
+
+    retVal = bdede_CharConvertUtf16::utf16ToUtf8(&s,
+                                                 v16.begin(),
+                                                 &utf8CharsWritten);
+
+    // Finally, we verify a successful status was returned, that the output
+    // of the reverse transform was identical to the original input, and that
+    // the number of chars translated was as expected.
+
+    ASSERT(0 == retVal);
+    ASSERT(utf8MultiLang == s);
+    ASSERT(s.length() + 1         == sizeof(utf8MultiLang));
+
+    ASSERT(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
+    ASSERT(utf16CharsWritten      == utf8CharsWritten);
 }
 
 //=============================================================================
 //                               USAGE EXAMPLE 2
 //-----------------------------------------------------------------------------
-
-//..
-// In this example, a UTF-8 input string is converted then passed to another
-// function, which expects a UTF-16 buffer.
-//
-// First, we define a utility *strlen* replacement for UTF-16:
-//..
-int wideStrlen(const unsigned short *str)
-{
-    int len = 0;
-
-    while (*str++) {
-        ++len;
-    }
-
-    return len;
-}
-//..
-// Now, some arbitrary function that calls 'wideStrlen':
-//..
-void functionRequiringUtf16(const unsigned short *str, bsl::size_t strLen)
-{
-    // Would probably do something more reasonable here.
-
-    ASSERT(wideStrlen(str) + 1 == strLen);
-}
-//..
-// Finally, we can take some UTF-8 as an input and call
-// 'functionRequiringUtf16':
-//..
-void processUtf8(const char *strU8)
-{
-    unsigned short       buffer[1024];  // Some "large enough" size
-    bsl::size_t          buffSize     = sizeof buffer / sizeof *buffer;
-    bsl::size_t          charsWritten = 0;
-
-    int result =
-              BloombergLP::bdede_CharConvertUtf16::utf8ToUtf16(buffer,
-                                                             buffSize,
-                                                             strU8,
-                                                             &charsWritten);
-
-    if (0 == result) {
-        functionRequiringUtf16(buffer, charsWritten);
-    }
-}
 
 // Enumeration of the return codes expected from the functions being tested.
 // The correctness of these values with respect to the documentation is tested
@@ -1622,11 +1728,11 @@ void testSingleOctetPerturbation(const char             *input,
                                  bsl::size_t             perturbationPos,
                                  bsl::size_t             perturbationChar,
                                  const unsigned short   *origExpectedOutput,
-                                 bsl::size_t             totalInputLength,
-                                 unsigned short         *characterSizes,
+                                 bsl::size_t,
+                                 unsigned short         *,
                                  bsl::size_t             characterCount,
                                  const PerturbationDesc &perturb,
-                                 int                    verbose,
+                                 int,
                                  int                    veryVerbose)
 {
     char           inputBuffer[256];
@@ -1701,7 +1807,7 @@ void testSingleOctetPerturbation(const char             *input,
 
     pos += before;
 
-    for (int i = 0; i < characterCount; ++i) {
+    for (int i = 0; i < (int) characterCount; ++i) {
         if (i < pos - before) {
             LOOP3_ASSERT(i, outputBuffer[i],   origExpectedOutput[i],
                             outputBuffer[i] == origExpectedOutput[i]);
@@ -1747,8 +1853,6 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                                            int             verbose,
                                            int             veryVerbose)
 {
-    int retVal;
-
     if (veryVerbose) {
         cout << "perturbUtf8AndCheckConversionFailures("
              <<  "\n\tinput             =";
@@ -1765,7 +1869,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
     }
 
     if (!totalInputLength) {
-        return;
+        return;                                                       // RETURN
     }
 
     // The perturbations we can apply to each UTF-8 input character will depend
@@ -1821,7 +1925,8 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
     //    |          |           | 4-octet octet 1   |          ? |   1   0 |
     //    +----------+-----------+-------------------+------------+---------+
 
-    for (int currentChar = 0; currentChar < characterCount; ++currentChar) {
+    for (int currentChar = 0; currentChar < (int) characterCount;
+                                                               ++currentChar) {
         int currentCharStart = 0;
         for (int i=0; i < currentChar; ++i) {
             currentCharStart += characterSizes[i];
@@ -1841,7 +1946,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
             bsl::size_t testCount = sizeof oneOctetCharOctetOne /
                                     sizeof *oneOctetCharOctetOne;
 
-            for (int i = 0; i < testCount; ++i) {
+            for (int i = 0; i < (int) testCount; ++i) {
                 testSingleOctetPerturbation(input,
                                             currentCharStart,
                                             currentChar,
@@ -1870,7 +1975,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof twoOctetCharOctetOne
                                       / sizeof *twoOctetCharOctetOne;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart,
                                                 currentChar,
@@ -1898,7 +2003,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof twoOctetCharOctetTwo
                                       / sizeof *twoOctetCharOctetTwo;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart + 1,
                                                 currentChar,
@@ -1927,7 +2032,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof threeOctetCharOctetOne /
                                         sizeof *threeOctetCharOctetOne;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart,
                                                 currentChar,
@@ -1972,7 +2077,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof threeOctetCharOctetTwo /
                                         sizeof *threeOctetCharOctetTwo;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart + 1,
                                                 currentChar,
@@ -2019,7 +2124,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof threeOctetCharOctetThree
                                       / sizeof *threeOctetCharOctetThree;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart + 2,
                                                 currentChar,
@@ -2071,7 +2176,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
     }
 
     if (!totalInputLength) {
-        return;
+        return;                                                       // RETURN
     }
 
     perturbUtf8AndCheckConversionFailures(input,
@@ -2082,7 +2187,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                           verbose,
                                           veryVerbose);
 
-    for(int bufSize = 0; bufSize < characterCount; ++bufSize) {
+    for(int bufSize = 0; bufSize < (int) characterCount; ++bufSize) {
         unsigned short outputBuffer[256] = { 0 };
         bsl::size_t charsWritten = 0;
 
@@ -2096,7 +2201,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                          bufSize,                   characterCount,
                          OUTPUT_BUFFER_TOO_SMALL == retVal);
         LOOP3_ASSERT(L_, charsWritten,   bufSize,
-                         charsWritten == bufSize);
+                         (int) charsWritten == bufSize);
     }
 
     unsigned short outputBuffer[256] = { 0 };
@@ -2154,7 +2259,7 @@ void buildUpAndTestStringsU8ToU2(int             idx,
             veryVerbose);
 
     if (depth <= 0) {
-        return;
+        return;                                                       // RETURN
     }
 
     struct PrecomputedData const &d = PRECOMPUTED_DATA[idx];
@@ -2169,7 +2274,7 @@ void buildUpAndTestStringsU8ToU2(int             idx,
 
     characterSizes[characterCount++] = d.d_utf8CharacterLength;
 
-    for (int i = 0; i < precomputedDataCount; ++i) {
+    for (int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU8ToU2(i,
                                     depth - 1,
                                     inputBuffer,
@@ -2190,7 +2295,8 @@ int runPlainTextPerformanceTest(void);
 //  integers [ 0 .. N ).  For not-very-small N, this can take a very
 //  long time.
 
-template<bsl::size_t N> struct Permuter {
+template<bsl::size_t N>
+struct Permuter {
     // How this works:  A recursive algorithm for generating the permutation
     // is flattened by an odometer-like data structure.
     // The recursive procedure, which returns in the middle, works like
@@ -2273,7 +2379,7 @@ template<bsl::size_t N> struct Permuter {
 
     Permuter()
     {
-        for (int i = 0; i < N; ++i)
+        for (int i = 0; i < (int) N; ++i)
         {
             d_wheel[i] = 0;
             d_val[i] = i;
@@ -2294,7 +2400,7 @@ template<bsl::size_t N> struct Permuter {
         for (int n = N - 1 - 1; n >= 0; --n)
         {
             if (adv_wh(n)) {
-                return true;
+                return true;                                          // RETURN
             }
         }
         return false;
@@ -2310,6 +2416,7 @@ template<bsl::size_t N> struct Permuter {
     //   before we make the next advance.  Also, once we advance a wheel, we
     //   don't advance it again until everything at and above its position has
     //   returned to the state in which that wheel was last advanced.
+
     int adv_wh(int n)
     {
         exch(n, n + d_wheel[n]);
@@ -2441,10 +2548,10 @@ namespace {
     int veryVeryVerbose;        // " " three or more args after the test number
     int veryVeryVeryVerbose;    // " " four or more args after the test number
     int veryVeryVeryVeryVerbose;    // " " five or more args after the test no.
-}  // close anonymous namespace
+}  // close unnamed namespace
 
 template<typename TO_CHAR, typename FROM_CHAR, typename FILL_CHECK>
-    bool testOneErrorCharConversion(
+bool testOneErrorCharConversion(
             int                          line,    // '__LINE__' where this
                                                   // function is invoked
             ArrayRange<TO_CHAR> const&   toBuf,   // Workspaces provided by our
@@ -2466,7 +2573,8 @@ template<typename TO_CHAR, typename FROM_CHAR, typename FILL_CHECK>
 template<typename TO_CHAR,
          typename TO_FILL_CHECK,
          typename FR_CHAR,
-         typename FR_FILL_CHECK> bool oneStringConversion(
+         typename FR_FILL_CHECK>
+bool oneStringConversion(
             int                      line,          // '__LINE__' of this call
             BufferedWPiece<TO_CHAR>& toBuf,         // Destination workspace
             TO_FILL_CHECK&           toFillCheck,   // Reference for checking
@@ -2486,6 +2594,1917 @@ template<typename TO_CHAR,
     // expected result.  It returns 'true' if all the tests succeed, or 'false'
     // if any have failed.
 
+//-----------------------------------------------------------------------------
+// The following is a sample of Multilingual UTF-8.  It is an amalgamation of
+// prose in Chinese, Hindi, French, and Greek, taken from Wikipedia pages.
+//     It was discovered that none of this natural language sample contained
+// any four byte utf-8 encodings, so several were added on the end by hand.
+//-----------------------------------------------------------------------------
+
+unsigned char utf8MultiLang[] = {
+    239, 187, 191, 'C', 'h', 'i', 'n', 'e', 's', 'e', ':',  13,
+     10,  13,  10, 228, 184, 173, 229, 141, 142, 228, 186, 186,
+    230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 155, 189,
+    239, 188, 140, 233, 128, 154, 231, 167, 176, 228, 184, 173,
+    229, 155, 189, '[', 230, 179, 168, ' ', '3', ']', 239, 188,
+    140, 230, 152, 175, 228, 189, 141, 230, 150, 188, 228, 186,
+    154, 230, 180, 178, 230, 157, 177, 233, 131, 168, 227, 128,
+    129, 229, 164, 170, 229, 185, 179, 230, 180, 139, 232, 165,
+    191, 229, 178, 184, 231, 154, 132, 228, 184, 128, 228, 184,
+    170, 231, 164, 190, 228, 188, 154, 228, 184, 187, 228, 185,
+    137, 229, 155, 189, 229, 174, 182, 227, 128, 130, 233, 166,
+    150, 233, 131, 189, 231, 130, 186, 229, 140, 151, 228, 186,
+    172, 227, 128, 130, 229, 133, 182, 233, 153, 134, 229, 156,
+    176, 231, 150, 134, 229, 159, 159, 232, 136, 135, 229, 145,
+    168, 233, 130, 138, '1', '4', 229, 128, 139, 229, 156, 139,
+    229, 174, 182, 230, 142, 165, 229, 163, 164, 239, 188, 140,
+    233, 153, 134, 229, 156, 176, 229, 143, 138, 230, 185, 150,
+    230, 179, 138, 231, 154, 132, 230, 128, 187, 233, 157, 162,
+    231, 169, 141, 231, 186, 166, '9', '6', '0', 232, 144, 172,
+    229, 185, 179, 230, 150, 185, 229, 133, 172, 233, 135, 140,
+    '[', '1', '1', ']', '[', '1', '2', ']', '[', '1', '3', ']',
+    239, 188, 140, 230, 152, 175, 229, 133, 168, 228, 184, 150,
+    231, 149, 140, 233, 153, 134, 229, 156, 176, 233, 157, 162,
+    231, 167, 175, 231, 172, 172, 228, 186, 140, 229, 164, 167,
+    231, 154, 132, 229, 155, 189, 229, 174, 182, 239, 188, 140,
+    230, 128, 187, 233, 157, 162, 231, 167, 175, 231, 172, 172,
+    228, 184, 137, 230, 136, 150, 231, 172, 172, 229, 155, 155,
+    229, 164, 167, 231, 154, 132, 229, 155, 189, 229, 174, 182,
+    227, 128, 130, 229, 133, 182, 228, 186, 186, 229, 143, 163,
+    232, 182, 133, 233, 129, 142, '1', '3', 229, 132, 132, 239,
+    188, 140, 231, 180, 132, 228, 189, 148, 229, 133, 168, 231,
+    144, 131, 228, 186, 186, 229, 143, 163, 231, 154, 132, 228,
+    186, 148, 229, 136, 134, 228, 185, 139, 228, 184, 128, 239,
+    188, 140, 230, 152, 175, 228, 184, 150, 231, 149, 140, 228,
+    184, 138, 228, 186, 186, 229, 143, 163, 230, 156, 128, 229,
+    164, 154, 231, 154, 132, 229, 156, 139, 229, 174, 182, 227,
+    128, 130,  13,  10,  13,  10, 228, 189, 156, 231, 130, 186,
+    231, 164, 190, 228, 188, 154, 228, 184, 187, 228, 185, 137,
+    229, 155, 189, 229, 174, 182, 239, 188, 140, 228, 184, 173,
+    232, 143, 175, 228, 186, 186, 230, 176, 145, 229, 133, 177,
+    229, 146, 140, 229, 156, 139, 228, 187, 165, 233, 169, 172,
+    229, 133, 139, 230, 128, 157, 229, 136, 151, 229, 174, 129,
+    228, 184, 187, 228, 185, 137, 231, 130, 186, 230, 132, 143,
+    232, 173, 152, 229, 189, 162, 230, 133, 139, 239, 188, 140,
+    228, 190, 157, 228, 184, 173, 229, 156, 139, 231, 137, 185,
+    232, 137, 178, 231, 164, 190, 230, 156, 131, 228, 184, 187,
+    231, 190, 169, 231, 144, 134, 232, 174, 186, 230, 140, 135,
+    229, 176, 142, 230, 148, 191, 228, 186, 139, 239, 188, 140,
+    229, 185, 182, 231, 148, 177, 230, 134, 178, 230, 179, 149,
+    230, 137, 128, 232, 179, 166, 228, 186, 136, 228, 184, 173,
+    229, 155, 189, 229, 133, 177, 228, 186, 167, 229, 133, 154,
+    229, 159, 183, 230, 148, 191, 239, 188, 140, 229, 174, 158,
+    232, 161, 140, 228, 184, 173, 229, 155, 189, 229, 133, 177,
+    228, 186, 167, 229, 133, 154, 233, 162, 134, 229, 175, 188,
+    231, 154, 132, 229, 164, 154, 229, 133, 154, 229, 144, 136,
+    228, 189, 156, 229, 146, 140, 230, 148, 191, 230, 178, 187,
+    229, 141, 143, 229, 149, 134, 229, 136, 182, 229, 186, 166,
+    '[', '1', '4', ']', 227, 128, 130, '1', '9', '4', '9', 229,
+    185, 180, '1', '0', 230, 156, 136, '1', 230, 151, 165, 231,
+    154, 132, 229, 188, 128, 229, 155, 189, 229, 164, 167, 229,
+    133, 184, 228, 184, 173, 239, 188, 140, 228, 184, 173, 229,
+    141, 142, 228, 186, 186, 230, 176, 145, 229, 133, 177, 229,
+    146, 140, 229, 155, 189, 228, 184, 173, 229, 164, 174, 228,
+    186, 186, 230, 176, 145, 230, 148, 191, 229, 186, 156, 230,
+    173, 163, 229, 188, 143, 229, 174, 163, 229, 145, 138, 230,
+    136, 144, 231, 171, 139, '[', 230, 179, 168, ' ', '4', ']',
+    227, 128, 130, 229, 133, 168, 229, 156, 139, 229, 138, 131,
+    229, 136, 134, 231, 130, 186, '2', '3', 229, 128, 139, 231,
+    156, 129, 239, 188, 136, 229, 133, 182, 228, 184, 173, 229,
+    185, 182, 230, 178, 161, 230, 156, 137, 229, 175, 185, 229,
+    143, 176, 230, 185, 190, 231, 156, 129, 229, 133, 168, 233,
+    131, 168, 228, 184, 142, 231, 166, 143, 229, 187, 186, 231,
+    156, 129, 227, 128, 129, 230, 181, 183, 229, 141, 151, 231,
+    156, 129, 233, 131, 168, 229, 136, 134, 229, 156, 176, 229,
+    140, 186, 229, 174, 158, 233, 153, 133, 231, 174, 161, 232,
+    190, 150, 239, 188, 137, 227, 128, 129, '5', 229, 128, 139,
+    232, 135, 170, 230, 178, 187, 229, 141, 128, 227, 128, 129,
+    '4', 229, 128, 139, 231, 155, 180, 232, 190, 150, 229, 184,
+    130, 229, 146, 140, '2', 229, 128, 139, 231, 137, 185, 229,
+    136, 165, 232, 161, 140, 230, 148, 191, 229, 140, 186, 239,
+    188, 136, 229, 141, 179, 233, 166, 153, 230, 184, 175, 232,
+    136, 135, 230, 190, 179, 233, 150, 128, 239, 188, 137, 239,
+    188, 140, 231, 156, 129, 231, 186, 167, 228, 186, 186, 230,
+    176, 145, 230, 148, 191, 229, 186, 156, 229, 143, 151, 229,
+    155, 189, 229, 138, 161, 233, 153, 162, 233, 162, 134, 229,
+    175, 188, 239, 188, 140, 231, 137, 185, 229, 136, 165, 232,
+    161, 140, 230, 148, 191, 229, 141, 128, 229, 137, 135, 230,
+    160, 185, 230, 147, 154, 228, 184, 128, 229, 156, 139, 229,
+    133, 169, 229, 136, 182, 230, 148, 191, 231, 173, 150, 229,
+    175, 166, 232, 161, 140, 233, 171, 152, 229, 186, 166, 232,
+    135, 170, 230, 178, 187, 227, 128, 130, 229, 133, 168, 229,
+    155, 189, 232, 183, 168, 232, 182, 138, 228, 186, 148, 228,
+    184, 170, 229, 156, 176, 231, 144, 134, 230, 151, 182, 229,
+    140, 186, 239, 188, 140, 228, 189, 134, 229, 157, 135, 228,
+    189, 191, 231, 148, 168, 228, 184, 173, 229, 156, 139, 230,
+    168, 153, 230, 186, 150, 230, 153, 130, 233, 150, 147, 239,
+    188, 136, 229, 141, 179, 'U', 'T', 'C', '+', '8', 239, 188,
+    137, 227, 128, 130,  13,  10,  13,  10, 228, 184, 173, 232,
+    143, 175, 228, 186, 186, 230, 176, 145, 229, 133, 177, 229,
+    146, 140, 229, 156, 139, 230, 152, 175, 229, 164, 154, 230,
+    176, 145, 230, 151, 143, 229, 155, 189, 229, 174, 182, 239,
+    188, 140, 229, 133, 182, 228, 184, 173, 230, 177, 137, 230,
+    151, 143, 228, 189, 148, 231, 184, 189, 228, 186, 186, 229,
+    143, 163, 231, 154, 132, '9', '1', '.', '5', '9', '%', 239,
+    188, 140, 229, 133, 182, 233, 164, 152, '5', '5', 228, 184,
+    170, 230, 176, 145, 230, 151, 143, 231, 130, 186, 229, 176,
+    145, 230, 149, 176, 230, 176, 145, 230, 151, 143, 239, 188,
+    140, 229, 155, 189, 229, 174, 182, 232, 170, 141, 229, 174,
+    154, 231, 154, 132, '5', '6', 229, 128, 139, 230, 176, 145,
+    230, 151, 143, 229, 144, 136, 231, 167, 176, 226, 128, 156,
+    228, 184, 173, 229, 141, 142, 230, 176, 145, 230, 151, 143,
+    226, 128, 157, 227, 128, 130, 228, 184, 173, 229, 141, 142,
+    228, 186, 186, 230, 176, 145, 229, 133, 177, 229, 146, 140,
+    229, 155, 189, 230, 156, 137, '2', '4', 231, 167, 141, 230,
+    176, 145, 230, 151, 143, 230, 150, 135, 229, 173, 151, 239,
+    188, 140, 229, 133, 171, 229, 141, 129, 229, 164, 154, 231,
+    167, 141, 230, 176, 145, 230, 151, 143, 232, 175, 173, 232,
+    168, 128, 227, 128, 130, 228, 184, 173, 229, 141, 142, 228,
+    186, 186, 230, 176, 145, 229, 133, 177, 229, 146, 140, 229,
+    155, 189, 230, 178, 161, 230, 156, 137, 230, 152, 142, 231,
+    161, 174, 232, 167, 132, 229, 174, 154, 231, 154, 132, 229,
+    155, 189, 229, 174, 182, 232, 175, 173, 232, 168, 128, 239,
+    188, 140, 228, 187, 165, 230, 177, 137, 232, 175, 173, 230,
+    153, 174, 233, 128, 154, 232, 175, 157, 229, 146, 140, 232,
+    167, 132, 232, 140, 131, 231, 174, 128, 229, 140, 150, 230,
+    177, 137, 229, 173, 151, 228, 184, 186, 226, 128, 156, 229,
+    155, 189, 229, 174, 182, 233, 128, 154, 231, 148, 168, 232,
+    175, 173, 232, 168, 128, 230, 150, 135, 229, 173, 151, 226,
+    128, 157, '[', 230, 179, 168, ' ', '5', ']', 227, 128, 130,
+    228, 184, 173, 229, 155, 189, 228, 188, 160, 231, 187, 159,
+    228, 184, 138, 230, 152, 175, 228, 187, 165, 231, 165, 150,
+    229, 133, 136, 228, 191, 161, 228, 187, 176, 228, 184, 186,
+    228, 184, 187, 231, 154, 132, 229, 155, 189, 229, 174, 182,
+    239, 188, 140, 229, 185, 182, 229, 133, 183, 230, 156, 137,
+    229, 132, 146, 233, 135, 138, 233, 129, 147, 228, 184, 137,
+    230, 149, 153, 229, 144, 136, 230, 181, 129, 231, 154, 132,
+    229, 174, 151, 230, 149, 153, 228, 191, 161, 228, 187, 176,
+    228, 188, 160, 231, 187, 159, 229, 146, 140, 231, 137, 185,
+    231, 130, 185, 239, 188, 140, 229, 144, 140, 230, 151, 182,
+    229, 173, 152, 229, 156, 168, 229, 133, 182, 229, 174, 131,
+    229, 164, 154, 231, 167, 141, 229, 174, 151, 230, 149, 153,
+    227, 128, 130, 228, 184, 173, 229, 141, 142, 228, 186, 186,
+    230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 155, 189,
+    229, 144, 142, 239, 188, 140, 229, 174, 152, 230, 150, 185,
+    229, 165, 137, 232, 161, 140, 230, 151, 160, 231, 165, 158,
+    232, 174, 186, 239, 188, 140, 229, 133, 182, 229, 144, 142,
+    230, 155, 190, 229, 143, 145, 229, 138, 168, 231, 154, 132,
+    230, 150, 135, 229, 140, 150, 229, 164, 167, 233, 157, 169,
+    229, 145, 189, 229, 175, 185, 229, 144, 132, 231, 167, 141,
+    229, 174, 151, 230, 149, 153, 233, 128, 160, 230, 136, 144,
+    228, 184, 165, 233, 135, 141, 231, 160, 180, 229, 157, 143,
+    239, 188, 140, 231, 155, 180, 229, 136, 176, 230, 148, 185,
+    233, 157, 169, 229, 188, 128, 230, 148, 190, 229, 144, 142,
+    230, 137, 141, 230, 156, 137, 230, 137, 128, 232, 189, 172,
+    229, 143, 152, 227, 128, 130, 229, 189, 147, 228, 187, 138,
+    228, 184, 173, 229, 155, 189, 230, 148, 191, 229, 186, 156,
+    229, 175, 185, 229, 174, 151, 230, 149, 153, 228, 184, 142,
+    228, 188, 160, 231, 187, 159, 228, 186, 139, 231, 137, 169,
+    233, 135, 135, 229, 143, 150, 228, 191, 157, 230, 138, 164,
+    231, 154, 132, 230, 128, 129, 229, 186, 166, 227, 128, 130,
+     13,  10,  13,  10, 228, 184, 173, 229, 141, 142, 228, 186,
+    186, 230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 155,
+    189, 230, 152, 175, 229, 155, 189, 233, 153, 133, 231, 164,
+    190, 228, 188, 154, 231, 154, 132, 233, 135, 141, 232, 166,
+    129, 228, 184, 128, 229, 145, 152, 239, 188, 140, 228, 185,
+    159, 230, 152, 175, 228, 188, 151, 229, 164, 154, 230, 173,
+    163, 229, 188, 143, 229, 146, 140, 233, 157, 158, 230, 173,
+    163, 229, 188, 143, 231, 154, 132, 229, 164, 154, 232, 190,
+    185, 231, 187, 132, 231, 187, 135, 231, 154, 132, 230, 136,
+    144, 229, 145, 152, 239, 188, 140, 229, 140, 133, 230, 139,
+    172, 232, 129, 148, 229, 144, 136, 229, 155, 189, 227, 128,
+    129, 228, 184, 150, 231, 149, 140, 232, 180, 184, 230, 152,
+    147, 231, 187, 132, 231, 187, 135, 227, 128, 129, 228, 186,
+    154, 229, 164, 170, 231, 187, 143, 229, 144, 136, 231, 187,
+    132, 231, 187, 135, 227, 128, 129, 233, 135, 145, 231, 160,
+    150, 229, 155, 155, 229, 155, 189, 227, 128, 129, 228, 184,
+    138, 230, 181, 183, 229, 144, 136, 228, 189, 156, 231, 187,
+    132, 231, 187, 135, 229, 146, 140, '2', '0', 229, 155, 189,
+    233, 155, 134, 229, 155, 162, 231, 173, 137, 239, 188, 140,
+    228, 184, 186, 232, 129, 148, 229, 144, 136, 229, 155, 189,
+    229, 174, 137, 229, 133, 168, 231, 144, 134, 228, 186, 139,
+    228, 188, 154, 229, 184, 184, 228, 187, 187, 231, 144, 134,
+    228, 186, 139, 229, 155, 189, 227, 128, 129, 228, 184, 150,
+    231, 149, 140, 231, 172, 172, 228, 186, 140, 229, 164, 167,
+    231, 187, 143, 230, 181, 142, 228, 189, 147, 239, 188, 140,
+    230, 152, 175, 228, 184, 150, 231, 149, 140, 231, 172, 172,
+    228, 184, 128, 229, 164, 167, 229, 135, 186, 229, 143, 163,
+    229, 156, 139, 227, 128, 129, 228, 184, 150, 231, 149, 140,
+    231, 172, 172, 228, 186, 140, 229, 164, 167, 233, 128, 178,
+    229, 143, 163, 229, 156, 139, 239, 188, 140, 230, 147, 129,
+    230, 156, 137, 230, 156, 128, 229, 164, 154, 231, 154, 132,
+    229, 164, 150, 230, 177, 135, 229, 132, 178, 229, 130, 153,
+    239, 188, 140, 230, 156, 128, 228, 184, 176, 229, 175, 140,
+    231, 154, 132, 228, 184, 150, 231, 149, 140, 230, 150, 135,
+    229, 140, 150, 233, 129, 151, 228, 186, 167, 239, 188, 140,
+    228, 186, 166, 230, 152, 175, 228, 184, 150, 231, 149, 140,
+    228, 184, 138, 231, 187, 143, 230, 181, 142, 230, 136, 144,
+    233, 149, 183, 230, 156, 128, 229, 191, 171, 231, 154, 132,
+    229, 156, 139, 229, 174, 182, 228, 185, 139, 228, 184, 128,
+    227, 128, 130, 229, 143, 166, 229, 164, 150, 239, 188, 140,
+    228, 184, 173, 229, 155, 189, 230, 139, 165, 230, 156, 137,
+    228, 184, 150, 231, 149, 140, 228, 184, 138, 231, 142, 176,
+    229, 189, 185, 229, 163, 171, 229, 133, 181, 230, 156, 128,
+    229, 164, 154, 231, 154, 132, 229, 134, 155, 233, 152, 159,
+    239, 188, 155, 229, 134, 155, 228, 186, 139, 229, 188, 128,
+    230, 148, 175, 228, 184, 150, 231, 149, 140, 231, 172, 172,
+    228, 186, 140, 239, 188, 140, 230, 139, 165, 230, 156, 137,
+    230, 160, 184, 230, 173, 166, 229, 153, 168, 239, 188, 140,
+    229, 185, 182, 229, 133, 183, 229, 164, 135, 229, 143, 145,
+    229, 176, 132, 229, 141, 171, 230, 152, 159, 227, 128, 129,
+    232, 175, 149, 233, 170, 140, 229, 158, 139, 231, 169, 186,
+    233, 151, 180, 231, 171, 153, 229, 146, 140, 230, 156, 136,
+    231, 144, 131, 229, 143, 138, 230, 183, 177, 231, 169, 186,
+    230, 142, 162, 230, 181, 139, 229, 153, 168, 231, 154, 132,
+    232, 131, 189, 229, 138, 155, 239, 188, 155, '2', '0', '0',
+    '3', 229, 185, 180, 239, 188, 140, 228, 184, 173, 229, 155,
+    189, 230, 136, 144, 228, 184, 186, 228, 184, 150, 231, 149,
+    140, 231, 172, 172, 228, 184, 137, 228, 184, 170, 232, 135,
+    170, 228, 184, 187, 230, 136, 144, 229, 138, 159, 229, 143,
+    145, 229, 176, 132, 232, 189, 189, 228, 186, 186, 232, 136,
+    170, 229, 164, 169, 229, 153, 168, 231, 154, 132, 229, 155,
+    189, 229, 174, 182, 227, 128, 130, 228, 184, 173, 229, 155,
+    189, 228, 186, 166, 230, 152, 175, 230, 189, 156, 229, 156,
+    168, 232, 182, 133, 231, 186, 167, 229, 164, 167, 229, 155,
+    189, 228, 185, 139, 228, 184, 128, 239, 188, 140, 232, 162,
+    171, 232, 174, 164, 228, 184, 186, 230, 152, 175, 228, 184,
+    139, 228, 184, 128, 228, 189, 141, 232, 182, 133, 231, 186,
+    167, 229, 164, 167, 229, 155, 189, 231, 154, 132, 230, 156,
+    137, 229, 138, 155, 229, 128, 153, 233, 128, 137, 228, 186,
+    186, 227, 128, 130,  13,  10,  13,  10, 228, 184, 173, 229,
+    141, 142, 228, 186, 186, 230, 176, 145, 229, 133, 177, 229,
+    146, 140, 229, 155, 189, 231, 154, 132, 230, 173, 163, 229,
+    188, 143, 229, 155, 189, 229, 144, 141, 228, 186, 142, '1',
+    '9', '4', '9', 229, 185, 180, 231, 148, 177, 228, 184, 173,
+    229, 156, 139, 228, 186, 186, 230, 176, 145, 230, 148, 191,
+    230, 178, 187, 229, 141, 148, 229, 149, 134, 230, 156, 131,
+    232, 173, 176, 231, 177, 140, 229, 130, 153, 230, 156, 131,
+    232, 173, 176, 231, 162, 186, 229, 174, 154, 239, 188, 140,
+    229, 189, 147, 229, 136, 157, 230, 155, 190, 229, 138, 160,
+    232, 168, 187, 227, 128, 140, 231, 176, 161, 231, 168, 177,
+    239, 188, 154, 228, 184, 173, 232, 143, 175, 230, 176, 145,
+    229, 156, 139, 227, 128, 141, 239, 188, 140, 228, 189, 134,
+    229, 143, 184, 229, 190, 146, 231, 190, 142, 229, 160, 130,
+    231, 173, 137, 230, 176, 145, 228, 184, 187, 229, 133, 154,
+    230, 180, 190, 228, 186, 186, 229, 163, 171, 232, 174, 164,
+    228, 184, 186, 230, 150, 176, 228, 184, 173, 229, 155, 189,
+    229, 186, 148, 231, 161, 174, 231, 171, 139, 230, 150, 176,
+    229, 155, 189, 229, 144, 141, 239, 188, 140, 228, 187, 165,
+    231, 164, 186, 228, 184, 164, 230, 172, 161, 233, 157, 169,
+    229, 145, 189, 231, 154, 132, 230, 160, 185, 230, 156, 172,
+    230, 132, 143, 228, 185, 137, 228, 184, 141, 229, 144, 140,
+    '[', '1', '5', ']', 227, 128, 130, 229, 155, 160, 230, 173,
+    164, 231, 155, 180, 232, 135, 179, '9', 230, 156, 136, '2',
+    '7', 230, 151, 165, 230, 148, 191, 229, 141, 148, 229, 133,
+    168, 233, 171, 148, 230, 156, 131, 232, 173, 176, 232, 161,
+    168, 230, 177, 186, 233, 128, 154, 233, 129, 142, 228, 184,
+    173, 229, 164, 174, 228, 186, 186, 230, 176, 145, 230, 148,
+    191, 229, 186, 156, 231, 181, 132, 231, 185, 148, 230, 179,
+    149, 230, 153, 130, 239, 188, 140, 230, 173, 163, 229, 188,
+    143, 232, 173, 176, 230, 177, 186, 229, 142, 187, 233, 153,
+    164, 230, 173, 164, 229, 138, 160, 232, 168, 187, '[', '1',
+    '6', ']', 227, 128, 130,  13,  10,  13,  10, 229, 156, 168,
+    229, 133, 168, 233, 131, 168, 229, 156, 139, 233, 154, 155,
+    229, 160, 180, 229, 144, 136, 239, 188, 140, 228, 184, 173,
+    232, 143, 175, 228, 186, 186, 230, 176, 145, 229, 133, 177,
+    229, 146, 140, 229, 156, 139, 228, 184, 128, 232, 136, 172,
+    231, 176, 161, 231, 168, 177, 231, 130, 186, 228, 184, 173,
+    229, 156, 139, 239, 188, 140, 230, 156, 137, 230, 151, 182,
+    229, 128, 153, 228, 185, 159, 229, 155, 160, 229, 133, 182,
+    230, 137, 128, 229, 164, 132, 229, 156, 176, 231, 144, 134,
+    228, 189, 141, 231, 189, 174, 232, 128, 140, 232, 162, 171,
+    231, 167, 176, 228, 184, 186, 228, 184, 173, 229, 155, 189,
+    229, 164, 167, 233, 153, 134, 227, 128, 130, 229, 156, 168,
+    228, 184, 173, 229, 156, 139, 229, 156, 139, 229, 133, 167,
+    239, 188, 140, 231, 149, 182, '1', '9', '4', '9', 229, 185,
+    180, 229, 137, 141, 231, 154, 132, 228, 184, 173, 232, 143,
+    175, 230, 176, 145, 229, 156, 139, 232, 136, 135, '1', '9',
+    '4', '9', 229, 185, 180, 229, 190, 140, 231, 154, 132, 228,
+    184, 173, 232, 143, 175, 228, 186, 186, 230, 176, 145, 229,
+    133, 177, 229, 146, 140, 229, 156, 139, 229, 129, 154, 229,
+    176, 141, 230, 175, 148, 230, 136, 150, 230, 156, 137, 230,
+    173, 164, 230, 182, 181, 230, 140, 135, 230, 153, 130, 239,
+    188, 140, 229, 137, 141, 232, 128, 133, 229, 184, 184, 232,
+    162, 171, 231, 168, 177, 231, 130, 186, 232, 136, 138, 228,
+    184, 173, 229, 156, 139, 239, 188, 136, 228, 186, 166, 231,
+    168, 177, 232, 136, 138, 231, 164, 190, 230, 156, 131, 239,
+    188, 137, 239, 188, 140, 232, 128, 140, 229, 190, 140, 232,
+    128, 133, 229, 137, 135, 229, 184, 184, 232, 162, 171, 231,
+    168, 177, 231, 130, 186, 230, 150, 176, 228, 184, 173, 229,
+    156, 139, 227, 128, 130, 231, 155, 174, 229, 137, 141, 239,
+    188, 140, 228, 184, 173, 232, 143, 175, 228, 186, 186, 230,
+    176, 145, 229, 133, 177, 229, 146, 140, 229, 156, 139, 232,
+    170, 141, 231, 130, 186, 228, 184, 173, 232, 143, 175, 230,
+    176, 145, 229, 156, 139, 229, 183, 178, 232, 162, 171, 229,
+    133, 182, 229, 143, 150, 228, 187, 163, 239, 188, 140, 228,
+    184, 173, 232, 143, 175, 230, 176, 145, 229, 156, 139, 230,
+    148, 191, 229, 186, 156, 229, 137, 135, 228, 184, 141, 230,
+    137, 191, 232, 170, 141, 228, 184, 173, 232, 143, 175, 228,
+    186, 186, 230, 176, 145, 229, 133, 177, 229, 146, 140, 229,
+    156, 139, 231, 154, 132, 230, 173, 163, 231, 181, 177, 230,
+    128, 167, 239, 188, 140, 231, 149, 182, 229, 156, 168, 228,
+    184, 173, 229, 156, 139, 229, 164, 167, 233, 153, 184, 231,
+    154, 132, 228, 184, 173, 232, 143, 175, 228, 186, 186, 230,
+    176, 145, 229, 133, 177, 229, 146, 140, 229, 156, 139, 230,
+    148, 191, 229, 186, 156, 232, 136, 135, 229, 156, 168, 229,
+    143, 176, 231, 129, 163, 231, 154, 132, 228, 184, 173, 232,
+    143, 175, 230, 176, 145, 229, 156, 139, 230, 148, 191, 229,
+    186, 156, 229, 129, 154, 229, 176, 141, 230, 175, 148, 230,
+    136, 150, 230, 156, 137, 230, 173, 164, 230, 182, 181, 230,
+    140, 135, 230, 153, 130, 239, 188, 140, 229, 137, 141, 232,
+    128, 133, 229, 184, 184, 232, 162, 171, 229, 190, 140, 232,
+    128, 133, 231, 168, 177, 231, 130, 186, 229, 140, 151, 228,
+    186, 172, 231, 149, 182, 229, 177, 128, 227, 128, 129, 229,
+    164, 167, 233, 153, 184, 231, 149, 182, 229, 177, 128, 227,
+    128, 129, 228, 184, 173, 229, 133, 177, 231, 149, 182, 229,
+    177, 128, 227, 128, 129, 228, 184, 173, 229, 156, 139, 229,
+    164, 167, 233, 153, 184, 230, 136, 150, 229, 164, 167, 233,
+    153, 184, '[', '1', '7', ']', 239, 188, 140, 229, 190, 140,
+    232, 128, 133, 229, 184, 184, 232, 162, 171, 229, 137, 141,
+    232, 128, 133, 231, 168, 177, 231, 130, 186, 229, 143, 176,
+    231, 129, 163, 231, 149, 182, 229, 177, 128, 227, 128, 129,
+    229, 143, 176, 229, 140, 151, 231, 149, 182, 229, 177, 128,
+    230, 136, 150, 229, 143, 176, 231, 129, 163, '[', '1', '8',
+    ']', 227, 128, 130, 232, 136, 135, 230, 184, 175, 230, 190,
+    179, 229, 156, 176, 229, 141, 128, 228, 184, 166, 231, 148,
+    168, 230, 153, 130, 229, 137, 135, 231, 168, 177, 231, 130,
+    186, 228, 184, 173, 229, 156, 139, 229, 133, 167, 229, 156,
+    176, 227, 128, 129, 229, 133, 167, 229, 156, 176, '[', '1',
+    '9', ']', 227, 128, 130,  13,  10,  13,  10, 231, 149, 182,
+    228, 184, 173, 229, 156, 139, 229, 164, 167, 233, 153, 184,
+    231, 154, 132, 228, 184, 173, 232, 143, 175, 228, 186, 186,
+    230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 156, 139,
+    230, 148, 191, 229, 186, 156, 232, 136, 135, 229, 156, 168,
+    229, 143, 176, 231, 129, 163, 231, 154, 132, 228, 184, 173,
+    232, 143, 175, 230, 176, 145, 229, 156, 139, 230, 148, 191,
+    229, 186, 156, 229, 129, 154, 229, 176, 141, 230, 175, 148,
+    230, 136, 150, 229, 141, 128, 233, 154, 148, 228, 187, 139,
+    231, 180, 185, 230, 153, 130, 239, 188, 140, 233, 128, 154,
+    229, 184, 184, 230, 142, 161, 231, 148, 168, 229, 156, 176,
+    231, 144, 134, 229, 144, 141, 232, 169, 158, 227, 128, 140,
+    228, 184, 173, 229, 156, 139, 229, 164, 167, 233, 153, 184,
+    227, 128, 141, 239, 188, 136, 'C', 'h', 'i', 'n', 'a', ' ',
+    'M', 'a', 'i', 'n', 'l', 'a', 'n', 'd', 239, 188, 137, 230,
+    136, 150, 228, 184, 173, 229, 155, 189, 239, 188, 136, 'C',
+    'h', 'i', 'n', 'a', 239, 188, 137, 229, 129, 154, 231, 130,
+    186, 228, 184, 173, 232, 143, 175, 228, 186, 186, 230, 176,
+    145, 229, 133, 177, 229, 146, 140, 229, 156, 139, 231, 154,
+    132, 231, 176, 161, 231, 168, 177, 239, 188, 140, 229, 176,
+    141, 230, 150, 188, 228, 184, 173, 232, 143, 175, 230, 176,
+    145, 229, 156, 139, 229, 137, 135, 231, 176, 161, 231, 168,
+    177, 231, 130, 186, 228, 184, 173, 232, 143, 175, 229, 143,
+    176, 229, 140, 151, 239, 188, 136, 'C', 'h', 'i', 'n', 'e',
+    's', 'e', ' ', 'T', 'a', 'i', 'p', 'e', 'i', 239, 188, 137,
+    230, 136, 150, 229, 143, 176, 231, 129, 163, 239, 188, 136,
+    'T', 'a', 'i', 'w', 'a', 'n', 239, 188, 137, 227, 128, 130,
+    232, 128, 140, 229, 143, 176, 230, 185, 190, 231, 154, 132,
+    229, 170, 146, 228, 189, 147, 229, 137, 135, 229, 184, 184,
+    228, 189, 191, 231, 148, 168, 227, 128, 140, 228, 184, 173,
+    229, 133, 177, 227, 128, 141, 227, 128, 129, 227, 128, 140,
+    229, 164, 167, 233, 153, 184, 229, 156, 176, 229, 141, 128,
+    227, 128, 141, 227, 128, 129, 227, 128, 140, 229, 164, 167,
+    233, 153, 184, 227, 128, 141, 230, 136, 150, 227, 128, 140,
+    228, 184, 173, 229, 155, 189, 227, 128, 141, 230, 157, 165,
+    228, 189, 156, 231, 130, 186, 228, 184, 173, 232, 143, 175,
+    228, 186, 186, 230, 176, 145, 229, 133, 177, 229, 146, 140,
+    229, 156, 139, 231, 154, 132, 231, 176, 161, 231, 168, 177,
+    227, 128, 130, 233, 166, 153, 230, 184, 175, 233, 131, 168,
+    229, 136, 134, 229, 170, 146, 233, 171, 148, 228, 185, 159,
+    230, 156, 137, 228, 189, 191, 231, 148, 168, 227, 128, 140,
+    228, 184, 173, 229, 156, 139, 227, 128, 141, 229, 146, 140,
+    227, 128, 140, 228, 184, 173, 229, 133, 177, 227, 128, 141,
+    228, 190, 134, 230, 140, 135, 228, 187, 163, 228, 184, 173,
+    229, 156, 139, 229, 164, 167, 233, 153, 184, 227, 128, 130,
+     13,  10,  13,  10, '1', '9', '4', '9', 229, 185, 180, 239,
+    188, 140, 230, 173, 183, 230, 153, 130, 228, 184, 137, 229,
+    185, 180, 231, 154, 132, 229, 156, 139, 229, 133, 177, 229,
+    133, 167, 230, 136, 176, 228, 184, 187, 232, 166, 129, 230,
+    136, 176, 229, 189, 185, 231, 181, 144, 230, 157, 159, 239,
+    188, 140, 228, 184, 173, 229, 156, 139, 229, 133, 177, 231,
+    148, 162, 233, 187, 168, 230, 137, 128, 233, 160, 152, 229,
+    176, 142, 231, 154, 132, 228, 184, 173, 229, 156, 139, 228,
+    186, 186, 230, 176, 145, 232, 167, 163, 230, 148, 190, 232,
+    187, 141, 230, 136, 176, 229, 139, 157, 228, 186, 134, 228,
+    184, 173, 229, 156, 139, 229, 156, 139, 230, 176, 145, 233,
+    187, 168, 230, 137, 128, 233, 160, 152, 229, 176, 142, 231,
+    154, 132, 228, 184, 173, 232, 143, 175, 230, 176, 145, 229,
+    156, 139, 229, 155, 189, 232, 187, 141, '[', 230, 179, 168,
+    ' ', '6', ']', 239, 188, 140, 228, 184, 166, 229, 183, 178,
+    233, 128, 144, 230, 188, 184, 230, 142, 167, 229, 136, 182,
+    228, 186, 134, 228, 184, 173, 229, 156, 139, 229, 164, 167,
+    233, 153, 184, 229, 164, 167, 233, 131, 168, 229, 136, 134,
+    231, 156, 129, 228, 187, 189, 229, 146, 140, 229, 156, 176,
+    229, 140, 186, 227, 128, 130,  13,  10,  13,  10, 229, 144,
+    140, 229, 185, 180, '9', 230, 156, 136, '2', '1', 230, 151,
+    165, 232, 135, 179, '9', 230, 156, 136, '3', '0', 230, 151,
+    165, 239, 188, 140, 231, 182, 147, 233, 129, 142, 230, 149,
+    184, 230, 156, 136, 231, 154, 132, 231, 177, 140, 229, 130,
+    153, 239, 188, 140, 228, 184, 173, 229, 156, 139, 228, 186,
+    186, 230, 176, 145, 230, 148, 191, 230, 178, 187, 229, 141,
+    148, 229, 149, 134, 230, 156, 131, 232, 173, 176, 231, 172,
+    172, 228, 184, 128, 229, 177, 134, 229, 133, 168, 233, 171,
+    148, 230, 156, 131, 232, 173, 176, 229, 156, 168, 229, 140,
+    151, 229, 185, 179, 229, 143, 172, 233, 150, 139, 227, 128,
+    130, '9', 230, 156, 136, '2', '1', 230, 151, 165, 239, 188,
+    140, 228, 184, 173, 229, 156, 139, 228, 186, 186, 230, 176,
+    145, 230, 148, 191, 230, 178, 187, 229, 141, 148, 229, 149,
+    134, 230, 156, 131, 232, 173, 176, 231, 172, 172, 228, 184,
+    128, 229, 177, 134, 229, 133, 168, 233, 171, 148, 230, 156,
+    131, 232, 173, 176, 230, 173, 163, 229, 188, 143, 229, 174,
+    163, 229, 184, 131, 230, 136, 144, 231, 171, 139, 228, 184,
+    173, 229, 141, 142, 228, 186, 186, 230, 176, 145, 229, 133,
+    177, 229, 146, 140, 229, 155, 189, '[', '2', '0', ']', 227,
+    128, 130, 228, 188, 154, 232, 174, 174, 233, 128, 154, 233,
+    129, 142, 228, 186, 134, 227, 128, 138, 228, 184, 173, 229,
+    156, 139, 228, 186, 186, 230, 176, 145, 230, 148, 191, 230,
+    178, 187, 229, 141, 148, 229, 149, 134, 230, 156, 131, 232,
+    173, 176, 231, 181, 132, 231, 185, 148, 230, 179, 149, 227,
+    128, 139, 227, 128, 129, 227, 128, 138, 228, 184, 173, 232,
+    143, 175, 228, 186, 186, 230, 176, 145, 229, 133, 177, 229,
+    146, 140, 229, 156, 139, 228, 184, 173, 229, 164, 174, 228,
+    186, 186, 230, 176, 145, 230, 148, 191, 229, 186, 156, 231,
+    181, 132, 231, 185, 148, 230, 179, 149, 227, 128, 139, 229,
+    146, 140, 229, 133, 183, 230, 156, 137, 232, 135, 168, 230,
+    153, 130, 230, 134, 178, 230, 179, 149, 230, 128, 167, 232,
+    179, 170, 231, 154, 132, 227, 128, 138, 228, 184, 173, 229,
+    156, 139, 228, 186, 186, 230, 176, 145, 230, 148, 191, 230,
+    178, 187, 229, 141, 148, 229, 149, 134, 230, 156, 131, 232,
+    173, 176, 229, 133, 177, 229, 144, 140, 231, 182, 177, 233,
+    160, 152, 227, 128, 139, 239, 188, 140, 230, 177, 186, 229,
+    174, 154, 228, 187, 165, 229, 140, 151, 229, 185, 179, 231,
+    130, 186, 233, 166, 150, 233, 131, 189, 228, 184, 166, 230,
+    148, 185, 229, 144, 141, 231, 136, 178, 229, 140, 151, 228,
+    186, 172, 227, 128, 129, 228, 187, 165, 229, 133, 172, 229,
+    133, 131, 231, 180, 128, 229, 185, 180, 227, 128, 129, 228,
+    187, 165, 231, 190, 169, 229, 139, 135, 232, 187, 141, 233,
+    128, 178, 232, 161, 140, 230, 155, 178, 231, 130, 186, 228,
+    187, 163, 229, 156, 139, 230, 173, 140, 227, 128, 129, 228,
+    187, 165, 228, 186, 148, 230, 152, 159, 231, 180, 133, 230,
+    151, 151, 231, 130, 186, 229, 156, 139, 230, 151, 151, 239,
+    188, 140, 233, 128, 154, 233, 129, 142, 228, 186, 134, 231,
+    148, 177, '1', '8', '0', 228, 186, 186, 231, 181, 132, 230,
+    136, 144, 231, 154, 132, 228, 184, 173, 229, 156, 139, 228,
+    186, 186, 230, 176, 145, 230, 148, 191, 230, 178, 187, 229,
+    141, 148, 229, 149, 134, 230, 156, 131, 232, 173, 176, 231,
+    172, 172, 228, 184, 128, 229, 177, 134, 229, 133, 168, 229,
+    156, 139, 229, 167, 148, 229, 147, 161, 230, 156, 131, 229,
+    144, 141, 229, 150, 174, 239, 188, 140, 228, 184, 166, 233,
+    129, 184, 232, 136, 137, 230, 175, 155, 230, 190, 164, 230,
+    157, 177, 231, 130, 186, 228, 184, 173, 229, 164, 174, 228,
+    186, 186, 230, 176, 145, 230, 148, 191, 229, 186, 156, 228,
+    184, 187, 229, 184, 173, 227, 128, 129, 230, 156, 177, 229,
+    190, 183, 227, 128, 129, 229, 136, 152, 229, 176, 145, 229,
+    165, 135, 227, 128, 129, 229, 174, 139, 229, 186, 134, 233,
+    190, 132, 227, 128, 129, 230, 157, 142, 230, 181, 142, 230,
+    183, 177, 227, 128, 129, 229, 188, 160, 230, 190, 156, 227,
+    128, 129, 233, 171, 152, 229, 178, 151, 231, 130, 186, 229,
+    137, 175, 228, 184, 187, 229, 184, 173, 227, 128, 129, 229,
+    143, 166, 229, 164, 150, '5', '6', 228, 189, 141, 231, 130,
+    186, 228, 184, 173, 229, 164, 174, 228, 186, 186, 230, 176,
+    145, 230, 148, 191, 229, 186, 156, 229, 167, 148, 229, 147,
+    161, 227, 128, 130, '1', '0', 230, 156, 136, '1', 230, 151,
+    165, 229, 188, 128, 229, 155, 189, 229, 164, 167, 229, 133,
+    184, 229, 156, 168, 229, 140, 151, 228, 186, 172, 228, 184,
+    190, 232, 161, 140, 239, 188, 140, 230, 175, 155, 230, 190,
+    164, 230, 157, 177, 229, 156, 168, 229, 164, 169, 229, 174,
+    137, 233, 151, 168, 229, 159, 142, 230, 165, 188, 229, 174,
+    163, 229, 145, 138, 228, 184, 173, 229, 141, 142, 228, 186,
+    186, 230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 155,
+    189, 228, 184, 173, 229, 164, 174, 228, 186, 186, 230, 176,
+    145, 230, 148, 191, 229, 186, 156, 230, 136, 144, 231, 171,
+    139, 239, 188, 155, '1', '2', 230, 156, 136, '7', 230, 151,
+    165, 239, 188, 140, 228, 184, 173, 232, 143, 175, 230, 176,
+    145, 229, 156, 139, 230, 148, 191, 229, 186, 156, 230, 173,
+    163, 229, 188, 143, 231, 148, 177, 229, 155, 155, 229, 183,
+    157, 231, 156, 129, 230, 136, 144, 233, 131, 189, 229, 184,
+    130, 233, 129, 183, 229, 190, 128, 229, 143, 176, 230, 185,
+    190, 231, 156, 129, 229, 143, 176, 229, 140, 151, 229, 184,
+    130, 239, 188, 140, 228, 184, 166, 231, 185, 188, 231, 186,
+    140, 231, 181, 177, 230, 178, 187, 229, 143, 176, 231, 129,
+    163, 230, 156, 172, 229, 179, 182, 229, 143, 138, 230, 190,
+    142, 230, 185, 150, 227, 128, 129, 233, 131, 168, 229, 136,
+    134, 231, 166, 143, 229, 187, 186, 233, 155, 162, 229, 179,
+    182, 227, 128, 129, 228, 184, 156, 230, 178, 153, 231, 190,
+    164, 229, 178, 155, 227, 128, 129, 229, 164, 170, 229, 185,
+    179, 229, 178, 155, 231, 173, 137, 232, 135, 179, 228, 187,
+    138, 227, 128, 130, 232, 135, 179, 230, 173, 164, 239, 188,
+    140, 228, 184, 173, 229, 156, 139, 230, 173, 183, 229, 143,
+    178, 228, 184, 138, 230, 150, 188, 230, 181, 183, 229, 179,
+    189, 229, 133, 169, 229, 178, 184, 229, 136, 134, 230, 178,
+    187, 231, 154, 132, 230, 148, 191, 230, 178, 187, 230, 160,
+    188, 229, 177, 128, 230, 173, 163, 229, 188, 143, 229, 189,
+    162, 230, 136, 144, 227, 128, 130,  13,  10,  13,  10, 'H',
+    'i', 'n', 'd', 'i', ':',  13,  10,  13,  10, 224, 164, 173,
+    224, 164, 190, 224, 164, 176, 224, 164, 164, ',', ' ', 224,
+    164, 170, 224, 165, 140, 224, 164, 176, 224, 164, 190, 224,
+    164, 163, 224, 164, 191, 224, 164, 149, ' ', 224, 164, 156,
+    224, 164, 174, 224, 165, 141, 224, 164, 172, 224, 165, 130,
+    224, 164, 166, 224, 165, 141, 224, 164, 181, 224, 165, 128,
+    224, 164, 170, ',', ' ', 224, 164, 134, 224, 164, 167, 224,
+    165, 129, 224, 164, 168, 224, 164, 191, 224, 164, 149, ' ',
+    224, 164, 166, 224, 164, 149, 224, 165, 141, 224, 164, 183,
+    224, 164, 191, 224, 164, 163, ' ', 224, 164, 143, 224, 164,
+    182, 224, 164, 191, 224, 164, 175, 224, 164, 190, ' ', 224,
+    164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164, 184,
+    224, 165, 141, 224, 164, 165, 224, 164, 191, 224, 164, 164,
+    ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164,
+    164, 224, 165, 128, 224, 164, 175, ' ', 224, 164, 137, 224,
+    164, 170, 224, 164, 174, 224, 164, 185, 224, 164, 190, 224,
+    164, 166, 224, 165, 141, 224, 164, 181, 224, 165, 128, 224,
+    164, 170, ' ', 224, 164, 149, 224, 164, 190, ' ', 224, 164,
+    184, 224, 164, 172, 224, 164, 184, 224, 165, 135, ' ', 224,
+    164, 172, 224, 164, 161, 224, 164, 188, 224, 164, 190, ' ',
+    224, 164, 166, 224, 165, 135, 224, 164, 182, ' ', 224, 164,
+    185, 224, 165, 136, 224, 165, 164, ' ', 224, 164, 173, 224,
+    164, 190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 149,
+    224, 164, 190, ' ', 224, 164, 173, 224, 165, 140, 224, 164,
+    151, 224, 165, 139, 224, 164, 178, 224, 164, 191, 224, 164,
+    149, ' ', 224, 164, 171, 224, 165, 136, 224, 164, 178, 224,
+    164, 190, 224, 164, 181, ' ', 224, 165, 174, 224, 165, 166,
+    ' ', 224, 165, 170,'\'', ' ', 224, 164, 184, 224, 165, 135,
+    ' ', 224, 165, 169, 224, 165, 173, 224, 165, 166, ' ', 224,
+    165, 172,'\'', ' ', 224, 164, 137, 224, 164, 164, 224, 165,
+    141, 224, 164, 164, 224, 164, 176, 224, 165, 128, ' ', 224,
+    164, 133, 224, 164, 149, 224, 165, 141, 224, 164, 183, 224,
+    164, 190, 224, 164, 130, 224, 164, 182, ' ', 224, 164, 164,
+    224, 164, 149, ' ', 224, 164, 164, 224, 164, 165, 224, 164,
+    190, ' ', 224, 165, 172, 224, 165, 174, 224, 165, 166, ' ',
+    224, 165, 173,'\'', ' ', 224, 164, 184, 224, 165, 135, ' ',
+    224, 165, 175, 224, 165, 173, 224, 165, 166, ' ', 224, 165,
+    168, 224, 165, 171,'\'', 224, 164, 170, 224, 165, 130, 224,
+    164, 176, 224, 165, 141, 224, 164, 181, 224, 165, 128, ' ',
+    224, 164, 166, 224, 165, 135, 224, 164, 182, 224, 164, 190,
+    224, 164, 168, 224, 165, 141, 224, 164, 164, 224, 164, 176,
+    ' ', 224, 164, 164, 224, 164, 149, ' ', 224, 164, 185, 224,
+    165, 136, 224, 165, 164, ' ', 224, 164, 173, 224, 164, 190,
+    224, 164, 176, 224, 164, 164, ' ', 224, 164, 149, 224, 164,
+    190, ' ', 224, 164, 181, 224, 164, 191, 224, 164, 184, 224,
+    165, 141, 224, 164, 164, 224, 164, 190, 224, 164, 176, ' ',
+    224, 164, 137, 224, 164, 164, 224, 165, 141, 224, 164, 164,
+    224, 164, 176, ' ', 224, 164, 184, 224, 165, 135, ' ', 224,
+    164, 166, 224, 164, 149, 224, 165, 141, 224, 164, 183, 224,
+    164, 191, 224, 164, 163, ' ', 224, 164, 164, 224, 164, 149,
+    ' ', 224, 164, 149, 224, 164, 191, '.', ' ', 224, 164, 174,
+    224, 165, 128, '.', ' ', 224, 164, 148, 224, 164, 176, ' ',
+    224, 164, 170, 224, 165, 130, 224, 164, 176, 224, 165, 141,
+    224, 164, 181, ' ', 224, 164, 184, 224, 165, 135, ' ', 224,
+    164, 170, 224, 164, 182, 224, 165, 141, 224, 164, 154, 224,
+    164, 191, 224, 164, 174, ' ', 224, 164, 164, 224, 164, 149,
+    ' ', 224, 165, 168, ',', 224, 165, 175, 224, 165, 169, 224,
+    165, 169, ' ', 224, 164, 149, 224, 164, 191, '.', ' ', 224,
+    164, 174, 224, 165, 128, '.', ' ', 224, 164, 185, 224, 165,
+    136, 224, 165, 164, ' ', 224, 164, 173, 224, 164, 190, 224,
+    164, 176, 224, 164, 164, ' ', 224, 164, 149, 224, 165, 128,
+    ' ', 224, 164, 184, 224, 164, 174, 224, 165, 129, 224, 164,
+    166, 224, 165, 141, 224, 164, 176, ' ', 224, 164, 164, 224,
+    164, 159, ' ', 224, 164, 176, 224, 165, 135, 224, 164, 150,
+    224, 164, 190, ' ', 224, 165, 173, 224, 165, 171, 224, 165,
+    167, 224, 165, 172, '.', 224, 165, 172, ' ', 224, 164, 149,
+    224, 164, 191, 224, 164, 178, 224, 165, 139, 224, 164, 174,
+    224, 165, 128, 224, 164, 159, 224, 164, 176, ' ', 224, 164,
+    178, 224, 164, 174, 224, 165, 141, 224, 164, 172, 224, 165,
+    128, ' ', 224, 164, 185, 224, 165, 136, 224, 165, 164, ' ',
+    224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164, 164,
+    ',', ' ', 224, 164, 173, 224, 165, 140, 224, 164, 151, 224,
+    165, 139, 224, 164, 178, 224, 164, 191, 224, 164, 149, ' ',
+    224, 164, 166, 224, 165, 131, 224, 164, 183, 224, 165, 141,
+    224, 164, 159, 224, 164, 191, ' ', 224, 164, 184, 224, 165,
+    135, ' ', 224, 164, 181, 224, 164, 191, 224, 164, 182, 224,
+    165, 141, 224, 164, 181, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 184, 224, 164, 190, 224, 164,
+    164, 224, 164, 181, 224, 164, 190, 224, 164, 129, ' ', 224,
+    164, 184, 224, 164, 172, 224, 164, 184, 224, 165, 135, ' ',
+    224, 164, 172, 224, 164, 161, 224, 164, 188, 224, 164, 190,
+    ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 156, 224,
+    164, 168, 224, 164, 184, 224, 164, 129, 224, 164, 150, 224,
+    165, 141, 224, 164, 175, 224, 164, 190, ' ', 224, 164, 149,
+    224, 165, 135, ' ', 224, 164, 166, 224, 165, 131, 224, 164,
+    183, 224, 165, 141, 224, 164, 159, 224, 164, 191, 224, 164,
+    149, 224, 165, 139, 224, 164, 163, ' ', 224, 164, 184, 224,
+    165, 135, ' ', 224, 164, 166, 224, 165, 130, 224, 164, 184,
+    224, 164, 176, 224, 164, 190, ' ', 224, 164, 184, 224, 164,
+    172, ' ', 224, 164, 184, 224, 165, 135, ' ', 224, 164, 172,
+    224, 164, 161, 224, 164, 188, 224, 164, 190, ' ', 224, 164,
+    166, 224, 165, 135, 224, 164, 182, ' ', 224, 164, 185, 224,
+    165, 136, 224, 165, 164, ' ', 224, 164, 173, 224, 164, 190,
+    224, 164, 176, 224, 164, 164, ' ', 224, 164, 149, 224, 165,
+    135, ' ', 224, 164, 170, 224, 164, 182, 224, 165, 141, 224,
+    164, 154, 224, 164, 191, 224, 164, 174, ' ', 224, 164, 174,
+    224, 165, 135, 224, 164, 130, ' ', 224, 164, 170, 224, 164,
+    190, 224, 164, 149, 224, 164, 191, 224, 164, 184, 224, 165,
+    141, 224, 164, 164, 224, 164, 190, 224, 164, 168, ',', ' ',
+    224, 164, 137, 224, 164, 164, 224, 165, 141, 224, 164, 164,
+    224, 164, 176, '-', 224, 164, 170, 224, 165, 130, 224, 164,
+    176, 224, 165, 141, 224, 164, 181, ' ', 224, 164, 174, 224,
+    165, 135, 224, 164, 130, ' ', 224, 164, 154, 224, 165, 128,
+    224, 164, 168, ',', ' ', 224, 164, 168, 224, 165, 135, 224,
+    164, 170, 224, 164, 190, 224, 164, 178, ',', ' ', 224, 164,
+    148, 224, 164, 176, ' ', 224, 164, 173, 224, 165, 130, 224,
+    164, 159, 224, 164, 190, 224, 164, 168, ' ', 224, 164, 148,
+    224, 164, 176, ' ', 224, 164, 170, 224, 165, 130, 224, 164,
+    176, 224, 165, 141, 224, 164, 181, ' ', 224, 164, 174, 224,
+    165, 135, 224, 164, 130, ' ', 224, 164, 172, 224, 164, 190,
+    224, 164, 130, 224, 164, 151, 224, 165, 141, 224, 164, 178,
+    224, 164, 190, 224, 164, 166, 224, 165, 135, 224, 164, 182,
+    ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 174, 224,
+    165, 141, 224, 164, 175, 224, 164, 190, 224, 164, 168, 224,
+    165, 141, 224, 164, 174, 224, 164, 190, 224, 164, 176, ' ',
+    224, 164, 166, 224, 165, 135, 224, 164, 182, ' ', 224, 164,
+    184, 224, 165, 141, 224, 164, 165, 224, 164, 191, 224, 164,
+    164, ' ', 224, 164, 185, 224, 165, 136, 224, 164, 130, 224,
+    165, 164, ' ', 224, 164, 185, 224, 164, 191, 224, 164, 168,
+    224, 165, 141, 224, 164, 166, ' ', 224, 164, 174, 224, 164,
+    185, 224, 164, 190, 224, 164, 184, 224, 164, 190, 224, 164,
+    151, 224, 164, 176, ' ', 224, 164, 174, 224, 165, 135, 224,
+    164, 130, ' ', 224, 164, 135, 224, 164, 184, 224, 164, 149,
+    224, 165, 135, ' ', 224, 164, 166, 224, 164, 149, 224, 165,
+    141, 224, 164, 183, 224, 164, 191, 224, 164, 163, ' ', 224,
+    164, 170, 224, 164, 182, 224, 165, 141, 224, 164, 154, 224,
+    164, 191, 224, 164, 174, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 174, 224, 164, 190, 224, 164,
+    178, 224, 164, 166, 224, 165, 128, 224, 164, 181, ',', ' ',
+    224, 164, 166, 224, 164, 149, 224, 165, 141, 224, 164, 183,
+    224, 164, 191, 224, 164, 163, ' ', 224, 164, 174, 224, 165,
+    135, 224, 164, 130, ' ', 224, 164, 182, 224, 165, 141, 224,
+    164, 176, 224, 165, 128, 224, 164, 178, 224, 164, 130, 224,
+    164, 149, 224, 164, 190, ' ', 224, 164, 148, 224, 164, 176,
+    ' ', 224, 164, 166, 224, 164, 149, 224, 165, 141, 224, 164,
+    183, 224, 164, 191, 224, 164, 163, '-', 224, 164, 170, 224,
+    165, 130, 224, 164, 176, 224, 165, 141, 224, 164, 181, ' ',
+    224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164,
+    135, 224, 164, 130, 224, 164, 161, 224, 165, 139, 224, 164,
+    168, 224, 165, 135, 224, 164, 182, 224, 164, 191, 224, 164,
+    175, 224, 164, 190, ' ', 224, 164, 185, 224, 165, 136, 224,
+    164, 130, 224, 165, 164, ' ', 224, 164, 137, 224, 164, 164,
+    224, 165, 141, 224, 164, 164, 224, 164, 176, '-', 224, 164,
+    170, 224, 164, 182, 224, 165, 141, 224, 164, 154, 224, 164,
+    191, 224, 164, 174, ' ', 224, 164, 174, 224, 165, 135, 224,
+    164, 130, ' ', 224, 164, 133, 224, 164, 171, 224, 164, 188,
+    224, 164, 151, 224, 164, 190, 224, 164, 168, 224, 164, 191,
+    224, 164, 184, 224, 165, 141, 224, 164, 164, 224, 164, 190,
+    224, 164, 168, ' ', 224, 164, 149, 224, 165, 135, ' ', 224,
+    164, 184, 224, 164, 190, 224, 164, 165, ' ', 224, 164, 173,
+    224, 164, 190, 224, 164, 176, 224, 164, 164, ' ', 224, 164,
+    149, 224, 165, 128, ' ', 224, 164, 184, 224, 165, 128, 224,
+    164, 174, 224, 164, 190, ' ', 224, 164, 185, 224, 165, 136,
+    224, 165, 164, ' ', 224, 164, 135, 224, 164, 184, 224, 164,
+    149, 224, 165, 135, ' ', 224, 164, 137, 224, 164, 164, 224,
+    165, 141, 224, 164, 164, 224, 164, 176, ' ', 224, 164, 174,
+    224, 165, 135, 224, 164, 130, ' ', 224, 164, 185, 224, 164,
+    191, 224, 164, 174, 224, 164, 190, 224, 164, 178, 224, 164,
+    175, ' ', 224, 164, 170, 224, 164, 176, 224, 165, 141, 224,
+    164, 181, 224, 164, 164, ' ', 224, 164, 185, 224, 165, 136,
+    ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 166, 224,
+    164, 149, 224, 165, 141, 224, 164, 183, 224, 164, 191, 224,
+    164, 163, ' ', 224, 164, 174, 224, 165, 135, 224, 164, 130,
+    ' ', 224, 164, 185, 224, 164, 191, 224, 164, 168, 224, 165,
+    141, 224, 164, 166, ' ', 224, 164, 174, 224, 164, 185, 224,
+    164, 190, 224, 164, 184, 224, 164, 190, 224, 164, 151, 224,
+    164, 176, ' ', 224, 164, 185, 224, 165, 136, 224, 165, 164,
+    ' ', 224, 164, 170, 224, 165, 130, 224, 164, 176, 224, 165,
+    141, 224, 164, 181, ' ', 224, 164, 174, 224, 165, 135, 224,
+    164, 130, ' ', 224, 164, 172, 224, 164, 130, 224, 164, 151,
+    224, 164, 190, 224, 164, 178, ' ', 224, 164, 149, 224, 165,
+    128, ' ', 224, 164, 150, 224, 164, 190, 224, 164, 161, 224,
+    164, 188, 224, 165, 128, ' ', 224, 164, 185, 224, 165, 136,
+    ' ', 224, 164, 164, 224, 164, 165, 224, 164, 190, ' ', 224,
+    164, 170, 224, 164, 182, 224, 165, 141, 224, 164, 154, 224,
+    164, 191, 224, 164, 174, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 133, 224, 164, 176, 224, 164,
+    172, ' ', 224, 164, 184, 224, 164, 190, 224, 164, 151, 224,
+    164, 176, 224, 164, 184, 224, 164, 174, 224, 165, 129, 224,
+    164, 166, 224, 165, 141, 224, 164, 176, ' ', 224, 164, 185,
+    224, 165, 136, 224, 164, 130, ' ', 224, 165, 164, ' ', 224,
+    164, 173, 224, 164, 190, 224, 164, 176, 224, 164, 164, ' ',
+    224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164,
+    149, 224, 164, 136, ' ', 224, 164, 172, 224, 164, 161, 224,
+    164, 188, 224, 165, 128, ' ', 224, 164, 168, 224, 164, 166,
+    224, 164, 191, 224, 164, 175, 224, 164, 190, 224, 164, 129,
+    ' ', 224, 164, 185, 224, 165, 136, 224, 164, 130, ' ', 224,
+    165, 164, ' ', 224, 164, 151, 224, 164, 130, 224, 164, 151,
+    224, 164, 190, ' ', 224, 164, 168, 224, 164, 166, 224, 165,
+    128, ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224,
+    164, 164, 224, 165, 128, 224, 164, 175, ' ', 224, 164, 184,
+    224, 164, 130, 224, 164, 184, 224, 165, 141, 224, 164, 149,
+    224, 165, 131, 224, 164, 164, 224, 164, 191, ' ', 224, 164,
+    174, 224, 165, 135, 224, 164, 130, ' ', 224, 164, 133, 224,
+    164, 164, 224, 165, 141, 224, 164, 175, 224, 164, 130, 224,
+    164, 164, ' ', 224, 164, 170, 224, 164, 181, 224, 164, 191,
+    224, 164, 164, 224, 165, 141, 224, 164, 176, ' ', 224, 164,
+    174, 224, 164, 190, 224, 164, 168, 224, 165, 128, ' ', 224,
+    164, 156, 224, 164, 190, 224, 164, 164, 224, 165, 128, ' ',
+    224, 164, 185, 224, 165, 136, 224, 165, 164, ' ', 224, 164,
+    133, 224, 164, 168, 224, 165, 141, 224, 164, 175, ' ', 224,
+    164, 172, 224, 164, 161, 224, 164, 188, 224, 165, 128, ' ',
+    224, 164, 168, 224, 164, 166, 224, 164, 191, 224, 164, 175,
+    224, 164, 190, 224, 164, 129, ' ', 224, 164, 184, 224, 164,
+    191, 224, 164, 168, 224, 165, 141, 224, 164, 167, 224, 165,
+    129, ',', ' ', 224, 164, 168, 224, 164, 176, 224, 165, 141,
+    224, 164, 174, 224, 164, 166, 224, 164, 190, ',', ' ', 224,
+    164, 172, 224, 165, 141, 224, 164, 176, 224, 164, 185, 224,
+    165, 141, 224, 164, 174, 224, 164, 170, 224, 165, 129, 224,
+    164, 164, 224, 165, 141, 224, 164, 176, ',', ' ', 224, 164,
+    175, 224, 164, 174, 224, 165, 129, 224, 164, 168, 224, 164,
+    190, ',', ' ', 224, 164, 151, 224, 165, 139, 224, 164, 166,
+    224, 164, 190, 224, 164, 181, 224, 164, 176, 224, 165, 128,
+    ',', ' ', 224, 164, 149, 224, 164, 190, 224, 164, 181, 224,
+    165, 135, 224, 164, 176, 224, 165, 128, ',', ' ', 224, 164,
+    149, 224, 165, 131, 224, 164, 183, 224, 165, 141, 224, 164,
+    163, 224, 164, 190, ',', ' ', 224, 164, 154, 224, 164, 174,
+    224, 165, 141, 224, 164, 172, 224, 164, 178, ',', ' ', 224,
+    164, 184, 224, 164, 164, 224, 164, 178, 224, 164, 156, ',',
+    ' ', 224, 164, 181, 224, 165, 141, 224, 164, 175, 224, 164,
+    190, 224, 164, 184, ' ', 224, 164, 134, 224, 164, 166, 224,
+    164, 191, ' ', 224, 164, 185, 224, 165, 136, 224, 164, 130,
+    224, 165, 164,  13,  10,  13,  10, 224, 164, 175, 224, 164,
+    185, ' ', 224, 164, 181, 224, 164, 191, 224, 164, 182, 224,
+    165, 141, 224, 164, 181, ' ', 224, 164, 149, 224, 164, 190,
+    ' ', 224, 164, 184, 224, 164, 172, 224, 164, 184, 224, 165,
+    135, ' ', 224, 164, 172, 224, 164, 161, 224, 164, 188, 224,
+    164, 190, ' ', 224, 164, 178, 224, 165, 139, 224, 164, 149,
+    224, 164, 164, 224, 164, 130, 224, 164, 164, 224, 165, 141,
+    224, 164, 176, ' ', 224, 164, 185, 224, 165, 136, 224, 165,
+    164, ' ', 224, 164, 175, 224, 164, 185, 224, 164, 190, 224,
+    164, 129, ' ', 224, 165, 169, 224, 165, 166, 224, 165, 166,
+    ' ', 224, 164, 184, 224, 165, 135, ' ', 224, 164, 133, 224,
+    164, 167, 224, 164, 191, 224, 164, 149, ' ', 224, 164, 173,
+    224, 164, 190, 224, 164, 183, 224, 164, 190, 224, 164, 143,
+    224, 164, 129, ' ', 224, 164, 172, 224, 165, 139, 224, 164,
+    178, 224, 165, 128, ' ', 224, 164, 156, 224, 164, 190, 224,
+    164, 164, 224, 165, 128, ' ', 224, 164, 185, 224, 165, 136,
+    224, 164, 130, ' ', '[', '1', ']', 224, 165, 164, ' ', 224,
+    164, 175, 224, 164, 185, ' ', 224, 164, 181, 224, 164, 191,
+    224, 164, 182, 224, 165, 141, 224, 164, 181, ' ', 224, 164,
+    149, 224, 165, 128, ' ', 224, 164, 149, 224, 165, 129, 224,
+    164, 155, ' ', 224, 164, 170, 224, 165, 141, 224, 164, 176,
+    224, 164, 190, 224, 164, 154, 224, 165, 128, 224, 164, 168,
+    224, 164, 164, 224, 164, 174, ' ', 224, 164, 184, 224, 164,
+    173, 224, 165, 141, 224, 164, 175, 224, 164, 164, 224, 164,
+    190, 224, 164, 147, 224, 164, 130, ' ', 224, 164, 149, 224,
+    165, 128, ' ', 224, 164, 156, 224, 164, 168, 224, 164, 168,
+    224, 165, 128, ' ', 224, 164, 176, 224, 164, 185, 224, 164,
+    190, ' ', 224, 164, 185, 224, 165, 136, ' ', 224, 164, 156,
+    224, 165, 136, 224, 164, 184, 224, 165, 135, ' ', '-', ' ',
+    224, 164, 184, 224, 164, 191, 224, 164, 168, 224, 165, 141,
+    224, 164, 167, 224, 165, 129, ' ', 224, 164, 152, 224, 164,
+    190, 224, 164, 159, 224, 165, 128, ' ', 224, 164, 184, 224,
+    164, 173, 224, 165, 141, 224, 164, 175, 224, 164, 164, 224,
+    164, 190, ',', ' ', 224, 164, 148, 224, 164, 176, ' ', 224,
+    164, 174, 224, 164, 185, 224, 164, 164, 224, 165, 141, 224,
+    164, 181, 224, 164, 170, 224, 165, 130, 224, 164, 176, 224,
+    165, 141, 224, 164, 163, ' ', 224, 164, 144, 224, 164, 164,
+    224, 164, 191, 224, 164, 185, 224, 164, 190, 224, 164, 184,
+    224, 164, 191, 224, 164, 149, ' ', 224, 164, 181, 224, 165,
+    141, 224, 164, 175, 224, 164, 190, 224, 164, 170, 224, 164,
+    190, 224, 164, 176, ' ', 224, 164, 170, 224, 164, 165, 224,
+    165, 139, 224, 164, 130, ' ', 224, 164, 149, 224, 164, 190,
+    ' ', 224, 164, 133, 224, 164, 173, 224, 164, 191, 224, 164,
+    168, 224, 165, 141, 224, 164, 168, ' ', 224, 164, 133, 224,
+    164, 130, 224, 164, 151, ' ', 224, 164, 173, 224, 165, 128,
+    '.', ' ', 224, 164, 181, 224, 164, 191, 224, 164, 182, 224,
+    165, 141, 224, 164, 181, ' ', 224, 164, 149, 224, 165, 135,
+    ' ', 224, 164, 154, 224, 164, 190, 224, 164, 176, ' ', 224,
+    164, 170, 224, 165, 141, 224, 164, 176, 224, 164, 174, 224,
+    165, 129, 224, 164, 150, ' ', 224, 164, 167, 224, 164, 176,
+    224, 165, 141, 224, 164, 174, ' ', ':', ' ', 224, 164, 184,
+    224, 164, 168, 224, 164, 190, 224, 164, 164, 224, 164, 168,
+    '-', 224, 164, 185, 224, 164, 191, 224, 164, 168, 224, 165,
+    141, 224, 164, 166, 224, 165, 130, ',', ' ', 224, 164, 172,
+    224, 165, 140, 224, 164, 166, 224, 165, 141, 224, 164, 167,
+    ',', ' ', 224, 164, 156, 224, 165, 136, 224, 164, 168, ' ',
+    224, 164, 164, 224, 164, 165, 224, 164, 190, ' ', 224, 164,
+    184, 224, 164, 191, 224, 164, 150, ' ', 224, 164, 173, 224,
+    164, 190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 174,
+    224, 165, 135, 224, 164, 130, ' ', 224, 164, 185, 224, 165,
+    128, ' ', 224, 164, 156, 224, 164, 168, 224, 165, 141, 224,
+    164, 174, 224, 165, 135, ' ', 224, 164, 148, 224, 164, 176,
+    ' ', 224, 164, 181, 224, 164, 191, 224, 164, 149, 224, 164,
+    184, 224, 164, 191, 224, 164, 164, ' ', 224, 164, 185, 224,
+    165, 129, 224, 164, 143, 224, 165, 164,  13,  10,  13,  10,
+    224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164, 164,
+    ' ', 224, 164, 173, 224, 165, 140, 224, 164, 151, 224, 165,
+    139, 224, 164, 178, 224, 164, 191, 224, 164, 149, ' ', 224,
+    164, 149, 224, 165, 141, 224, 164, 183, 224, 165, 135, 224,
+    164, 164, 224, 165, 141, 224, 164, 176, 224, 164, 171, 224,
+    164, 178, ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164,
+    134, 224, 164, 167, 224, 164, 190, 224, 164, 176, ' ', 224,
+    164, 170, 224, 164, 176, ' ', 224, 164, 181, 224, 164, 191,
+    224, 164, 182, 224, 165, 141, 224, 164, 181, ' ', 224, 164,
+    149, 224, 164, 190, ' ', 224, 164, 184, 224, 164, 190, 224,
+    164, 164, 224, 164, 181, 224, 164, 190, 224, 164, 129, ' ',
+    224, 164, 184, 224, 164, 172, 224, 164, 184, 224, 165, 135,
+    ' ', 224, 164, 172, 224, 164, 161, 224, 164, 188, 224, 164,
+    190, ' ', 224, 164, 176, 224, 164, 190, 224, 164, 183, 224,
+    165, 141, 224, 164, 159, 224, 165, 141, 224, 164, 176, ' ',
+    224, 164, 185, 224, 165, 136, 224, 165, 164, ' ', 224, 164,
+    173, 224, 164, 190, 224, 164, 176, 224, 164, 164, ' ', 224,
+    164, 149, 224, 165, 128, ' ', 224, 164, 176, 224, 164, 190,
+    224, 164, 156, 224, 164, 167, 224, 164, 190, 224, 164, 168,
+    224, 165, 128, ' ', 224, 164, 168, 224, 164, 136, ' ', 224,
+    164, 166, 224, 164, 191, 224, 164, 178, 224, 165, 141, 224,
+    164, 178, 224, 165, 128, ' ', 224, 164, 185, 224, 165, 136,
+    224, 165, 164, ' ', 224, 164, 173, 224, 164, 190, 224, 164,
+    176, 224, 164, 164, ' ', 224, 164, 149, 224, 165, 135, ' ',
+    224, 164, 133, 224, 164, 168, 224, 165, 141, 224, 164, 175,
+    ' ', 224, 164, 172, 224, 164, 161, 224, 164, 188, 224, 165,
+    135, ' ', 224, 164, 174, 224, 164, 185, 224, 164, 190, 224,
+    164, 168, 224, 164, 151, 224, 164, 176, ' ', 224, 164, 174,
+    224, 165, 129, 224, 164, 174, 224, 165, 141, 224, 164, 172,
+    224, 164, 136, ' ', '(', 224, 164, 172, 224, 164, 174, 224,
+    165, 141, 224, 164, 172, 224, 164, 136, ')', ',', ' ', 224,
+    164, 149, 224, 165, 139, 224, 164, 178, 224, 164, 149, 224,
+    164, 190, 224, 164, 164, 224, 164, 190, ' ', '(', 224, 164,
+    149, 224, 164, 178, 224, 164, 149, 224, 164, 164, 224, 165,
+    141, 224, 164, 164, 224, 164, 190, ')', ' ', 224, 164, 148,
+    224, 164, 176, ' ', 224, 164, 154, 224, 165, 135, 224, 164,
+    168, 224, 165, 141, 224, 164, 168, 224, 164, 136, ' ', '(',
+    224, 164, 174, 224, 164, 166, 224, 165, 141, 224, 164, 176,
+    224, 164, 190, 224, 164, 184, ')', ' ', 224, 164, 185, 224,
+    165, 136, 224, 164, 130, 224, 165, 164, ' ', 224, 165, 167,
+    224, 165, 175, 224, 165, 170, 224, 165, 173, ' ', 224, 164,
+    174, 224, 165, 135, 224, 164, 130, ' ', 224, 164, 184, 224,
+    165, 141, 224, 164, 181, 224, 164, 164, 224, 164, 130, 224,
+    164, 164, 224, 165, 141, 224, 164, 176, 224, 164, 164, 224,
+    164, 190, ' ', 224, 164, 170, 224, 165, 141, 224, 164, 176,
+    224, 164, 190, 224, 164, 170, 224, 165, 141, 224, 164, 164,
+    224, 164, 191, ' ', 224, 164, 184, 224, 165, 135, ' ', 224,
+    164, 170, 224, 165, 130, 224, 164, 176, 224, 165, 141, 224,
+    164, 181, ' ', 224, 164, 172, 224, 165, 141, 224, 164, 176,
+    224, 164, 191, 224, 164, 159, 224, 164, 191, 224, 164, 182,
+    ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164,
+    164, ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164, 176,
+    224, 165, 130, 224, 164, 170, ' ', 224, 164, 174, 224, 165,
+    135, 224, 164, 130, ' ', 224, 164, 172, 224, 165, 141, 224,
+    164, 176, 224, 164, 191, 224, 164, 159, 224, 164, 191, 224,
+    164, 182, ' ', 224, 164, 184, 224, 164, 190, 224, 164, 174,
+    224, 165, 141, 224, 164, 176, 224, 164, 190, 224, 164, 156,
+    224, 165, 141, 224, 164, 175, ' ', 224, 164, 149, 224, 165,
+    135, ' ', 224, 164, 170, 224, 165, 141, 224, 164, 176, 224,
+    164, 174, 224, 165, 129, 224, 164, 150, ' ', 224, 164, 133,
+    224, 164, 130, 224, 164, 151, ' ', 224, 164, 173, 224, 164,
+    190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 168, 224,
+    165, 135, ' ', 224, 164, 181, 224, 164, 191, 224, 164, 151,
+    224, 164, 164, ' ', 224, 165, 168, 224, 165, 166, ' ', 224,
+    164, 181, 224, 164, 176, 224, 165, 141, 224, 164, 183, ' ',
+    224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164,
+    184, 224, 164, 190, 224, 164, 176, 224, 165, 141, 224, 164,
+    165, 224, 164, 149, ' ', 224, 164, 170, 224, 165, 141, 224,
+    164, 176, 224, 164, 151, 224, 164, 164, 224, 164, 191, ' ',
+    224, 164, 149, 224, 165, 128, ' ', 224, 164, 185, 224, 165,
+    136, ',', ' ', 224, 164, 181, 224, 164, 191, 224, 164, 182,
+    224, 165, 135, 224, 164, 183, ' ', 224, 164, 176, 224, 165,
+    130, 224, 164, 170, ' ', 224, 164, 184, 224, 165, 135, ' ',
+    224, 164, 134, 224, 164, 176, 224, 165, 141, 224, 164, 165,
+    224, 164, 191, 224, 164, 149, ' ', 224, 164, 148, 224, 164,
+    176, ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224,
+    164, 164, 224, 165, 128, 224, 164, 175, ' ', 224, 164, 184,
+    224, 165, 135, 224, 164, 168, 224, 164, 190, ' ', 224, 164,
+    143, 224, 164, 149, ' ', 224, 164, 149, 224, 165, 141, 224,
+    164, 183, 224, 165, 135, 224, 164, 164, 224, 165, 141, 224,
+    164, 176, 224, 165, 128, 224, 164, 175, ' ', 224, 164, 182,
+    224, 164, 149, 224, 165, 141, 224, 164, 164, 224, 164, 191,
+    ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 181, 224,
+    164, 191, 224, 164, 182, 224, 165, 141, 224, 164, 181, 224,
+    164, 181, 224, 165, 141, 224, 164, 175, 224, 164, 190, 224,
+    164, 170, 224, 164, 149, ' ', 224, 164, 182, 224, 164, 149,
+    224, 165, 141, 224, 164, 164, 224, 164, 191, ' ', 224, 164,
+    185, 224, 165, 136, 224, 165, 164, ' ', 224, 164, 173, 224,
+    164, 190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 181,
+    224, 164, 191, 224, 164, 182, 224, 165, 141, 224, 164, 181,
+    ' ', 224, 164, 149, 224, 165, 128, ' ', 224, 164, 166, 224,
+    164, 184, 224, 164, 181, 224, 165, 128, 224, 164, 130, ' ',
+    224, 164, 184, 224, 164, 172, 224, 164, 184, 224, 165, 135,
+    ' ', 224, 164, 172, 224, 164, 161, 224, 164, 188, 224, 165,
+    128, ' ', 224, 164, 133, 224, 164, 176, 224, 165, 141, 224,
+    164, 165, 224, 164, 181, 224, 165, 141, 224, 164, 175, 224,
+    164, 181, 224, 164, 184, 224, 165, 141, 224, 164, 165, 224,
+    164, 190, ' ', 224, 164, 185, 224, 165, 136, 224, 165, 164,
+    ' ', 224, 164, 185, 224, 164, 190, 224, 164, 178, ' ', 224,
+    164, 149, 224, 165, 135, ' ', 224, 164, 181, 224, 164, 176,
+    224, 165, 141, 224, 164, 183, 224, 165, 139, 224, 164, 130,
+    ' ', 224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224,
+    164, 173, 224, 164, 190, 224, 164, 176, 224, 164, 164, ' ',
+    224, 164, 149, 224, 165, 128, ' ', 224, 164, 133, 224, 164,
+    176, 224, 165, 141, 224, 164, 165, 224, 164, 181, 224, 165,
+    141, 224, 164, 175, 224, 164, 181, 224, 164, 184, 224, 165,
+    141, 224, 164, 165, 224, 164, 190, ' ', 224, 164, 168, 224,
+    165, 135, ' ', 224, 164, 172, 224, 164, 185, 224, 165, 129,
+    224, 164, 164, ' ', 224, 164, 170, 224, 165, 141, 224, 164,
+    176, 224, 164, 151, 224, 164, 164, 224, 164, 191, ' ', 224,
+    164, 149, 224, 165, 128, ' ', 224, 164, 185, 224, 165, 136,
+    ',', ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 164,
+    224, 164, 190, 224, 164, 156, 224, 164, 188, 224, 164, 190,
+    ' ', 224, 164, 184, 224, 165, 141, 224, 164, 165, 224, 164,
+    191, 224, 164, 164, 224, 164, 191, ' ', 224, 164, 174, 224,
+    165, 135, 224, 164, 130, ' ', 224, 164, 173, 224, 164, 190,
+    224, 164, 176, 224, 164, 164, ' ', 224, 164, 181, 224, 164,
+    191, 224, 164, 182, 224, 165, 141, 224, 164, 181, ' ', 224,
+    164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164, 164,
+    224, 165, 128, 224, 164, 184, 224, 164, 176, 224, 165, 135,
+    '-', 224, 164, 154, 224, 165, 140, 224, 164, 165, 224, 165,
+    135, ' ', 224, 164, 184, 224, 165, 141, 224, 164, 165, 224,
+    164, 190, 224, 164, 168, ' ', 224, 164, 170, 224, 164, 176,
+    ' ', 224, 164, 185, 224, 165, 139, 224, 164, 168, 224, 165,
+    135, ' ', 224, 164, 149, 224, 164, 190, ' ', 224, 164, 166,
+    224, 164, 190, 224, 164, 181, 224, 164, 190, ' ', 224, 164,
+    149, 224, 164, 176, 224, 164, 164, 224, 164, 190, ' ', 224,
+    164, 185, 224, 165, 136, ' ', 224, 165, 164,  13,  10,  13,
+     10, 224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164,
+    164, ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164, 166,
+    224, 165, 139, ' ', 224, 164, 134, 224, 164, 167, 224, 164,
+    191, 224, 164, 149, 224, 164, 190, 224, 164, 176, 224, 164,
+    191, 224, 164, 149, ' ', 224, 164, 168, 224, 164, 190, 224,
+    164, 174, ' ', 224, 164, 185, 224, 165, 136, 224, 164, 130,
+    '-', ' ', 224, 164, 185, 224, 164, 191, 224, 164, 168, 224,
+    165, 141, 224, 164, 166, 224, 165, 128, ' ', 224, 164, 174,
+    224, 165, 135, 224, 164, 130, ' ', 224, 164, 173, 224, 164,
+    190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 148, 224,
+    164, 176, ' ', 224, 164, 133, 224, 164, 130, 224, 164, 151,
+    224, 165, 141, 224, 164, 176, 224, 165, 135, 224, 164, 156,
+    224, 164, 188, 224, 165, 128, ' ', 224, 164, 174, 224, 165,
+    135, 224, 164, 130, ' ', 224, 164, 135, 224, 164, 163, 224,
+    165, 141, 224, 164, 161, 224, 164, 191, 224, 164, 175, 224,
+    164, 190, ' ', '(', 'I', 'n', 'd', 'i', 'a', ')', 224, 165,
+    164, ' ', 224, 164, 135, 224, 164, 163, 224, 165, 141, 224,
+    164, 161, 224, 164, 191, 224, 164, 175, 224, 164, 190, ' ',
+    224, 164, 168, 224, 164, 190, 224, 164, 174, ' ', 224, 164,
+    149, 224, 165, 128, ' ', 224, 164, 137, 224, 164, 164, 224,
+    165, 141, 224, 164, 170, 224, 164, 164, 224, 165, 141, 224,
+    164, 164, 224, 164, 191, ' ', 224, 164, 184, 224, 164, 191,
+    224, 164, 168, 224, 165, 141, 224, 164, 167, 224, 165, 129,
+    ' ', 224, 164, 168, 224, 164, 166, 224, 165, 128, ' ', 224,
+    164, 149, 224, 165, 135, ' ', 224, 164, 133, 224, 164, 130,
+    224, 164, 151, 224, 165, 141, 224, 164, 176, 224, 165, 135,
+    224, 164, 156, 224, 165, 128, ' ', 224, 164, 168, 224, 164,
+    190, 224, 164, 174, ' ', '"', 224, 164, 135, 224, 164, 163,
+    224, 165, 141, 224, 164, 161, 224, 164, 184, '"', ' ', 224,
+    164, 184, 224, 165, 135, ' ', 224, 164, 185, 224, 165, 129,
+    224, 164, 136, ' ', 224, 164, 185, 224, 165, 136, 224, 165,
+    164, ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224,
+    164, 164, ' ', 224, 164, 168, 224, 164, 190, 224, 164, 174,
+    ',', ' ', 224, 164, 143, 224, 164, 149, ' ', 224, 164, 170,
+    224, 165, 141, 224, 164, 176, 224, 164, 190, 224, 164, 154,
+    224, 165, 128, 224, 164, 168, ' ', 224, 164, 185, 224, 164,
+    191, 224, 164, 168, 224, 165, 141, 224, 164, 166, 224, 165,
+    130, ' ', 224, 164, 184, 224, 164, 174, 224, 165, 141, 224,
+    164, 176, 224, 164, 190, 224, 164, 159, ' ', 224, 164, 173,
+    224, 164, 176, 224, 164, 164, ' ', 224, 164, 156, 224, 165,
+    139, ' ', 224, 164, 149, 224, 164, 191, ' ', 224, 164, 174,
+    224, 164, 168, 224, 165, 129, ' ', 224, 164, 149, 224, 165,
+    135, ' ', 224, 164, 181, 224, 164, 130, 224, 164, 182, 224,
+    164, 156, ' ', 224, 164, 139, 224, 164, 183, 224, 164, 173,
+    224, 164, 166, 224, 165, 135, 224, 164, 181, ' ', 224, 164,
+    149, 224, 165, 135, ' ', 224, 164, 156, 224, 165, 141, 224,
+    164, 175, 224, 165, 135, 224, 164, 183, 224, 165, 141, 224,
+    164, 160, ' ', 224, 164, 170, 224, 165, 129, 224, 164, 164,
+    224, 165, 141, 224, 164, 176, ' ', 224, 164, 165, 224, 165,
+    135, ' ', 224, 164, 164, 224, 164, 165, 224, 164, 190, ' ',
+    224, 164, 156, 224, 164, 191, 224, 164, 168, 224, 164, 149,
+    224, 165, 128, ' ', 224, 164, 149, 224, 164, 165, 224, 164,
+    190, ' ', 224, 164, 182, 224, 165, 141, 224, 164, 176, 224,
+    165, 128, 224, 164, 174, 224, 164, 166, 224, 165, 141, 224,
+    164, 173, 224, 164, 190, 224, 164, 151, 224, 164, 181, 224,
+    164, 164, ' ', 224, 164, 174, 224, 164, 185, 224, 164, 190,
+    224, 164, 170, 224, 165, 129, 224, 164, 176, 224, 164, 190,
+    224, 164, 163, ' ', 224, 164, 174, 224, 165, 135, 224, 164,
+    130, ' ', 224, 164, 185, 224, 165, 136, ',', ' ', 224, 164,
+    149, 224, 165, 135, ' ', 224, 164, 168, 224, 164, 190, 224,
+    164, 174, ' ', 224, 164, 184, 224, 165, 135, ' ', 224, 164,
+    178, 224, 164, 191, 224, 164, 175, 224, 164, 190, ' ', 224,
+    164, 151, 224, 164, 175, 224, 164, 190, ' ', 224, 164, 185,
+    224, 165, 136, 224, 165, 164, ' ', 224, 164, 173, 224, 164,
+    190, 224, 164, 176, 224, 164, 164, ' ', '(', 224, 164, 173,
+    224, 164, 190, ' ', '+', ' ', 224, 164, 176, 224, 164, 164,
+    ')', ' ', 224, 164, 182, 224, 164, 172, 224, 165, 141, 224,
+    164, 166, ' ', 224, 164, 149, 224, 164, 190, ' ', 224, 164,
+    174, 224, 164, 164, 224, 164, 178, 224, 164, 172, ' ', 224,
+    164, 185, 224, 165, 136, ' ', 224, 164, 134, 224, 164, 168,
+    224, 165, 141, 224, 164, 164, 224, 164, 176, 224, 164, 191,
+    224, 164, 149, ' ', 224, 164, 170, 224, 165, 141, 224, 164,
+    176, 224, 164, 149, 224, 164, 190, 224, 164, 182, ' ', 224,
+    164, 175, 224, 164, 190, ' ', 224, 164, 181, 224, 164, 191,
+    224, 164, 166, 224, 165, 135, 224, 164, 149, '-', 224, 164,
+    176, 224, 165, 130, 224, 164, 170, 224, 165, 128, ' ', 224,
+    164, 170, 224, 165, 141, 224, 164, 176, 224, 164, 149, 224,
+    164, 190, 224, 164, 182, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 178, 224, 165, 128, 224, 164,
+    168, 224, 165, 164, ' ', 224, 164, 143, 224, 164, 149, ' ',
+    224, 164, 164, 224, 165, 128, 224, 164, 184, 224, 164, 176,
+    224, 164, 190, ' ', 224, 164, 168, 224, 164, 190, 224, 164,
+    174, ' ', 224, 164, 185, 224, 164, 191, 224, 164, 168, 224,
+    165, 141, 224, 164, 166, 224, 165, 129, 224, 164, 184, 224,
+    165, 141, 224, 164, 164, 224, 164, 190, 224, 164, 168, ' ',
+    224, 164, 173, 224, 165, 128, ' ', 224, 164, 185, 224, 165,
+    136, ' ', 224, 164, 156, 224, 164, 191, 224, 164, 184, 224,
+    164, 149, 224, 164, 190, ' ', 224, 164, 133, 224, 164, 176,
+    224, 165, 141, 224, 164, 165, ' ', 224, 164, 185, 224, 164,
+    191, 224, 164, 168, 224, 165, 141, 224, 164, 166, '(', 224,
+    164, 185, 224, 164, 191, 224, 164, 168, 224, 165, 141, 224,
+    164, 166, 224, 165, 130, ')', ' ', 224, 164, 149, 224, 165,
+    128, ' ', 224, 164, 173, 224, 165, 130, 224, 164, 174, 224,
+    164, 191, ' ', 224, 164, 185, 224, 165, 139, 224, 164, 164,
+    224, 164, 190, ' ', 224, 164, 185, 224, 165, 136, ' ', 224,
+    164, 156, 224, 165, 139, ' ', 224, 164, 149, 224, 164, 191,
+    ' ', 224, 164, 170, 224, 165, 141, 224, 164, 176, 224, 164,
+    190, 224, 164, 154, 224, 165, 128, 224, 164, 168, ' ', 224,
+    164, 149, 224, 164, 190, 224, 164, 178, ' ', 224, 164, 139,
+    224, 164, 183, 224, 164, 191, 224, 164, 175, 224, 165, 139,
+    224, 164, 130, ' ', 224, 164, 166, 224, 165, 141, 224, 164,
+    181, 224, 164, 190, 224, 164, 176, 224, 164, 190, ' ', 224,
+    164, 166, 224, 164, 191, 224, 164, 175, 224, 164, 190, ' ',
+    224, 164, 151, 224, 164, 175, 224, 164, 190, ' ', 224, 164,
+    165, 224, 164, 190, 224, 165, 164, ' ', 224, 164, 170, 224,
+    165, 141, 224, 164, 176, 224, 164, 190, 224, 164, 154, 224,
+    165, 128, 224, 164, 168, ' ', 224, 164, 149, 224, 164, 190,
+    224, 164, 178, ' ', 224, 164, 174, 224, 165, 135, 224, 164,
+    130, ' ', 224, 164, 175, 224, 164, 185, ' ', 224, 164, 149,
+    224, 164, 174, ' ', 224, 164, 170, 224, 165, 141, 224, 164,
+    176, 224, 164, 175, 224, 165, 129, 224, 164, 149, 224, 165,
+    141, 224, 164, 164, ' ', 224, 164, 185, 224, 165, 139, 224,
+    164, 164, 224, 164, 190, ' ', 224, 164, 165, 224, 164, 190,
+    ' ', 224, 164, 164, 224, 164, 165, 224, 164, 190, ' ', 224,
+    164, 149, 224, 164, 190, 224, 164, 178, 224, 164, 190, 224,
+    164, 168, 224, 165, 141, 224, 164, 164, 224, 164, 176, ' ',
+    224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164,
+    133, 224, 164, 167, 224, 164, 191, 224, 164, 149, ' ', 224,
+    164, 170, 224, 165, 141, 224, 164, 176, 224, 164, 154, 224,
+    164, 178, 224, 164, 191, 224, 164, 164, ' ', 224, 164, 185,
+    224, 165, 129, 224, 164, 134, ' ', 224, 164, 181, 224, 164,
+    191, 224, 164, 182, 224, 165, 135, 224, 164, 183, 224, 164,
+    149, 224, 164, 176, ' ', 224, 164, 133, 224, 164, 176, 224,
+    164, 172, '/', 224, 164, 136, 224, 164, 176, 224, 164, 190,
+    224, 164, 168, ' ', 224, 164, 174, 224, 165, 135, 224, 164,
+    130, 224, 165, 164, ' ', 224, 164, 173, 224, 164, 190, 224,
+    164, 176, 224, 164, 164, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 175, 224, 164, 185, ' ', 224,
+    164, 168, 224, 164, 190, 224, 164, 174, ' ', 224, 164, 174,
+    224, 165, 129, 224, 164, 151, 224, 164, 178, ' ', 224, 164,
+    149, 224, 164, 190, 224, 164, 178, ' ', 224, 164, 184, 224,
+    165, 135, ' ', 224, 164, 133, 224, 164, 167, 224, 164, 191,
+    224, 164, 149, ' ', 224, 164, 170, 224, 165, 141, 224, 164,
+    176, 224, 164, 154, 224, 164, 178, 224, 164, 191, 224, 164,
+    164, ' ', 224, 164, 185, 224, 165, 129, 224, 164, 134, ' ',
+    224, 164, 175, 224, 164, 166, 224, 165, 141, 224, 164, 175,
+    224, 164, 170, 224, 164, 191, ' ', 224, 164, 135, 224, 164,
+    184, 224, 164, 149, 224, 164, 190, ' ', 224, 164, 184, 224,
+    164, 174, 224, 164, 149, 224, 164, 190, 224, 164, 178, 224,
+    165, 128, 224, 164, 168, ' ', 224, 164, 137, 224, 164, 170,
+    224, 164, 175, 224, 165, 139, 224, 164, 151, ' ', 224, 164,
+    149, 224, 164, 174, ' ', 224, 164, 148, 224, 164, 176, ' ',
+    224, 164, 170, 224, 165, 141, 224, 164, 176, 224, 164, 190,
+    224, 164, 175, 224, 164, 131, ' ', 224, 164, 137, 224, 164,
+    164, 224, 165, 141, 224, 164, 164, 224, 164, 176, 224, 165,
+    128, ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224,
+    164, 164, ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164,
+    178, 224, 164, 191, 224, 164, 143, ' ', 224, 164, 185, 224,
+    165, 139, 224, 164, 164, 224, 164, 190, ' ', 224, 164, 185,
+    224, 165, 136, 224, 165, 164, ' ', 224, 164, 135, 224, 164,
+    184, 224, 164, 149, 224, 165, 135, ' ', 224, 164, 133, 224,
+    164, 164, 224, 164, 191, 224, 164, 176, 224, 164, 191, 224,
+    164, 149, 224, 165, 141, 224, 164, 164, ' ', 224, 164, 173,
+    224, 164, 190, 224, 164, 176, 224, 164, 164, 224, 164, 181,
+    224, 164, 176, 224, 165, 141, 224, 164, 183, ' ', 224, 164,
+    149, 224, 165, 139, ' ', 224, 164, 181, 224, 165, 136, 224,
+    164, 166, 224, 164, 191, 224, 164, 149, ' ', 224, 164, 149,
+    224, 164, 190, 224, 164, 178, ' ', 224, 164, 184, 224, 165,
+    135, ' ', 224, 164, 134, 224, 164, 176, 224, 165, 141, 224,
+    164, 175, 224, 164, 190, 224, 164, 181, 224, 164, 176, 224,
+    165, 141, 224, 164, 164, ' ', '"', 224, 164, 156, 224, 164,
+    174, 224, 165, 141, 224, 164, 172, 224, 165, 130, 224, 164,
+    166, 224, 165, 141, 224, 164, 181, 224, 165, 128, 224, 164,
+    170, '"', ' ', 224, 164, 148, 224, 164, 176, ' ', '"', 224,
+    164, 133, 224, 164, 156, 224, 164, 168, 224, 164, 190, 224,
+    164, 173, 224, 164, 166, 224, 165, 135, 224, 164, 182, '"',
+    ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164, 168, 224,
+    164, 190, 224, 164, 174, ' ', 224, 164, 184, 224, 165, 135,
+    ' ', 224, 164, 173, 224, 165, 128, ' ', 224, 164, 156, 224,
+    164, 190, 224, 164, 168, 224, 164, 190, ' ', 224, 164, 156,
+    224, 164, 190, 224, 164, 164, 224, 164, 190, ' ', 224, 164,
+    176, 224, 164, 185, 224, 164, 190, ' ', 224, 164, 185, 224,
+    165, 136, 224, 165, 164, ' ', 224, 164, 172, 224, 164, 185,
+    224, 165, 129, 224, 164, 164, ' ', 224, 164, 170, 224, 164,
+    185, 224, 164, 178, 224, 165, 135, ' ', 224, 164, 175, 224,
+    164, 185, ' ', 224, 164, 166, 224, 165, 135, 224, 164, 182,
+    ' ','\'', 224, 164, 184, 224, 165, 139, 224, 164, 168, 224,
+    165, 135, ' ', 224, 164, 149, 224, 165, 128, ' ', 224, 164,
+    154, 224, 164, 191, 224, 164, 161, 224, 164, 188, 224, 164,
+    191, 224, 164, 175, 224, 164, 190,'\'', ' ', 224, 164, 149,
+    224, 165, 135, ' ', 224, 164, 176, 224, 165, 130, 224, 164,
+    170, ' ', 224, 164, 174, 224, 165, 135, 224, 164, 130, ' ',
+    224, 164, 156, 224, 164, 190, 224, 164, 168, 224, 164, 190,
+    ' ', 224, 164, 156, 224, 164, 190, 224, 164, 164, 224, 164,
+    190, ' ', 224, 164, 165, 224, 164, 190, 224, 165, 164, '[',
+    '2', ']',  13,  10,  13,  10, 'F', 'r', 'e', 'n', 'c', 'h',
+    ':',  13,  10,  13,  10, 'L', 'a', ' ', 'F', 'r', 'a', 'n',
+    'c', 'e', ',', ' ', 'e', 'n', ' ', 'f', 'o', 'r', 'm', 'e',
+    ' ', 'l', 'o', 'n', 'g', 'u', 'e', ' ', 'l', 'a', ' ', 'R',
+    195, 169, 'p', 'u', 'b', 'l', 'i', 'q', 'u', 'e', ' ', 'f',
+    'r', 'a', 'n', 195, 167, 'a', 'i', 's', 'e', ',', ' ', 'e',
+    's', 't', ' ', 'u', 'n', 'e', ' ', 'r', 195, 169, 'p', 'u',
+    'b', 'l', 'i', 'q', 'u', 'e', ' ', 'c', 'o', 'n', 's', 't',
+    'i', 't', 'u', 't', 'i', 'o', 'n', 'n', 'e', 'l', 'l', 'e',
+    ' ', 'u', 'n', 'i', 't', 'a', 'i', 'r', 'e', ' ', 'd', 'o',
+    'n', 't', ' ', 'l', 'a', ' ', 'm', 'a', 'j', 'e', 'u', 'r',
+    'e', ' ', 'p', 'a', 'r', 't', 'i', 'e', ' ', 'd', 'u', ' ',
+    't', 'e', 'r', 'r', 'i', 't', 'o', 'i', 'r', 'e', ' ', 'e',
+    't', ' ', 'd', 'e', ' ', 'l', 'a', ' ', 'p', 'o', 'p', 'u',
+    'l', 'a', 't', 'i', 'o', 'n', ' ', 's', 'o', 'n', 't', ' ',
+    's', 'i', 't', 'u', 195, 169, 's', ' ', 'e', 'n', ' ', 'E',
+    'u', 'r', 'o', 'p', 'e', ' ', 'o', 'c', 'c', 'i', 'd', 'e',
+    'n', 't', 'a', 'l', 'e', ',', ' ', 'm', 'a', 'i', 's', ' ',
+    'q', 'u', 'i', ' ', 'c', 'o', 'm', 'p', 'r', 'e', 'n', 'd',
+    ' ', 195, 169, 'g', 'a', 'l', 'e', 'm', 'e', 'n', 't', ' ',
+    'p', 'l', 'u', 's', 'i', 'e', 'u', 'r', 's', ' ', 'r', 195,
+    169, 'g', 'i', 'o', 'n', 's', ' ', 'e', 't', ' ', 't', 'e',
+    'r', 'r', 'i', 't', 'o', 'i', 'r', 'e', 's', ' ', 'r', 195,
+    169, 'p', 'a', 'r', 't', 'i', 's', ' ', 'd', 'a', 'n', 's',
+    ' ', 'l', 'e', 's', ' ', 'A', 'm', 195, 169, 'r', 'i', 'q',
+    'u', 'e', 's', ',', ' ', 'l', 226, 128, 153, 'o', 'c', 195,
+    169, 'a', 'n', ' ', 'I', 'n', 'd', 'i', 'e', 'n', ' ', 'e',
+    't', ' ', 'l','\'', 'o', 'c', 195, 169, 'a', 'n', ' ', 'P',
+    'a', 'c', 'i', 'f', 'i', 'q', 'u', 'e', '.', ' ', 'E', 'l',
+    'l', 'e', ' ', 'a', ' ', 'p', 'o', 'u', 'r', ' ', 'c', 'a',
+    'p', 'i', 't', 'a', 'l', 'e', ' ', 'P', 'a', 'r', 'i', 's',
+    ',', ' ', 'p', 'o', 'u', 'r', ' ', 'l', 'a', 'n', 'g', 'u',
+    'e', ' ', 'o', 'f', 'f', 'i', 'c', 'i', 'e', 'l', 'l', 'e',
+    ' ', 'l', 'e', ' ', 'f', 'r', 'a', 'n', 195, 167, 'a', 'i',
+    's', ' ', 'e', 't', ' ', 'p', 'o', 'u', 'r', ' ', 'm', 'o',
+    'n', 'n', 'a', 'i', 'e', ' ', 'l', 226, 128, 153, 'e', 'u',
+    'r', 'o', '.', ' ', 'S', 'a', ' ', 'd', 'e', 'v', 'i', 's',
+    'e', ' ', 'e', 's', 't', ' ', 194, 171, ' ', 'L', 'i', 'b',
+    'e', 'r', 't', 195, 169, ',', ' ', 195, 137, 'g', 'a', 'l',
+    'i', 't', 195, 169, ',', ' ', 'F', 'r', 'a', 't', 'e', 'r',
+    'n', 'i', 't', 195, 169, ' ', 194, 187, ',', ' ', 'e', 't',
+    ' ', 's', 'o', 'n', ' ', 'd', 'r', 'a', 'p', 'e', 'a', 'u',
+    ' ', 'e', 's', 't', ' ', 'c', 'o', 'n', 's', 't', 'i', 't',
+    'u', 195, 169, ' ', 'd', 'e', ' ', 't', 'r', 'o', 'i', 's',
+    ' ', 'b', 'a', 'n', 'd', 'e', 's', ' ', 'v', 'e', 'r', 't',
+    'i', 'c', 'a', 'l', 'e', 's', ' ', 'r', 'e', 's', 'p', 'e',
+    'c', 't', 'i', 'v', 'e', 'm', 'e', 'n', 't', ' ', 'b', 'l',
+    'e', 'u', 'e', ',', ' ', 'b', 'l', 'a', 'n', 'c', 'h', 'e',
+    ' ', 'e', 't', ' ', 'r', 'o', 'u', 'g', 'e', '.', ' ', 'S',
+    'o', 'n', ' ', 'h', 'y', 'm', 'n', 'e', ' ', 'e', 's', 't',
+    ' ', 'L', 'a', ' ', 'M', 'a', 'r', 's', 'e', 'i', 'l', 'l',
+    'a', 'i', 's', 'e', '.', ' ', 'S', 'o', 'n', ' ', 'p', 'r',
+    'i', 'n', 'c', 'i', 'p', 'e', ' ', 'e', 's', 't', ' ', 'g',
+    'o', 'u', 'v', 'e', 'r', 'n', 'e', 'm', 'e', 'n', 't', ' ',
+    'd', 'u', ' ', 'p', 'e', 'u', 'p', 'l', 'e', ',', ' ', 'p',
+    'a', 'r', ' ', 'l', 'e', ' ', 'p', 'e', 'u', 'p', 'l', 'e',
+    ' ', 'e', 't', ' ', 'p', 'o', 'u', 'r', ' ', 'l', 'e', ' ',
+    'p', 'e', 'u', 'p', 'l', 'e', '[', '3', ']', '.',  13,  10,
+     13,  10, 'L', 'a', ' ', 'F', 'r', 'a', 'n', 'c', 'e', ' ',
+    'e', 's', 't', ' ', 'u', 'n', ' ', 'p', 'a', 'y', 's', ' ',
+    'a', 'n', 'c', 'i', 'e', 'n', ',', ' ', 'f', 'o', 'r', 'm',
+    195, 169, ' ', 'a', 'u', ' ', 'H', 'a', 'u', 't', ' ', 'M',
+    'o', 'y', 'e', 'n', ' ', 195, 130, 'g', 'e', '.', ' ', 'A',
+    'u', ' ', 'X', 'I', 'X', 'e', ' ', 's', 'i', 195, 168, 'c',
+    'l', 'e', ' ', 'e', 't', ' ', 'd', 'a', 'n', 's', ' ', 'l',
+    'a', ' ', 'p', 'r', 'e', 'm', 'i', 195, 168, 'r', 'e', ' ',
+    'm', 'o', 'i', 't', 'i', 195, 169, ' ', 'd', 'u', ' ', 'X',
+    'X', 'e', ' ', 's', 'i', 195, 168, 'c', 'l', 'e', ',', ' ',
+    'e', 'l', 'l', 'e', ' ', 'p', 'o', 's', 's', 195, 168, 'd',
+    'e', ' ', 'u', 'n', ' ', 'v', 'a', 's', 't', 'e', ' ', 'e',
+    'm', 'p', 'i', 'r', 'e', ' ', 'c', 'o', 'l', 'o', 'n', 'i',
+    'a', 'l', '.', ' ', 195, 128, ' ', 'p', 'a', 'r', 't', 'i',
+    'r', ' ', 'd', 'e', 's', ' ', 'a', 'n', 'n', 195, 169, 'e',
+    's', ' ', '1', '9', '5', '0', ',', ' ', 'e', 'l', 'l', 'e',
+    ' ', 'e', 's', 't', ' ', 'l', 226, 128, 153, 'u', 'n', ' ',
+    'd', 'e', 's', ' ', 'a', 'c', 't', 'e', 'u', 'r', 's', ' ',
+    'd', 'e', ' ', 'l', 'a', ' ', 'c', 'o', 'n', 's', 't', 'r',
+    'u', 'c', 't', 'i', 'o', 'n', ' ', 'd', 'e', ' ', 'l', 226,
+    128, 153, 'U', 'n', 'i', 'o', 'n', ' ', 'e', 'u', 'r', 'o',
+    'p', 195, 169, 'e', 'n', 'n', 'e', '.', ' ', 'E', 'l', 'l',
+    'e', ' ', 'e', 's', 't', ' ', 'u', 'n', 'e', ' ', 'p', 'u',
+    'i', 's', 's', 'a', 'n', 'c', 'e', ' ', 'n', 'u', 'c', 'l',
+    195, 169, 'a', 'i', 'r', 'e', ',', ' ', 'e', 't', ' ', 'l',
+    226, 128, 153, 'u', 'n', ' ', 'd', 'e', 's', ' ', 'c', 'i',
+    'n', 'q', ' ', 'm', 'e', 'm', 'b', 'r', 'e', 's', ' ', 'p',
+    'e', 'r', 'm', 'a', 'n', 'e', 'n', 't', 's', ' ', 'd', 'u',
+    ' ', 'C', 'o', 'n', 's', 'e', 'i', 'l', ' ', 'd', 'e', ' ',
+    's', 195, 169, 'c', 'u', 'r', 'i', 't', 195, 169, ' ', 'd',
+    'e', 's', ' ', 'N', 'a', 't', 'i', 'o', 'n', 's', ' ', 'u',
+    'n', 'i', 'e', 's', '.', ' ', 'L', 'a', ' ', 'F', 'r', 'a',
+    'n', 'c', 'e', ' ', 'j', 'o', 'u', 'e', ' ', 'u', 'n', ' ',
+    'r', 195, 180, 'l', 'e', ' ', 'i', 'm', 'p', 'o', 'r', 't',
+    'a', 'n', 't', ' ', 'd', 'a', 'n', 's', ' ', 'l', 226, 128,
+    153, 'h', 'i', 's', 't', 'o', 'i', 'r', 'e', ' ', 'm', 'o',
+    'n', 'd', 'i', 'a', 'l', 'e', ' ', 'p', 'a', 'r', ' ', 'l',
+    226, 128, 153, 'i', 'n', 'f', 'l', 'u', 'e', 'n', 'c', 'e',
+    ' ', 'd', 'e', ' ', 's', 'a', ' ', 'c', 'u', 'l', 't', 'u',
+    'r', 'e', ' ', 'e', 't', ' ', 'd', 'e', ' ', 's', 'e', 's',
+    ' ', 'v', 'a', 'l', 'e', 'u', 'r', 's', ' ', 'd', 195, 169,
+    'm', 'o', 'c', 'r', 'a', 't', 'i', 'q', 'u', 'e', 's', ',',
+    ' ', 'l', 'a', 195, 175, 'q', 'u', 'e', 's', ' ', 'e', 't',
+    ' ', 'r', 195, 169, 'p', 'u', 'b', 'l', 'i', 'c', 'a', 'i',
+    'n', 'e', 's', '.',  13,  10,  13,  10, 'L', 'a', ' ', 'F',
+    'r', 'a', 'n', 'c', 'e', ' ', 'a', ',', ' ', 'e', 'n', ' ',
+    '2', '0', '1', '0', ',', ' ', 'l', 'e', ' ', 'c', 'i', 'n',
+    'q', 'u', 'i', 195, 168, 'm', 'e', ' ', 'p', 'l', 'u', 's',
+    ' ', 'i', 'm', 'p', 'o', 'r', 't', 'a', 'n', 't', ' ', 'p',
+    'r', 'o', 'd', 'u', 'i', 't', ' ', 'i', 'n', 't', 195, 169,
+    'r', 'i', 'e', 'u', 'r', ' ', 'b', 'r', 'u', 't', ' ', 'a',
+    'u', ' ', 'm', 'o', 'n', 'd', 'e', '.', ' ', 'S', 'o', 'n',
+    ' ', 195, 169, 'c', 'o', 'n', 'o', 'm', 'i', 'e', ',', ' ',
+    'd', 'e', ' ', 't', 'y', 'p', 'e', ' ', 'c', 'a', 'p', 'i',
+    't', 'a', 'l', 'i', 's', 't', 'e', ' ', 'a', 'v', 'e', 'c',
+    ' ', 'u', 'n', 'e', ' ', 'i', 'n', 't', 'e', 'r', 'v', 'e',
+    'n', 't', 'i', 'o', 'n', ' ', 195, 169, 't', 'a', 't', 'i',
+    'q', 'u', 'e', ' ', 'a', 's', 's', 'e', 'z', ' ', 'f', 'o',
+    'r', 't', 'e', ',', ' ', 'f', 'a', 'i', 't', ' ', 'd', 226,
+    128, 153, 'e', 'l', 'l', 'e', ' ', 'u', 'n', ' ', 'd', 'e',
+    's', ' ', 'l', 'e', 'a', 'd', 'e', 'r', 's', ' ', 'm', 'o',
+    'n', 'd', 'i', 'a', 'u', 'x', ' ', 'd', 'a', 'n', 's', ' ',
+    'l', 'e', 's', ' ', 's', 'e', 'c', 't', 'e', 'u', 'r', 's',
+    ' ', 'd', 'e', ' ', 'l', 226, 128, 153, 'a', 'g', 'r', 'o',
+    'a', 'l', 'i', 'm', 'e', 'n', 't', 'a', 'i', 'r', 'e', ',',
+    ' ', 'd', 'e', ' ', 'l', 226, 128, 153, 'a', 195, 169, 'r',
+    'o', 'n', 'a', 'u', 't', 'i', 'q', 'u', 'e', ',', ' ', 'd',
+    'e', ' ', 'l', 226, 128, 153, 'a', 'u', 't', 'o', 'm', 'o',
+    'b', 'i', 'l', 'e', ',', ' ', 'd', 'e', 's', ' ', 'p', 'r',
+    'o', 'd', 'u', 'i', 't', 's', ' ', 'd', 'e', ' ', 'l', 'u',
+    'x', 'e', ',', ' ', 'd', 'u', ' ', 't', 'o', 'u', 'r', 'i',
+    's', 'm', 'e', ' ', 'e', 't', ' ', 'd', 'u', ' ', 'n', 'u',
+    'c', 'l', 195, 169, 'a', 'i', 'r', 'e', '.',  13,  10,  13,
+     10, 'P', 'e', 'u', 'p', 'l', 195, 169, 'e', ' ', 'd', 'e',
+    ' ', '6', '5', ',', '3', ' ', 'm', 'i', 'l', 'l', 'i', 'o',
+    'n', 's', ' ', 'd', 226, 128, 153, 'h', 'a', 'b', 'i', 't',
+    'a', 'n', 't', 's', ' ', 'a', 'u', ' ', '1', 'e', 'r', ' ',
+    'j', 'a', 'n', 'v', 'i', 'e', 'r', ' ', '2', '0', '1', '2',
+    '[', '4', ']', ',', ' ', 'l', 'a', ' ', 'F', 'r', 'a', 'n',
+    'c', 'e', ' ', 'e', 's', 't', ' ', 'u', 'n', ' ', 'p', 'a',
+    'y', 's', ' ', 'd', 195, 169, 'v', 'e', 'l', 'o', 'p', 'p',
+    195, 169, ',', ' ', 'a', 'v', 'e', 'c', ' ', 'u', 'n', ' ',
+    'i', 'n', 'd', 'i', 'c', 'e', ' ', 'd', 'e', ' ', 'd', 195,
+    169, 'v', 'e', 'l', 'o', 'p', 'p', 'e', 'm', 'e', 'n', 't',
+    ' ', 'h', 'u', 'm', 'a', 'i', 'n', ' ', 't', 'r', 195, 168,
+    's', ' ', 195, 169, 'l', 'e', 'v', 195, 169, '[', '5', ']',
+    '.',  13,  10,  13,  10, 'L', 'a', ' ', 'F', 'r', 'a', 'n',
+    'c', 'e', ' ', 'm', 195, 169, 't', 'r', 'o', 'p', 'o', 'l',
+    'i', 't', 'a', 'i', 'n', 'e', ' ', 'e', 's', 't', ' ', 's',
+    'i', 't', 'u', 195, 169, 'e', ' ', 195, 160, ' ', 'l', 226,
+    128, 153, 'u', 'n', 'e', ' ', 'd', 'e', 's', ' ', 'e', 'x',
+    't', 'r', 195, 169, 'm', 'i', 't', 195, 169, 's', ' ', 'o',
+    'c', 'c', 'i', 'd', 'e', 'n', 't', 'a', 'l', 'e', 's', ' ',
+    'd', 'e', ' ', 'l', 226, 128, 153, 'E', 'u', 'r', 'o', 'p',
+    'e', '.', ' ', 'E', 'l', 'l', 'e', ' ', 'e', 's', 't', ' ',
+    'b', 'o', 'r', 'd', 195, 169, 'e', ' ', 'p', 'a', 'r', ' ',
+    'l', 'a', ' ', 'm', 'e', 'r', ' ', 'd', 'u', ' ', 'N', 'o',
+    'r', 'd', ' ', 'a', 'u', ' ', 'n', 'o', 'r', 'd', ',', ' ',
+    'l', 'a', ' ', 'M', 'a', 'n', 'c', 'h', 'e', ' ', 'a', 'u',
+    ' ', 'n', 'o', 'r', 'd', '-', 'o', 'u', 'e', 's', 't', ',',
+    ' ', 'l', 226, 128, 153, 'o', 'c', 195, 169, 'a', 'n', ' ',
+    'A', 't', 'l', 'a', 'n', 't', 'i', 'q', 'u', 'e', ' ', 195,
+    160, ' ', 'l', 226, 128, 153, 'o', 'u', 'e', 's', 't', ' ',
+    'e', 't', ' ', 'l', 'a', ' ', 'm', 'e', 'r', ' ', 'M', 195,
+    169, 'd', 'i', 't', 'e', 'r', 'r', 'a', 'n', 195, 169, 'e',
+    ' ', 'a', 'u', ' ', 's', 'u', 'd', '-', 'e', 's', 't', '.',
+    ' ', 'E', 'l', 'l', 'e', ' ', 'e', 's', 't', ' ', 'f', 'r',
+    'o', 'n', 't', 'a', 'l', 'i', 195, 168, 'r', 'e', ' ', 'd',
+    'e', ' ', 'l', 'a', ' ', 'B', 'e', 'l', 'g', 'i', 'q', 'u',
+    'e', ' ', 'e', 't', ' ', 'd', 'u', ' ', 'L', 'u', 'x', 'e',
+    'm', 'b', 'o', 'u', 'r', 'g', ' ', 'a', 'u', ' ', 'n', 'o',
+    'r', 'd', '-', 'e', 's', 't', ',', ' ', 'd', 'e', ' ', 'l',
+    226, 128, 153, 'A', 'l', 'l', 'e', 'm', 'a', 'g', 'n', 'e',
+    ' ', 'e', 't', ' ', 'd', 'e', ' ', 'l', 'a', ' ', 'S', 'u',
+    'i', 's', 's', 'e', ' ', 195, 160, ' ', 'l', 226, 128, 153,
+    'e', 's', 't', ',', ' ', 'd', 'e', ' ', 'l', 226, 128, 153,
+    'I', 't', 'a', 'l', 'i', 'e', ' ', 'e', 't', ' ', 'd', 'e',
+    ' ', 'M', 'o', 'n', 'a', 'c', 'o', ' ', 'a', 'u', ' ', 's',
+    'u', 'd', '-', 'e', 's', 't', ',', ' ', 'd', 'e', ' ', 'l',
+    226, 128, 153, 'E', 's', 'p', 'a', 'g', 'n', 'e', ' ', 'e',
+    't', ' ', 'd', 226, 128, 153, 'A', 'n', 'd', 'o', 'r', 'r',
+    'e', ' ', 'a', 'u', ' ', 's', 'u', 'd', '-', 'o', 'u', 'e',
+    's', 't', '.', ' ', 'S', 'i', ' ', 'l', 'e', 's', ' ', 'f',
+    'r', 'o', 'n', 't', 'i', 195, 168, 'r', 'e', 's', ' ', 'd',
+    'u', ' ', 's', 'u', 'd', ' ', 'd', 'u', ' ', 'p', 'a', 'y',
+    's', ' ', 'c', 'o', 'r', 'r', 'e', 's', 'p', 'o', 'n', 'd',
+    'e', 'n', 't', ' ', 195, 160, ' ', 'd', 'e', 's', ' ', 'm',
+    'a', 's', 's', 'i', 'f', 's', ' ', 'm', 'o', 'n', 't', 'a',
+    'g', 'n', 'e', 'u', 'x', ',', ' ', 'l', 'e', 's', ' ', 'f',
+    'r', 'o', 'n', 't', 'i', 195, 168, 'r', 'e', 's', ' ', 'd',
+    'u', ' ', 'n', 'o', 'r', 'd', '-', 'e', 's', 't', ' ', 'n',
+    'e', ' ', 'c', 'o', 'r', 'r', 'e', 's', 'p', 'o', 'n', 'd',
+    'e', 'n', 't', ' ', 195, 160, ' ', 'a', 'u', 'c', 'u', 'n',
+    'e', ' ', 'l', 'i', 'm', 'i', 't', 'e', ' ', 'g', 195, 169,
+    'o', 'g', 'r', 'a', 'p', 'h', 'i', 'q', 'u', 'e', '[', 'n',
+    'o', 't', 'e', ' ', '6', ']', ' ', 'n', 'i', ' ', 'l', 'i',
+    'n', 'g', 'u', 'i', 's', 't', 'i', 'q', 'u', 'e', '[', 'n',
+    'o', 't', 'e', ' ', '7', ']', '.', ' ', 'L', 'a', ' ', 'F',
+    'r', 'a', 'n', 'c', 'e', ' ', 'm', 195, 169, 't', 'r', 'o',
+    'p', 'o', 'l', 'i', 't', 'a', 'i', 'n', 'e', ' ', 'c', 'o',
+    'm', 'p', 'r', 'e', 'n', 'd', ' ', 'p', 'l', 'u', 's', 'i',
+    'e', 'u', 'r', 's', ' ', 195, 174, 'l', 'e', 's', ',', ' ',
+    'n', 'o', 't', 'a', 'm', 'm', 'e', 'n', 't', ' ', 'l', 'a',
+    ' ', 'C', 'o', 'r', 's', 'e', ' ', 'e', 't', ' ', 'd', 'e',
+    's', ' ', 195, 174, 'l', 'e', 's', ' ', 'c', 195, 180, 't',
+    'i', 195, 168, 'r', 'e', 's', '.', ' ', 'L', 'a', ' ', 'm',
+    195, 169, 't', 'r', 'o', 'p', 'o', 'l', 'e', ' ', 'e', 's',
+    't', ' ', 'c', 'o', 'm', 'p', 'r', 'i', 's', 'e', ' ', 'e',
+    'n', 't', 'r', 'e', ' ', 'l', 'e', 's', ' ', 'l', 'a', 't',
+    'i', 't', 'u', 'd', 'e', 's', ' ', '4', '2', 194, 176, '1',
+    '9','\'', '4', '6', '"', ' ', 'N', ' ', 'e', 't', ' ', '5',
+    '1', 194, 176, '5','\'', '4', '7', '"', ' ', 'N', ',', ' ',
+    'a', 'i', 'n', 's', 'i', ' ', 'q', 'u', 'e', ' ', 'l', 'e',
+    's', ' ', 'l', 'o', 'n', 'g', 'i', 't', 'u', 'd', 'e', 's',
+    ' ', '4', 194, 176, '4', '6','\'', ' ', 'O', ' ', 'e', 't',
+    ' ', '8', 194, 176, '1', '4','\'', '4', '2', '"', ' ', 'E',
+    '.',  13,  10,  13,  10, 'L', 'a', ' ', 'F', 'r', 'a', 'n',
+    'c', 'e', ' ', 'c', 'o', 'm', 'p', 'r', 'e', 'n', 'd', ' ',
+    195, 169, 'g', 'a', 'l', 'e', 'm', 'e', 'n', 't', ' ', 'd',
+    'e', ' ', 'n', 'o', 'm', 'b', 'r', 'e', 'u', 'x', ' ', 't',
+    'e', 'r', 'r', 'i', 't', 'o', 'i', 'r', 'e', 's', ' ', 's',
+    'i', 't', 'u', 195, 169, 's', ' ', 'e', 'n', '-', 'd', 'e',
+    'h', 'o', 'r', 's', ' ', 'd', 'u', ' ', 'c', 'o', 'n', 't',
+    'i', 'n', 'e', 'n', 't', ' ', 'e', 'u', 'r', 'o', 'p', 195,
+    169, 'e', 'n', ',', ' ', 'c', 'o', 'u', 'r', 'a', 'm', 'm',
+    'e', 'n', 't', ' ', 'a', 'p', 'p', 'e', 'l', 195, 169, 's',
+    ' ', 't', 'e', 'r', 'r', 'i', 't', 'o', 'i', 'r', 'e', 's',
+    ' ', 'd', 226, 128, 153, 'o', 'u', 't', 'r', 'e', '-', 'm',
+    'e', 'r', ',', ' ', 'n', 'a', 'g', 'u', 195, 168, 'r', 'e',
+    ' ', 'D', 'O', 'M', '-', 'T', 'O', 'M', ',', ' ', 'q', 'u',
+    'i', ' ', 'l', 'u', 'i', ' ', 'p', 'e', 'r', 'm', 'e', 't',
+    't', 'e', 'n', 't', ' ', 'd', 226, 128, 153, 195, 170, 't',
+    'r', 'e', ' ', 'p', 'r', 195, 169, 's', 'e', 'n', 't', 'e',
+    ' ', 'd', 'a', 'n', 's', ' ', 't', 'o', 'u', 's', ' ', 'l',
+    'e', 's', ' ', 'o', 'c', 195, 169, 'a', 'n', 's', '.', ' ',
+    'C', 'e', 's', ' ', 't', 'e', 'r', 'r', 'i', 't', 'o', 'i',
+    'r', 'e', 's', ' ', 'a', 'u', 'x', ' ', 's', 't', 'a', 't',
+    'u', 't', 's', ' ', 'v', 'a', 'r', 'i', 195, 169, 's', ' ',
+    's', 'o', 'n', 't', '[', '6', ']', ' ', ':',  13,  10,  13,
+     10, 's', 'u', 'r', ' ', 'l', 'e', ' ', 'c', 'o', 'n', 't',
+    'i', 'n', 'e', 'n', 't', ' ', 's', 'u', 'd', '-', 'a', 'm',
+    195, 169, 'r', 'i', 'c', 'a', 'i', 'n', ' ', ':', ' ', 'l',
+    'a', ' ', 'G', 'u', 'y', 'a', 'n', 'e', ' ', ';',  13,  10,
+    'd', 'a', 'n', 's', ' ', 'l', 226, 128, 153, 'o', 'c', 195,
+    169, 'a', 'n', ' ', 'A', 't', 'l', 'a', 'n', 't', 'i', 'q',
+    'u', 'e', ' ', '(', 'A', 'n', 't', 'i', 'l', 'l', 'e', 's',
+    ')', ' ', ':', ' ', 'l', 'a', ' ', 'G', 'u', 'a', 'd', 'e',
+    'l', 'o', 'u', 'p', 'e', ',', ' ', 'l', 'a', ' ', 'M', 'a',
+    'r', 't', 'i', 'n', 'i', 'q', 'u', 'e', ',', ' ', 'S', 'a',
+    'i', 'n', 't', '-', 'P', 'i', 'e', 'r', 'r', 'e', '-', 'e',
+    't', '-', 'M', 'i', 'q', 'u', 'e', 'l', 'o', 'n', ',', ' ',
+    'S', 'a', 'i', 'n', 't', '-', 'M', 'a', 'r', 't', 'i', 'n',
+    ' ', 'e', 't', ' ', 'S', 'a', 'i', 'n', 't', '-', 'B', 'a',
+    'r', 't', 'h', 195, 169, 'l', 'e', 'm', 'y', ' ', ';',  13,
+     10, 'd', 'a', 'n', 's', ' ', 'l', 226, 128, 153, 'o', 'c',
+    195, 169, 'a', 'n', ' ', 'P', 'a', 'c', 'i', 'f', 'i', 'q',
+    'u', 'e', ' ', ':', ' ', 'l', 'a', ' ', 'P', 'o', 'l', 'y',
+    'n', 195, 169, 's', 'i', 'e', ' ', 'f', 'r', 'a', 'n', 195,
+    167, 'a', 'i', 's', 'e', ',', ' ', 'l', 'a', ' ', 'N', 'o',
+    'u', 'v', 'e', 'l', 'l', 'e', '-', 'C', 'a', 'l', 195, 169,
+    'd', 'o', 'n', 'i', 'e', ',', ' ', 'W', 'a', 'l', 'l', 'i',
+    's', '-', 'e', 't', '-', 'F', 'u', 't', 'u', 'n', 'a', ' ',
+    'e', 't', ' ', 'C', 'l', 'i', 'p', 'p', 'e', 'r', 't', 'o',
+    'n', ' ', ';',  13,  10, 'd', 'a', 'n', 's', ' ', 'l', 226,
+    128, 153, 'o', 'c', 195, 169, 'a', 'n', ' ', 'I', 'n', 'd',
+    'i', 'e', 'n', ' ', ':', ' ', 'L', 'a', ' ', 'R', 195, 169,
+    'u', 'n', 'i', 'o', 'n', ',', ' ', 'M', 'a', 'y', 'o', 't',
+    't', 'e', ',', ' ', 'l', 'e', 's', ' ', 195, 142, 'l', 'e',
+    's', ' ', 195, 137, 'p', 'a', 'r', 's', 'e', 's', ',', ' ',
+    'l', 'e', 's', ' ', 195, 142, 'l', 'e', 's', ' ', 'C', 'r',
+    'o', 'z', 'e', 't', ',', ' ', 'l', 'e', 's', ' ', 195, 142,
+    'l', 'e', 's', ' ', 'K', 'e', 'r', 'g', 'u', 'e', 'l', 'e',
+    'n', ' ', 'e', 't', ' ', 'S', 'a', 'i', 'n', 't', '-', 'P',
+    'a', 'u', 'l', '-', 'e', 't', '-', 'A', 'm', 's', 't', 'e',
+    'r', 'd', 'a', 'm', ' ', ';',  13,  10, 'e', 'n', ' ', 'A',
+    'n', 't', 'a', 'r', 'c', 't', 'i', 'q', 'u', 'e', ' ', ':',
+    ' ', 'l', 'a', ' ', 'T', 'e', 'r', 'r', 'e', ' ', 'A', 'd',
+    195, 169, 'l', 'i', 'e', '[', 'n', 'o', 't', 'e', ' ', '8',
+    ']', '.',  13,  10, 195, 128, ' ', 't', 'r', 'a', 'v', 'e',
+    'r', 's', ' ', 's', 'e', 's', ' ', 'c', 'o', 'l', 'l', 'e',
+    'c', 't', 'i', 'v', 'i', 't', 195, 169, 's', ' ', 'u', 'l',
+    't', 'r', 'a', '-', 'm', 'a', 'r', 'i', 'n', 'e', 's', ',',
+    ' ', 'l', 'a', ' ', 'F', 'r', 'a', 'n', 'c', 'e', ' ', 'p',
+    'o', 's', 's', 195, 168, 'd', 'e', ' ', 195, 169, 'g', 'a',
+    'l', 'e', 'm', 'e', 'n', 't', ' ', 'd', 'e', 's', ' ', 'f',
+    'r', 'o', 'n', 't', 'i', 195, 168, 'r', 'e', 's', ' ', 't',
+    'e', 'r', 'r', 'e', 's', 't', 'r', 'e', 's', ' ', 'a', 'v',
+    'e', 'c', ' ', 'l', 'e', ' ', 'B', 'r', 195, 169, 's', 'i',
+    'l', ' ', 'e', 't', ' ', 'l', 'e', ' ', 'S', 'u', 'r', 'i',
+    'n', 'a', 'm', 'e', ',', ' ', 'a', 'i', 'n', 's', 'i', ' ',
+    'q', 'u', 226, 128, 153, 'a', 'v', 'e', 'c', ' ', 'l', 'e',
+    's', ' ', 'P', 'a', 'y', 's', '-', 'B', 'a', 's', ' ', 'v',
+    'i', 'a', ' ', 'l', 'a', ' ', 'p', 'a', 'r', 't', 'i', 'e',
+    ' ', 'f', 'r', 'a', 'n', 195, 167, 'a', 'i', 's', 'e', ' ',
+    'd', 'e', ' ', 'S', 'a', 'i', 'n', 't', '-', 'M', 'a', 'r',
+    't', 'i', 'n', '.',  13,  10,  13,  10, 'L', 'a', ' ', 's',
+    'u', 'p', 'e', 'r', 'f', 'i', 'c', 'i', 'e', ' ', 'd', 'e',
+    ' ', 'l', 'a', ' ', 'F', 'r', 'a', 'n', 'c', 'e', ' ', 'e',
+    's', 't', ' ', 'd', 'e', ' ', '6', '7', '0', ' ', '9', '2',
+    '2', ' ', 'k', 'm', 194, 178, ',', ' ', 'o', 'u', ' ', '5',
+    '4', '7', ' ', '0', '3', '0', ' ', 's', 'a', 'n', 's', ' ',
+    'c', 'o', 'm', 'p', 't', 'a', 'b', 'i', 'l', 'i', 's', 'e',
+    'r', ' ', 'l', 226, 128, 153, 'o', 'u', 't', 'r', 'e', '-',
+    'm', 'e', 'r', '[', '7', ']', '.', ' ', 'E', 'l', 'l', 'e',
+    ' ', 'e', 's', 't', ' ', 'l', 'e', ' ', '4', '1', 'e', ' ',
+    'p', 'l', 'u', 's', ' ', 'g', 'r', 'a', 'n', 'd', ' ', 195,
+    137, 't', 'a', 't', ' ', 'd', 'u', ' ', 'm', 'o', 'n', 'd',
+    'e', ' ', 'p', 'a', 'r', ' ', 's', 'a', ' ', 's', 'u', 'r',
+    'f', 'a', 'c', 'e', ' ', 't', 'e', 'r', 'r', 'e', 's', 't',
+    'r', 'e', '[', '7', ']', ' ', 'e', 't', ' ', 'l', 'e', ' ',
+    'd', 'e', 'u', 'x', 'i', 195, 168, 'm', 'e', ' ', 'p', 'a',
+    'r', ' ', 's', 'a', ' ', 'z', 'o', 'n', 'e', ' ', 195, 169,
+    'c', 'o', 'n', 'o', 'm', 'i', 'q', 'u', 'e', ' ', 'e', 'x',
+    'c', 'l', 'u', 's', 'i', 'v', 'e', '[', '8', ']', '.', ' ',
+    'E', 'l', 'l', 'e', ' ', 'e', 's', 't', ' ', 'e', 'n', ' ',
+    'o', 'u', 't', 'r', 'e', ' ', 'l', 'e', ' ', 't', 'r', 'o',
+    'i', 's', 'i', 195, 168, 'm', 'e', ' ', 'p', 'l', 'u', 's',
+    ' ', 'g', 'r', 'a', 'n', 'd', ' ', 'p', 'a', 'y', 's', ' ',
+    'd', 226, 128, 153, 'E', 'u', 'r', 'o', 'p', 'e', ',', ' ',
+    'a', 'p', 'r', 195, 168, 's', ' ', 'l', 'a', ' ', 'R', 'u',
+    's', 's', 'i', 'e', ' ', 'e', 't', ' ', 'l', 226, 128, 153,
+    'U', 'k', 'r', 'a', 'i', 'n', 'e', ',', ' ', 'd', 'e', 'u',
+    'x', 'i', 195, 168, 'm', 'e', ' ', 's', 'i', ' ', 'o', 'n',
+    ' ', 'i', 'n', 'c', 'l', 'u', 't', ' ', 'l', 'e', 's', ' ',
+    'd', 195, 169, 'p', 'a', 'r', 't', 'e', 'm', 'e', 'n', 't',
+    's', ' ', 'u', 'l', 't', 'r', 'a', '-', 'm', 'a', 'r', 'i',
+    'n', 's', ',', ' ', 'e', 't', ' ', 'l', 'e', ' ', 'p', 'l',
+    'u', 's', ' ', 'g', 'r', 'a', 'n', 'd', ' ', 'd', 'e', ' ',
+    'l', 226, 128, 153, 'U', 'n', 'i', 'o', 'n', ' ', 'e', 'u',
+    'r', 'o', 'p', 195, 169, 'e', 'n', 'n', 'e', '[', '7', ']',
+    '.', ' ', 'S', 'o', 'n', ' ', 't', 'e', 'r', 'r', 'i', 't',
+    'o', 'i', 'r', 'e', ' ', 'm', 195, 169, 't', 'r', 'o', 'p',
+    'o', 'l', 'i', 't', 'a', 'i', 'n', ' ', 'c', 'o', 'n', 't',
+    'i', 'n', 'e', 'n', 't', 'a', 'l', ' ', 's', 226, 128, 153,
+    195, 169, 't', 'e', 'n', 'd', ' ', 's', 'u', 'r', ' ', 'e',
+    'n', 'v', 'i', 'r', 'o', 'n', ' ', '1', ' ', '0', '0', '0',
+    ' ', 'k', 'm', ' ', 'd', 'u', ' ', 'n', 'o', 'r', 'd', ' ',
+    'a', 'u', ' ', 's', 'u', 'd', ' ', 'e', 't', ' ', 'd', 226,
+    128, 153, 'e', 's', 't', ' ', 'e', 'n', ' ', 'o', 'u', 'e',
+    's', 't', '.', ' ', 'L', 226, 128, 153, 195, 169, 't', 'e',
+    'n', 'd', 'u', 'e', ' ', 'd', 'e', ' ', 's', 'o', 'n', ' ',
+    'l', 'i', 't', 't', 'o', 'r', 'a', 'l', ',', ' ', 'o', 'u',
+    't', 'r', 'e', '-', 'm', 'e', 'r', ' ', 'i', 'n', 'c', 'l',
+    'u', 's', ',', ' ', 'e', 's', 't', ' ', 'd', 'e', ' ', '8',
+    ' ', '2', '4', '5', ' ', 'k', 'm', '[', '9', ']', '.',  13,
+     10,  13,  10, 'G', 'r', 'e', 'e', 'k', ':',  13,  10,  13,
+     10, 206, 151, ' ', 206, 149, 206, 187, 206, 187, 206, 172,
+    206, 180, 206, 177, ' ', '(', 207, 128, 206, 177, 206, 187,
+    206, 177, 206, 185, 207, 140, 207, 132, 206, 181, 207, 129,
+    206, 177, ':', ' ', 225, 188, 153, 206, 187, 206, 187, 206,
+    172, 207, 130, ',', ' ', 206, 181, 207, 128, 206, 175, 207,
+    131, 206, 183, 206, 188, 206, 177, ':', ' ', 206, 149, 206,
+    187, 206, 187, 206, 183, 206, 189, 206, 185, 206, 186, 206,
+    174, ' ', 206, 148, 206, 183, 206, 188, 206, 191, 206, 186,
+    207, 129, 206, 177, 207, 132, 206, 175, 206, 177, ')', ' ',
+    206, 181, 206, 175, 206, 189, 206, 177, 206, 185, ' ', 207,
+    135, 207, 142, 207, 129, 206, 177, ' ', 207, 128, 206, 191,
+    207, 133, ' ', 206, 178, 207, 129, 206, 175, 207, 131, 206,
+    186, 206, 181, 207, 132, 206, 177, 206, 185, ' ', 207, 131,
+    207, 132, 206, 183, ' ', 206, 189, 206, 191, 207, 132, 206,
+    185, 206, 191, 206, 177, 206, 189, 206, 177, 207, 132, 206,
+    191, 206, 187, 206, 185, 206, 186, 206, 174, ' ', 206, 149,
+    207, 133, 207, 129, 207, 142, 207, 128, 206, 183, ',', ' ',
+    207, 131, 207, 132, 206, 191, ' ', 206, 189, 206, 191, 207,
+    132, 206, 185, 207, 140, 207, 132, 206, 181, 207, 129, 206,
+    191, ' ', 206, 172, 206, 186, 207, 129, 206, 191, ' ', 207,
+    132, 206, 183, 207, 130, ' ', 206, 146, 206, 177, 206, 187,
+    206, 186, 206, 177, 206, 189, 206, 185, 206, 186, 206, 174,
+    207, 130, ' ', 207, 135, 206, 181, 207, 129, 207, 131, 206,
+    191, 206, 189, 206, 174, 207, 131, 206, 191, 207, 133, ',',
+    ' ', 207, 131, 207, 132, 206, 183, 206, 189, ' ', 206, 145,
+    206, 189, 206, 177, 207, 132, 206, 191, 206, 187, 206, 185,
+    206, 186, 206, 174, ' ', 206, 156, 206, 181, 207, 131, 207,
+    140, 206, 179, 206, 181, 206, 185, 206, 191, '.', 206, 160,
+    207, 129, 207, 137, 207, 132, 206, 181, 207, 141, 206, 191,
+    207, 133, 207, 131, 206, 177, ' ', 207, 132, 206, 183, 207,
+    130, ' ', 206, 149, 206, 187, 206, 187, 206, 172, 206, 180,
+    206, 191, 207, 130, ' ', 206, 186, 206, 177, 206, 185, ' ',
+    206, 188, 206, 181, 206, 179, 206, 177, 206, 187, 207, 141,
+    207, 132, 206, 181, 207, 129, 206, 183, ' ', 207, 128, 207,
+    140, 206, 187, 206, 183, ' ', 206, 181, 206, 175, 206, 189,
+    206, 177, 206, 185, ' ', 206, 183, ' ', 206, 145, 206, 184,
+    206, 174, 206, 189, 206, 177, '.',  13,  10,  13,  10, 206,
+    163, 207, 133, 206, 189, 206, 191, 207, 129, 206, 181, 207,
+    141, 206, 181, 206, 185, ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 178, 206, 191, 207, 129, 206, 181, 206, 185, 206,
+    191, 206, 180, 207, 133, 207, 132, 206, 185, 206, 186, 206,
+    172, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, 206,
+    189, ' ', 206, 145, 206, 187, 206, 178, 206, 177, 206, 189,
+    206, 175, 206, 177, ',', ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 178, 207, 140, 207, 129, 206, 181, 206, 185, 206,
+    177, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, ' ',
+    206, 146, 206, 191, 207, 133, 206, 187, 206, 179, 206, 177,
+    207, 129, 206, 175, 206, 177, ' ', 206, 186, 206, 177, 206,
+    185, ' ', 207, 132, 206, 183, 206, 189, ' ', 207, 128, 207,
+    129, 207, 142, 206, 183, 206, 189, ' ', 206, 147, 206, 185,
+    206, 191, 207, 133, 206, 179, 206, 186, 206, 191, 207, 131,
+    206, 187, 206, 177, 206, 178, 206, 185, 206, 186, 206, 174,
+    ' ', 206, 148, 206, 183, 206, 188, 206, 191, 206, 186, 207,
+    129, 206, 177, 207, 132, 206, 175, 206, 177, ' ', 207, 132,
+    206, 183, 207, 130, ' ', 206, 156, 206, 177, 206, 186, 206,
+    181, 206, 180, 206, 191, 206, 189, 206, 175, 206, 177, 207,
+    130, ' ', '(', 207, 128, '.', 206, 147, '.', 206, 148, '.',
+    206, 156, '.', ')', ' ', 206, 186, 206, 177, 206, 185, ' ',
+    207, 131, 207, 132, 206, 177, ' ', 206, 178, 206, 191, 207,
+    129, 206, 181, 206, 185, 206, 191, 206, 177, 206, 189, 206,
+    177, 207, 132, 206, 191, 206, 187, 206, 185, 206, 186, 206,
+    172, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, 206,
+    189, ' ', 206, 164, 206, 191, 207, 133, 207, 129, 206, 186,
+    206, 175, 206, 177, '.', ' ', 206, 146, 207, 129, 206, 173,
+    207, 135, 206, 181, 207, 132, 206, 177, 206, 185, ' ', 207,
+    131, 207, 132, 206, 177, ' ', 206, 177, 206, 189, 206, 177,
+    207, 132, 206, 191, 206, 187, 206, 185, 206, 186, 206, 172,
+    ' ', 206, 177, 207, 128, 207, 140, ' ', 207, 132, 206, 191,
+    ' ', 206, 145, 206, 185, 206, 179, 206, 177, 206, 175, 206,
+    191, ' ', 206, 160, 206, 173, 206, 187, 206, 177, 206, 179,
+    206, 191, 207, 130, ',', ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 180, 207, 133, 207, 132, 206, 185, 206, 186, 206,
+    172, ' ', 206, 177, 207, 128, 207, 140, ' ', 207, 132, 206,
+    191, ' ', 206, 153, 207, 140, 206, 189, 206, 185, 206, 191,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 189, 207, 140,
+    207, 132, 206, 185, 206, 177, ' ', 206, 177, 207, 128, 207,
+    140, ' ', 207, 132, 206, 183, ' ', 206, 156, 206, 181, 207,
+    131, 207, 140, 206, 179, 206, 181, 206, 185, 206, 191, ' ',
+    206, 152, 206, 172, 206, 187, 206, 177, 207, 131, 207, 131,
+    206, 177, '.', 206, 151, ' ', 206, 149, 206, 187, 206, 187,
+    206, 172, 206, 180, 206, 177, ' ', 206, 186, 206, 177, 207,
+    132, 206, 173, 207, 135, 206, 181, 206, 185, ' ', 207, 132,
+    206, 183, 206, 189, ' ', '1', '1', 206, 183, ' ', 206, 184,
+    206, 173, 207, 131, 206, 183, ' ', 207, 131, 207, 132, 206,
+    185, 207, 130, ' ', 207, 135, 207, 142, 207, 129, 206, 181,
+    207, 130, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183,
+    ' ', 206, 188, 206, 181, 206, 179, 206, 177, 206, 187, 207,
+    141, 207, 132, 206, 181, 207, 129, 206, 183, ' ', 206, 177,
+    206, 186, 207, 132, 206, 191, 206, 179, 207, 129, 206, 177,
+    206, 188, 206, 188, 206, 174, ' ', 207, 131, 207, 132, 206,
+    177, ' ', '1', '3', '.', '6', '7', '6', ' ', 207, 135, 206,
+    185, 206, 187, 206, 185, 207, 140, 206, 188, 206, 181, 207,
+    132, 207, 129, 206, 177, ' ', 206, 186, 206, 177, 206, 184,
+    207, 142, 207, 130, ' ', 206, 181, 207, 135, 206, 181, 206,
+    185, ' ', 207, 128, 206, 191, 206, 187, 206, 187, 206, 172,
+    ' ', 206, 189, 206, 183, 207, 131, 206, 185, 206, 172, ' ',
+    '(', 207, 128, 206, 181, 207, 129, 206, 175, 207, 128, 206,
+    191, 207, 133, ' ', '1', '.', '4', '0', '0', ',', ' ', 206,
+    181, 206, 186, 207, 132, 207, 137, 206, 189, ' ', 206, 191,
+    207, 128, 206, 191, 206, 175, 207, 137, 206, 189, ' ', 207,
+    132, 206, 177, ' ', '2', '2', '7', ' ', 206, 186, 206, 177,
+    207, 132, 206, 191, 206, 185, 206, 186, 206, 191, 207, 133,
+    206, 189, 207, 132, 206, 177, 206, 185, ')', ',', ' ', 207,
+    131, 207, 133, 206, 188, 207, 128, 206, 181, 207, 129, 206,
+    185, 206, 187, 206, 177, 206, 188, 206, 178, 206, 177, 206,
+    189, 206, 191, 206, 188, 206, 173, 206, 189, 207, 137, 206,
+    189, ' ', 207, 132, 206, 183, 207, 130, ' ', 206, 154, 207,
+    129, 206, 183, 207, 132, 206, 183, 207, 130, ',', ' ', 207,
+    132, 207, 137, 206, 189, ' ', 206, 148, 207, 137, 206, 180,
+    206, 181, 206, 186, 206, 177, 206, 189, 206, 174, 207, 131,
+    207, 137, 206, 189, ',', ' ', 207, 132, 207, 137, 206, 189,
+    ' ', 206, 154, 207, 133, 206, 186, 206, 187, 206, 172, 206,
+    180, 207, 137, 206, 189, ',', ' ', 207, 132, 207, 137, 206,
+    189, ' ', 206, 149, 207, 128, 207, 132, 206, 177, 206, 189,
+    206, 174, 207, 131, 207, 137, 206, 189, ' ', 206, 186, 206,
+    177, 206, 185, ' ', 207, 128, 206, 191, 206, 187, 206, 187,
+    207, 142, 206, 189, ' ', 206, 172, 206, 187, 206, 187, 207,
+    137, 206, 189, '.', 206, 164, 206, 191, ' ', 207, 136, 206,
+    183, 206, 187, 207, 140, 207, 132, 206, 181, 207, 129, 206,
+    191, ' ', 206, 178, 206, 191, 207, 133, 206, 189, 207, 140,
+    ' ', 206, 181, 206, 175, 206, 189, 206, 177, 206, 185, ' ',
+    206, 191, ' ', 206, 140, 206, 187, 207, 133, 206, 188, 207,
+    128, 206, 191, 207, 130, ' ', 206, 186, 206, 177, 206, 185,
+    ' ', 207, 132, 206, 191, ' ', 206, 188, 206, 181, 206, 179,
+    206, 177, 206, 187, 207, 141, 207, 132, 206, 181, 207, 129,
+    206, 191, ' ', 207, 128, 206, 191, 207, 132, 206, 172, 206,
+    188, 206, 185, ' ', 206, 191, ' ', 206, 145, 206, 187, 206,
+    185, 206, 172, 206, 186, 206, 188, 206, 191, 206, 189, 206,
+    177, 207, 130, '.',  13,  10,  13,  10, 206, 136, 207, 135,
+    206, 181, 206, 185, ' ', 206, 188, 206, 177, 206, 186, 207,
+    129, 206, 172, ' ', 206, 186, 206, 177, 206, 185, ' ', 207,
+    128, 206, 187, 206, 191, 207, 141, 207, 131, 206, 185, 206,
+    177, ' ', 206, 185, 207, 131, 207, 132, 206, 191, 207, 129,
+    206, 175, 206, 177, ' ', 206, 186, 206, 177, 207, 132, 206,
+    172, ' ', 207, 132, 206, 183, 206, 189, ' ', 206, 191, 207,
+    128, 206, 191, 206, 175, 206, 177, ' ', 206, 172, 207, 131,
+    206, 186, 206, 183, 207, 131, 206, 181, ' ', 206, 188, 206,
+    181, 206, 179, 206, 172, 206, 187, 206, 183, ' ', 207, 128,
+    206, 191, 206, 187, 206, 185, 207, 132, 206, 185, 207, 131,
+    206, 188, 206, 185, 206, 186, 206, 174, ' ', 206, 181, 207,
+    128, 206, 175, 206, 180, 207, 129, 206, 177, 207, 131, 206,
+    183, ' ', 207, 131, 206, 181, ' ', 207, 132, 207, 129, 206,
+    181, 206, 185, 207, 130, ' ', 206, 183, 207, 128, 206, 181,
+    206, 175, 207, 129, 206, 191, 207, 133, 207, 130, '.', 206,
+    149, 206, 180, 207, 142, ' ', 206, 179, 206, 181, 206, 189,
+    206, 189, 206, 174, 206, 184, 206, 183, 206, 186, 206, 181,
+    ' ', 206, 183, ' ', 206, 180, 206, 183, 206, 188, 206, 191,
+    206, 186, 207, 129, 206, 177, 207, 132, 206, 175, 206, 177,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 183, ' ', 207,
+    134, 206, 185, 206, 187, 206, 191, 207, 131, 206, 191, 207,
+    134, 206, 175, 206, 177, '.', 206, 145, 206, 186, 207, 140,
+    206, 188, 206, 188, 206, 177, ' ', 206, 183, ' ', 206, 149,
+    206, 187, 206, 187, 206, 172, 206, 180, 206, 177, ' ', 206,
+    181, 206, 175, 206, 189, 206, 177, 206, 185, ' ', 206, 191,
+    ' ', 207, 132, 207, 140, 207, 128, 206, 191, 207, 130, ' ',
+    206, 179, 206, 173, 206, 189, 206, 189, 206, 183, 207, 131,
+    206, 183, 207, 130, ' ', 207, 132, 207, 137, 206, 189, ' ',
+    206, 159, 206, 187, 207, 133, 206, 188, 207, 128, 206, 185,
+    206, 177, 206, 186, 207, 142, 206, 189, ' ', 206, 145, 206,
+    179, 207, 142, 206, 189, 207, 137, 206, 189, ',', 207, 132,
+    206, 191, 207, 133, ' ', 206, 180, 207, 129, 206, 172, 206,
+    188, 206, 177, 207, 132, 206, 191, 207, 130, ',', ' ', 207,
+    132, 206, 183, 207, 130, ' ', 207, 132, 207, 129, 206, 177,
+    206, 179, 207, 137, 206, 180, 206, 175, 206, 177, 207, 130,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 207, 132, 206, 183,
+    207, 130, ' ', 206, 186, 207, 137, 206, 188, 206, 188, 207,
+    137, 206, 180, 206, 175, 206, 177, 207, 130, ' ', '.',  13,
+     10,  13,  10, 206, 151, ' ', 206, 149, 206, 187, 206, 187,
+    206, 172, 206, 180, 206, 177, ' ', 206, 181, 206, 175, 206,
+    189, 206, 177, 206, 185, ' ', 206, 188, 206, 173, 206, 187,
+    206, 191, 207, 130, ' ', 207, 132, 207, 137, 206, 189, ' ',
+    206, 149, 207, 133, 207, 129, 207, 137, 207, 128, 206, 177,
+    207, 138, 206, 186, 207, 142, 206, 189, ' ', 206, 154, 206,
+    191, 206, 185, 206, 189, 206, 191, 207, 132, 206, 174, 207,
+    132, 207, 137, 206, 189, '/', 206, 149, 207, 133, 207, 129,
+    207, 137, 207, 128, 206, 177, 207, 138, 206, 186, 206, 174,
+    207, 130, ' ', 206, 136, 206, 189, 207, 137, 207, 131, 206,
+    183, 207, 130, ' ', 206, 177, 207, 128, 207, 140, ' ', 207,
+    132, 206, 191, ' ', '1', '9', '8', '1', ',', ' ', 207, 132,
+    206, 183, 207, 130, ' ', 206, 149, 207, 133, 207, 129, 207,
+    137, 206, 182, 207, 142, 206, 189, 206, 183, 207, 130, ' ',
+    206, 177, 207, 128, 207, 140, ' ', 207, 132, 206, 191, ' ',
+    '2', '0', '0', '1', ',', ' ', 207, 132, 206, 191, 207, 133,
+    ' ', 206, 157, 206, 145, 206, 164, 206, 159, ' ', 206, 177,
+    207, 128, 207, 140, ' ', 207, 132, 206, 191, ' ', '1', '9',
+    '5', '2', ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 185,
+    206, 180, 207, 129, 207, 133, 207, 132, 206, 185, 206, 186,
+    207, 140, ' ', 206, 188, 206, 173, 206, 187, 206, 191, 207,
+    130, ' ', 207, 132, 206, 191, 207, 133, ' ', 206, 159, 206,
+    151, 206, 149, ' ', '(', '1', '9', '4', '5', ')', '.', ' ',
+    206, 151, ' ', 206, 149, 206, 187, 206, 187, 206, 172, 206,
+    180, 206, 177, ' ', 206, 181, 206, 175, 206, 189, 206, 177,
+    206, 185, ' ', 206, 188, 206, 185, 206, 177, ' ', 206, 177,
+    206, 189, 206, 181, 207, 128, 207, 132, 207, 133, 206, 179,
+    206, 188, 206, 173, 206, 189, 206, 183, ' ', 207, 135, 207,
+    142, 207, 129, 206, 177, ' ', 206, 188, 206, 181, ' ', 207,
+    133, 207, 136, 206, 183, 206, 187, 207, 140, ' ', 206, 186,
+    206, 177, 207, 132, 206, 172, ' ', 206, 186, 206, 181, 207,
+    134, 206, 177, 206, 187, 206, 174, 206, 189, ' ', 206, 181,
+    206, 185, 207, 131, 207, 140, 206, 180, 206, 183, 206, 188,
+    206, 177, ' ', 206, 186, 206, 177, 206, 185, ' ', 207, 128,
+    206, 191, 206, 187, 207, 141, ' ', 207, 133, 207, 136, 206,
+    183, 206, 187, 207, 140, ' ', 206, 180, 206, 181, 206, 175,
+    206, 186, 207, 132, 206, 183, ' ', 206, 177, 206, 189, 206,
+    184, 207, 129, 207, 142, 207, 128, 206, 185, 206, 189, 206,
+    183, 207, 130, ' ', 206, 177, 206, 189, 206, 172, 207, 128,
+    207, 132, 207, 133, 206, 190, 206, 183, 207, 130, '.', ' ',
+    206, 154, 206, 177, 207, 132, 206, 173, 207, 135, 206, 181,
+    206, 185, ' ', 207, 132, 206, 183, 206, 189, ' ', '2', '2',
+    206, 183, ' ', 206, 186, 206, 177, 206, 187, 207, 141, 207,
+    132, 206, 181, 207, 129, 206, 183, ' ', 207, 128, 206, 191,
+    206, 185, 207, 140, 207, 132, 206, 183, 207, 132, 206, 177,
+    ' ', 206, 182, 207, 137, 206, 174, 207, 130, ' ', 207, 131,
+    207, 132, 206, 191, 206, 189, ' ', 206, 186, 207, 140, 207,
+    131, 206, 188, 206, 191, '.', '[', '4', ']',  13,  10,  13,
+     10, 206, 151, ' ', 206, 149, 206, 187, 206, 187, 206, 172,
+    206, 180, 206, 177, ' ', '(', 207, 128, 206, 177, 206, 187,
+    206, 177, 206, 185, 207, 140, 207, 132, 206, 181, 207, 129,
+    206, 177, ':', ' ', 225, 188, 153, 206, 187, 206, 187, 206,
+    172, 207, 130, ',', ' ', 206, 181, 207, 128, 206, 175, 207,
+    131, 206, 183, 206, 188, 206, 177, ':', ' ', 206, 149, 206,
+    187, 206, 187, 206, 183, 206, 189, 206, 185, 206, 186, 206,
+    174, ' ', 206, 148, 206, 183, 206, 188, 206, 191, 206, 186,
+    207, 129, 206, 177, 207, 132, 206, 175, 206, 177, ')', ' ',
+    206, 181, 206, 175, 206, 189, 206, 177, 206, 185, ' ', 207,
+    135, 207, 142, 207, 129, 206, 177, ' ', 207, 128, 206, 191,
+    207, 133, ' ', 206, 178, 207, 129, 206, 175, 207, 131, 206,
+    186, 206, 181, 207, 132, 206, 177, 206, 185, ' ', 207, 131,
+    207, 132, 206, 183, ' ', 206, 189, 206, 191, 207, 132, 206,
+    185, 206, 191, 206, 177, 206, 189, 206, 177, 207, 132, 206,
+    191, 206, 187, 206, 185, 206, 186, 206, 174, ' ', 206, 149,
+    207, 133, 207, 129, 207, 142, 207, 128, 206, 183, ',', ' ',
+    207, 131, 207, 132, 206, 191, ' ', 206, 189, 206, 191, 207,
+    132, 206, 185, 207, 140, 207, 132, 206, 181, 207, 129, 206,
+    191, ' ', 206, 172, 206, 186, 207, 129, 206, 191, ' ', 207,
+    132, 206, 183, 207, 130, ' ', 206, 146, 206, 177, 206, 187,
+    206, 186, 206, 177, 206, 189, 206, 185, 206, 186, 206, 174,
+    207, 130, ' ', 207, 135, 206, 181, 207, 129, 207, 131, 206,
+    191, 206, 189, 206, 174, 207, 131, 206, 191, 207, 133, ',',
+    ' ', 207, 131, 207, 132, 206, 183, 206, 189, ' ', 206, 145,
+    206, 189, 206, 177, 207, 132, 206, 191, 206, 187, 206, 185,
+    206, 186, 206, 174, ' ', 206, 156, 206, 181, 207, 131, 207,
+    140, 206, 179, 206, 181, 206, 185, 206, 191, '.', 206, 160,
+    207, 129, 207, 137, 207, 132, 206, 181, 207, 141, 206, 191,
+    207, 133, 207, 131, 206, 177, ' ', 207, 132, 206, 183, 207,
+    130, ' ', 206, 149, 206, 187, 206, 187, 206, 172, 206, 180,
+    206, 191, 207, 130, ' ', 206, 186, 206, 177, 206, 185, ' ',
+    206, 188, 206, 181, 206, 179, 206, 177, 206, 187, 207, 141,
+    207, 132, 206, 181, 207, 129, 206, 183, ' ', 207, 128, 207,
+    140, 206, 187, 206, 183, ' ', 206, 181, 206, 175, 206, 189,
+    206, 177, 206, 185, ' ', 206, 183, ' ', 206, 145, 206, 184,
+    206, 174, 206, 189, 206, 177, '.',  13,  10,  13,  10, 206,
+    163, 207, 133, 206, 189, 206, 191, 207, 129, 206, 181, 207,
+    141, 206, 181, 206, 185, ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 178, 206, 191, 207, 129, 206, 181, 206, 185, 206,
+    191, 206, 180, 207, 133, 207, 132, 206, 185, 206, 186, 206,
+    172, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, 206,
+    189, ' ', 206, 145, 206, 187, 206, 178, 206, 177, 206, 189,
+    206, 175, 206, 177, ',', ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 178, 207, 140, 207, 129, 206, 181, 206, 185, 206,
+    177, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, ' ',
+    206, 146, 206, 191, 207, 133, 206, 187, 206, 179, 206, 177,
+    207, 129, 206, 175, 206, 177, ' ', 206, 186, 206, 177, 206,
+    185, ' ', 207, 132, 206, 183, 206, 189, ' ', 207, 128, 207,
+    129, 207, 142, 206, 183, 206, 189, ' ', 206, 147, 206, 185,
+    206, 191, 207, 133, 206, 179, 206, 186, 206, 191, 207, 131,
+    206, 187, 206, 177, 206, 178, 206, 185, 206, 186, 206, 174,
+    ' ', 206, 148, 206, 183, 206, 188, 206, 191, 206, 186, 207,
+    129, 206, 177, 207, 132, 206, 175, 206, 177, ' ', 207, 132,
+    206, 183, 207, 130, ' ', 206, 156, 206, 177, 206, 186, 206,
+    181, 206, 180, 206, 191, 206, 189, 206, 175, 206, 177, 207,
+    130, ' ', '(', 207, 128, '.', 206, 147, '.', 206, 148, '.',
+    206, 156, '.', ')', ' ', 206, 186, 206, 177, 206, 185, ' ',
+    207, 131, 207, 132, 206, 177, ' ', 206, 178, 206, 191, 207,
+    129, 206, 181, 206, 185, 206, 191, 206, 177, 206, 189, 206,
+    177, 207, 132, 206, 191, 206, 187, 206, 185, 206, 186, 206,
+    172, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, 206,
+    189, ' ', 206, 164, 206, 191, 207, 133, 207, 129, 206, 186,
+    206, 175, 206, 177, '.', ' ', 206, 146, 207, 129, 206, 173,
+    207, 135, 206, 181, 207, 132, 206, 177, 206, 185, ' ', 207,
+    131, 207, 132, 206, 177, ' ', 206, 177, 206, 189, 206, 177,
+    207, 132, 206, 191, 206, 187, 206, 185, 206, 186, 206, 172,
+    ' ', 206, 177, 207, 128, 207, 140, ' ', 207, 132, 206, 191,
+    ' ', 206, 145, 206, 185, 206, 179, 206, 177, 206, 175, 206,
+    191, ' ', 206, 160, 206, 173, 206, 187, 206, 177, 206, 179,
+    206, 191, 207, 130, ',', ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 180, 207, 133, 207, 132, 206, 185, 206, 186, 206,
+    172, ' ', 206, 177, 207, 128, 207, 140, ' ', 207, 132, 206,
+    191, ' ', 206, 153, 207, 140, 206, 189, 206, 185, 206, 191,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 189, 207, 140,
+    207, 132, 206, 185, 206, 177, ' ', 206, 177, 207, 128, 207,
+    140, ' ', 207, 132, 206, 183, ' ', 206, 156, 206, 181, 207,
+    131, 207, 140, 206, 179, 206, 181, 206, 185, 206, 191, ' ',
+    206, 152, 206, 172, 206, 187, 206, 177, 207, 131, 207, 131,
+    206, 177, '.', 206, 151, ' ', 206, 149, 206, 187, 206, 187,
+    206, 172, 206, 180, 206, 177, ' ', 206, 186, 206, 177, 207,
+    132, 206, 173, 207, 135, 206, 181, 206, 185, ' ', 207, 132,
+    206, 183, 206, 189, ' ', '1', '1', 206, 183, ' ', 206, 184,
+    206, 173, 207, 131, 206, 183, ' ', 207, 131, 207, 132, 206,
+    185, 207, 130, ' ', 207, 135, 207, 142, 207, 129, 206, 181,
+    207, 130, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183,
+    ' ', 206, 188, 206, 181, 206, 179, 206, 177, 206, 187, 207,
+    141, 207, 132, 206, 181, 207, 129, 206, 183, ' ', 206, 177,
+    206, 186, 207, 132, 206, 191, 206, 179, 207, 129, 206, 177,
+    206, 188, 206, 188, 206, 174, ' ', 207, 131, 207, 132, 206,
+    177, ' ', '1', '3', '.', '6', '7', '6', ' ', 207, 135, 206,
+    185, 206, 187, 206, 185, 207, 140, 206, 188, 206, 181, 207,
+    132, 207, 129, 206, 177, ' ', 206, 186, 206, 177, 206, 184,
+    207, 142, 207, 130, ' ', 206, 181, 207, 135, 206, 181, 206,
+    185, ' ', 207, 128, 206, 191, 206, 187, 206, 187, 206, 172,
+    ' ', 206, 189, 206, 183, 207, 131, 206, 185, 206, 172, ' ',
+    '(', 207, 128, 206, 181, 207, 129, 206, 175, 207, 128, 206,
+    191, 207, 133, ' ', '1', '.', '4', '0', '0', ',', ' ', 206,
+    181, 206, 186, 207, 132, 207, 137, 206, 189, ' ', 206, 191,
+    207, 128, 206, 191, 206, 175, 207, 137, 206, 189, ' ', 207,
+    132, 206, 177, ' ', '2', '2', '7', ' ', 206, 186, 206, 177,
+    207, 132, 206, 191, 206, 185, 206, 186, 206, 191, 207, 133,
+    206, 189, 207, 132, 206, 177, 206, 185, ')', ',', ' ', 207,
+    131, 207, 133, 206, 188, 207, 128, 206, 181, 207, 129, 206,
+    185, 206, 187, 206, 177, 206, 188, 206, 178, 206, 177, 206,
+    189, 206, 191, 206, 188, 206, 173, 206, 189, 207, 137, 206,
+    189, ' ', 207, 132, 206, 183, 207, 130, ' ', 206, 154, 207,
+    129, 206, 183, 207, 132, 206, 183, 207, 130, ',', ' ', 207,
+    132, 207, 137, 206, 189, ' ', 206, 148, 207, 137, 206, 180,
+    206, 181, 206, 186, 206, 177, 206, 189, 206, 174, 207, 131,
+    207, 137, 206, 189, ',', ' ', 207, 132, 207, 137, 206, 189,
+    ' ', 206, 154, 207, 133, 206, 186, 206, 187, 206, 172, 206,
+    180, 207, 137, 206, 189, ',', ' ', 207, 132, 207, 137, 206,
+    189, ' ', 206, 149, 207, 128, 207, 132, 206, 177, 206, 189,
+    206, 174, 207, 131, 207, 137, 206, 189, ' ', 206, 186, 206,
+    177, 206, 185, ' ', 207, 128, 206, 191, 206, 187, 206, 187,
+    207, 142, 206, 189, ' ', 206, 172, 206, 187, 206, 187, 207,
+    137, 206, 189, '.', 206, 164, 206, 191, ' ', 207, 136, 206,
+    183, 206, 187, 207, 140, 207, 132, 206, 181, 207, 129, 206,
+    191, ' ', 206, 178, 206, 191, 207, 133, 206, 189, 207, 140,
+    ' ', 206, 181, 206, 175, 206, 189, 206, 177, 206, 185, ' ',
+    206, 191, ' ', 206, 140, 206, 187, 207, 133, 206, 188, 207,
+    128, 206, 191, 207, 130, ' ', 206, 186, 206, 177, 206, 185,
+    ' ', 207, 132, 206, 191, ' ', 206, 188, 206, 181, 206, 179,
+    206, 177, 206, 187, 207, 141, 207, 132, 206, 181, 207, 129,
+    206, 191, ' ', 207, 128, 206, 191, 207, 132, 206, 172, 206,
+    188, 206, 185, ' ', 206, 191, ' ', 206, 145, 206, 187, 206,
+    185, 206, 172, 206, 186, 206, 188, 206, 191, 206, 189, 206,
+    177, 207, 130, '.',  13,  10,  13,  10, 206, 136, 207, 135,
+    206, 181, 206, 185, ' ', 206, 188, 206, 177, 206, 186, 207,
+    129, 206, 172, ' ', 206, 186, 206, 177, 206, 185, ' ', 207,
+    128, 206, 187, 206, 191, 207, 141, 207, 131, 206, 185, 206,
+    177, ' ', 206, 185, 207, 131, 207, 132, 206, 191, 207, 129,
+    206, 175, 206, 177, ' ', 206, 186, 206, 177, 207, 132, 206,
+    172, ' ', 207, 132, 206, 183, 206, 189, ' ', 206, 191, 207,
+    128, 206, 191, 206, 175, 206, 177, ' ', 206, 172, 207, 131,
+    206, 186, 206, 183, 207, 131, 206, 181, ' ', 206, 188, 206,
+    181, 206, 179, 206, 172, 206, 187, 206, 183, ' ', 207, 128,
+    206, 191, 206, 187, 206, 185, 207, 132, 206, 185, 207, 131,
+    206, 188, 206, 185, 206, 186, 206, 174, ' ', 206, 181, 207,
+    128, 206, 175, 206, 180, 207, 129, 206, 177, 207, 131, 206,
+    183, ' ', 207, 131, 206, 181, ' ', 207, 132, 207, 129, 206,
+    181, 206, 185, 207, 130, ' ', 206, 183, 207, 128, 206, 181,
+    206, 175, 207, 129, 206, 191, 207, 133, 207, 130, '.', 206,
+    149, 206, 180, 207, 142, ' ', 206, 179, 206, 181, 206, 189,
+    206, 189, 206, 174, 206, 184, 206, 183, 206, 186, 206, 181,
+    ' ', 206, 183, ' ', 206, 180, 206, 183, 206, 188, 206, 191,
+    206, 186, 207, 129, 206, 177, 207, 132, 206, 175, 206, 177,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 183, ' ', 207,
+    134, 206, 185, 206, 187, 206, 191, 207, 131, 206, 191, 207,
+    134, 206, 175, 206, 177, '.', 206, 145, 206, 186, 207, 140,
+    206, 188, 206, 188, 206, 177, ' ', 206, 183, ' ', 206, 149,
+    206, 187, 206, 187, 206, 172, 206, 180, 206, 177, ' ', 206,
+    181, 206, 175, 206, 189, 206, 177, 206, 185, ' ', 206, 191,
+    ' ', 207, 132, 207, 140, 207, 128, 206, 191, 207, 130, ' ',
+    206, 179, 206, 173, 206, 189, 206, 189, 206, 183, 207, 131,
+    206, 183, 207, 130, ' ', 207, 132, 207, 137, 206, 189, ' ',
+    206, 159, 206, 187, 207, 133, 206, 188, 207, 128, 206, 185,
+    206, 177, 206, 186, 207, 142, 206, 189, ' ', 206, 145, 206,
+    179, 207, 142, 206, 189, 207, 137, 206, 189, ',', 207, 132,
+    206, 191, 207, 133, ' ', 206, 180, 207, 129, 206, 172, 206,
+    188, 206, 177, 207, 132, 206, 191, 207, 130, ',', ' ', 207,
+    132, 206, 183, 207, 130, ' ', 207, 132, 207, 129, 206, 177,
+    206, 179, 207, 137, 206, 180, 206, 175, 206, 177, 207, 130,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 207, 132, 206, 183,
+    207, 130, ' ', 206, 186, 207, 137, 206, 188, 206, 188, 207,
+    137, 206, 180, 206, 175, 206, 177, 207, 130, ' ', '.',  13,
+     10,  13,  10, 206, 151, ' ', 206, 149, 206, 187, 206, 187,
+    206, 172, 206, 180, 206, 177, ' ', 206, 181, 206, 175, 206,
+    189, 206, 177, 206, 185, ' ', 206, 188, 206, 173, 206, 187,
+    206, 191, 207, 130, ' ', 207, 132, 207, 137, 206, 189, ' ',
+    206, 149, 207, 133, 207, 129, 207, 137, 207, 128, 206, 177,
+    207, 138, 206, 186, 207, 142, 206, 189, ' ', 206, 154, 206,
+    191, 206, 185, 206, 189, 206, 191, 207, 132, 206, 174, 207,
+    132, 207, 137, 206, 189, '/', 206, 149, 207, 133, 207, 129,
+    207, 137, 207, 128, 206, 177, 207, 138, 206, 186, 206, 174,
+    207, 130, ' ', 206, 136, 206, 189, 207, 137, 207, 131, 206,
+    183, 207, 130, ' ', 206, 177, 207, 128, 207, 140, ' ', 207,
+    132, 206, 191, ' ', '1', '9', '8', '1', ',', ' ', 207, 132,
+    206, 183, 207, 130, ' ', 206, 149, 207, 133, 207, 129, 207,
+    137, 206, 182, 207, 142, 206, 189, 206, 183, 207, 130, ' ',
+    206, 177, 207, 128, 207, 140, ' ', 207, 132, 206, 191, ' ',
+    '2', '0', '0', '1', ',', ' ', 207, 132, 206, 191, 207, 133,
+    ' ', 206, 157, 206, 145, 206, 164, 206, 159, ' ', 206, 177,
+    207, 128, 207, 140, ' ', 207, 132, 206, 191, ' ', '1', '9',
+    '5', '2', ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 185,
+    206, 180, 207, 129, 207, 133, 207, 132, 206, 185, 206, 186,
+    207, 140, ' ', 206, 188, 206, 173, 206, 187, 206, 191, 207,
+    130, ' ', 207, 132, 206, 191, 207, 133, ' ', 206, 159, 206,
+    151, 206, 149, ' ', '(', '1', '9', '4', '5', ')', '.', ' ',
+    206, 151, ' ', 206, 149, 206, 187, 206, 187, 206, 172, 206,
+    180, 206, 177, ' ', 206, 181, 206, 175, 206, 189, 206, 177,
+    206, 185, ' ', 206, 188, 206, 185, 206, 177, ' ', 206, 177,
+    206, 189, 206, 181, 207, 128, 207, 132, 207, 133, 206, 179,
+    206, 188, 206, 173, 206, 189, 206, 183, ' ', 207, 135, 207,
+    142, 207, 129, 206, 177, ' ', 206, 188, 206, 181, ' ', 207,
+    133, 207, 136, 206, 183, 206, 187, 207, 140, ' ', 206, 186,
+    206, 177, 207, 132, 206, 172, ' ', 206, 186, 206, 181, 207,
+    134, 206, 177, 206, 187, 206, 174, 206, 189, ' ', 206, 181,
+    206, 185, 207, 131, 207, 140, 206, 180, 206, 183, 206, 188,
+    206, 177, ' ', 206, 186, 206, 177, 206, 185, ' ', 207, 128,
+    206, 191, 206, 187, 207, 141, ' ', 207, 133, 207, 136, 206,
+    183, 206, 187, 207, 140, ' ', 206, 180, 206, 181, 206, 175,
+    206, 186, 207, 132, 206, 183, ' ', 206, 177, 206, 189, 206,
+    184, 207, 129, 207, 142, 207, 128, 206, 185, 206, 189, 206,
+    183, 207, 130, ' ', 206, 177, 206, 189, 206, 172, 207, 128,
+    207, 132, 207, 133, 206, 190, 206, 183, 207, 130, '.', ' ',
+    206, 154, 206, 177, 207, 132, 206, 173, 207, 135, 206, 181,
+    206, 185, ' ', 207, 132, 206, 183, 206, 189, ' ', '2', '2',
+    206, 183, ' ', 206, 186, 206, 177, 206, 187, 207, 141, 207,
+    132, 206, 181, 207, 129, 206, 183, ' ', 207, 128, 206, 191,
+    206, 185, 207, 140, 207, 132, 206, 183, 207, 132, 206, 177,
+    ' ', 206, 182, 207, 137, 206, 174, 207, 130, ' ', 207, 131,
+    207, 132, 206, 191, 206, 189, ' ', 206, 186, 207, 140, 207,
+    131, 206, 188, 206, 191, '.', '[', '4', ']',  13,  10,  13,
+     10, 'R', 'a', 'n', 'd', 'o', 'm', ' ', 'Q', 'u', 'a', 'd',
+    ' ', 'V', 'a', 'l', 'u', 'e', 's',  13,  10, 240, 144, 128,
+    128, 240, 152, 166, 171, 240, 158, 187, 174, 240, 154, 170,
+    170, 240, 154, 132, 163, 240, 155, 132, 163, 243, 187, 174,
+    187, 244, 128, 128, 128, 243, 174, 187, 174, 242, 187, 174,
+    187,  13,  10,   0
+};
+const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
+
+
+template <typename UTF16_CHAR>
+static
+int localUtf16Cmp(const UTF16_CHAR *a, const UTF16_CHAR *b)
+{
+    int diff;
+    while (0 == (diff = *a - *b) && *a) {
+        ++a;
+        ++b;
+    }
+
+    return diff;
+}
+
+template <typename UTF16_CHAR>
+static
+bsl::size_t localUtf16Len(const UTF16_CHAR *str)
+{
+    const UTF16_CHAR *pws = str;
+    while (*pws) {
+        ++pws;
+    }
+
+    ASSERT(pws >= str);
+    return pws - str;
+}
+
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -2502,24 +4521,876 @@ int main(int argc, char**argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-#if 0
-      case 6: {
+      case 13: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //   Simple example illustrating how one might use utf8ToUtf16.
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        //   USAGE EXAMPLE 2
+        // USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        processUtf8("");
-        processUtf8("\x01\x20\x7f\xc3\xbf\xdf\xbf\xe0\xa0\x80\xef\xbf\xbf");
+        if (verbose) cout << "USAGE EXAMPLE 2\n"
+                             "===============\n";
+
+        // The following snippets of code illustrate a typical use of the
+        // 'bdede_CharConvertUtf16' struct's utility functions, first
+        // converting from UTF-8 to UTF-16, and then converting back to make
+        // sure the round trip returns the same value.
+
+        // First, we declare a string of utf8 containing single-, double-,
+        // triple-, and quadruple-octet characters.
+
+        const char utf8MultiLang[] = {
+            "Hello"                                         // -- Ascii
+            "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
+            "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
+            "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
+            "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
+
+        // Then, we declare an enum summarizing the counts of characters in the
+        // string and verify that the counts add up to the length of the
+        // string.
+
+        enum { NUM_ASCII_CHARS   = 5,
+               NUM_GREEK_CHARS   = 3,
+               NUM_CHINESE_CHARS = 2,
+               NUM_HINDI_CHARS   = 2,
+               NUM_QUAD_CHARS    = 2 };
+
+        ASSERT(1 * NUM_ASCII_CHARS +
+               2 * NUM_GREEK_CHARS +
+               3 * NUM_CHINESE_CHARS +
+               3 * NUM_HINDI_CHARS +
+               4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
+
+        // Next, we declare the vector where our utf16 output will go, and a
+        // variable into which the number of characters (characters, not bytes
+        // or words) written will be stored.  It is not necessary to initialize
+        // 'utf16CharsWritten'.
+
+        bsl::vector<unsigned short> v16;
+        bsl::size_t utf16CharsWritten;
+
+        // Note that for performance, we should
+        // 'v16.reserve(sizeof(utf8MultiLang))', but it's not strictly
+        // necessary -- it will automatically be grown to the correct size.
+        // Note also that if 'v16' were not empty, that wouldn't be a problem
+        // -- any contents will be discarded.
+
+        // Then, we do the translation to 'utf16'.
+
+        int retVal = bdede_CharConvertUtf16::utf8ToUtf16(&v16,
+                                                         utf8MultiLang,
+                                                         &utf16CharsWritten);
+
+        ASSERT(0 == retVal);        // verify success
+        ASSERT(0 == v16.back());    // verify null terminated
+
+        // Next, we verify that the number of characters (characters, not bytes
+        // or words) that was returned is correct.
+
+        enum { EXPECTED_CHARS_WRITTEN =
+                        NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
+                        NUM_HINDI_CHARS + NUM_QUAD_CHARS  + 1 };
+        ASSERT(EXPECTED_CHARS_WRITTEN == utf16CharsWritten);
+
+        // Then, we verify that the number of 16-bit words written was correct.
+        // The quad octet chars each require 2 short words of output
+
+        enum { EXPECTED_UTF16_WORDS_WRITTEN =
+                        NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
+                        NUM_HINDI_CHARS + NUM_QUAD_CHARS * 2 + 1 };
+
+        ASSERT(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
+
+        // Next, we calculate and confirm the difference betwen the number of
+        // utf16 words output and the number of bytes input.  The ascii chars
+        // will take 1 16-bit word apiece, the Greek chars are double octets
+        // that will become single shorts, the Chinese chars are encoded as
+        // utf8 triple octets that will turn into single 16-bit words, the same
+        // for the Hindi chars, and the quad chars are quadruple octets that
+        // will turn into double shorts.
+
+        enum { SHRINKAGE =
+                          NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
+                          NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
+                          NUM_QUAD_CHARS    * (4-2) };
+
+        ASSERT(v16.size() == sizeof(utf8MultiLang) - SHRINKAGE);
+
+        // Then, we go on to do the reverse 'utf16ToUtf8' transform to turn it
+        // back into utf8, and we should get a result identical to our original
+        // input.  Declare a 'bsl::string' for our output, and a variable to
+        // count the number of characters (characters, not bytes or words)
+        // translated.
+
+        bsl::string    s;
+        bsl::size_t    utf8CharsWritten;
+
+        // Again, note that for performance, we should ideally
+        // 's.reserve(3 * v16.size())' but it's not really necessary.
+
+        // Now, we do the reverse transform:
+
+        retVal = bdede_CharConvertUtf16::utf16ToUtf8(&s,
+                                                     v16.begin(),
+                                                     &utf8CharsWritten);
+
+        // Finally, we verify a successful status was returned, that the output
+        // of the reverse transform was identical to the original input, and
+        // that the number of chars translated was as expected.
+
+        ASSERT(0 == retVal);
+        ASSERT(utf8MultiLang == s);
+        ASSERT(s.length() + 1         == sizeof(utf8MultiLang));
+
+        ASSERT(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
+        ASSERT(utf16CharsWritten      == utf8CharsWritten);
       } break;
-#endif
+      case 12: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 1
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "USAGE EXAMPLE 1\n"
+                             "===============\n";
+
+// In this example, we will translate a string containing a non-ascii character
+// from UTF-16 to UTF-8 and back.
+
+// First, we create a UTF-16 string spelling 'ecole' in French, which begins
+// with '0xc9', a non-ascii 'e' with an accent over it:
+
+        unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
+
+// Then, we create a byte buffer to store the UTF-8 result of the translation
+// in, and variables to monitor counts of characters and bytes translated:
+
+        char utf8String[7];
+        bsl::size_t numChars, numBytes;
+        numChars = numBytes = -1;    // garbage
+
+// Next, we call 'utf16ToUtf8' to do the translation:
+
+        int rc = bdede_CharConvertUtf16::utf16ToUtf8(utf8String,
+                                                     sizeof(utf8String),
+                                                     utf16String,
+                                                     &numChars,
+                                                     &numBytes);
+
+// Then, we observe no errors or warnigns occurred, and numbers of chars and
+// bytes were as expected.  note that both 'numChars' and 'numBytes' include
+// the terminating 0.
+
+        ASSERT(0 == rc);
+        ASSERT(6 == numChars);
+        ASSERT(7 == numBytes);
+
+// Next, we examine the length of the translated string:
+
+        ASSERT(numBytes - 1 == bsl::strlen(utf8String));
+
+// Then, we examine the individual bytes of the translated UTF-8:
+
+        ASSERT((char) 0xc3 == utf8String[0]);
+        ASSERT((char) 0x89 == utf8String[1]);
+        ASSERT('c' ==         utf8String[2]);
+        ASSERT('o' ==         utf8String[3]);
+        ASSERT('l' ==         utf8String[4]);
+        ASSERT('e' ==         utf8String[5]);
+        ASSERT(0   ==         utf8String[6]);
+
+// Next, in preparation for translation back to UTF-16, we create a buffer of
+// shorts and the variable 'numWords' to track the number of UTF-16 words
+// occuppied by the result.
+
+        unsigned short secondUtf16String[6];
+        bsl::size_t numWords;
+        numChars = numWords = -1;    // garbage
+
+// Then, we do the reverse translation:
+
+        rc = bdede_CharConvertUtf16::utf8ToUtf16(secondUtf16String,
+                                                 6,
+                                                 utf8String,
+                                                 &numChars,
+                                                 &numWords);
+
+// Next, we observe that no errors or warnings were reported, and that the
+// number of characters and words were as expected.  Note that 'numChars' and
+// 'numWords' both include the terminating 0:
+
+        ASSERT(0 == rc);
+        ASSERT(6 == numChars);
+        ASSERT(6 == numWords);
+
+// Now, we observe that our output is identical to the original UTF-16 string:
+
+        ASSERT(0 == bsl::memcmp(utf16String,
+                                secondUtf16String,
+                                sizeof(utf16String)));
+
+// Finally, we examine the individual words of the the reverse translation:
+
+        ASSERT(0xc9 == secondUtf16String[0]);
+        ASSERT('c'  == secondUtf16String[1]);
+        ASSERT('o'  == secondUtf16String[2]);
+        ASSERT('l'  == secondUtf16String[3]);
+        ASSERT('e'  == secondUtf16String[4]);
+        ASSERT(0    == secondUtf16String[5]);
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // BROKEN GLASS TEST -- UTF16TOUTF8
+        //
+        // Concern:
+        //   That the length estimator always estimates a length >= the actual
+        //   length requived.
+        //
+        // Plan:
+        //   Set up da "broken glass playground" consisting of all possible
+        //   types of errors and valid sequences, then call a translation to
+        //   vector on every subset of the playground.  Internal asserts within
+        //   those routines will make sure the size estimation estimated at
+        //   least the necessary size, and that if there were no errors,
+        //   exactly the necessary size.
+        //
+        //   Note that there are a lot fewer error types than in the opposite
+        //   translation test -- there are far fewer ways to get utf16 wrong
+        //   than utf8.
+        // --------------------------------------------------------------------
+
+        unsigned short utf16Broken[] = {
+            'H',                                        // -- Valid Ascii
+            0x397,                                      // -- Valid Double
+            0x4e2d,                                     // -- Valid Triple
+            0xda13, 0xdd25,                             // -- Valid Quad
+
+            0xdd25,                        // unexpected cont
+            0xda13, 'H',                   // incomplete quad
+
+            0 };
+
+        enum { NUM_SHORTS = sizeof utf16Broken / sizeof *utf16Broken };
+
+        unsigned short * const utf16BrokenEnd = utf16Broken + NUM_SHORTS - 1;
+
+        bsl::vector<char> dst;
+
+        for (unsigned short *start = utf16Broken; start < utf16BrokenEnd;
+                                                                     ++start) {
+            unsigned short *end = start == utf16Broken ? start
+                                                       : start + 1;
+            for (; end <= utf16BrokenEnd; ++end) {
+                for (int i = 0; i < 2; ++i) {
+                    const char errorChar = 0 == i ? '?' : 0;
+
+                    unsigned short save = *end;
+                    *end = 0;
+
+                    dst.clear();
+                    bdede_CharConvertUtf16::utf16ToUtf8(&dst,
+                                                        start,
+                                                        0,
+                                                        errorChar);
+
+                    *end = save;
+                }
+            }
+        }
+      }  break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // SEPARABLE BROKEN GLASS TEST
+        //
+        // Concern:
+        //   There is a bug in string estimation, identify where it is.
+        //
+        // Plan:
+        //   Feed various types of failures to translator one by one and see
+        //   where estimation fails.
+        // --------------------------------------------------------------------
+
+        struct {
+            int         d_line;
+            const char *d_string;
+        } DATA[] = {
+          { L_,   "H" },                         // -- Valid Ascii
+          { L_,   "\xce\x97" },                  // -- Valid Greek
+          { L_,   "\xe4\xb8\xad" },              // -- Valid Chinese
+          { L_,   "\xf2\x94\xb4\xa5" },          // -- Valid Quad
+
+          { L_,   "\xed\xa0\x85" },              // illegal utf16 0xd805
+          { L_,   "\xed\xb6\xa3" },              // illegal utf16 0xdda3
+
+          { L_,   "\x83\x83\x83\x83\x83\x83" },  // unexpected cont
+          { L_,   "\xf9\x83\x83\x83\x83" },      // 5 byte (invalid)
+          { L_,   "\xfd\x83\x83\x83\x83\x83" },  // 6 byte (invalid)
+          { L_,   "\xfe\xa3\x83\x83\x83\x83\x83" }, // 7 byte (invalid)
+          { L_,   "\xce" },                      // incomplete Greek
+          { L_,   "\xe8\xb8" },                  // incomplete Chinese
+          { L_,   "\xe8" },                      // incomplete Chinese
+          { L_,   "\xf2\x94\xb4" },              // incomplete quad
+          { L_,   "\xf2\x94" },                  // incomplete quad
+          { L_,   "\xf2" },                      // incomplete quad
+          { L_,   "\xc0\x8f" },                  // non-minimal 2
+          { L_,   "\xe0\x80\x8f" },              // non-minimal 3
+          { L_,   "\xf0\x80\x80\x8f" } };        // non-minimal 4
+
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        bsl::vector<unsigned short> dst;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int LINE     = DATA[i].d_line;
+            const char *STRING = DATA[i].d_string;
+
+            for (int j = 0; j < 2; ++j) {
+                const unsigned short errorChar = 0 == j ? '?' : 0;
+
+                if (veryVerbose) {
+                    P_(LINE) P(errorChar ? '?' : '0');
+                }
+
+                dst.clear();
+                bdede_CharConvertUtf16::utf8ToUtf16(&dst,
+                                                    STRING,
+                                                    0,
+                                                    errorChar);
+
+                if (veryVeryVerbose) {
+                    for (int k = 0; k < (int) dst.size(); ++k) {
+                        cout << "    0x" << bsl::hex << dst[k] << endl;
+                    }
+                }
+            }
+        }
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // BROKEN GLASS TEST -- UTF8TOUTF16
+        //
+        // Concern:
+        //   That the length estimator always estimates a length >= the actual
+        //   length requived.
+        //
+        // Plan:
+        //   Set up da "broken glass playground" consisting of all possible
+        //   types of errors and valid sequences, then call a translation to
+        //   vector on every subset of the playground.  Internal asserts within
+        //   those routines will make sure the size estimation estimated at
+        //   least the necessary size, and that if there were no errors,
+        //   exactly the necessary size.
+        // --------------------------------------------------------------------
+
+        char utf8Broken[] = {
+            "H"                                         // -- Valid Ascii
+            "\xce\x97"                                  // -- Valid Greek
+            "\xe4\xb8\xad"                              // -- Valid Chinese
+            "\xf2\x94\xb4\xa5"                          // -- Valid Quad
+
+            "\xed\xa0\x85"                 // illegal utf16 0xd805
+            "\xed\xb6\xa3"                 // illegal utf16 0xdda3
+
+            "\x83\x83\x83\x83\x83\x83"     // unexpected cont
+            "\xf9\x83\x83\x83\x83"         // 5 byte (invalid)
+            "\xfd\x83\x83\x83\x83\x83"     // 6 byte (invalid)
+            "\xfe\xa3\x83\x83\x83\x83\x83" // 7 byte (invalid)
+            "\xce"                         // incomplete Greek
+            "\xe8\xb8"                     // incomplete Chinese
+            "\xe8"                         // incomplete Chinese
+            "\xf2\x94\xb4"                 // incomplete quad
+            "\xf2\x94"                     // incomplete quad
+            "\xf2"                         // incomplete quad
+            "\xc0\x8f"                     // non-minimal 2
+            "\xe0\x80\x8f"                 // non-minimal 3
+            "\xf0\x80\x80\x8f" };          // non-minimal 4
+
+        char * const utf8BrokenEnd = utf8Broken + sizeof(utf8Broken) - 1;
+
+        bsl::vector<unsigned short> dstVec;
+
+        for (char *start = utf8Broken; start < utf8BrokenEnd; ++start) {
+            char *end = start == utf8Broken ? start
+                                            : start + 1;
+            for (; end <= utf8BrokenEnd; ++end) {
+                for (int i = 0; i < 2; ++i) {
+                    const unsigned short errorChar = 0 == i ? '?' : 0;
+
+                    char save = *end;
+                    *end = 0;
+
+                    dstVec.clear();
+                    bdede_CharConvertUtf16::utf8ToUtf16(&dstVec,
+                                                        start,
+                                                        0,
+                                                        errorChar);
+
+                    *end = save;
+                }
+            }
+        }
+
+        bsl::wstring dstWstring;
+
+        for (char *start = utf8Broken; start < utf8BrokenEnd; ++start) {
+            char *end = start == utf8Broken ? start
+                                            : start + 1;
+            for (; end <= utf8BrokenEnd; ++end) {
+                for (int i = 0; i < 2; ++i) {
+                    const unsigned short errorChar = 0 == i ? '?' : 0;
+
+                    char save = *end;
+                    *end = 0;
+
+                    dstWstring.clear();
+                    bdede_CharConvertUtf16::utf8ToUtf16(&dstWstring,
+                                                        start,
+                                                        0,
+                                                        errorChar);
+
+                    *end = save;
+                }
+            }
+        }
+      }  break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING ERROR SEQUENCES
+        //
+        // Concerns:
+        //   That sequences with error chars are handled correctly.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Error Sequences\n"
+                             "===============\n";
+
+        const unsigned char errorUnsignedIn[] = {  'a', 237, 160, 138, 'b',
+                237, 164, 139, 'c', 237, 168, 147, 'd', 237, 174, 148, 'e',
+                237, 178, 166, 'f', 237, 182, 183, 237, 187, 136, 'g',
+                237, 191, 153, 'h', 240, 138, 170, 170, 'i',
+                224, 158, 162, 'j', 192, 176, 'k', 132, 'm', 234, 170, 'n',
+                193, 'o',   0 };
+
+        const unsigned short expectedUtf16[] = { 'a', 'x', 'b', 'x',
+                   'c', 'x', 'd', 'x', 'e', 'x', 'f', 'x', 'x', 'g',
+                   'x', 'h', 'x', 'i', 'x', 'j', 'x', 'k', 'x', 'm',
+                   'x', 'n', 'x', 'o',  0 };
+        const unsigned short expectedUtf16Zero[] = { 'a', 'b', 'c', 'd', 'e',
+                   'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'o',  0 };
+        enum { NUM_EXPECTED_UTF16 =
+                        sizeof expectedUtf16     / sizeof *expectedUtf16,
+               NUM_EXPECTED_UTF16_ZERO =
+                        sizeof expectedUtf16Zero / sizeof *expectedUtf16Zero };
+
+        const unsigned short errorUtf16InOrig[] = { 'a', 0xd81a, 'b',
+                    0xdcb2, 'c', 0xd8a2, 0xda21, 'd', 0xdc34, 0xdc23, 'e', 0 };
+        enum { NUM_ERROR_UTF16_IN_ORIG = sizeof errorUtf16InOrig /
+                                                    sizeof *errorUtf16InOrig };
+
+        for (int e = 0; e < 2; ++e) {
+            char errorChar = 0 == e ? 'x' : 0;
+
+            bsl::size_t numExpectedChars =
+                      errorChar ? NUM_EXPECTED_UTF16 : NUM_EXPECTED_UTF16_ZERO;
+            const bsl::wstring expectedW(
+                    errorChar ? expectedUtf16
+                              : expectedUtf16Zero,
+                    errorChar ? expectedUtf16 +     NUM_EXPECTED_UTF16     -1
+                              : expectedUtf16Zero + NUM_EXPECTED_UTF16_ZERO-1);
+            ASSERT(numExpectedChars == expectedW.length() + 1);
+
+            const wchar_t *expectedWCstr = expectedW.c_str();
+            const bsl::vector<unsigned short> expectedV(
+                        expectedWCstr, expectedWCstr + expectedW.length() + 1);
+            bsl::wstring utf16Wstring;
+
+            {
+                bsl::size_t nChars;
+                int rc = Util::utf8ToUtf16(&utf16Wstring,
+                                           (const char *) errorUnsignedIn,
+                                           &nChars,
+                                           errorChar);
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                LOOP2_ASSERT(nChars, numExpectedChars,
+                                                   numExpectedChars == nChars);
+                LOOP2_ASSERT(utf16Wstring.length(), numExpectedChars,
+                                numExpectedChars == utf16Wstring.length() + 1);
+
+                ASSERT(expectedW == utf16Wstring);
+                if    (expectedW != utf16Wstring) {
+                    for (unsigned i = 0; i <= utf16Wstring.length(); ++i) {
+                        wchar_t w = utf16Wstring[i];
+                        if (w < 128) {
+                            cout << (char) w << endl;
+                        }
+                        else {
+                            cout << w << endl;
+                        }
+                    }
+                }
+            }
+
+            {
+                bsl::vector<unsigned short> utf16Vec;
+                bsl::size_t nChars;
+                int rc = Util::utf8ToUtf16(&utf16Vec,
+                                           (const char *) errorUnsignedIn,
+                                           &nChars,
+                                           errorChar);
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                LOOP2_ASSERT(nChars, numExpectedChars,
+                                                   numExpectedChars == nChars);
+                LOOP2_ASSERT(utf16Vec.size(), numExpectedChars,
+                                          numExpectedChars == utf16Vec.size());
+                LOOP2_ASSERT(expectedV.size(), utf16Vec.size(),
+                                          expectedV.size() == utf16Vec.size());
+                ASSERT(expectedV == utf16Vec);
+                if (expectedV != utf16Vec) {
+                    for (unsigned i = 0; i < utf16Vec.size(); ++i) {
+                        unsigned short s = utf16Vec[i];
+                        if (s < 128) {
+                            cout << (char) s << endl;
+                        }
+                        else {
+                            cout << s << endl;
+                        }
+                    }
+                }
+                const wchar_t *wstr = utf16Wstring.c_str();
+
+                for (unsigned i = 0; i < utf16Vec.size(); ++i) {
+                    ASSERT(wstr[i] == utf16Vec[i]);
+                }
+            }
+        }
+
+        for (int e = 0; e < 2; ++e) {
+            char errorChar = 0 == e ? 'x' : 0;
+
+            const char *expected = errorChar ? "axbxcxxdxxe" : "abcde";
+            const bsl::size_t expectedChars = bsl::strlen(expected) + 1;
+
+            {
+                bsl::vector<char> utf8Vec;
+                bsl::size_t nChars;
+                int rc = Util::utf16ToUtf8(&utf8Vec,
+                                           errorUtf16InOrig,
+                                           &nChars,
+                                           errorChar);
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(expectedChars == nChars);
+                ASSERT(expectedChars == utf8Vec.size());
+
+                ASSERT(0 == bsl::strcmp(&utf8Vec[0], expected));
+            }
+
+            {
+                bsl::string utf8String;
+                bsl::size_t nChars, nBytes;
+                const unsigned short *errorUtf16In = errorUtf16InOrig;
+                int rc = Util::utf16ToUtf8(&utf8String,
+                                           errorUtf16In,
+                                           &nChars,
+                                           errorChar);
+                nBytes = utf8String.length() + 1;
+
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(expectedChars == nChars);
+                ASSERT(expectedChars == nBytes);
+                ASSERT(expectedChars == utf8String.length() + 1);
+
+                ASSERT(0 == bsl::strcmp(utf8String.c_str(), expected));
+            }
+        }
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING CALLS WITH VECTOR / STRING / WSTRING DESTINATIONS
+        //
+        // Concerns:
+        //   That the vector methods work.
+        //
+        // Plan:
+        //   Test our long multilingual example
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING VECTOR METHODS\n"
+                             "======================\n";
+
+        enum { CAPACITY = 1 << 20 };
+
+        bslma_TestAllocator ta;
+        unsigned short *utf16S = (unsigned short *)
+                                ta.allocate(CAPACITY * sizeof(unsigned short));
+        wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
+
+        bsl::size_t numChars16 = 0, numWords16S = 0, numWords16W = 0;
+
+        int rc = Util::utf8ToUtf16(utf16S,
+                                   CAPACITY,
+                                   (const char *) utf8MultiLang,
+                                   &numChars16,
+                                   &numWords16S);
+        ASSERT(0 == rc);
+
+        rc = Util::utf8ToUtf16(utf16W,
+                               CAPACITY,
+                               (const char *) utf8MultiLang,
+                               &numChars16,
+                               &numWords16W);
+        ASSERT(0 == rc);
+        ASSERT(numWords16S == numWords16W);
+        for (int i = 0; i < (int) numWords16S; ++i) {
+            ASSERT(utf16W[i] == (wchar_t) utf16S[i]);
+        }
+
+        {
+            bsl::vector<unsigned short> utf16Vec(&ta);
+
+            bsl::size_t numChars16Vec = 0;
+
+            rc = Util::utf8ToUtf16(&utf16Vec,
+                                   (const char *) utf8MultiLang,
+                                   &numChars16Vec);
+            ASSERT(0 == rc);
+
+            ASSERT(numChars16Vec == numChars16);
+            ASSERT(numWords16S   == utf16Vec.size());
+
+            unsigned short *z16Ptr =
+                                bsl::find(utf16Vec.begin(), utf16Vec.end(), 0);
+            ASSERT(utf16Vec.end() != z16Ptr);
+            ASSERT(&utf16Vec[utf16Vec.size() - 1] == z16Ptr);
+            ASSERT(0 == *z16Ptr);
+
+            ASSERT(0 == localUtf16Cmp(utf16Vec.begin(), utf16S));
+            ASSERT(numWords16S - 1 == localUtf16Len(utf16Vec.begin()));
+        }
+
+        {
+            bsl::wstring utf16Wstring(&ta);
+
+            bsl::size_t numChars16Wstring = 0;
+
+            rc = Util::utf8ToUtf16(&utf16Wstring,
+                                   (const char *) utf8MultiLang,
+                                   &numChars16Wstring);
+            ASSERT(0 == rc);
+
+            ASSERT(numChars16Wstring == numChars16);
+            ASSERT(numWords16S       == utf16Wstring.length() + 1);
+            ASSERT(localUtf16Len(utf16Wstring.c_str()) ==
+                                                        utf16Wstring.length());
+
+            ASSERT(utf16W == utf16Wstring);
+        }
+
+        {
+            bsl::vector<char> utf8Vec(&ta);
+            {
+                bsl::size_t numChars8 = 0;
+
+                rc = Util::utf16ToUtf8(&utf8Vec,
+                                       utf16S,
+                                       &numChars8);
+                ASSERT(0 == rc);
+
+                ASSERT(numChars8 == numChars16);
+                ASSERT(sizeof(utf8MultiLang) == utf8Vec.size());
+
+                ASSERT(bsl::strlen(utf8Vec.begin()) + 1 == utf8Vec.size());
+                ASSERT(!bsl::strcmp(utf8Vec.begin(), charUtf8MultiLang));
+            }
+            {
+                utf8Vec.clear();
+                bsl::size_t numChars8 = 0;
+
+                rc = Util::utf16ToUtf8(&utf8Vec,
+                                       utf16W,
+                                       &numChars8);
+                ASSERT(0 == rc);
+
+                ASSERT(numChars8 == numChars16);
+                ASSERT(sizeof(utf8MultiLang) == utf8Vec.size());
+
+                ASSERT(bsl::strlen(utf8Vec.begin()) + 1 == utf8Vec.size());
+                ASSERT(!bsl::strcmp(utf8Vec.begin(), charUtf8MultiLang));
+            }
+
+            {
+                bsl::string utf8String(&ta);
+
+                bsl::size_t numChars8 = 0;
+
+                rc = Util::utf16ToUtf8(&utf8String,
+                                       utf16S,
+                                       &numChars8);
+                ASSERT(0 == rc);
+
+                bsl::size_t numBytes8 = utf8String.length() + 1;
+
+                ASSERT(numChars8 == numChars16);
+                ASSERT(numBytes8 == sizeof(utf8MultiLang));
+
+                ASSERT(bsl::strlen(utf8String.c_str()) + 1 == numBytes8);
+                ASSERT(!bsl::strcmp(utf8String.begin(), charUtf8MultiLang));
+            }
+            {
+                bsl::string utf8String(&ta);
+
+                bsl::size_t numChars8 = 0;
+
+                rc = Util::utf16ToUtf8(&utf8String,
+                                       utf16W,
+                                       &numChars8);
+                ASSERT(0 == rc);
+
+                bsl::size_t numBytes8 = utf8String.length() + 1;
+
+                ASSERT(numChars8 == numChars16);
+                ASSERT(numBytes8 == sizeof(utf8MultiLang));
+
+                ASSERT(bsl::strlen(utf8String.c_str()) + 1 == numBytes8);
+                ASSERT(!bsl::strcmp(utf8String.begin(), charUtf8MultiLang));
+            }
+        }
+
+        ta.deallocate(utf16S);
+        ta.deallocate(utf16W);
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TRANSLATING MULTILINGUAL TEXT FROM UTF-8 TO UTF-16 AND BACK
+        //
+        // Concern:
+        //   None of the other test case translated a long sequence of prose
+        //   that would really exercise UTF.  Having 'Pride and Prejudice' be
+        //   the only long test case here is unbelievably lame.
+        //
+        // Plan:
+        //   The array 'utf8MultiLang' is a long sequence of UTF-8 Chinese,
+        //   Hindi, French, and Greek copied from the internet.  Use the tools
+        //   here to see if we can translate it from UTF-8 to UTF-16 and back.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Long UTF-8 Multilingual test case\n"
+                             "=================================\n";
+
+        enum { CAPACITY = 1 << 20 };
+
+        // size up text
+
+        int singleBytes = 0;
+        int doubleHeaders = 0;
+        int tripleHeaders = 0;
+        int quadHeaders = 0;
+        int contBytes = 0;
+        int errorBytes = 0;
+
+        for (unsigned char *pc = utf8MultiLang; *pc; ++pc) {
+            if      (   0 == (0x80 & *pc)) ++singleBytes;
+            else if (0xc0 == (0xe0 & *pc)) ++doubleHeaders;
+            else if (0xe0 == (0xf0 & *pc)) ++tripleHeaders;
+            else if (0xf0 == (0xf8 & *pc)) ++quadHeaders;
+            else if (0x80 == (0xc0 & *pc)) ++contBytes;
+            else                           ++errorBytes;
+        }
+
+        if (verbose) {
+            P_(sizeof(utf8MultiLang)) P_(singleBytes) P(doubleHeaders);
+            P_(tripleHeaders) P_(quadHeaders) P_(contBytes) P(errorBytes);
+        }
+
+        ASSERT(CAPACITY > sizeof(utf8MultiLang));
+        ASSERT(doubleHeaders + tripleHeaders * 2 + quadHeaders * 3
+                                                                 == contBytes);
+        ASSERT(0 == errorBytes);
+
+        bslma_TestAllocator ta;
+        unsigned short *utf16S = (unsigned short *)
+                                ta.allocate(CAPACITY * sizeof(unsigned short));
+        wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
+
+        bsl::size_t numChars16 = 0, numWords16S = 0, numWords16W = 0;
+
+        int rc = Util::utf8ToUtf16(utf16S,
+                                   CAPACITY,
+                                   charUtf8MultiLang,
+                                   &numChars16,
+                                   &numWords16S);
+
+        if (verbose) {
+            Q(utf8ToUtf16:);
+            P_(rc) P_(numChars16) P(numWords16S);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numChars16  < sizeof(utf8MultiLang));
+        ASSERT(numWords16S < sizeof(utf8MultiLang));
+        ASSERT(numWords16S >= numChars16);
+
+        rc = Util::utf8ToUtf16(utf16W,
+                               CAPACITY,
+                               charUtf8MultiLang,
+                               &numChars16,
+                               &numWords16W);
+
+        if (verbose) {
+            Q(utf8ToUtf16:);
+            P_(rc) P_(numChars16) P(numWords16W);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numChars16  < sizeof(utf8MultiLang));
+        ASSERT(numWords16W < sizeof(utf8MultiLang));
+        ASSERT(numWords16W >= numChars16);
+        ASSERT(numWords16W == numWords16S);
+
+        bsl::size_t numChars8 = 0, numBytes8 = 0;
+
+        char *utf8 = (char *) ta.allocate(CAPACITY);
+
+        rc = Util::utf16ToUtf8(utf8,
+                               CAPACITY,
+                               utf16S,
+                               &numChars8,
+                               &numBytes8);
+
+        if (verbose) {
+            Q(utf16ToUtf8:);
+            P_(rc) P_(numChars8) P(numBytes8);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numChars16 == numChars8);
+        ASSERT(numBytes8  == sizeof(utf8MultiLang));
+        ASSERT(bsl::strlen(utf8) + 1 == numBytes8);
+        ASSERT(!bsl::strcmp(utf8, charUtf8MultiLang));
+
+        numChars8 = 0;
+        numBytes8 = 0;
+
+        bsl::memset(utf8, 0, CAPACITY);
+
+        rc = Util::utf16ToUtf8(utf8,
+                               CAPACITY,
+                               utf16W,
+                               &numChars8,
+                               &numBytes8);
+
+        if (verbose) {
+            Q(utf16ToUtf8:);
+            P_(rc) P_(numChars8) P(numBytes8);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numChars16 == numChars8);
+        ASSERT(numBytes8  == sizeof(utf8MultiLang));
+        ASSERT(bsl::strlen(utf8) + 1 == numBytes8);
+        ASSERT(!bsl::strcmp(utf8, charUtf8MultiLang));
+
+        ta.deallocate(utf16S);
+        ta.deallocate(utf16W);
+        ta.deallocate(utf8);
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // CODER/DECODER SYNCHRONIZATION
@@ -2703,7 +5574,7 @@ int main(int argc, char**argv)
                 unsigned short image[MAX_NWORDS];
 
                 for (int ic = 0;
-                       ic < sizeof(u8CodingCases) / sizeof(u8CodingCases[0]);
+                   ic < (int) (sizeof(u8CodingCases)/sizeof(u8CodingCases[0]));
                                                                         ++ic) {
                     int nSymbols = 0;
 
@@ -2766,7 +5637,7 @@ int main(int argc, char**argv)
                                                      | fourContin2 << 6
                                                      | fourContin3 ) - 0x10000;
                               *imgp++ = 0xd800 | isoChar >> 10;
-                              *imgp++ = 0xdc00 | isoChar & 0x3ff;
+                              *imgp++ = 0xdc00 | (isoChar & 0x3ff);
                             }
 
                             ++nSymbols;
@@ -2908,8 +5779,14 @@ int main(int argc, char**argv)
         //
         // Testing:
         //   USAGE EXAMPLE 1
+        //
+        // Note:
+        //   This needed change.  The original code was so convoluted to
+        //   achieve simple testing that it was decided to rewrite the tests
+        //   from scratch.
         // --------------------------------------------------------------------
 
+#if 0
         Conversion<unsigned short, char>
                                 u8ToU16(bdede_CharConvertUtf16::utf8ToUtf16);
         Conversion<char, unsigned short>
@@ -2923,44 +5800,44 @@ int main(int argc, char**argv)
             const char* caseMessage[2];
             unsigned char octet;
         } disallowed [] ={
-            { "\nTest 4a1: disallowed octet 0xff",
-              "\n===============================",
-              0xff, },
-            { "\nTest 4a2: disallowed octet 0xfe "
+            { { "\nTest 4a1: disallowed octet 0xff",
+                "\n===============================" },
+              0xff },
+            { { "\nTest 4a2: disallowed octet 0xfe "
                       "(header for 7-octet character)",
-              "\n================================"
-                      "==============================",
-              0xfe, },
-            { "\nTest 4a3: disallowed octet 0xfc "
+                "\n================================"
+                      "==============================" },
+              0xfe },
+            { { "\nTest 4a3: disallowed octet 0xfc "
                       "(header for 6-octet character + 0)",
-              "\n================================"
-                      "==================================",
-              0xfc, },
-            { "\nTest 4a4: disallowed octet 0xfd "
+                "\n================================"
+                      "==================================" },
+              0xfc },
+            { { "\nTest 4a4: disallowed octet 0xfd "
                       "(header for 6-octet character + 1)",
-              "\n================================"
-                      "==================================",
-              0xfd, },
-            { "\nTest 4a5: disallowed octet 0xf8 "
+                "\n================================"
+                      "==================================" },
+              0xfd },
+            { { "\nTest 4a5: disallowed octet 0xf8 "
                       "(header for 5-octet character + 0)",
-              "\n================================"
-                      "==================================",
-              0xf8, },
-            { "\nTest 4a6: disallowed octet 0xf9 "
+                "\n================================"
+                      "==================================" },
+              0xf8 },
+            { { "\nTest 4a6: disallowed octet 0xf9 "
                       "(header for 5-octet character + 1)",
-              "\n================================"
-                      "==================================",
-              0xf9, },
-            { "\nTest 4a7: disallowed octet 0xfa "
+                "\n================================"
+                      "==================================" },
+              0xf9 },
+            { { "\nTest 4a7: disallowed octet 0xfa "
                       "(header for 5-octet character + 2)",
-              "\n================================"
-                      "==================================",
-              0xfa, },
-            { "\nTest 4a8: disallowed octet 0xfb "
+                "\n================================"
+                      "==================================" },
+              0xfa },
+            { { "\nTest 4a8: disallowed octet 0xfb "
                       "(header for 5-octet character + 3)",
-              "\n================================"
-                      "==================================",
-              0xfb, },
+                "\n================================"
+                      "==================================" },
+              0xfb },
         };
 
         for (DisallowedOctet* disI = disallowed;
@@ -2991,7 +5868,56 @@ int main(int argc, char**argv)
                                        u8Range,
                                        genCheck);
         }
+#endif
 
+        {
+            if (verbose) cout << "Disallowed Octets:\n";
+
+            const unsigned char DISALLOWED[] = {
+                0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff, 0 };
+
+            for (const unsigned char *pc = DISALLOWED; *pc; ++pc) {
+                char input[] = { "abcd" };
+                unsigned short output[10];
+
+                bsl::size_t nc, nw;
+
+                input[1] = *pc;
+                int rc = Util::utf8ToUtf16(output,
+                                           sizeof(output),
+                                           input,
+                                           &nc,
+                                           &nw,
+                                           0);
+                LOOP2_ASSERT(pc - DISALLOWED, rc, 1 == rc);
+                LOOP2_ASSERT(pc - DISALLOWED, nc, 4 == nc);
+                LOOP2_ASSERT(pc - DISALLOWED, nw, 4 == nw);
+            }
+        }
+
+        {
+            if (verbose) cout << "Continuation Octets out of place:\n";
+
+            for (int i = 0; i < 64; ++i) {
+                char input[] = { "abcd" };
+                unsigned short output[10];
+
+                bsl::size_t nc, nw;
+
+                input[1] = 0x80 + i;
+                int rc = Util::utf8ToUtf16(output,
+                                           sizeof(output),
+                                           input,
+                                           &nc,
+                                           &nw,
+                                           0);
+                ASSERT(1 == rc);
+                ASSERT(4 == nc);
+                ASSERT(4 == nw);
+            }
+        }
+
+#if 0
         // Test 4a9: Continuation octets out of place.
         if (verbose) {
             cout << "\nTest 4a9: Continuation octets out of place."
@@ -3032,7 +5958,33 @@ int main(int argc, char**argv)
                                        u8Range,
                                        genCheck);
         }
+#endif
 
+        {
+            if (verbose) cout << "Continuation Octets out of place:\n";
+
+            for (int i = 0; i < 64; ++i) {
+                char input[] = { "abcd" };
+                unsigned short output[10];
+
+                bsl::size_t nc, nw;
+
+                input[1] = 0x80 + i;
+                int rc = Util::utf8ToUtf16(output,
+                                           sizeof(output),
+                                           input,
+                                           &nc,
+                                           &nw,
+                                           0);
+                LOOP_ASSERT(rc, 1 == rc);
+                LOOP_ASSERT(nc, 4 == nc);
+                LOOP_ASSERT(nw, 4 == nw);
+            }
+        }
+
+        // The above code covers all cases covered below
+
+#if 0
         // Tests 4a10 through 4a12 -- multi-octet headers without continuations
 
         struct OctetListTests {
@@ -3062,7 +6014,7 @@ int main(int argc, char**argv)
         };
 
         for (int oltI = 0;
-                        oltI < sizeof(cutShortAtOne)/sizeof(cutShortAtOne[0]);
+                 oltI < (int) (sizeof(cutShortAtOne)/sizeof(cutShortAtOne[0]));
                                                                     ++oltI) {
             OctetListTests& olt = cutShortAtOne[oltI];
 
@@ -3130,7 +6082,7 @@ int main(int argc, char**argv)
         };
 
         for (int oltI = 0;
-                        oltI < sizeof(cutShortAtTwo)/sizeof(cutShortAtTwo[0]);
+                 oltI < (int) (sizeof(cutShortAtTwo)/sizeof(cutShortAtTwo[0]));
                                                                     ++oltI) {
             OctetListTests& olt = cutShortAtTwo[oltI];
 
@@ -3243,7 +6195,41 @@ int main(int argc, char**argv)
                                            genCheck);
             }
         }
+#endif
 
+        if (verbose) cout << "Missing continuation octets\n";
+
+        {
+            unsigned char HEADERS[] = { 0, 0, 0xc3, 0xe1, 0xf1 };
+
+            for (unsigned h = 2; h <= 4; ++h) {
+                for (unsigned c = 0; c < h-1; ++c) {
+                    char input[] = { "abcde" };
+                    unsigned short output[20];
+
+                    bsl::size_t nc, nw;
+
+                    input[0] = HEADERS[h];
+                    for (unsigned i = 0; i < c; ++i) {
+                        input[1 + i] = 0xbf;
+                    }
+
+                    int rc = Util::utf8ToUtf16(output,
+                                               sizeof(output),
+                                               input,
+                                               &nc,
+                                               &nw,
+                                               0);
+                    ASSERT(1 == rc);
+                    ASSERT(6 - 1 - c == nc);
+                    ASSERT(6 - 1 - c == nw);
+                    ASSERT((unsigned) input[1 + c] == output[0]);
+                }
+            }
+        }
+
+#if 0
+MARK
         // Test case 4a16: Single-octet char coded as a two-octet char.
 
         {
@@ -3271,7 +6257,7 @@ int main(int argc, char**argv)
                 ArrayRange<unsigned short> u16Range(u16);
 
                 char source[2] ={ static_cast<char>(0xc0 | octet >> 6),
-                                  static_cast<char>(0x80 | octet & 0x3f) };
+                                  static_cast<char>(0x80 | (octet & 0x3f)) };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3318,7 +6304,7 @@ int main(int argc, char**argv)
 
                 char source[3] ={ static_cast<char>(0xe0),
                                   static_cast<char>((0x80 | octet >> 6)),
-                                  static_cast<char>((0x80 | octet & 0x3f)) };
+                                  static_cast<char>((0x80 | (octet & 0x3f))) };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3368,7 +6354,7 @@ int main(int argc, char**argv)
                 char source[4] ={ static_cast<char>(0xf0),
                                   static_cast<char>(0x80),
                                   static_cast<char>(0x80 | octet >> 6),
-                                  static_cast<char>(0x80 | octet & 0x3f) };
+                                  static_cast<char>(0x80 | (octet & 0x3f)) };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3413,8 +6399,6 @@ int main(int argc, char**argv)
                                         ((unsigned short) *wheelIters[0] << 6)
                                        | *wheelIters[1];
 
-                unsigned char header  = 0xe0 | (character >> 12);
-                    // 'header' should end up as 0xe0.
                 unsigned char contin1 = 0x80 | (character >> 6 & 0x3f);
                 unsigned char contin2 = 0x80 | (character & 0x3f);
 
@@ -3478,8 +6462,6 @@ int main(int argc, char**argv)
                                         ((unsigned short) *wheelIters[0] << 6)
                                        | *wheelIters[1];
 
-                unsigned char header  = 0xf0 | (character >> 18);
-                    // 'header' should end up as 0xf0.
                 unsigned char contin1 = 0x80 | (character >> 12 & 0x3f);
                     // 'contin1' should end up as 0x80.
                 unsigned char contin2 = 0x80 | (character >> 6 & 0x3f);
@@ -3642,8 +6624,8 @@ int main(int argc, char**argv)
           }
         };
 
-        for(int iOctSet = 0 ; iOctSet < sizeof(reservedRangeOctetSets)/
-                                         sizeof(reservedRangeOctetSets[0]);
+        for(int iOctSet = 0 ; iOctSet < (int) (sizeof(reservedRangeOctetSets)/
+                                            sizeof(reservedRangeOctetSets[0]));
                                                              ++iOctSet) {
             ReservedRangeOctetSet& octSet = reservedRangeOctetSets[iOctSet];
 
@@ -3858,7 +6840,7 @@ int main(int argc, char**argv)
         };
 
         for(int iTwoWordCase = 0 ; iTwoWordCase <
-                                sizeof(twoWordCases)/sizeof(twoWordCases[0]);
+                         (int) (sizeof(twoWordCases)/sizeof(twoWordCases[0]));
                                                              ++iTwoWordCase) {
             TwoWordCase& testCase = twoWordCases[iTwoWordCase];
 
@@ -3903,7 +6885,7 @@ int main(int argc, char**argv)
                                            genCheck);
             }
         }
-
+#endif
         if (verbose) {
             cout << "\nTest 4 complete." << endl;
         }
@@ -3917,7 +6899,7 @@ int main(int argc, char**argv)
         //   introducing errors come in higher level tests.
         //   TBD: Verify that the source character string has not been
         //   perturbed.
-
+        //
         // Plan:
         //
         // Testing:
@@ -3981,7 +6963,8 @@ int main(int argc, char**argv)
                     if (! EXPECTED_GOT(u8c,wp.begin(u16)[u8c - 1])) {
                         cout << "\tat "; P(u8c - 1);
                     }
-                    if (! EXPECTED_GOT(u8c,u8[u8c - 1])) {
+                    if (! EXPECTED_GOT(u8c,
+                                       (unsigned) u8[u8c - 1])) {
                         cout << "\tSource string damaged at "; P(u8c - 1);
                     }
                 }
@@ -4297,7 +7280,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                          << endl;
                                 }
                                 if (! EXPECTED_GOT(
-                                        (val - 0x10000) & 0x3ff | 0xdc00,
+                                        ((val - 0x10000) & 0x3ff) | 0xdc00,
                                         wp.begin(u16)[at + 1])) {
                                     cout << R_(iFirst) << R_(iSecond)
                                          << R_(iThird) << R_(iFourth)
@@ -4388,7 +7371,8 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
             if (RUN_AND_CHECK(wp, u8, result, u16ToU8, source, expected)) {
 // cout << prHexRange(wp.begin(u8), wp.end(u8)) << endl ;
                 for (unsigned u16c = 1; u16c < 0x80; ++u16c) {
-                    if (! EXPECTED_GOT(u16c,wp.begin(u8)[u16c - 1])) {
+                    if (! EXPECTED_GOT(u16c,
+                                       (unsigned) wp.begin(u8)[u16c - 1])) {
                         cout << "\tat "; P(u16c - 1);
                     }
                 }
@@ -4452,7 +7436,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         cout << "\tat "; P(u8c - 0x80);
                     }
                     if (! EXPECTED_GOT(deChar(wp.begin(u8)[at + 1]),
-                                       0x80 | u8c & 0x3f)) {
+                                       0x80 | (u8c & 0x3f))) {
                         cout << "\tat "; P(u8c - 0x80);
                     }
                 }
@@ -4619,12 +7603,12 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         for (unsigned iFourth = 0x0 ; iFourth < CONTIN_LIM;
                                                                    ++iFourth) {
 // cout << hex << R_(iThird) << R_(iFourth) << R(pos) << dec << endl ;
-                            unsigned long convBuf = (iFirst << 18
-                                                   | iSecond << 12
-                                                   | iThird << 6
+                            unsigned long convBuf = ((iFirst << 18)
+                                                   | (iSecond << 12)
+                                                   | (iThird << 6)
                                                    | iFourth) - 0x10000;
-                            u16[pos++] = 0xd800 | convBuf >> 10;
-                            u16[pos++] = 0xdc00 | convBuf & 0x3ff;
+                            u16[pos++] = 0xd800 | (convBuf >> 10);
+                            u16[pos++] = 0xdc00 | (convBuf & 0x3ff);
 
                             ++nSixteenToEight;
                         }
@@ -4746,14 +7730,13 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
         //     character values (whether single- or multi-byte/word): (5)
         //   TBD: Verify that the source character string has not been
         //   perturbed.
-        //
+        //   TBD:CHECK PARAMETER ARRAYS, here or in another test!
         //
         // Plan:
         //   For utf8-to-utf16 and for utf16-to-utf8, generate all legal
         //   characters (in the iso10646 domain supported by utf8 and utf16)
         //   one at a time.  Place each character (of however many bytes/words)
         //   in a source string and apply the conversion functions.
-// CHECK PARAMETER ARRAYS, here or in another test!
         //   Convert the string.  Verify the converted output as well as the
         //   return values generated.  (This will necessarily verify that
         //   each input character's encoding was correctly recognized, and
@@ -5012,7 +7995,6 @@ cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
                     }
                 }
 
-                AvCharList *innerIters[2] = { &casesContin, &casesContin };
                 OdomIter<AvCharList::iterator, 2> c3C4(outerIters);
 
                 for( ; c3C4 ; c3C4.next() ) {
@@ -5167,8 +8149,10 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
                                                            expected);
                 RUN_FOUR_WAYS(runner);
 
-                EXPECTED_GOT(deChar(0xc0 | *c2i), deChar(runner.begin(0)[0]));
-                EXPECTED_GOT(deChar(0x80 | *cCi), deChar(runner.begin(0)[1]));
+                EXPECTED_GOT((unsigned) deChar(0xc0 | *c2i),
+                             (unsigned) deChar(runner.begin(0)[0]));
+                EXPECTED_GOT((unsigned) deChar(0x80 | *cCi),
+                             (unsigned) deChar(runner.begin(0)[1]));
 #if 0
 cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
  << " four ways." << endl ;
@@ -5239,12 +8223,12 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                                                expected);
                     RUN_FOUR_WAYS(runner);
 
-                    EXPECTED_GOT(deChar(0xe0 | *c3i),
-                                 deChar(runner.begin(0)[0]));
-                    EXPECTED_GOT(deChar(0x80 | *cC2i),
-                                 deChar(runner.begin(0)[1]));
-                    EXPECTED_GOT(deChar(0x80 | *cC3i),
-                                 deChar(runner.begin(0)[2]));
+                    EXPECTED_GOT((unsigned) deChar(0xe0 | *c3i),
+                                 (unsigned) deChar(runner.begin(0)[0]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC2i),
+                                 (unsigned) deChar(runner.begin(0)[1]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC3i),
+                                 (unsigned) deChar(runner.begin(0)[2]));
 
 // cout << hex << "source " << u16[0] << " "
 //      << prHexRange(&runner.begin(0)[0], 4) << dec << endl ;
@@ -5338,14 +8322,14 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                         }
                     }
 
-                    EXPECTED_GOT(deChar(0xf0 | *c4i),
-                                 deChar(runner.begin(0)[0]));
-                    EXPECTED_GOT(deChar(0x80 | *cC2i),
-                                 deChar(runner.begin(0)[1]));
-                    EXPECTED_GOT(deChar(0x80 | *cC3i),
-                                 deChar(runner.begin(0)[2]));
-                    EXPECTED_GOT(deChar(0x80 | *cC4i),
-                                 deChar(runner.begin(0)[3]));
+                    EXPECTED_GOT((unsigned) deChar(0xf0 | *c4i),
+                                 (unsigned) deChar(runner.begin(0)[0]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC2i),
+                                 (unsigned) deChar(runner.begin(0)[1]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC3i),
+                                 (unsigned) deChar(runner.begin(0)[2]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC4i),
+                                 (unsigned) deChar(runner.begin(0)[3]));
                     nCases++;
 
 // cout << hex << "source " << u16[0] << ", " << u16[1] << " "
@@ -5491,7 +8475,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
 
-            char u8[4][Sizes::FROM_BUF_SIZE];
             unsigned short u16[4][Sizes::TO_BUF_SIZE];
 
             convRslt returned;    // This name gets printed by ASSERTs and
@@ -5526,7 +8509,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
 
-            unsigned short u16[4][Sizes::FROM_BUF_SIZE];
             char u8[4][Sizes::TO_BUF_SIZE];
 
             convRslt returned;    // This name gets printed by ASSERTs and
@@ -5562,7 +8544,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
 
-            char u8[4][Sizes::FROM_BUF_SIZE];
             unsigned short u16[4][Sizes::TO_BUF_SIZE];
 
             convRslt returned;    // This name gets printed by ASSERTs and
@@ -5597,7 +8578,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
 
-            unsigned short u16[4][Sizes::FROM_BUF_SIZE];
             char u8[4][Sizes::TO_BUF_SIZE];
 
             convRslt returned;    // This name gets printed by ASSERTs and
@@ -5642,7 +8622,8 @@ hexPrImpl<T> prHexRange(const T* ptr, size_t size)
     return hexPrImpl<T>(ptr, size);
 }
 
-template <typename T> hexPrImpl<T> prHexRange(const T *first, const T *last)
+template <typename T>
+hexPrImpl<T> prHexRange(const T *first, const T *last)
 {
     return hexPrImpl<T>(first, last - first);
 }
@@ -5653,7 +8634,7 @@ ostream &operator <<(ostream &os, const hexPrImpl<T> &t)
     const ios_base::fmtflags flags = os.flags();
     const char fill = os.fill();
     os << hex << bsl::internal << "[";
-    for(int i = 0; i < t.d_av.size(); ++i) {
+    for(int i = 0; i < (int) t.d_av.size(); ++i) {
         os << " "
            << bsl::setw(6)
            << deChar(t.d_av[i]);
@@ -5681,13 +8662,14 @@ ostream &operator <<(ostream &os, const hexPrImpl<char> &t)
 }
 #endif
 
-template <typename T> mixedPrImpl<T> prMixedRange(const T* ptr, size_t size)
+template <typename T>
+mixedPrImpl<T> prMixedRange(const T* ptr, size_t size)
 {
     return mixedPrImpl<T>(ptr, size);
 }
 
-template <typename T> mixedPrImpl<T> prMixedRange(const T *first,
-                                                  const T *last)
+template <typename T>
+mixedPrImpl<T> prMixedRange(const T *first, const T *last)
 {
     return mixedPrImpl<T>(first, last - first);
 }
@@ -5781,15 +8763,16 @@ void printStr(const unsigned short *p)
 // not define a partial order or a partitioning.  It requires that the end
 // of the string be marked by a sentinel which compares equal to zero.
 // Returns true if the two strings are equal, false otherwise.
-template<typename CHAR_TYPE> int strEq(const CHAR_TYPE *lhs,
-                                       const CHAR_TYPE *rhs)
+template<typename CHAR_TYPE>
+int strEq(const CHAR_TYPE *lhs,
+          const CHAR_TYPE *rhs)
 {
     for ( ; ; ++lhs, ++rhs) {
         if (*lhs != *rhs) {
-            return 0;
+            return 0;                                                 // RETURN
         }
         if (! *lhs) {
-            return 1;
+            return 1;                                                 // RETURN
         }
     }
 }
@@ -5897,11 +8880,11 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
     }
 
     if (failed) {
-        return !failed;
+        return !failed;                                               // RETURN
     }
 
     if (0 == d_wp.d_winLength) {
-        return true;
+        return true;                                                  // RETURN
     }
 
     if (!ASSERT(cmpAllStrings())) {
@@ -5934,12 +8917,12 @@ template <> bool FourWayRunner<unsigned short, char>::runFourWays(int);
 // instance.)
 
 template<typename ARRAY_TYPE, bsl::size_t N_WAY>
-    void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
-                       const ARRAY_TYPE&                             sv)
+void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
+                   const ARRAY_TYPE&                             sv)
 {
     FixedVector<FixedVector<int, N_WAY>, N_WAY >& eqClasses = *retVal;
     eqClasses.resize(N_WAY);
-    for(int i = 0; i < N_WAY; ++i) {
+    for(int i = 0; i < (int) N_WAY; ++i) {
         eqClasses[i].resize(0);
     }
     eqClasses.resize(0);
@@ -5952,7 +8935,7 @@ template<typename ARRAY_TYPE, bsl::size_t N_WAY>
     eqClasses[0].push_back(0);
 
     // Then, for each remaining string 'n', scan the equivalence classes.
-    for (int n = 1; n < sv.size(); ++n) {
+    for (int n = 1; n < (int) sv.size(); ++n) {
 
         // Check string 'n' against each existing equivalence class in turn.
         for (int eqCl = 0; ; ++eqCl) {
@@ -5960,7 +8943,7 @@ template<typename ARRAY_TYPE, bsl::size_t N_WAY>
             // If we have run out of existing equivalence classes in which to
             // look for string 'n', string 'n' must go in a new equivalence
             // class.
-            if (eqCl >= eqClasses.size()) {
+            if (eqCl >= (int) eqClasses.size()) {
                 eqClasses.resize(eqClasses.size() + 1);
                 eqClasses[eqClasses.size() - 1].push_back(n);
                 break;
@@ -5984,7 +8967,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              bsl::size_t     totalOutputLength,
                                              unsigned short *characterSizes,
                                              bsl::size_t     characterCount,
-                                             int             verbose,
+                                             int,
                                              int             veryVerbose)
 {
     int retVal;
@@ -6005,10 +8988,10 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
     }
 
     if (!totalOutputLength) {
-        return;
+        return;                                                       // RETURN
     }
 
-    for(int bufSize = 0; bufSize < totalOutputLength; ++bufSize) {
+    for(int bufSize = 0; bufSize < (int) totalOutputLength; ++bufSize) {
         char outputBuffer[256] = { 0 };
         bsl::size_t bytesWritten = 0;
         bsl::size_t charsWritten = 0;
@@ -6080,7 +9063,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
             veryVerbose);
 
     if (depth <= 0) {
-        return;
+        return;                                                       // RETURN
     }
 
     struct PrecomputedData const &d = PRECOMPUTED_DATA[idx];
@@ -6097,7 +9080,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
 
     characterSizes[characterCount++] = d.d_utf8CharacterLength;
 
-    for(int i = 0; i < precomputedDataCount; ++i) {
+    for(int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU2ToU8(i,
                                     depth - 1,
                                     inputBuffer,
@@ -7285,7 +10268,7 @@ int runPlainTextPerformanceTest(void)
         "to hear about new eBooks.\n"
     };
 
-    int prideLen = sizeof(prideAndPrejudice);
+    bsl::size_t prideLen = sizeof(prideAndPrejudice);
 
     unsigned short *utf16Buffer_p = new unsigned short[prideLen];
     char           *utf8Buffer_p = new char[prideLen];
@@ -7329,7 +10312,7 @@ int runPlainTextPerformanceTest(void)
 }
 
 template< typename CHAR_TYPE, typename ITER >
-                    void fillArray( ITER first, ITER last, CHAR_TYPE ch )
+void fillArray(ITER first, ITER last, CHAR_TYPE ch)
 {
     for ( ; first != last; ++first) {
         *first = ch;
@@ -7337,11 +10320,11 @@ template< typename CHAR_TYPE, typename ITER >
 }
 
 template< typename CHAR_TYPE, typename ITER >
-                    int checkFill( ITER first, ITER last, CHAR_TYPE ch )
+int checkFill(ITER first, ITER last, CHAR_TYPE ch)
 {
     for ( ; first != last; ++first) {
         if(ch != *first) {
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
     return 1;
@@ -7362,7 +10345,6 @@ void WorkPiece<CHAR_TYPE>::fillMargins(CHAR_TYPE* mem)
     fillArray(&mem[0], &mem[d_margin], d_fillChar);
            // from start up to winStart
 
-    CHAR_TYPE *p_end = &mem[2 * d_margin + d_winLength];
     fillArray(&mem[d_margin + d_winLength],
               &mem[2 * d_margin + d_winLength],
               d_fillChar) ;
@@ -7380,18 +10362,18 @@ int WorkPiece<CHAR_TYPE>::checkMargins(const CHAR_TYPE* mem) const
            // from just beyond the working memory window to margin's end.
 }
 
-template<typename CHAR_TYPE> bool operator==(
-                                        const ConstArrayRange<CHAR_TYPE>& lhs,
-                                        const ConstArrayRange<CHAR_TYPE>& rhs )
+template<typename CHAR_TYPE>
+bool operator==(const ConstArrayRange<CHAR_TYPE>& lhs,
+                const ConstArrayRange<CHAR_TYPE>& rhs)
 {
     return lhs.d_size != rhs.d_size ?
                         0           :
                         0 == memcmp(lhs.d_array, rhs.d_array, lhs.d_size);
 }
 
-template<typename CHAR_TYPE> ostream& operator<<(
-                                            ostream&                     os,
-                                            const ArrayRange<CHAR_TYPE>& sv)
+template<typename CHAR_TYPE>
+ostream& operator<<(ostream&                     os,
+                    const ArrayRange<CHAR_TYPE>& sv)
 {
     ios_base::fmtflags flags = os.flags();
     char fill = os.fill( ' ' );
@@ -7428,7 +10410,7 @@ template<typename CHAR_TYPE> ostream& operator<<(
 }
 
 template<typename TO_CHAR, typename FROM_CHAR, typename FILL_CHECK>
-    bool testOneErrorCharConversion(
+bool testOneErrorCharConversion(
                 int                    line,   // '__LINE__' where this
                                                // function is invoked
                 ArrayRange<TO_CHAR> const&   toBuf,   // Workspaces provided
@@ -7466,7 +10448,6 @@ template<typename TO_CHAR, typename FROM_CHAR, typename FILL_CHECK>
                                 ConversionArg<TO_CHAR, FROM_CHAR>::arg());
 
     FROM_CHAR* from = fromBuf.begin();
-    FROM_CHAR* fromEnd = fromBuf.end();
 
     fillCheck.fill(from);
     from[fillCheck.size()] = 0;
@@ -7677,7 +10658,8 @@ template<typename TO_CHAR, typename FROM_CHAR, typename FILL_CHECK>
 template<typename TO_CHAR,
          typename TO_FILL_CHECK,
          typename FR_CHAR,
-         typename FR_FILL_CHECK> bool oneStringConversion(
+         typename FR_FILL_CHECK>
+bool oneStringConversion(
             int                      line,          // '__LINE__' of this call
             BufferedWPiece<TO_CHAR>& bwp,           // Destination workspace
             TO_FILL_CHECK&           toFillCheck,   // Reference for checking
@@ -7709,7 +10691,6 @@ template<typename TO_CHAR,
                                 ConversionArg<TO_CHAR, FR_CHAR>::arg());
 
     FR_CHAR* from = fromBuf.begin();
-    FR_CHAR* fromEnd = fromBuf.end();
 
     fromFillCheck.fill(from);
     from[fromFillCheck.size()] = 0;

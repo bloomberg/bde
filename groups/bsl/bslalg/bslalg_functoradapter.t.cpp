@@ -329,8 +329,8 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\n\tTesting alias 'Type' for functors");
         {
-            ASSERT(1 == (bslmf::IsSame<FunctorType,
-                       FunctorAdapter<FunctorType>::Type>::VALUE));
+            ASSERT(1 == (bsl::is_same<FunctorType,
+                       FunctorAdapter<FunctorType>::Type>::value));
         }
 
         if (verbose)

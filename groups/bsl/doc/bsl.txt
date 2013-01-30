@@ -1,6 +1,6 @@
  bsl.txt
 
-@PURPOSE: Provide an implementation of the C++ STL.
+@PURPOSE: Provide a comprehensive foundation for component-based development.
 
 @MNEMONIC: Basic Standard Library (bsl)
 
@@ -9,7 +9,8 @@
 
 @DESCRIPTION: The 'bsl' ("Basic Standard Library") package group contains
  various packages that provide platform-specific classes, meta-functions,
- memory allocation protocols and algorithms, and a C++ standard library
+ defensive programming mechanisms, a framework for component testing, memory
+ allocation protocols and algorithms, and a C++ standard library
  implementation.
 
  Note that the C++ standard library is implemented in the 'bsl' namespace

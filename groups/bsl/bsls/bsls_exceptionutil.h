@@ -150,7 +150,7 @@ BSLS_IDENT("$Id: $")
 // at compile time, whether to initialize 'ITERATIONS' to 3 (for exception
 // enabled builds) or 1 (for non-exception enabled builds).  The different
 // values of the 'ITERATOR' ensure the subsequent for-loop calls
-// 'mightThrowFunc' in a way that generates expections for only exception
+// 'mightThrowFunc' in a way that generates exceptions for only exception
 // enabled builds:
 //..
 //  #ifdef BDE_BUILD_TARGET_EXC

@@ -2,9 +2,7 @@
 
 #include <bslalg_constructorproxy.h>
 
-#include <bslalg_typetraits.h>                   // for testing only
-#include <bslalg_typetraitusesbslmaallocator.h>  // for testing only
-
+#include <bslma_usesbslmaallocator.h>            // for testing only
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
@@ -186,10 +184,6 @@ class TestType_YesAllocator_Template {
     bslma::Allocator *d_allocator_p;  // allocator passed to constructor
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType_YesAllocator_Template,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit TestType_YesAllocator_Template(
                                           bslma::Allocator *basicAllocator = 0)
@@ -247,6 +241,15 @@ class TestType_YesAllocator_Template {
         return d_allocator_p;
     }
 };
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <typename TYPE>
+struct UsesBslmaAllocator<TestType_YesAllocator_Template<TYPE> >
+    : bsl::true_type {};
+}
+}
 
 template <typename TYPE>
 class TestType_NoAllocator_Template {
@@ -393,10 +396,6 @@ class SomeArbitraryClass {
     bslma::Allocator *d_allocator_p;  // allocator passed to constructor
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(SomeArbitraryClass,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit SomeArbitraryClass(bslma::Allocator *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
@@ -415,12 +414,24 @@ class SomeArbitraryClass {
         return d_allocator_p;
     }
 };
+
+}
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<UsageExample1::SomeArbitraryClass>
+    : bsl::true_type {};
+}
+}
 //..
 // The 'SomeArbitraryClass' class may or may not declare the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait.  The following code illustrates
+// 'bslma::UsesBslmaAllocator' trait.  The following code illustrates
 // how a 'SomeArbitraryClass' object can be constructed using a constructor
 // proxy for detecting this trait:
 //..
+namespace UsageExample1 {
+
 void run()
     // Run usage example 1.
 {
@@ -433,7 +444,7 @@ void run()
     ASSERT(&allocator == myObject.allocator());
 }
 //..
-// If 'SomeArbitraryClass' declared the 'bslalg::TypeTraitUsesBslmaAllocator'
+// If 'SomeArbitraryClass' declared the 'bslma::UsesBslmaAllocator'
 // trait, then the specified 'myObject' will obtain its memory from the
 // specified 'allocator'.  Otherwise, the specified 'allocator' will be
 // ignored.
@@ -579,10 +590,6 @@ class SomeArbitraryClassUsingAllocator {
     bslma::Allocator *d_allocator_p;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(SomeArbitraryClassUsingAllocator,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit SomeArbitraryClassUsingAllocator(
                                           bslma::Allocator *basicAllocator = 0)
@@ -596,10 +603,29 @@ class SomeArbitraryClassUsingAllocator {
         return d_allocator_p;
     }
 };
+
+}
+
+}
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<UsageExample2::
+                          WithoutAllocatorTrait::
+                          SomeArbitraryClassUsingAllocator>
+    : bsl::true_type {};
+}
+}
 //..
 // then the following code *will* compile and run *without* an assertion
 // failure:
 //..
+namespace UsageExample2 {
+
+namespace WithoutAllocatorTrait {
+
 void run2()
 {
     bslma::TestAllocator testAllocator;
@@ -614,7 +640,7 @@ void run2()
 //..
 // Finally, since the 'MyContainer' class uses a 'bslma' allocator to supply
 // memory, it would be nice to expose this trait to other containers.  This can
-// be done by declaring the 'bslalg::TypeTraitUsesBslmaAllocator' trait to
+// be done by declaring the 'bslma::UsesBslmaAllocator' trait to
 // complete the definition of 'MyContainer':
 //..
 
@@ -627,10 +653,6 @@ class SomeArbitraryClassUsingAllocator {
     bslma::Allocator *d_allocator_p;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(SomeArbitraryClassUsingAllocator,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit SomeArbitraryClassUsingAllocator(
                                           bslma::Allocator *basicAllocator = 0)
@@ -645,19 +667,33 @@ class SomeArbitraryClassUsingAllocator {
     }
 };
 
+}
+
+}
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<UsageExample2::
+                          WithAllocatorTrait::SomeArbitraryClassUsingAllocator>
+    : bsl::true_type {};
+}
+}
+
+namespace UsageExample2 {
+
+namespace WithAllocatorTrait {
+
 template <typename TYPE>
 class MyContainer {
     // A class that contains an object of the specified 'TYPE' and declares
-    // the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+    // the 'bslma::UsesBslmaAllocator' trait.
 
     // PRIVATE DATA MEMBERS
     bslalg::ConstructorProxy<TYPE> d_proxy;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MyContainer,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit MyContainer(bslma::Allocator *basicAllocator = 0);
         // Construct a container using the specified 'basicAllocator' to
@@ -674,6 +710,24 @@ class MyContainer {
 
     // ... rest of class definition ...
 };
+
+}
+
+}
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <typename TYPE>
+struct UsesBslmaAllocator<UsageExample2::
+                          WithAllocatorTrait::MyContainer<TYPE> >
+    : bsl::true_type {};
+}
+}
+
+namespace UsageExample2 {
+
+namespace WithAllocatorTrait {
 
 template <typename TYPE>
 MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
@@ -779,7 +833,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   The constructor proxy must pass the allocator to the contained
         //   'TYPE' if 'TYPE' declares the
-        //   'bslalg::TypeTraitUsesBslmaAllocator' trait.  The objects must be
+        //   'bslma::UsesBslmaAllocator' trait.  The objects must be
         //   correctly constructed and destructed.  The 'object()' manipulator
         //   and accessor must return references to the contained object.
         //

@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
         // The type 'bsls::UnspecifiedBool<TYPE>::BoolType' is intended to
         // substitute as a boolean type; therefore, in C-1 and C-6 below, we
         // will test it in all contexts where the language demands a boolean
-        // type.  The exhausive list of occasions in which a contextual
+        // type.  The exhaustive list of occasions in which a contextual
         // conversion to 'bool' may occur is:
         //:    1 Initialization
         //:    2 Passing as an argument to a function

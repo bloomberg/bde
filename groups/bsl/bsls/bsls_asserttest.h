@@ -803,6 +803,7 @@ class AssertTestHandlerGuard {
     AssertFailureHandlerGuard d_guard;
 
   public:
+    // CREATORS
     AssertTestHandlerGuard();
         // Create a 'AssertTestHandlerGuard' object, installing the
         // 'AssertTest::failTestDriver' assertion handler.

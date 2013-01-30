@@ -2,7 +2,12 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC64_SUN_CC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_SPARC64_SUN_CC
 
-//@PURPOSE: Provide implentations of atomic operations for Sparc/Sun (64bit).
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for Sparc/Sun (64bit).
 //
 //@CLASSES:
 //  bsls::AtomicOperations_SPARC64_SUN_CC: atomics for Sparc64/Sun.
@@ -12,16 +17,7 @@
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Sun Sparc platform in 64bit mode with SunCC compiler.  The classes
 // are for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for
-// the public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
+// the public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
@@ -31,6 +27,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations_sparc_sun_cc_default.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #if defined(BSLS_PLATFORM_CPU_SPARC_V9) \
     && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 
@@ -38,8 +42,9 @@ namespace BloombergLP {
 
 extern "C"
 {
-    // *** 64 bit operations ***
+                         // *** 64 bit operations ***
 
+    // CLASS METHODS
     bsls::Types::Int64 bsls_AtomicOperations_Sparc64_GetInt64(
             const volatile bsls::Types::Int64 *atomicInt);
 
@@ -128,8 +133,9 @@ struct AtomicOperations_SPARC64_SUN_CC
 {
     typedef Atomic_TypeTraits<AtomicOperations_SPARC64_SUN_CC> AtomicTypes;
 
-        // *** atomic functions for Int64 ***
+                    // *** atomic functions for Int64 ***
 
+    // CLASS METHODS
     static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
 
     static Types::Int64 getInt64Acquire(const AtomicTypes::Int64 *atomicInt);

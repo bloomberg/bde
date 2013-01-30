@@ -78,6 +78,14 @@ BSLS_IDENT("$Id: $")
 // the 'bsls::TimeUtil' high-resolution functions from the nanosecond range to
 // the microsecond range (or worse).
 //
+///Precision on Windows
+/// - - - - - - - - - -
+// Providing that the underlying timer is capable of reporting the
+// 'QueryPerformanceCounter' interface, the nanosecond values reported by
+// 'getTimer' or 'convertRawTime' will be in the range (t - 2, t], where t is
+// the real (infinitely precise floating point) number of nanoseconds expressed
+// by the current raw timer count.
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use 'bsls::TimeUtil'
@@ -191,7 +199,7 @@ BSLS_IDENT("$Id: $")
     #endif
 #endif
 
-#ifdef BSLS_PLATFORM_OS_AIX
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_FREEBSD)
     #ifndef INCLUDED_SYS_TIME
     #include <sys/time.h>
     #define INCLUDED_SYS_TIME
@@ -225,9 +233,9 @@ struct TimeUtil {
 #elif defined BSLS_PLATFORM_OS_AIX
     typedef timebasestruct_t                  OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_HPUX
-    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
-#elif defined BSLS_PLATFORM_OS_LINUX
-    typedef timespec                          OpaqueNativeTime;
+        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+        typedef timespec                          OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_UNIX
     typedef timeval                           OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_WINDOWS

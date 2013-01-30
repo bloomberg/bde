@@ -150,6 +150,28 @@
 # endif
 #endif
 
+#ifdef BSL_INCLUDE_BSL_UNORDERED_MAP
+# ifndef INCLUDED_BSLSTL_UNORDEREDMAP
+#   include <bslstl_unorderedmap.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_UNORDEREDMULTIMAP
+#   include <bslstl_unorderedmultimap.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_UNORDERED_SET
+# ifndef INCLUDED_BSLSTL_UNORDEREDSET
+#   include <bslstl_unorderedset.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_UNORDEREDMULTISET
+#   include <bslstl_unorderedmultiset.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 #ifdef BSL_INCLUDE_BSL_QUEUE
 # ifndef INCLUDED_BSLSTL_QUEUE
 #   include <bslstl_queue.h>
@@ -229,6 +251,10 @@
 #   include <bslstp_exfunctional.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
+# ifndef INCLUDED_BSLSTL_EQUALTO
+#   include <bslstl_equalto.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
 # ifndef INCLUDED_BSLSTL_HASH
 #   include <bslstl_hash.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
@@ -251,11 +277,11 @@
 # include <bsl_stdhdrs_epilogue_recursive.h>
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

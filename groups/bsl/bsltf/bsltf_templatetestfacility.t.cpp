@@ -392,6 +392,8 @@ struct TestHelper
     static void test4Helper();
 
     static void test5Helper();
+
+    static void test6Helper();
 };
 
 template <class TYPE>
@@ -606,6 +608,27 @@ void TestHelper<TYPE>::test5Helper()
     }
 }
 
+template <class TYPE>
+void TestHelper<TYPE>::test6Helper()
+{
+    if (veryVerbose)
+        printf("\n==TYPE: %s==\n", typeid(TYPE).name());
+
+    for (int ti = 0; ti <= 127; ++ti) {
+        TYPE X = TemplateTestFacility::create<TYPE>(ti);
+
+        if (verbose) {
+            using bsls::debugprint;  // otherwise the name is hidden by this component
+
+            debugprint(X);
+
+            BSLS_BSLTESTUTIL_P(X);
+
+            ASSERTV(X, true);
+        }
+    }
+}
+
 } // close unnamed namespace
 
 //=============================================================================
@@ -737,6 +760,10 @@ int main(int argc, char *argv[]) {
         BSLS_BSLTESTUTIL_P(o7);
         BSLS_BSLTESTUTIL_P(o8);
 
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestHelper,
+                                    test6Helper,
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -979,16 +1006,16 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\nALIASES"
                             "\n=======\n");
 
-          BSLMF_ASSERT((bslmf::IsSame<TemplateTestFacility_StubClass*,
-                                     TemplateTestFacility::ObjectPtr>::VALUE));
+          BSLMF_ASSERT((bsl::is_same<TemplateTestFacility_StubClass*,
+                                     TemplateTestFacility::ObjectPtr>::value));
 
-          BSLMF_ASSERT((bslmf::IsSame<
+          BSLMF_ASSERT((bsl::is_same<
                                    void (*) (),
-                                   TemplateTestFacility::FunctionPtr>::VALUE));
+                                   TemplateTestFacility::FunctionPtr>::value));
 
-          BSLMF_ASSERT((bslmf::IsSame<
+          BSLMF_ASSERT((bsl::is_same<
                                     int (TemplateTestFacility_StubClass::*) (),
-                                    TemplateTestFacility::MethodPtr>::VALUE));
+                                    TemplateTestFacility::MethodPtr>::value));
 
       } break;
       case 1: {

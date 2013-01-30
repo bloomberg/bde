@@ -88,12 +88,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_dequeimputil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
-#include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -195,10 +191,6 @@ class DequeIterator {
                                const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IteratorType,
-                                 TypeTraitBitwiseCopyable);
-
     // CREATORS
     DequeIterator();
         // Create a singular iterator (i.e., having internal null pointers).
@@ -349,10 +341,6 @@ class DequeIterator<VALUE_TYPE, 1> {
 #endif
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IteratorType,
-                                 TypeTraitBitwiseCopyable);
-
     // CREATORS
     DequeIterator();
     DequeIterator(BlockPtr *blockPtrPtr);
@@ -382,6 +370,28 @@ class DequeIterator<VALUE_TYPE, 1> {
     std::size_t remainingInBlock() const;
     VALUE_TYPE *valuePtr() const;
 };
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+// ===========================================================================
+//                                TYPE TRAITS
+// ===========================================================================
+
+namespace bsl {
+
+template <typename VALUE_TYPE, int BLOCK_LENGTH>
+struct is_trivially_copyable<BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
+                                                                BLOCK_LENGTH> >
+    : true_type
+{};
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+
+namespace bslalg {
 
 // ===========================================================================
 //                         INLINE FUNCTION DEFINITIONS
@@ -544,13 +554,13 @@ DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-(
                       const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs) const
 {
     if (d_blockPtr_p == rhs.d_blockPtr_p) {
-        return d_value_p - rhs.d_value_p;
+        return d_value_p - rhs.d_value_p;                             // RETURN
     }
     else {
         const int numFullBlocks = static_cast<int>(
                                     this->d_blockPtr_p - rhs.d_blockPtr_p - 1);
         return (numFullBlocks * BLOCK_LENGTH +
-                               rhs.remainingInBlock() + this->offsetInBlock());
+                rhs.remainingInBlock() + this->offsetInBlock());      // RETURN
     }
 }
 
@@ -830,10 +840,10 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
                        const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
 {
     if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
-        return lhs.d_value_p < rhs.d_value_p;
+        return lhs.d_value_p < rhs.d_value_p;                         // RETURN
     }
     else {
-        return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
+        return lhs.d_blockPtr_p < rhs.d_blockPtr_p;                   // RETURN
     }
 }
 

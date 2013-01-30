@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_ASSERT' macro to detect undefined behavior.
 //
 ///Iterator
-/// - - - -
+///--------
 // The requirements of the input iterators as defined by the C++11 standard may
 // not be as tight as the users of the input iterators expected.  Incorrect
 // assumptions about the properties of the input iterator may result in
@@ -202,11 +202,11 @@ class TestValuesArrayIterator {
 
   public:
     // TYPES
-    typedef std::forward_iterator_tag iterator_category;
-    typedef VALUE                     value_type;
-    typedef std::ptrdiff_t            difference_type;
-    typedef VALUE*                    pointer;
-    typedef VALUE&                    reference;
+    typedef std::input_iterator_tag iterator_category;
+    typedef VALUE                   value_type;
+    typedef std::ptrdiff_t          difference_type;
+    typedef VALUE*                  pointer;
+    typedef VALUE&                  reference;
         // Standard iterator defined types [24.4.2].
 
   public:

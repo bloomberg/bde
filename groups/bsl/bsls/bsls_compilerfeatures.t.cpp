@@ -2,19 +2,19 @@
 
 #include <bsls_compilerfeatures.h>
 
-#include <cstdio>      // printf()
-#include <cstdlib>     // atoi()
+#include <cstdio>      // 'printf'
+#include <cstdlib>     // 'atoi'
 #include <iostream>
 
 using namespace BloombergLP;
 using namespace std;
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-namespace
-{
+namespace {
+
 int testStatus = 0;
 
 void aSsErT(int c, const char *s, int i)
@@ -25,18 +25,19 @@ void aSsErT(int c, const char *s, int i)
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-}
+
+}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//==========================================================================
+//=============================================================================
 //              SUPPORTING FUNCTIONS AND TYPES USED FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
-namespace
-{
+namespace {
+
 template <typename T, typename U>
 struct alias_base {};
 
@@ -44,14 +45,15 @@ using my_own_int = int;
 using alias_nontemplate = alias_base<int, char>;
 template <typename T> using alias_template1 = alias_base<T, int>;
 template <typename T> using alias_template2 = alias_base<char, T>;
-}
+
+}  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 
-namespace
-{
+namespace {
+
 char testFuncForDecltype(int);
 
 template <typename T, typename U>
@@ -59,14 +61,15 @@ auto my_max(T t, U u) -> decltype(t > u ? t : u)
 {
     return t > u ? t : u;
 }
-}
+
+}  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
 
-namespace
-{
+namespace {
+
 // define class template
 template <typename T>
 class ExternTemplateClass {};
@@ -76,29 +79,44 @@ extern template class ExternTemplateClass<char>;
 
 // instantiate in this translation unit
 template class ExternTemplateClass<char>;
-}
+
+}  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+
+#include_next<cstdio>
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+
+namespace {
+
+void OverloadForNullptr(int) {}
+void OverloadForNullptr(void *) {}
+
+}  // close unnamed namespace
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-namespace
-{
+namespace {
+
 template <typename T>
-struct my_remove_reference
-{
+struct my_remove_reference {
     typedef T type;
 };
 
 template <typename T>
-struct my_remove_reference<T&>
-{
+struct my_remove_reference<T&> {
     typedef T type;
 };
 
 template <typename T>
-struct my_remove_reference<T&&>
-{
+struct my_remove_reference<T&&> {
     typedef T type;
 };
 
@@ -128,68 +146,58 @@ T my_factory(Arg&& arg)
 
 struct RvalueArg {};
 
-struct RvalueTest
-{
+struct RvalueTest {
     RvalueTest(RvalueArg const &) {}
 };
-}
+
+}  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
-
-namespace
-{
-void OverloadForNullptr(int) {}
-void OverloadForNullptr(void *) {}
-}
-
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 
-namespace
-{
+namespace {
+
 template <typename... Types>
 struct PackSize;
 
 template <typename Head, typename... Tail>
-struct PackSize<Head, Tail...>
-{
+struct PackSize<Head, Tail...> {
     enum { VALUE = 1 + PackSize<Tail...>::VALUE };
 };
 
 template <typename T>
-struct PackSize<T>
-{
+struct PackSize<T> {
     enum { VALUE = 1 };
 };
-}
+
+}  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
-//==========================================================================
+//=============================================================================
 //                             TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                            * Overview *
 // Testing available C++11 language features by trying to compile code that
 // uses them.  For example, if 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is
 // defined, then we try to compile code that uses 'static_assert'.  This is a
 // purely compile-time test.  If the code compiles than the test succeeds, if
-// the code failes to compile than the test fails.  Due to the limitations of
+// the code fails to compile than the test fails.  Due to the limitations of
 // the testing framework there is no way to turn compile-time failures into
 // runtime failures.  Note that we don't intend to test the correctness of the
 // implementation of C++ features, but just the fact that features are
 // supported.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 // [ 2] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 // [ 3] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-// [ 4] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// [ 4] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 // [ 5] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-// [ 6] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-// [ 7] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-//==========================================================================
+// [ 6] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// [ 7] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [ 8] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+//=============================================================================
 
 int main(int argc, char *argv[])
 {
@@ -201,19 +209,19 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         //
         // Concerns:
-        //: 1. 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is defined
-        //:     only when the compiler is able to compile code with variadic
-        //:     template parameters.
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is defined
+        //:    only when the compiler is able to compile code with variadic
+        //:    template parameters.
         //
         // Plan:
-        //: 1. If 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is defined
-        //:    then compile code that uses variadic template parameter pack to
-        //:    count the number of template parameters in the parameter pack.
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is defined
+        //:   then compile code that uses variadic template parameter pack to
+        //:   count the number of template parameters in the parameter pack.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
@@ -229,17 +237,17 @@ int main(int argc, char *argv[])
         ASSERT((PackSize<int, char, double, void>::VALUE == 4));
 #endif
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         //
         // Concerns:
-        //: 1. 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is defined only
-        //:     when the compiler is able to compile code with 'static_assert'.
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is defined only
+        //:    when the compiler is able to compile code with 'static_assert'.
         //
         // Plan:
-        //: 1. If 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is defined then
-        //:    compile code that uses 'static_assert'.
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is defined then
+        //:   compile code that uses 'static_assert'.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
@@ -253,50 +261,21 @@ int main(int argc, char *argv[])
                             "=====================\n");
 
         static_assert(true, "static_assert with bool");
-        static_assert(1, "static_assert with int");
+        static_assert(1,    "static_assert with int");
 #endif
       } break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-        //
-        // Concerns:
-        //: 1. 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR' is defined only when the
-        //:     compiler is able to compile code with 'nullptr'.
-        //
-        // Plan:
-        //: 1. If 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR' is defined then
-        //:    compile code that uses 'nullptr' in various contexts.
-        //
-        // Testing:
-        //   BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-        // --------------------------------------------------------------------
-
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
-        if (verbose) printf("Testing nullptr skipped\n"
-                            "=======================\n");
-#else
-        if (verbose) printf("Testing nullptr\n"
-                            "===============\n");
-
-        void * p = nullptr;
-        if (p == nullptr) {}
-        OverloadForNullptr(nullptr);
-#endif
-      } break;
-      case 4: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         //
         // Concerns:
-        //: 1. 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is defined
-        //:    only when the compiler is able to compile code with rvalue
-        //:    references.
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is defined only
+        //:   when the compiler is able to compile code with rvalue references.
         //
         // Plan:
-        //: 1. If 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is defined
-        //:    then compile code that uses rvalue references to implement
-        //:    perfect forwarding.
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is defined
+        //:   then compile code that uses rvalue references to implement
+        //:   perfect forwarding.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -312,19 +291,73 @@ int main(int argc, char *argv[])
         RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));
 #endif
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR' is defined only when the
+        //:    compiler is able to compile code with 'nullptr'.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR' is defined then
+        //:   compile code that uses 'nullptr' in various contexts.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+        if (verbose) printf("Testing nullptr skipped\n"
+                            "=======================\n");
+#else
+        if (verbose) printf("Testing nullptr\n"
+                            "===============\n");
+
+        void *p = nullptr;
+        if (p == nullptr) {}
+        OverloadForNullptr(nullptr);
+#endif
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT' is defined only when
+        //:   the compiler is actually able to compile code using
+        //:   'include_next'.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT' is defined then
+        //:   compile code that uses this feature include a header file.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+        if (verbose) printf("Testing include_next skipped\n"
+                            "============================\n");
+#else
+        if (verbose) printf("Testing include_next\n"
+                            "====================\n");
+#endif
+
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
         //
         // Concerns:
-        //: 1. 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE' is defined only
-        //:    when the compiler is actually able to compile code with
-        //:    extern templates.
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE' is defined only
+        //:   when the compiler is actually able to compile code with extern
+        //:   templates.
         //
         // Plan:
-        //: 1. If 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE' is defined
-        //:    then compile code that uses this feature to declare extern
-        //:    class templates.
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE' is defined
+        //:   then compile code that uses this feature to declare extern class
+        //:   templates.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
@@ -346,14 +379,13 @@ int main(int argc, char *argv[])
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
         //
         // Concerns:
-        //: 1. 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE' is defined only
-        //     when the compiler is actually able to compile code with
-        //     decltype.
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE' is defined only when
+        //    the compiler is actually able to compile code with decltype.
         //
         // Plan:
-        //: 1. If 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE' is defined then
-        //:    compile code that uses this feature to define variables of type
-        //:    infered from decltype.
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE' is defined then
+        //:   compile code that uses this feature to define variables of type
+        //:   inferred from decltype.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -381,14 +413,14 @@ int main(int argc, char *argv[])
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         //
         // Concerns:
-        //: 1. 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' is defined only
-        //     when the compiler is actually able to compile code with alias
-        //     templates.
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' is defined only
+        //    when the compiler is actually able to compile code with alias
+        //    templates.
         //
         // Plan:
-        //: 1. If 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' is defined
-        //:    then compile code that uses this feature to declare both
-        //:    alias templates and simple aliases.
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' is defined
+        //:   then compile code that uses this feature to declare both alias
+        //:   templates and simple aliases.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
@@ -420,11 +452,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

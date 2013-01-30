@@ -294,11 +294,13 @@ class bdecs_CalendarCache {
                         bslma_Allocator          *basicAllocator = 0);
         // Create an empty cache that will use the specified 'loader' to obtain
         // named calendars.  Each entry in this calendar cache will become
-        // invalid after the specified timeout period has passed since that
+        // invalid after the specified 'timeout' period has passed since that
         // calendar was loaded.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The behavior is undefined unless the
-        // loader remains valid throughout the lifetime of this cache.
+        // loader remains valid throughout the lifetime of this cache and the
+        // 'timeout' is small enough to fit in a 64-bit integer value in
+        // milliseconds.
 
     ~bdecs_CalendarCache();
         // Destroy this object.
@@ -306,13 +308,13 @@ class bdecs_CalendarCache {
     // MANIPULATORS
     const bdecs_Calendar *calendar(const char *calendarName);
         // Return the non-modifiable address of the calendar corresponding to
-        // the specified 'calendarName', if 'calendarName' can be loaded
-        // through the loader specified at construction, and 0 otherwise.  When
-        // retrieving the calendar object, this method first tries to locate a
-        // valid cache entry.  If no such entry is found, this method loads
-        // 'calendarName' using the loader of this cache.  If the loader fails
-        // and an invalid calendar is cached, that invalid calendar is
-        // returned.
+        // the specified 'calendarName' in this cache.  If the calendar entry
+        // doesn't exist, or if the calendar entry is invalid (i.e., it has
+        // timed out, or for which 'invalidate' has been called), then this
+        // method first loads 'calendarName' using the loader of this cache.
+        // If the loader fails and no previous calendar entry exists, then
+        // return 0.  If the loader fails and an invalid calendar entry exists,
+        // then return that invalid calendar.
 
     void invalidate(const char *calendarName);
         // Mark the cache entry for the specified 'calendarName' as invalid if

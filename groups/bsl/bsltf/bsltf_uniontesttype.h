@@ -53,10 +53,6 @@ BSLS_IDENT("$Id: $")
 // assert(Z == X);
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #include <string.h>
 
 namespace BloombergLP {

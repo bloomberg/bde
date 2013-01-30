@@ -60,12 +60,12 @@ using namespace bslstl;
 //: o We do not need to test anything in case 3 and 8, because the value
 //:   constructor will have been already tested as the primary manipulator in
 //:   case 2.
-//: o We do not need to test anything in case 5, becuase this class does not
+//: o We do not need to test anything in case 5, because this class does not
 //:   provide a 'print' method or 'operator<<'.
 //: o We do not need to test anything in case 10, because this class does not
 //:   provide bdex stream operators.
 //: o We will test 'operator*' and 'operator->' together with the 'node' method
-//:   in test case 2, becuase these operator simply provide different ways to
+//:   in test case 2, because these operator simply provide different ways to
 //:   access to the value of the node.
 //
 // Global Concerns:
@@ -394,8 +394,8 @@ int main(int argc, char *argv[])
         //   TreeIterator operator--(iter, int);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPOST-DECREMENT OPERATOR OPERATOR"
-                            "\n================================\n");
+        if (verbose) printf("\nPOST-DECREMENT OPERATOR"
+                            "\n=======================\n");
 
         if (verbose)
             printf("\nAssign the address of the operator to a variable.\n");
@@ -496,8 +496,8 @@ int main(int argc, char *argv[])
         //   TreeIterator operator++(iter, int);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPRE-DECREMENT OPERATOR OPERATOR"
-                            "\n===============================\n");
+        if (verbose) printf("\nPost-Increment OPERATOR"
+                            "\n=======================\n");
 
         if (verbose)
             printf("\nAssign the address of the operator to a variable.\n");
@@ -525,7 +525,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            printf("\nTest the pre-decrement operator.\n");
+            printf("\nTest the post-increment operator.\n");
 
         for (int ti = 1; ti < N; ++ti) {
 
@@ -594,8 +594,8 @@ int main(int argc, char *argv[])
         //   TreeIterator operator--();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPRE-DECREMENT OPERATOR OPERATOR"
-                            "\n===============================\n");
+        if (verbose) printf("\nPRE-DECREMENT OPERATOR"
+                            "\n======================\n");
 
         if (verbose)
             printf("\nAssign the address of the operator to a variable.\n");
@@ -693,8 +693,8 @@ int main(int argc, char *argv[])
         //   TreeIterator operator++();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPRE-DECREMENT OPERATOR OPERATOR"
-                            "\n===============================\n");
+        if (verbose) printf("\nPRE-INCREMENT OPERATOR"
+                            "\n======================\n");
 
         if (verbose)
             printf("\nAssign the address of the operator to a variable.\n");
@@ -722,7 +722,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            printf("\nTest the pre-decrement operator.\n");
+            printf("\nTest the pre-increment operator.\n");
 
         for (int ti = 0; ti < N; ++ti) {
 
@@ -927,7 +927,7 @@ int main(int argc, char *argv[])
         //:     as that of 'ZZ'.  (C-1,3)
         //:
         //:   5 Use the copy constructor to create an object having the
-        //:     parameterized 'VALUE_TYPE' decared 'const' ,'X2', supplying it
+        //:     parameterized 'VALUE_TYPE' declared 'const' ,'X2', supplying it
         //:     the 'const' object 'Z'.  (C-2, 4)
         //:
         //:   6 Verify that the newly constructed object 'X2', has the same
@@ -1006,7 +1006,7 @@ int main(int argc, char *argv[])
         //: 8 Non-modifiable objects can be compared (i.e., objects or
         //:   references providing only non-modifiable access).
         //:
-        //; 9 The equality operator's signature and return type are standard.
+        //: 9 The equality operator's signature and return type are standard.
         //:
         //:10 The inequality operator's signature and return type are standard.
         //
@@ -1277,7 +1277,6 @@ int main(int argc, char *argv[])
 
         Obj D1, D2;
         ASSERTV(D1.node(), D2.node(), D1.node() == D2.node());
-
 
         if (verbose) printf("\nCreate a tree with N nodes.\n");
 

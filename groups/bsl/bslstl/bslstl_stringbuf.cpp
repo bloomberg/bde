@@ -6,9 +6,11 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace bsl {
 
-// Force instantiation of stringstream classes.
+// Force instantiation of 'stringbuf' classes.
+
 template class basic_stringbuf<
     char, char_traits<char>, allocator<char> >;
+
 template class basic_stringbuf<
     wchar_t, char_traits<wchar_t>, allocator<wchar_t> >;
 

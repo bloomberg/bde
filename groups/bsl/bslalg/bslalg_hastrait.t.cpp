@@ -128,9 +128,11 @@ unsigned traitBits()
     result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASSTLITERATORS
             : 0;
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
+
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasPointerSemantics>::VALUE
             ? TRAIT_HASPOINTERSEMANTICS
             : 0;
+
     return result;
 }
 
@@ -153,7 +155,7 @@ struct Identity
     typedef Type const volatile cvType;                                \
     static const char *TypeName = #TYPE;                               \
     static const unsigned traits = traitBits<  Type>();                \
-    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == TRAIT_BITS); \
+    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == (TRAIT_BITS)); \
     LOOP2_ASSERT(TypeName, traits, traitBits< cType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits< vType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits<cvType>() == traits);     \
@@ -174,19 +176,22 @@ struct my_Class1
 };
 
 namespace BloombergLP {
+namespace bslma {
 
-    template <>
-        struct bslalg_TypeTraits<my_Class1>
-        : bslalg::TypeTraitUsesBslmaAllocator {};
+template <>
+struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 
+}  // close bslma namespace
 }  // close enterprise namespace
 
 template <class T>
 struct my_Class2
 {
     // Class template that has nested type traits
-    BSLALG_DECLARE_NESTED_TRAITS(my_Class2,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+    BSLALG_DECLARE_NESTED_TRAITS3(my_Class2,
+                                bslalg::TypeTraitBitwiseCopyable,
+                                bslalg::TypeTraitBitwiseMoveable,
+                                bslalg::TypeTraitHasTrivialDefaultConstructor);
 };
 
 struct my_Class4
@@ -195,29 +200,6 @@ struct my_Class4
     // Used to check against false positives for 'bslma::Allocator*' traits.
     my_Class4(void*);
 };
-
-struct my_Class5
-{
-    // Class with no special traits but has conversion from anything.  Used
-    // the check against false positives for nested traits and
-    // 'bslma::Allocator*' traits.
-    template <class T> my_Class5(const T& t);
-    template <class T> my_Class5(const volatile T& t);
-
-#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_OS_LINUX)
-    // Workaround for AIX xlC 6.0 and and Linux gcc compilers.  Without this
-    // declaration, the compiler tries to instantiate the templated
-    // constructors when probing for 'bslma::Allocator*' conversions.  This
-    // declaration short-circuits the traits-sniffing logic so that it will
-    // not probe for conversion from 'bslma::Allocator*'.
-    BSLALG_DECLARE_NESTED_TRAITS(my_Class5, bslalg::TypeTraitNil);
-#endif
-};
-
-// Implementations of my_Class5 constructors.  If these constructors are
-// actually instantiated, they will fail to compile.
-template <class T> my_Class5::my_Class5(const T& t) { t->foo(); }
-template <class T> my_Class5::my_Class5(const volatile T& t) { t->foo(); }
 
 enum my_Enum
 {
@@ -259,7 +241,6 @@ int main(int argc, char *argv[])
         // Nil traits
         TRAIT_TEST(my_Class0, TRAIT_NIL);
         TRAIT_TEST(my_Class4, TRAIT_NIL);
-        TRAIT_TEST(my_Class5, TRAIT_NIL);
 
         // Reference traits.  (Cannot use TRAIT_TEST for references.)
         ASSERT(traitBits<int&>() == TRAIT_NIL);
@@ -286,13 +267,13 @@ int main(int argc, char *argv[])
         TRAIT_TEST(bsls::Types::Uint64, TRAIT_EQPOD);
         TRAIT_TEST(float, TRAIT_EQPOD);
         TRAIT_TEST(double, TRAIT_EQPOD);
-        TRAIT_TEST(char*, TRAIT_EQPOD);
-        TRAIT_TEST(const char*, TRAIT_EQPOD);
-        TRAIT_TEST(void*, TRAIT_EQPOD);
-        TRAIT_TEST(const void*, TRAIT_EQPOD);
-        TRAIT_TEST(void* const, TRAIT_EQPOD);
+        TRAIT_TEST(char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(const char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(void*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(const void*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(void* const, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
         TRAIT_TEST(my_Enum, TRAIT_EQPOD);
-        TRAIT_TEST(int (*)(int), TRAIT_EQPOD);
+        TRAIT_TEST(int (*)(int), TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
         TRAIT_TEST(int (my_Class1::*)(int), TRAIT_EQPOD);
 
         // Explicit traits

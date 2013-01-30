@@ -4,10 +4,6 @@
 
 #include <bslalg_scalarprimitives.h>
 #include <bslalg_scalardestructionprimitives.h>
-#include <bslalg_typetraits.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
-#include <bslalg_typetraitbitwisemoveable.h>
-#include <bslalg_typetraitbitwisecopyable.h>
 
 #include <bslma_allocator.h>              // for testing only
 #include <bslma_default.h>                // for testing only
@@ -548,10 +544,6 @@ class TestType {
     bslma::Allocator *d_allocator_p;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
@@ -562,18 +554,6 @@ class TestType {
         *d_data_p = '?';
     }
 
-#if 0
-    // Killed char c'tor
-
-    TestType(char c, bslma::Allocator *ba = 0)
-    : d_data_p(0)
-    , d_allocator_p(bslma::Default::allocator(ba))
-    {
-        ++numCharCtorCalls;
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
-        *d_data_p = c;
-    }
-#else
     TestType(const ConstructEnabler cE, bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
@@ -587,7 +567,6 @@ class TestType {
     {
         *c->d_data_p = ch;
     }
-#endif
 
     TestType(const TestType& original, bslma::Allocator *ba = 0)
     : d_data_p(0)
@@ -636,6 +615,13 @@ class TestType {
         }
     }
 };
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
+}
+}
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
@@ -744,11 +730,6 @@ class BitwiseMoveableTestType : public TestType {
     // bit-wise moveable trait.  All members are inherited.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
-
     // CREATORS
     BitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
@@ -783,6 +764,18 @@ class BitwiseMoveableTestType : public TestType {
     }
 };
 
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<BitwiseMoveableTestType>
+    : bsl::true_type {};
+}
+namespace bslmf {
+template <> struct IsBitwiseMoveable<BitwiseMoveableTestType>
+    : bsl::true_type {};
+}
+}
+
                        // =============================
                        // class BitwiseCopyableTestType
                        // =============================
@@ -792,10 +785,6 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     // bit-wise copyable trait.  All members are inherited.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg::TypeTraitBitwiseCopyable);
-
     // CREATORS
     BitwiseCopyableTestType()
     : TestTypeNoAlloc()
@@ -829,6 +818,12 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     }
 };
 
+// TRAITS
+namespace bsl {
+template <> struct is_trivially_copyable<BitwiseCopyableTestType>
+    : true_type {};
+}
+
                        // ==================================
                        // class LargeBitwiseMoveableTestType
                        // ==================================
@@ -843,11 +838,6 @@ class LargeBitwiseMoveableTestType : public TestType {
     int d_junk[FOOTPRINT];
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(LargeBitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
-
     // CREATORS
     LargeBitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
@@ -899,14 +889,26 @@ class LargeBitwiseMoveableTestType : public TestType {
             ASSERT(d_junk[i] == i);
         }
     }
-
 };
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <int FOOTPRINT>
+struct UsesBslmaAllocator<LargeBitwiseMoveableTestType<FOOTPRINT> >
+    : bsl::true_type {};
+}
+
+namespace bslmf {
+template <int FOOTPRINT>
+struct IsBitwiseMoveable<LargeBitwiseMoveableTestType<FOOTPRINT> >
+    : bsl::true_type {};
+}
+}
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-
 
 template <class TYPE>
 class CleanupGuard {
@@ -2957,9 +2959,9 @@ class MyVector {
 
   public:
     // TYPE TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
+    BSLMF_NESTED_TRAIT_DECLARATION(
         MyVector,
-        BloombergLP::bslalg::TypeTraitBitwiseMoveable);
+        BloombergLP::bslmf::IsBitwiseMoveable);
 
     // CREATORS
     explicit MyVector(bslma::Allocator *basicAllocator = 0)

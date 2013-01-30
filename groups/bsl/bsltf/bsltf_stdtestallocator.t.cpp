@@ -517,12 +517,12 @@ int main(int argc, char *argv[]) {
         //:     'difference_type' are the right size and verify they are
         //:     unsigned values.  (C-1..2)
         //:
-        //:   2 For all other type aliases, use 'bslmf::IsSame' to verify that
+        //:   2 For all other type aliases, use 'bsl::is_same' to verify that
         //:     they are the expected types, except for 'reference' and
         //:     'const_reference' for the instance parameterized on the 'void'
         //:     type.  (C-1)
         //:
-        //:   3 Verify using 'bslmf::IsSame' that 'rebind<U>::other', where 'U'
+        //:   3 Verify using 'bsl::is_same' that 'rebind<U>::other', where 'U'
         //:     is the other two aliases defined by P-1, defines the correct
         //:     type.  (C-3)
         //
@@ -564,48 +564,48 @@ int main(int argc, char *argv[]) {
 
         if (verbose) printf("\tTesting 'pointer'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::pointer, int*>::VALUE));
-            ASSERT((bslmf::IsSame<AF::pointer, float*>::VALUE));
-            ASSERT((bslmf::IsSame<AV::pointer, void*>::VALUE));
+            ASSERT((bsl::is_same<AI::pointer, int*>::value));
+            ASSERT((bsl::is_same<AF::pointer, float*>::value));
+            ASSERT((bsl::is_same<AV::pointer, void*>::value));
         }
 
         if (verbose) printf("\tTesting 'const_pointer'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::const_pointer, const int*>::VALUE));
-            ASSERT((bslmf::IsSame<AF::const_pointer, const float*>::VALUE));
-            ASSERT((bslmf::IsSame<AV::const_pointer, const void*>::VALUE));
+            ASSERT((bsl::is_same<AI::const_pointer, const int*>::value));
+            ASSERT((bsl::is_same<AF::const_pointer, const float*>::value));
+            ASSERT((bsl::is_same<AV::const_pointer, const void*>::value));
         }
 
         if (verbose) printf("\tTesting 'reference'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::reference, int&>::VALUE));
-            ASSERT((bslmf::IsSame<AF::reference, float&>::VALUE));
+            ASSERT((bsl::is_same<AI::reference, int&>::value));
+            ASSERT((bsl::is_same<AF::reference, float&>::value));
         }
 
         if (verbose) printf("\tTesting 'const_reference'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::const_reference, const int&>::VALUE));
-            ASSERT((bslmf::IsSame<AF::const_reference, const float&>::VALUE));
+            ASSERT((bsl::is_same<AI::const_reference, const int&>::value));
+            ASSERT((bsl::is_same<AF::const_reference, const float&>::value));
         }
 
         if (verbose) printf("\tTesting 'value_type'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::value_type, int>::VALUE));
-            ASSERT((bslmf::IsSame<AF::value_type, float>::VALUE));
-            ASSERT((bslmf::IsSame<AV::value_type, void>::VALUE));
+            ASSERT((bsl::is_same<AI::value_type, int>::value));
+            ASSERT((bsl::is_same<AF::value_type, float>::value));
+            ASSERT((bsl::is_same<AV::value_type, void>::value));
         }
 
         if (verbose) printf("\tTesting 'rebind'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AI::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AI::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<void >::other, AV>::VALUE));
+            ASSERT((bsl::is_same<AI::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AI::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AI::rebind<void >::other, AV>::value));
+            ASSERT((bsl::is_same<AF::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AF::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AF::rebind<void >::other, AV>::value));
+            ASSERT((bsl::is_same<AV::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AV::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AV::rebind<void >::other, AV>::value));
         }
       } break;
       case 10: {

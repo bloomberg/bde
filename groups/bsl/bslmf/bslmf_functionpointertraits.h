@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // a type is a pointer to either a free function or a class method (but not to
 // a member function, see the component 'bslmf_memberfunctionpointertraits'
 // component for that), and some information about this function type.  The
-// meta-function 'bslmf::IsFunctionPointer' provides an enumerated 'VALUE'
+// meta-function 'bslmf::IsFunctionPointer' provides an enumerated 'value'
 // which can be either 1 or 0 depending on whether or not the template argument
 // 'PROTOTYPE' is a pointer to a free function or class method.  In the
 // affirmative, the class 'bslmf::FunctionPointerTraits' also provides
@@ -45,21 +45,21 @@ BSLS_IDENT("$Id: $")
 //..
 //  int main()
 //  {
-//      assert(0 == bslmf::IsFunctionPointer<int>::VALUE);
-//      assert(0 == bslmf::IsFunctionPointer<int>::VALUE);
+//      assert(0 == bslmf::IsFunctionPointer<int>::value);
+//      assert(0 == bslmf::IsFunctionPointer<int>::value);
 //
-//      assert(1 == bslmf::IsFunctionPointer<IntFunctionIntIntPtr>::VALUE);
+//      assert(1 == bslmf::IsFunctionPointer<IntFunctionIntIntPtr>::value);
 //      typedef bslmf::FunctionPointerTraits<IntFunctionIntIntPtr>::ResultType
 //          ResultType1;
-//      assert(1 == (bslmf::IsSame<ResultType1, int>::VALUE));
+//      assert(1 == (bsl::is_same<ResultType1, int>::value));
 //
-//      assert(1 == bslmf::IsFunctionPointer<VoidFunc0>::VALUE);
+//      assert(1 == bslmf::IsFunctionPointer<VoidFunc0>::value);
 //      typedef bslmf::FunctionPointerTraits<VoidFunc0>::ResultType
 //          ResultType0;
 //      typedef bslmf::FunctionPointerTraits<VoidFunc0>::ArgumentList
 //          ArgList0;
-//      assert(1 == (bslmf::IsSame<ResultType0, void>::VALUE));
-//      assert(1 == (bslmf::IsSame<ArgList0, bslmf::TypeList0>::VALUE));
+//      assert(1 == (bsl::is_same<ResultType0, void>::value));
+//      assert(1 == (bsl::is_same<ArgList0, bslmf::TypeList0>::value));
 //  }
 //..
 
@@ -67,8 +67,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_TYPELIST
+#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
@@ -107,9 +111,11 @@ struct FunctionPointerTraits {
 
 template <class PROTOTYPE>
 struct IsFunctionPointer
-: MetaInt<FunctionPointerTraits<PROTOTYPE>::IS_FUNCTION_POINTER> {
+: bsl::integral_constant<bool,
+                         BloombergLP::bslmf::FunctionPointerTraits<PROTOTYPE>
+                                                       ::IS_FUNCTION_POINTER> {
     // This template determines if the specified 'PROTOTYPE' is a free (i.e.,
-    // non-member) function pointer.  VALUE is defined as 1 if the specified
+    // non-member) function pointer.  'value' is defined as 1 if the specified
     // 'PROTOTYPE' is a function pointer type, and a zero value otherwise.
 };
 

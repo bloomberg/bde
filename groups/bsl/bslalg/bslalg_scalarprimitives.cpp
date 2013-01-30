@@ -5,7 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// IMPLEMENTATION NOTES: The 'bslalg::TypeTraitPair' trait is slated to
+// IMPLEMENTATION NOTES: The 'bslmf::IsPair' trait is slated to
 // disappear, as a pair is like any other type w.r.t. the constructors and
 // 'bslma::Allocator'.  Nevertheless, it is used for different purposes in
 // libraries that depend on 'bslalg'.  For instance, 'bdepu' uses it for

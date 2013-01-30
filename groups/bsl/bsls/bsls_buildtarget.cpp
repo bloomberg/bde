@@ -10,31 +10,21 @@ extern const int BSLS_BUILDTARGET_IS_UNIQUE = 1;
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-const int bsls::YesExcBuildTarget::d_isExcBuildTarget = 1;
+const int bsls::BuildTargetExcYes::s_isBuildTargetExc = 1;
 
 #else
 
-const int bsls::NoExcBuildTarget::d_isExcBuildTarget = 0;
+const int bsls::BuildTargetExcNo::s_isBuildTargetExc = 0;
 
 #endif
 
 #ifdef BDE_BUILD_TARGET_MT
 
-const int bsls::YesMtBuildTarget::d_isMtBuildTarget = 1;
+const int bsls::BuildTargetMtYes::s_isBuildTargetMt = 1;
 
 #else
 
-const int bsls::NoMtBuildTarget::d_isMtBuildTarget = 0;
-
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-
-const int bsls::Yes64BitBuildTarget::d_is64BitBuildTarget = 1;
-
-#else
-
-const int bsls::No64BitBuildTarget::d_is64BitBuildTarget = 0;
+const int bsls::BuildTargetMtNo::s_isBuildTargetMt = 0;
 
 #endif
 

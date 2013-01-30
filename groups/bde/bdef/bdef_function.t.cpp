@@ -685,22 +685,16 @@ bool operator==(const FunctorM& lhs, const FunctorM& rhs)
 template <class FUNC>
 class PointerSemanticWrapper {
 
-    // PRIVATE TYPES
-    enum {
-        BITWISE = bslalg_HasTrait<FUNC, bslalg_TypeTraitBitwiseCopyable>::VALUE
-    };
-    typedef typename bslmf_If<BITWISE,
-                              bslalg_TypeTraitBitwiseCopyable,
-                              bslalg_TypeTraitNil>::Type    PassThroughBitwise;
-
     // DATA
     FUNC d_object;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(PointerSemanticWrapper,
-                                  bslalg_TypeTraitHasPointerSemantics,
-                                  PassThroughBitwise);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(PointerSemanticWrapper,
+                                      bsl::is_trivially_copyable,
+                                      bsl::is_trivially_copyable<FUNC>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION(PointerSemanticWrapper,
+                                   bslmf::HasPointerSemantics);
 
     // CREATORS
     PointerSemanticWrapper() : d_object() {}

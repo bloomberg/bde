@@ -783,7 +783,8 @@ Allocator *Default::defaultAllocator()
         bsls::AtomicOperations::setIntRelaxed(&s_locked, 1);
     }
 
-    return (Allocator *) bsls::AtomicOperations::getPtrRelaxed(&s_allocator);
+    return static_cast<Allocator *>(const_cast<void *>(
+                         bsls::AtomicOperations::getPtrRelaxed(&s_allocator)));
 }
 
 inline
@@ -797,8 +798,8 @@ Allocator *Default::allocator(Allocator *basicAllocator)
 inline
 Allocator *Default::globalAllocator(Allocator *basicAllocator)
 {
-    Allocator *globalAllocator = (Allocator *)
-                     bsls::AtomicOperations::getPtrAcquire(&s_globalAllocator);
+    Allocator *globalAllocator = static_cast<Allocator *>(const_cast<void *>(
+                   bsls::AtomicOperations::getPtrAcquire(&s_globalAllocator)));
 
     return basicAllocator ? basicAllocator
                           : globalAllocator

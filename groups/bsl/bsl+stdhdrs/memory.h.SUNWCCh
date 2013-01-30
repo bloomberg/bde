@@ -11,7 +11,7 @@
 // includes the corresponding C++ header and provides any additional
 // symbols that the STLPort header would define via transitive includes.
 
-/* Coppied from stlport */
+/* STLPort reasoning: */
 /* The header <memory.h> is not part of either the C or C++ standards, but is
  * in widespread use none the less.  It contains a portion of what is included
  * in the standard C header, <string.h>.  In the Sun compiler, <memory.h> is

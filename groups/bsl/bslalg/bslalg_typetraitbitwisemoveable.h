@@ -39,6 +39,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -57,6 +61,17 @@ struct TypeTraitBitwiseMoveable {
     // Undefined behavior may result if this trait is assigned to a types that
     // contains pointers to its own internals, use virtual inheritance, or
     // places pointers to itself within other data structures.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseMoveable>
+    {
+        // This class template ties the 'bslalg::TypeTraitBitwiseMoveable'
+        // trait tag to the 'bslmf::IsBitwiseMoveable' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bslmf::IsBitwiseMoveable<TYPE>::type { };
 };
 
 }  // close package namespace

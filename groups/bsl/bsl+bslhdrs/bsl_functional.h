@@ -39,7 +39,6 @@ namespace bsl
     using native_std::const_mem_fun_ref_t;
     using native_std::const_mem_fun_t;
     using native_std::divides;
-    using native_std::equal_to;
     using native_std::greater;
     using native_std::greater_equal;
     using native_std::less;
@@ -68,17 +67,20 @@ namespace bsl
     using native_std::unary_negate;
 }
 
-#ifndef BDE_OMIT_TRANSITIONAL // STP
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
 // implementation, in which case the implementation file will be included by
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
+
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 #include <bslstp_exfunctional.h>
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
+
+#include <bslstl_equalto.h>
 #include <bslstl_hash.h>
 #endif
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 #endif
 
