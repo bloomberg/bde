@@ -22,7 +22,7 @@ BDES_IDENT("$Id: $")
 // specified stream.  There are two overloaded versions of this function:
 //..
 //: o one that reads from a 'bsl::streambuf'
-//: o one that reads from an 'bsl::istream'
+//: o one that reads from a 'bsl::istream'
 //..
 // This component can be used with types that support the 'bdeat' framework
 // (see the 'bdeat' package for details), which is a compile-time interface for
@@ -285,10 +285,14 @@ class baejsn_Decoder {
 
     // DATA
     bsl::ostringstream           d_logStream;         // stream to store error
-                                                      // message
+                                                      // messages
+
     baejsn_Parser                d_parser;            // JSON parser
+
     bsl::string                  d_elementName;       // current element name
+
     const baejsn_DecoderOptions *d_decoderOptions_p;  // decoder options
+
     int                          d_currentDepth;      // current decoding depth
 
     // FRIENDS
@@ -386,16 +390,20 @@ class baejsn_Decoder {
         // log is reset each time 'decode' is called.
 };
 
-// ---- Anything below this line is implementation specific.  Do not use.  ----
-
                  // ====================================
                  // struct baejsn_Decoder_ElementVisitor
                  // ====================================
 
 struct baejsn_Decoder_ElementVisitor {
-    // This class implements a visitor for decoding elements within a sequence,
-    // choice, or array type.  This is a component-private class and should not
-    // be used outside of this component.
+    // This 'class' implements a visitor for decoding elements within a
+    // sequence, choice, or array type.  This is a component-private class and
+    // should not be used outside of this component.  Note that this 'class'
+    // provides the following operators:
+    //..
+    //  template <typename TYPE> int operator()(TYPE *value);
+    //  template <typename TYPE, typename INFO>
+    //  int operator()(TYPE *value, const INFO& info);
+    //..
 
     // DATA
     baejsn_Decoder *d_decoder_p;       // decoder (held, not owned)
@@ -412,7 +420,7 @@ struct baejsn_Decoder_ElementVisitor {
         // Return 0 on success and a non-zero value otherwise.
 
     template <typename TYPE, typename INFO>
-    int operator()(TYPE *value, const INFO&);
+    int operator()(TYPE *value, const INFO& info);
         // Decode into the specified 'value' using the specified 'info' the
         // data in the JSON format.  Return 0 on success and a non-zero value
         // otherwise.
@@ -423,9 +431,16 @@ struct baejsn_Decoder_ElementVisitor {
                  // ====================================
 
 struct baejsn_Decoder_DecodeImpProxy {
-    // This class is used to dispatch the appropriate 'decodeImp' method for a
-    // 'bdeat' Dynamic type.  This is a component-private class and should not
-    // be used outside of this component.
+    // This class provides a functor that dispatches the appropriate
+    // 'decodeImp' method for a 'bdeat' Dynamic type.  This is a
+    // component-private class and should not be used outside of this
+    // component.  Note that this 'class'
+    // provides the following operator:
+    //..
+    //  template <typename TYPE, typename ANY_CATEGORY>
+    //  int operator()(TYPE *value, ANY_CATEGORY category);
+    //..
+
 
     // DATA
     baejsn_Decoder *d_decoder_p;       // decoder (held, not owned)
@@ -470,10 +485,25 @@ int baejsn_Decoder::decodeImp(TYPE        *value,
                               bdeat_TypeCategory::Sequence)
 {
     if (info.formattingMode() == bdeat_FormattingMode::BDEAT_UNTAGGED) {
-        if (!bdeat_SequenceFunctions::hasAttribute(
+        if (bdeat_SequenceFunctions::hasAttribute(
                                    *value,
                                    d_elementName.data(),
                                    static_cast<int>(d_elementName.length()))) {
+            baejsn_Decoder_ElementVisitor visitor = { this,
+                                                      info.formattingMode() };
+
+            if (0 != bdeat_SequenceFunctions::manipulateAttribute(
+                                   value,
+                                   visitor,
+                                   d_elementName.data(),
+                                   static_cast<int>(d_elementName.length()))) {
+                d_logStream << "Could not decode sequence, error decoding "
+                            << "element or bad element name '"
+                            << d_elementName << "' \n";
+                return -1;                                            // RETURN
+            }
+        }
+        else {
             if (d_decoderOptions_p
              && d_decoderOptions_p->skipUnknownElements()) {
                 const int rc = skipUnknownElement(d_elementName);
@@ -486,21 +516,6 @@ int baejsn_Decoder::decodeImp(TYPE        *value,
             else {
                 d_logStream << "Unknown element '" << d_elementName
                             << "' found\n";
-                return -1;                                            // RETURN
-            }
-        }
-        else {
-            baejsn_Decoder_ElementVisitor visitor = { this,
-                                                      info.formattingMode() };
-
-            if (0 != bdeat_SequenceFunctions::manipulateAttribute(
-                                   value,
-                                   visitor,
-                                   d_elementName.data(),
-                                   static_cast<int>(d_elementName.length()))) {
-                d_logStream << "Could not decode sequence, error decoding "
-                            << "element or bad element name '"
-                            << d_elementName << "' \n";
                 return -1;                                            // RETURN
             }
         }
@@ -534,26 +549,10 @@ int baejsn_Decoder::decodeImp(TYPE        *value,
                 return -1;                                            // RETURN
             }
 
-            if (!bdeat_SequenceFunctions::hasAttribute(
+            if (bdeat_SequenceFunctions::hasAttribute(
                                      *value,
                                      elementName.data(),
                                      static_cast<int>(elementName.length()))) {
-                if (d_decoderOptions_p
-                    && d_decoderOptions_p->skipUnknownElements()) {
-                    rc = skipUnknownElement(elementName);
-                    if (rc) {
-                        d_logStream << "Error reading unknown element '"
-                                    << elementName << "' or after it\n";
-                        return -1;                                    // RETURN
-                    }
-                }
-                else {
-                    d_logStream << "Unknown element '"
-                                << elementName << "' found\n";
-                    return -1;                                        // RETURN
-                }
-            }
-            else {
                 d_elementName = elementName;
 
                 rc = d_parser.advanceToNextToken();
@@ -575,6 +574,22 @@ int baejsn_Decoder::decodeImp(TYPE        *value,
                     d_logStream << "Could not decode sequence, error decoding "
                                 << "element or bad element name '"
                                 << d_elementName << "' \n";
+                    return -1;                                        // RETURN
+                }
+            }
+            else {
+                if (d_decoderOptions_p
+                    && d_decoderOptions_p->skipUnknownElements()) {
+                    rc = skipUnknownElement(elementName);
+                    if (rc) {
+                        d_logStream << "Error reading unknown element '"
+                                    << elementName << "' or after it\n";
+                        return -1;                                    // RETURN
+                    }
+                }
+                else {
+                    d_logStream << "Unknown element '"
+                                << elementName << "' found\n";
                     return -1;                                        // RETURN
                 }
             }
@@ -608,27 +623,10 @@ int baejsn_Decoder::decodeImp(TYPE        *value,
         bslstl::StringRef selectionName;
         selectionName.assign(d_elementName.begin(), d_elementName.end());
 
-        if (!bdeat_ChoiceFunctions::hasSelection(
+        if (bdeat_ChoiceFunctions::hasSelection(
                                    *value,
                                    selectionName.data(),
                                    static_cast<int>(selectionName.length()))) {
-            if (d_decoderOptions_p
-                && d_decoderOptions_p->skipUnknownElements()) {
-                const int rc = skipUnknownElement(selectionName);
-                if (rc) {
-                     d_logStream << "Error reading unknown element '"
-                                << selectionName << "' or after that "
-                                << "element\n";
-                    return -1;                                        // RETURN
-                }
-            }
-            else {
-                d_logStream << "Unknown element '"
-                            << selectionName << "' found\n";
-                return -1;                                            // RETURN
-            }
-        }
-        else {
             if (0 != bdeat_ChoiceFunctions::makeSelection(
                                    value,
                                    selectionName.data(),
@@ -645,6 +643,23 @@ int baejsn_Decoder::decodeImp(TYPE        *value,
                                                                 visitor)) {
                 d_logStream << "Could not decode choice, selection "
                             << "was not decoded\n";
+                return -1;                                            // RETURN
+            }
+        }
+        else {
+            if (d_decoderOptions_p
+                && d_decoderOptions_p->skipUnknownElements()) {
+                const int rc = skipUnknownElement(selectionName);
+                if (rc) {
+                     d_logStream << "Error reading unknown element '"
+                                << selectionName << "' or after that "
+                                << "element\n";
+                    return -1;                                        // RETURN
+                }
+            }
+            else {
+                d_logStream << "Unknown element '"
+                            << selectionName << "' found\n";
                 return -1;                                            // RETURN
             }
         }
@@ -678,27 +693,10 @@ int baejsn_Decoder::decodeImp(TYPE        *value,
                 return -1;                                            // RETURN
             }
 
-            if (!bdeat_ChoiceFunctions::hasSelection(
+            if (bdeat_ChoiceFunctions::hasSelection(
                                    *value,
                                    selectionName.data(),
                                    static_cast<int>(selectionName.length()))) {
-                if (d_decoderOptions_p
-                    && d_decoderOptions_p->skipUnknownElements()) {
-                    rc = skipUnknownElement(selectionName);
-                    if (rc) {
-                        d_logStream << "Error reading unknown element '"
-                                    << selectionName << "' or after that "
-                                    << "element\n";
-                        return -1;                                    // RETURN
-                    }
-                }
-                else {
-                    d_logStream << "Unknown element '"
-                                << selectionName << "' found\n";
-                    return -1;                                        // RETURN
-                }
-            }
-            else {
                 if (0 != bdeat_ChoiceFunctions::makeSelection(
                                    value,
                                    selectionName.data(),
@@ -722,6 +720,23 @@ int baejsn_Decoder::decodeImp(TYPE        *value,
                                                                     visitor)) {
                     d_logStream << "Could not decode choice, selection "
                                 << "was not decoded\n";
+                    return -1;                                        // RETURN
+                }
+            }
+            else {
+                if (d_decoderOptions_p
+                    && d_decoderOptions_p->skipUnknownElements()) {
+                    rc = skipUnknownElement(selectionName);
+                    if (rc) {
+                        d_logStream << "Error reading unknown element '"
+                                    << selectionName << "' or after that "
+                                    << "element\n";
+                        return -1;                                    // RETURN
+                    }
+                }
+                else {
+                    d_logStream << "Unknown element '"
+                                << selectionName << "' found\n";
                     return -1;                                        // RETURN
                 }
             }

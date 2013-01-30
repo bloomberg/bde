@@ -151,6 +151,10 @@ const char hexValueTable[128] =
 };
 
 int getUnicodeChar(char *value, const char *iter)
+    // Load into the specified 'value' the unicode char corresponding to the
+    // 4 bytes starting at the specified 'iter'.  Return 0 on success and a
+    // non-zero value otherwise.  The behavior is undefined unless 'iter'
+    // refers to a sequence of 4 characters.
 {
     if ('\0' == iter[0]
      || '\0' == iter[1]
@@ -181,6 +185,8 @@ int getUnicodeChar(char *value, const char *iter)
 
 inline
 bool isValidNextChar(int nextChar)
+    // Return 'true' if the specified 'nextChar' refers to a valid next
+    // character and 'false' otherwise.
 {
     return bsl::streambuf::traits_type::eof() == nextChar
         || bsl::isspace(nextChar)

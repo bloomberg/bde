@@ -72,10 +72,6 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -123,8 +119,6 @@ class baejsn_EncoderOptions {
     EncodingStyle d_encodingStyle;       // encoding style
 
   public:
-    // TRAITS -- TBD
-
     // CREATORS
     baejsn_EncoderOptions();
         // Create a 'baejsn_EncoderOptions' object having the (default)
@@ -221,8 +215,6 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     // format is not fully specified and can change without notice.  Also note
     // that this method has the same behavior as 'object.print(stream, 0, -1)',
     // but with the attribute names elided.
-
-// TRAITS -- TBD
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS

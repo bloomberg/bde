@@ -1724,6 +1724,13 @@ int main(int argc, char *argv[])
 // TBD:
 //                 {  L_,    "0x12",     ERROR_VALUE,   false   },
 //                 {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "1.1}",     ERROR_VALUE,   false   },
+                {  L_,    "1.1,",     ERROR_VALUE,   false   },
+                {  L_,    "1.1]",     ERROR_VALUE,   false   },
+                {  L_,    "1.1a",     ERROR_VALUE,   false   },
+                {  L_,    "1.1 ",     ERROR_VALUE,   false   },
+                {  L_,    "1.1\n",    ERROR_VALUE,   false   },
+                {  L_,    "1.10xFF",  ERROR_VALUE,   false   },
                 {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
                 {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
@@ -1917,6 +1924,8 @@ int main(int argc, char *argv[])
             typedef Uint64 Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -1946,8 +1955,11 @@ int main(int argc, char *argv[])
     {  L_,  "4294967295",            4294967295LL,    true    },
     {  L_,  "9223372036854775806",   9223372036854775806LL, true },
     {  L_,  "9223372036854775807",   9223372036854775807LL, true },
-    {  L_, "18446744073709551614",   18446744073709551614ULL, true },
-    {  L_, "18446744073709551615",   18446744073709551615ULL, true },
+
+    {  L_,           "0",                   MIN,      true    },
+    {  L_,           "1",               MIN + 1,      true    },
+    {  L_, "18446744073709551614",      MAX - 1,      true    },
+    {  L_, "18446744073709551615",          MAX,      true    },
 
     {  L_,           "0.0",                   0,      true    },
     {  L_,           "0.0000000000000",       0,      true    },
@@ -2145,6 +2157,8 @@ int main(int argc, char *argv[])
             typedef Int64 Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -2172,8 +2186,6 @@ int main(int argc, char *argv[])
     {  L_,  "2147483647",            2147483647,      true    },
     {  L_,  "4294967294",            4294967294LL,    true    },
     {  L_,  "4294967295",            4294967295LL,    true    },
-    {  L_,  "9223372036854775806",   9223372036854775806LL, true },
-    {  L_,  "9223372036854775807",   9223372036854775807LL, true },
 
     {  L_,          "-1",                    -1,      true    },
     {  L_,        "-128",                  -128,      true    },
@@ -2188,8 +2200,11 @@ int main(int argc, char *argv[])
     {  L_, "-2147483648",           -2147483648LL,    true    },
     {  L_, "-4294967294",           -4294967294LL,    true    },
     {  L_, "-4294967295",           -4294967295LL,    true    },
-    {  L_, "-9223372036854775807",  -9223372036854775807LL, true },
-    {  L_, "-9223372036854775808",  -9223372036854775808LL, true },
+
+    {  L_, "-9223372036854775808",          MIN,      true    },
+    {  L_, "-9223372036854775807",      MIN + 1,      true    },
+    {  L_,  "9223372036854775806",      MAX - 1,      true    },
+    {  L_,  "9223372036854775807",          MAX,      true    },
 
     {  L_,           "0.0",                   0,      true    },
     {  L_,           "0.0000000000000",       0,      true    },
@@ -2428,6 +2443,8 @@ int main(int argc, char *argv[])
             typedef unsigned int Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -2453,8 +2470,11 @@ int main(int argc, char *argv[])
     {  L_,     "8388608",               8388608,      true    },
     {  L_,  "2147483646",            2147483646,      true    },
     {  L_,  "2147483647",            2147483647,      true    },
-    {  L_,  "4294967294",            4294967294,      true    },
-    {  L_,  "4294967295",            4294967295,      true    },
+
+    {  L_,           "0",                   MIN,      true    },
+    {  L_,           "1",               MIN + 1,      true    },
+    {  L_,  "4294967294",               MAX - 1,      true    },
+    {  L_,  "4294967295",                   MAX,      true    },
 
     {  L_,           "0.0",                   0,      true    },
     {  L_,           "0.0000000000000",       0,      true    },
@@ -2639,6 +2659,8 @@ int main(int argc, char *argv[])
             typedef int Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -2662,8 +2684,6 @@ int main(int argc, char *argv[])
     {  L_,       "65535",                 65535,      true    },
     {  L_,     "8388607",               8388607,      true    },
     {  L_,     "8388608",               8388608,      true    },
-    {  L_,  "2147483646",            2147483646,      true    },
-    {  L_,  "2147483647",            2147483647,      true    },
 
     {  L_,          "-1",                    -1,      true    },
     {  L_,        "-128",                  -128,      true    },
@@ -2674,8 +2694,11 @@ int main(int argc, char *argv[])
     {  L_,      "-32768",                -32768,      true    },
     {  L_,      "-65535",                -65535,      true    },
     {  L_,      "-65536",                -65536,      true    },
-    {  L_, "-2147483647",           -2147483647,      true    },
-    {  L_, "-2147483648",           -2147483648,      true    },
+
+    {  L_, "-2147483648",                   MIN,      true    },
+    {  L_, "-2147483647",               MIN + 1,      true    },
+    {  L_,  "2147483646",               MAX - 1,      true    },
+    {  L_,  "2147483647",                   MAX,      true    },
 
     {  L_,           "0.0",                   0,      true    },
     {  L_,           "0.0000000000000",       0,      true    },
@@ -2896,6 +2919,8 @@ int main(int argc, char *argv[])
             typedef unsigned short Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -2917,6 +2942,11 @@ int main(int argc, char *argv[])
     {  L_,       "32767",                 32767,      true    },
     {  L_,       "65534",                 65534,      true    },
     {  L_,       "65535",                 65535,      true    },
+
+    {  L_,           "0",                   MIN,      true    },
+    {  L_,           "1",               MIN + 1,      true    },
+    {  L_,       "65534",               MAX - 1,      true    },
+    {  L_,       "65535",                   MAX,      true    },
 
     {  L_,           "0.0",                   0,      true    },
     {  L_,           "0.0000000000000",       0,      true    },
@@ -3101,6 +3131,8 @@ int main(int argc, char *argv[])
             typedef short Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -3118,16 +3150,17 @@ int main(int argc, char *argv[])
     {  L_,         "200",                   200,      true    },
     {  L_,         "255",                   255,      true    },
     {  L_,         "256",                   256,      true    },
-    {  L_,       "32766",                 32766,      true    },
-    {  L_,       "32767",                 32767,      true    },
 
     {  L_,          "-1",                    -1,      true    },
     {  L_,        "-128",                  -128,      true    },
     {  L_,        "-129",                  -129,      true    },
     {  L_,        "-255",                  -255,      true    },
     {  L_,        "-256",                  -256,      true    },
-    {  L_,      "-32767",                -32767,      true    },
-    {  L_,      "-32768",                -32768,      true    },
+
+    {  L_,      "-32768",                   MIN,      true    },
+    {  L_,      "-32767",               MIN + 1,      true    },
+    {  L_,       "32766",               MAX - 1,      true    },
+    {  L_,       "32767",                   MAX,      true    },
 
     {  L_,           "0.0",                   0,      true    },
     {  L_,           "0.0000000000000",       0,      true    },
@@ -3340,6 +3373,8 @@ int main(int argc, char *argv[])
             typedef unsigned char Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -3349,13 +3384,16 @@ int main(int argc, char *argv[])
             } DATA[] = {
    // line          input                    exp     isValid
    // ----          -----                    ---     -------
-    {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
     {  L_,         "127",                   127,      true    },
     {  L_,         "128",                   128,      true    },
     {  L_,         "200",                   200,      true    },
-    {  L_,         "255",                   255,      true    },
+
+    {  L_,           "0",                   MIN,      true    },
+    {  L_,           "1",               MIN + 1,      true    },
+    {  L_,         "254",               MAX - 1,      true    },
+    {  L_,         "255",                   MAX,      true    },
 
     {  L_,           "0.0",                   0,      true    },
     {  L_,           "0.0000000000000",       0,      true    },
@@ -3509,6 +3547,8 @@ int main(int argc, char *argv[])
 
         {
             const char ERROR_VALUE = 'X';
+            const char MAX         = bsl::numeric_limits<char>::max();
+            const char MIN         = bsl::numeric_limits<char>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -3524,9 +3564,10 @@ int main(int argc, char *argv[])
     {  L_,          "65",                   'A',      true    },
     {  L_,         "126",                   '~',      true    },
 
-    {  L_,         "127",                   127,      true    },
-    {  L_,        "-127",                  -127,      true    },
-    {  L_,        "-128",                  -128,      true    },
+    {  L_,        "-128",                  MIN,       true    },
+    {  L_,        "-127",               MIN + 1,      true    },
+    {  L_,         "126",               MAX - 1,      true    },
+    {  L_,         "127",                   MAX,      true    },
 
     {  L_,           "9",                  '\t',      true    },
     {  L_,          "10",                  '\n',      true    },

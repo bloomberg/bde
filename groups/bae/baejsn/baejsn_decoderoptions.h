@@ -65,10 +65,6 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -102,7 +98,8 @@ class baejsn_DecoderOptions {
 
     // CONSTANTS
     enum {
-        MAX_DEPTH = 32           // default value for 'maxDepth' attribute
+        BAEJSN_DEFAULT_MAX_DEPTH = 32  // default value for
+                                       // 'maxDepth' attribute 
     };
 
     // DATA
@@ -111,8 +108,6 @@ class baejsn_DecoderOptions {
                                  // should be skipped
 
   public:
-    // TRAITS -- TBD ?
-
     // CREATORS
     baejsn_DecoderOptions();
         // Create a 'baejsn_DecoderOptions' object having the (default)
@@ -200,8 +195,6 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     // that this method has the same behavior as 'object.print(stream, 0, -1)',
     // but with the attribute names elided.
 
-// TRAITS -- TBD
-
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -213,7 +206,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 // CREATORS
 inline
 baejsn_DecoderOptions::baejsn_DecoderOptions()
-: d_maxDepth(MAX_DEPTH)
+: d_maxDepth(BAEJSN_DEFAULT_MAX_DEPTH)
 , d_skipUnknownElements(true)
 {
 }

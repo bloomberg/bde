@@ -366,17 +366,23 @@ class baejsn_Encoder_EncodeImpl {
     // DATA
     baejsn_Encoder                       *d_encoder;          // encoder (held,
                                                               // not owned)
+
     bsl::ostream                          d_outputStream;     // stream for
                                                               // output
+
     baejsn_EncoderOptions::EncodingStyle  d_encodingStyle;    // encoding
                                                               // style
+
     int                                   d_indentLevel;      // initial indent
                                                               // level
+
     int                                   d_spacesPerLevel;   // spaces per
                                                               // level
+
     bool                                  d_isArrayElement;   // is current
                                                               // element part
                                                               // of an array
+
     bool                                  d_isUntaggedElement;// is current
                                                               // element
                                                               // untagged
@@ -439,7 +445,13 @@ class baejsn_Encoder_EncodeImpl {
 struct baejsn_Encoder_ElementVisitor {
     // This class encodes elements in an array or a choice in the JSON format.
     // This is a component-private class and should not be used outside of this
-    // component.
+    // component.  Note that this 'class' provides the following operators:
+    //..
+    //  template <typename TYPE> int operator()(TYPE *value);
+    //  template <typename TYPE, typename INFO>
+    //  int operator()(TYPE *value, const INFO& info);
+    //..
+
 
     // DATA
     baejsn_Encoder_EncodeImpl *d_encoder;  // encoder (held, not owned)
