@@ -223,16 +223,28 @@ int bdepu_RealParserImpUtil::convertBinaryToDouble(double *value,
 
     Uint64 tmp;
 
+    // We need 53 bits for the fractional component of double (52 bits with the
+    // implicit leading 1).  Given that we have 64 bits available, we will
+    // round up base on the value of the last 11 bits.
+
     int frac = (int)(binFrac & 0x7FF);
     binFrac = binFrac & ~0x7FFuLL;
+
     //                               sixteen digit num
     if (frac >= 0x400) {
         if (binFrac < 0xFFFFFFFFFFFFF800uLL) {
             binFrac += 0x800;
         }
         else {
+            // Here, 'binFrac == 0xFFFFFFFFFFFFF800uLL', because 'binFrac' was
+            // previously assigned to 'binFrac & ~0x7FFuLL'.
+
             binFrac = 0x8000000000000000uLL;
             ++binExp;
+
+            if (binExp > 1023) {  // overflow
+                return BDEPU_FAILURE;                                 // RETURN
+            }
         }
     }
 
