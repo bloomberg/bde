@@ -43,7 +43,8 @@ bslma::Allocator& semaphoreAllocator()
 inline
 void releaseSemaphoreObject(void *semaphore)
     // Release the 'semaphore' object of type 'SemaphorePtr' which was
-    // allocated with the 'semaphoreAllocator()'.
+    // allocated with the 'semaphoreAllocator()'.  If 'semaphore' is 0, this
+    // operation has no effect.
 {
     SemaphorePtr sema = reinterpret_cast<SemaphorePtr>(semaphore);
     semaphoreAllocator().deleteObjectRaw(sema);
@@ -80,6 +81,10 @@ struct SemaphoreKeyGuard {
     ~SemaphoreKeyGuard()
         // Release the owned TLS key object.
     {
+        // Note that it's possible, though unlikely, for the returned
+        // semaphore to be 0 (e.g., in the main thread calls 'pthread_exit'),
+        // in which case 'releaseSemaphoreObject' is a no-op.
+
         releaseSemaphoreObject(bcemt_ThreadUtil::getSpecific(*d_key_p));
         releaseTlsKey(d_key_p);
     }
