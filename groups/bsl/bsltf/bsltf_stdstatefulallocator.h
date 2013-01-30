@@ -292,6 +292,16 @@ class StdStatefulAllocator {
         // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, or unless a
         // 'bslma::TestAllocator' object has been installed as the default
         // allocator.
+
+    size_type max_size() const;
+        // Return the maximum number of elements of type 'TYPE' that can be
+        // allocated using this allocator in a single call to the 'allocate'
+        // method.  Note that there is no guarantee that attempts at allocating
+        // less elements than the value returned by 'max_size' will not throw.
+        // *** DO NOT RELY ON THE CONTINUING PRESENT OF THIS METHOD ***
+        // THIS METHOD WILL BE REMOVED ONCE 'bslstl::allocator_traits' PROPERLY
+        // DEDUCES AN IMPLEMENTATION FOR THIS FUNCTION WHEN NOT SUPPLIED BY THE
+        // ALLOCATOR DIRECTLY.
 };
 
 // FREE OPERATORS
@@ -463,6 +473,38 @@ select_on_container_copy_construction() const
 
     return StdStatefulAllocator(dynamic_cast<bslma::TestAllocator *>(
                                           bslma::Default::defaultAllocator()));
+}
+
+
+template <class TYPE,
+          bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
+          bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
+          bool  PROPAGATE_ON_CONTAINER_SWAP,
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+inline
+typename StdStatefulAllocator<
+                             TYPE,
+                             PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
+                             PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
+                             PROPAGATE_ON_CONTAINER_SWAP,
+                             PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::size_type
+StdStatefulAllocator<TYPE,
+                     PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
+                     PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
+                     PROPAGATE_ON_CONTAINER_SWAP,
+                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
+max_size() const
+{
+    // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
+    // 'size_type' (copied from bslstl_allocator).
+
+    static const bool BSLMA_SIZE_IS_SIGNED =
+                              ~BloombergLP::bslma::Allocator::size_type(0) < 0;
+    static const std::size_t MAX_NUM_BYTES =
+                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
+    static const std::size_t MAX_NUM_ELEMENTS =
+                                     std::size_t(MAX_NUM_BYTES) / sizeof(TYPE);
+    return MAX_NUM_ELEMENTS;
 }
 
 }  // close package namespace

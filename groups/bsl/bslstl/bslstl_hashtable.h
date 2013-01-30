@@ -1460,10 +1460,6 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_bidirectionalnodepool.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
-#include <bslstl_stdexceptutil.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #include <bslalg_bidirectionallink.h>
 #endif
@@ -2113,8 +2109,10 @@ class HashTable {
         // of the 'comparator' or 'hasher' functors throw when swapped, leaving
         // both objects in an safely destructible, but otherwise unusable,
         // state.  The operation guarantees O[1] complexity.  The behavior is
-        // undefined unless either this object was created with the same
-        // allocator as 'other' or 'propagate_on_container_swap' is 'true'.
+        // undefined unless either this object has an allocator that compares
+        // equl to the allocator of 'other', or the trait
+        // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
+        // 'true'.
 
     // ACCESSORS
     ALLOCATOR allocator() const;
@@ -2226,10 +2224,14 @@ void swap(HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& x,
     // and the 'maxLoadFactor' of the specified 'b' object.  Additionally if
     // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
     // 'true' then exchange the allocator of 'a' with that of 'b', and do not
-    // modify either allocator otherwise.  This method provides the no-throw
-    // exception-safety guarantee and guarantees O[1] complexity.  The
-    // behavior is undefined unless both objects have the same allocator or
-    // 'propagate_on_container_swap' is 'true'.
+    // modify either allocator otherwise.  This method guarantees O[1]
+    // complexity if 'a' and 'b' have the same allocator or if the allocators
+    // propagate on swap, otherwise this operation will typically pay the cost
+    // of two copy construcutors, which may in turn throw.  If the allocators
+    // are the same or propageate, then this method provides the no-throw
+    // exception-safety guarantee unless the 'swap' funcion of the hasher
+    // or comparator throw.  Otherwise this method offers only the basic
+    // exception safety guarantee.
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bool operator==(
@@ -2744,6 +2746,14 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     typedef ::bsl::allocator_traits<ArrayAllocator> ArrayAllocatorTraits;
 
     ArrayAllocator reboundAllocator(allocator);
+
+    // This test is necessary to avoid undefined behavior in the non-standard
+    // narrow contract of 'bsl::allocator', although it seems like a reasonable
+    // assumption to pre-empt other allocators too.
+
+    if (ArrayAllocatorTraits::max_size(reboundAllocator) < bucketArraySize) {
+        bslma::Allocator::throwBadAlloc();
+    }
 
     bslalg::HashTableBucket *data =
              ArrayAllocatorTraits::allocate(reboundAllocator, bucketArraySize);
@@ -3470,6 +3480,8 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 {
+    // This trait should perform 'if' at compile-time.
+
     if (AllocatorTraits::propagate_on_container_swap::VALUE) {
         quickSwapExchangeAllocators(&other);
     }
@@ -3477,21 +3489,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
         // C++11 behavior: undefined for unequal allocators
         // BSLS_ASSERT(allocator() == other.allocator());
 
-        // backward compatible behavior: swap with copies
-
-        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-               d_parameters.nodeFactory().allocator() ==
-               other.d_parameters.nodeFactory().allocator())) {
-            quickSwapRetainAllocators(&other);
-        }
-        else {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            HashTable thisCopy(*this, other.allocator());
-            HashTable otherCopy(other, this->allocator());
-
-            quickSwapRetainAllocators(&otherCopy);
-            other.quickSwapRetainAllocators(&thisCopy);
-        }
+        BSLS_ASSERT(d_parameters.nodeFactory().allocator() ==
+                    other.d_parameters.nodeFactory().allocator());
+        quickSwapRetainAllocators(&other);
     }
 }
 
@@ -3675,10 +3675,26 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxLoadFactor() const
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
-bslstl::swap(bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& x,
-             bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& y)
+bslstl::swap(bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& a,
+             bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& b)
 {
-    x.swap(y);
+    typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
+                                                                     TableType;
+
+    if (::bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap::VALUE
+        || a.allocator() == b.allocator()) {
+        a.swap(b);
+    }
+    else {
+        // C++11 behavior: undefined for unequal allocators
+        // BSLS_ASSERT(allocator() == other.allocator());
+
+        TableType aCopy(a, b.allocator());
+        TableType bCopy(b, a.allocator());
+
+        b.swap(aCopy);
+        a.swap(bCopy);
+    }
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
