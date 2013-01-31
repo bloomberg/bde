@@ -142,6 +142,10 @@ typedef baejsn_EncoderOptions     Options;
 typedef bsls::Types::Int64        Int64;
 typedef bsls::Types::Uint64       Uint64;
 
+// ============================================================================
+//                  GLOBAL DATA FOR TESTING
+// ----------------------------------------------------------------------------
+
 static const struct {
     int         d_line;  // source line number
     const char *d_text_p;   // json text
@@ -11887,7 +11891,7 @@ static const struct {
 } JSON_PRETTY_MESSAGES[] = {
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element2\" : [\n"
     "    ],\n"
@@ -11903,7 +11907,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection1\" : {\n"
@@ -12047,7 +12051,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection1\" : {\n"
@@ -12168,7 +12172,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection1\" : {\n"
@@ -12389,7 +12393,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection2\" : 255\n"
@@ -13380,7 +13384,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection2\" : 0\n"
@@ -14243,7 +14247,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection3\" : \"custom\"\n"
@@ -15181,7 +15185,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection4\" : 999\n"
@@ -18154,7 +18158,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection1\" : {\n"
@@ -21056,7 +21060,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element2\" : [\n"
     "      {\n"
@@ -21313,7 +21317,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection1\" : {\n"
@@ -22145,7 +22149,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection1\" : {\n"
@@ -22926,7 +22930,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection1\" : {\n"
@@ -23069,7 +23073,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection2\" : 255\n"
@@ -23106,7 +23110,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection1\" : {\n"
     "    \"element1\" : {\n"
     "      \"selection2\" : 0\n"
@@ -23137,13 +23141,13 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection2\" : \"\\/wAB\"\n"
     "}\n"
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 255,\n"
@@ -23153,7 +23157,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 0,\n"
@@ -23167,7 +23171,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 255,\n"
@@ -23180,7 +23184,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 0,\n"
@@ -23217,7 +23221,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 255,\n"
@@ -23468,7 +23472,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 0,\n"
@@ -23688,7 +23692,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 255,\n"
@@ -23920,7 +23924,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 0,\n"
@@ -24608,7 +24612,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 255,\n"
@@ -25271,7 +25275,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 0,\n"
@@ -25287,7 +25291,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 255,\n"
@@ -25302,7 +25306,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 0,\n"
@@ -25318,7 +25322,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 255,\n"
@@ -25335,7 +25339,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection3\" : {\n"
     "    \"element1\" : \"custom\",\n"
     "    \"element2\" : 0,\n"
@@ -25349,7 +25353,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection4\" : {\n"
     "    \"element1\" : [\n"
     "    ],\n"
@@ -25362,7 +25366,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection4\" : {\n"
     "    \"element1\" : [\n"
     "      \"LONDON\",\n"
@@ -25463,7 +25467,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection4\" : {\n"
     "    \"element1\" : [\n"
     "    ],\n"
@@ -25555,7 +25559,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection4\" : {\n"
     "    \"element1\" : [\n"
     "      \"LONDON\",\n"
@@ -25625,7 +25629,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection4\" : {\n"
     "    \"element1\" : [\n"
     "    ],\n"
@@ -25713,25 +25717,25 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection5\" : \"2012-08-18T13:25:00.000+00:00\"\n"
     "}\n"
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection6\" : \"custom\"\n"
     "}\n"
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection7\" : \"LONDON\"\n"
     "}\n"
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection8\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element4\" : 3123123123,\n"
@@ -25758,7 +25762,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection8\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element1\" : 0,\n"
@@ -25803,7 +25807,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection8\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element1\" : 255,\n"
@@ -25839,7 +25843,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection8\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element2\" : \"custom\",\n"
@@ -25877,7 +25881,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection8\" : {\n"
     "    \"selection2\" : 255\n"
     "  }\n"
@@ -25885,7 +25889,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection8\" : {\n"
     "    \"selection2\" : 0\n"
     "  }\n"
@@ -25893,7 +25897,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection8\" : {\n"
     "    \"selection3\" : \"custom\"\n"
     "  }\n"
@@ -25901,7 +25905,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection8\" : {\n"
     "    \"selection4\" : 999\n"
     "  }\n"
@@ -25909,7 +25913,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element4\" : 3123123123,\n"
@@ -25957,7 +25961,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element1\" : 0,\n"
@@ -26280,7 +26284,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element1\" : 255,\n"
@@ -26553,7 +26557,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element2\" : \"custom\",\n"
@@ -26843,7 +26847,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection2\" : 255,\n"
     "    \"selection6\" : \"\",\n"
@@ -27554,7 +27558,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection2\" : 0,\n"
     "    \"selection6\" : \"arbitrary string value\",\n"
@@ -28252,7 +28256,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection3\" : \"custom\",\n"
     "    \"selection5\" : true,\n"
@@ -28751,7 +28755,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection4\" : 999,\n"
     "    \"selection6\" : \"\",\n"
@@ -30385,7 +30389,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element4\" : 3123123123,\n"
@@ -30443,7 +30447,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element1\" : 0,\n"
@@ -30523,7 +30527,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element1\" : 255,\n"
@@ -30592,7 +30596,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element2\" : \"custom\",\n"
@@ -30674,7 +30678,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection2\" : 255,\n"
     "    \"selection5\" : true,\n"
@@ -30708,7 +30712,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection2\" : 0,\n"
     "    \"selection6\" : \"\",\n"
@@ -30760,7 +30764,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection3\" : \"custom\",\n"
     "    \"selection6\" : \"arbitrary string value\",\n"
@@ -30826,7 +30830,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection4\" : 999,\n"
     "    \"selection5\" : true,\n"
@@ -31109,7 +31113,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element4\" : 3123123123,\n"
@@ -31375,7 +31379,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element1\" : 0,\n"
@@ -31683,7 +31687,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element1\" : 255,\n"
@@ -32421,7 +32425,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection1\" : {\n"
     "      \"element2\" : \"custom\",\n"
@@ -33153,7 +33157,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection2\" : 255,\n"
     "    \"selection6\" : \"arbitrary string value\",\n"
@@ -33192,7 +33196,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection11\" : {\n"
     "    \"selection2\" : 0,\n"
     "    \"selection5\" : true,\n"
@@ -33254,9 +33258,10 @@ static const struct {
     "  }\n"
     "}\n"
 },
+// TBD:
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection9\" : {\n"
     "\n"
     "  }\n"
@@ -33264,7 +33269,7 @@ static const struct {
 },
 {
     L_,
-    " {\n"
+    "{\n"
     "  \"selection10\" : {\n"
     "    \"element1\" : 3000000000,\n"
     "    \"element2\" : 32794,\n"
@@ -34885,35 +34890,23 @@ const int& Employee::age() const
 
 namespace {
 
-#if 0
-void constructTestAggregate(bsl::vector<bcem_Aggregate>* objects)
+// ============================================================================
+//                  GLOBAL DATA FOR TESTING
+// ----------------------------------------------------------------------------
+
+void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
+    // Print to stdout the length and the characters that are difference in
+    // the specified 'lhs' and 'rhs' strings.
 {
-    baexml_MiniReader reader;
-    baexml_DecoderOptions options;
-    baexml_ErrorInfo e;
-    baexml_Decoder decoder(&options, &reader, &e);
-
-    for (int i = 0; i < NUM_XML_TEST_MESSAGES; ++i) {
-        bcem_Aggregate object;
-        bsl::istringstream ss(XML_TEST_MESSAGES[i]);
-
-        baexml_MiniReader reader;
-        baexml_DecoderOptions options;
-        baexml_ErrorInfo e;
-        baexml_Decoder decoder(&options, &reader, &e);
-
-        int rc = decoder.decode(ss.rdbuf(), &object);
-
-        if (0 != rc) {
-            bsl::cout << "Failed to decode from initialization data (i="
-                      << i << "): "
-                      << decoder.loggedMessages() << bsl::endl;
+    const int len1 = lhs.size();
+    const int len2 = rhs.size();
+    P(len1) P(len2)
+    for (int i = 0; i < len1; ++i) {
+        if (lhs[i] != rhs[i]) {
+            P(i) P(lhs[i]) P(rhs[i])
         }
-        BSLS_ASSERT(0 == rc); // test invariant
-        objects->push_back(object);
     }
 }
-#endif
 
 void constructFeatureTestMessage(
                                 bsl::vector<baea::FeatureTestMessage>* objects)
@@ -35251,8 +35244,7 @@ int main(int argc, char *argv[])
                 L_,
                 0,
                 0,
-                // TBD:
-                " {"                                                         NL
+                "{"                                                          NL
                 "\"name\" : \"Bob\","                                        NL
                 "\"homeAddress\" : {"                                        NL
                 "\"street\" : \"Some Street\","                              NL
@@ -35293,8 +35285,7 @@ int main(int argc, char *argv[])
                 L_,
                 0,
                 2,
-                // TBD:
-                " {\n"
+                "{\n"
                 "  \"name\" : \"Bob\",\n"
                 "  \"homeAddress\" : {\n"
                 "    \"street\" : \"Some Street\",\n"

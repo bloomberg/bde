@@ -21,10 +21,6 @@ void baejsn_Encoder_EncodeImpl::indentTopElement()
         const char SPACES[]    = "                                    ";
         const int  SPACES_SIZE = sizeof(SPACES) - 1;
 
-        if (0 < numSpaces) {
-            --numSpaces;
-        }
-
         while (SPACES_SIZE < numSpaces) {
             d_outputStream.write(SPACES, SPACES_SIZE);
             numSpaces -= SPACES_SIZE;
