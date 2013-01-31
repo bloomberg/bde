@@ -379,32 +379,34 @@ class baejsn_Encoder_Formatter {
     // component.
 
     // DATA
-    bsl::ostream                         *d_outputStream;     // stream for
-                                                              // output (held,
-                                                              // not owned
+    bsl::ostream& d_outputStream;     // stream for output (held, not owned)
+    bool          d_usePrettyStyle;   // encoding style
+    int           d_indentLevel;      // initial indent level
+    int           d_spacesPerLevel;   // spaces per level
 
-    baejsn_EncoderOptions::EncodingStyle  d_encodingStyle;    // encoding
-                                                              // style
-
-    int                                   d_indentLevel;      // initial indent
-                                                              // level
-
-    int                                   d_spacesPerLevel;   // spaces per
-                                                              // level
-
-    bool                                  d_isArrayElement;   // is current
-                                                              // element part
-                                                              // of an array
-
+  public:
     // CREATORS
-    baejsn_Encoder_Formatter(bsl::ostream                 *stream,
-                              const baejsn_EncoderOptions&  options);
+    baejsn_Encoder_Formatter(bsl::ostream&                 stream,
+                             const baejsn_EncoderOptions&  options);
         // Create a 'baejsn_Encoder_Formatter' object using the specified
         // 'stream' and 'options'.
 
     //! ~baejsn_Encoder_Formatter() = default;
         // Destroy this object.
 
+    // MANIPULATORS
+    void openObject(bool isArrayElement);
+    void closeObject();
+
+    void openArray();
+    void closeArray(int size);
+
+    void indent(bool isArrayElement);
+    void printNewLine();
+    void printNewLineAndIndent();
+
+    int openElement(const bsl::string& name);
+    void closeElement();
 };
 
                         // ===============================
@@ -440,6 +442,8 @@ class baejsn_Encoder_EncodeImpl {
                                                               // element
                                                               // untagged
 
+    baejsn_Encoder_Formatter              d_formatter;        // formatter
+
     // FRIENDS
     friend struct baejsn_Encoder_DynamicTypeDispatcher;
     friend struct baejsn_Encoder_ElementVisitor;
@@ -449,10 +453,6 @@ class baejsn_Encoder_EncodeImpl {
     // PRIVATE MANIPULATORS
     bsl::ostream& logStream();
         // Return the stream used for logging.
-
-    void indentTopElement();
-        // Indent the top-level element writing the appropriate number of
-        // spaces onto the output stream.
 
     int encodeImp(const bsl::vector<char>& value, bdeat_TypeCategory::Array);
     template <typename TYPE>
@@ -732,14 +732,7 @@ template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Simple)
 {
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-        if (d_isArrayElement) {
-            bdeu_Print::indent(d_outputStream,
-                               d_indentLevel,
-                               d_spacesPerLevel);
-        }
-    }
-
+    d_formatter.indent(d_isArrayElement);
     return baejsn_PrintUtil::printValue(d_outputStream, value);
 }
 
@@ -748,21 +741,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Sequence)
 {
     if (!d_isUntaggedElement) {
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-            if (d_isArrayElement) {
-                bdeu_Print::indent(d_outputStream,
-                                   d_indentLevel,
-                                   d_spacesPerLevel);
-            }
-        }
-
-        d_outputStream << '{';
-
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-            d_outputStream << '\n';
-        }
-
-        ++d_indentLevel;
+        d_formatter.openObject(d_isArrayElement);
     }
 
     baejsn_Encoder_SequenceVisitor visitor(this);
@@ -782,16 +761,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
     d_isUntaggedElement = isUntaggedElement;
 
     if (!d_isUntaggedElement) {
-        --d_indentLevel;
-
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-            d_outputStream << '\n';
-            bdeu_Print::indent(d_outputStream,
-                               d_indentLevel,
-                               d_spacesPerLevel);
-        }
-
-        d_outputStream << '}';
+        d_formatter.closeObject();
     }
 
     return 0;
@@ -804,21 +774,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
     if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
                                    bdeat_ChoiceFunctions::selectionId(value)) {
         if (!d_isUntaggedElement) {
-            if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-                if (d_isArrayElement) {
-                    bdeu_Print::indent(d_outputStream,
-                                       d_indentLevel,
-                                       d_spacesPerLevel);
-                }
-            }
-
-            d_outputStream << '{';
-
-            if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-                d_outputStream << '\n';
-            }
-
-            ++d_indentLevel;
+            d_formatter.openObject(d_isArrayElement);
         }
 
         baejsn_Encoder_ElementVisitor visitor = { this };
@@ -837,16 +793,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
         d_isUntaggedElement = isUntaggedElement;
 
         if (!d_isUntaggedElement) {
-            --d_indentLevel;
-
-            if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-                d_outputStream << '\n';
-                bdeu_Print::indent(d_outputStream,
-                                   d_indentLevel,
-                                   d_spacesPerLevel);
-            }
-
-            d_outputStream << '}';
+            d_formatter.closeObject();
         }
     }
     else {
@@ -856,52 +803,37 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return 0;
 }
 
+// TBD: update for formatter
 template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Array)
 {
-    d_outputStream << '[';
+    d_formatter.openArray();
 
-    int size = static_cast<int>(bdeat_ArrayFunctions::size(value));
+    const int size = static_cast<int>(bdeat_ArrayFunctions::size(value));
 
     if (0 < size) {
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-            d_outputStream << '\n';
-        }
-
-        ++d_indentLevel;
-
         baejsn_Encoder_ElementVisitor visitor = { this };
 
         d_isArrayElement = true;
 
         int rc = bdeat_ArrayFunctions::accessElement(value, visitor, 0);
-        if (0 != rc) {
+        if (rc) {
             return rc;                                                // RETURN
         }
 
         for (int i = 1; i < size; ++i) {
-            d_outputStream << ',';
-            if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-                d_outputStream << '\n';
-            }
+            d_formatter.closeElement();
             rc = bdeat_ArrayFunctions::accessElement(value, visitor, i);
-            if (0 != rc) {
+            if (rc) {
                 return rc;                                            // RETURN
             }
         }
 
         d_isArrayElement = false;
-
-        --d_indentLevel;
     }
 
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-        d_outputStream << '\n';
-        bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
-    }
-
-    d_outputStream << ']';
+    d_formatter.closeArray(size);
 
     return 0;
 }
@@ -912,14 +844,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::NullableValue)
 {
     if (bdeat_NullableValueFunctions::isNull(value)) {
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
-            if (d_isArrayElement) {
-                bdeu_Print::indent(d_outputStream,
-                                   d_indentLevel,
-                                   d_spacesPerLevel);
-            }
-        }
-
+        d_formatter.indent(d_isArrayElement);
         d_outputStream << "null";
         return 0;                                                     // RETURN
     }
@@ -946,19 +871,8 @@ baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(
 , d_outputStream(streambuf)
 , d_isArrayElement(false)
 , d_isUntaggedElement(false)
+, d_formatter(d_outputStream, options)
 {
-    if (baejsn_EncoderOptions::BAEJSN_PRETTY == options.encodingStyle()) {
-        d_encodingStyle  = options.encodingStyle();
-        d_indentLevel    = options.initialIndentLevel();
-        d_spacesPerLevel = options.spacesPerLevel();
-    }
-    else {
-        d_encodingStyle  = baejsn_EncoderOptions::BAEJSN_COMPACT;
-        d_indentLevel    = 0;
-        d_spacesPerLevel = 0;
-    }
-
-    indentTopElement();
 }
 
                     // -------------------------------------
@@ -1017,11 +931,7 @@ int baejsn_Encoder_SequenceVisitor::operator()(const TYPE& value,
     }
 
     if (!d_isFirstElement) {
-        d_encoder->d_outputStream << ',';
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY ==
-                                                  d_encoder->d_encodingStyle) {
-            d_encoder->d_outputStream << '\n';
-        }
+        d_encoder->d_formatter.closeElement();
     }
 
     d_isFirstElement = false;
@@ -1051,15 +961,7 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
 
     if (!(info.formattingMode() & bdeat_FormattingMode::BDEAT_UNTAGGED)) {
 
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY ==
-                                                  d_encoder->d_encodingStyle) {
-            bdeu_Print::indent(d_encoder->d_outputStream,
-                               d_encoder->d_indentLevel,
-                               d_encoder->d_spacesPerLevel);
-        }
-
-        int rc = baejsn_PrintUtil::printValue(d_encoder->d_outputStream,
-                                              info.name());
+        const int rc = d_encoder->d_formatter.openElement(info.name());
         if (0 != rc) {
             d_encoder->logStream()
                 << "Unable to encode the name of the element, '"
@@ -1067,14 +969,6 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
                 << "'."
                 << bsl::endl;
             return rc;                                                // RETURN
-        }
-
-        if (baejsn_EncoderOptions::BAEJSN_PRETTY ==
-                                                  d_encoder->d_encodingStyle) {
-            d_encoder->d_outputStream << " : ";
-        }
-        else {
-            d_encoder->d_outputStream << ':';
         }
 
         d_encoder->d_isUntaggedElement = false;
