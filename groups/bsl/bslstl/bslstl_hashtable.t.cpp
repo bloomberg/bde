@@ -16,6 +16,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
@@ -5090,66 +5091,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
 
             // ----------------------------------------------------------------
 
-#if defined BDE_BUILD_TARGET_EXC
-            {
-#if 0
-                // This test shows up a non-conformance in 'bsl::allocator'
-                // which has undefined behavior when asked for this many
-                // buckets, rather than simply throwing a 'std::bad_alloc'.
-
-                try {
-                    Obj mX(HASH,
-                           COMPARE,
-                           native_std::numeric_limits<int>::max(),
-                           1e-30);
-                    ASSERT(false);
-                }
-                catch(const native_std::bad_allocr&) {
-                    // This is the expected code path
-                }
-                catch(...) {
-                    ASSERT(!!"The wrong exception type was thrown.");
-                }
-#endif
-
-                try {
-                    Obj mBad(HASH,
-                             COMPARE,
-                             native_std::numeric_limits<SizeType>::max(),
-                             1e-30);
-                    ASSERT(false);
-                }
-                catch(const native_std::length_error&) {
-                    // This is the expected code path
-                }
-                catch(...) {
-                    ASSERT(!!"The wrong exception type was thrown.");
-                }
-
-                Obj mR(HASH,
-                       COMPARE,
-                       3,
-                       1e-30);
-                try {
-                    mR.insert(VALUES[0]);
-
-                    P(mR.numBuckets())
-                    P(mR.size());
-
-                    ASSERT(false);
-                }
-                catch(const native_std::length_error& e) {
-                    // This is the expected code path
-                }
-                catch(...) {
-                    ASSERT(!!"The wrong exception type was thrown.");
-                }
-
-            }
-#endif
-
-            // ----------------------------------------------------------------
-
             // Reclaim dynamically allocated object under test.
 
             fa.deleteObject(objPtr);
@@ -5165,7 +5106,33 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
         }
     }
     }
-#endif
+
+    // ----------------------------------------------------------------
+
+#if defined BDE_BUILD_TARGET_EXC
+    {
+        Obj mR(HASH,
+               COMPARE,
+               0,
+               native_std::numeric_limits<float>::denorm_min());
+        try {
+            mR.insert(VALUES[0]);
+
+            P(mR.numBuckets())
+            P(mR.size());
+
+            ASSERT(false);
+        }
+        catch(const native_std::length_error& e) {
+            // This is the expected code path
+        }
+        catch(...) {
+            ASSERT(!"The wrong exception type was thrown.");
+        }
+    }
+#endif  // BDE_BUILD_TARGET_EXC
+
+#endif  //  1 // defined(THE_TEST_IS_YET_TO_COME)
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -7705,11 +7672,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     if (verbose) printf(
                   "\nTesting correct exceptions are thrown by constructor.\n");
     {
-        // This test shows up a non-conformance in 'bsl::allocator'
-        // which has undefined behavior when asked for this many
-        // buckets, rather than simply throwing a 'std::bad_alloc'.
-
-#if !defined(BSLS_PLATFORM_CPU_64_BIT)
+        if (veryVerbose) printf(
+                        "\tmax SizeType buckets at max load factor of 1.0.\n");
         try {
             Obj mX(HASH,
                    COMPARE,
@@ -7718,13 +7682,15 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                    objAlloc);
             ASSERT(false);
         }
-        catch(const native_std::bad_alloc&) {
+        catch(const native_std::length_error&) {
             // This is the expected code path
         }
         catch(...) {
-            ASSERT(!!"The wrong exception type was thrown.");
+            ASSERT(!"The wrong exception type was thrown.");
         }
 
+        if (veryVerbose) printf(
+                 "\tmax SizeType buckets with an infinite max load factor.\n");
         try {
             // Even with an infinite load factor, we cannot allocate more
             // buckets than fit into memory.
@@ -7736,22 +7702,25 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                    objAlloc);
             ASSERT(false);
         }
-        catch(const native_std::bad_alloc&) {
+        catch(const native_std::length_error&) {
             // This is the expected code path
         }
         catch(...) {
-            ASSERT(!!"The wrong exception type was thrown.");
+            ASSERT(!"The wrong exception type was thrown.");
         }
 
-#if 0   // this will time out on 64-bit platforms, is it still probing anything
+#if !defined(BSLS_PLATFORM_CPU_64_BIT)
+        // this will time out on 64-bit platforms, is it still probing anything
         // useful?  Yes - the 'max' above will be larger than the max value in
         // the prime number table, and so generate a length_error from a
         // different check.
+        if (veryVerbose) printf(
+                           "\tmax 'int' buckets at max load factor of 1.0.\n");
         try {
             const Obj X(HASH,
                         COMPARE,
                         native_std::numeric_limits<int>::max(),
-                        1e-30f,
+                        1.0f,
                         objAlloc);
             // It is unlikely this will fit into a 64-bit allocation, but
             // we will allow for the possibility.
@@ -7763,10 +7732,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             // This is the expected code path
         }
         catch(...) {
-            ASSERT(!!"The wrong exception type was thrown.");
+            ASSERT(!"The wrong exception type was thrown.");
         }
-#endif
 #endif  // BSLS_PLATFORM_CPU_64_BIT
+       if (veryVerbose) printf(
+                      "\tmax SizeType buckets with a tiny max load factor.\n");
         try {
             Obj mBad(HASH,
                      COMPARE,
@@ -7779,30 +7749,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             // This is the expected code path
         }
         catch(...) {
-            ASSERT(!!"The wrong exception type was thrown.");
+            ASSERT(!"The wrong exception type was thrown.");
         }
-
-#if defined(THIS_BELONGS_IN_THE_INSERT_TEST_NOT_IN_THE_BOOTSTRAP)
-        Obj mR(HASH,
-               COMPARE,
-               3,
-               1e-30f,
-               objAlloc);
-        try {
-            mR.insert(VALUES[0]);
-
-            P(mR.numBuckets())
-            P(mR.size());
-
-            ASSERT(false);
-        }
-        catch(const native_std::length_error& e) {
-            // This is the expected code path
-        }
-        catch(...) {
-            ASSERT(!!"The wrong exception type was thrown.");
-        }
-#endif
     }
 #endif
 
@@ -8216,7 +8164,7 @@ void mainTestCase12()
     // --------------------------------------------------------------------
 
     if (verbose) printf("\nTesting 'insert'"
-                        "\n==========================\n");
+                        "\n================\n");
 
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase12,

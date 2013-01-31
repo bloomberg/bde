@@ -218,8 +218,17 @@ class StdTestAllocator {
 
   public:
     // PUBLIC TYPES
+#if 0
     typedef std::size_t     size_type;
     typedef std::ptrdiff_t  difference_type;
+#else
+    // Deliberately use types that will *not* have the same representation as
+    // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
+    // wide enough to support our regular testing, as verified on 32-bit
+    // platforms.
+    typedef unsigned int     size_type;
+    typedef int              difference_type;
+#endif
     typedef TYPE           *pointer;
     typedef const TYPE     *const_pointer;
     typedef TYPE&           reference;

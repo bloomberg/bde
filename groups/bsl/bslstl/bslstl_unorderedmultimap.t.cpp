@@ -916,6 +916,15 @@ class TestDriver {
         // Basic manipulator test.
 };
 
+template <class KEY>
+class StdAllocTestDriver :
+    public TestDriver<KEY,
+                      KEY,
+                      TestHashFunctor<KEY>,
+                      TestEqualityComparator<KEY>,
+                      bsltf::StdTestAllocator<bsl::pair<const KEY, KEY> > > {
+};
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 int TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
                                                     const char *spec,
@@ -3255,7 +3264,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
     //   default construction (only)
     //   unordered_map(const allocator_type&);  // bslma::Allocator* only
     //   ~unordered_map();
-    //   bsl::pair<iterator, bool> insert(const value_type& value);
+    //   iterator insert(const value_type& value);
     //   void clear();
     // ------------------------------------------------------------------------
 
@@ -3468,8 +3477,12 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                     }
 
                     // Sometimes test using hints that are valid iterators
-                    // but not very useful.
+                    // but not very useful.  Also note that some configurations
+                    // will have already allocated an initially large enough
+                    // bucket array.
 
+                    const int MIN_PASSES = 1 + (CONFIG < 'i')
+                                             + VALUE_TYPE_USES_ALLOC;
                     Iter result;
                     numPasses = 0;
                     EXCEPTION_TEST_BEGIN(mX) {
@@ -3482,7 +3495,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                             result = mX.insert(            VALUES[tj]);
                         }
                     } EXCEPTION_TEST_END
-                    ASSERTV(!PLAT_EXC || 0 != tj || numPasses > 2);
+                    ASSERTV(PLAT_EXC, tj, numPasses,
+                            !PLAT_EXC || 0 != tj || numPasses > MIN_PASSES);
                     ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == *result);
                 }
 
@@ -5578,7 +5592,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Testing Object With STL Allocator\n"
                             "=================================\n");
 
-        RUN_EACH_TYPE(TestDriver,
+        RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;

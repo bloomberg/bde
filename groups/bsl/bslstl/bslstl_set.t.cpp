@@ -930,6 +930,12 @@ class TestDriver {
         // *test* nothing.
 };
 
+template <class KEY>
+class StdAllocTestDriver : public TestDriver<KEY,
+                                             TestComparator<KEY>,
+                                             bsltf::StdTestAllocator<KEY> > {
+};
+
                                // --------------
                                // TEST APPARATUS
                                // --------------
@@ -6398,7 +6404,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STL ALLOCATOR
         // --------------------------------------------------------------------
-        RUN_EACH_TYPE(TestDriver,
+        RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase22,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;

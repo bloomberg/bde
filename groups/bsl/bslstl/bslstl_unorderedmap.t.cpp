@@ -6026,6 +6026,15 @@ class TestDriver {
         // Basic manipulator test.
 };
 
+template <class KEY>
+class StdAllocTestDriver :
+    public TestDriver<KEY,
+                      KEY,
+                      TestHashFunctor<KEY>,
+                      TestEqualityComparator<KEY>,
+                      bsltf::StdTestAllocator<bsl::pair<const KEY, KEY> > > {
+};
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 int TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
                                                     const char *spec,
@@ -8631,6 +8640,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                 }
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
+                const int MIN_PASSES = 1 + (CONFIG < 'h')
+                                         + VALUE_TYPE_USES_ALLOC;
                 numPasses = 0;
                 EXCEPTION_TEST_BEGIN(mX) {
                     ++numPasses;
@@ -8661,7 +8672,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
 
                     guard.release();
                 } EXCEPTION_TEST_END
-                ASSERTV(!PLAT_EXC || !(1 == LENGTH) || numPasses > 2);
+                ASSERTV(!PLAT_EXC || !(1 == LENGTH) || numPasses > MIN_PASSES);
 
                 matchFirstValues(L_, X, VALUES, LENGTH);
 
@@ -9628,7 +9639,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Testing Object With STL Allocator\n"
                             "=================================\n");
 
-        RUN_EACH_TYPE(TestDriver,
+        RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;

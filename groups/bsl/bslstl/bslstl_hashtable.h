@@ -2415,6 +2415,8 @@ struct HashTable_Util {
     static void destroyBucketArray(bslalg::HashTableBucket *data,
                                    native_std::size_t       bucketArraySize,
                                    const ALLOCATOR&         allocator);
+        // Destroy the specified 'data' array of the specified length
+        // 'bucketArraySize', that was allocated by the specified 'allocator'.
 };
 
 // ============================================================================
@@ -2824,10 +2826,14 @@ HashTable(const HASHER&     hash,
     BSLS_ASSERT(0.0f < initialMaxLoadFactor);
 
     if (0 != initialNumBuckets) {
-        HashTable_Util::initAnchor(
-                            &d_anchor,
-                            HashTable_ImpDetails::nextPrime(initialNumBuckets),
-                            allocator);
+        size_t capacity;  // This may be a different type than SizeType.
+        SizeType numBuckets =
+              HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
+                                                             1,
+                                                             initialNumBuckets,
+                                                             d_maxLoadFactor);
+        HashTable_Util::initAnchor(&d_anchor, numBuckets, allocator);
+        d_capacity = capacity;
     }
 }
 

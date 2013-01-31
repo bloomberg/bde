@@ -206,10 +206,12 @@ class StdStatefulAllocator {
     // future C++11 implementation, where language makes such metaprograms
     // much simpler to write.
 
+#if !defined(BSLSTL_ALLOCATOR_TRAITS_SUPPORTS_ALL_CPP11_DEDUCTIONS)
     typedef std::size_t     size_type;
     typedef std::ptrdiff_t  difference_type;
     typedef TYPE           *pointer;
     typedef const TYPE     *const_pointer;
+#endif
 
     typedef bsl::integral_constant<bool,
                                    PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT>
@@ -293,6 +295,7 @@ class StdStatefulAllocator {
         // 'bslma::TestAllocator' object has been installed as the default
         // allocator.
 
+#if !defined(BSLSTL_ALLOCATOR_TRAITS_SUPPORTS_ALL_CPP11_DEDUCTIONS)
     size_type max_size() const;
         // Return the maximum number of elements of type 'TYPE' that can be
         // allocated using this allocator in a single call to the 'allocate'
@@ -302,6 +305,7 @@ class StdStatefulAllocator {
         // THIS METHOD WILL BE REMOVED ONCE 'bslstl::allocator_traits' PROPERLY
         // DEDUCES AN IMPLEMENTATION FOR THIS FUNCTION WHEN NOT SUPPLIED BY THE
         // ALLOCATOR DIRECTLY.
+#endif
 };
 
 // FREE OPERATORS

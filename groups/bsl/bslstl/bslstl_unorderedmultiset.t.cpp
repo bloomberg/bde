@@ -1143,6 +1143,13 @@ class TestDriver {
 #endif
 };
 
+template <class KEY>
+class StdAllocTestDriver : public TestDriver<KEY,
+                                             TestHashFunctor<KEY>,
+                                             TestEqualityComparator<KEY>,
+                                             bsltf::StdTestAllocator<KEY> > {
+};
+
                                // --------------
                                // TEST APPARATUS
                                // --------------
@@ -4688,7 +4695,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING STL ALLOCATOR\n"
                             "=====================\n");
 
-        RUN_EACH_TYPE(TestDriver,
+        RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
