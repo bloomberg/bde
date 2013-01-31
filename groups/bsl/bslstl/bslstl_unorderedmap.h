@@ -1756,7 +1756,7 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
                                                           INPUT_ITERATOR first,
                                                           INPUT_ITERATOR last)
 {
-    std::size_t maxInsertions =
+    size_type maxInsertions =
             ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
     if (maxInsertions) {
         this->reserve(this->size() + maxInsertions);

@@ -1394,7 +1394,7 @@ void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                         INPUT_ITERATOR last)
 {
-    if (size_t maxInsertions =
+    if (size_type maxInsertions =
             ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
         this->reserve(this->size() + maxInsertions);
     }
