@@ -29,7 +29,9 @@ baejsn_Encoder_Formatter::baejsn_Encoder_Formatter(
         d_spacesPerLevel = 0;
     }
 
-    indent(true);
+    if (d_usePrettyStyle) {
+        bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+    }
 }
 
 // MANIPULATORS
@@ -52,9 +54,7 @@ void baejsn_Encoder_Formatter::closeObject()
 
     if (d_usePrettyStyle) {
         d_outputStream << '\n';
-        bdeu_Print::indent(d_outputStream,
-                           d_indentLevel,
-                           d_spacesPerLevel);
+        bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
     }
 
     d_outputStream << '}';
@@ -71,14 +71,12 @@ void baejsn_Encoder_Formatter::openArray()
     ++d_indentLevel;
 }
 
-void baejsn_Encoder_Formatter::closeArray(int size)
+void baejsn_Encoder_Formatter::closeArray()
 {
     --d_indentLevel;
 
     if (d_usePrettyStyle) {
-        if (size > 0) {
-            d_outputStream << '\n';
-        }
+        d_outputStream << '\n';
         bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
     }
 
@@ -114,7 +112,13 @@ int baejsn_Encoder_Formatter::openElement(const bsl::string& name)
         return rc;                                                    // RETURN
     }
 
-    d_outputStream << d_usePrettyStyle ? " : " : ':';
+    if (d_usePrettyStyle) {
+        d_outputStream << " : ";
+    }
+    else {
+        d_outputStream << ':';
+    }
+
     return 0;
 }
 

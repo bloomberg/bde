@@ -399,7 +399,7 @@ class baejsn_Encoder_Formatter {
     void closeObject();
 
     void openArray();
-    void closeArray(int size);
+    void closeArray();
 
     void indent(bool isArrayElement);
     void printNewLine();
@@ -523,7 +523,7 @@ struct baejsn_Encoder_ElementVisitor {
         // success and a non-zero value otherwise.
 
     template <typename TYPE, typename INFO>
-    int operator()(const TYPE& value, const INFO &info);
+    int operator()(const TYPE& value, const INFO& info);
         // Encode the specified 'value' using the specified 'info' in the JSON
         // format.  Return 0 on success and a non-zero value otherwise.
 };
@@ -544,7 +544,6 @@ class baejsn_Encoder_SequenceVisitor {
                                                    // current element is the
                                                    // first
 
-  private:
     // PRIVATE CLASS METHODS
     template <class TYPE>
     static bool isAttributeNull(const TYPE&, bslmf::MetaInt<0>);
@@ -554,6 +553,15 @@ class baejsn_Encoder_SequenceVisitor {
     static bool isAttributeNull(const TYPE& value);
         // Return 'true' if the specified 'value' represents a
         // 'bdeat_NullableValue' type and is null, and 'false' otherwise.
+
+    template <class TYPE>
+    static bool isEmptyArray(const TYPE&, bslmf::MetaInt<0>);
+    template <class TYPE>
+    static bool isEmptyArray(const TYPE& value, bslmf::MetaInt<1>);
+    template <class TYPE>
+    static bool isEmptyArray(const TYPE& value);
+        // Return 'true' if the specified 'value' represents an empty array and
+        // 'false' otherwise.
 
   public:
     // CREATORS
@@ -803,16 +811,14 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return 0;
 }
 
-// TBD: update for formatter
 template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Array)
 {
-    d_formatter.openArray();
-
     const int size = static_cast<int>(bdeat_ArrayFunctions::size(value));
-
     if (0 < size) {
+        d_formatter.openArray();
+
         baejsn_Encoder_ElementVisitor visitor = { this };
 
         d_isArrayElement = true;
@@ -830,10 +836,10 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
             }
         }
 
+        d_formatter.closeArray();
+
         d_isArrayElement = false;
     }
-
-    d_formatter.closeArray(size);
 
     return 0;
 }
@@ -894,7 +900,7 @@ bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE& value,
                                                      bslmf::MetaInt<1>)
 {
     if (bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY ==
-                              bdeat_TypeCategoryFunctions::select(value)) {
+                                  bdeat_TypeCategoryFunctions::select(value)) {
         return bdeat_NullableValueFunctions::isNull(value);           // RETURN
     }
     return false;
@@ -907,6 +913,35 @@ bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE& value)
     return isAttributeNull(value,
                            bslmf::MetaInt<bdeat_NullableValueFunctions
                                             ::IsNullableValue<TYPE>::VALUE>());
+}
+
+template <class TYPE>
+inline
+bool baejsn_Encoder_SequenceVisitor::isEmptyArray(const TYPE&,
+                                                  bslmf::MetaInt<0>)
+{
+    return false;
+}
+
+template <class TYPE>
+inline
+bool baejsn_Encoder_SequenceVisitor::isEmptyArray(const TYPE& value,
+                                                  bslmf::MetaInt<1>)
+{
+    if (bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY ==
+                                  bdeat_TypeCategoryFunctions::select(value)) {
+        return 0 == bdeat_ArrayFunctions::size(value);                // RETURN
+    }
+    return false;
+}
+
+template <class TYPE>
+inline
+bool baejsn_Encoder_SequenceVisitor::isEmptyArray(const TYPE& value)
+{
+    return isEmptyArray(
+                 value,
+                 bslmf::MetaInt<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE>());
 }
 
 // CREATORS
@@ -926,7 +961,7 @@ int baejsn_Encoder_SequenceVisitor::operator()(const TYPE& value,
 {
     // Determine if 'value' is null and do not encode 'value' if it is.
 
-    if (isAttributeNull(value)) {
+    if (isAttributeNull(value) || isEmptyArray(value)) {
         return 0;                                                     // RETURN
     }
 
@@ -953,7 +988,6 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE &value)
 }
 
 template <typename TYPE, typename INFO>
-inline
 int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
                                               const INFO& info)
 {
