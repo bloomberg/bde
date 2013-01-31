@@ -138,6 +138,7 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef baejsn_Encoder            Obj;
 typedef baejsn_Encoder_EncodeImpl Impl;
+typedef baejsn_EncoderOptions     Options;
 typedef bsls::Types::Int64        Int64;
 typedef bsls::Types::Uint64       Uint64;
 
@@ -34993,7 +34994,7 @@ void testNumber()
 
         Obj  encoder;
         bsl::ostringstream oss;
-        Impl impl(&encoder, oss.rdbuf(), 0);
+        Impl impl(&encoder, oss.rdbuf(), Options());
         ASSERTV(LINE, 0 == impl.encode(VALUE));
 
         bsl::string result = oss.str();
@@ -35097,22 +35098,24 @@ int main(int argc, char *argv[])
     employee.homeAddress().state()  = "New York";
     employee.age()                  = 21;
 //..
-// Then, we will create a 'baejsn_Encoder' object using a
-// 'baejsn_EncoderOptions' object that specifies that encoding in a pretty
-// style with an initial indent level and spaces per level:
+// Then, we will create a 'baejsn_Encoder' object:
 //..
+    baejsn_Encoder encoder;
+//..
+// Now, we will output this object in the JSON format by invoking the 'encode'
+// method of the encoder.  We will also create a 'baejsn_EncoderOptions' object
+// that allows us to specify that the encoding should be done in a pretty
+// format, and what the initial indent level and spaces per level should be.
+// We will then pass that object to the 'encode' method:
+//..
+    bsl::ostringstream os;
+//
     baejsn_EncoderOptions options;
     options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
     options.setInitialIndentLevel(1);
     options.setSpacesPerLevel(4);
 //
-    baejsn_Encoder encoder(&options);
-//..
-// Now, we will encode this object in the JSON format using the encoder:
-//..
-    bsl::ostringstream os;
-//
-    const int rc = encoder.encode(os, employee);
+    const int rc = encoder.encode(os, employee, options);
     ASSERT(!rc);
     ASSERT(os);
 //..
@@ -35168,17 +35171,19 @@ int main(int argc, char *argv[])
     employee["homeAddress"]["state"].setValue("New York");
     employee["age"].setValue(21);
 //..
-// Next, we create a 'baejsn_Encoder' using a default 'baejsn_EncoderOptions'
-// object which resulting in encoding in a compact style:
+// Next, we create a 'baejsn_Encoder':
 //..
-    baejsn_EncoderOptions options;
-    baejsn_Encoder encoder(&options);
+    baejsn_Encoder encoder;
 //..
-// Now, we encode the object:
+// Now, we will output this object in the JSON format by invoking the 'encode'
+// method of the encoder.  We will pass a default 'baejsn_EncoderOptions'
+// object to the 'encode' method which will result in the output being in a
+// compact format:
 //..
     bsl::ostringstream os;
 //
-    const int rc = encoder.encode(os, employee);
+    baejsn_EncoderOptions options;
+    const int rc = encoder.encode(os, employee, options);
     ASSERT(!rc);
     ASSERT(os);
 //..
@@ -35419,24 +35424,16 @@ int main(int argc, char *argv[])
             const int          SPL      = DATA[ti].d_spl;
             const bsl::string& jsonText = DATA[ti].d_text_p;
 
+            baejsn_Encoder     encoder;
+            bsl::ostringstream oss;
+
             baejsn_EncoderOptions options;
             options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
             options.setInitialIndentLevel(INDENT);
             options.setSpacesPerLevel(SPL);
 
-            baejsn_Encoder encoder(&options);
-            bsl::ostringstream oss;
-
-            ASSERTV(0 == encoder.encode(oss, bob));
+            ASSERTV(0 == encoder.encode(oss, bob, options));
             ASSERTV(LINE, oss.str(), jsonText, oss.str() == jsonText);
-//             const int len1 = oss.str().size();
-//             const int len2 = jsonText.size();
-//             P(len1) P(len2)
-//             for (int i = 0; i < len1; ++i) {
-//                 if (oss.str()[i] != jsonText[i]) {
-//                     P(i) P(oss.str()[i]) P(jsonText[i])
-//                 }
-//             }
         }
       } break;
       case 13: {
@@ -35527,14 +35524,15 @@ int main(int argc, char *argv[])
 
             // PRETTY PRINTING
             {
+                baejsn_Encoder encoder;
+
                 baejsn_EncoderOptions options;
                 options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
                 options.setInitialIndentLevel(0);
                 options.setSpacesPerLevel(2);
-                baejsn_Encoder encoder(&options);
 
                 bdesb_MemOutStreamBuf osb;
-                ASSERTV(0 == encoder.encode(&osb, testObjects[i]));
+                ASSERTV(0 == encoder.encode(&osb, testObjects[i], options));
 
                 bsl::string ACTUAL(osb.data(), osb.length());
                 ASSERTV(LINE_PRETTY, ACTUAL, EXP_PRETTY,
@@ -35543,11 +35541,11 @@ int main(int argc, char *argv[])
 
             // COMPACT PRINTING
             {
-                baejsn_EncoderOptions options;
-                baejsn_Encoder encoder(&options);
+                baejsn_Encoder encoder;
 
+                baejsn_EncoderOptions options;
                 bdesb_MemOutStreamBuf osb;
-                ASSERTV(0 == encoder.encode(&osb, testObjects[i]));
+                ASSERTV(0 == encoder.encode(&osb, testObjects[i], options));
             
                 bsl::string ACTUAL(osb.data(), osb.length());
                 ASSERTV(LINE_COMPACT, ACTUAL, EXP_COMPACT,
@@ -35632,7 +35630,7 @@ int main(int argc, char *argv[])
 
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), 0);
+            Impl impl(&encoder, oss.rdbuf(), Options());
             ASSERTV(0 == impl.encode(X));
 
             bsl::string result = oss.str();
@@ -35650,7 +35648,7 @@ int main(int argc, char *argv[])
             {
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X));
 
                 const char *EXP = 
@@ -35671,7 +35669,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 != impl.encode(X));
                 ASSERTV("" != encoder.loggedMessages());
             }
@@ -35680,7 +35678,7 @@ int main(int argc, char *argv[])
             {
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X));
                 const char *EXP = 
                     "{"
@@ -35731,7 +35729,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 != impl.encode(X));
                 ASSERTV("" != encoder.loggedMessages());
             }
@@ -35740,7 +35738,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -35751,7 +35749,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -35763,7 +35761,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 != impl.encode(X));
                 ASSERTV("" != encoder.loggedMessages());
             }
@@ -35772,7 +35770,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -35834,7 +35832,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(VALUE));
 
                 bsl::string result = oss.str();
@@ -35873,7 +35871,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(value));
 
                 bsl::string result = oss.str();
@@ -35913,7 +35911,7 @@ int main(int argc, char *argv[])
             Obj  encoder;
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -35923,7 +35921,7 @@ int main(int argc, char *argv[])
             mX = 0;
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -35933,7 +35931,7 @@ int main(int argc, char *argv[])
             mX = 42;
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -35943,7 +35941,7 @@ int main(int argc, char *argv[])
             mX.reset();
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -35978,7 +35976,7 @@ int main(int argc, char *argv[])
 
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), 0);
+            Impl impl(&encoder, oss.rdbuf(), Options());
             ASSERTV(ti, 0 == impl.encode(X));
 
             bsl::string result = oss.str();
@@ -36126,7 +36124,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(theDate));
 
                 bsl::string result = oss.str();
@@ -36139,7 +36137,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(theDateTz));
 
                 bsl::string result = oss.str();
@@ -36152,7 +36150,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(theTime));
 
                 bsl::string result = oss.str();
@@ -36165,7 +36163,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(theTimeTz));
 
                 bsl::string result = oss.str();
@@ -36178,7 +36176,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(theDatetime));
 
                 bsl::string result = oss.str();
@@ -36191,7 +36189,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(theDatetimeTz));
 
                 bsl::string result = oss.str();
@@ -36252,7 +36250,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(VALUE));
 
                 bsl::string result = oss.str();
@@ -36264,7 +36262,7 @@ int main(int argc, char *argv[])
         {
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), 0);
+            Impl impl(&encoder, oss.rdbuf(), Options());
 
             oss.clear();
             ASSERTV(0 != impl.encode(bsl::numeric_limits<double>::infinity()));
@@ -36359,7 +36357,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), 0);
+                Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(LINE, 0 == impl.encode(VALUE));
 
                 bsl::string result = oss.str();
@@ -36405,7 +36403,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test 'char *'" << endl;
                 {
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf(), 0);
+                    Impl impl(&encoder, oss.rdbuf(), Options());
                     ASSERTV(LINE, 0 == impl.encode(VALUE));
 
                     bsl::string result = oss.str();
@@ -36415,7 +36413,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test 'string'" << endl;
                 {
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf(), 0);
+                    Impl impl(&encoder, oss.rdbuf(), Options());
                     ASSERTV(LINE, 0 == impl.encode(bsl::string(VALUE)));
 
                     bsl::string result = oss.str();
@@ -36425,7 +36423,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test Customized" << endl;
                 {
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf(), 0);
+                    Impl impl(&encoder, oss.rdbuf(), Options());
                     baea::CustomString str;
                     if (0 == str.fromString(VALUE)) {
                         ASSERTV(LINE, 0 == impl.encode(str));
@@ -36455,7 +36453,7 @@ int main(int argc, char *argv[])
         {
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), 0);
+            Impl impl(&encoder, oss.rdbuf(), Options());
             ASSERTV(0 == impl.encode(true));
 
             bsl::string result = oss.str();
@@ -36466,7 +36464,7 @@ int main(int argc, char *argv[])
         {
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), 0);
+            Impl impl(&encoder, oss.rdbuf(), Options());
             ASSERTV(0 == impl.encode(false));
 
             bsl::string result = oss.str();
@@ -36529,7 +36527,8 @@ int main(int argc, char *argv[])
 
             baejsn_Encoder encoder;
             bsl::ostringstream oss;
-            ASSERTV(0 == encoder.encode(oss, bob));
+            baejsn_EncoderOptions options;
+            ASSERTV(0 == encoder.encode(oss, bob, options));
             ASSERTV(oss.str() == jsonTextCompact);
             if (verbose) {
                 P(oss.str());
@@ -36539,15 +36538,15 @@ int main(int argc, char *argv[])
         {
             bsl::istringstream iss(jsonTextPretty);
 
+            baejsn_Encoder encoder;
+            bsl::ostringstream oss;
+
             baejsn_EncoderOptions options;
             options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
             options.setInitialIndentLevel(1);
             options.setSpacesPerLevel(4);
 
-            baejsn_Encoder encoder(&options);
-            bsl::ostringstream oss;
-
-            ASSERTV(0 == encoder.encode(oss, bob));
+            ASSERTV(0 == encoder.encode(oss, bob, options));
             ASSERTV(oss.str() == jsonTextPretty);
             if (verbose) {
                 P(oss.str()); P(jsonTextPretty);

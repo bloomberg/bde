@@ -118,22 +118,24 @@ BDES_IDENT("$Id: $")
 //  employee.homeAddress().state()  = "New York";
 //  employee.age()                  = 21;
 //..
-// Then, we will create a 'baejsn_Encoder' object using a
-// 'baejsn_EncoderOptions' object that specifies that encoding in a pretty
-// style with an initial indent level and spaces per level:
+// Then, we will create a 'baejsn_Encoder' object:
 //..
+//  baejsn_Encoder encoder;
+//..
+// Now, we will output this object in the JSON format by invoking the 'encode'
+// method of the encoder.  We will also create a 'baejsn_EncoderOptions' object
+// that allows us to specify that the encoding should be done in a pretty
+// format, and what the initial indent level and spaces per level should be.
+// We will then pass that object to the 'encode' method:
+//..
+//  bsl::ostringstream os;
+//
 //  baejsn_EncoderOptions options;
 //  options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
 //  options.setInitialIndentLevel(1);
 //  options.setSpacesPerLevel(4);
 //
-//  baejsn_Encoder encoder(&options);
-//..
-// Now, we will encode this object in the JSON format using the encoder:
-//..
-//  bsl::ostringstream os;
-//
-//  const int rc = encoder.encode(os, employee);
+//  const int rc = encoder.encode(os, employee, options);
 //  assert(!rc);
 //  assert(os);
 //..
@@ -187,17 +189,19 @@ BDES_IDENT("$Id: $")
 //  employee["homeAddress"]["state"].setValue("Some State");
 //  employee["age"].setValue(21);
 //..
-// Next, we create a 'baejsn_Encoder' using a default 'baejsn_EncoderOptions'
-// object which resulting in encoding in a compact style:
+// Next, we create a 'baejsn_Encoder':
 //..
-//  baejsn_EncoderOptions options;
-//  baejsn_Encoder encoder(&options);
+//  baejsn_Encoder encoder;
 //..
-// Now, we encode the object:
+// Now, we will output this object in the JSON format by invoking the 'encode'
+// method of the encoder.  We will pass a default 'baejsn_EncoderOptions'
+// object to the 'encode' method which will result in the output being in a
+// compact format:
 //..
 //  bsl::ostringstream os;
 //
-//  const int rc = encoder.encode(os, employee);
+//  baejsn_EncoderOptions options;
+//  const int rc = encoder.encode(os, employee, options);
 //  assert(!rc);
 //  assert(os);
 //..
@@ -303,8 +307,7 @@ class baejsn_Encoder {
 
   private:
     // DATA
-    bsl::ostringstream           d_logStream;        // stream used for logging
-    const baejsn_EncoderOptions *d_encoderOptions_p; // encoding options
+    bsl::ostringstream d_logStream;        // stream used for logging
 
   private:
     // PRIVATE MANIPULATORS
@@ -317,16 +320,6 @@ class baejsn_Encoder {
         // Create a encoder object.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
-        //
-        // DEPRECATED: Use the constructor passed the address of a
-        // non-modifiable 'baejsn_EncoderOptions' object instead.
-
-    baejsn_Encoder(const baejsn_EncoderOptions *options,
-                   bslma_Allocator             *basicAllocator = 0);
-        // Construct an encoder object using the specified 'options'.
-        // Optionally specify 'basicAllocator' for allocating memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
     //! ~baejsn_Encoder() = default;
         // Destroy this object.
@@ -337,6 +330,9 @@ class baejsn_Encoder {
         // Encode the specified 'value' of (template parameter) 'TYPE' into the
         // specified 'streamBuf'.  Return 0 on success, and a non-zero value
         // otherwise.
+        //
+        // DEPRECATED: Use the 'encode' functions passed a reference to a
+        // non-modifiable 'baejsn_EncoderOptions' object instead. 
 
     template <typename TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
@@ -344,6 +340,26 @@ class baejsn_Encoder {
         // specified 'streamBuf'.  Return 0 on success, and a non-zero value
         // otherwise.  Note that 'stream' will be invalidated if the encoding
         // failed.
+        //
+        // DEPRECATED: Use the 'encode' functions passed a reference to a
+        // non-modifiable 'baejsn_EncoderOptions' object instead. 
+
+    template <typename TYPE>
+    int encode(bsl::streambuf               *streamBuf,
+               const TYPE&                   value,
+               const baejsn_EncoderOptions&  options);
+        // Encode the specified 'value' of (template parameter) 'TYPE' into the
+        // specified 'streamBuf' using the specified 'options'.  Return 0 on
+        // success, and a non-zero value otherwise.
+
+    template <typename TYPE>
+    int encode(bsl::ostream&                stream,
+               const TYPE&                  value,
+               const baejsn_EncoderOptions& options);
+        // Encode the specified 'value' of (template parameter) 'TYPE' into the
+        // specified 'streamBuf' using the specified 'options'.  Return 0 on
+        // success, and a non-zero value otherwise.  Note that 'stream' will be
+        // invalidated if the encoding failed.
 
     // ACCESSORS
     bsl::string loggedMessages() const;
@@ -351,8 +367,6 @@ class baejsn_Encoder {
         // that were logged during the last call to the 'encode' method.  The
         // log is reset each time 'encode' is called.
 };
-
-// ---- Anything below this line is implementation specific.  Do not use.  ----
 
                         // ===============================
                         // class baejsn_Encoder_EncodeImpl
@@ -424,16 +438,16 @@ class baejsn_Encoder_EncodeImpl {
 
   public:
     // CREATORS
-    baejsn_Encoder_EncodeImpl(baejsn_Encoder              *encoder,
-                              bsl::streambuf              *streambuf,
-                              const baejsn_EncoderOptions *encoderOptions);
+    baejsn_Encoder_EncodeImpl(baejsn_Encoder               *encoder,
+                              bsl::streambuf               *streambuf,
+                              const baejsn_EncoderOptions&  options);
         // Create a 'baejsn_Encoder_EncodeImpl' object using the specified
-        // 'encoder' and 'encoderOptions' and writing the encoded output to
-        // the specified 'streamBuf'. 
+        // 'encoder' and 'options' and writing the encoded output to the
+        // specified 'streamBuf'.
 
     // MANIPULATORS
     template <typename TYPE>
-    int encode(const TYPE & value);
+    int encode(const TYPE& value);
         // Encode the specified 'value' in the JSON format.  Return 0 on
         // success and a non-zero value otherwise.
 };
@@ -558,21 +572,28 @@ bsl::ostream& baejsn_Encoder::logStream()
 inline
 baejsn_Encoder::baejsn_Encoder(bslma::Allocator *basicAllocator)
 : d_logStream(basicAllocator)
-, d_encoderOptions_p(0)
-{
-}
-
-inline
-baejsn_Encoder::baejsn_Encoder(const baejsn_EncoderOptions *encoderOptions,
-                               bslma_Allocator             *basicAllocator)
-: d_logStream(basicAllocator)
-, d_encoderOptions_p(encoderOptions)
 {
 }
 
 // MANIPULATORS
 template <typename TYPE>
 int baejsn_Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
+{
+    const baejsn_EncoderOptions options;
+    return encode(streamBuf, value, options);
+}
+
+template <typename TYPE>
+int baejsn_Encoder::encode(bsl::ostream& stream, const TYPE& value)
+{
+    const baejsn_EncoderOptions options;
+    return encode(stream, value, options);
+}
+
+template <typename TYPE>
+int baejsn_Encoder::encode(bsl::streambuf               *streamBuf,
+                           const TYPE&                   value,
+                           const baejsn_EncoderOptions&  options)
 {
     BSLS_ASSERT(streamBuf);
 
@@ -590,28 +611,28 @@ int baejsn_Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
     d_logStream.clear();
     d_logStream.str("");
 
-    baejsn_Encoder_EncodeImpl encoderImpl(this, streamBuf, d_encoderOptions_p);
+    baejsn_Encoder_EncodeImpl encoderImpl(this, streamBuf, options);
 
     const int rc = encoderImpl.encode(value);
 
-    if (!rc
-     && d_encoderOptions_p
-     && baejsn_EncoderOptions::BAEJSN_PRETTY ==
-                                         d_encoderOptions_p->encodingStyle()) {
+    if (!rc && baejsn_EncoderOptions::BAEJSN_PRETTY ==
+                                                     options.encodingStyle()) {
         streamBuf->sputc('\n');
     }
     return rc;
 }
 
 template <typename TYPE>
-int baejsn_Encoder::encode(bsl::ostream& stream, const TYPE& value)
+int baejsn_Encoder::encode(bsl::ostream&                stream,
+                           const TYPE&                  value,
+                           const baejsn_EncoderOptions& options)
 {
     if (!stream.good()) {
         logStream() << "Invalid stream." << bsl::endl;
         return -1;                                                    // RETURN
     }
 
-    int rc = this->encode(stream.rdbuf(), value);
+    int rc = this->encode(stream.rdbuf(), value, options);
     if (0 != rc) {
         stream.setstate(bsl::ios_base::failbit);
         return rc;                                                    // RETURN
@@ -891,19 +912,18 @@ int baejsn_Encoder_EncodeImpl::encode(const TYPE& value)
 // CREATORS
 inline
 baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(
-                                   baejsn_Encoder              *encoder,
-                                   bsl::streambuf              *streambuf,
-                                   const baejsn_EncoderOptions *encoderOptions)
+                                       baejsn_Encoder               *encoder,
+                                       bsl::streambuf               *streambuf,
+                                       const baejsn_EncoderOptions&  options)
 : d_encoder(encoder)
 , d_outputStream(streambuf)
 , d_isArrayElement(false)
 , d_isUntaggedElement(false)
 {
-    if (encoderOptions && baejsn_EncoderOptions::BAEJSN_PRETTY ==
-                                             encoderOptions->encodingStyle()) {
-        d_encodingStyle  = encoderOptions->encodingStyle();
-        d_indentLevel    = encoderOptions->initialIndentLevel();
-        d_spacesPerLevel = encoderOptions->spacesPerLevel();
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == options.encodingStyle()) {
+        d_encodingStyle  = options.encodingStyle();
+        d_indentLevel    = options.initialIndentLevel();
+        d_spacesPerLevel = options.spacesPerLevel();
     }
     else {
         d_encodingStyle  = baejsn_EncoderOptions::BAEJSN_COMPACT;
