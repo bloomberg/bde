@@ -4043,7 +4043,7 @@ int btemt_ChannelPool::write(int               channelId,
                              const bcema_Blob& blob,
                              int               enqueueWatermark)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -4066,7 +4066,7 @@ int btemt_ChannelPool::write(int                  channelId,
                              const btemt_BlobMsg& msg,
                              int                  enqueueWatermark)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -4089,7 +4089,7 @@ int btemt_ChannelPool::write(int                   channelId,
                              const btemt_DataMsg&  msg,
                              int                   enqueueWatermark)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -4112,7 +4112,7 @@ int btemt_ChannelPool::write(int               channelId,
                              const btes_Iovec  vecs[],
                              int               numVecs)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -4136,7 +4136,7 @@ int btemt_ChannelPool::write(int             channelId,
                              const btes_Ovec vecs[],
                              int             numVecs)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
