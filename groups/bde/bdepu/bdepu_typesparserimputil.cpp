@@ -131,6 +131,13 @@ int parseRealAsDecimal(const char                **endPos,
     const int firstDigitPos = 18;
     int       fracDigits    =  0;
 
+
+    // Skip leading '0's.
+    while ('0' == *inputString) {
+        ++inputString;
+        hasDigit = 1;
+    }
+
     while ('0' <= *inputString && *inputString <= '9') {
         if (fracDigits >= firstDigitPos) {
             // It is possible that exp will overflow but that would imply
@@ -693,6 +700,11 @@ int bdepu_TypesParserImpUtil::parseDouble(const char **endPos,
     Uint64 binFrac = 0;
     int    binExp  = 0;
 
+    // Note that 'bdepu_RealParserImpUtil::convertDecimalToBinary' converts and
+    // fractional and exponent separately into binary in order to avoid doing
+    // division.  This could result in a loss of precision for numbers less
+    // than '0.1'.
+
     if (bdepu_RealParserImpUtil::convertDecimalToBinary(&binFrac,
                                                         &binExp,
                                                         decFrac,
@@ -736,6 +748,11 @@ int bdepu_TypesParserImpUtil::parseFloat(const char **endPos,
         *result = 0.0;
         return BDEPU_SUCCESS;
     }
+
+    // Note that 'bdepu_RealParserImpUtil::convertDecimalToBinary' converts and
+    // fractional and exponent separately into binary in order to avoid doing
+    // division.  This could result in a loss of precision for numbers less
+    // than '0.1'.
 
     double res;
     bdepu_RealParserImpUtil::convertBinaryToDouble(&res,

@@ -119,8 +119,16 @@ const bdecs_Calendar *bdecs_CalendarCacheEntry::calendar(
     BSLS_ASSERT(loader);
     BSLS_ASSERT(name);
 
-    if ((bdetu_SystemTime::nowAsDatetimeUtc() - d_loadTime).seconds() >=
-                                                           timeout.seconds()) {
+    // Determine whether calendar should be reloaded by checking whether the
+    // elapsed time is greater than the time out time.  Note that the elapsed
+    // time has milliseconds precision while time out time has nanoseconds
+    // precision, and that the behavior is undefined unless 'timeout' is small
+    // enough to fit in a 64-bit integer value in milliseconds.
+
+    bsls_PlatformUtil::Int64 elapsedTime =
+       (bdetu_SystemTime::nowAsDatetimeUtc() - d_loadTime).totalMilliseconds();
+
+    if (elapsedTime >= timeout.totalMilliseconds()) {
 
         // This entry has expired.
 

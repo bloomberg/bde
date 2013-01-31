@@ -35,6 +35,40 @@ const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle
     bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::INVALID_HANDLE =
                                                    { INVALID_HANDLE_VALUE, 0 };
 
+class HandleGuard {
+    // This guard mechanism closes the windows handle (using 'CloseHandle')
+    // when this guard goes out of scope and is destroyed.
+
+    // DATA
+    HANDLE d_handle;
+
+  private:
+    // NOT IMPLEMENTED
+    HandleGuard(const HandleGuard&);
+    HandleGuard operator=(const HandleGuard&);
+
+  public:
+
+    explicit HandleGuard(HANDLE handle);
+        // Create a guard for the specified 'handle', that upon going out
+        // of scope and being destroyed, will call 'CloseHandle' on 'handle'.
+
+    ~HandleGuard();
+        // Call 'CloseHandle' on the windows handle supplied at construction.
+};
+
+HandleGuard::HandleGuard(HANDLE handle)
+: d_handle(handle)
+{
+}
+
+HandleGuard::~HandleGuard()
+{
+    if (!CloseHandle(d_handle)) {
+        BSLS_ASSERT_OPT(false);
+    }
+}
+
 struct ThreadStartupInfo{
     // Control structure used to pass startup information to the thread entry
     // function.
@@ -282,7 +316,7 @@ static unsigned _stdcall ThreadEntry(void *arg)
     }
     LeaveCriticalSection(&s_returnValueMapLock);
 #endif
-    return (unsigned)(bsls_PlatformUtil::IntPtr)ret;
+    return (unsigned)(bsls::Types::IntPtr)ret;
 }
 
             // -------------------------------------------------------
@@ -429,7 +463,7 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::exit(void *status)
     }
     LeaveCriticalSection(&s_returnValueMapLock);
 #endif
-    _endthreadex((unsigned)(bsls_PlatformUtil::IntPtr)status);
+    _endthreadex((unsigned)(bsls::Types::IntPtr)status);
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::createKey(
@@ -492,6 +526,51 @@ bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(
             const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& b)
 {
     return a.d_id == b.d_id;
+}
+
+int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
+                                         const bdet_TimeInterval& absoluteTime)
+{
+    // ASSERT that the interval is between January 1, 1970 00:00.000 and
+    // the end of December 31, 9999 (i.e., less than January 1, 10000).
+
+    BSLS_ASSERT(absoluteTime >= bdet_TimeInterval(0, 0));
+    BSLS_ASSERT(absoluteTime <  bdet_TimeInterval(253402300800LL, 0));
+
+    HANDLE timer = CreateWaitableTimer(0, false, 0);
+    if (0 == timer) {
+        return GetLastError();                                        // RETURN
+    }
+    HandleGuard guard(timer);
+
+    LARGE_INTEGER clockTime;
+
+    // As indicated in the documentation for 'SetWaitableTimer':
+    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
+    // A positive value represents an absolute time in increments of 100
+    // nanoseconds.  Critically though, Microsoft's epoch is different
+    // for epoch used by the C run-time (and BDE).  BDE uses January 1, 1970,
+    // Microsoft uses January 1, 1601, see:
+    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186
+    // The following page on converting a 'time_t' to a 'FILETIME' shows the
+    // constant, 116444736000000000 in 100ns (or 11643609600 seconds) needed
+    // to convert between the two epochs:
+    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
+
+    const int HUNDRED_NANOSECS_PER_SEC = 10000000;  // 1 hundred thousand
+    clockTime.QuadPart = absoluteTime.seconds() * HUNDRED_NANOSECS_PER_SEC
+                       + absoluteTime.nanoseconds() / 100
+                       + 116444736000000000LL;
+
+    if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
+
+        return GetLastError();                                        // RETURN
+    }
+
+    if (WAIT_OBJECT_0 != WaitForSingleObject(timer, INFINITE)) {
+        return GetLastError();                                        // RETURN
+    }
+    return 0;
 }
 
 }  // close namespace BloombergLP

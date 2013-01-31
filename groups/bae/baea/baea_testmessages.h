@@ -10,28 +10,19 @@ BDES_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
 //
-//@AUTHOR: Raymond Seehei CHIU (schiu49@bloomberg.net)
+//@AUTHOR: David SCHUMANN (dschumann1@bloomberg.net)
 //
 //@DESCRIPTION: This is a generated file for testing purposes and should *not*
 // be used in any production code.
 //
 // The file is generated with the command:
 //..
-//  bas_codegen.pl -mmsg -Ctestmessages --dualSTL y test/baea_testmessages.xsd
+//  bas_codegen.pl -mmsg -Ctestmessages --noAggregateConversion \
+//                 test/baea_testmessages.xsd
 //..
 // After the message component is generated, the following modifications are
 // made:
-//: o The declarations and definitions of all 'toAggregate' and 'fromAggregate'
-//:   functions are removed due to a bug in 'bas_codegen.pl', which incorrectly
-//:   creates those functions and causes the component to fail to compile.
-//:
-//: o No-op code is added to quash compiler warnings
-//:
 //: o This @DESCRIPTION section is added.
-
-#ifndef INCLUDED_BCEM_AGGREGATE
-#include <bcem_aggregate.h>
-#endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
@@ -117,6 +108,7 @@ namespace BloombergLP {
 
 namespace baea { class CustomInt; }
 namespace baea { class CustomString; }
+namespace baea { class SequenceWithAnonymityChoice1; }
 namespace baea { class SimpleRequest; }
 namespace baea { class UnsignedSequence; }
 namespace baea { class VoidSequence; }
@@ -124,11 +116,14 @@ namespace baea { class Sequence3; }
 namespace baea { class Sequence5; }
 namespace baea { class Sequence6; }
 namespace baea { class Choice3; }
+namespace baea { class SequenceWithAnonymityChoice; }
 namespace baea { class Choice1; }
 namespace baea { class Choice2; }
 namespace baea { class Sequence4; }
 namespace baea { class Sequence1; }
 namespace baea { class Sequence2; }
+namespace baea { class SequenceWithAnonymityChoice2; }
+namespace baea { class SequenceWithAnonymity; }
 namespace baea { class FeatureTestMessage; }
 namespace baea { class Request; }
 namespace baea { class Response; }
@@ -496,6 +491,228 @@ bsl::ostream& operator<<(bsl::ostream& stream, Enumerated::Value rhs);
 
 BDEAT_DECL_ENUMERATION_TRAITS(baea::Enumerated)
 
+
+namespace baea {
+
+                     // ==================================                     
+                     // class SequenceWithAnonymityChoice1                     
+                     // ==================================                     
+
+class SequenceWithAnonymityChoice1 {
+
+    // INSTANCE DATA
+    union {
+        bsls_ObjectBuffer< bool >        d_selection5;
+        bsls_ObjectBuffer< bsl::string > d_selection6;
+    };
+
+    int                                  d_selectionId;
+    bslma_Allocator                     *d_allocator_p;
+
+  public:
+    // TYPES
+    enum {
+        SELECTION_ID_UNDEFINED  = -1
+
+      , SELECTION_ID_SELECTION5 = 0
+      , SELECTION_ID_SELECTION6 = 1
+    };
+
+    enum {
+        NUM_SELECTIONS = 2
+    };
+
+    enum {
+        SELECTION_INDEX_SELECTION5 = 0
+      , SELECTION_INDEX_SELECTION6 = 1
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit SequenceWithAnonymityChoice1(bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'SequenceWithAnonymityChoice1' having the
+        // default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    SequenceWithAnonymityChoice1(const SequenceWithAnonymityChoice1& original,
+                                bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'SequenceWithAnonymityChoice1' having the
+        // value of the specified 'original' object.  Use the optionally
+        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
+
+    ~SequenceWithAnonymityChoice1();
+        // Destroy this object.
+
+    // MANIPULATORS
+    SequenceWithAnonymityChoice1& operator=(const SequenceWithAnonymityChoice1& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
+
+    int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
+
+    int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
+
+    bool& makeSelection5();
+    bool& makeSelection5(bool value);
+        // Set the value of this object to be a "Selection5" value.  Optionally
+        // specify the 'value' of the "Selection5".  If 'value' is not
+        // specified, the default "Selection5" value is used.
+
+    bsl::string& makeSelection6();
+    bsl::string& makeSelection6(const bsl::string& value);
+        // Set the value of this object to be a "Selection6" value.  Optionally
+        // specify the 'value' of the "Selection6".  If 'value' is not
+        // specified, the default "Selection6" value is used.
+
+    template<class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
+
+    bool& selection5();
+        // Return a reference to the modifiable "Selection5" selection of this
+        // object if "Selection5" is the current selection.  The behavior is
+        // undefined unless "Selection5" is the selection of this object.
+
+    bsl::string& selection6();
+        // Return a reference to the modifiable "Selection6" selection of this
+        // object if "Selection6" is the current selection.  The behavior is
+        // undefined unless "Selection6" is the selection of this object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
+
+    const bool& selection5() const;
+        // Return a reference to the non-modifiable "Selection5" selection of
+        // this object if "Selection5" is the current selection.  The behavior
+        // is undefined unless "Selection5" is the selection of this object.
+
+    const bsl::string& selection6() const;
+        // Return a reference to the non-modifiable "Selection6" selection of
+        // this object if "Selection6" is the current selection.  The behavior
+        // is undefined unless "Selection6" is the selection of this object.
+
+    bool isSelection5Value() const;
+        // Return 'true' if the value of this object is a "Selection5" value,
+        // and return 'false' otherwise.
+
+    bool isSelection6Value() const;
+        // Return 'true' if the value of this object is a "Selection6" value,
+        // and return 'false' otherwise.
+
+    bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
+
+    const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const SequenceWithAnonymityChoice1& lhs, const SequenceWithAnonymityChoice1& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'SequenceWithAnonymityChoice1' objects have the same
+    // value if either the selections in both objects have the same ids and
+    // the same values, or both selections are undefined.
+
+inline
+bool operator!=(const SequenceWithAnonymityChoice1& lhs, const SequenceWithAnonymityChoice1& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same values, as determined by 'operator==', and 'false' otherwise.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymityChoice1& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace baea
+
+// TRAITS
+
+BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baea::SequenceWithAnonymityChoice1)
 
 namespace baea {
 
@@ -1642,16 +1859,20 @@ namespace baea {
 class Sequence6 {
 
     // INSTANCE DATA
-    bsl::vector<unsigned char>                        d_element8;
-    bsl::vector<bdeut_NullableValue<unsigned char> >  d_element10;
-    bsl::vector<CustomString>                         d_element9;
+    bsl::vector<unsigned int>                         d_element12;
+    bsl::vector<unsigned char>                        d_element10;
+    bsl::vector<bdeut_NullableValue<unsigned int> >   d_element15;
+    bsl::vector<bdeut_NullableValue<unsigned char> >  d_element13;
+    bsl::vector<CustomString>                         d_element11;
     bdeut_NullableValue<CustomString>                 d_element2;
-    CustomString                                      d_element6;
-    bsl::vector<bdeut_NullableValue<CustomInt> >      d_element5;
-    bsl::vector<CustomInt>                            d_element11;
+    CustomString                                      d_element7;
+    unsigned int                                      d_element4;
+    bsl::vector<bdeut_NullableValue<CustomInt> >      d_element6;
+    bsl::vector<CustomInt>                            d_element14;
+    bdeut_NullableValue<unsigned int>                 d_element9;
     bdeut_NullableValue<CustomInt>                    d_element3;
-    CustomInt                                         d_element7;
-    unsigned char                                     d_element4;
+    CustomInt                                         d_element8;
+    unsigned char                                     d_element5;
     bdeut_NullableValue<unsigned char>                d_element1;
 
   public:
@@ -1668,10 +1889,14 @@ class Sequence6 {
       , ATTRIBUTE_ID_ELEMENT9  = 8
       , ATTRIBUTE_ID_ELEMENT10 = 9
       , ATTRIBUTE_ID_ELEMENT11 = 10
+      , ATTRIBUTE_ID_ELEMENT12 = 11
+      , ATTRIBUTE_ID_ELEMENT13 = 12
+      , ATTRIBUTE_ID_ELEMENT14 = 13
+      , ATTRIBUTE_ID_ELEMENT15 = 14
     };
 
     enum {
-        NUM_ATTRIBUTES = 11
+        NUM_ATTRIBUTES = 15
     };
 
     enum {
@@ -1686,6 +1911,10 @@ class Sequence6 {
       , ATTRIBUTE_INDEX_ELEMENT9  = 8
       , ATTRIBUTE_INDEX_ELEMENT10 = 9
       , ATTRIBUTE_INDEX_ELEMENT11 = 10
+      , ATTRIBUTE_INDEX_ELEMENT12 = 11
+      , ATTRIBUTE_INDEX_ELEMENT13 = 12
+      , ATTRIBUTE_INDEX_ELEMENT14 = 13
+      , ATTRIBUTE_INDEX_ELEMENT15 = 14
     };
 
     // CONSTANTS
@@ -1790,36 +2019,52 @@ class Sequence6 {
         // Return a reference to the modifiable "Element3" attribute of this
         // object.
 
-    unsigned char& element4();
+    unsigned int& element4();
         // Return a reference to the modifiable "Element4" attribute of this
         // object.
 
-    bsl::vector<bdeut_NullableValue<CustomInt> >& element5();
+    unsigned char& element5();
         // Return a reference to the modifiable "Element5" attribute of this
         // object.
 
-    CustomString& element6();
+    bsl::vector<bdeut_NullableValue<CustomInt> >& element6();
         // Return a reference to the modifiable "Element6" attribute of this
         // object.
 
-    CustomInt& element7();
+    CustomString& element7();
         // Return a reference to the modifiable "Element7" attribute of this
         // object.
 
-    bsl::vector<unsigned char>& element8();
+    CustomInt& element8();
         // Return a reference to the modifiable "Element8" attribute of this
         // object.
 
-    bsl::vector<CustomString>& element9();
+    bdeut_NullableValue<unsigned int>& element9();
         // Return a reference to the modifiable "Element9" attribute of this
         // object.
 
-    bsl::vector<bdeut_NullableValue<unsigned char> >& element10();
+    bsl::vector<unsigned char>& element10();
         // Return a reference to the modifiable "Element10" attribute of this
         // object.
 
-    bsl::vector<CustomInt>& element11();
+    bsl::vector<CustomString>& element11();
         // Return a reference to the modifiable "Element11" attribute of this
+        // object.
+
+    bsl::vector<unsigned int>& element12();
+        // Return a reference to the modifiable "Element12" attribute of this
+        // object.
+
+    bsl::vector<bdeut_NullableValue<unsigned char> >& element13();
+        // Return a reference to the modifiable "Element13" attribute of this
+        // object.
+
+    bsl::vector<CustomInt>& element14();
+        // Return a reference to the modifiable "Element14" attribute of this
+        // object.
+
+    bsl::vector<bdeut_NullableValue<unsigned int> >& element15();
+        // Return a reference to the modifiable "Element15" attribute of this
         // object.
 
     // ACCESSORS
@@ -1887,36 +2132,52 @@ class Sequence6 {
         // Return a reference to the non-modifiable "Element3" attribute of
         // this object.
 
-    unsigned char element4() const;
+    unsigned int element4() const;
         // Return a reference to the non-modifiable "Element4" attribute of
         // this object.
 
-    const bsl::vector<bdeut_NullableValue<CustomInt> >& element5() const;
+    unsigned char element5() const;
         // Return a reference to the non-modifiable "Element5" attribute of
         // this object.
 
-    const CustomString& element6() const;
+    const bsl::vector<bdeut_NullableValue<CustomInt> >& element6() const;
         // Return a reference to the non-modifiable "Element6" attribute of
         // this object.
 
-    const CustomInt& element7() const;
+    const CustomString& element7() const;
         // Return a reference to the non-modifiable "Element7" attribute of
         // this object.
 
-    const bsl::vector<unsigned char>& element8() const;
+    const CustomInt& element8() const;
         // Return a reference to the non-modifiable "Element8" attribute of
         // this object.
 
-    const bsl::vector<CustomString>& element9() const;
+    const bdeut_NullableValue<unsigned int>& element9() const;
         // Return a reference to the non-modifiable "Element9" attribute of
         // this object.
 
-    const bsl::vector<bdeut_NullableValue<unsigned char> >& element10() const;
+    const bsl::vector<unsigned char>& element10() const;
         // Return a reference to the non-modifiable "Element10" attribute of
         // this object.
 
-    const bsl::vector<CustomInt>& element11() const;
+    const bsl::vector<CustomString>& element11() const;
         // Return a reference to the non-modifiable "Element11" attribute of
+        // this object.
+
+    const bsl::vector<unsigned int>& element12() const;
+        // Return a reference to the non-modifiable "Element12" attribute of
+        // this object.
+
+    const bsl::vector<bdeut_NullableValue<unsigned char> >& element13() const;
+        // Return a reference to the non-modifiable "Element13" attribute of
+        // this object.
+
+    const bsl::vector<CustomInt>& element14() const;
+        // Return a reference to the non-modifiable "Element14" attribute of
+        // this object.
+
+    const bsl::vector<bdeut_NullableValue<unsigned int> >& element15() const;
+        // Return a reference to the non-modifiable "Element15" attribute of
         // this object.
 };
 
@@ -2215,6 +2476,274 @@ BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baea::Choice3)
 
 namespace baea {
 
+                     // =================================                      
+                     // class SequenceWithAnonymityChoice                      
+                     // =================================                      
+
+class SequenceWithAnonymityChoice {
+
+    // INSTANCE DATA
+    union {
+        bsls_ObjectBuffer< Sequence6 >     d_selection1;
+        bsls_ObjectBuffer< unsigned char > d_selection2;
+        bsls_ObjectBuffer< CustomString >  d_selection3;
+        bsls_ObjectBuffer< CustomInt >     d_selection4;
+    };
+
+    int                                    d_selectionId;
+    bslma_Allocator                       *d_allocator_p;
+
+  public:
+    // TYPES
+    enum {
+        SELECTION_ID_UNDEFINED  = -1
+
+      , SELECTION_ID_SELECTION1 = 0
+      , SELECTION_ID_SELECTION2 = 1
+      , SELECTION_ID_SELECTION3 = 2
+      , SELECTION_ID_SELECTION4 = 3
+    };
+
+    enum {
+        NUM_SELECTIONS = 4
+    };
+
+    enum {
+        SELECTION_INDEX_SELECTION1 = 0
+      , SELECTION_INDEX_SELECTION2 = 1
+      , SELECTION_INDEX_SELECTION3 = 2
+      , SELECTION_INDEX_SELECTION4 = 3
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit SequenceWithAnonymityChoice(bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'SequenceWithAnonymityChoice' having the
+        // default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    SequenceWithAnonymityChoice(const SequenceWithAnonymityChoice& original,
+                               bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'SequenceWithAnonymityChoice' having the
+        // value of the specified 'original' object.  Use the optionally
+        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
+
+    ~SequenceWithAnonymityChoice();
+        // Destroy this object.
+
+    // MANIPULATORS
+    SequenceWithAnonymityChoice& operator=(const SequenceWithAnonymityChoice& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
+
+    int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
+
+    int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
+
+    Sequence6& makeSelection1();
+    Sequence6& makeSelection1(const Sequence6& value);
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
+
+    unsigned char& makeSelection2();
+    unsigned char& makeSelection2(unsigned char value);
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
+
+    CustomString& makeSelection3();
+    CustomString& makeSelection3(const CustomString& value);
+        // Set the value of this object to be a "Selection3" value.  Optionally
+        // specify the 'value' of the "Selection3".  If 'value' is not
+        // specified, the default "Selection3" value is used.
+
+    CustomInt& makeSelection4();
+    CustomInt& makeSelection4(const CustomInt& value);
+        // Set the value of this object to be a "Selection4" value.  Optionally
+        // specify the 'value' of the "Selection4".  If 'value' is not
+        // specified, the default "Selection4" value is used.
+
+    template<class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
+
+    Sequence6& selection1();
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
+
+    unsigned char& selection2();
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
+
+    CustomString& selection3();
+        // Return a reference to the modifiable "Selection3" selection of this
+        // object if "Selection3" is the current selection.  The behavior is
+        // undefined unless "Selection3" is the selection of this object.
+
+    CustomInt& selection4();
+        // Return a reference to the modifiable "Selection4" selection of this
+        // object if "Selection4" is the current selection.  The behavior is
+        // undefined unless "Selection4" is the selection of this object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
+
+    const Sequence6& selection1() const;
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
+
+    const unsigned char& selection2() const;
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
+
+    const CustomString& selection3() const;
+        // Return a reference to the non-modifiable "Selection3" selection of
+        // this object if "Selection3" is the current selection.  The behavior
+        // is undefined unless "Selection3" is the selection of this object.
+
+    const CustomInt& selection4() const;
+        // Return a reference to the non-modifiable "Selection4" selection of
+        // this object if "Selection4" is the current selection.  The behavior
+        // is undefined unless "Selection4" is the selection of this object.
+
+    bool isSelection1Value() const;
+        // Return 'true' if the value of this object is a "Selection1" value,
+        // and return 'false' otherwise.
+
+    bool isSelection2Value() const;
+        // Return 'true' if the value of this object is a "Selection2" value,
+        // and return 'false' otherwise.
+
+    bool isSelection3Value() const;
+        // Return 'true' if the value of this object is a "Selection3" value,
+        // and return 'false' otherwise.
+
+    bool isSelection4Value() const;
+        // Return 'true' if the value of this object is a "Selection4" value,
+        // and return 'false' otherwise.
+
+    bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
+
+    const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const SequenceWithAnonymityChoice& lhs, const SequenceWithAnonymityChoice& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'SequenceWithAnonymityChoice' objects have the same
+    // value if either the selections in both objects have the same ids and
+    // the same values, or both selections are undefined.
+
+inline
+bool operator!=(const SequenceWithAnonymityChoice& lhs, const SequenceWithAnonymityChoice& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same values, as determined by 'operator==', and 'false' otherwise.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymityChoice& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace baea
+
+// TRAITS
+
+BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baea::SequenceWithAnonymityChoice)
+
+namespace baea {
+
                                // =============                                
                                // class Choice1                                
                                // =============                                
@@ -2491,13 +3020,14 @@ class Choice2 {
 
     // INSTANCE DATA
     union {
-        bsls_ObjectBuffer< bool >         d_selection1;
-        bsls_ObjectBuffer< bsl::string >  d_selection2;
-        Choice1                          *d_selection3;
+        bsls_ObjectBuffer< bool >          d_selection1;
+        bsls_ObjectBuffer< bsl::string >   d_selection2;
+        Choice1                           *d_selection3;
+        bsls_ObjectBuffer< unsigned int >  d_selection4;
     };
 
-    int                                   d_selectionId;
-    bslma_Allocator                      *d_allocator_p;
+    int                                    d_selectionId;
+    bslma_Allocator                       *d_allocator_p;
 
   public:
     // TYPES
@@ -2507,16 +3037,18 @@ class Choice2 {
       , SELECTION_ID_SELECTION1 = 0
       , SELECTION_ID_SELECTION2 = 1
       , SELECTION_ID_SELECTION3 = 2
+      , SELECTION_ID_SELECTION4 = 3
     };
 
     enum {
-        NUM_SELECTIONS = 3
+        NUM_SELECTIONS = 4
     };
 
     enum {
         SELECTION_INDEX_SELECTION1 = 0
       , SELECTION_INDEX_SELECTION2 = 1
       , SELECTION_INDEX_SELECTION3 = 2
+      , SELECTION_INDEX_SELECTION4 = 3
     };
 
     // CONSTANTS
@@ -2608,6 +3140,12 @@ class Choice2 {
         // specify the 'value' of the "Selection3".  If 'value' is not
         // specified, the default "Selection3" value is used.
 
+    unsigned int& makeSelection4();
+    unsigned int& makeSelection4(unsigned int value);
+        // Set the value of this object to be a "Selection4" value.  Optionally
+        // specify the 'value' of the "Selection4".  If 'value' is not
+        // specified, the default "Selection4" value is used.
+
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' on the address of the modifiable
@@ -2630,6 +3168,11 @@ class Choice2 {
         // Return a reference to the modifiable "Selection3" selection of this
         // object if "Selection3" is the current selection.  The behavior is
         // undefined unless "Selection3" is the selection of this object.
+
+    unsigned int& selection4();
+        // Return a reference to the modifiable "Selection4" selection of this
+        // object if "Selection4" is the current selection.  The behavior is
+        // undefined unless "Selection4" is the selection of this object.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -2682,6 +3225,11 @@ class Choice2 {
         // this object if "Selection3" is the current selection.  The behavior
         // is undefined unless "Selection3" is the selection of this object.
 
+    const unsigned int& selection4() const;
+        // Return a reference to the non-modifiable "Selection4" selection of
+        // this object if "Selection4" is the current selection.  The behavior
+        // is undefined unless "Selection4" is the selection of this object.
+
     bool isSelection1Value() const;
         // Return 'true' if the value of this object is a "Selection1" value,
         // and return 'false' otherwise.
@@ -2692,6 +3240,10 @@ class Choice2 {
 
     bool isSelection3Value() const;
         // Return 'true' if the value of this object is a "Selection3" value,
+        // and return 'false' otherwise.
+
+    bool isSelection4Value() const;
+        // Return 'true' if the value of this object is a "Selection4" value,
         // and return 'false' otherwise.
 
     bool isUndefinedValue() const;
@@ -3135,11 +3687,12 @@ namespace baea {
 class Sequence1 {
 
     // INSTANCE DATA
-    bslma_Allocator              *d_allocator_p;
-    bsl::vector<Choice3>          d_element4;
-    bsl::vector<Choice1>          d_element2;
-    bdeut_NullableValue<Choice3>  d_element1;
-    Choice2                      *d_element3;
+    bslma_Allocator                            *d_allocator_p;
+    bsl::vector<bdeut_NullableValue<Choice1> >  d_element4;
+    bsl::vector<Choice3>                        d_element5;
+    bsl::vector<Choice1>                        d_element2;
+    bdeut_NullableValue<Choice3>                d_element1;
+    Choice2                                    *d_element3;
 
   public:
     // TYPES
@@ -3148,10 +3701,11 @@ class Sequence1 {
       , ATTRIBUTE_ID_ELEMENT2 = 1
       , ATTRIBUTE_ID_ELEMENT3 = 2
       , ATTRIBUTE_ID_ELEMENT4 = 3
+      , ATTRIBUTE_ID_ELEMENT5 = 4
     };
 
     enum {
-        NUM_ATTRIBUTES = 4
+        NUM_ATTRIBUTES = 5
     };
 
     enum {
@@ -3159,6 +3713,7 @@ class Sequence1 {
       , ATTRIBUTE_INDEX_ELEMENT2 = 1
       , ATTRIBUTE_INDEX_ELEMENT3 = 2
       , ATTRIBUTE_INDEX_ELEMENT4 = 3
+      , ATTRIBUTE_INDEX_ELEMENT5 = 4
     };
 
     // CONSTANTS
@@ -3263,8 +3818,12 @@ class Sequence1 {
         // Return a reference to the modifiable "Element3" attribute of this
         // object.
 
-    bsl::vector<Choice3>& element4();
+    bsl::vector<bdeut_NullableValue<Choice1> >& element4();
         // Return a reference to the modifiable "Element4" attribute of this
+        // object.
+
+    bsl::vector<Choice3>& element5();
+        // Return a reference to the modifiable "Element5" attribute of this
         // object.
 
     // ACCESSORS
@@ -3332,8 +3891,12 @@ class Sequence1 {
         // Return a reference to the non-modifiable "Element3" attribute of
         // this object.
 
-    const bsl::vector<Choice3>& element4() const;
+    const bsl::vector<bdeut_NullableValue<Choice1> >& element4() const;
         // Return a reference to the non-modifiable "Element4" attribute of
+        // this object.
+
+    const bsl::vector<Choice3>& element5() const;
+        // Return a reference to the non-modifiable "Element5" attribute of
         // this object.
 };
 
@@ -3610,6 +4173,463 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baea::Sequence2)
 
 namespace baea {
 
+                     // ==================================                     
+                     // class SequenceWithAnonymityChoice2                     
+                     // ==================================                     
+
+class SequenceWithAnonymityChoice2 {
+
+    // INSTANCE DATA
+    union {
+        Sequence4             *d_selection7;
+        Choice2               *d_selection8;
+    };
+
+    int                        d_selectionId;
+    bslma_Allocator           *d_allocator_p;
+
+  public:
+    // TYPES
+    enum {
+        SELECTION_ID_UNDEFINED  = -1
+
+      , SELECTION_ID_SELECTION7 = 0
+      , SELECTION_ID_SELECTION8 = 1
+    };
+
+    enum {
+        NUM_SELECTIONS = 2
+    };
+
+    enum {
+        SELECTION_INDEX_SELECTION7 = 0
+      , SELECTION_INDEX_SELECTION8 = 1
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit SequenceWithAnonymityChoice2(bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'SequenceWithAnonymityChoice2' having the
+        // default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    SequenceWithAnonymityChoice2(const SequenceWithAnonymityChoice2& original,
+                                bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'SequenceWithAnonymityChoice2' having the
+        // value of the specified 'original' object.  Use the optionally
+        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
+
+    ~SequenceWithAnonymityChoice2();
+        // Destroy this object.
+
+    // MANIPULATORS
+    SequenceWithAnonymityChoice2& operator=(const SequenceWithAnonymityChoice2& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
+
+    int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
+
+    int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
+
+    Sequence4& makeSelection7();
+    Sequence4& makeSelection7(const Sequence4& value);
+        // Set the value of this object to be a "Selection7" value.  Optionally
+        // specify the 'value' of the "Selection7".  If 'value' is not
+        // specified, the default "Selection7" value is used.
+
+    Choice2& makeSelection8();
+    Choice2& makeSelection8(const Choice2& value);
+        // Set the value of this object to be a "Selection8" value.  Optionally
+        // specify the 'value' of the "Selection8".  If 'value' is not
+        // specified, the default "Selection8" value is used.
+
+    template<class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
+
+    Sequence4& selection7();
+        // Return a reference to the modifiable "Selection7" selection of this
+        // object if "Selection7" is the current selection.  The behavior is
+        // undefined unless "Selection7" is the selection of this object.
+
+    Choice2& selection8();
+        // Return a reference to the modifiable "Selection8" selection of this
+        // object if "Selection8" is the current selection.  The behavior is
+        // undefined unless "Selection8" is the selection of this object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
+
+    const Sequence4& selection7() const;
+        // Return a reference to the non-modifiable "Selection7" selection of
+        // this object if "Selection7" is the current selection.  The behavior
+        // is undefined unless "Selection7" is the selection of this object.
+
+    const Choice2& selection8() const;
+        // Return a reference to the non-modifiable "Selection8" selection of
+        // this object if "Selection8" is the current selection.  The behavior
+        // is undefined unless "Selection8" is the selection of this object.
+
+    bool isSelection7Value() const;
+        // Return 'true' if the value of this object is a "Selection7" value,
+        // and return 'false' otherwise.
+
+    bool isSelection8Value() const;
+        // Return 'true' if the value of this object is a "Selection8" value,
+        // and return 'false' otherwise.
+
+    bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
+
+    const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const SequenceWithAnonymityChoice2& lhs, const SequenceWithAnonymityChoice2& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'SequenceWithAnonymityChoice2' objects have the same
+    // value if either the selections in both objects have the same ids and
+    // the same values, or both selections are undefined.
+
+inline
+bool operator!=(const SequenceWithAnonymityChoice2& lhs, const SequenceWithAnonymityChoice2& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same values, as determined by 'operator==', and 'false' otherwise.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymityChoice2& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace baea
+
+// TRAITS
+
+BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baea::SequenceWithAnonymityChoice2)
+
+namespace baea {
+
+                        // ===========================                         
+                        // class SequenceWithAnonymity                         
+                        // ===========================                         
+
+class SequenceWithAnonymity {
+
+    // INSTANCE DATA
+    bdeut_NullableValue<SequenceWithAnonymityChoice2>  d_choice2;
+    SequenceWithAnonymityChoice1                       d_choice1;
+    SequenceWithAnonymityChoice                        d_choice;
+    Sequence6                                          d_element4;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_CHOICE   = 0
+      , ATTRIBUTE_ID_CHOICE1  = 1
+      , ATTRIBUTE_ID_CHOICE2  = 2
+      , ATTRIBUTE_ID_ELEMENT4 = 3
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 4
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_CHOICE   = 0
+      , ATTRIBUTE_INDEX_CHOICE1  = 1
+      , ATTRIBUTE_INDEX_CHOICE2  = 2
+      , ATTRIBUTE_INDEX_ELEMENT4 = 3
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit SequenceWithAnonymity(bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'SequenceWithAnonymity' having the default
+        // value.  Use the optionally specified 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
+
+    SequenceWithAnonymity(const SequenceWithAnonymity& original,
+                          bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'SequenceWithAnonymity' having the value of
+        // the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~SequenceWithAnonymity();
+        // Destroy this object.
+
+    // MANIPULATORS
+    SequenceWithAnonymity& operator=(const SequenceWithAnonymity& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    SequenceWithAnonymityChoice& choice();
+        // Return a reference to the modifiable "Choice" attribute of this
+        // object.
+
+    SequenceWithAnonymityChoice1& choice1();
+        // Return a reference to the modifiable "Choice1" attribute of this
+        // object.
+
+    bdeut_NullableValue<SequenceWithAnonymityChoice2>& choice2();
+        // Return a reference to the modifiable "Choice2" attribute of this
+        // object.
+
+    Sequence6& element4();
+        // Return a reference to the modifiable "Element4" attribute of this
+        // object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const SequenceWithAnonymityChoice& choice() const;
+        // Return a reference to the non-modifiable "Choice" attribute of this
+        // object.
+
+    const SequenceWithAnonymityChoice1& choice1() const;
+        // Return a reference to the non-modifiable "Choice1" attribute of this
+        // object.
+
+    const bdeut_NullableValue<SequenceWithAnonymityChoice2>& choice2() const;
+        // Return a reference to the non-modifiable "Choice2" attribute of this
+        // object.
+
+    const Sequence6& element4() const;
+        // Return a reference to the non-modifiable "Element4" attribute of
+        // this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const SequenceWithAnonymity& lhs, const SequenceWithAnonymity& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const SequenceWithAnonymity& lhs, const SequenceWithAnonymity& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymity& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace baea
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baea::SequenceWithAnonymity)
+
+namespace baea {
+
                           // ========================                          
                           // class FeatureTestMessage                          
                           // ========================                          
@@ -3618,20 +4638,21 @@ class FeatureTestMessage {
 
     // INSTANCE DATA
     union {
-        bsls_ObjectBuffer< Sequence1 >          d_selection1;
-        bsls_ObjectBuffer< bsl::vector<char> >  d_selection2;
-        bsls_ObjectBuffer< Sequence2 >          d_selection3;
-        Sequence3                              *d_selection4;
-        bsls_ObjectBuffer< bdet_DatetimeTz >    d_selection5;
-        bsls_ObjectBuffer< CustomString >       d_selection6;
-        bsls_ObjectBuffer< Enumerated::Value >  d_selection7;
-        bsls_ObjectBuffer< Choice3 >            d_selection8;
-        bsls_ObjectBuffer< VoidSequence >       d_selection9;
-        bsls_ObjectBuffer< UnsignedSequence >   d_selection10;
+        bsls_ObjectBuffer< Sequence1 >              d_selection1;
+        bsls_ObjectBuffer< bsl::vector<char> >      d_selection2;
+        bsls_ObjectBuffer< Sequence2 >              d_selection3;
+        Sequence3                                  *d_selection4;
+        bsls_ObjectBuffer< bdet_DatetimeTz >        d_selection5;
+        bsls_ObjectBuffer< CustomString >           d_selection6;
+        bsls_ObjectBuffer< Enumerated::Value >      d_selection7;
+        bsls_ObjectBuffer< Choice3 >                d_selection8;
+        bsls_ObjectBuffer< VoidSequence >           d_selection9;
+        bsls_ObjectBuffer< UnsignedSequence >       d_selection10;
+        bsls_ObjectBuffer< SequenceWithAnonymity >  d_selection11;
     };
 
-    int                                         d_selectionId;
-    bslma_Allocator                            *d_allocator_p;
+    int                                             d_selectionId;
+    bslma_Allocator                                *d_allocator_p;
 
   public:
     // TYPES
@@ -3648,10 +4669,11 @@ class FeatureTestMessage {
       , SELECTION_ID_SELECTION8  = 7
       , SELECTION_ID_SELECTION9  = 8
       , SELECTION_ID_SELECTION10 = 9
+      , SELECTION_ID_SELECTION11 = 10
     };
 
     enum {
-        NUM_SELECTIONS = 10
+        NUM_SELECTIONS = 11
     };
 
     enum {
@@ -3665,6 +4687,7 @@ class FeatureTestMessage {
       , SELECTION_INDEX_SELECTION8  = 7
       , SELECTION_INDEX_SELECTION9  = 8
       , SELECTION_INDEX_SELECTION10 = 9
+      , SELECTION_INDEX_SELECTION11 = 10
     };
 
     // CONSTANTS
@@ -3798,6 +4821,12 @@ class FeatureTestMessage {
         // Optionally specify the 'value' of the "Selection10".  If 'value' is
         // not specified, the default "Selection10" value is used.
 
+    SequenceWithAnonymity& makeSelection11();
+    SequenceWithAnonymity& makeSelection11(const SequenceWithAnonymity& value);
+        // Set the value of this object to be a "Selection11" value. 
+        // Optionally specify the 'value' of the "Selection11".  If 'value' is
+        // not specified, the default "Selection11" value is used.
+
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' on the address of the modifiable
@@ -3855,6 +4884,11 @@ class FeatureTestMessage {
         // Return a reference to the modifiable "Selection10" selection of this
         // object if "Selection10" is the current selection.  The behavior is
         // undefined unless "Selection10" is the selection of this object.
+
+    SequenceWithAnonymity& selection11();
+        // Return a reference to the modifiable "Selection11" selection of this
+        // object if "Selection11" is the current selection.  The behavior is
+        // undefined unless "Selection11" is the selection of this object.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -3942,6 +4976,11 @@ class FeatureTestMessage {
         // this object if "Selection10" is the current selection.  The behavior
         // is undefined unless "Selection10" is the selection of this object.
 
+    const SequenceWithAnonymity& selection11() const;
+        // Return a reference to the non-modifiable "Selection11" selection of
+        // this object if "Selection11" is the current selection.  The behavior
+        // is undefined unless "Selection11" is the selection of this object.
+
     bool isSelection1Value() const;
         // Return 'true' if the value of this object is a "Selection1" value,
         // and return 'false' otherwise.
@@ -3980,6 +5019,10 @@ class FeatureTestMessage {
 
     bool isSelection10Value() const;
         // Return 'true' if the value of this object is a "Selection10" value,
+        // and return 'false' otherwise.
+
+    bool isSelection11Value() const;
+        // Return 'true' if the value of this object is a "Selection11" value,
         // and return 'false' otherwise.
 
     bool isUndefinedValue() const;
@@ -4702,7 +5745,7 @@ int Enumerated::maxSupportedBdexVersion()
 inline
 int Enumerated::fromString(Value *result, const bsl::string& string)
 {
-    return fromString(result, string.c_str(), (int)string.length());
+    return fromString(result, string.c_str(), string.length());
 }
 
 inline
@@ -4747,6 +5790,178 @@ STREAM& Enumerated::bdexStreamOut(STREAM&              stream,
     return stream;
 }
 
+
+
+                     // ----------------------------------                     
+                     // class SequenceWithAnonymityChoice1                     
+                     // ----------------------------------                     
+
+// CLASS METHODS
+inline
+int SequenceWithAnonymityChoice1::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// CREATORS
+inline
+SequenceWithAnonymityChoice1::SequenceWithAnonymityChoice1(bslma_Allocator *basicAllocator)
+: d_selectionId(SELECTION_ID_UNDEFINED)
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
+{
+}
+
+inline
+SequenceWithAnonymityChoice1::~SequenceWithAnonymityChoice1()
+{
+    reset();
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& SequenceWithAnonymityChoice1::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            short selectionId;
+            stream.getInt16(selectionId);
+            if (!stream) {
+                return stream;
+            }
+            switch (selectionId) {
+              case SELECTION_ID_SELECTION5: {
+                makeSelection5();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection5.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION6: {
+                makeSelection6();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection6.object(), 1);
+              } break;
+              case SELECTION_ID_UNDEFINED: {
+                reset();
+              } break;
+              default:
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int SequenceWithAnonymityChoice1::manipulateSelection(MANIPULATOR& manipulator)
+{
+    switch (d_selectionId) {
+      case SequenceWithAnonymityChoice1::SELECTION_ID_SELECTION5:
+        return manipulator(&d_selection5.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5]);
+      case SequenceWithAnonymityChoice1::SELECTION_ID_SELECTION6:
+        return manipulator(&d_selection6.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
+      default:
+        BSLS_ASSERT(SequenceWithAnonymityChoice1::SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+bool& SequenceWithAnonymityChoice1::selection5()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION5 == d_selectionId);
+    return d_selection5.object();
+}
+
+inline
+bsl::string& SequenceWithAnonymityChoice1::selection6()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION6 == d_selectionId);
+    return d_selection6.object();
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& SequenceWithAnonymityChoice1::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+            stream.putInt16(d_selectionId);
+            switch (d_selectionId) {
+              case SELECTION_ID_SELECTION5: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection5.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION6: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection6.object(), 1);
+              } break;
+              default:
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+            }
+      } break;
+    }
+    return stream;
+}
+
+inline
+int SequenceWithAnonymityChoice1::selectionId() const
+{
+    return d_selectionId;
+}
+
+template <class ACCESSOR>
+int SequenceWithAnonymityChoice1::accessSelection(ACCESSOR& accessor) const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION5:
+        return accessor(d_selection5.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5]);
+      case SELECTION_ID_SELECTION6:
+        return accessor(d_selection6.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+const bool& SequenceWithAnonymityChoice1::selection5() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION5 == d_selectionId);
+    return d_selection5.object();
+}
+
+inline
+const bsl::string& SequenceWithAnonymityChoice1::selection6() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION6 == d_selectionId);
+    return d_selection6.object();
+}
+
+inline
+bool SequenceWithAnonymityChoice1::isSelection5Value() const
+{
+    return SELECTION_ID_SELECTION5 == d_selectionId;
+}
+
+inline
+bool SequenceWithAnonymityChoice1::isSelection6Value() const
+{
+    return SELECTION_ID_SELECTION6 == d_selectionId;
+}
+
+inline
+bool SequenceWithAnonymityChoice1::isUndefinedValue() const
+{
+    return SELECTION_ID_UNDEFINED == d_selectionId;
+}
 
 
                             // -------------------                             
@@ -5153,8 +6368,6 @@ STREAM& VoidSequence::bdexStreamIn(STREAM& stream, int version)
 template <class MANIPULATOR>
 int VoidSequence::manipulateAttributes(MANIPULATOR& manipulator)
 {
-    (void)manipulator;  // quash potential compiler warning
-
     int ret = 0;
 
     return ret;
@@ -5163,8 +6376,6 @@ int VoidSequence::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int VoidSequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    (void)manipulator;  // quash potential compiler warning
-
     enum { NOT_FOUND = -1 };
 
     switch (id) {
@@ -5179,8 +6390,6 @@ int VoidSequence::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    (void)manipulator;  // quash potential compiler warning
-
     enum { NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
@@ -5206,8 +6415,6 @@ STREAM& VoidSequence::bdexStreamOut(STREAM& stream, int version) const
 template <class ACCESSOR>
 int VoidSequence::accessAttributes(ACCESSOR& accessor) const
 {
-    (void)accessor;  // quash potential compiler warning
-
     int ret = 0;
 
     return ret;
@@ -5216,8 +6423,6 @@ int VoidSequence::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int VoidSequence::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    (void)accessor;  // quash potential compiler warning
-
     enum { NOT_FOUND = -1 };
 
     switch (id) {
@@ -5225,15 +6430,13 @@ int VoidSequence::accessAttribute(ACCESSOR& accessor, int id) const
         return NOT_FOUND;
     }
 }
- 
+
 template <class ACCESSOR>
 int VoidSequence::accessAttribute(
         ACCESSOR&   accessor,
         const char *name,
         int         nameLength) const
 {
-    (void)accessor;  // quash potential compiler warning
-
     enum { NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
@@ -5890,6 +7093,10 @@ STREAM& Sequence6::bdexStreamIn(STREAM& stream, int version)
             bdex_InStreamFunctions::streamIn(stream, d_element9, 1);
             bdex_InStreamFunctions::streamIn(stream, d_element10, 1);
             bdex_InStreamFunctions::streamIn(stream, d_element11, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element12, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element13, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element14, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element15, 1);
           } break;
           default: {
             stream.invalidate();
@@ -5959,6 +7166,26 @@ int Sequence6::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -6001,6 +7228,18 @@ int Sequence6::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_ELEMENT11: {
         return manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
       } break;
+      case ATTRIBUTE_ID_ELEMENT12: {
+        return manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT13: {
+        return manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT14: {
+        return manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT15: {
+        return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+      } break;
       default:
         return NOT_FOUND;
     }
@@ -6042,51 +7281,75 @@ bdeut_NullableValue<CustomInt>& Sequence6::element3()
 }
 
 inline
-unsigned char& Sequence6::element4()
+unsigned int& Sequence6::element4()
 {
     return d_element4;
 }
 
 inline
-bsl::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element5()
+unsigned char& Sequence6::element5()
 {
     return d_element5;
 }
 
 inline
-CustomString& Sequence6::element6()
+bsl::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element6()
 {
     return d_element6;
 }
 
 inline
-CustomInt& Sequence6::element7()
+CustomString& Sequence6::element7()
 {
     return d_element7;
 }
 
 inline
-bsl::vector<unsigned char>& Sequence6::element8()
+CustomInt& Sequence6::element8()
 {
     return d_element8;
 }
 
 inline
-bsl::vector<CustomString>& Sequence6::element9()
+bdeut_NullableValue<unsigned int>& Sequence6::element9()
 {
     return d_element9;
 }
 
 inline
-bsl::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element10()
+bsl::vector<unsigned char>& Sequence6::element10()
 {
     return d_element10;
 }
 
 inline
-bsl::vector<CustomInt>& Sequence6::element11()
+bsl::vector<CustomString>& Sequence6::element11()
 {
     return d_element11;
+}
+
+inline
+bsl::vector<unsigned int>& Sequence6::element12()
+{
+    return d_element12;
+}
+
+inline
+bsl::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element13()
+{
+    return d_element13;
+}
+
+inline
+bsl::vector<CustomInt>& Sequence6::element14()
+{
+    return d_element14;
+}
+
+inline
+bsl::vector<bdeut_NullableValue<unsigned int> >& Sequence6::element15()
+{
+    return d_element15;
 }
 
 // ACCESSORS
@@ -6106,6 +7369,10 @@ STREAM& Sequence6::bdexStreamOut(STREAM& stream, int version) const
         bdex_OutStreamFunctions::streamOut(stream, d_element9, 1);
         bdex_OutStreamFunctions::streamOut(stream, d_element10, 1);
         bdex_OutStreamFunctions::streamOut(stream, d_element11, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element12, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element13, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element14, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element15, 1);
       } break;
     }
     return stream;
@@ -6171,6 +7438,26 @@ int Sequence6::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
+    ret = accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -6213,6 +7500,18 @@ int Sequence6::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_ELEMENT11: {
         return accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
       } break;
+      case ATTRIBUTE_ID_ELEMENT12: {
+        return accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT13: {
+        return accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT14: {
+        return accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT15: {
+        return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+      } break;
       default:
         return NOT_FOUND;
     }
@@ -6254,51 +7553,75 @@ const bdeut_NullableValue<CustomInt>& Sequence6::element3() const
 }
 
 inline
-unsigned char Sequence6::element4() const
+unsigned int Sequence6::element4() const
 {
     return d_element4;
 }
 
 inline
-const bsl::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element5() const
+unsigned char Sequence6::element5() const
 {
     return d_element5;
 }
 
 inline
-const CustomString& Sequence6::element6() const
+const bsl::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element6() const
 {
     return d_element6;
 }
 
 inline
-const CustomInt& Sequence6::element7() const
+const CustomString& Sequence6::element7() const
 {
     return d_element7;
 }
 
 inline
-const bsl::vector<unsigned char>& Sequence6::element8() const
+const CustomInt& Sequence6::element8() const
 {
     return d_element8;
 }
 
 inline
-const bsl::vector<CustomString>& Sequence6::element9() const
+const bdeut_NullableValue<unsigned int>& Sequence6::element9() const
 {
     return d_element9;
 }
 
 inline
-const bsl::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element10() const
+const bsl::vector<unsigned char>& Sequence6::element10() const
 {
     return d_element10;
 }
 
 inline
-const bsl::vector<CustomInt>& Sequence6::element11() const
+const bsl::vector<CustomString>& Sequence6::element11() const
 {
     return d_element11;
+}
+
+inline
+const bsl::vector<unsigned int>& Sequence6::element12() const
+{
+    return d_element12;
+}
+
+inline
+const bsl::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element13() const
+{
+    return d_element13;
+}
+
+inline
+const bsl::vector<CustomInt>& Sequence6::element14() const
+{
+    return d_element14;
+}
+
+inline
+const bsl::vector<bdeut_NullableValue<unsigned int> >& Sequence6::element15() const
+{
+    return d_element15;
 }
 
 
@@ -6540,6 +7863,248 @@ bool Choice3::isSelection4Value() const
 
 inline
 bool Choice3::isUndefinedValue() const
+{
+    return SELECTION_ID_UNDEFINED == d_selectionId;
+}
+
+
+                     // ---------------------------------                      
+                     // class SequenceWithAnonymityChoice                      
+                     // ---------------------------------                      
+
+// CLASS METHODS
+inline
+int SequenceWithAnonymityChoice::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// CREATORS
+inline
+SequenceWithAnonymityChoice::SequenceWithAnonymityChoice(bslma_Allocator *basicAllocator)
+: d_selectionId(SELECTION_ID_UNDEFINED)
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
+{
+}
+
+inline
+SequenceWithAnonymityChoice::~SequenceWithAnonymityChoice()
+{
+    reset();
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& SequenceWithAnonymityChoice::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            short selectionId;
+            stream.getInt16(selectionId);
+            if (!stream) {
+                return stream;
+            }
+            switch (selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                makeSelection1();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                makeSelection2();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                makeSelection3();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection3.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                makeSelection4();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection4.object(), 1);
+              } break;
+              case SELECTION_ID_UNDEFINED: {
+                reset();
+              } break;
+              default:
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int SequenceWithAnonymityChoice::manipulateSelection(MANIPULATOR& manipulator)
+{
+    switch (d_selectionId) {
+      case SequenceWithAnonymityChoice::SELECTION_ID_SELECTION1:
+        return manipulator(&d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case SequenceWithAnonymityChoice::SELECTION_ID_SELECTION2:
+        return manipulator(&d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case SequenceWithAnonymityChoice::SELECTION_ID_SELECTION3:
+        return manipulator(&d_selection3.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case SequenceWithAnonymityChoice::SELECTION_ID_SELECTION4:
+        return manipulator(&d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(SequenceWithAnonymityChoice::SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+Sequence6& SequenceWithAnonymityChoice::selection1()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+unsigned char& SequenceWithAnonymityChoice::selection2()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+CustomString& SequenceWithAnonymityChoice::selection3()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return d_selection3.object();
+}
+
+inline
+CustomInt& SequenceWithAnonymityChoice::selection4()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& SequenceWithAnonymityChoice::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+            stream.putInt16(d_selectionId);
+            switch (d_selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection3.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection4.object(), 1);
+              } break;
+              default:
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+            }
+      } break;
+    }
+    return stream;
+}
+
+inline
+int SequenceWithAnonymityChoice::selectionId() const
+{
+    return d_selectionId;
+}
+
+template <class ACCESSOR>
+int SequenceWithAnonymityChoice::accessSelection(ACCESSOR& accessor) const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return accessor(d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case SELECTION_ID_SELECTION2:
+        return accessor(d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case SELECTION_ID_SELECTION3:
+        return accessor(d_selection3.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case SELECTION_ID_SELECTION4:
+        return accessor(d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+const Sequence6& SequenceWithAnonymityChoice::selection1() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+const unsigned char& SequenceWithAnonymityChoice::selection2() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+const CustomString& SequenceWithAnonymityChoice::selection3() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return d_selection3.object();
+}
+
+inline
+const CustomInt& SequenceWithAnonymityChoice::selection4() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
+inline
+bool SequenceWithAnonymityChoice::isSelection1Value() const
+{
+    return SELECTION_ID_SELECTION1 == d_selectionId;
+}
+
+inline
+bool SequenceWithAnonymityChoice::isSelection2Value() const
+{
+    return SELECTION_ID_SELECTION2 == d_selectionId;
+}
+
+inline
+bool SequenceWithAnonymityChoice::isSelection3Value() const
+{
+    return SELECTION_ID_SELECTION3 == d_selectionId;
+}
+
+inline
+bool SequenceWithAnonymityChoice::isSelection4Value() const
+{
+    return SELECTION_ID_SELECTION4 == d_selectionId;
+}
+
+inline
+bool SequenceWithAnonymityChoice::isUndefinedValue() const
 {
     return SELECTION_ID_UNDEFINED == d_selectionId;
 }
@@ -6840,6 +8405,11 @@ STREAM& Choice2::bdexStreamIn(STREAM& stream, int version)
                 bdex_InStreamFunctions::streamIn(
                     stream, *d_selection3, 1);
               } break;
+              case SELECTION_ID_SELECTION4: {
+                makeSelection4();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection4.object(), 1);
+              } break;
               case SELECTION_ID_UNDEFINED: {
                 reset();
               } break;
@@ -6868,6 +8438,9 @@ int Choice2::manipulateSelection(MANIPULATOR& manipulator)
       case Choice2::SELECTION_ID_SELECTION3:
         return manipulator(d_selection3,
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case Choice2::SELECTION_ID_SELECTION4:
+        return manipulator(&d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(Choice2::SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;
@@ -6895,6 +8468,13 @@ Choice1& Choice2::selection3()
     return *d_selection3;
 }
 
+inline
+unsigned int& Choice2::selection4()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
 // ACCESSORS
 template <class STREAM>
 STREAM& Choice2::bdexStreamOut(STREAM& stream, int version) const
@@ -6914,6 +8494,10 @@ STREAM& Choice2::bdexStreamOut(STREAM& stream, int version) const
               case SELECTION_ID_SELECTION3: {
                 bdex_OutStreamFunctions::streamOut(
                     stream, *d_selection3, 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection4.object(), 1);
               } break;
               default:
                 BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -6942,6 +8526,9 @@ int Choice2::accessSelection(ACCESSOR& accessor) const
       case SELECTION_ID_SELECTION3:
         return accessor(*d_selection3,
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case SELECTION_ID_SELECTION4:
+        return accessor(d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;
@@ -6970,6 +8557,13 @@ const Choice1& Choice2::selection3() const
 }
 
 inline
+const unsigned int& Choice2::selection4() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
+inline
 bool Choice2::isSelection1Value() const
 {
     return SELECTION_ID_SELECTION1 == d_selectionId;
@@ -6985,6 +8579,12 @@ inline
 bool Choice2::isSelection3Value() const
 {
     return SELECTION_ID_SELECTION3 == d_selectionId;
+}
+
+inline
+bool Choice2::isSelection4Value() const
+{
+    return SELECTION_ID_SELECTION4 == d_selectionId;
 }
 
 inline
@@ -7698,6 +9298,7 @@ STREAM& Sequence1::bdexStreamIn(STREAM& stream, int version)
             bdex_InStreamFunctions::streamIn(stream, d_element2, 1);
             bdex_InStreamFunctions::streamIn(stream, *d_element3, 1);
             bdex_InStreamFunctions::streamIn(stream, d_element4, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element5, 1);
           } break;
           default: {
             stream.invalidate();
@@ -7732,6 +9333,11 @@ int Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -7752,6 +9358,9 @@ int Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
       } break;
       default:
         return NOT_FOUND;
@@ -7794,9 +9403,15 @@ Choice2& Sequence1::element3()
 }
 
 inline
-bsl::vector<Choice3>& Sequence1::element4()
+bsl::vector<bdeut_NullableValue<Choice1> >& Sequence1::element4()
 {
     return d_element4;
+}
+
+inline
+bsl::vector<Choice3>& Sequence1::element5()
+{
+    return d_element5;
 }
 
 // ACCESSORS
@@ -7809,6 +9424,7 @@ STREAM& Sequence1::bdexStreamOut(STREAM& stream, int version) const
         bdex_OutStreamFunctions::streamOut(stream, d_element2, 1);
         bdex_OutStreamFunctions::streamOut(stream, *d_element3, 1);
         bdex_OutStreamFunctions::streamOut(stream, d_element4, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element5, 1);
       } break;
     }
     return stream;
@@ -7839,6 +9455,11 @@ int Sequence1::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
+    ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -7859,6 +9480,9 @@ int Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
       } break;
       default:
         return NOT_FOUND;
@@ -7901,9 +9525,15 @@ const Choice2& Sequence1::element3() const
 }
 
 inline
-const bsl::vector<Choice3>& Sequence1::element4() const
+const bsl::vector<bdeut_NullableValue<Choice1> >& Sequence1::element4() const
 {
     return d_element4;
+}
+
+inline
+const bsl::vector<Choice3>& Sequence1::element5() const
+{
+    return d_element5;
 }
 
 
@@ -8170,6 +9800,410 @@ const bdeut_NullableValue<double>& Sequence2::element5() const
 
 
 
+                     // ----------------------------------                     
+                     // class SequenceWithAnonymityChoice2                     
+                     // ----------------------------------                     
+
+// CLASS METHODS
+inline
+int SequenceWithAnonymityChoice2::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// CREATORS
+inline
+SequenceWithAnonymityChoice2::SequenceWithAnonymityChoice2(bslma_Allocator *basicAllocator)
+: d_selectionId(SELECTION_ID_UNDEFINED)
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
+{
+}
+
+inline
+SequenceWithAnonymityChoice2::~SequenceWithAnonymityChoice2()
+{
+    reset();
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& SequenceWithAnonymityChoice2::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            short selectionId;
+            stream.getInt16(selectionId);
+            if (!stream) {
+                return stream;
+            }
+            switch (selectionId) {
+              case SELECTION_ID_SELECTION7: {
+                makeSelection7();
+                bdex_InStreamFunctions::streamIn(
+                    stream, *d_selection7, 1);
+              } break;
+              case SELECTION_ID_SELECTION8: {
+                makeSelection8();
+                bdex_InStreamFunctions::streamIn(
+                    stream, *d_selection8, 1);
+              } break;
+              case SELECTION_ID_UNDEFINED: {
+                reset();
+              } break;
+              default:
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int SequenceWithAnonymityChoice2::manipulateSelection(MANIPULATOR& manipulator)
+{
+    switch (d_selectionId) {
+      case SequenceWithAnonymityChoice2::SELECTION_ID_SELECTION7:
+        return manipulator(d_selection7,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7]);
+      case SequenceWithAnonymityChoice2::SELECTION_ID_SELECTION8:
+        return manipulator(d_selection8,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
+      default:
+        BSLS_ASSERT(SequenceWithAnonymityChoice2::SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+Sequence4& SequenceWithAnonymityChoice2::selection7()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION7 == d_selectionId);
+    return *d_selection7;
+}
+
+inline
+Choice2& SequenceWithAnonymityChoice2::selection8()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION8 == d_selectionId);
+    return *d_selection8;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& SequenceWithAnonymityChoice2::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+            stream.putInt16(d_selectionId);
+            switch (d_selectionId) {
+              case SELECTION_ID_SELECTION7: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, *d_selection7, 1);
+              } break;
+              case SELECTION_ID_SELECTION8: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, *d_selection8, 1);
+              } break;
+              default:
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+            }
+      } break;
+    }
+    return stream;
+}
+
+inline
+int SequenceWithAnonymityChoice2::selectionId() const
+{
+    return d_selectionId;
+}
+
+template <class ACCESSOR>
+int SequenceWithAnonymityChoice2::accessSelection(ACCESSOR& accessor) const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION7:
+        return accessor(*d_selection7,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7]);
+      case SELECTION_ID_SELECTION8:
+        return accessor(*d_selection8,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+const Sequence4& SequenceWithAnonymityChoice2::selection7() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION7 == d_selectionId);
+    return *d_selection7;
+}
+
+inline
+const Choice2& SequenceWithAnonymityChoice2::selection8() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION8 == d_selectionId);
+    return *d_selection8;
+}
+
+inline
+bool SequenceWithAnonymityChoice2::isSelection7Value() const
+{
+    return SELECTION_ID_SELECTION7 == d_selectionId;
+}
+
+inline
+bool SequenceWithAnonymityChoice2::isSelection8Value() const
+{
+    return SELECTION_ID_SELECTION8 == d_selectionId;
+}
+
+inline
+bool SequenceWithAnonymityChoice2::isUndefinedValue() const
+{
+    return SELECTION_ID_UNDEFINED == d_selectionId;
+}
+
+
+                        // ---------------------------                         
+                        // class SequenceWithAnonymity                         
+                        // ---------------------------                         
+
+// CLASS METHODS
+inline
+int SequenceWithAnonymity::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& SequenceWithAnonymity::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_choice, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_choice1, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_choice2, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element4, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int SequenceWithAnonymity::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_choice1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_choice2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int SequenceWithAnonymity::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_CHOICE: {
+        return manipulator(&d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
+      } break;
+      case ATTRIBUTE_ID_CHOICE1: {
+        return manipulator(&d_choice1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1]);
+      } break;
+      case ATTRIBUTE_ID_CHOICE2: {
+        return manipulator(&d_choice2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int SequenceWithAnonymity::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+SequenceWithAnonymityChoice& SequenceWithAnonymity::choice()
+{
+    return d_choice;
+}
+
+inline
+SequenceWithAnonymityChoice1& SequenceWithAnonymity::choice1()
+{
+    return d_choice1;
+}
+
+inline
+bdeut_NullableValue<SequenceWithAnonymityChoice2>& SequenceWithAnonymity::choice2()
+{
+    return d_choice2;
+}
+
+inline
+Sequence6& SequenceWithAnonymity::element4()
+{
+    return d_element4;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& SequenceWithAnonymity::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, d_choice, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_choice1, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_choice2, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element4, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int SequenceWithAnonymity::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_choice1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_choice2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int SequenceWithAnonymity::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_CHOICE: {
+        return accessor(d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
+      } break;
+      case ATTRIBUTE_ID_CHOICE1: {
+        return accessor(d_choice1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1]);
+      } break;
+      case ATTRIBUTE_ID_CHOICE2: {
+        return accessor(d_choice2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int SequenceWithAnonymity::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const SequenceWithAnonymityChoice& SequenceWithAnonymity::choice() const
+{
+    return d_choice;
+}
+
+inline
+const SequenceWithAnonymityChoice1& SequenceWithAnonymity::choice1() const
+{
+    return d_choice1;
+}
+
+inline
+const bdeut_NullableValue<SequenceWithAnonymityChoice2>& SequenceWithAnonymity::choice2() const
+{
+    return d_choice2;
+}
+
+inline
+const Sequence6& SequenceWithAnonymity::element4() const
+{
+    return d_element4;
+}
+
+
+
                           // ------------------------                          
                           // class FeatureTestMessage                          
                           // ------------------------                          
@@ -8258,6 +10292,11 @@ STREAM& FeatureTestMessage::bdexStreamIn(STREAM& stream, int version)
                 bdex_InStreamFunctions::streamIn(
                     stream, d_selection10.object(), 1);
               } break;
+              case SELECTION_ID_SELECTION11: {
+                makeSelection11();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection11.object(), 1);
+              } break;
               case SELECTION_ID_UNDEFINED: {
                 reset();
               } break;
@@ -8307,6 +10346,9 @@ int FeatureTestMessage::manipulateSelection(MANIPULATOR& manipulator)
       case FeatureTestMessage::SELECTION_ID_SELECTION10:
         return manipulator(&d_selection10.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION10]);
+      case FeatureTestMessage::SELECTION_ID_SELECTION11:
+        return manipulator(&d_selection11.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION11]);
       default:
         BSLS_ASSERT(FeatureTestMessage::SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;
@@ -8383,6 +10425,13 @@ UnsignedSequence& FeatureTestMessage::selection10()
     return d_selection10.object();
 }
 
+inline
+SequenceWithAnonymity& FeatureTestMessage::selection11()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION11 == d_selectionId);
+    return d_selection11.object();
+}
+
 // ACCESSORS
 template <class STREAM>
 STREAM& FeatureTestMessage::bdexStreamOut(STREAM& stream, int version) const
@@ -8430,6 +10479,10 @@ STREAM& FeatureTestMessage::bdexStreamOut(STREAM& stream, int version) const
               case SELECTION_ID_SELECTION10: {
                 bdex_OutStreamFunctions::streamOut(
                     stream, d_selection10.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION11: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection11.object(), 1);
               } break;
               default:
                 BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -8479,6 +10532,9 @@ int FeatureTestMessage::accessSelection(ACCESSOR& accessor) const
       case SELECTION_ID_SELECTION10:
         return accessor(d_selection10.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION10]);
+      case SELECTION_ID_SELECTION11:
+        return accessor(d_selection11.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION11]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;
@@ -8556,6 +10612,13 @@ const UnsignedSequence& FeatureTestMessage::selection10() const
 }
 
 inline
+const SequenceWithAnonymity& FeatureTestMessage::selection11() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION11 == d_selectionId);
+    return d_selection11.object();
+}
+
+inline
 bool FeatureTestMessage::isSelection1Value() const
 {
     return SELECTION_ID_SELECTION1 == d_selectionId;
@@ -8613,6 +10676,12 @@ inline
 bool FeatureTestMessage::isSelection10Value() const
 {
     return SELECTION_ID_SELECTION10 == d_selectionId;
+}
+
+inline
+bool FeatureTestMessage::isSelection11Value() const
+{
+    return SELECTION_ID_SELECTION11 == d_selectionId;
 }
 
 inline
@@ -9029,6 +11098,45 @@ bsl::ostream& baea::operator<<(
 
 inline
 bool baea::operator==(
+        const baea::SequenceWithAnonymityChoice1& lhs,
+        const baea::SequenceWithAnonymityChoice1& rhs)
+{
+    typedef baea::SequenceWithAnonymityChoice1 Class;
+    if (lhs.selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION5:
+            return lhs.selection5() == rhs.selection5();
+          case Class::SELECTION_ID_SELECTION6:
+            return lhs.selection6() == rhs.selection6();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+   }
+}
+
+inline
+bool baea::operator!=(
+        const baea::SequenceWithAnonymityChoice1& lhs,
+        const baea::SequenceWithAnonymityChoice1& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
+        const baea::SequenceWithAnonymityChoice1& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool baea::operator==(
         const baea::SimpleRequest& lhs,
         const baea::SimpleRequest& rhs)
 {
@@ -9195,7 +11303,11 @@ bool baea::operator==(
          && lhs.element8() == rhs.element8()
          && lhs.element9() == rhs.element9()
          && lhs.element10() == rhs.element10()
-         && lhs.element11() == rhs.element11();
+         && lhs.element11() == rhs.element11()
+         && lhs.element12() == rhs.element12()
+         && lhs.element13() == rhs.element13()
+         && lhs.element14() == rhs.element14()
+         && lhs.element15() == rhs.element15();
 }
 
 inline
@@ -9213,7 +11325,11 @@ bool baea::operator!=(
          || lhs.element8() != rhs.element8()
          || lhs.element9() != rhs.element9()
          || lhs.element10() != rhs.element10()
-         || lhs.element11() != rhs.element11();
+         || lhs.element11() != rhs.element11()
+         || lhs.element12() != rhs.element12()
+         || lhs.element13() != rhs.element13()
+         || lhs.element14() != rhs.element14()
+         || lhs.element15() != rhs.element15();
 }
 
 inline
@@ -9263,6 +11379,49 @@ inline
 bsl::ostream& baea::operator<<(
         bsl::ostream& stream,
         const baea::Choice3& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool baea::operator==(
+        const baea::SequenceWithAnonymityChoice& lhs,
+        const baea::SequenceWithAnonymityChoice& rhs)
+{
+    typedef baea::SequenceWithAnonymityChoice Class;
+    if (lhs.selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION1:
+            return lhs.selection1() == rhs.selection1();
+          case Class::SELECTION_ID_SELECTION2:
+            return lhs.selection2() == rhs.selection2();
+          case Class::SELECTION_ID_SELECTION3:
+            return lhs.selection3() == rhs.selection3();
+          case Class::SELECTION_ID_SELECTION4:
+            return lhs.selection4() == rhs.selection4();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+   }
+}
+
+inline
+bool baea::operator!=(
+        const baea::SequenceWithAnonymityChoice& lhs,
+        const baea::SequenceWithAnonymityChoice& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
+        const baea::SequenceWithAnonymityChoice& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -9325,6 +11484,8 @@ bool baea::operator==(
             return lhs.selection2() == rhs.selection2();
           case Class::SELECTION_ID_SELECTION3:
             return lhs.selection3() == rhs.selection3();
+          case Class::SELECTION_ID_SELECTION4:
+            return lhs.selection4() == rhs.selection4();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
             return true;
@@ -9421,7 +11582,8 @@ bool baea::operator==(
     return  lhs.element1() == rhs.element1()
          && lhs.element2() == rhs.element2()
          && lhs.element3() == rhs.element3()
-         && lhs.element4() == rhs.element4();
+         && lhs.element4() == rhs.element4()
+         && lhs.element5() == rhs.element5();
 }
 
 inline
@@ -9432,7 +11594,8 @@ bool baea::operator!=(
     return  lhs.element1() != rhs.element1()
          || lhs.element2() != rhs.element2()
          || lhs.element3() != rhs.element3()
-         || lhs.element4() != rhs.element4();
+         || lhs.element4() != rhs.element4()
+         || lhs.element5() != rhs.element5();
 }
 
 inline
@@ -9479,6 +11642,76 @@ bsl::ostream& baea::operator<<(
 
 inline
 bool baea::operator==(
+        const baea::SequenceWithAnonymityChoice2& lhs,
+        const baea::SequenceWithAnonymityChoice2& rhs)
+{
+    typedef baea::SequenceWithAnonymityChoice2 Class;
+    if (lhs.selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION7:
+            return lhs.selection7() == rhs.selection7();
+          case Class::SELECTION_ID_SELECTION8:
+            return lhs.selection8() == rhs.selection8();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+   }
+}
+
+inline
+bool baea::operator!=(
+        const baea::SequenceWithAnonymityChoice2& lhs,
+        const baea::SequenceWithAnonymityChoice2& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
+        const baea::SequenceWithAnonymityChoice2& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool baea::operator==(
+        const baea::SequenceWithAnonymity& lhs,
+        const baea::SequenceWithAnonymity& rhs)
+{
+    return  lhs.choice() == rhs.choice()
+         && lhs.choice1() == rhs.choice1()
+         && lhs.choice2() == rhs.choice2()
+         && lhs.element4() == rhs.element4();
+}
+
+inline
+bool baea::operator!=(
+        const baea::SequenceWithAnonymity& lhs,
+        const baea::SequenceWithAnonymity& rhs)
+{
+    return  lhs.choice() != rhs.choice()
+         || lhs.choice1() != rhs.choice1()
+         || lhs.choice2() != rhs.choice2()
+         || lhs.element4() != rhs.element4();
+}
+
+inline
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
+        const baea::SequenceWithAnonymity& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool baea::operator==(
         const baea::FeatureTestMessage& lhs,
         const baea::FeatureTestMessage& rhs)
 {
@@ -9505,6 +11738,8 @@ bool baea::operator==(
             return lhs.selection9() == rhs.selection9();
           case Class::SELECTION_ID_SELECTION10:
             return lhs.selection10() == rhs.selection10();
+          case Class::SELECTION_ID_SELECTION11:
+            return lhs.selection11() == rhs.selection11();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
             return true;
@@ -9612,7 +11847,7 @@ bsl::ostream& baea::operator<<(
 }  // close namespace BloombergLP
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_3.6.13 Thu May 31 18:03:13 2012
+// GENERATED BY BLP_BAS_CODEGEN_3.6.20 Wed Dec 12 16:23:36 2012
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
