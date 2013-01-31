@@ -67,7 +67,7 @@ if [ $make_result -ne 0 ]; then exit $make_result; fi
 
 # Prepare to run unit tests
 export HOST=VM
-export TIMEOUT=60
+export TIMEOUT=300
 mkdir test-results
 
 # Construct a Makefile so unit tests can be run in parallel
