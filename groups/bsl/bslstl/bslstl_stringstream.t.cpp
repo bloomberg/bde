@@ -1208,6 +1208,32 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING READ/WRITE/SEEK COMBINATIONS
+        //
+        // Concerns:
+        //: 1. Combination of read, write and seek operations doesn't affect
+        //:    the consistency of the stream internal state.
+        //
+        // Plan:
+        //: 1. Write to the stream, change the input position, then obtain the
+        //:    current stream input position and verify that it's consistent
+        //:    with what has been written to the stream.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING READ/WRITE/SEEK COMBINATIONS"
+                            "\n====================================\n");
+
+
+        bsl::stringstream inout;
+        inout << "abc" << 'd' << 'e';
+        inout.seekg(0, std::ios::beg);
+        inout.seekg(0, std::ios::end);
+        std::streampos endPos = inout.tellg();
+        ASSERT(endPos == inout.str().size());
+
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
