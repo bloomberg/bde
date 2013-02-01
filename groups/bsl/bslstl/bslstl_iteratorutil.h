@@ -63,11 +63,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
-
 namespace BloombergLP {
 namespace bslstl {
 
@@ -80,8 +75,7 @@ struct IteratorUtil {
     // iterator ranges.
 
     template <class InputIterator>
-    static
-    typename native_std::iterator_traits<InputIterator>::difference_type
+    static typename bsl::iterator_traits<InputIterator>::difference_type
     insertDistance(InputIterator first, InputIterator last);
         // Return 0 if the (template parameter) type 'InputIterator' is limited
         // to the standard input-iterator category, otherwise return the number
@@ -104,7 +98,7 @@ struct IteratorUtil {
                     // ------------------
 
 template <class InputIterator>
-typename native_std::iterator_traits<InputIterator>::difference_type
+typename bsl::iterator_traits<InputIterator>::difference_type
 IteratorUtil::insertDistance(InputIterator first, InputIterator last)
 {
     struct impl {
@@ -114,14 +108,14 @@ IteratorUtil::insertDistance(InputIterator first, InputIterator last)
         // on the iterator's category type.
 
         static
-        typename native_std::iterator_traits<InputIterator>::difference_type
+        typename bsl::iterator_traits<InputIterator>::difference_type
         calc(InputIterator, InputIterator, native_std::input_iterator_tag)
         {
             return 0;
         }
 
         static
-        typename native_std::iterator_traits<InputIterator>::difference_type
+        typename bsl::iterator_traits<InputIterator>::difference_type
         calc(InputIterator first,
              InputIterator last,
              native_std::forward_iterator_tag)
