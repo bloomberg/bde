@@ -39,6 +39,13 @@
 #include <bdeut_nullablevalue.h>
 #include <bdeut_nullableallocatedvalue.h>
 
+#include <bcema_blob.h>
+#include <bcema_blobutil.h>
+#include <bcema_pooledblobbufferfactory.h>
+#include <bcema_sharedptr.h>
+#include <bcesb_blobstreambuf.h>
+#include <bslma_testallocator.h>
+
 #include <bsl_vector.h>
 #include <bsl_iostream.h>
 #include <bsl_c_limits.h>
@@ -32079,9 +32086,27 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
 //       case 16: {
+//           bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+//           bdem_RecordDef *person = schema->createRecord("Person");
+//           person->appendField(bdem_ElemType::BDEM_STRING, "LastName");
+//           person->appendField(bdem_ElemType::BDEM_STRING, "FirstName");
+//           person->appendField(bdem_ElemType::BDEM_DATE,   "BirthDate");
+
+//           bcem_Aggregate michael(schema, "Person");
+//           michael["LastName"].setValue("Bloomberg");
+//           michael["FirstName"].setValue("Michael");
+//           P(michael);
+
+//           bslma::TestAllocator ta("testAllocator", 1);
+//           bcema_PooledBlobBufferFactory blobFactory(2, &ta);
+//           bcema_Blob blob(&blobFactory);
+//           bcesb_OutBlobStreamBuf buffer(&blob);
 //           baejsn_Encoder encoder;
-//           bsl::vector<int> v;
-//           encoder.encode(bsl::cout, v);
+//           P("BeginEncoding");
+//           ASSERT(!encoder.encode(&buffer, michael));
+//           P(blob.length());
+//           bcema_BlobUtilAsciiDumper dumper(&blob);
+//           P(dumper);
 //       } break;
       case 15: {
         // --------------------------------------------------------------------

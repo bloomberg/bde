@@ -383,6 +383,7 @@ class baejsn_Encoder_Formatter {
     bool          d_usePrettyStyle;   // encoding style
     int           d_indentLevel;      // initial indent level
     int           d_spacesPerLevel;   // spaces per level
+    bool          d_isArrayElement;   // is current element part of an array
 
   public:
     // CREATORS
@@ -395,18 +396,40 @@ class baejsn_Encoder_Formatter {
         // Destroy this object.
 
     // MANIPULATORS
-    void openObject(bool isArrayElement);
+    void openObject();
+        // Print onto the held stream the sequence of characters for the
+        // opening of an object.
+
     void closeObject();
+        // Print onto the held stream the sequence of characters for the
+        // closing of an object.
 
     void openArray();
-    void closeArray();
+        // Print onto the held stream the sequence of characters for the
+        // opening of an array.
 
-    void indent(bool isArrayElement);
-    void printNewLine();
-    void printNewLineAndIndent();
+    void closeArray();
+        // Print onto the held stream the sequence of characters for the
+        // closing of an array.
+
+    void indent();
 
     int openElement(const bsl::string& name);
+        // Print onto the held stream the sequence of characters for the
+        // opening of an element having the specified 'name'.
+
     void closeElement();
+        // Print onto the held stream the sequence of characters for the
+        // closing of an element.
+
+    void setIsArrayElement(bool isArrayElement);
+        // Set the flag denoting if the current element refers to an array
+        // element to the specified 'isArrayElement'.
+
+    // ACCESSORS
+    bool isArrayElement() const;
+        // Return the value of the flag denoting if the current element refers
+        // to an array element.
 };
 
                         // ===============================
@@ -424,19 +447,6 @@ class baejsn_Encoder_EncodeImpl {
 
     bsl::ostream                          d_outputStream;     // stream for
                                                               // output
-
-    baejsn_EncoderOptions::EncodingStyle  d_encodingStyle;    // encoding
-                                                              // style
-
-    int                                   d_indentLevel;      // initial indent
-                                                              // level
-
-    int                                   d_spacesPerLevel;   // spaces per
-                                                              // level
-
-    bool                                  d_isArrayElement;   // is current
-                                                              // element part
-                                                              // of an array
 
     bool                                  d_isUntaggedElement;// is current
                                                               // element
@@ -698,6 +708,24 @@ bsl::string baejsn_Encoder::loggedMessages() const
     return d_logStream.str();
 }
 
+                        // ------------------------------
+                        // class baejsn_Encoder_Formatter
+                        // ------------------------------
+// MANIPULATORS
+inline
+void baejsn_Encoder_Formatter::setIsArrayElement(bool isArrayElement)
+{
+    d_isArrayElement = isArrayElement;
+}
+
+// ACCESSORS
+inline
+bool baejsn_Encoder_Formatter::isArrayElement() const
+{
+    return d_isArrayElement;
+}
+
+
                         // -------------------------------
                         // class baejsn_Encoder_EncodeImpl
                         // -------------------------------
@@ -740,7 +768,7 @@ template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Simple)
 {
-    d_formatter.indent(d_isArrayElement);
+    d_formatter.indent();
     return baejsn_PrintUtil::printValue(d_outputStream, value);
 }
 
@@ -749,24 +777,25 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Sequence)
 {
     if (!d_isUntaggedElement) {
-        d_formatter.openObject(d_isArrayElement);
+        d_formatter.openObject();
     }
 
     baejsn_Encoder_SequenceVisitor visitor(this);
 
-    bool isArrayElement    = d_isArrayElement;
+    bool isArrayElement    = d_formatter.isArrayElement();
     bool isUntaggedElement = d_isUntaggedElement;
+    d_isUntaggedElement    = false;
 
-    d_isArrayElement    = false;
-    d_isUntaggedElement = false;
+    d_formatter.setIsArrayElement(false);
 
     int rc = bdeat_SequenceFunctions::accessAttributes(value, visitor);
     if (0 != rc) {
         return rc;                                                    // RETURN
     }
 
-    d_isArrayElement    = isArrayElement;
     d_isUntaggedElement = isUntaggedElement;
+
+    d_formatter.setIsArrayElement(isArrayElement);
 
     if (!d_isUntaggedElement) {
         d_formatter.closeObject();
@@ -782,23 +811,24 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
     if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
                                    bdeat_ChoiceFunctions::selectionId(value)) {
         if (!d_isUntaggedElement) {
-            d_formatter.openObject(d_isArrayElement);
+            d_formatter.openObject();
         }
 
         baejsn_Encoder_ElementVisitor visitor = { this };
 
-        bool isArrayElement    = d_isArrayElement;
+        bool isArrayElement    = d_formatter.isArrayElement();
         bool isUntaggedElement = d_isUntaggedElement;
+        d_isUntaggedElement    = false;
 
-        d_isArrayElement = false;
-        d_isUntaggedElement = false;
+        d_formatter.setIsArrayElement(false);
 
         if (0 != bdeat_ChoiceFunctions::accessSelection(value, visitor)) {
             return -1;                                                // RETURN
         }
 
-        d_isArrayElement    = isArrayElement;
         d_isUntaggedElement = isUntaggedElement;
+
+        d_formatter.setIsArrayElement(isArrayElement);
 
         if (!d_isUntaggedElement) {
             d_formatter.closeObject();
@@ -821,7 +851,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
         baejsn_Encoder_ElementVisitor visitor = { this };
 
-        d_isArrayElement = true;
+        d_formatter.setIsArrayElement(true);
 
         int rc = bdeat_ArrayFunctions::accessElement(value, visitor, 0);
         if (rc) {
@@ -838,7 +868,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
         d_formatter.closeArray();
 
-        d_isArrayElement = false;
+        d_formatter.setIsArrayElement(false);
     }
 
     return 0;
@@ -850,7 +880,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::NullableValue)
 {
     if (bdeat_NullableValueFunctions::isNull(value)) {
-        d_formatter.indent(d_isArrayElement);
+        d_formatter.indent();
         d_outputStream << "null";
         return 0;                                                     // RETURN
     }
@@ -875,7 +905,6 @@ baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(
                                        const baejsn_EncoderOptions&  options)
 : d_encoder(encoder)
 , d_outputStream(streambuf)
-, d_isArrayElement(false)
 , d_isUntaggedElement(false)
 , d_formatter(d_outputStream, options)
 {

@@ -17,6 +17,7 @@ baejsn_Encoder_Formatter::baejsn_Encoder_Formatter(
                                           bsl::ostream&                stream,
                                           const baejsn_EncoderOptions& options)
 : d_outputStream(stream)
+, d_isArrayElement(false)
 {
     if (baejsn_EncoderOptions::BAEJSN_PRETTY == options.encodingStyle()) {
         d_usePrettyStyle = true;
@@ -35,9 +36,9 @@ baejsn_Encoder_Formatter::baejsn_Encoder_Formatter(
 }
 
 // MANIPULATORS
-void baejsn_Encoder_Formatter::openObject(bool isArrayElement)
+void baejsn_Encoder_Formatter::openObject()
 {
-    indent(isArrayElement);
+    indent();
 
     d_outputStream << '{';
 
@@ -84,10 +85,10 @@ void baejsn_Encoder_Formatter::closeArray()
 
 }
 
-void baejsn_Encoder_Formatter::indent(bool isArrayElement)
+void baejsn_Encoder_Formatter::indent()
 {
     if (d_usePrettyStyle) {
-        if (isArrayElement) {
+        if (d_isArrayElement) {
             bdeu_Print::indent(d_outputStream,
                                d_indentLevel,
                                d_spacesPerLevel);
@@ -95,17 +96,11 @@ void baejsn_Encoder_Formatter::indent(bool isArrayElement)
     }
 }
 
-void baejsn_Encoder_Formatter::closeElement()
-{
-    d_outputStream << ',';
-    if (d_usePrettyStyle) {
-        d_outputStream << '\n';
-    }
-}
-
 int baejsn_Encoder_Formatter::openElement(const bsl::string& name)
 {
-    indent(true);
+    if (d_usePrettyStyle) {
+        bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+    }
 
     const int rc = baejsn_PrintUtil::printValue(d_outputStream, name);
     if (rc) {
@@ -120,6 +115,14 @@ int baejsn_Encoder_Formatter::openElement(const bsl::string& name)
     }
 
     return 0;
+}
+
+void baejsn_Encoder_Formatter::closeElement()
+{
+    d_outputStream << ',';
+    if (d_usePrettyStyle) {
+        d_outputStream << '\n';
+    }
 }
 
                             // -------------------------------
