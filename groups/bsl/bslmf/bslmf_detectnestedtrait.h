@@ -33,6 +33,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
+#include <bslmf_isconvertibletoany.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -62,10 +70,16 @@ class DetectNestedTrait_Imp {
     DetectNestedTrait_Imp(const DetectNestedTrait_Imp&);
     ~DetectNestedTrait_Imp();
 
+    enum {
+        CONVERTIBLE_TO_NESTED_TRAIT = sizeof(check(TypeRep<TYPE>::rep(), 0))
+                                      == sizeof(char),
+        CONVERTIBLE_TO_ANY_TYPE     = IsConvertibleToAny<TYPE>::value
+    };
+
   public:
     // PUBLIC CONSTANTS
 
-    enum { VALUE = (1 == sizeof(check(TypeRep<TYPE>::rep(), 0))) };
+    enum { VALUE = CONVERTIBLE_TO_NESTED_TRAIT && !CONVERTIBLE_TO_ANY_TYPE };
         // Non-zero if 'TRAIT' is associated with 'TYPE' using the nested type
         // trait mechanism; otherwise zero.
 

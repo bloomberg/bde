@@ -127,6 +127,11 @@ struct ConvertToEnumTestType {
     operator EnumTestType() { return ENUM_TEST_VALUE0; }
 };
 
+struct ConvertToAnyType {
+    template <typename T>
+    operator T() { return T(); }
+};
+
 }  // close unnamed namespace
 
 #define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
@@ -300,6 +305,8 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToIntTestType,  0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, ConvertToEnumTestType, 0);
         TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToEnumTestType, 0);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, ConvertToAnyType,      0);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToAnyType,      0);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -389,6 +396,8 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToIntTestType,  false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, ConvertToEnumTestType, false);
         TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToEnumTestType, false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, ConvertToAnyType,      false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToAnyType,      false);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
