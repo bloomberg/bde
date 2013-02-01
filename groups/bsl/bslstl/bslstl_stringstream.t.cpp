@@ -1225,14 +1225,33 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING READ/WRITE/SEEK COMBINATIONS"
                             "\n====================================\n");
 
-
         bsl::stringstream inout;
+
+        // Outputting a string goes through stringbuf::xsputn, but outputting a
+        // character doesn't have to involve stringbuf and can be done just by
+        // bumping the internal streambuf output pointer, so we do both.
         inout << "abc" << 'd' << 'e';
+
+        // Now verify that we can seek in this stream
         inout.seekg(0, std::ios::beg);
         inout.seekg(0, std::ios::end);
         std::streamoff endPos = inout.tellg();
+
+        ASSERT(inout.good());
         ASSERT(endPos == inout.str().size());
 
+        // Verify that we can seek in the empty stream
+        bsl::stringstream empty;
+        empty.seekg(0, std::ios::beg);
+        empty.seekg(0, std::ios::end);
+        empty.seekg(0, std::ios::cur);
+        empty.seekp(0, std::ios::beg);
+        empty.seekp(0, std::ios::end);
+        empty.seekp(0, std::ios::cur);
+
+        ASSERT(empty.good());
+        ASSERT(empty.tellg() == std::streampos(0));
+        ASSERT(empty.tellp() == std::streampos(0));
       } break;
       case 8: {
         // --------------------------------------------------------------------
