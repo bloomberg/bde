@@ -520,6 +520,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
 #ifndef INCLUDED_STDDEF_H
 #include <stddef.h>  // for 'size_t'
 #define INCLUDED_STDDEF_H
@@ -965,7 +969,7 @@ inline
 TYPE TemplateTestFacility::create(int identifier)
 {
     bsls::ObjectBuffer<TYPE> obj;
-    emplace(reinterpret_cast<TYPE *>(obj.buffer()),
+    emplace(bsls::Util::addressOf(obj.object()),
             identifier,
             &bslma::MallocFreeAllocator::singleton());
     return obj.object();

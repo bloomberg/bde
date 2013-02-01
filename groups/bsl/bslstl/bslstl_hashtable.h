@@ -2742,10 +2742,15 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     BSLS_ASSERT_SAFE(anchor);
     BSLS_ASSERT_SAFE(0 != bucketArraySize);
 
-    typedef typename ::bsl::allocator_traits<ALLOCATOR>::template
-                         rebind_traits<bslalg::HashTableBucket>::allocator_type
-                                                                ArrayAllocator;
-    typedef ::bsl::allocator_traits<ArrayAllocator> ArrayAllocatorTraits;
+    typedef ::bsl::allocator_traits<ALLOCATOR>               ParamAllocTraits;
+    typedef typename ParamAllocTraits::template
+                      rebind_traits<bslalg::HashTableBucket> BucketAllocTraits;
+    typedef typename BucketAllocTraits::allocator_type       ArrayAllocator;
+    typedef ::bsl::allocator_traits<ArrayAllocator>       ArrayAllocatorTraits;
+    typedef typename ArrayAllocatorTraits::size_type         SizeType;
+
+    BSLS_ASSERT_SAFE(
+               bucketArraySize <= native_std::numeric_limits<SizeType>::max());
 
     ArrayAllocator reboundAllocator(allocator);
 
@@ -2757,12 +2762,22 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
         bslma::Allocator::throwBadAlloc();
     }
 
-    bslalg::HashTableBucket *data =
-             ArrayAllocatorTraits::allocate(reboundAllocator, bucketArraySize);
+    // Conversion to exactly the correct type resolves compiler warnings.
+    // The assertions above are a loose safety check that this conversion
+    // can never overflow - which would require an allocator using a
+    // 'size_type' larger than 'std::size_t', with the requirement that a
+    // standard coforming allocator must use a 'size_type' that is a buit-in
+    // unsigned integer type.
+
+    const SizeType newArraySize = static_cast<SizeType>(bucketArraySize);
+
+    bslalg::HashTableBucket *data = ArrayAllocatorTraits::allocate(
+                                       reboundAllocator,
+                                       newArraySize);
 
     native_std::fill_n(data, bucketArraySize, bslalg::HashTableBucket());
 
-    anchor->setBucketArrayAddressAndSize(data, bucketArraySize);
+    anchor->setBucketArrayAddressAndSize(data, newArraySize);
 }
 
 template <class ALLOCATOR>
@@ -2779,16 +2794,22 @@ void HashTable_Util::destroyBucketArray(
                || (1 == bucketArraySize
                      && HashTable_ImpDetails::defaultBucketAddress() == data));
 
-    typedef typename ::bsl::allocator_traits<ALLOCATOR>::template
-                         rebind_traits<bslalg::HashTableBucket>::allocator_type
-                                                                ArrayAllocator;
-    typedef ::bsl::allocator_traits<ArrayAllocator> ArrayAllocatorTraits;
+    typedef ::bsl::allocator_traits<ALLOCATOR>               ParamAllocTraits;
+    typedef typename ParamAllocTraits::template
+                      rebind_traits<bslalg::HashTableBucket> BucketAllocTraits;
+    typedef typename BucketAllocTraits::allocator_type       ArrayAllocator;
+    typedef ::bsl::allocator_traits<ArrayAllocator>       ArrayAllocatorTraits;
+    typedef typename ArrayAllocatorTraits::size_type         SizeType;
+
+    BSLS_ASSERT_SAFE(
+               bucketArraySize <= native_std::numeric_limits<SizeType>::max());
 
     if (HashTable_ImpDetails::defaultBucketAddress() != data) {
         ArrayAllocator reboundAllocator(allocator);
-        ArrayAllocatorTraits::deallocate(reboundAllocator,
-                                         data,
-                                         bucketArraySize);
+        ArrayAllocatorTraits::deallocate(
+                                       reboundAllocator,
+                                       data,
+                                       static_cast<SizeType>(bucketArraySize));
     }
 }
 
@@ -2827,13 +2848,13 @@ HashTable(const HASHER&     hash,
 
     if (0 != initialNumBuckets) {
         size_t capacity;  // This may be a different type than SizeType.
-        SizeType numBuckets =
-              HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
-                                                             1,
-                                                             initialNumBuckets,
-                                                             d_maxLoadFactor);
+        size_t numBuckets = HashTable_ImpDetails::growBucketsForLoadFactor(
+                                        &capacity,
+                                        1,
+                                        static_cast<size_t>(initialNumBuckets),
+                                        d_maxLoadFactor);
         HashTable_Util::initAnchor(&d_anchor, numBuckets, allocator);
-        d_capacity = capacity;
+        d_capacity = static_cast<SizeType>(capacity);
     }
 }
 
@@ -2916,21 +2937,24 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
     // Allocate an appropriate number of buckets
 
     size_t capacity;
-    SizeType numBuckets =
-               HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
-                                                              d_size,
-                                                              2,
-                                                              d_maxLoadFactor);
+    SizeType numBuckets = static_cast<SizeType>(
+                          HashTable_ImpDetails::growBucketsForLoadFactor(
+                                                   &capacity,
+                                                   static_cast<size_t>(d_size),
+                                                   2,
+                                                   d_maxLoadFactor));
 
     d_anchor.setListRootAddress(0);
-    HashTable_Util::initAnchor(&d_anchor, numBuckets, this->allocator());
+    HashTable_Util::initAnchor(&d_anchor,
+                               static_cast<size_t>(numBuckets),
+                               this->allocator());
 
     // create a proctor for d_anchor's allocated array, and the list to follow.
 
     HashTable_ArrayProctor<typename ImplParameters::NodeFactory>
                           arrayProctor(&d_parameters.nodeFactory(), &d_anchor);
 
-    d_capacity = capacity;
+    d_capacity = static_cast<SizeType>(capacity);
 
     do {
         // Computing hash code depends on user-supplied code, and may throw.
@@ -3066,7 +3090,7 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
 
     bslalg::HashTableAnchor newAnchor(0, 0, 0);
     HashTable_Util::initAnchor(&newAnchor,
-                               newNumBuckets,
+                               static_cast<size_t>(newNumBuckets),
                                this->allocator());
 
     Proctor cleanUpIfUserHashThrows(this, &d_anchor, &newAnchor);
@@ -3389,13 +3413,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
         // from a sorted array of exponentially increasing primes.
 
         size_t capacity;
-        SizeType numBuckets =
-               HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
-                                                              d_size + 1u,
-                                                              newNumBuckets,
-                                                              d_maxLoadFactor);
+        SizeType numBuckets = static_cast<SizeType>(
+                              HashTable_ImpDetails::growBucketsForLoadFactor(
+                                            &capacity,
+                                            d_size + 1u,
+                                            static_cast<size_t>(newNumBuckets),
+                                            d_maxLoadFactor));
 
-        this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
+        this->rehashIntoExactlyNumBuckets(numBuckets,
+                                          static_cast<SizeType>(capacity));
     }
 }
 
@@ -3415,13 +3441,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::reserveForNumElements(
         // from a sorted array of exponentially increasing primes.
 
         size_t capacity;
-        SizeType numBuckets =
-             HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
-                                                            numElements,
-                                                            this->numBuckets(),
-                                                            d_maxLoadFactor);
+        SizeType numBuckets = static_cast<SizeType>(
+                              HashTable_ImpDetails::growBucketsForLoadFactor(
+                                       &capacity,
+                                       numElements,
+                                       static_cast<size_t>(this->numBuckets()),
+                                       d_maxLoadFactor));
 
-        this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
+        this->rehashIntoExactlyNumBuckets(numBuckets,
+                                          static_cast<SizeType>(capacity));
     }
 }
 
@@ -3468,14 +3496,15 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
     BSLS_ASSERT_SAFE(0.0f < newMaxLoadFactor);
 
     size_t capacity;
-    SizeType numBuckets =
+    SizeType numBuckets = static_cast<SizeType>(
              HashTable_ImpDetails::growBucketsForLoadFactor(
-                                         &capacity,
-                                         native_std::max<SizeType>(d_size, 1u),
-                                         this->numBuckets(),
-                                         newMaxLoadFactor);
+                                       &capacity,
+                                       native_std::max<SizeType>(d_size, 1u),
+                                       static_cast<size_t>(this->numBuckets()),
+                                       newMaxLoadFactor));
 
-    this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
+    this->rehashIntoExactlyNumBuckets(numBuckets,
+                                      static_cast<SizeType>(capacity));
 
     // Always set this last, as there is potential to throw exceptions above.
 
@@ -3601,7 +3630,7 @@ inline
 typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::numBuckets() const
 {
-    return d_anchor.bucketArraySize();
+    return static_cast<SizeType>(d_anchor.bucketArraySize());
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -3630,7 +3659,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::countElementsInBucket(
 {
     BSLS_ASSERT_SAFE(index < this->numBuckets());
 
-    return bucketAtIndex(index).countElements();
+    return static_cast<SizeType>(bucketAtIndex(index).countElements());
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

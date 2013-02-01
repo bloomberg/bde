@@ -216,11 +216,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_util.h>
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
-
 namespace BloombergLP {
 namespace bslstl {
 
@@ -253,6 +248,9 @@ class BidirectionalNodePool {
     // PUBLIC TYPE
     typedef typename Pool::AllocatorType AllocatorType;
         // Alias for the allocator type defined by 'SimplePool'.
+
+    typedef typename AllocatorTraits::size_type size_type;
+        // Alias for the 'size_type' of the allocator defined by 'SimplePool'.
 
   public:
     // CREATORS
@@ -320,7 +318,7 @@ class BidirectionalNodePool {
         // The behavior is undefined unless 'node' refers to a
         // 'bslalg::BidirectionalNode<VALUE>' that was allocated by this pool.
 
-    void reserveNodes(native_std::size_t numNodes);
+    void reserveNodes(size_type numNodes);
         // Reserve memory from this pool to satisfy memory requests for at
         // least the specified 'numNodes' before the pool replenishes.  The
         // behavior is undefined unless '0 < numNodes'.
@@ -472,8 +470,7 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::deleteNode(
 
 template <class VALUE, class ALLOCATOR>
 inline
-void BidirectionalNodePool<VALUE, ALLOCATOR>::reserveNodes(
-                                                   native_std::size_t numNodes)
+void BidirectionalNodePool<VALUE, ALLOCATOR>::reserveNodes(size_type numNodes)
 {
     BSLS_ASSERT_SAFE(0 < numNodes);
 

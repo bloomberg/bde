@@ -475,6 +475,7 @@ StdTestAllocator<TYPE>::max_size() const
     // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
     // 'size_type' (copied from bslstl_allocator).
 
+#if 0
     static const bool BSLMA_SIZE_IS_SIGNED =
                               ~BloombergLP::bslma::Allocator::size_type(0) < 0;
     static const std::size_t MAX_NUM_BYTES =
@@ -482,6 +483,12 @@ StdTestAllocator<TYPE>::max_size() const
     static const std::size_t MAX_NUM_ELEMENTS =
                                      std::size_t(MAX_NUM_BYTES) / sizeof(TYPE);
     return MAX_NUM_ELEMENTS;
+#else
+    static const size_type MAX_NUM_BYTES = ~size_type(0);
+    static const size_type MAX_NUM_ELEMENTS =
+                          MAX_NUM_BYTES / static_cast<size_type>(sizeof(TYPE));
+    return MAX_NUM_ELEMENTS;
+#endif
 }
 
                         // ----------------------------

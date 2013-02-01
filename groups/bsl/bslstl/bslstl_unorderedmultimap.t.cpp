@@ -37,9 +37,9 @@
 #endif
 
 #if defined(BDE_BUILD_TARGET_EXC)
-enum { PLAT_EXC = 1 };
+enum IBM_MUST_NAME_ENUM_TYPES_IF_THEY_ARE_USED_IN_ASSERTV { PLAT_EXC = 1 };
 #else
-enum { PLAT_EXC = 0 };
+enum IBM_MUST_NAME_ENUM_TYPES_IF_THEY_ARE_USED_IN_ASSERTV { PLAT_EXC = 0 };
 #endif
 
 using namespace BloombergLP;

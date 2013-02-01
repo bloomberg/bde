@@ -5768,7 +5768,7 @@ struct CharToPairConverter {
         BSLS_ASSERT(address);
         BSLS_ASSERT(allocator);
         BSLS_ASSERT(0 < value);
-        BSLS_ASSERT(value < 128);
+//      BSLS_ASSERT(value < 128); // Warns on platforms where 'char' is signed.
 
         // If creating the 'key' and 'value' temporary objects requires an
         // allocator, it should not be the default allocator as that will
