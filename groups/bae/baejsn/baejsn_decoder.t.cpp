@@ -36018,108 +36018,86 @@ int main(int argc, char *argv[])
         baexml_Decoder xmlDecoder(&options, &reader, &errInfo);
 
         for (int ti = 0; ti < NUM_JSON_PRETTY_MESSAGES; ++ti) {
-            {
-                const int          LINE   = JSON_PRETTY_MESSAGES[ti].d_line;
-                const bsl::string& PRETTY = JSON_PRETTY_MESSAGES[ti].d_input_p;
-                const bool         IS_VALID =
+            const int          LINE   = JSON_PRETTY_MESSAGES[ti].d_line;
+            const bsl::string& PRETTY = JSON_PRETTY_MESSAGES[ti].d_input_p;
+            const bool         IS_VALID =
                                 JSON_PRETTY_MESSAGES[ti].d_isValidForAggregate;
-                const char         *DATA     = XML_TEST_MESSAGES[ti].d_text_p;
-                const int           DATA_LEN = strlen(DATA);
+            const char         *DATA     = XML_TEST_MESSAGES[ti].d_text_p;
+            const int           DATA_LEN = strlen(DATA);
 
-                bdesb_FixedMemInStreamBuf data(DATA, DATA_LEN);
+            bdesb_FixedMemInStreamBuf data(DATA, DATA_LEN);
 
-                bcem_Aggregate exp(schemaPtr, "Obj");
-                rc = xmlDecoder.decode(&data, &exp);
-                ASSERTV(LINE, !rc);
+            bcem_Aggregate exp(schemaPtr, "Obj");
+            rc = xmlDecoder.decode(&data, &exp);
+            ASSERTV(LINE, !rc);
 
-                if (veryVerbose) {
-                    bsl::string S(DATA);
-                    P(ti) P(LINE) P(PRETTY) P(S)
+            if (veryVerbose) {
+                bsl::string S(DATA);
+                P(ti) P(LINE) P(PRETTY) P(S)
                     exp.print(bsl::cout, 1, 4);
+            }
+
+            if (IS_VALID) {
+                bcem_Aggregate value(schemaPtr, "Obj");
+
+                baejsn_DecoderOptions options;
+                baejsn_Decoder jsonDecoder(&options);
+                bdesb_FixedMemInStreamBuf isb(PRETTY.data(),
+                                              PRETTY.length());
+                const int rc = jsonDecoder.decode(&isb, &value);
+                ASSERTV(LINE, !rc);
+                if (rc) {
+                    if (veryVerbose) {
+                        P(LINE) P(jsonDecoder.loggedMessages());
+                    }
                 }
-
-                if (IS_VALID) {
-                    bcem_Aggregate value(schemaPtr, "Obj");
-
-                    baejsn_DecoderOptions options;
-                    baejsn_Decoder jsonDecoder(&options);
-                    bdesb_FixedMemInStreamBuf isb(PRETTY.data(),
-                                                  PRETTY.length());
-                    const int rc = jsonDecoder.decode(&isb, &value);
-                    ASSERTV(LINE, !rc);
-                    if (rc) {
-                        if (veryVerbose) {
-                            P(LINE) P(jsonDecoder.loggedMessages());
-                        }
-                    }
-                    else {
-                        ASSERTV(LINE, isb.length(), 0 == isb.length());
-                        ASSERTV(LINE, ti, exp, value,
-                                bcem_Aggregate::areEquivalent(exp, value));
-                    }
+                else {
+                    ASSERTV(LINE, isb.length(), 0 == isb.length());
+                    ASSERTV(LINE, ti, exp, value,
+                            bcem_Aggregate::areEquivalent(exp, value));
                 }
             }
         }
 
         for (int ti = 0; ti < NUM_JSON_COMPACT_MESSAGES; ++ti) {
-            {
-                const int          LINE   = JSON_COMPACT_MESSAGES[ti].d_line;
-                const bsl::string& COMPACT =
-                                           JSON_COMPACT_MESSAGES[ti].d_input_p;
-                const bool         IS_VALID =
+            const int          LINE      = JSON_COMPACT_MESSAGES[ti].d_line;
+            const bsl::string& COMPACT   = JSON_COMPACT_MESSAGES[ti].d_input_p;
+            const bool         IS_VALID  =
                                JSON_COMPACT_MESSAGES[ti].d_isValidForAggregate;
-                const char         *DATA     = XML_TEST_MESSAGES[ti].d_text_p;
-                const int           DATA_LEN = strlen(DATA);
+            const char         *DATA     = XML_TEST_MESSAGES[ti].d_text_p;
+            const int           DATA_LEN = strlen(DATA);
 
-                bdesb_FixedMemInStreamBuf data(DATA, DATA_LEN);
+            bdesb_FixedMemInStreamBuf data(DATA, DATA_LEN);
 
-                bcem_Aggregate exp(schemaPtr, "Obj");
-                rc = xmlDecoder.decode(&data, &exp);
+            bcem_Aggregate exp(schemaPtr, "Obj");
+            rc = xmlDecoder.decode(&data, &exp);
 
-                if (veryVerbose) {
-                    P(ti) P(LINE) P(COMPACT)
+            if (veryVerbose) {
+                P(ti) P(LINE) P(COMPACT)
                     exp.print(bsl::cout, 1, 4);
+            }
+
+            if (IS_VALID) {
+                bcem_Aggregate value(schemaPtr, "Obj");
+
+                baejsn_DecoderOptions options;
+                baejsn_Decoder        jsonDecoder(&options);
+                bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
+                                              COMPACT.length());
+                const int rc = jsonDecoder.decode(&isb, &value);
+                ASSERTV(LINE, !rc);
+                if (rc) {
+                    if (veryVerbose) {
+                        P(LINE) P(jsonDecoder.loggedMessages());
+                    }
                 }
-
-                if (IS_VALID) {
-                    bcem_Aggregate value(schemaPtr, "Obj");
-
-                    baejsn_DecoderOptions options;
-                    baejsn_Decoder        jsonDecoder(&options);
-                    bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
-                                                  COMPACT.length());
-                    const int rc = jsonDecoder.decode(&isb, &value);
-                    ASSERTV(LINE, !rc);
-                    if (rc) {
-                        if (veryVerbose) {
-                            P(LINE) P(jsonDecoder.loggedMessages());
-                        }
-                    }
-                    else {
-                        ASSERTV(LINE, isb.length(), 0 == isb.length());
-                        ASSERTV(LINE, ti, exp, value,
-                                bcem_Aggregate::areEquivalent(exp, value));
-                    }
+                else {
+                    ASSERTV(LINE, isb.length(), 0 == isb.length());
+                    ASSERTV(LINE, ti, exp, value,
+                            bcem_Aggregate::areEquivalent(exp, value));
                 }
             }
         }
-
-        const bsl::string INPUT = 
-            " {\n"
-            "  \"selection10\" : {\n"
-            "    \"element1\" : 3000000000,\n"
-            "    \"element2\" : 32794,\n"
-            "    \"element3\" : 9223372036854775807\n"
-            "  }\n"
-            "}\n";
-        bsl::istringstream is2(INPUT);
-
-        bsl::cout << bsl::numeric_limits<bsls::Types::Int64>::max()
-                  << bsl::endl;
-        baejsn_Decoder d;
-        bcem_Aggregate s(schemaPtr, "Obj");
-        int r = d.decode(is2, &s);
-
       } break;
       case 3: {
         // --------------------------------------------------------------------

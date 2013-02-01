@@ -131,6 +131,7 @@ void baejsn_Encoder_Formatter::closeElement()
 
 // PRIVATE MANIPULATORS
 int baejsn_Encoder_EncodeImpl::encodeImp(const bsl::vector<char>& value,
+                                         int                      mode,
                                          bdeat_TypeCategory::Array)
 {
     bsl::string base64String;
@@ -159,7 +160,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const bsl::vector<char>& value,
         return rc;                                                    // RETURN
     }
 
-    return encode(base64String);
+    return encode(base64String, 0);
 }
 
 }  // close namespace BloombergLP

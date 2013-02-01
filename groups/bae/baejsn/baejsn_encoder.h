@@ -413,10 +413,12 @@ class baejsn_Encoder_Formatter {
         // closing of an array.
 
     void indent();
+        // Indent the current element.
 
     int openElement(const bsl::string& name);
         // Print onto the held stream the sequence of characters for the
-        // opening of an element having the specified 'name'.
+        // opening of an element having the specified 'name'.  Return 0 on
+        // success and a non-zero value otherwise.
 
     void closeElement();
         // Print onto the held stream the sequence of characters for the
@@ -448,10 +450,6 @@ class baejsn_Encoder_EncodeImpl {
     bsl::ostream                          d_outputStream;     // stream for
                                                               // output
 
-    bool                                  d_isUntaggedElement;// is current
-                                                              // element
-                                                              // untagged
-
     baejsn_Encoder_Formatter              d_formatter;        // formatter
 
     // FRIENDS
@@ -464,26 +462,45 @@ class baejsn_Encoder_EncodeImpl {
     bsl::ostream& logStream();
         // Return the stream used for logging.
 
-    int encodeImp(const bsl::vector<char>& value, bdeat_TypeCategory::Array);
+    int encodeImp(const bsl::vector<char>& value,
+                  int                      mode,
+                  bdeat_TypeCategory::Array);
     template <typename TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Array);
+    int encodeImp(const TYPE& value,
+                  int         mode,
+                  bdeat_TypeCategory::Array);
     template <typename TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Choice);
+    int encodeImp(const TYPE& value,
+                  int         mode,
+                  bdeat_TypeCategory::Choice);
     template <typename TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::CustomizedType);
+    int encodeImp(const TYPE& value,
+                  int         mode,
+                  bdeat_TypeCategory::CustomizedType);
     template <typename TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::DynamicType);
+    int encodeImp(const TYPE& value,
+                  int         mode,
+                  bdeat_TypeCategory::DynamicType);
     template <typename TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Enumeration);
+    int encodeImp(const TYPE& value,
+                  int         mode,
+                  bdeat_TypeCategory::Enumeration);
     template <typename TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::NullableValue);
+    int encodeImp(const TYPE& value,
+                  int         mode,
+                  bdeat_TypeCategory::NullableValue);
     template <typename TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Sequence);
+    int encodeImp(const TYPE& value,
+                  int         mode,
+                  bdeat_TypeCategory::Sequence);
     template <typename TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Simple);
+    int encodeImp(const TYPE& value,
+                  int         mode,
+                  bdeat_TypeCategory::Simple);
         // Encode the specified 'value' invoking the appropriate function based
-        // on the corresponding 'bdeat' type of 'value'.  Return 0 on success,
-        // and a non-zero value otherwise.
+        // on the corresponding 'bdeat' type of 'value' and the specified
+        // formatting 'mode'.  Return 0 on success, and a non-zero value
+        // otherwise.
 
   public:
     // CREATORS
@@ -499,9 +516,10 @@ class baejsn_Encoder_EncodeImpl {
 
     // MANIPULATORS
     template <typename TYPE>
-    int encode(const TYPE& value);
-        // Encode the specified 'value' in the JSON format.  Return 0 on
-        // success and a non-zero value otherwise.
+    int encode(const TYPE& value, int mode);
+        // Encode the specified 'value' in the JSON format using the specified
+        // formatting 'mode'.  Return 0 on success and a non-zero value
+        // otherwise.
 };
 
                  // ====================================
@@ -518,10 +536,10 @@ struct baejsn_Encoder_ElementVisitor {
     //  int operator()(TYPE *value, const INFO& info);
     //..
 
-
     // DATA
     baejsn_Encoder_EncodeImpl *d_encoder;  // encoder (held, not owned)
-
+    int                        d_mode;     // formatting mode
+    
     // CREATORS
     // Creators have been omitted to allow simple static initialization of
     // this struct.
@@ -598,6 +616,7 @@ struct baejsn_Encoder_DynamicTypeDispatcher {
 
     // DATA
     baejsn_Encoder_EncodeImpl *d_encoder;  // encoder (held, not owned)
+    int                        d_mode;     // formatting mode
 
     // CREATORS
     // Creators have been omitted to allow simple static initialization of
@@ -637,6 +656,7 @@ baejsn_Encoder::baejsn_Encoder(bslma::Allocator *basicAllocator)
 
 // MANIPULATORS
 template <typename TYPE>
+inline
 int baejsn_Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
 {
     const baejsn_EncoderOptions options;
@@ -644,6 +664,7 @@ int baejsn_Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
 }
 
 template <typename TYPE>
+inline
 int baejsn_Encoder::encode(bsl::ostream& stream, const TYPE& value)
 {
     const baejsn_EncoderOptions options;
@@ -673,10 +694,10 @@ int baejsn_Encoder::encode(bsl::streambuf               *streamBuf,
 
     baejsn_Encoder_EncodeImpl encoderImpl(this, streamBuf, options);
 
-    const int rc = encoderImpl.encode(value);
+    const int rc = encoderImpl.encode(value, 0);
 
-    if (!rc && baejsn_EncoderOptions::BAEJSN_PRETTY ==
-                                                     options.encodingStyle()) {
+    if (!rc
+     && baejsn_EncoderOptions::BAEJSN_PRETTY == options.encodingStyle()) {
         streamBuf->sputc('\n');
     }
     return rc;
@@ -692,8 +713,8 @@ int baejsn_Encoder::encode(bsl::ostream&                stream,
         return -1;                                                    // RETURN
     }
 
-    int rc = this->encode(stream.rdbuf(), value, options);
-    if (0 != rc) {
+    const int rc = this->encode(stream.rdbuf(), value, options);
+    if (rc) {
         stream.setstate(bsl::ios_base::failbit);
         return rc;                                                    // RETURN
     }
@@ -740,32 +761,38 @@ bsl::ostream& baejsn_Encoder_EncodeImpl::logStream()
 template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+                                         int         mode,
                                          bdeat_TypeCategory::CustomizedType)
 {
-    return encode(bdeat_CustomizedTypeFunctions::convertToBaseType(value));
+    return encode(bdeat_CustomizedTypeFunctions::convertToBaseType(value),
+                  mode);
 }
 
 template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+                                         int         mode,
                                          bdeat_TypeCategory::DynamicType)
 {
-    baejsn_Encoder_DynamicTypeDispatcher proxy = { this };
+    baejsn_Encoder_DynamicTypeDispatcher proxy = { this, mode };
     return bdeat_TypeCategoryUtil::accessByCategory(value, proxy);
 }
 
 template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+                                         int         mode,
                                          bdeat_TypeCategory::Enumeration)
 {
     bsl::string valueString;
     bdeat_EnumFunctions::toString(&valueString, value);
-    return encode(valueString);
+    return encode(valueString, mode);
 }
 
 template <typename TYPE>
+inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+                                         int         mode,
                                          bdeat_TypeCategory::Simple)
 {
     d_formatter.indent();
@@ -774,30 +801,27 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
 template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+                                         int         mode,
                                          bdeat_TypeCategory::Sequence)
 {
-    if (!d_isUntaggedElement) {
+    if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
         d_formatter.openObject();
     }
 
     baejsn_Encoder_SequenceVisitor visitor(this);
 
-    bool isArrayElement    = d_formatter.isArrayElement();
-    bool isUntaggedElement = d_isUntaggedElement;
-    d_isUntaggedElement    = false;
+    const bool isArrayElement = d_formatter.isArrayElement();
 
     d_formatter.setIsArrayElement(false);
 
-    int rc = bdeat_SequenceFunctions::accessAttributes(value, visitor);
-    if (0 != rc) {
+    const int rc = bdeat_SequenceFunctions::accessAttributes(value, visitor);
+    if (rc) {
         return rc;                                                    // RETURN
     }
 
-    d_isUntaggedElement = isUntaggedElement;
-
     d_formatter.setIsArrayElement(isArrayElement);
 
-    if (!d_isUntaggedElement) {
+    if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
         d_formatter.closeObject();
     }
 
@@ -806,31 +830,29 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
 template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+                                         int         mode,
                                          bdeat_TypeCategory::Choice)
 {
     if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
                                    bdeat_ChoiceFunctions::selectionId(value)) {
-        if (!d_isUntaggedElement) {
+        if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
             d_formatter.openObject();
         }
 
-        baejsn_Encoder_ElementVisitor visitor = { this };
+        baejsn_Encoder_ElementVisitor visitor = { this, mode };
 
-        bool isArrayElement    = d_formatter.isArrayElement();
-        bool isUntaggedElement = d_isUntaggedElement;
-        d_isUntaggedElement    = false;
+        const bool isArrayElement = d_formatter.isArrayElement();
 
         d_formatter.setIsArrayElement(false);
 
-        if (0 != bdeat_ChoiceFunctions::accessSelection(value, visitor)) {
-            return -1;                                                // RETURN
+        const int rc = bdeat_ChoiceFunctions::accessSelection(value, visitor);
+        if (rc) {
+            return rc;                                                // RETURN
         }
-
-        d_isUntaggedElement = isUntaggedElement;
 
         d_formatter.setIsArrayElement(isArrayElement);
 
-        if (!d_isUntaggedElement) {
+        if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
             d_formatter.closeObject();
         }
     }
@@ -843,13 +865,14 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
 template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+                                         int         mode,
                                          bdeat_TypeCategory::Array)
 {
     const int size = static_cast<int>(bdeat_ArrayFunctions::size(value));
     if (0 < size) {
         d_formatter.openArray();
 
-        baejsn_Encoder_ElementVisitor visitor = { this };
+        baejsn_Encoder_ElementVisitor visitor = { this, mode };
 
         d_formatter.setIsArrayElement(true);
 
@@ -866,17 +889,17 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
             }
         }
 
-        d_formatter.closeArray();
-
         d_formatter.setIsArrayElement(false);
+
+        d_formatter.closeArray();
     }
 
     return 0;
 }
 
 template <typename TYPE>
-inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+                                         int         mode,
                                          bdeat_TypeCategory::NullableValue)
 {
     if (bdeat_NullableValueFunctions::isNull(value)) {
@@ -885,16 +908,16 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
         return 0;                                                     // RETURN
     }
 
-    baejsn_Encoder_ElementVisitor visitor = { this };
+    baejsn_Encoder_ElementVisitor visitor = { this, mode };
     return bdeat_NullableValueFunctions::accessValue(value, visitor);
 }
 
 template <typename TYPE>
 inline
-int baejsn_Encoder_EncodeImpl::encode(const TYPE& value)
+int baejsn_Encoder_EncodeImpl::encode(const TYPE& value, int mode)
 {
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-    return encodeImp(value, TypeCategory());
+    return encodeImp(value, mode, TypeCategory());
 }
 
 // CREATORS
@@ -905,7 +928,6 @@ baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(
                                        const baejsn_EncoderOptions&  options)
 : d_encoder(encoder)
 , d_outputStream(streambuf)
-, d_isUntaggedElement(false)
 , d_formatter(d_outputStream, options)
 {
 }
@@ -924,7 +946,6 @@ bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE&,
 }
 
 template <class TYPE>
-inline
 bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE& value,
                                                      bslmf::MetaInt<1>)
 {
@@ -945,7 +966,6 @@ bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE& value)
 }
 
 template <class TYPE>
-inline
 bool baejsn_Encoder_SequenceVisitor::isEmptyArray(const TYPE&,
                                                   bslmf::MetaInt<0>)
 {
@@ -984,7 +1004,6 @@ baejsn_Encoder_SequenceVisitor::baejsn_Encoder_SequenceVisitor(
 
 // MANIPULATORS
 template <typename TYPE, typename INFO>
-inline
 int baejsn_Encoder_SequenceVisitor::operator()(const TYPE& value,
                                                const INFO& info)
 {
@@ -1000,9 +1019,9 @@ int baejsn_Encoder_SequenceVisitor::operator()(const TYPE& value,
 
     d_isFirstElement = false;
 
-    baejsn_Encoder_ElementVisitor visitor = { d_encoder };
-    const int rc = visitor(value, info);
-    return rc;
+    baejsn_Encoder_ElementVisitor visitor = { d_encoder,
+                                              info.formattingMode() };
+    return visitor(value, info);
 }
 
                     // ------------------------------------
@@ -1013,7 +1032,7 @@ template <typename TYPE>
 inline
 int baejsn_Encoder_ElementVisitor::operator()(const TYPE &value)
 {
-    return d_encoder->encode(value);
+    return d_encoder->encode(value, d_mode);
 }
 
 template <typename TYPE, typename INFO>
@@ -1022,32 +1041,21 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
 {
     // Skip encoding of anonymous elements
 
-    if (!(info.formattingMode() & bdeat_FormattingMode::BDEAT_UNTAGGED)) {
+    const int mode = info.formattingMode();
+    if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
 
         const int rc = d_encoder->d_formatter.openElement(info.name());
-        if (0 != rc) {
-            d_encoder->logStream()
-                << "Unable to encode the name of the element, '"
-                << info.name()
-                << "'."
-                << bsl::endl;
+        if (rc) {
+            d_encoder->logStream() << "Unable to encode element named: '"
+                                   << info.name() << "'." << bsl::endl;
             return rc;                                                // RETURN
         }
-
-        d_encoder->d_isUntaggedElement = false;
-    }
-    else {
-        d_encoder->d_isUntaggedElement = true;
     }
 
-    int rc = d_encoder->encode(value);
-
-    if (0 != rc) {
-        d_encoder->logStream()
-            << "Unable to encode the value of the element, '"
-            << info.name()
-            << "'."
-            << bsl::endl;
+    const int rc = d_encoder->encode(value, mode);
+    if (rc) {
+        d_encoder->logStream() << "Unable to encode value of element named: '"
+                               << info.name() << "'." << bsl::endl;
         return rc;                                                    // RETURN
     }
     return 0;
@@ -1072,7 +1080,7 @@ inline
 int baejsn_Encoder_DynamicTypeDispatcher::operator()(const TYPE&  value,
                                                      ANY_CATEGORY category)
 {
-    d_encoder->encodeImp(value, category);
+    d_encoder->encodeImp(value, d_mode, category);
     return 0;
 }
 
