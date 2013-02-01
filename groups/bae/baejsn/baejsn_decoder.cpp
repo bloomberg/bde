@@ -63,9 +63,7 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
         return rc;                                                    // RETURN
     }
     else if (baejsn_Parser::BAEJSN_START_OBJECT == d_parser.tokenType()) {
-        ++d_currentDepth;
-        if (d_decoderOptions_p
-         && d_currentDepth > d_decoderOptions_p->maxDepth()) {
+        if (++d_currentDepth > d_maxDepth) {
             d_logStream << "Maximum allowed decoding depth reached: "
                         << d_currentDepth << "\n";
             return -1;                                                // RETURN
@@ -92,9 +90,7 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
               } break;
 
               case baejsn_Parser::BAEJSN_START_OBJECT: {
-                ++d_currentDepth;
-                if (d_decoderOptions_p
-                 && d_currentDepth > d_decoderOptions_p->maxDepth()) {
+                if (++d_currentDepth > d_maxDepth) {
                     d_logStream << "Maximum allowed decoding depth reached: "
                                 << d_currentDepth << "\n";
                     return -1;                                        // RETURN
@@ -134,9 +130,7 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
               } break;
 
               case baejsn_Parser::BAEJSN_START_OBJECT: {
-                ++d_currentDepth;
-                if (d_decoderOptions_p
-                 && d_currentDepth > d_decoderOptions_p->maxDepth()) {
+                if (++d_currentDepth > d_maxDepth) {
                     d_logStream << "Maximum allowed decoding depth reached: "
                                 << d_currentDepth << "\n";
                     return -1;                                        // RETURN

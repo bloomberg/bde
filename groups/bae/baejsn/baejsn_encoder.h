@@ -326,25 +326,6 @@ class baejsn_Encoder {
 
     // MANIPULATORS
     template <typename TYPE>
-    int encode(bsl::streambuf *streamBuf, const TYPE& value);
-        // Encode the specified 'value' of (template parameter) 'TYPE' into the
-        // specified 'streamBuf'.  Return 0 on success, and a non-zero value
-        // otherwise.
-        //
-        // DEPRECATED: Use the 'encode' functions passed a reference to a
-        // non-modifiable 'baejsn_EncoderOptions' object instead. 
-
-    template <typename TYPE>
-    int encode(bsl::ostream& stream, const TYPE& value);
-        // Encode the specified 'value' of (template parameter) 'TYPE' into the
-        // specified 'streamBuf'.  Return 0 on success, and a non-zero value
-        // otherwise.  Note that 'stream' will be invalidated if the encoding
-        // failed.
-        //
-        // DEPRECATED: Use the 'encode' functions passed a reference to a
-        // non-modifiable 'baejsn_EncoderOptions' object instead. 
-
-    template <typename TYPE>
     int encode(bsl::streambuf               *streamBuf,
                const TYPE&                   value,
                const baejsn_EncoderOptions&  options);
@@ -360,6 +341,25 @@ class baejsn_Encoder {
         // specified 'streamBuf' using the specified 'options'.  Return 0 on
         // success, and a non-zero value otherwise.  Note that 'stream' will be
         // invalidated if the encoding failed.
+
+    template <typename TYPE>
+    int encode(bsl::streambuf *streamBuf, const TYPE& value);
+        // Encode the specified 'value' of (template parameter) 'TYPE' into the
+        // specified 'streamBuf'.  Return 0 on success, and a non-zero value
+        // otherwise.
+        //
+        // DEPRECATED: Use the 'encode' function passed a reference to a
+        // non-modifiable 'baejsn_EncoderOptions' object instead. 
+
+    template <typename TYPE>
+    int encode(bsl::ostream& stream, const TYPE& value);
+        // Encode the specified 'value' of (template parameter) 'TYPE' into the
+        // specified 'streamBuf'.  Return 0 on success, and a non-zero value
+        // otherwise.  Note that 'stream' will be invalidated if the encoding
+        // failed.
+        //
+        // DEPRECATED: Use the 'encode' function passed a reference to a
+        // non-modifiable 'baejsn_EncoderOptions' object instead.
 
     // ACCESSORS
     bsl::string loggedMessages() const;
@@ -463,7 +463,7 @@ class baejsn_Encoder_EncodeImpl {
         // Return the stream used for logging.
 
     int encodeImp(const bsl::vector<char>& value,
-                  int                      mode,
+                  int,
                   bdeat_TypeCategory::Array);
     template <typename TYPE>
     int encodeImp(const TYPE& value,
@@ -495,7 +495,7 @@ class baejsn_Encoder_EncodeImpl {
                   bdeat_TypeCategory::Sequence);
     template <typename TYPE>
     int encodeImp(const TYPE& value,
-                  int         mode,
+                  int,
                   bdeat_TypeCategory::Simple);
         // Encode the specified 'value' invoking the appropriate function based
         // on the corresponding 'bdeat' type of 'value' and the specified
@@ -792,7 +792,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
-                                         int         mode,
+                                         int,
                                          bdeat_TypeCategory::Simple)
 {
     d_formatter.indent();

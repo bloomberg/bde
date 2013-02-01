@@ -35134,14 +35134,9 @@ int main(int argc, char *argv[])
     {
     test::Employee employee;
 //..
-// Then, we will create a 'baejsn_Decoder' object using a
-// 'baejsn_DecoderOptions' object that specifies that unknown elements should
-// *not* be skipped.  Setting this option to 'false' will result in the
-// decoder returning an error on encountering an unknown element:
+// Then, we will create a 'baejsn_Decoder' object:
 //..
-    baejsn_DecoderOptions options;
-    options.setSkipUnknownElements(false);
-    baejsn_Decoder decoder(&options);
+    baejsn_Decoder decoder;
 //..
 // Next, we will specify the input data provided to the decoder:
 //..
@@ -35151,9 +35146,16 @@ int main(int argc, char *argv[])
 //
     bsl::istringstream is(INPUT);
 //..
-// Now, we will decode this object using the baejsn decoder:
+// Now, we will decode this object using the 'decode' function of the baejsn
+// decoder by providing it a 'baejsn_DecoderOptions' object.  The decoder
+// options allow us to specify that unknown elements should *not* be skipped.
+// Setting this option to 'false' will result in the decoder returning an error
+// on encountering an unknown element:
 //..
-    const int rc = decoder.decode(is, &employee);
+    baejsn_DecoderOptions options;
+    options.setSkipUnknownElements(false);
+//
+    const int rc = decoder.decode(is, &employee, options);
     ASSERT(!rc);
     ASSERT(is);
 //..
@@ -35196,12 +35198,9 @@ int main(int argc, char *argv[])
 //..
     bcem_Aggregate employee(schema, "Employee");
 //..
-// Next, we will create a 'baejsn_Decoder' object using a default
-// 'baejsn_DecoderOptions' object that specifies that unknown elements should
-// be skipped and should not result in a decoding error:
+// Next, we will create a 'baejsn_Decoder' object:
 //..
-    baejsn_DecoderOptions options;
-    baejsn_Decoder        decoder(&options);
+    baejsn_Decoder decoder;
 //..
 // Then, we will specify the input data provided to the decoder.  Notice that
 // the element named 'id' in the underlying JSON is an unknown element as it
@@ -35220,11 +35219,15 @@ int main(int argc, char *argv[])
 //
     bsl::istringstream is(INPUT);
 //..
-// Now, we will decode this object using the baejsn decoder:
+// Now, we will decode this object using the 'decode' function of the baejsn
+// decoder by providing it a default 'baejsn_DecoderOptions' object.  Doing so
+// specifies to the decoder that unknown elements should be skipped and should
+// not result in a decoding error:
 //..
-    const int rc = decoder.decode(is, &employee);
-    ASSERT(!rc);
-    ASSERT(is);
+    baejsn_DecoderOptions options;
+    const int rc = decoder.decode(is, &employee, options);
+    assert(!rc);
+    assert(is);
 //..
 // Finally, we will verify that the decoded object is as expected:
 //..
@@ -35758,8 +35761,10 @@ int main(int argc, char *argv[])
 
                 bsl::istringstream iss(jsonText);
 
-                baejsn_Decoder decoder;
-                ASSERTV(LINE, 0 != decoder.decode(iss, &bob));
+                baejsn_DecoderOptions options;
+                options.setSkipUnknownElements(false);
+                baejsn_Decoder        decoder;
+                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, options));
             }
 
             // With skipping option
@@ -35770,8 +35775,8 @@ int main(int argc, char *argv[])
 
                 baejsn_DecoderOptions options;
                 options.setSkipUnknownElements(true);
-                baejsn_Decoder decoder(&options);
-                ASSERTV(LINE, 0 == decoder.decode(iss, &bob));
+                baejsn_Decoder decoder;
+                ASSERTV(LINE, 0 == decoder.decode(iss, &bob, options));
 
                 ASSERTV(bob.name(), "Bob"         == bob.name());
                 ASSERT("Some Street" == bob.homeAddress().street());
@@ -35963,8 +35968,10 @@ int main(int argc, char *argv[])
 
                     bsl::istringstream iss(jsonText);
 
-                    baejsn_Decoder decoder;
-                    ASSERTV(LINE, 0 != decoder.decode(iss, &bob));
+                    baejsn_DecoderOptions options;
+                    options.setSkipUnknownElements(false);
+                    baejsn_Decoder        decoder;
+                    ASSERTV(LINE, 0 != decoder.decode(iss, &bob, options));
                 }
 
                 // With skipping option
@@ -35975,8 +35982,8 @@ int main(int argc, char *argv[])
 
                     baejsn_DecoderOptions options;
                     options.setSkipUnknownElements(true);
-                    baejsn_Decoder decoder(&options);
-                    ASSERTV(LINE, 0 == decoder.decode(iss, &bob));
+                    baejsn_Decoder decoder;
+                    ASSERTV(LINE, 0 == decoder.decode(iss, &bob, options));
 
                     ASSERTV("Bob" == bob["name"].asString());
                     ASSERT(0      == strcmp("",
@@ -36041,10 +36048,10 @@ int main(int argc, char *argv[])
                 bcem_Aggregate value(schemaPtr, "Obj");
 
                 baejsn_DecoderOptions options;
-                baejsn_Decoder jsonDecoder(&options);
+                baejsn_Decoder jsonDecoder;
                 bdesb_FixedMemInStreamBuf isb(PRETTY.data(),
                                               PRETTY.length());
-                const int rc = jsonDecoder.decode(&isb, &value);
+                const int rc = jsonDecoder.decode(&isb, &value, options);
                 ASSERTV(LINE, !rc);
                 if (rc) {
                     if (veryVerbose) {
@@ -36080,11 +36087,11 @@ int main(int argc, char *argv[])
             if (IS_VALID) {
                 bcem_Aggregate value(schemaPtr, "Obj");
 
-                baejsn_DecoderOptions options;
-                baejsn_Decoder        jsonDecoder(&options);
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            jsonDecoder;
                 bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
                                               COMPACT.length());
-                const int rc = jsonDecoder.decode(&isb, &value);
+                const int rc = jsonDecoder.decode(&isb, &value, options);
                 ASSERTV(LINE, !rc);
                 if (rc) {
                     if (veryVerbose) {
@@ -36128,10 +36135,11 @@ int main(int argc, char *argv[])
 
                 baea::FeatureTestMessage value;
 
-                baejsn_Decoder decoder;
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            decoder;
                 bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
 
-                const int rc = decoder.decode(&isb, &value);
+                const int rc = decoder.decode(&isb, &value, options);
                 if (IS_VALID) {
                     ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
                     ASSERTV(LINE, isb.length(), 0 == isb.length());
@@ -36157,11 +36165,12 @@ int main(int argc, char *argv[])
 
                 baea::FeatureTestMessage value;
 
-                baejsn_Decoder decoder;
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            decoder;
                 bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
                                               COMPACT.length());
 
-                const int rc = decoder.decode(&isb, &value);
+                const int rc = decoder.decode(&isb, &value, options);
                 if (IS_VALID) {
                     ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
                     ASSERTV(LINE, isb.length(), 0 == isb.length());
@@ -36210,10 +36219,11 @@ int main(int argc, char *argv[])
             //"   }\n"
             "}";
 
-        baejsn_Decoder decoder;
+        baejsn_DecoderOptions options;
+        baejsn_Decoder        decoder;
         bsl::istringstream iss(jsonText);
 
-        ASSERTV(0 == decoder.decode(iss, &bob));
+        ASSERTV(0 == decoder.decode(iss, &bob, options));
 
         if (veryVerbose) {
             P(bob);
@@ -36251,8 +36261,9 @@ int main(int argc, char *argv[])
 
         bsl::istringstream iss(jsonText);
 
-        baejsn_Decoder decoder;
-        ASSERTV(0 == decoder.decode(iss, &bob));
+        baejsn_DecoderOptions options;
+        baejsn_Decoder        decoder;
+        ASSERTV(0 == decoder.decode(iss, &bob, options));
 
         //rapidjson::GenericReader<char, char> reader;
         //BaseReaderHandler handler;
