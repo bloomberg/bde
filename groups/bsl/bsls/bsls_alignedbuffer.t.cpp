@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
         //   - sizeof(Buff) - SIZE < ALIGNMENT
         //
         // Testing:
-        //   Class Invariants
+        //   CLASS INVARIANTS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CLASS INVARIANTS"

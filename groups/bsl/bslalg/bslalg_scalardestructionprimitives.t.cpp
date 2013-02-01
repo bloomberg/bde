@@ -42,7 +42,6 @@ using namespace BloombergLP;
 // [ 2] void destroy(T *dst);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -773,7 +772,7 @@ int main(int argc, char *argv[])
         //:    them.  Make sure all memory is deallocated.
         //
         // Testing:
-        //   This test exercises the component but tests nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
