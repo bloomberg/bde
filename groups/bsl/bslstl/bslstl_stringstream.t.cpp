@@ -1230,7 +1230,7 @@ int main(int argc, char *argv[])
         inout << "abc" << 'd' << 'e';
         inout.seekg(0, std::ios::beg);
         inout.seekg(0, std::ios::end);
-        std::streampos endPos = inout.tellg();
+        std::streamoff endPos = inout.tellg();
         ASSERT(endPos == inout.str().size());
 
       } break;
