@@ -35,13 +35,13 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 // ============================================================================
-// STANDARD BDE ASSERT TEST MACROS
+//                    STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define ASSERT BSLS_BSLTESTUTIL_ASSERT
 
 // ============================================================================
-// STANDARD BDE LOOP-ASSERT TEST MACROS
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -55,7 +55,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define ASSERTV BSLS_BSLTESTUTIL_ASSERTV
 
 // ============================================================================
-// SEMI-STANDARD TEST OUTPUT MACROS
+//                  SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define Q BSLS_BSLTESTUTIL_Q // Quote identifier literally.
@@ -65,14 +65,16 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ BSLS_BSLTESTUTIL_L_ // current Line number
 
 // ============================================================================
-// NEGATIVE-TEST MACRO ABBREVIATIONS
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_SAFE_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(expr)
+#define ASSERT_SAFE_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(expr)
 
 // ============================================================================
-// EXCEPTION TEST MACRO ABBREVIATIONS
+//                  EXCEPTION TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define EXCEPTION_COUNT bslmaExceptionCounter
