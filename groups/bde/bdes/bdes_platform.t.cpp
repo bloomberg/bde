@@ -93,8 +93,8 @@ int main(int argc, char *argv[]) {
         ASSERT(Y <= X);\
         cout << "\t"#X" = " << X << endl;
 
-            #if defined(BDES_PLATFORM_CMP_IBM)
-                MACRO_TESTGT(BDES_PLATFORM_CMP_IBM, 0);
+            #if defined(BDES_PLATFORM_CMP_AIX)
+                MACRO_TESTGT(BDES_PLATFORM_CMP_AIX, 0);
             #endif
             #if defined(BDES_PLATFORM_CMP_GNU)
                 MACRO_TESTGT(BDES_PLATFORM_CMP_GNU, 0);
@@ -108,12 +108,6 @@ int main(int argc, char *argv[]) {
             #if defined(BDES_PLATFORM_CMP_SUN)
                 MACRO_TESTGT(BDES_PLATFORM_CMP_SUN, 0);
             #endif
-            #if defined(BDES_PLATFORM_CMP_VER_MAJOR)
-                MACRO_TESTGT(BDES_PLATFORM_CMP_VER_MAJOR, 0);
-            #endif
-            #if defined(BDES_PLATFORM_CMP_VER_MINOR)
-                MACRO_TESTGT(BDES_PLATFORM_CMP_VER_MINOR, 0);
-            #endif
 
             cout << endl << "Print OS-related Symbols:" << endl;
 
@@ -123,23 +117,11 @@ int main(int argc, char *argv[]) {
             #if defined(BDES_PLATFORM_OS_AIX)
                 MACRO_TESTEQ(BDES_PLATFORM_OS_AIX, 1);
             #endif
-            #if defined(BDES_PLATFORM_OS_DGUX)
-                MACRO_TESTEQ(BDES_PLATFORM_OS_DGUX, 1);
-            #endif
             #if defined(BDES_PLATFORM_OS_HPUX)
                 MACRO_TESTEQ(BDES_PLATFORM_OS_HPUX, 1);
             #endif
-            #if defined(BDES_PLATFORM_OS_CYGWIN)
-                MACRO_TESTEQ(BDES_PLATFORM_OS_CYGWIN, 1);
-            #endif
             #if defined(BDES_PLATFORM_OS_LINUX)
                 MACRO_TESTEQ(BDES_PLATFORM_OS_LINUX, 1);
-            #endif
-            #if defined(BDES_PLATFORM_OS_FREEBSD)
-                MACRO_TESTEQ(BDES_PLATFORM_OS_FREEBSD, 1);
-            #endif
-            #if defined(BDES_PLATFORM_OS_DARWIN)
-                MACRO_TESTEQ(BDES_PLATFORM_OS_DARWIN, 1);
             #endif
             #if defined(BDES_PLATFORM_OS_SOLARIS)
                 MACRO_TESTEQ(BDES_PLATFORM_OS_SOLARIS, 1);
@@ -182,9 +164,6 @@ int main(int argc, char *argv[]) {
             #endif
             // Deprecated but still exposed, and used by some
             // components.  Thus, of interest.
-            #if defined(BDES_PLATFORM_CPU_INTEL)
-                MACRO_TESTEQ(BDES_PLATFORM_CPU_INTEL, 1);
-            #endif
             #if defined(BDES_PLATFORM_CPU_X86)
                 MACRO_TESTEQ(BDES_PLATFORM_CPU_X86, 1);
             #endif
@@ -202,12 +181,6 @@ int main(int argc, char *argv[]) {
             #endif
             #if defined(BDES_PLATFORM_CPU_SPARC)
                 MACRO_TESTEQ(BDES_PLATFORM_CPU_SPARC, 1);
-            #endif
-            #if defined(BDES_PLATFORM_CPU_32_BIT)
-                MACRO_TESTEQ(BDES_PLATFORM_CPU_32_BIT, 1);
-            #endif
-            #if defined(BDES_PLATFORM_CPU_64_BIT)
-                MACRO_TESTEQ(BDES_PLATFORM_CPU_64_BIT, 1);
             #endif
             #if defined(BDES_PLATFORM_CPU_VER_MAJOR)
                 MACRO_TESTGT(BDES_PLATFORM_CPU_VER_MAJOR, 0);

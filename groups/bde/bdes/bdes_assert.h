@@ -104,14 +104,6 @@ namespace BloombergLP {
 #define BDE_ASSERT_CPP(X) BSLS_ASSERT(X)
 #endif
 
-#ifndef bdes_AssertFailureHandlerGuard
-#define bdes_AssertFailureHandlerGuard bsls::AssertFailureHandlerGuard
-#endif
-
-#ifndef bdes_Assert
-#define bdes_Assert bsls::Assert
-#endif
-
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP

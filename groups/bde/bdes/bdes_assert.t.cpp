@@ -28,8 +28,6 @@ using namespace bsl;  // automatically added by script
 // Consequently, there is nothing to test.
 //
 // ----------------------------------------------------------------------------
-// [ 2] bdes_Assert
-// [ 2] bdes_AssertFailureHandlerGuard
 // [ 1] BDE_ASSERT_CPP(X)
 // [ 1] BDE_ASSERT_H(X)
 
@@ -100,40 +98,6 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      case 2: {
-        // --------------------------------------------------------------------
-        // CORRECTNESS OF TYPEDEFS
-        //
-        // Concerns:
-        //: 1 Has each type defined in this component been 'typedef'ed to
-        //:   the expected successor type?
-        //
-        // Plan:
-        //: 1 Do compile-time comparison of the types using 'BSLMF_ASSERT' and
-        //:   'bslmf::IsSame'.
-        //
-        // Testing:
-        //   bdes_Assert
-        //   bdes_AssertFailureHandlerGuard
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "CORRECTNESS OF TYPEDEFS" << endl
-                          << "=======================" << endl;
-
-        if (veryVerbose) cout << "Correctness of 'bdes_Assert'" << endl;
-
-        BSLMF_ASSERT(1 == (bslmf::IsSame<bdes_Assert, bsls::Assert>::VALUE));
-
-        if (veryVerbose) cout
-                  << "Correctness of 'bdes_AssertFailureHandlerGuard'" << endl;
-
-        BSLMF_ASSERT(1 ==
-                        (bslmf::IsSame<bdes_AssertFailureHandlerGuard,
-                                     bsls::AssertFailureHandlerGuard>::VALUE));
-
-      } break;
-
       case 1: {
         // --------------------------------------------------------------------
         // REDEFINITION OF MACROS

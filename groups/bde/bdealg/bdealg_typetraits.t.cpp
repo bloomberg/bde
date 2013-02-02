@@ -16,13 +16,7 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#else
-#define bdealg_TypeTraits bslalg_TypeTraits
 #define bdealg_HasTrait bslalg::HasTrait
-#define BDEALG_DECLARE_NESTED_TRAITS(T, TRAITS)                               \
-    BSLALG_DECLARE_NESTED_TRAITS(T, TRAITS)
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 //=============================================================================
 //                             TEST PLAN

@@ -1,6 +1,8 @@
 // bdema_bufferallocator.t.cpp  -*-C++-*-
 
-#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+// TBD This test driver has been commented out in anticipation of this
+// component's retirement in BDE 2.17.
+#if 0
 
 #include <bdema_bufferallocator.h>
 
@@ -1264,14 +1266,12 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-#else
+#endif
 
 int main(int argc, char *argv[])
 {
     return -1;
 }
-
-#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

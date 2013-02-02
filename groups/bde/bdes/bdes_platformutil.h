@@ -78,6 +78,9 @@ namespace BloombergLP {
                           // struct bdes_PlatformUtil
                           // ------------------------
 
+// TBD Note that the symbols defined below are a subset of the original as
+// governed by Robo use of this component.  (Also see bsls_platformutil.h.)
+
 struct bdes_PlatformUtil {
     // Provide a namespace for a suite of 'typedef's and pure procedures that
     // encapsulate, platform-dependent types and APIs.
@@ -120,15 +123,6 @@ struct bdes_PlatformUtil {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
-    static bool isBigEndian();
-        // Return 'true' if this platform is "big-endian", and 'false'
-        // otherwise.  Note that "big-endian" (i.e., the most significant byte
-        // of data at the lowest byte address) is consistent with network byte
-        // order.
-        //
-        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_BIG_ENDIAN'
-        // defined in 'bsls_platform' instead.
-
     static bool isLittleEndian();
         // Return 'true' if this platform is "little-endian", and 'false'
         // otherwise.  Note that "little-endian" (i.e., the least significant
@@ -137,14 +131,6 @@ struct bdes_PlatformUtil {
         //
         // DEPRECATED: Use preprocessor macro
         // 'BSLS_PLATFORM_IS_BIG_ENDIAN' defined in 'bsls_platform' instead.
-
-    static int roundUpToMaximalAlignment(int size);
-        // Return the specified 'size' (in bytes) rounded up to the smallest
-        // integral multiple of the maximum alignment.  The behavior is
-        // undefined unless '0 <= size'.
-        //
-        // DEPRECATED: Use 'bsls::AlignmentUtil::roundUpToMaximalAlignment'
-        // instead.
 };
 
 // ============================================================================
@@ -164,23 +150,6 @@ bool bdes_PlatformUtil::isLittleEndian()
 #else
     return false;
 #endif
-}
-
-inline
-bool bdes_PlatformUtil::isBigEndian()
-{
-#if defined(BSLS_PLATFORM_IS_BIG_ENDIAN)
-    return BSLS_PLATFORM_IS_BIG_ENDIAN;
-#else
-    return false;
-#endif
-}
-
-inline
-int bdes_PlatformUtil::roundUpToMaximalAlignment(int size)
-{
-    enum { BDES_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
-    return ((size + BDES_MAX_ALIGN - 1) / BDES_MAX_ALIGN) * BDES_MAX_ALIGN;
 }
 
 }  // close namespace BloombergLP
@@ -219,32 +188,12 @@ int bdes_PlatformUtil::roundUpToMaximalAlignment(int size)
 
 #if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
 
-#ifdef BDES_PLATFORMUTIL_IS_BIG_ENDIAN
-#ifndef BDES_PLATFORMUTIL__IS_BIG_ENDIAN
-#define BDES_PLATFORMUTIL__IS_BIG_ENDIAN     BSLS_PLATFORM_IS_BIG_ENDIAN
-#endif
-#endif
-
-#ifdef BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN
-#ifndef BDES_PLATFORMUTIL__IS_LITTLE_ENDIAN
-#define BDES_PLATFORMUTIL__IS_LITTLE_ENDIAN  BSLS_PLATFORM_IS_LITTLE_ENDIAN
-#endif
-#endif
-
 #ifndef BDES_PLATFORMUTIL__HTONL
 #define BDES_PLATFORMUTIL__HTONL(X)          BSLS_BYTEORDER_HTONL(X)
 #endif
 
-#ifndef BDES_PLATFORMUTIL__HTONS
-#define BDES_PLATFORMUTIL__HTONS(X)          BSLS_BYTEORDER_HTONS(X)
-#endif
-
 #ifndef BDES_PLATFORMUTIL__NTOHL
 #define BDES_PLATFORMUTIL__NTOHL(X)          BSLS_BYTEORDER_NTOHL(X)
-#endif
-
-#ifndef BDES_PLATFORMUTIL__NTOHS
-#define BDES_PLATFORMUTIL__NTOHS(X)          BSLS_BYTEORDER_NTOHS(X)
 #endif
 
 // Note BDES_PLATFORMUTIL__NO_LONG_HEADER_NAMES is now never defined
