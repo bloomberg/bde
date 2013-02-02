@@ -737,7 +737,7 @@ BSLS_IDENT("$Id: $")
 // as a statically initialized array:
 //..
 //  const static struct {
-//      bsl::string d_word;
+//      const char *d_word;
 //      int         d_documentCode;
 //      int         d_wordOffset;
 //  } concordance[] = {

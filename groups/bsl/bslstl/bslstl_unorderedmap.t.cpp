@@ -1875,7 +1875,8 @@ if (verbose) {
 // as a statically initialized array:
 //..
     const static struct {
-        bsl::string d_word;
+//        bsl::string d_word;
+        const char *d_word;
         int         d_documentCode;
         int         d_wordOffset;
     } concordance[] = {
