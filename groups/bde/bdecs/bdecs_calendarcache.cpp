@@ -15,6 +15,7 @@ BDES_IDENT_RCSID(bdecs_calendarcache_cpp,"$Id$ $CSID$")
 #include <bslma_rawdeleterproctor.h>
 
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_functional.h>
 #include <bsl_string.h>
@@ -125,7 +126,7 @@ const bdecs_Calendar *bdecs_CalendarCacheEntry::calendar(
     // precision, and that the behavior is undefined unless 'timeout' is small
     // enough to fit in a 64-bit integer value in milliseconds.
 
-    bsls_PlatformUtil::Int64 elapsedTime =
+    bsls::Types::Int64 elapsedTime =
        (bdetu_SystemTime::nowAsDatetimeUtc() - d_loadTime).totalMilliseconds();
 
     if (elapsedTime >= timeout.totalMilliseconds()) {
