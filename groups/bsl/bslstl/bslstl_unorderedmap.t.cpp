@@ -6,6 +6,8 @@
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
 
+#include <bslalg_swaputil.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -5358,6 +5360,7 @@ if (verbose) {
 
 namespace {
 
+#if 0
 template <class TYPE>
 void invokeAdlSwap(TYPE& a, TYPE& b)
     // Exchange the values of the specified 'a' and 'b' objects using the
@@ -5369,6 +5372,7 @@ void invokeAdlSwap(TYPE& a, TYPE& b)
     using namespace bsl;
     swap(a, b);
 }
+#endif
 
 template <typename TYPE>
 const TYPE& my_max(const TYPE& x, const TYPE& y)
@@ -7352,7 +7356,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
 
         bslma::TestAllocatorMonitor oam(&oa);
 
-        invokeAdlSwap(mX, mY);
+#if 0
+    invokeAdlSwap(mX, mY);
+#else
+        // We know that the types of 'mX' and 'mY' do not overload the unary
+        // address-of 'operator&'.
+
+        bslalg::SwapUtil::swap(&mX, &mY);
+#endif
 
         ASSERTV(YY, X, YY == X);
         ASSERTV(XX, Y, XX == Y);

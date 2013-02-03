@@ -541,6 +541,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF

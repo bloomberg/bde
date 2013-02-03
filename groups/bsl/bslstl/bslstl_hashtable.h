@@ -1517,13 +1517,18 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_ALGORITHM
-#include <algorithm>  // for swap, may need <utility> with C++11 libraries
+#include <algorithm>  // for fill_n, max 
 #define INCLUDED_ALGORITHM
 #endif
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef> // for 'size_t'
 #define INCLUDED_CSTDDEF
+#endif
+
+#ifndef INCLUDED_LIMITS
+#include <limits>  // for numeric_limits
+#define INCLUDED_LIMITS
 #endif
 
 namespace BloombergLP {
@@ -2987,12 +2992,10 @@ quickSwapRetainAllocators(HashTable *other)
 
     d_parameters.quickSwapRetainAllocators(&other->d_parameters);
 
-    using native_std::swap;  // otherwise it is hidden by this very definition!
-
-    swap(d_anchor,        other->d_anchor);
-    swap(d_size,          other->d_size);
-    swap(d_capacity,      other->d_capacity);
-    swap(d_maxLoadFactor, other->d_maxLoadFactor);
+    bslalg::SwapUtil::swap(&d_anchor,        &other->d_anchor);
+    bslalg::SwapUtil::swap(&d_size,          &other->d_size);
+    bslalg::SwapUtil::swap(&d_capacity,      &other->d_capacity);
+    bslalg::SwapUtil::swap(&d_maxLoadFactor, &other->d_maxLoadFactor);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -3004,12 +3007,10 @@ quickSwapExchangeAllocators(HashTable *other)
 
     d_parameters.quickSwapExchangeAllocators(&other->d_parameters);
 
-    using native_std::swap;  // otherwise it is hidden by this very definition!
-
-    swap(d_anchor,        other->d_anchor);
-    swap(d_size,          other->d_size);
-    swap(d_capacity,      other->d_capacity);
-    swap(d_maxLoadFactor, other->d_maxLoadFactor);
+    bslalg::SwapUtil::swap(&d_anchor,        &other->d_anchor);
+    bslalg::SwapUtil::swap(&d_size,          &other->d_size);
+    bslalg::SwapUtil::swap(&d_capacity,      &other->d_capacity);
+    bslalg::SwapUtil::swap(&d_maxLoadFactor, &other->d_maxLoadFactor);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

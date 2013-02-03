@@ -5,6 +5,7 @@
 #include <bslstl_iterator.h>  // for testing only
 
 #include <bslalg_rangecompare.h>
+#include <bslalg_swaputil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -51,6 +52,7 @@ enum { PLAT_EXC = 0 };
 
 #define EXCEPTION_TEST_END  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
+#if 0   // bslalg::SwapUtil is our componentized ADL swap-invoker.
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -66,6 +68,7 @@ void invokeAdlSwap(TYPE& a, TYPE& b)
     using namespace bsl;
     swap(a, b);
 }
+#endif
 
 using namespace BloombergLP;
 
@@ -2525,7 +2528,14 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
         bslma::TestAllocatorMonitor oam(&oa);
 
+#if 0
         invokeAdlSwap(mX, mY);
+#else
+        // We know that the types of 'mX' and 'mY' do not overload the unary
+        // address-of 'operator&'.
+
+        bslalg::SwapUtil::swap(&mX, &mY);
+#endif
 
         ASSERTV(YY, X, YY == X);
         ASSERTV(XX, Y, XX == Y);

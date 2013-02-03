@@ -7,6 +7,7 @@
 #include <bslstl_iterator.h>           // 'distance', in usage example
 
 #include <bslalg_bidirectionallink.h>
+#include <bslalg_swaputil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -58,6 +59,7 @@
 #  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
+#if 0   // bslalg::SwapUtil is our componentized ADL swap-invoker.
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -76,6 +78,7 @@ void invokeAdlSwap(TYPE& a, TYPE& b)
 
 // The following 'using' directives must come *after* the definition of
 // 'invokeAdlSwap' (above).
+#endif
 
 using namespace BloombergLP;
 
@@ -5937,7 +5940,14 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
         bslma::TestAllocatorMonitor oam(&oa);
 
+#if 0
         invokeAdlSwap(mX, mY);
+#else
+        // We know that the types of 'mX' and 'mY' do not overload the unary
+        // address-of 'operator&'.
+
+        bslalg::SwapUtil::swap(&mX, &mY);
+#endif
 
         ASSERTV(YY, X, YY == X);
         ASSERTV(XX, Y, XX == Y);
