@@ -1992,8 +1992,6 @@ int main(int argc, char *argv[])
     {  L_,          "2E1",                   20,      true    },
     {  L_,          "3e+1",                  30,      true    },
     {  L_,          "4E+1",                  40,      true    },
-    {  L_,          "1e-1",                   0,      true    },
-    {  L_,          "1E-1",                   0,      true    },
 
     {  L_,          "2e2",                  200,      true    },
     {  L_,          "3E2",                  300,      true    },
@@ -2067,6 +2065,14 @@ int main(int argc, char *argv[])
 
     {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
     {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
 
     {  L_,          "1.0000000001", ERROR_VALUE,      false   },
     {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
@@ -2245,8 +2251,6 @@ int main(int argc, char *argv[])
     {  L_,          "2E1",                   20,      true    },
     {  L_,          "3e+1",                  30,      true    },
     {  L_,          "4E+1",                  40,      true    },
-    {  L_,          "1e-1",                   0,      true    },
-    {  L_,          "1E-1",                   0,      true    },
 
     {  L_,          "2e2",                  200,      true    },
     {  L_,          "3E2",                  300,      true    },
@@ -2348,6 +2352,20 @@ int main(int argc, char *argv[])
 
     {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
     {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
 
     {  L_,          "1.0000000001", ERROR_VALUE,      false   },
     {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
@@ -2507,8 +2525,6 @@ int main(int argc, char *argv[])
     {  L_,          "2E1",                   20,      true    },
     {  L_,          "3e+1",                  30,      true    },
     {  L_,          "4E+1",                  40,      true    },
-    {  L_,          "1e-1",                   0,      true    },
-    {  L_,          "1E-1",                   0,      true    },
 
     {  L_,          "2e2",                  200,      true    },
     {  L_,          "3E2",                  300,      true    },
@@ -2572,6 +2588,14 @@ int main(int argc, char *argv[])
 
     {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
     {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
 
     {  L_,          "1.0000000001", ERROR_VALUE,      false   },
     {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
@@ -2739,8 +2763,6 @@ int main(int argc, char *argv[])
     {  L_,          "2E1",                   20,      true    },
     {  L_,          "3e+1",                  30,      true    },
     {  L_,          "4E+1",                  40,      true    },
-    {  L_,          "1e-1",                   0,      true    },
-    {  L_,          "1E-1",                   0,      true    },
 
     {  L_,          "2e2",                  200,      true    },
     {  L_,          "3E2",                  300,      true    },
@@ -2824,6 +2846,20 @@ int main(int argc, char *argv[])
 
     {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
     {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
 
     {  L_,          "1.0000000001", ERROR_VALUE,      false   },
     {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
@@ -2979,8 +3015,6 @@ int main(int argc, char *argv[])
     {  L_,          "2E1",                   20,      true    },
     {  L_,          "3e+1",                  30,      true    },
     {  L_,          "4E+1",                  40,      true    },
-    {  L_,          "1e-1",                   0,      true    },
-    {  L_,          "1E-1",                   0,      true    },
 
     {  L_,          "2e2",                  200,      true    },
     {  L_,          "3E2",                  300,      true    },
@@ -3042,6 +3076,14 @@ int main(int argc, char *argv[])
 
     {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
     {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
 
     {  L_,          "1.0000000001", ERROR_VALUE,      false   },
     {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
@@ -3201,8 +3243,6 @@ int main(int argc, char *argv[])
     {  L_,          "2E1",                   20,      true    },
     {  L_,          "3e+1",                  30,      true    },
     {  L_,          "4E+1",                  40,      true    },
-    {  L_,          "1e-1",                   0,      true    },
-    {  L_,          "1E-1",                   0,      true    },
 
     {  L_,          "2e2",                  200,      true    },
     {  L_,          "3E2",                  300,      true    },
@@ -3276,6 +3316,20 @@ int main(int argc, char *argv[])
 
     {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
     {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
 
     {  L_,          "1.0000000001", ERROR_VALUE,      false   },
     {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
@@ -3417,8 +3471,6 @@ int main(int argc, char *argv[])
     {  L_,          "2E1",                   20,      true    },
     {  L_,          "3e+1",                  30,      true    },
     {  L_,          "4E+1",                  40,      true    },
-    {  L_,          "1e-1",                   0,      true    },
-    {  L_,          "1E-1",                   0,      true    },
     {  L_,          "2e2",                  200,      true    },
 
     {  L_,          "0.1e1",                  1,      true    },
@@ -3463,6 +3515,20 @@ int main(int argc, char *argv[])
 
     {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
     {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
 
     {  L_,          "1.0000000001", ERROR_VALUE,      false   },
     {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
@@ -3547,14 +3613,14 @@ int main(int argc, char *argv[])
 
         {
             const char ERROR_VALUE = 'X';
-            const char MAX         = bsl::numeric_limits<char>::max();
-            const char MIN         = bsl::numeric_limits<char>::min();
+            const char MAX         = bsl::numeric_limits<signed char>::max();
+            const char MIN         = bsl::numeric_limits<signed char>::min();
 
             static const struct {
-                int         d_line;    // line number
-                const char *d_input_p; // input on the stream
-                char        d_exp;     // exp char value
-                bool        d_isValid; // isValid flag
+                int          d_line;    // line number
+                const char  *d_input_p; // input on the stream
+                signed char  d_exp;     // exp char value
+                bool         d_isValid; // isValid flag
             } DATA[] = {
    // line          input                    exp     isValid
    // ----          -----                    ---     -------
@@ -3594,8 +3660,6 @@ int main(int argc, char *argv[])
     {  L_,          "1E1",                 '\n',      true    },
     {  L_,          "1e+1",                '\n',      true    },
     {  L_,          "1E+1",                '\n',      true    },
-    {  L_,          "1e-1",                '\0',      true    },
-    {  L_,          "1E-1",                '\0',      true    },
 
     {  L_,          "0.9e1",               '\t',      true    },
     {  L_,          "0.7e2",                'F',      true    },
@@ -3643,6 +3707,20 @@ int main(int argc, char *argv[])
 
     {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
     {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
 
     {  L_,          "1.0000000001", ERROR_VALUE,      false   },
     {  L_,          "1.00001e0",    ERROR_VALUE,      false   },

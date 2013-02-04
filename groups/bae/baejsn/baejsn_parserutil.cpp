@@ -292,17 +292,26 @@ int baejsn_ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
 
 int baejsn_ParserUtil::getValue(double *value, bslstl::StringRef data)
 {
+    const int MAX_STRING_LENGTH = 63;
+    char      buffer[MAX_STRING_LENGTH + 1];
+
     if (0 == data.length()
+     || static_cast<int>(data.length()) > MAX_STRING_LENGTH
      || '.' == data[0]
      || data.length() > 1 && '-' == data[0] && '.' == data[1]) {
         return -1;                                                    // RETURN
     }
 
+    bdema_BufferedSequentialAllocator allocator(buffer, MAX_STRING_LENGTH + 1);
+    bsl::string                       dataString(data.data(),
+                                                 data.length(),
+                                                 &allocator);
+
     char   *endPtr = 0;
     errno          = 0;
-    double  tmp    = bsl::strtod(data.data(), &endPtr);
+    double  tmp    = bsl::strtod(dataString.c_str(), &endPtr);
 
-    if (endPtr    != data.data() + data.length()
+    if (endPtr    != dataString.end()
      || (0        == tmp && 0 != errno)
      ||  HUGE_VAL == tmp
      || -HUGE_VAL == tmp) {
@@ -319,7 +328,7 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
     const char *iter  = data.begin();
     const char *end   = data.end();
 
-    // Extract significant digits
+    // Extract leading digits and store their range in [valueBegin..valueEnd)
 
     const char *valueBegin = iter;
     while (iter < end && bsl::isdigit(*iter)) {
@@ -331,7 +340,8 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
         return -1;                                                    // RETURN
     }
 
-    // Extract fractional digits if specified
+    // Extract fractional digits if available and store their range in
+    // [fractionalBegin..fractionalEnd).
 
     const char *fractionalBegin = 0;
     const char *fractionalEnd   = 0;
@@ -344,13 +354,12 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
         fractionalEnd = iter;
     }
 
-    // Extract exponent digits if specified
+    // Extract exponent digits if available and store the unsigned integer
+    // part in 'exponent' and the sign in 'isExpNegative'.
 
     int  exponent = 0;
     bool isExpNegative;
     if ('E' == static_cast<char>(bsl::toupper(*iter))) {
-
-        // extract the exponent part
 
         ++iter;
         if ('-' == *iter) {
@@ -374,11 +383,23 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
         return -1;                                                    // RETURN
     }
 
+    // Based on the value of 'exponent' update the range value digits range,
+    // [valueBegin..valueEnd).
+
     int numFractionalDigits = fractionalEnd - fractionalBegin;
     int numAdditionalDigits = 0;
     if (isExpNegative) {
+        // Shrink the value digits range by 'exponent'.  The fractional digits
+        // range is appropriately updated.
+
         if (valueEnd - valueBegin >= exponent) {
-            valueEnd -= exponent;
+            valueEnd        -= exponent;
+            fractionalBegin  = valueEnd;
+
+            if (0 == numFractionalDigits) {
+                fractionalEnd = fractionalBegin + exponent;
+            }
+
             exponent = 0;
         }
         else {
@@ -386,6 +407,10 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
         }
     }
     else {
+        // Expand the value digits range.  If there are fractional
+        // digits, coalesce them into the value range by updating
+        // 'numAdditionalDigits'.  Update 'exponent' after the operation.
+
         if (numFractionalDigits > exponent) {
             numAdditionalDigits  = exponent;
             exponent             = 0;
@@ -397,6 +422,8 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
     }
 
     bsls::Types::Uint64 tmp = 0;
+
+    // Update a copy of the result by parsing the value digits.
 
     iter = valueBegin;
     while (iter != valueEnd) {
@@ -412,8 +439,10 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
         }
     }
 
+    // Update a copy of the result by parsing the fractional digits if any need
+    // to be appended.
+
     if (numAdditionalDigits) {
-        // Disallow non-zero fractional digits
 
         iter = fractionalBegin;
         for (int i = 0; i < numAdditionalDigits; ++i, ++iter) {
@@ -430,15 +459,23 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
         fractionalBegin = iter;
     }
 
+    // Disallow non-zero fractional digits.
+
     while (fractionalBegin < fractionalEnd) {
+        bool decimalFound = false;
         if ('0' != *fractionalBegin) {
+            if ('.' == *fractionalBegin && !decimalFound) {
+                decimalFound = true;
+                ++fractionalBegin;
+                continue;
+            }
             return -1;                                                // RETURN
         }
         ++fractionalBegin;
     }
 
     if (exponent) {
-        double exponentMultiple = bsl::pow(10.0, exponent);
+        const double exponentMultiple = bsl::pow(10.0, exponent);
         if (static_cast<double>(tmp * exponentMultiple <
                                          bsl::numeric_limits<double>::max())) {
             tmp *= static_cast<bsls::Types::Uint64>(exponentMultiple);

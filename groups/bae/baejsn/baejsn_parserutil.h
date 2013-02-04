@@ -198,6 +198,10 @@ template <typename TYPE>
 int baejsn_ParserUtil::getUnsignedIntegralValue(TYPE              *value,
                                                 bslstl::StringRef  data)
 {
+    if (0 == data.length()) {
+        return -1;                                                    // RETURN
+    }
+
     bsls::Types::Uint64 tmp;
     int rc = getUint64(&tmp, data);
     if (rc) {
@@ -216,6 +220,10 @@ int baejsn_ParserUtil::getUnsignedIntegralValue(TYPE              *value,
 template <typename TYPE>
 int baejsn_ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
 {
+    if (0 == data.length()) {
+        return -1;                                                    // RETURN
+    }
+
     bool isNegative;
     if ('-' == data[0]) {
         isNegative = true;
@@ -226,26 +234,22 @@ int baejsn_ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
     }
 
     bsls::Types::Uint64 tmp;
-    int rc = getUint64(&tmp, data);
+    const int rc = getUint64(&tmp, data);
     if (rc) {
         return -1;                                                    // RETURN
     }
 
-    if (isNegative) {
-        bsls::Types::Int64 signedTmp =
-                                     static_cast<bsls::Types::Int64>(tmp) * -1;
-        if (signedTmp <
-           static_cast<bsls::Types::Int64>(bsl::numeric_limits<TYPE>::min())) {
-            return -1;                                                // RETURN
-        }
-        *value = static_cast<TYPE>(signedTmp);
+    bsls::Types::Uint64 maxValue = static_cast<bsls::Types::Uint64>(
+                                             bsl::numeric_limits<TYPE>::max());
+
+    if (isNegative && tmp <= maxValue + 1) {
+        *value = static_cast<TYPE>(tmp) * -1;
+    }
+    else if (tmp <= maxValue) {
+        *value = static_cast<TYPE>(tmp);
     }
     else {
-        if (tmp >
-          static_cast<bsls::Types::Uint64>(bsl::numeric_limits<TYPE>::max())) {
-            return -1;                                                // RETURN
-        }
-        *value = static_cast<TYPE>(tmp);
+        return -1;                                                    // RETURN
     }
 
     return 0;
@@ -339,37 +343,7 @@ inline
 int baejsn_ParserUtil::getValue(bsls::Types::Int64 *value, 
                                 bslstl::StringRef   data)
 {
-    if (0 == data.length()) {
-        return -1;                                                    // RETURN
-    }
-
-    bool isNegative;
-    if ('-' == data[0]) {
-        isNegative = true;
-        data.assign(data.begin() + 1, data.end());
-    }
-    else {
-        isNegative = false;
-    }
-
-    bsls::Types::Uint64 tmp = 0;
-    if (0 != getUint64(&tmp, data)) {
-        return -1;                                                    // RETURN
-    }
-
-    if (isNegative
-     && tmp <= static_cast<bsls::Types::Uint64>(
-                         bsl::numeric_limits<bsls::Types::Int64>::max() + 1)) {
-        *value = static_cast<bsls::Types::Int64>(tmp) * -1;
-    }
-    else if (tmp <= static_cast<bsls::Types::Uint64>(
-                             bsl::numeric_limits<bsls::Types::Int64>::max())) {
-        *value = static_cast<bsls::Types::Int64>(tmp);
-    }
-    else {
-        return -1;                                                    // RETURN
-    }
-    return 0;
+    return getIntegralValue(value, data);
 }
 
 inline
