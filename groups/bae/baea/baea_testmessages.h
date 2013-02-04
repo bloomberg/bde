@@ -510,12 +510,12 @@ class SequenceWithAnonymityChoice1 {
 
     // INSTANCE DATA
     union {
-        bsls_ObjectBuffer< bool >        d_selection5;
-        bsls_ObjectBuffer< bsl::string > d_selection6;
+        bsls::ObjectBuffer< bool >         d_selection5;
+        bsls::ObjectBuffer< bsl::string >  d_selection6;
     };
 
-    int                                  d_selectionId;
-    bslma_Allocator                     *d_allocator_p;
+    int                                    d_selectionId;
+    bslma::Allocator                      *d_allocator_p;
 
   public:
     // TYPES
@@ -559,14 +559,14 @@ class SequenceWithAnonymityChoice1 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit SequenceWithAnonymityChoice1(bslma_Allocator *basicAllocator = 0);
+    explicit SequenceWithAnonymityChoice1(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceWithAnonymityChoice1' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     SequenceWithAnonymityChoice1(const SequenceWithAnonymityChoice1& original,
-                                bslma_Allocator *basicAllocator = 0);
+                                bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceWithAnonymityChoice1' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -2554,7 +2554,7 @@ class SequenceWithAnonymityChoice {
         // default allocator is used.
 
     SequenceWithAnonymityChoice(const SequenceWithAnonymityChoice& original,
-                               bslma_Allocator *basicAllocator = 0);
+                               bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceWithAnonymityChoice' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -3028,14 +3028,14 @@ class Choice2 {
 
     // INSTANCE DATA
     union {
-        bsls_ObjectBuffer< bool >          d_selection1;
-        bsls_ObjectBuffer< bsl::string >   d_selection2;
+        bsls::ObjectBuffer< bool >          d_selection1;
+        bsls::ObjectBuffer< bsl::string >   d_selection2;
         Choice1                           *d_selection3;
-        bsls_ObjectBuffer< unsigned int >  d_selection4;
+        bsls::ObjectBuffer< unsigned int >  d_selection4;
     };
 
     int                                    d_selectionId;
-    bslma_Allocator                       *d_allocator_p;
+    bslma::Allocator                       *d_allocator_p;
 
   public:
     // TYPES
@@ -3390,14 +3390,14 @@ class Sequence4 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence4(bslma_Allocator *basicAllocator = 0);
+    explicit Sequence4(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence4' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Sequence4(const Sequence4& original,
-              bslma_Allocator *basicAllocator = 0);
+              bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence4' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3695,7 +3695,7 @@ namespace baea {
 class Sequence1 {
 
     // INSTANCE DATA
-    bslma_Allocator                            *d_allocator_p;
+    bslma::Allocator                            *d_allocator_p;
     bsl::vector<bdeut_NullableValue<Choice1> >  d_element4;
     bsl::vector<Choice3>                        d_element5;
     bsl::vector<Choice1>                        d_element2;
@@ -3749,14 +3749,14 @@ class Sequence1 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence1(bslma_Allocator *basicAllocator = 0);
+    explicit Sequence1(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence1' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Sequence1(const Sequence1& original,
-              bslma_Allocator *basicAllocator = 0);
+              bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence1' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -4194,7 +4194,7 @@ class SequenceWithAnonymityChoice2 {
     };
 
     int                        d_selectionId;
-    bslma_Allocator           *d_allocator_p;
+    bslma::Allocator           *d_allocator_p;
 
   public:
     // TYPES
@@ -4238,14 +4238,14 @@ class SequenceWithAnonymityChoice2 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit SequenceWithAnonymityChoice2(bslma_Allocator *basicAllocator = 0);
+    explicit SequenceWithAnonymityChoice2(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceWithAnonymityChoice2' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     SequenceWithAnonymityChoice2(const SequenceWithAnonymityChoice2& original,
-                                bslma_Allocator *basicAllocator = 0);
+                                bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceWithAnonymityChoice2' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -5815,9 +5815,9 @@ int SequenceWithAnonymityChoice1::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-SequenceWithAnonymityChoice1::SequenceWithAnonymityChoice1(bslma_Allocator *basicAllocator)
+SequenceWithAnonymityChoice1::SequenceWithAnonymityChoice1(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -7649,9 +7649,9 @@ int Choice3::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Choice3::Choice3(bslma_Allocator *basicAllocator)
+Choice3::Choice3(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -9823,9 +9823,9 @@ int SequenceWithAnonymityChoice2::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-SequenceWithAnonymityChoice2::SequenceWithAnonymityChoice2(bslma_Allocator *basicAllocator)
+SequenceWithAnonymityChoice2::SequenceWithAnonymityChoice2(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

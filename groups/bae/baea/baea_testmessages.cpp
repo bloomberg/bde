@@ -563,14 +563,14 @@ const bdeat_AttributeInfo *SimpleRequest::lookupAttributeInfo(int id)
 
 // CREATORS
 
-SimpleRequest::SimpleRequest(bslma_Allocator *basicAllocator)
+SimpleRequest::SimpleRequest(bslma::Allocator *basicAllocator)
 : d_data(basicAllocator)
 , d_responseLength()
 {
 }
 
 SimpleRequest::SimpleRequest(const SimpleRequest& original,
-                             bslma_Allocator *basicAllocator)
+                             bslma::Allocator *basicAllocator)
 : d_data(original.d_data, basicAllocator)
 , d_responseLength(original.d_responseLength)
 {
@@ -3419,9 +3419,9 @@ const bdeat_SelectionInfo *Choice2::lookupSelectionInfo(int id)
 
 Choice2::Choice2(
     const Choice2& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -4045,7 +4045,7 @@ const bdeat_AttributeInfo *Sequence4::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence4::Sequence4(bslma_Allocator *basicAllocator)
+Sequence4::Sequence4(bslma::Allocator *basicAllocator)
 : d_element10()
 , d_element17(basicAllocator)
 , d_element15(basicAllocator)
@@ -4069,7 +4069,7 @@ Sequence4::Sequence4(bslma_Allocator *basicAllocator)
 }
 
 Sequence4::Sequence4(const Sequence4& original,
-                     bslma_Allocator *basicAllocator)
+                     bslma::Allocator *basicAllocator)
 : d_element10(original.d_element10)
 , d_element17(original.d_element17, basicAllocator)
 , d_element15(original.d_element15, basicAllocator)
@@ -4481,8 +4481,8 @@ const bdeat_AttributeInfo *Sequence1::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence1::Sequence1(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+Sequence1::Sequence1(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_element4(basicAllocator)
 , d_element5(basicAllocator)
 , d_element2(basicAllocator)
@@ -4493,8 +4493,8 @@ Sequence1::Sequence1(bslma_Allocator *basicAllocator)
 }
 
 Sequence1::Sequence1(const Sequence1& original,
-                     bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                     bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_element4(original.d_element4, basicAllocator)
 , d_element5(original.d_element5, basicAllocator)
 , d_element2(original.d_element2, basicAllocator)
