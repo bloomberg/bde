@@ -594,11 +594,11 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      while (1) {
-//          node->d_next_p = d_freeList;
+//          Node *prev = node->d_next_p = d_freeList;
 //          // Atomically test and swap the head of the list with the
 //          // new node.  If the list head has been changed (by another
 //          // thread), try again.
-//          if (d_freeList.testAndSwap(node->d_next_p, node) == node->d_next_p)
+//          if (d_freeList.testAndSwap(prev, node) == prev)
 //          {
 //              break;
 //          }
@@ -620,8 +620,8 @@ BSLS_IDENT("$Id: $")
 //      Node *node = allocateNode();
 //      node->d_item_p = item;
 //      while (1) {
-//          node->d_next_p = d_list;
-//          if (d_list.testAndSwap(node->d_next_p, node) == node->d_next_p) {
+//          Node *prev = node->d_next_p = d_list;
+//          if (d_list.testAndSwap(prev, node) == prev) {
 //              break;
 //          }
 //      }
