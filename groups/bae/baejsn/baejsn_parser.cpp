@@ -252,7 +252,8 @@ int baejsn_Parser::advanceToNextToken()
           case '[': {
             if ((BAEJSN_ELEMENT_NAME == d_tokenType && ':' == previousChar)
              || BAEJSN_START_ARRAY   == d_tokenType
-             || (BAEJSN_END_ARRAY    == d_tokenType && ',' == previousChar)) {
+             || (BAEJSN_END_ARRAY    == d_tokenType && ',' == previousChar)
+             || BAEJSN_BEGIN         == d_tokenType) {
 
                 d_tokenType  = BAEJSN_START_ARRAY;
                 d_context    = BAEJSN_ARRAY_CONTEXT;

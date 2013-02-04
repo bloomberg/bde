@@ -4382,7 +4382,7 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' FIRST CHARACTER
         //
         // Concerns:
-        //: 1 The first character is always '{'
+        //: 1 The first character is always '{' or '['
         //
         // Errors:
         //: 1 WHITESPACE ONLY                                    " \t\n\v\f\r"
@@ -4497,25 +4497,6 @@ int main(int argc, char *argv[])
             },
 
             // Error - First character
-            {
-                L_,
-                "[",
-                0,
-                false,
-                Obj::BAEJSN_ERROR,
-                false,
-                ""
-            },
-            {
-                L_,
-                WS "[",
-                0,
-                false,
-                Obj::BAEJSN_ERROR,
-                false,
-                ""
-            },
-
             {
                 L_,
                 "]",

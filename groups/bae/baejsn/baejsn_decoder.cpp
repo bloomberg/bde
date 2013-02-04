@@ -4,6 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_decoder_cpp,"$Id$ $CSID$")
 
+#include <bdema_bufferedsequentialallocator.h>
 #include <bdede_base64decoder.h>
 
 #include <bsl_iterator.h>
@@ -21,7 +22,12 @@ int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
         bslstl::StringRef dataValue;
         int rc = d_parser.value(&dataValue);
 
-        bsl::string base64String;
+        const int MAX_LENGTH = 255;
+        char      buffer[MAX_LENGTH + 1];
+
+        bdema_BufferedSequentialAllocator allocator(buffer, MAX_LENGTH + 1);
+        bsl::string base64String(&allocator);
+
         rc = baejsn_ParserUtil::getValue(&base64String, dataValue);
 
         bdede_Base64Decoder base64Decoder(true);
@@ -54,6 +60,8 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
     }
 
     if (baejsn_Parser::BAEJSN_ELEMENT_VALUE == d_parser.tokenType()) {
+        // 'elementName' is a simple type.  Extract its value and return.
+
         bslstl::StringRef tmp;
         rc = d_parser.value(&tmp);
         if (rc) {
@@ -63,6 +71,9 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
         return rc;                                                    // RETURN
     }
     else if (baejsn_Parser::BAEJSN_START_OBJECT == d_parser.tokenType()) {
+        // 'elementName' is a sequence or choice.  Descend into the element
+        // and skip all its sub-elements.
+
         if (++d_currentDepth > d_maxDepth) {
             d_logStream << "Maximum allowed decoding depth reached: "
                         << d_currentDepth << "\n";
@@ -71,6 +82,9 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
 
         int skippingDepth = 1;
         while (skippingDepth) {
+            // Use 'skippingDepth' to keep track of how we have descended and
+            // when to return.
+
             int rc = d_parser.advanceToNextToken();
             if (rc) {
                 d_logStream << "Error reading unknown element '"
@@ -109,8 +123,14 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
         }
     }
     else if (baejsn_Parser::BAEJSN_START_ARRAY == d_parser.tokenType()) {
+        // 'elementName' is an array.  Descend into the array element till we
+        // encounter the matching end array token (']').
+
         int skippingDepth = 1;
         while (skippingDepth) {
+            // Use 'skippingDepth' to keep track of how we have descended and
+            // when to return.
+
             int rc = d_parser.advanceToNextToken();
             if (rc) {
                 d_logStream << "Error reading unknown element '"

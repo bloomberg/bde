@@ -122,6 +122,8 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERTV(...)                                         \
     LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
+#define WS "   \t       \n      \v       \f       \r       "
+
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -35064,7 +35066,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) {
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -35238,6 +35240,557 @@ int main(int argc, char *argv[])
     ASSERT(21              == employee["age"].asInt());
 //..
     }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TEST THAT WRONG JSON RESULTS IN AN ERROR
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        // Testing first character
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_text_p;   // json text
+            } DATA[] = {
+                // line  input
+                // ----  -----
+                {   L_,   "]"    },
+                {   L_,   "}"    },
+                {   L_,   "\""   },
+                {   L_,   ","    },
+                {   L_,   ":"    },
+                {   L_,   "1"    },
+                {   L_,   "*"    },
+                {   L_,   "A"    },
+            };
+            const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+
+            bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+
+            bdem_RecordDef *employee = schema->createRecord("Employee");
+            employee->appendField(bdem_ElemType::BDEM_STRING, "name");
+            employee->appendField(bdem_ElemType::BDEM_INT, "age");
+
+            bcem_Aggregate bob(schema, "Employee");
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE  = DATA[ti].d_lineNum;
+                const bsl::string& INPUT = DATA[ti].d_text_p;
+                bcem_Aggregate bob(schema, "Employee");
+
+                bsl::istringstream iss(INPUT);
+
+                baejsn_DecoderOptions options;
+                baejsn_Decoder        decoder;
+                const int RC = decoder.decode(iss, &bob, options);
+                ASSERTV(LINE, RC, 0 != RC);
+                if (veryVerbose) {
+                    P(decoder.loggedMessages())
+                        }
+            }
+        }
+
+        static const struct {
+            int         d_lineNum;  // source line number
+            const char *d_text_p;   // json text
+        } DATA[] = {
+         // line  input
+         // ----  -----
+
+        // After first character
+        {    L_,  "{{"   },
+        {    L_,  "{["   },
+        {    L_,  "{]"   },
+        {    L_,  "{,"   },
+        {    L_,  "{:"   },
+        {    L_,  "{1"   },
+        {    L_,  "{*"   },
+        {    L_,  "{A"   },
+
+        // Sequence element invalid name 
+        {    L_,  "{\""                    },
+        {    L_,  "{\"\""                  },
+        {    L_,  "{ \" { \""              },
+        {    L_,  "{ \" } \""              },
+        {    L_,  "{ \" [ \""              },
+        {    L_,  "{ \" ] \""              },
+        {    L_,  "{ \" , \""              },
+        {    L_,  "{ \" : \""              },
+        {    L_,  "{" "\"id_num\""         },
+        {    L_,  "{" "\"id\""             },
+
+        // Sequence element invalid token after name
+        {
+            L_,
+            "{"
+              "\"name\""
+                       "{"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       "}"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       "["
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       "]"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ","
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       "       "
+                               "\"another string\""
+        },
+
+        // Sequence invalid element value
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         ":"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         ","
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "{"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "}"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "["
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "]"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "12345"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "12.345"
+        },
+
+        // Sequence invalid after element value
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "\"Pete\""
+                                  "{"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "\"Pete\""
+                                  ":"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "\"Pete\""
+                                  "["
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "\"Pete\""
+                                  "]"
+        },
+        {
+            L_,
+            "{"
+              "\"name\""
+                       ":"
+                         "\"Pete\""
+                                  "   "
+                                      "\"invalid string\""
+        },
+
+        // Sequence invalid after element value
+        {
+            L_,
+            "{"
+             "\"name\""
+                     ":"
+                      "\"Pete\","
+                                "{"
+        },
+        {
+            L_,
+            "{"
+             "\"name\""
+                     ":"
+                      "\"Pete\","
+                                "}"
+        },
+        {
+            L_,
+            "{"
+             "\"name\""
+                     ":"
+                      "\"Pete\","
+                                "["
+        },
+        {
+            L_,
+            "{"
+             "\"name\""
+                     ":"
+                      "\"Pete\","
+                                "]"
+        },
+        {
+            L_,
+            "{"
+             "\"name\""
+                     ":"
+                      "\"Pete\","
+                                ":"
+        },
+        {
+            L_,
+            "{"
+             "\"name\""
+                     ":"
+                      "\"Pete\","
+                                ","
+        },
+
+        // Sequence element that is invalid sequence element
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                               "{"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                               "["
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                               "]"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                               ","
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                               ":"
+        },
+
+        // Sequence element that has invalid element after sequence element
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                             "}"
+                               "12345"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                             "}"
+                               "{"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                             "}"
+                               "["
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                             "}"
+                               "]"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                             "}"
+                               ":"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                             "}"
+                               ","
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                             "}"
+                               "ABC"
+        },
+
+        // Sequence element that is invalid array element
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "1"
+                            "["
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "1"
+                            "{"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "1"
+                            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "1"
+                            ":"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "1"
+                            " \"ABC\""
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "1"
+                          " "
+                          "2"
+                        "]"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                       ":"
+                         "["
+                           "1,"
+                         "]"
+        },
+
+        // Sequence element that has invalid token after array element
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                        "]"
+                          "\"value\""
+        },
+
+        // Sequence element that has invalid token after complex array
+        {
+            L_,
+            "{"
+              "\"ids\""
+                       ":"
+                         "["
+                           "{"
+                           "},"
+                         "]"
+        },
+
+        // Sequence element that has invalid token after array of array
+        {
+            L_,
+            "{"
+              "\"ids\""
+                       ":"
+                         "["
+                           "["
+                           "],"
+                         "]"
+        },
+        };
+        const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+
+        // Testing sequences
+        {
+            bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+
+            bdem_RecordDef *full_name = schema->createRecord("FullName");
+            full_name->appendField(bdem_ElemType::BDEM_STRING, "name");
+
+            bdem_RecordDef *employee = schema->createRecord("Employee");
+            employee->appendField(bdem_ElemType::BDEM_STRING, "name");
+            employee->appendField(bdem_ElemType::BDEM_INT,    "age");
+            employee->appendField(bdem_ElemType::BDEM_LIST,   "fullname");
+            employee->appendField(bdem_ElemType::BDEM_INT_ARRAY, "ids");
+
+            bcem_Aggregate bob(schema, "Employee");
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE  = DATA[ti].d_lineNum;
+                const bsl::string& INPUT = DATA[ti].d_text_p;
+                bcem_Aggregate bob(schema, "Employee");
+
+                bsl::istringstream iss(INPUT);
+
+                baejsn_DecoderOptions options;
+                baejsn_Decoder        decoder;
+                const int RC = decoder.decode(iss, &bob, options);
+                ASSERTV(LINE, RC, 0 != RC);
+                if (veryVerbose) {
+                    P(decoder.loggedMessages())
+                }
+            }
+        }
+
+        // Testing choices
+        {
+            bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+
+            bdem_RecordDef *full_name = schema->createRecord("FullName");
+            full_name->appendField(bdem_ElemType::BDEM_STRING, "name");
+
+            bdem_RecordDef *employee = schema->createRecord(
+                "Employee",
+                bdem_RecordDef::BDEM_CHOICE_RECORD);
+            employee->appendField(bdem_ElemType::BDEM_STRING, "name");
+            employee->appendField(bdem_ElemType::BDEM_INT,    "age");
+            employee->appendField(bdem_ElemType::BDEM_LIST,   "fullname");
+            employee->appendField(bdem_ElemType::BDEM_INT_ARRAY, "ids");
+
+            bcem_Aggregate bob(schema, "Employee");
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE  = DATA[ti].d_lineNum;
+                const bsl::string& INPUT = DATA[ti].d_text_p;
+                bcem_Aggregate bob(schema, "Employee");
+
+                bsl::istringstream iss(INPUT);
+
+                baejsn_DecoderOptions options;
+                baejsn_Decoder        decoder;
+                const int RC = decoder.decode(iss, &bob, options);
+                ASSERTV(LINE, RC, 0 != RC);
+                if (veryVerbose) {
+                    P(decoder.loggedMessages())
+                }
+            }
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------

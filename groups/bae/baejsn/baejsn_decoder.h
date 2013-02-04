@@ -968,6 +968,8 @@ int baejsn_Decoder::decode(bsl::streambuf               *streamBuf,
 
     const int rc = d_parser.advanceToNextToken();
     if (rc) {
+        d_logStream << "Error advancing to the first token. "
+                    << "Expecting a '{' or '[' as the first character\n";
         return rc;                                                    // RETURN
     }
 
