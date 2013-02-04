@@ -1,0 +1,6 @@
+{
+	"project_id"  : "bde/bde-core",
+	"conduit_uri" : "https://apireview.dev.bloomberg.com:8443/",
+	"immutable_history" : true,
+	"base" : "git:merge-base(origin/master), arc:prompt"
+}

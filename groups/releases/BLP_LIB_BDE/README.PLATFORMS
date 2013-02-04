@@ -1,0 +1,9 @@
+The following platforms are currently supported:
+   SunOS, compiler Sun WorkShop 6 update 1 C++ 5.2 Patch 109508-09 2002/07/08
+   AIX, VisualAge C++ Professional / C for AIX Compiler, Version 6
+
+The known Bloomberg LP machines that currently meet these requirements are:
+   sundev1, sundev2, sundev9 with CC
+   ibm1, ibm2 with xlC
+
+Please report any issues to John Lakos.

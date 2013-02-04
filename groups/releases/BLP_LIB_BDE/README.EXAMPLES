@@ -1,0 +1,46 @@
+Examples README
+---------------
+
+The 'examples' directory contains a "hello world" program which uses a
+'bdet_String', and an example application makefile to build it.
+
+To compile the sample program, change directories into the 'examples' directory
+and run 'gmake'.  This will produce the desired binary executable.
+
+The makefile will automatically detect if the BDE source is available and
+can build the example with or without it. If source code is present the 
+makefile will automatically build and install the BDE library (in the specified
+build type) if required. In source distributions only, library targets may
+also be invoked from the application makefile, as described in the
+README.INSTALL document.
+
+To build the application with a specific BDE library build type, override the
+TARGET and/or COMPILER macros (or just edit the makefile). For example:
+
+    $ cd examples
+    $ gmake TARGET=DBG_MT
+
+Please feel free to modify the 'hello_world' program. More information on the
+the various BDE objects and functions can be found on BP BDED.
+
+
+Windows builds
+--------------
+
+Windows builds with NMake are supported by Makefile.nmk. Note that
+automatic library builds from the example application makefile are not
+currently functional under Windows due to limitations of NMake. Please
+build the desired library (or libraries) explicitly first, i.e.:
+
+    $ cd examples
+    $ nmake /F Makefile.nmk bde.dbg_exc_mt_shr.install hello_world.exe
+
+Additionally, the TARGET macro cannot be used to switch the build type;
+please search and replace to have the example makefile select a different
+library build type.
+
+
+Contact
+-------
+
+Please report any issues to John Lakos.

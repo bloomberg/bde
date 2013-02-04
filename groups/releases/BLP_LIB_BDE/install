@@ -1,0 +1,97 @@
+#!/bin/ksh
+
+REQUIRED_VIEW="/view/build-robocop"
+if [[ $CLEARCASE_ROOT != "$REQUIRED_VIEW" ]]
+then
+    print "$0: must be in $REQUIRED_VIEW view (cleartool setview build-robocop)"
+    exit 1
+fi
+
+UPLID=$(/bbcm/infrastructure/tools/bin/bde_uplid.pl)
+
+HEADERS="baea_commandline.h \
+	bcema_blob.h \
+	bdeat_arrayfunctions.h \
+	bdeat_choicefunctions.h \
+	bdeat_customizedtypefunctions.h \
+	bdeat_nullablevaluefunctions.h \
+	bdeat_symbolicconverter.h \
+	bdem_bdemdecoderoptions.h \
+	bdem_bdemdecoderutil.h \
+	bdem_bdemencoderoptions.h \
+	bdem_bdemencoderutil.h \
+	bdem_berconstants.h \
+	bdem_berdecoderoptions.h \
+	bdem_berdecoderutil.h \
+	bdem_berencoderutil.h \
+	bdem_berutil.h \
+	bdem_binding.h \
+	bdem_bindingadapters.h \
+	bdem_selectbdemtype.h \
+	bdem_selectbertag.h \
+	bdepu_iso8601.h \
+	bdestl_deque.h \
+	bdet_datetimetz.h \
+	bdet_datetz.h \
+	bdet_timetz.h"
+
+LIBRARIES="libbde.dbg.a \
+  libbde.dbg_exc.a \
+  libbde.dbg_exc_mt.a \
+  libbde.dbg_mt.a \
+  libbde_bde.dbg.a \
+  libbde_bde.dbg_exc.a \
+  libbde_bde.dbg_exc_mt.a \
+  libbde_bde.dbg_mt.a \
+  libbde_bsl.dbg.a \
+  libbde_bsl.dbg_exc.a \
+  libbde_bsl.dbg_exc_mt.a \
+  libbde_bsl.dbg_mt.a \
+  libbce.dbg_mt.a \
+  libbce.dbg_exc_mt.a \
+  libbae.dbg_exc_mt.a \
+  libbae.dbg_mt.a \
+  libbse.dbg_exc_mt.a \
+  libbse.dbg_mt.a     \
+  libbte.dbg_exc_mt.a \
+  libbte.dbg_mt.a"
+
+
+INCLUDE_INSTALLATION_DIR=/bbsrc/bbinc/Cinclude/bde
+LIB_INSTALLATION_DIR=/bb/source/lib
+BACKUP_DIR="BACKUP`date +%Y_%m_%e_%T`"
+
+echo "Backing up current installation into $BACKUP_DIR"
+mkdir /bbcm/infrastructure/include/$BACKUP_DIR
+
+for i in $HEADERS; do
+    if [ -f $INCLUDE_INSTALLATION_DIR/$i ]; then
+		cp $INCLUDE_INSTALLATION_DIR/$i /bbcm/infrastructure/include/$BACKUP_DIR		
+    fi
+done
+
+mkdir /bbcm/infrastructure/lib/$UPLID/$BACKUP_DIR
+cd  $LIB_INSTALLATION_DIR
+cp -f $LIBRARIES  /bbcm/infrastructure/lib/$UPLID/$BACKUP_DIR
+
+echo "Installing header files"
+for i in $HEADERS; do
+	prefix=`echo "$i" | awk  '{ print substr($1, 1, 3); }'`
+    cp /bbcm/infrastructure/include/$prefix/$i $INCLUDE_INSTALLATION_DIR
+done
+
+echo "Installing libraries"
+cd /bbcm/infrastructure/lib/$UPLID
+cp $LIBRARIES $LIB_INSTALLATION_DIR
+
+
+echo "Verifying installation"
+for i in `ls $LIB_INSTALLATION_DIR/libb?e.*.a`; do
+    LABEL=`what $i | grep BLP`
+    grep $LABEL /bbcm/infrastructure/groups/releases/BLP_LIB_BDE/MANIFEST >/dev/null 2>&1
+	if [ "$?" != "0" ]; then
+     	echo "ERROR: $i($LABEL) LABELS MISMATCHED."
+    fi
+done	
+
+exit

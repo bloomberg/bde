@@ -1,0 +1,64 @@
+# BDE Example Application NMake Makefile
+
+all	         : hello_world.exe
+
+#-----------------------------------------------------------------------------
+
+# Substitute 'DBG_EXC_MT' below with the desired build type:
+# DBG_EXC DBG_EXC_MT DBG_EXC_SHR DBG_EXC_MT_SHR
+# 'SHR' variants build/link a dynamic .dll and .lib rather than a static .lib
+
+ROOT_LOCN        = ..
+INSTALL_LIBDIR   = $(ROOT_LOCN)\lib
+INSTALL_INCDIR   = $(ROOT_LOCN)\include
+
+#-----------------------------------------------------------------------------
+
+BDEMAKE_GENERIC_TARGETS = 1
+!include $(ROOT_LOCN)\Makefile.nmk
+
+CXX	         = $(BDE_DBG_EXC_MT_CXX) $(BDE_DBG_EXC_MT_BDE_CXXFLAGS)
+CXXLINK	         = $(BDE_DBG_EXC_MT_CXXLINK) $(BDE_DBG_EXC_MT_BDE_LDFLAGS)
+BTE_CXXLINK      = $(BTE_DBG_EXC_MT_CXXLINK) $(BTE_DBG_EXC_MT_BDE_LDFLAGS)
+
+ENDLDFLAGS       = $(BDE_DBG_EXC_MT_BDE_ENDLDFLAGS)
+BDE_LINKLIB      = $(BDE_DBG_EXC_MT_LINKLIB)
+BCE_LINKLIB      = $(BCE_DBG_EXC_MT_LINKLIB)
+BTE_LINKLIB      = $(BTE_DBG_EXC_MT_LINKLIB)
+BDE_IMPORT       = /DBDE_DCL=$(BDE_DBG_EXC_MT_BDE_DCL_IMPORT)
+
+!ifndef HAVE_SOURCE
+HAVE_SOURCE = 0
+!endif
+
+!if $(HAVE_SOURCE)
+!  message Source dependencies enabled
+
+BDE_LIBRARY      = $(BDE_INSTLIBDIR)\$(BDE_DBG_EXC_MT_LIBRARY)
+BCE_LIBRARY      = $(BDE_INSTLIBDIR)\$(BCE_DBG_EXC_MT_LIBRARY)
+BTE_LIBRARY      = $(BDE_INSTLIBDIR)\$(BTE_DBG_EXC_MT_LIBRARY)
+
+$(BDE_INSTINCDIR): bde.installhdr
+
+$(BCE_INSTINCDIR): bce.installhdr
+
+$(BTE_INSTINCDIR): bte.installhdr
+
+!else
+!  message Source dependencies disabled
+!endif
+
+#-----------------------------------------------------------------------------
+
+hello_world.obj  : hello_world.m.cpp $(BDE_INSTINCDIR)
+	$(CXX) /Fo"$@" /c hello_world.m.cpp /I$(BDE_INSTINCDIR) /I$(BDE_INSTINCDIR)\stlport $(BDE_IMPORT)
+
+hello_world.exe  : hello_world.obj $(BDE_LIBRARY)
+	$(CXXLINK) /out:$@ hello_world.obj /libpath:$(BDE_INSTLIBDIR) $(BDE_LINKLIB) $(ENDLDFLAGS)
+
+clean	         :
+	del /F hello_world hello_world.obj
+
+distclean        : clean bde.distclean bce.distclean bte.distclean
+
+realclean        : clean bde.clean bce.clean bte.clean
