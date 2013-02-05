@@ -483,7 +483,7 @@ static const char* fmt(int n) {
     return buf;
 }
 
-void *createSemaphoresConc(void *arg)
+void *createSemaphoresWorker(void *arg)
 {
     typedef bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> semaphore_t;
     bsl::vector<bsls::ObjectBuffer<semaphore_t> > semaphores(10);
@@ -545,7 +545,7 @@ int main(int argc, char *argv[]) {
 
         for (int i = 0; i != threads.size(); ++i) {
             int rc = bcemt_ThreadUtil::create(&threads[i],
-                                              &createSemaphoresConc,
+                                              &createSemaphoresWorker,
                                               NULL);
             ASSERT(rc == 0);
         }

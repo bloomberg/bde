@@ -68,8 +68,8 @@ class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> {
 
     // DATA
 #if defined(BSLS_PLATFORM_OS_DARWIN)
-    sem_t *d_sem_p;             // pointer to native semaphore handle
-    static const char *s_semaphorePrefix;
+    sem_t             *d_sem_p;           // pointer to native semaphore handle
+    static const char *s_semaphorePrefix; // prefix for a unique semaphore name
 #else
     sem_t d_sem;                // native semaphore handle
 #endif
