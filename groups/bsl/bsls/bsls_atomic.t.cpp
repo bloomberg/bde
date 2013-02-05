@@ -354,12 +354,91 @@ void joinThread(thread_t thr)
 #endif
 }
 
+void sleepSeconds(int sec)
+{
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    Sleep(sec * 1000);
+#else
+    sleep(sec);
+#endif
+}
+
+
+struct MemOrderLoopParam
+{
+    bsls::AtomicInt cancel;
+    bsls::AtomicInt iterations;
+    void (*testFunc)(MemOrderLoopParam *);
+};
+
+void petersonsLockLoopTest(MemOrderLoopParam *params)
+{
+    LockData<bsls::AtomicInt64> ld;
+    PetersonsLockSeqCst<bsls::AtomicInt64> lock(0, ld);
+
+    for (; !params->cancel; ++params->iterations) {
+        Guard<PetersonsLockSeqCst<bsls::AtomicInt64> > guard(lock);
+    }
+}
+
+void sharedCountLoopTest(MemOrderLoopParam *params)
+{
+    bsls::AtomicInt count;
+
+    for (; !params->cancel; ++params->iterations) {
+        count.storeRelease(10);
+
+        while (count.loadAcquire() != 0) {
+            count.addAcqRel(-1);
+        }
+    }
+}
+
+void *runMemOrderLoop(void *arg)
+    // Run a simulation of the memory ordering test case to determine the
+    // number of iterations for the real test.
+{
+    MemOrderLoopParam *params = static_cast<MemOrderLoopParam *>(arg);
+    params->testFunc(params);
+
+    return 0;
+}
+
+void *runMemOrderObserverLoop(void *arg)
+    // Observe changes in shared state for more accurate memory ordering test
+    // simulation.
+{
+    MemOrderLoopParam *params = static_cast<MemOrderLoopParam *>(arg);
+
+    while (!params->cancel && !params->iterations >= 0)
+    {
+    }
+
+    return 0;
+}
+
+int getTestCaseIterations(void (*testFunc)(MemOrderLoopParam *))
+    // Return a reasonable experimentally determined number of iterations for
+    // the memory ordering test case.
+{
+    MemOrderLoopParam params;
+    params.testFunc = testFunc;
+    thread_t loopThr = createThread(&runMemOrderLoop, &params);
+    thread_t obsvThr = createThread(&runMemOrderObserverLoop, &params);
+
+    sleepSeconds(5);  // this makes the real test run for a couple of minutes
+
+    params.cancel = 1;
+    joinThread(loopThr);
+    joinThread(obsvThr);
+
+    return params.iterations;
+}
+
 
 template <template <class> class LOCK, class INT>
-void testCaseMemOrder()
+void testCaseMemOrder(int iterations)
 {
-    int iterations = 10000000;
-
     LockData<INT> lockData;
     LOCK<INT> lock0(0, lockData);
     LOCK<INT> lock1(1, lockData);
@@ -379,7 +458,8 @@ void testCaseMemOrder()
 
 void testSharedCountWrite(int& data,
                           bsls::AtomicInt& shared,
-                          bsls::AtomicInt& done)
+                          bsls::AtomicInt& done,
+                          int)
 {
     while (!done.loadRelaxed()) {
         while (shared.loadRelaxed() > 1) {
@@ -391,9 +471,10 @@ void testSharedCountWrite(int& data,
 
 void testSharedCountRead(int& data,
                          bsls::AtomicInt& shared,
-                         bsls::AtomicInt& done)
+                         bsls::AtomicInt& done,
+                         int iterations)
 {
-    for (int i = 0; i < 10000000; ++i) {
+    for (int i = 0; i < iterations; ++i) {
         shared.storeRelease(10);
 
         while (shared.loadRelaxed() != 1) {
@@ -413,22 +494,25 @@ void testSharedCountRead(int& data,
 
 struct SharedCountThreadParam
 {
-    typedef void (*ThreadFunc)(int&, bsls::AtomicInt&, bsls::AtomicInt&);
+    typedef void (*ThreadFunc)(int&, bsls::AtomicInt&, bsls::AtomicInt&, int);
 
     SharedCountThreadParam(int& data,
                            bsls::AtomicInt& shared,
                            bsls::AtomicInt& done,
-                           ThreadFunc func)
+                           ThreadFunc func,
+                           int iterations)
         : d_data(data)
         , d_shared(shared)
         , d_done(done)
         , d_func(func)
+        , d_iterations(iterations)
     {}
 
     int&             d_data;
     bsls::AtomicInt& d_shared;
     bsls::AtomicInt& d_done;
     ThreadFunc       d_func;
+    int              d_iterations;
 };
 
 void *testSharedCountThreadFunc(void *arg)
@@ -436,23 +520,28 @@ void *testSharedCountThreadFunc(void *arg)
     SharedCountThreadParam *param
         = reinterpret_cast<SharedCountThreadParam *>(arg);
 
-    param->d_func(param->d_data, param->d_shared, param->d_done);
+    param->d_func(param->d_data,
+                  param->d_shared,
+                  param->d_done,
+                  param->d_iterations);
     return 0;
 }
 
-void testCaseSharedPtr()
+void testCaseSharedPtr(int iterations)
 {
     bsls::AtomicInt shared;
     bsls::AtomicInt done;
     int data = 0;
 
     SharedCountThreadParam paramReader(data, shared, done,
-                                       &testSharedCountRead);
+                                       &testSharedCountRead,
+                                       iterations);
     thread_t thrReader = createThread(&testSharedCountThreadFunc,
                                       &paramReader);
 
     SharedCountThreadParam paramWriter(data, shared, done,
-                                       &testSharedCountWrite);
+                                       &testSharedCountWrite,
+                                       iterations);
     thread_t thrWriter = createThread(&testSharedCountThreadFunc,
                                       &paramWriter);
 
@@ -552,8 +641,8 @@ template <class INSTANCE>
 class my_CountedHandleRep {
 
     // DATA
-    bsls::AtomicInt  d_count;        // number of active references
     INSTANCE        *d_instance_p;   // address of managed instance
+    bsls::AtomicInt  d_count;        // number of active references
 
     // FRIENDS
     friend class my_CountedHandle<INSTANCE>;
@@ -1030,7 +1119,11 @@ int main(int argc, char *argv[])
                  << "\n================================================"
                  << endl;
 
-        testCaseSharedPtr();
+        int iterations = getTestCaseIterations(sharedCountLoopTest);
+        if (veryVerbose) cout << "\tRunning the test loop for "
+                              << iterations << " iterations" << endl;
+
+        testCaseSharedPtr(iterations);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1056,21 +1149,25 @@ int main(int argc, char *argv[])
                           << "\n=================================="
                           << endl;
 
+        int iterations = getTestCaseIterations(petersonsLockLoopTest);
+        if (veryVerbose) cout << "\tRunning the test loop for "
+                              << iterations << " iterations" << endl;
+
         if (verbose) cout << "\tTesting sequencial consistency" << endl;
 
         if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
-        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt>();
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt>(iterations);
 
         if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
-        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt64>();
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt64>(iterations);
 
         if (verbose) cout << "\tTesting acquire/release" << endl;
 
         if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
-        testCaseMemOrder<PetersonsLock, bsls::AtomicInt>();
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt>(iterations);
 
         if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
-        testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>();
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>(iterations);
       } break;
       case 6: {
         // --------------------------------------------------------------------
