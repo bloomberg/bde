@@ -292,15 +292,15 @@ int baejsn_ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
 
 int baejsn_ParserUtil::getValue(double *value, bslstl::StringRef data)
 {
-    const int MAX_STRING_LENGTH = 63;
-    char      buffer[MAX_STRING_LENGTH + 1];
-
     if (0 == data.length()
-     || static_cast<int>(data.length()) > MAX_STRING_LENGTH
      || '.' == data[0]
+     || '+' == data[0]
      || data.length() > 1 && '-' == data[0] && '.' == data[1]) {
         return -1;                                                    // RETURN
     }
+
+    const int MAX_STRING_LENGTH = 63;
+    char      buffer[MAX_STRING_LENGTH + 1];
 
     bdema_BufferedSequentialAllocator allocator(buffer, MAX_STRING_LENGTH + 1);
     bsl::string                       dataString(data.data(),
@@ -314,7 +314,8 @@ int baejsn_ParserUtil::getValue(double *value, bslstl::StringRef data)
     if (endPtr    != dataString.end()
      || (0        == tmp && 0 != errno)
      ||  HUGE_VAL == tmp
-     || -HUGE_VAL == tmp) {
+     || -HUGE_VAL == tmp
+     || !bsl::isdigit(*(dataString.end() - 1))) {
         return -1;                                                    // RETURN
     }
 

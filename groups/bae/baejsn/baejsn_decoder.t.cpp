@@ -33854,7 +33854,7 @@ class Address {
         // Return a reference to the modifiable "State" attribute of this
         // object.
 
-    // ACCESSORS
+   // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -35021,8 +35021,7 @@ void constructFeatureTestMessage(
                                 bsl::vector<baea::FeatureTestMessage> *objects)
 {
     baexml_MiniReader     reader;
-    baexml_DecoderOptions options;
-    options.setSkipUnknownElements(true);
+    baexml_DecoderOptions options; options.setSkipUnknownElements(true);
     baexml_ErrorInfo      e;
     baexml_Decoder        decoder(&options, &reader, &e);
 
@@ -35066,7 +35065,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) {
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -35228,8 +35227,8 @@ int main(int argc, char *argv[])
 //..
     baejsn_DecoderOptions options;
     const int rc = decoder.decode(is, &employee, options);
-    assert(!rc);
-    assert(is);
+    ASSERT(!rc);
+    ASSERT(is);
 //..
 // Finally, we will verify that the decoded object is as expected:
 //..
@@ -35241,7 +35240,7 @@ int main(int argc, char *argv[])
 //..
     }
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // TEST THAT WRONG JSON RESULTS IN AN ERROR
         //
@@ -35260,14 +35259,14 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 // line  input
                 // ----  -----
-                {   L_,   "]"    },
-                {   L_,   "}"    },
-                {   L_,   "\""   },
-                {   L_,   ","    },
-                {   L_,   ":"    },
-                {   L_,   "1"    },
-                {   L_,   "*"    },
-                {   L_,   "A"    },
+                {   L_,   "]   {}"    },
+                {   L_,   "}   {}"    },
+                {   L_,   "\"  {}"    },
+                {   L_,   ",   {}"    },
+                {   L_,   ":   {}"    },
+                {   L_,   "1   {}"    },
+                {   L_,   "*   {}"    },
+                {   L_,   "A   {}"    },
             };
             const int NUM_DATA = sizeof DATA/ sizeof *DATA;
 
@@ -35303,58 +35302,64 @@ int main(int argc, char *argv[])
          // line  input
          // ----  -----
 
-        // After first character
-        {    L_,  "{{"   },
-        {    L_,  "{["   },
-        {    L_,  "{]"   },
-        {    L_,  "{,"   },
-        {    L_,  "{:"   },
-        {    L_,  "{1"   },
-        {    L_,  "{*"   },
-        {    L_,  "{A"   },
+        // invalid token after first character
+        {    L_,  "{{   }"   },
+        {    L_,  "{[   }"   },
+        {    L_,  "{]   }"   },
+        {    L_,  "{,   }"   },
+        {    L_,  "{:   }"   },
+        {    L_,  "{1   }"   },
+        {    L_,  "{*   }"   },
+        {    L_,  "{A   }"   },
 
-        // Sequence element invalid name 
-        {    L_,  "{\""                    },
-        {    L_,  "{\"\""                  },
-        {    L_,  "{ \" { \""              },
-        {    L_,  "{ \" } \""              },
-        {    L_,  "{ \" [ \""              },
-        {    L_,  "{ \" ] \""              },
-        {    L_,  "{ \" , \""              },
-        {    L_,  "{ \" : \""              },
-        {    L_,  "{" "\"id_num\""         },
-        {    L_,  "{" "\"id\""             },
+        // invalid name name
+        {    L_,  "{\"                 }"              },
+        {    L_,  "{\"\"               }"              },
+        {    L_,  "{ \" { \"           }"              },
+        {    L_,  "{ \" } \"           }"              },
+        {    L_,  "{ \" [ \"           }"              },
+        {    L_,  "{ \" ] \"           }"              },
+        {    L_,  "{ \" , \"           }"              },
+        {    L_,  "{ \" : \"           }"              },
+        {    L_,  "{" "\"id_num\"      }"              },
+        {    L_,  "{" "\"id\"          }"              },
+        {    L_,  "{" "  12345         }"              },
 
-        // Sequence element invalid token after name
+        // invalid token after object's element name
         {
             L_,
             "{"
               "\"name\""
                        "{"
+            "}"
         },
         {
             L_,
             "{"
               "\"name\""
                        "}"
+            "}"
         },
         {
             L_,
             "{"
               "\"name\""
                        "["
+            "}"
         },
         {
             L_,
             "{"
               "\"name\""
                        "]"
+            "}"
         },
         {
             L_,
             "{"
               "\"name\""
                        ","
+            "}"
         },
         {
             L_,
@@ -35364,13 +35369,14 @@ int main(int argc, char *argv[])
                                "\"another string\""
         },
 
-        // Sequence invalid element value
+        // invalid element value
         {
             L_,
             "{"
               "\"name\""
                        ":"
                          ":"
+            "}"
         },
         {
             L_,
@@ -35378,6 +35384,7 @@ int main(int argc, char *argv[])
               "\"name\""
                        ":"
                          ","
+            "}"
         },
         {
             L_,
@@ -35385,6 +35392,7 @@ int main(int argc, char *argv[])
               "\"name\""
                        ":"
                          "{"
+            "}"
         },
         {
             L_,
@@ -35392,6 +35400,7 @@ int main(int argc, char *argv[])
               "\"name\""
                        ":"
                          "}"
+            "}"
         },
         {
             L_,
@@ -35399,6 +35408,7 @@ int main(int argc, char *argv[])
               "\"name\""
                        ":"
                          "["
+            "}"
         },
         {
             L_,
@@ -35406,6 +35416,7 @@ int main(int argc, char *argv[])
               "\"name\""
                        ":"
                          "]"
+            "}"
         },
         {
             L_,
@@ -35413,6 +35424,7 @@ int main(int argc, char *argv[])
               "\"name\""
                        ":"
                          "12345"
+            "}"
         },
         {
             L_,
@@ -35420,9 +35432,96 @@ int main(int argc, char *argv[])
               "\"name\""
                        ":"
                          "12.345"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"age\""
+                       ":"
+                         "\"Bob\""
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"age\""
+                       ":"
+                         "\"Bob\""
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "\"Bob\""
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "12345"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "["
+                             "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "["
+                               "1"
+                             "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "\"Bob\""
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "12345"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "{"
+                        "}"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "{"
+                          "1"
+                        "}"
+            "}"
         },
 
-        // Sequence invalid after element value
+        // invalid token after element value
         {
             L_,
             "{"
@@ -35430,6 +35529,7 @@ int main(int argc, char *argv[])
                        ":"
                          "\"Pete\""
                                   "{"
+            "}"
         },
         {
             L_,
@@ -35438,6 +35538,7 @@ int main(int argc, char *argv[])
                        ":"
                          "\"Pete\""
                                   ":"
+            "}"
         },
         {
             L_,
@@ -35446,6 +35547,7 @@ int main(int argc, char *argv[])
                        ":"
                          "\"Pete\""
                                   "["
+            "}"
         },
         {
             L_,
@@ -35454,6 +35556,7 @@ int main(int argc, char *argv[])
                        ":"
                          "\"Pete\""
                                   "]"
+            "}"
         },
         {
             L_,
@@ -35463,9 +35566,8 @@ int main(int argc, char *argv[])
                          "\"Pete\""
                                   "   "
                                       "\"invalid string\""
+            "}"
         },
-
-        // Sequence invalid after element value
         {
             L_,
             "{"
@@ -35473,6 +35575,7 @@ int main(int argc, char *argv[])
                      ":"
                       "\"Pete\","
                                 "{"
+            "}"
         },
         {
             L_,
@@ -35481,6 +35584,7 @@ int main(int argc, char *argv[])
                      ":"
                       "\"Pete\","
                                 "}"
+            "}"
         },
         {
             L_,
@@ -35489,6 +35593,7 @@ int main(int argc, char *argv[])
                      ":"
                       "\"Pete\","
                                 "["
+            "}"
         },
         {
             L_,
@@ -35497,6 +35602,7 @@ int main(int argc, char *argv[])
                      ":"
                       "\"Pete\","
                                 "]"
+            "}"
         },
         {
             L_,
@@ -35505,6 +35611,7 @@ int main(int argc, char *argv[])
                      ":"
                       "\"Pete\","
                                 ":"
+            "}"
         },
         {
             L_,
@@ -35515,7 +35622,7 @@ int main(int argc, char *argv[])
                                 ","
         },
 
-        // Sequence element that is invalid sequence element
+        // invalid nested object element name
         {
             L_,
             "{"
@@ -35523,6 +35630,7 @@ int main(int argc, char *argv[])
                            ":"
                              "{"
                                "{"
+            "}"
         },
         {
             L_,
@@ -35531,6 +35639,7 @@ int main(int argc, char *argv[])
                            ":"
                              "{"
                                "["
+            "}"
         },
         {
             L_,
@@ -35539,6 +35648,7 @@ int main(int argc, char *argv[])
                            ":"
                              "{"
                                "]"
+            "}"
         },
         {
             L_,
@@ -35547,6 +35657,7 @@ int main(int argc, char *argv[])
                            ":"
                              "{"
                                ","
+            "}"
         },
         {
             L_,
@@ -35555,9 +35666,18 @@ int main(int argc, char *argv[])
                            ":"
                              "{"
                                ":"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                               "12345"
         },
 
-        // Sequence element that has invalid element after sequence element
+        // invalid token after nested element
         {
             L_,
             "{"
@@ -35566,6 +35686,7 @@ int main(int argc, char *argv[])
                              "{"
                              "}"
                                "12345"
+            "}"
         },
         {
             L_,
@@ -35575,6 +35696,7 @@ int main(int argc, char *argv[])
                              "{"
                              "}"
                                "{"
+            "}"
         },
         {
             L_,
@@ -35584,6 +35706,7 @@ int main(int argc, char *argv[])
                              "{"
                              "}"
                                "["
+            "}"
         },
         {
             L_,
@@ -35593,6 +35716,7 @@ int main(int argc, char *argv[])
                              "{"
                              "}"
                                "]"
+            "}"
         },
         {
             L_,
@@ -35602,15 +35726,7 @@ int main(int argc, char *argv[])
                              "{"
                              "}"
                                ":"
-        },
-        {
-            L_,
-            "{"
-              "\"fullname\""
-                           ":"
-                             "{"
-                             "}"
-                               ","
+            "}"
         },
         {
             L_,
@@ -35620,9 +35736,103 @@ int main(int argc, char *argv[])
                              "{"
                              "}"
                                "ABC"
+            "}"
         },
+        {
+            L_,
+            "{"
+              "\"fullname\""
+                           ":"
+                             "{"
+                             "}"
+                               ","
+        },
+// TBD:
+//         {
+//             L_,
+//             "{"
+//               "\"fullname\""
+//                            ":"
+//                              "{"
+//                              "}"
+//                                ","
+//             "}"
+//         },
 
-        // Sequence element that is invalid array element
+        // nested invalid array element
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "Hello"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "Hello"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          ":"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              ":"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "["
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "1"
+                            "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "{"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          ","
+            "}"
+        },
         {
             L_,
             "{"
@@ -35631,6 +35841,7 @@ int main(int argc, char *argv[])
                         "["
                           "1"
                             "["
+            "}"
         },
         {
             L_,
@@ -35640,6 +35851,7 @@ int main(int argc, char *argv[])
                         "["
                           "1"
                             "{"
+            "}"
         },
         {
             L_,
@@ -35649,6 +35861,7 @@ int main(int argc, char *argv[])
                         "["
                           "1"
                             "}"
+            "}"
         },
         {
             L_,
@@ -35658,6 +35871,7 @@ int main(int argc, char *argv[])
                         "["
                           "1"
                             ":"
+            "}"
         },
         {
             L_,
@@ -35667,6 +35881,7 @@ int main(int argc, char *argv[])
                         "["
                           "1"
                             " \"ABC\""
+            "}"
         },
         {
             L_,
@@ -35678,6 +35893,53 @@ int main(int argc, char *argv[])
                           " "
                           "2"
                         "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "1"
+                          ":"
+                          "2"
+                        "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "1"
+                          "'"
+                          "2"
+                        "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                          "1,"
+                          "\"Bob\","
+                          "2"
+                        "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                       ":"
+                         "["
+                           ","
+                         "]"
+            "}"
         },
         {
             L_,
@@ -35687,9 +35949,126 @@ int main(int argc, char *argv[])
                          "["
                            "1,"
                          "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                       ":"
+                         "["
+                           "{"
+                           "}"
+                         "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                "["
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                ":"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                ":"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                "\"lastname\""
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                "\"name\","
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                "\"name\" 12345"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                "\"name\" 12345"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                "\"ids\""
+                                        ":"
+                                          "{"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                "\"ids\""
+                                        ":"
+                                          "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                                "\"ids\""
+                                        ":"
+                                          "}"
         },
 
-        // Sequence element that has invalid token after array element
+        // invalid token after array element
         {
             L_,
             "{"
@@ -35698,9 +36077,90 @@ int main(int argc, char *argv[])
                         "["
                         "]"
                           "\"value\""
+            "}"
         },
-
-        // Sequence element that has invalid token after complex array
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                        "]"
+                          "12345"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                        "]"
+                      ":"
+            "}"
+        },
+        // TBD:
+//         {
+//             L_,
+//             "{"
+//               "\"ids\""
+//                       ":"
+//                         "["
+//                         "]"
+//                       ","
+//             "}"
+//         },
+        {
+            L_,
+            "{"
+              "\"friends\""
+                          ":"
+                            "["
+                              "{"
+                              "},"
+                            "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                        "]"
+                      "{"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                        "]"
+                      "["
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                        "]"
+                      "]"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"ids\""
+                      ":"
+                        "["
+                        "]"
+                      "*"
+            "}"
+        },
         {
             L_,
             "{"
@@ -35710,9 +36170,8 @@ int main(int argc, char *argv[])
                            "{"
                            "},"
                          "]"
+            "}"
         },
-
-        // Sequence element that has invalid token after array of array
         {
             L_,
             "{"
@@ -35723,6 +36182,32 @@ int main(int argc, char *argv[])
                            "],"
                          "]"
         },
+
+        // invalid enumeration element value
+        {
+            L_,
+            "{"
+              "\"car_color\""
+                           ":"
+                             "123"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"car_color\""
+                           ":"
+                             "BLACK"
+            "}"
+        },
+        {
+            L_,
+            "{"
+              "\"car_color\""
+                           ":"
+                             "\"BLACK\""
+            "}"
+        },
         };
         const int NUM_DATA = sizeof DATA/ sizeof *DATA;
 
@@ -35732,12 +36217,26 @@ int main(int argc, char *argv[])
 
             bdem_RecordDef *full_name = schema->createRecord("FullName");
             full_name->appendField(bdem_ElemType::BDEM_STRING, "name");
+            full_name->appendField(bdem_ElemType::BDEM_INT_ARRAY, "ids");
+
+            bdem_EnumerationDef *enumDef = schema->createEnumeration("color");
+            enumDef->addEnumerator("RED");
+            enumDef->addEnumerator("GREEN");
+            enumDef->addEnumerator("BLUE");
 
             bdem_RecordDef *employee = schema->createRecord("Employee");
             employee->appendField(bdem_ElemType::BDEM_STRING, "name");
             employee->appendField(bdem_ElemType::BDEM_INT,    "age");
-            employee->appendField(bdem_ElemType::BDEM_LIST,   "fullname");
             employee->appendField(bdem_ElemType::BDEM_INT_ARRAY, "ids");
+            employee->appendField(bdem_ElemType::BDEM_LIST,
+                                  full_name,
+                                  "fullname");
+            employee->appendField(bdem_ElemType::BDEM_STRING,
+                                  enumDef,
+                                  "car_color");
+            employee->appendField(bdem_ElemType::BDEM_TABLE,
+                                  full_name,
+                                  "friends");
 
             bcem_Aggregate bob(schema, "Employee");
 
@@ -35764,14 +36263,26 @@ int main(int argc, char *argv[])
 
             bdem_RecordDef *full_name = schema->createRecord("FullName");
             full_name->appendField(bdem_ElemType::BDEM_STRING, "name");
+            full_name->appendField(bdem_ElemType::BDEM_INT_ARRAY, "ids");
 
-            bdem_RecordDef *employee = schema->createRecord(
-                "Employee",
-                bdem_RecordDef::BDEM_CHOICE_RECORD);
+            bdem_EnumerationDef *enumDef = schema->createEnumeration("color");
+            enumDef->addEnumerator("RED");
+            enumDef->addEnumerator("GREEN");
+            enumDef->addEnumerator("BLUE");
+
+            bdem_RecordDef *employee = schema->createRecord("Employee");
             employee->appendField(bdem_ElemType::BDEM_STRING, "name");
             employee->appendField(bdem_ElemType::BDEM_INT,    "age");
-            employee->appendField(bdem_ElemType::BDEM_LIST,   "fullname");
             employee->appendField(bdem_ElemType::BDEM_INT_ARRAY, "ids");
+            employee->appendField(bdem_ElemType::BDEM_LIST,
+                                  full_name,
+                                  "fullname");
+            employee->appendField(bdem_ElemType::BDEM_STRING,
+                                  enumDef,
+                                  "car_color");
+            employee->appendField(bdem_ElemType::BDEM_TABLE,
+                                  full_name,
+                                  "friends");
 
             bcem_Aggregate bob(schema, "Employee");
 
@@ -35791,8 +36302,173 @@ int main(int argc, char *argv[])
                 }
             }
         }
+
+        // Testing arrays
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_text_p;   // json text
+            } DATA[] = {
+                // line  input
+                // ----  -----
+                {
+                    L_,
+                    "["
+                      "}"
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "\"Bob\""
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      ","
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "["
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "1"
+                        ","
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "1"
+                        "{"
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "1"
+                        "}"
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "{"
+                        "{"
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "{"
+                        ":"
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "{"
+                        ","
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "{"
+                        "12345"
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "{"
+                        "\"Bob\""
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "{"
+                        "\"name\""
+                      "}"
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "{"
+                        "\"name\" : \"Bob\""
+                      "},"
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                      "{"
+                        "\"name\" : \"Bob\""
+                      "},"
+                      "\"name\" : \"John\""
+                    "]"
+                },
+                {
+                    L_,
+                    "["
+                },
+            };
+            const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+
+            bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+
+            bdem_RecordDef *full_name = schema->createRecord("FullName");
+            full_name->appendField(bdem_ElemType::BDEM_STRING, "name");
+            full_name->appendField(bdem_ElemType::BDEM_INT_ARRAY, "ids");
+
+            bdem_EnumerationDef *enumDef = schema->createEnumeration("color");
+            enumDef->addEnumerator("RED");
+            enumDef->addEnumerator("GREEN");
+            enumDef->addEnumerator("BLUE");
+
+            bdem_RecordDef *employee = schema->createRecord("Employee");
+            employee->appendField(bdem_ElemType::BDEM_STRING, "name");
+            employee->appendField(bdem_ElemType::BDEM_INT, "age");
+            employee->appendField(bdem_ElemType::BDEM_INT_ARRAY, "ids");
+            employee->appendField(bdem_ElemType::BDEM_LIST,
+                                  full_name,
+                                  "fullname");
+            employee->appendField(bdem_ElemType::BDEM_STRING,
+                                  enumDef,
+                                  "car_color");
+            employee->appendField(bdem_ElemType::BDEM_TABLE,
+                                  full_name,
+                                  "friends");
+
+            bcem_Aggregate top(schema, "Employee");
+            bcem_Aggregate bob = top.field("friends");
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE  = DATA[ti].d_lineNum;
+                const bsl::string& INPUT = DATA[ti].d_text_p;
+                bcem_Aggregate bob(schema, "Employee");
+
+                bsl::istringstream iss(INPUT);
+
+                baejsn_DecoderOptions options;
+                baejsn_Decoder        decoder;
+                const int RC = decoder.decode(iss, &bob, options);
+                ASSERTV(LINE, RC, 0 != RC);
+                if (veryVerbose) {
+                    P(decoder.loggedMessages())
+                }
+            }
+        }
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // TEST SKIPPING UNKNOWN ELEMENTS
         //
@@ -36546,7 +37222,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING COMPLEX MESSAGES USING 'bcem_Aggregate'
         //
@@ -36578,10 +37254,8 @@ int main(int argc, char *argv[])
         baexml_Decoder xmlDecoder(&options, &reader, &errInfo);
 
         for (int ti = 0; ti < NUM_JSON_PRETTY_MESSAGES; ++ti) {
-            const int          LINE   = JSON_PRETTY_MESSAGES[ti].d_line;
-            const bsl::string& PRETTY = JSON_PRETTY_MESSAGES[ti].d_input_p;
-            const bool         IS_VALID =
-                                JSON_PRETTY_MESSAGES[ti].d_isValidForAggregate;
+            const int           LINE     = JSON_PRETTY_MESSAGES[ti].d_line;
+            const bsl::string&  PRETTY   = JSON_PRETTY_MESSAGES[ti].d_input_p;
             const char         *DATA     = XML_TEST_MESSAGES[ti].d_text_p;
             const int           DATA_LEN = strlen(DATA);
 
@@ -36597,33 +37271,29 @@ int main(int argc, char *argv[])
                     exp.print(bsl::cout, 1, 4);
             }
 
-            if (IS_VALID) {
-                bcem_Aggregate value(schemaPtr, "Obj");
+            bcem_Aggregate value(schemaPtr, "Obj");
 
-                baejsn_DecoderOptions options;
-                baejsn_Decoder jsonDecoder;
-                bdesb_FixedMemInStreamBuf isb(PRETTY.data(),
-                                              PRETTY.length());
-                const int rc = jsonDecoder.decode(&isb, &value, options);
-                ASSERTV(LINE, !rc);
-                if (rc) {
-                    if (veryVerbose) {
-                        P(LINE) P(jsonDecoder.loggedMessages());
-                    }
+            baejsn_DecoderOptions     options;
+            baejsn_Decoder            jsonDecoder;
+            bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
+
+            const int rc = jsonDecoder.decode(&isb, &value, options);
+            ASSERTV(LINE, !rc);
+            if (rc) {
+                if (veryVerbose) {
+                    P(LINE) P(jsonDecoder.loggedMessages());
                 }
-                else {
-                    ASSERTV(LINE, isb.length(), 0 == isb.length());
-                    ASSERTV(LINE, ti, exp, value,
-                            bcem_Aggregate::areEquivalent(exp, value));
-                }
+            }
+            else {
+                ASSERTV(LINE, isb.length(), 0 == isb.length());
+                ASSERTV(LINE, ti, exp, value,
+                        bcem_Aggregate::areEquivalent(exp, value));
             }
         }
 
         for (int ti = 0; ti < NUM_JSON_COMPACT_MESSAGES; ++ti) {
-            const int          LINE      = JSON_COMPACT_MESSAGES[ti].d_line;
-            const bsl::string& COMPACT   = JSON_COMPACT_MESSAGES[ti].d_input_p;
-            const bool         IS_VALID  =
-                               JSON_COMPACT_MESSAGES[ti].d_isValidForAggregate;
+            const int           LINE     = JSON_COMPACT_MESSAGES[ti].d_line;
+            const bsl::string&  COMPACT  = JSON_COMPACT_MESSAGES[ti].d_input_p;
             const char         *DATA     = XML_TEST_MESSAGES[ti].d_text_p;
             const int           DATA_LEN = strlen(DATA);
 
@@ -36637,29 +37307,27 @@ int main(int argc, char *argv[])
                     exp.print(bsl::cout, 1, 4);
             }
 
-            if (IS_VALID) {
-                bcem_Aggregate value(schemaPtr, "Obj");
+            bcem_Aggregate value(schemaPtr, "Obj");
 
-                baejsn_DecoderOptions     options;
-                baejsn_Decoder            jsonDecoder;
-                bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
-                                              COMPACT.length());
-                const int rc = jsonDecoder.decode(&isb, &value, options);
-                ASSERTV(LINE, !rc);
-                if (rc) {
-                    if (veryVerbose) {
-                        P(LINE) P(jsonDecoder.loggedMessages());
-                    }
+            baejsn_DecoderOptions     options;
+            baejsn_Decoder            jsonDecoder;
+            bdesb_FixedMemInStreamBuf isb(COMPACT.data(), COMPACT.length());
+
+            const int rc = jsonDecoder.decode(&isb, &value, options);
+            ASSERTV(LINE, !rc);
+            if (rc) {
+                if (veryVerbose) {
+                    P(LINE) P(jsonDecoder.loggedMessages());
                 }
-                else {
-                    ASSERTV(LINE, isb.length(), 0 == isb.length());
-                    ASSERTV(LINE, ti, exp, value,
-                            bcem_Aggregate::areEquivalent(exp, value));
-                }
+            }
+            else {
+                ASSERTV(LINE, isb.length(), 0 == isb.length());
+                ASSERTV(LINE, ti, exp, value,
+                        bcem_Aggregate::areEquivalent(exp, value));
             }
         }
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // TESTING COMPLEX MESSAGES
         //
@@ -36674,112 +37342,47 @@ int main(int argc, char *argv[])
         constructFeatureTestMessage(&testObjects);
 
         for (int ti = 0; ti < NUM_JSON_PRETTY_MESSAGES; ++ti) {
-            {
-                const int          LINE   = JSON_PRETTY_MESSAGES[ti].d_line;
-                const bsl::string& PRETTY = JSON_PRETTY_MESSAGES[ti].d_input_p;
-                const bool         IS_VALID =
-                        JSON_PRETTY_MESSAGES[ti].d_isValidForGeneratedMessages;
-                const baea::FeatureTestMessage& EXP = testObjects[ti];
+            const int          LINE   = JSON_PRETTY_MESSAGES[ti].d_line;
+            const bsl::string& PRETTY = JSON_PRETTY_MESSAGES[ti].d_input_p;
+            const baea::FeatureTestMessage& EXP = testObjects[ti];
 
-                if (veryVerbose) {
-                    P(ti) P(LINE) P(PRETTY)
-                    EXP.print(bsl::cout, 1, 4);
-                }
-
-                baea::FeatureTestMessage value;
-
-                baejsn_DecoderOptions     options;
-                baejsn_Decoder            decoder;
-                bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
-
-                const int rc = decoder.decode(&isb, &value, options);
-                if (IS_VALID) {
-                    ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
-                    ASSERTV(LINE, isb.length(), 0 == isb.length());
-                    ASSERTV(LINE, decoder.loggedMessages(),
-                            EXP, value, EXP == value);
-                }
+            if (veryVerbose) {
+                P(ti) P(LINE) P(PRETTY)
+                EXP.print(bsl::cout, 1, 4);
             }
+
+            baea::FeatureTestMessage value;
+
+            baejsn_DecoderOptions     options;
+            baejsn_Decoder            decoder;
+            bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
+
+            const int rc = decoder.decode(&isb, &value, options);
+            ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
+            ASSERTV(LINE, isb.length(), 0 == isb.length());
+            ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
         }
 
         for (int ti = 0; ti < NUM_JSON_COMPACT_MESSAGES; ++ti) {
-            {
-                const int          LINE    = JSON_COMPACT_MESSAGES[ti].d_line;
-                const bsl::string& COMPACT =
-                                           JSON_COMPACT_MESSAGES[ti].d_input_p;
-                const bool         IS_VALID =
-                       JSON_COMPACT_MESSAGES[ti].d_isValidForGeneratedMessages;
-                const baea::FeatureTestMessage& EXP = testObjects[ti];
+            const int          LINE    = JSON_COMPACT_MESSAGES[ti].d_line;
+            const bsl::string& COMPACT = JSON_COMPACT_MESSAGES[ti].d_input_p;
+            const baea::FeatureTestMessage& EXP = testObjects[ti];
 
-                if (veryVerbose) {
-                    P(ti) P(LINE) P(COMPACT)
-                    EXP.print(bsl::cout, 1, 4);
-                }
-
-                baea::FeatureTestMessage value;
-
-                baejsn_DecoderOptions     options;
-                baejsn_Decoder            decoder;
-                bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
-                                              COMPACT.length());
-
-                const int rc = decoder.decode(&isb, &value, options);
-                if (IS_VALID) {
-                    ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
-                    ASSERTV(LINE, isb.length(), 0 == isb.length());
-                    ASSERTV(LINE, decoder.loggedMessages(),
-                            EXP, value, EXP == value);
-                }
+            if (veryVerbose) {
+                P(ti) P(LINE) P(COMPACT)
+                EXP.print(bsl::cout, 1, 4);
             }
-        }
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // TEST BCEM_AGGREGATE
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        // --------------------------------------------------------------------
 
-        bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+            baea::FeatureTestMessage value;
 
-        bdem_RecordDef *address = schema->createRecord("Address");
-        address->appendField(bdem_ElemType::BDEM_STRING,       "street");
-        address->appendField(bdem_ElemType::BDEM_STRING,       "city");
-        address->appendField(bdem_ElemType::BDEM_STRING,       "state");
+            baejsn_DecoderOptions     options;
+            baejsn_Decoder            decoder;
+            bdesb_FixedMemInStreamBuf isb(COMPACT.data(), COMPACT.length());
 
-        bdem_RecordDef *employee = schema->createRecord("Employee");
-        employee->appendField(bdem_ElemType::BDEM_STRING, "name");
-        employee->appendField(bdem_ElemType::BDEM_LIST,
-                              address, "homeAddress");
-        employee->appendField(bdem_ElemType::BDEM_INT, "age");
-
-        bcem_Aggregate bob(schema, "Employee");
-
-        char jsonText[] =
-            "{\n"
-            //"   \"Employee\": {\n"
-            "       \"name\" : \"Bob\",\n"
-            "       \"homeAddress\" : {\n"
-            "           \"street\" : \"Some Street\",\n"
-            "           \"city\" : \"Some City\",\n"
-            "           \"state\" : \"Some State\"\n"
-            "       },\n"
-            "       \"age\" : 21\n"
-            //"   }\n"
-            "}";
-
-        baejsn_DecoderOptions options;
-        baejsn_Decoder        decoder;
-        bsl::istringstream iss(jsonText);
-
-        ASSERTV(0 == decoder.decode(iss, &bob, options));
-
-        if (veryVerbose) {
-            P(bob);
+            const int rc = decoder.decode(&isb, &value, options);
+            ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
+            ASSERTV(LINE, isb.length(), 0 == isb.length());
+            ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
         }
       } break;
       case 1: {
@@ -36797,11 +37400,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        test::Employee bob;
-
         char jsonText[] =
             "{\n"
-            //"   \"Employee\": {\n"
             "       \"name\" : \"Bob\",\n"
             "       \"homeAddress\" : {\n"
             "           \"street\" : \"Some Street\",\n"
@@ -36809,26 +37409,50 @@ int main(int argc, char *argv[])
             "           \"state\" : \"Some State\"\n"
             "       },\n"
             "       \"age\" : 21\n"
-            //"   }\n"
             "}";
 
-        bsl::istringstream iss(jsonText);
+        {
+            test::Employee bob;
 
-        baejsn_DecoderOptions options;
-        baejsn_Decoder        decoder;
-        ASSERTV(0 == decoder.decode(iss, &bob, options));
+            bsl::istringstream iss(jsonText);
 
-        //rapidjson::GenericReader<char, char> reader;
-        //BaseReaderHandler handler;
-        //TestReaderHandler<test::Employee> handler(&bob);
-        //reader.Parse<rapidjson::kParseInsituFlag>(iss, handler);
+            baejsn_DecoderOptions options;
+            baejsn_Decoder        decoder;
+            ASSERTV(0 == decoder.decode(iss, &bob, options));
 
+            ASSERTV(bob.name(), "Bob"         == bob.name());
+            ASSERT("Some Street" == bob.homeAddress().street());
+            ASSERT("Some City"   == bob.homeAddress().city());
+            ASSERT("Some State"  == bob.homeAddress().state());
+            ASSERT(21            == bob.age());
+        }
 
-        ASSERTV(bob.name(), "Bob"         == bob.name());
-        ASSERT("Some Street" == bob.homeAddress().street());
-        ASSERT("Some City"   == bob.homeAddress().city());
-        ASSERT("Some State"  == bob.homeAddress().state());
-        ASSERT(21            == bob.age());
+        {
+            bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+
+            bdem_RecordDef *address = schema->createRecord("Address");
+            address->appendField(bdem_ElemType::BDEM_STRING,       "street");
+            address->appendField(bdem_ElemType::BDEM_STRING,       "city");
+            address->appendField(bdem_ElemType::BDEM_STRING,       "state");
+
+            bdem_RecordDef *employee = schema->createRecord("Employee");
+            employee->appendField(bdem_ElemType::BDEM_STRING, "name");
+            employee->appendField(bdem_ElemType::BDEM_LIST,
+                                  address, "homeAddress");
+            employee->appendField(bdem_ElemType::BDEM_INT, "age");
+
+            bcem_Aggregate bob(schema, "Employee");
+
+            baejsn_DecoderOptions options;
+            baejsn_Decoder        decoder;
+            bsl::istringstream iss(jsonText);
+            
+            ASSERTV(0 == decoder.decode(iss, &bob, options));
+
+            if (veryVerbose) {
+                P(bob);
+            }
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

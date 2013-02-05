@@ -1393,9 +1393,8 @@ int main(int argc, char *argv[])
            // ^
   {  L_, "\"23:59.9999\"",            24,     0,    0,    0,      0,  false  },
               // ^
-// TBD: No TZ should fail
-//   {  L_, "\"23:59.59.9999\"",      24,     0,    0,    0,      0,  false  },
-                         // ^
+  {  L_, "\"23:59.59.9999\"",         24,     0,    0,    0,      0,  false  },
+                     // ^
 
   {  L_, "\"25:00:00.000+00:00\"",    24,     0,    0,    0,      0,  false  },
   {  L_, "\"00:61:00.000+00:00\"",    24,     0,    0,    0,      0,  false  },
@@ -2077,8 +2076,7 @@ int main(int argc, char *argv[])
     {  L_,          "1.0000000001", ERROR_VALUE,      false   },
     {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
 
-// TBD:
-//     {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
 
     {  L_,   "18446744073709551615.01", ERROR_VALUE,  false   },
     {  L_,   "18446744073709551615.99", ERROR_VALUE,  false   },
@@ -2383,6 +2381,8 @@ int main(int argc, char *argv[])
     {  L_,"-9223372036854775809.01", ERROR_VALUE,     false   },
     {  L_,"-9223372036854775809.99", ERROR_VALUE,     false   },
 
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
     {  L_,        "-",              ERROR_VALUE,      false   },
     {  L_,        ".5",             ERROR_VALUE,      false   },
     {  L_,        "-.5",            ERROR_VALUE,      false   },
@@ -2605,6 +2605,8 @@ int main(int argc, char *argv[])
     {  L_,      "4294967295.99",    ERROR_VALUE,      false   },
     {  L_,      "4294967296.01",    ERROR_VALUE,      false   },
     {  L_,      "4294967296.99",    ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
 
     {  L_,        "-",              ERROR_VALUE,      false   },
     {  L_,        ".5",             ERROR_VALUE,      false   },
@@ -2877,6 +2879,8 @@ int main(int argc, char *argv[])
     {  L_,     "-2147483649.01",    ERROR_VALUE,      false   },
     {  L_,     "-2147483649.99",    ERROR_VALUE,      false   },
 
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
     {  L_,        "-",              ERROR_VALUE,      false   },
     {  L_,        ".5",             ERROR_VALUE,      false   },
     {  L_,        "-.5",            ERROR_VALUE,      false   },
@@ -3029,12 +3033,9 @@ int main(int argc, char *argv[])
     {  L_,          "0.6553500e5",        65535,      true    },
     {  L_,          "6.5535000e4",        65535,      true    },
     {  L_,         "65.5350000e3",        65535,      true    },
-
-// TBD:
-//     {  L_,        "653.3500000e2",        65535,      true    },
-
+    {  L_,        "655.3500000e2",        65535,      true    },
     {  L_,       "6553.5000000e1",        65535,      true    },
-    {  L_,       "65535.000000e0",        65535,      true    },
+    {  L_,      "65535.000000e0",         65535,      true    },
 
     {  L_,  "6553500000e-5",              65535,      true    },
     {  L_,  "6553500000.00000e-5",        65535,      true    },
@@ -3095,6 +3096,8 @@ int main(int argc, char *argv[])
     {  L_,      "65535.99",         ERROR_VALUE,      false   },
     {  L_,      "65536.01",         ERROR_VALUE,      false   },
     {  L_,      "65536.99",         ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
 
     {  L_,        "-",              ERROR_VALUE,      false   },
     {  L_,        ".5",             ERROR_VALUE,      false   },
@@ -3350,6 +3353,8 @@ int main(int argc, char *argv[])
     {  L_,     "-32769.01",         ERROR_VALUE,      false   },
     {  L_,     "-32769.99",         ERROR_VALUE,      false   },
 
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
     {  L_,        "-",              ERROR_VALUE,      false   },
     {  L_,        ".5",             ERROR_VALUE,      false   },
     {  L_,        "-.5",            ERROR_VALUE,      false   },
@@ -3538,6 +3543,8 @@ int main(int argc, char *argv[])
     {  L_,        "255.01",         ERROR_VALUE,      false   },
     {  L_,        "255.99",         ERROR_VALUE,      false   },
 
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
     {  L_,        "-",              ERROR_VALUE,      false   },
     {  L_,        ".5",             ERROR_VALUE,      false   },
     {  L_,        "-.5",            ERROR_VALUE,      false   },
@@ -3698,6 +3705,8 @@ int main(int argc, char *argv[])
 
     {  L_,        "127.01",         ERROR_VALUE,      false   },
     {  L_,        "127.99",         ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
 
     {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
     {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
@@ -3895,11 +3904,10 @@ int main(int argc, char *argv[])
             { L_,     "-1.25e-3",   true,    -1.25e-3 },
             { L_,     "9.25e+10",   true,     9.25e10 },
 
-// TBD:
-//             { L_,           "+1",  false,         0.0 },
-//             { L_,          "--1",  false,         0.0 },
-//             { L_,           "1.",  false,         0.0 },
-//             { L_,        "1e+-1",  false,         0.0 }
+            { L_,           "+1",  false,         0.0 },
+            { L_,          "--1",  false,         0.0 },
+            { L_,           "1.",  false,         0.0 },
+            { L_,        "1e+-1",  false,         0.0 }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

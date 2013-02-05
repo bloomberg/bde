@@ -194,7 +194,8 @@ class baejsn_Parser {
     // CONSTANTS
     enum {
         BAEJSN_BUFSIZE         = 1024,
-        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE - 1
+        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE
+                                  - 1 - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
     };
 
     char                               d_buffer[BAEJSN_BUFSIZE];  // data
