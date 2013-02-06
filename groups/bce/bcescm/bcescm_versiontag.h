@@ -52,7 +52,7 @@ BDES_IDENT("$Id: $")
 #define BCE_VERSION_MAJOR BDE_VERSION_MAJOR
     // BCE release major version
 
-#define BCE_VERSION_MINOR BDE_VERSION_MAJOR
+#define BCE_VERSION_MINOR BDE_VERSION_MINOR
     // BCE release major version
 
 #define BCE_VERSION BDE_MAKE_VERSION(BCE_VERSION_MAJOR, \
