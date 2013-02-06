@@ -349,7 +349,7 @@ class baejsn_Encoder {
         // otherwise.
         //
         // DEPRECATED: Use the 'encode' function passed a reference to a
-        // non-modifiable 'baejsn_EncoderOptions' object instead. 
+        // non-modifiable 'baejsn_EncoderOptions' object instead.
 
     template <typename TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
@@ -539,7 +539,7 @@ struct baejsn_Encoder_ElementVisitor {
     // DATA
     baejsn_Encoder_EncodeImpl *d_encoder;  // encoder (held, not owned)
     int                        d_mode;     // formatting mode
-    
+
     // CREATORS
     // Creators have been omitted to allow simple static initialization of
     // this struct.

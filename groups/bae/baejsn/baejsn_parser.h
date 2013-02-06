@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a parser for extracting JSON data from a 'streambuf'
+//@PURPOSE: Provide a parser for extracting JSON data from a 'streambuf'.
 //
 //@CLASSES:
 //  baejsn_Parser: parser for parsing JSON data from a 'streambuf'
@@ -109,7 +109,7 @@ BDES_IDENT("$Id: $")
 //
 //          bsl::string data;
 //          rc = baejsn_ParserUtil::getValue(&data, nodeValue);
-//          ASSERT(!rc);
+//          assert(!rc);
 //
 //          // Populate the element with the read value
 //
@@ -118,7 +118,7 @@ BDES_IDENT("$Id: $")
 //      else if (bdem_ElemType::BDEM_INT == address.fieldType(elementName)) {
 //          int data;
 //          rc = baejsn_ParserUtil::getValue(&data, nodeValue);
-//          ASSERT(!rc);
+//          assert(!rc);
 //
 //          // Populate the element with the read value
 //
@@ -205,7 +205,7 @@ class baejsn_Parser {
     bdema_BufferedSequentialAllocator  d_allocator;               // allocater
                                                                   // (owned)
 
-    bsl::string                        d_stringBuffer;            // string 
+    bsl::string                        d_stringBuffer;            // string
                                                                   // buffer
 
     bsl::streambuf                    *d_streamBuf_p;             // streambuf
@@ -253,7 +253,7 @@ class baejsn_Parser {
 
   public:
     // CREATORS
-    baejsn_Parser(bslma::Allocator *basicAllocator = 0);
+    explicit baejsn_Parser(bslma::Allocator *basicAllocator = 0);
        // Create a 'baejsn_Reader' object.  Optionally specify a
        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
        // the currently installed default allocator is used.

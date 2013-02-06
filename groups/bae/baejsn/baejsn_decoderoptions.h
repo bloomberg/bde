@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an attribute class for specifying JSON decoding options
+//@PURPOSE: Provide an attribute class for specifying JSON decoding options.
 //
 //@CLASSES:
 //  baejsn_DecoderOptions: options for decoding objects in the JSON format
@@ -99,7 +99,7 @@ class baejsn_DecoderOptions {
     // CONSTANTS
     enum {
         BAEJSN_DEFAULT_MAX_DEPTH = 32  // default value for
-                                       // 'maxDepth' attribute 
+                                       // 'maxDepth' attribute
     };
 
     // DATA

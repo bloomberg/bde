@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an attribute class for specifying JSON encoding options
+//@PURPOSE: Provide an attribute class for specifying JSON encoding options.
 //
 //@CLASSES:
 //  baejsn_EncoderOptions: options for encoding objects in the JSON format
@@ -85,7 +85,7 @@ namespace BloombergLP {
 
 
                       // ===========================
-                      // class baejsn_EncoderOptions                       
+                      // class baejsn_EncoderOptions
                       // ===========================
 
 class baejsn_EncoderOptions {

@@ -1,9 +1,8 @@
 // baejsn_decoderoptions.cpp                                          -*-C++-*-
+#include <baejsn_decoderoptions.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_decoderoptions_cpp,"$Id$ $CSID$")
-
-#include <baejsn_decoderoptions.h>
 
 #include <bslim_printer.h>
 

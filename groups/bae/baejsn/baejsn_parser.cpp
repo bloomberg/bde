@@ -373,7 +373,7 @@ int baejsn_Parser::advanceToNextToken()
           } break;
 
           default: {
-            if (BAEJSN_START_ARRAY    == d_tokenType 
+            if (BAEJSN_START_ARRAY    == d_tokenType
              || (BAEJSN_ELEMENT_NAME  == d_tokenType && ':' == previousChar)
              || (BAEJSN_ELEMENT_VALUE == d_tokenType
               && ','                  == previousChar

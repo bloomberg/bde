@@ -1039,7 +1039,7 @@ inline
 int baejsn_Decoder_ElementVisitor::operator()(TYPE *value, const INFO& info)
 {
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-    return d_decoder_p->decodeImp(value, 
+    return d_decoder_p->decodeImp(value,
                                   info.formattingMode(),
                                   TypeCategory());
 }

@@ -1,9 +1,8 @@
 // baejsn_encoderoptions.cpp                                          -*-C++-*-
+#include <baejsn_encoderoptions.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_encoderoptions_cpp,"$Id$ $CSID$")
-
-#include <baejsn_encoderoptions.h>
 
 #include <bslim_printer.h>
 

@@ -340,7 +340,7 @@ int baejsn_ParserUtil::getValue(unsigned int *value, bslstl::StringRef data)
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsls::Types::Int64 *value, 
+int baejsn_ParserUtil::getValue(bsls::Types::Int64 *value,
                                 bslstl::StringRef   data)
 {
     return getIntegralValue(value, data);

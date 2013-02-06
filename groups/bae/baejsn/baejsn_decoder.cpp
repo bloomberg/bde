@@ -111,7 +111,7 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
                 }
                 ++skippingDepth;
               } break;
-        
+
               case baejsn_Parser::BAEJSN_END_OBJECT: {
                 --d_currentDepth;
                 --skippingDepth;
@@ -156,7 +156,7 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
                     return -1;                                        // RETURN
                 }
               } break;
-        
+
               case baejsn_Parser::BAEJSN_END_OBJECT: {
                 --d_currentDepth;
               } break;
