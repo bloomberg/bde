@@ -3797,7 +3797,6 @@ int verifyListContents(Link              *containerList,
     // Note that this test is quadratic in the length of the list, although we
     // will optimize for the case of duplicates actually occurring.
     for (Link *cursor = containerList; cursor; cursor = cursor->nextLink()) {
-#if !defined(IGNORE_WACKY_FUNCTORS)
         Link *next = cursor->nextLink();
         // Walk to end of key-equivalent sequence
         while (next && compareKeys(ImpUtil::extractKey<KEY_CONFIG>(cursor),
@@ -3814,26 +3813,6 @@ int verifyListContents(Link              *containerList,
                                     ImpUtil::extractKey<KEY_CONFIG>(next))) {
             next = next->nextLink();
         }
-#else
-        const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(cursor);
-
-        Link *next = cursor->nextLink();
-        // Walk to end of key-equivalent sequence
-        while (next &&
-               compareKeys(key, ImpUtil::extractKey<KEY_CONFIG>(next))) {
-            cursor = next;
-            next   = next->nextLink();
-        }
-
-        // Check there are no more equivalent keys in the list.
-        // Note that this test also serves to check there are no duplicates in
-        // the preceding part of the list, as this check would have failed
-        // earlier if that were the case.
-        while (next &&
-               !compareKeys(key, ImpUtil::extractKey<KEY_CONFIG>(next))) {
-            next = next->nextLink();
-        }
-#endif
 
         if (0 != next) {
             return -3; // code for discontiguous list                 // RETURN
@@ -8190,13 +8169,11 @@ void mainTestCase14()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
-#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase14,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
-#endif
 
 #if 0
     // The stateless allocator flags issues installing the chosen allocator
@@ -8393,13 +8370,11 @@ void mainTestCase11()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
-#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase11,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
-#endif
 
 #if 0
     if (verbose) printf("\nTesting stateless STL allocators"
@@ -8553,13 +8528,12 @@ void mainTestCase9()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
-#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase9,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
-#endif
+
     // The non-BDE allocators do not propagate the container allocator to
     // their elements, and so will make use of the default allocator when
     // making copies.  Therefore, we use a slightly different list of types
@@ -8723,13 +8697,11 @@ void mainTestCase8()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
-#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase8,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
-#endif
 
 #if 0
     // Revisit these tests once validated the rest.
@@ -8865,13 +8837,11 @@ void mainTestCase7()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
-#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase7,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
-#endif
 
 #if 0
     // Revisit these tests once validated the rest.
@@ -9078,11 +9048,9 @@ void mainTestCase4()
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
-//#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
-//#endif
 
 if (verbose) printf("\nTesting stateless STL allocators"
                         "\n--------------------------------\n");
