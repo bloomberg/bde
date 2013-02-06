@@ -580,11 +580,11 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 {
     BSLS_ASSERT(d_mode & ios_base::in);
     BSLS_ASSERT(&d_str[0] <= currentInputPosition);
-    BSLS_ASSERT(currentInputPosition <= &d_str[0] + d_lastWrittenChar);
+    BSLS_ASSERT(currentInputPosition <= &d_str[0] + streamSize());
 
     char_type *dataPtr = &d_str[0];
 
-    this->setg(dataPtr, currentInputPosition, dataPtr + d_lastWrittenChar);
+    this->setg(dataPtr, currentInputPosition, dataPtr + streamSize());
     return pos_type(currentInputPosition - dataPtr);
 }
 
@@ -621,7 +621,7 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 
         this->setg(dataPtr,
                    dataPtr + inputOffset,
-                   dataPtr + d_lastWrittenChar);
+                   dataPtr + streamSize());
     }
 
     if (d_mode & ios_base::out) {
@@ -641,10 +641,7 @@ bool basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::extendInputArea()
     // Try to extend into written buffer.
 
     if (d_mode & ios_base::out && this->pptr() > this->egptr()) {
-        off_type currentOutputCharacter = this->pptr() - this->pbase();
-        d_lastWrittenChar = native_std::max(d_lastWrittenChar,
-                                            currentOutputCharacter);
-
+        d_lastWrittenChar = streamSize();
         updateInputPointers(this->gptr());
         return true;                                                  // RETURN
     }
@@ -949,8 +946,7 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
         *this->pptr() = c;
         this->pbump(1);
 
-        d_lastWrittenChar = native_std::max<off_type>(
-                              d_lastWrittenChar, this->pptr() - this->pbase());
+        d_lastWrittenChar = streamSize();
     }
     else {
         // Store the input offset so it can be used to restore the input and
