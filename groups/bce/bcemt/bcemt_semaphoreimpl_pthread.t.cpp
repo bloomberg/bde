@@ -13,6 +13,7 @@
 
 #include <bsls_timeutil.h>
 
+#include <bsl_vector.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 
