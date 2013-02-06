@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //                              // ===============
 //                              // MyList_Iterator
 //                              // ===============
-//..
+//
 //  template <class PAYLOAD>
 //  class MyList_Iterator {
 //      // This iterator is used to refer to positions within a list.
