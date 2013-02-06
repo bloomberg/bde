@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an STL-compliant unordered_multimap class.
+//@PURPOSE: Provide an STL-compliant 'unordered_multimap' container.
 //
 //@CLASSES:
 //   bsl::unordered_multimap : hashed-map container
@@ -38,10 +38,12 @@ BSLS_IDENT("$Id: $")
 // An 'unordered_multimap' meets the requirements of an unordered associative
 // container with forward iterators in the C++11 standard [unord].  The
 // 'unordered_multimap' implemented here adheres to the C++11 standard, except
-// that it does not have interfaces that take rvalue references,
-// 'initializer_list', 'emplace', or operations taking a variadic number of
-// template parameters.  Note that excluded C++11 features are those that
-// require (or are greatly simplified by) C++11 compiler support.
+// that it may rehash when setting the 'max_load_factor' in order to preserve
+// the property that the value is always respected (which is a potentially
+// throwing operation) and it does not have interfaces that take rvalue
+// references, 'initializer_list', 'emplace', or operations taking a variadic
+// number of template parameters.  Note that excluded C++11 features are those
+// that require (or are greatly simplified by) C++11 compiler support.
 //
 ///Requirements on 'KEY' and 'VALUE'
 ///---------------------------------
@@ -56,8 +58,8 @@ BSLS_IDENT("$Id: $")
 // 'VALUE' template parameters.  These terms are also defined in section
 // [utility.arg.requirements] of the C++11 standard.  Note that, in the context
 // of an 'unordered_multimap' instantiation, the requirements apply
-// specifically to the 'unordered_multimap's entry type, 'value_type', which is
-// an alias for std::pair<const KEY, VALUE>'.
+// specifically to the 'unordered_multimap's element type, 'value_type', which
+// is an alias for std::pair<const KEY, VALUE>'.
 //
 //: "default-constructible": The type provides an accessible default
 //:                          constructor.
@@ -70,8 +72,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
-// The (template parameter) types 'HASH' and 'EQUAL' must be
-// default-constructible, copy-constructible function-objects.
+// The (template parameter) types 'HASH' and 'EQUAL' must be copy-constructible
+// function-objects.  Note that this requirement is somewhat stronger than the
+// requirement currently in the standard; see the discussion for Issue 2215
+// (http://cplusplus.github.com/LWG/lwg-active.html#2215);
 //
 // 'HASH' shall support a function call operator compatible with the following
 // statements:

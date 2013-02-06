@@ -1496,8 +1496,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONST
+#include <bslmf_isconst.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -1570,6 +1578,10 @@ class HashTable_HashWrapper {
         // Exchange the value of this object with the specified 'other' object.
 
     // ACCESSORS
+#if !defined(IGNORE_WACKY_FUNCTORS)
+    template <class ARG_TYPE>
+    native_std::size_t operator()(ARG_TYPE& arg) const;
+#endif
     template <class ARG_TYPE>
     native_std::size_t operator()(const ARG_TYPE& arg) const;
         // Call the wrapped 'functor' with the specified 'arg' and return the
@@ -1617,6 +1629,10 @@ class HashTable_ComparatorWrapper {
         // Exchange the value of this object with the specified 'other' object.
 
     // ACCESSORS
+#if !defined(IGNORE_WACKY_FUNCTORS)
+    template <class ARG1_TYPE, class ARG2_TYPE>
+    bool operator()(ARG1_TYPE& arg1, ARG2_TYPE& arg2) const;
+#endif
     template <class ARG1_TYPE, class ARG2_TYPE>
     bool operator()(const ARG1_TYPE& arg1, const ARG2_TYPE& arg2) const;
         // Call the wrapped 'functor' with the specified 'arg1' and 'arg2' (in
@@ -1807,6 +1823,13 @@ class HashTable {
             // Return a non-modifiable reference to the 'hasher' functor owned
             // by this object.
 
+#if !defined(IGNORE_WACKY_FUNCTORS)  // add a second overload
+//        native_std::size_t    hashCodeForKey(      KeyType& key) const;
+        native_std::size_t hashCodeForKey(
+                typename bsl::conditional<bsl::is_const<KeyType>::value,
+                                          void ******,
+                                          KeyType&>::type key) const;
+#endif
         native_std::size_t    hashCodeForKey(const KeyType& key) const;
             // Return the hash code for the specified 'key' using a copy of the
             // hash functor supplied at construction.  Note that this function
@@ -1831,7 +1854,11 @@ class HashTable {
 
   private:
     // PRIVATE MANIPULATORS
+#if defined(IGNORE_WACKY_FUNCTORS)
     void copyDataStructure(const bslalg::BidirectionalLink *cursor);
+#else
+    void copyDataStructure(bslalg::BidirectionalLink *cursor);
+#endif
         // Copy the sequence of elements from the list starting at the
         // specified 'cursor' and having 'size' elements.  Allocate a bucket
         // array sufficiently large to store 'size' elements while respecting
@@ -1882,13 +1909,24 @@ class HashTable {
         // not destroyed.
 
     // PRIVATE ACCESSORS
+#if defined(IGNORE_WACKY_FUNCTORS)
     native_std::size_t hashCodeForNode(const bslalg::BidirectionalLink *node)
                                                                          const;
+#else
+    native_std::size_t hashCodeForNode(bslalg::BidirectionalLink *node) const;
+#endif
         // Return the hash code for the element stored in the specified 'node'
         // using a copy of the hash functor supplied at construction.  The
         // behavior is undefined unless 'node' points to a list node of type
         // 'bslalg::BidirectionalNode<KEY_CONFIG::ValueType>'.
 
+#if !defined(IGNORE_WACKY_FUNCTORS)  // add a second overload
+    bslalg::BidirectionalLink *find(
+                typename bsl::conditional<bsl::is_const<KeyType>::value,
+                                          void ******,
+                                          KeyType&>::type key,
+                native_std::size_t hashValue) const;
+#endif
     bslalg::BidirectionalLink *find(const KeyType&     key,
                                     native_std::size_t hashValue) const;
         // Return the address of the first node in this hash table having a key
@@ -2450,6 +2488,15 @@ template <class FUNCTOR>
 template <class ARG_TYPE>
 inline
 native_std::size_t
+HashTable_HashWrapper<FUNCTOR>::operator()(ARG_TYPE& arg) const
+{
+    return d_functor(arg);
+}
+
+template <class FUNCTOR>
+template <class ARG_TYPE>
+inline
+native_std::size_t
 HashTable_HashWrapper<FUNCTOR>::operator()(const ARG_TYPE& arg) const
 {
     return d_functor(arg);
@@ -2488,6 +2535,16 @@ HashTable_ComparatorWrapper<FUNCTOR>::
 HashTable_ComparatorWrapper(const FUNCTOR& fn)
 : d_functor(fn)
 {
+}
+
+template <class FUNCTOR>
+template <class ARG1_TYPE, class ARG2_TYPE>
+inline
+bool
+HashTable_ComparatorWrapper<FUNCTOR>::operator()(ARG1_TYPE& arg1,
+                                                 ARG2_TYPE& arg2) const
+{
+    return d_functor(arg1, arg2);
 }
 
 template <class FUNCTOR>
@@ -2714,6 +2771,26 @@ originalHasher() const
     return static_cast<const BaseHasher *>(this)->functor();
 }
 
+#if !defined(IGNORE_WACKY_FUNCTORS)  // add a second overload
+//template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+//inline
+//native_std::size_t
+//HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+//hashCodeForKey(KeyType& key) const
+
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+native_std::size_t
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+hashCodeForKey(typename bsl::conditional<bsl::is_const<KeyType>::value,
+                                         void ******,
+                                         KeyType&>::type key) const
+{
+    return static_cast<const BaseHasher &>(*this)(key);
+}
+#endif
+
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 native_std::size_t
@@ -2927,10 +3004,17 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
 }
 
 // PRIVATE MANIPULATORS
+#if defined(IGNORE_WACKY_FUNCTORS)
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
                                        const bslalg::BidirectionalLink *cursor)
+#else
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
+                                             bslalg::BidirectionalLink *cursor)
+#endif
 {
     BSLS_ASSERT(0 != cursor);
     BSLS_ASSERT(0 < d_size);
@@ -3141,6 +3225,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllImp()
 }
 
 // PRIVATE ACCESSORS
+#if defined(IGNORE_WACKY_FUNCTORS)
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 native_std::size_t
@@ -3152,6 +3237,19 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
     const KeyType& k = bslalg::HashTableImpUtil::extractKey<KEY_CONFIG>(node);
     return d_parameters.hashCodeForKey(k);
 }
+#else
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+native_std::size_t
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
+                                         bslalg::BidirectionalLink *node) const
+{
+    BSLS_ASSERT_SAFE(node);
+
+    const KeyType& k = bslalg::HashTableImpUtil::extractKey<KEY_CONFIG>(node);
+    return d_parameters.hashCodeForKey(k);
+}
+#endif
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
@@ -3163,6 +3261,24 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::getBucketAddress(
 
     return d_anchor.bucketArrayAddress() + bucketIndex;
 }
+
+#if !defined(IGNORE_WACKY_FUNCTORS)  // add a second overload
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
+                typename bsl::conditional<bsl::is_const<KeyType>::value,
+                                          void ******,
+                                          KeyType&>::type key,
+                native_std::size_t hashValue) const
+{
+    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(
+                                                     d_anchor,
+                                                     key,
+                                                     d_parameters.comparator(),
+                                                     hashValue);
+}
+#endif
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
@@ -3230,7 +3346,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
     // Now we can search for the node in the table, being careful to compute
     // the hash value only once.
 
+#if defined(IGNORE_WACKY_FUNCTORS)
     const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
+#else
+    // This should be an optionally-const-qualified reference type
+
+    typedef
+           typename bslalg::HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type
+                                                                        KeyRef;
+    KeyRef key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
+#endif
     size_t hashCode = this->d_parameters.hashCodeForKey(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
 
@@ -3617,7 +3742,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findEndOfRange(
     BSLS_ASSERT_SAFE(first);
 
     typedef bslalg::HashTableImpUtil ImpUtil;
+#if defined(IGNORE_WACKY_FUNCTORS)
     const KeyType& k = ImpUtil::extractKey<KEY_CONFIG>(first);
+#else
+    // This should be an optionally-const-qualified reference type
+
+    typedef
+           typename bslalg::HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type
+                                                                        KeyRef;
+    KeyRef k = ImpUtil::extractKey<KEY_CONFIG>(first);
+#endif
     while ((first = first->nextLink()) &&
            d_parameters.comparator()(k,ImpUtil::extractKey<KEY_CONFIG>(first)))
     {

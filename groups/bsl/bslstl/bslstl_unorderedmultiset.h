@@ -7,18 +7,19 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an STL-compliant unordered_multiset class.
+//@PURPOSE: Provide an STL-compliant 'unordered_multiset' container.
 //
 //@CLASSES:
-//   bsl::unordered_multiset : hashed-map container
+//   bsl::unordered_multiset : STL-compliant 'unordered_multiset' container
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
 //@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component defines a single class template
+//@DESCRIPTION: This component defines a single class template,
 // 'unordered_multiset', implementing the standard container holding a
-// collection of multiple keys with no guarantees on ordering.
+// collection of multiple keys with no guarantees on ordering (unless keys
+// have the same value).
 //
 // An instantiation of 'unordered_multiset' is an allocator-aware,
 // value-semantic type whose salient attributes are its size (number of keys)
@@ -30,17 +31,19 @@ BSLS_IDENT("$Id: $")
 // tested for equality.  It is even possible to instantiate
 // 'unordered_multiset' with a key type that does not have an accessible
 // copy-constructor, in which case the 'unordered_multiset' will not be
-// copyable.  Note that the equality operator 'operator==' for each element is
-// used to determine when two 'unordered_multiset' objects have the same value,
-// and not the equality comparator supplied at construction.
+// copyable.  Note that the equality comparsion operator 'operator==' for each
+// element is used to determine when two 'unordered_multiset' objects have the
+// same value, and not the equality comparator supplied at construction.
 //
 // An 'unordered_multiset' meets the requirements of an unordered associative
 // container with forward iterators in the C++11 standard [unord].  The
 // 'unordered_multiset' implemented here adheres to the C++11 standard, except
-// that it does not have interfaces that take rvalue references,
-// 'initializer_list', 'emplace', or operations taking a variadic number of
-// template parameters.  Note that excluded C++11 features are those that
-// require (or are greatly simplified by) C++11 compiler support.
+// that it may rehash when setting the 'max_load_factor' in order to preserve
+// the property that the value is always respected (which is a potentially
+// throwing operation) and it does not have interfaces that take rvalue
+// references, 'initializer_list', 'emplace', or operations taking a variadic
+// number of template parameters.  Note that excluded C++11 features are those
+// that require (or are greatly simplified by) C++11 compiler support.
 //
 ///Requirements on 'KEY'
 ///---------------------
@@ -54,7 +57,7 @@ BSLS_IDENT("$Id: $")
 // function's requirements for the 'KEY' template parameter.  These terms are
 // also defined in section [utility.arg.requirements] of the C++11 standard.
 // Note that, in the context of an 'unordered_multiset' instantiation, the
-// requirements apply specifically to the 'unordered_multiset's entry type,
+// requirements apply specifically to the 'unordered_multiset's element type,
 // 'value_type', which is an alias for 'KEY'.
 //
 //: "default-constructible": The type provides an accessible default
@@ -68,8 +71,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
-// The (template parameter) types 'HASH' and 'EQUAL' must be
-// default-constructable, copy-constructible function-objects.
+// The (template parameter) types 'HASH' and 'EQUAL' must be copy-constructible
+// function-objects.  Note that this requirement is somewhat stronger than the
+// requirement currently in the standard; see the discussion for Issue 2215
+// (http://cplusplus.github.com/LWG/lwg-active.html#2215);
 //
 // 'HASH' shall support a function call operator compatible with the following
 // statements:

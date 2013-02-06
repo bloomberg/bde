@@ -16,6 +16,8 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_removeconst.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
@@ -2187,8 +2189,7 @@ class GenericComparator {
   public:
     // ACCESSORS
     template <class ARG1_TYPE, class ARG2_TYPE>
-    bsltf::EvilBooleanType operator() (const ARG1_TYPE& arg1,
-                                       const ARG2_TYPE& arg2) const;
+    bsltf::EvilBooleanType operator() (ARG1_TYPE& arg1, ARG2_TYPE& arg2);
         // Return 'true' if 'arg1' has the same value as 'arg2', for some
         // unspecified definition that defaults to 'operator==', but may use
         // some other functionality.
@@ -2201,15 +2202,46 @@ class GenericComparator {
 class GenericHasher {
     // This test class provides a mechanism that defines a function-call
     // operator that provides a hash code for objects of the parameterized
-    // 'KEY'.  The function-call operator is implemented by calling the wrapper
-    // functor, 'HASHER', with integers converted from objects of 'KEY' by the
-    // class method 'TemplateTestFacility::getIdentifier'.
+    // 'KEY'.
 
   public:
     // ACCESSORS
     template <class KEY>
-    native_std::size_t operator() (const KEY& k) const;
-        // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
+    native_std::size_t operator() (KEY& k);
+    // Return a hash code for the specified 'k'.
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // ==========================
+                       // class ModifiableComparator
+                       // ==========================
+
+template <class KEY>
+class ModifiableComparator {
+  public:
+    // ACCESSORS
+    bsltf::EvilBooleanType operator() (KEY& arg1, KEY& arg2);
+        // Return 'true' if 'arg1' has the same value as 'arg2', for some
+        // unspecified definition that defaults to 'operator==', but may use
+        // some other functionality for 'KEY' types that do not support this
+        // operator.
+};
+
+                       // ======================
+                       // class ModifiableHasher
+                       // ======================
+
+template <class KEY>
+class ModifiableHasher {
+    // This test class provides a mechanism that defines a function-call
+    // operator that provides a hash code for objects of the parameterized
+    // 'KEY'.
+
+  public:
+    // ACCESSORS
+    native_std::size_t operator() (KEY& k);
+    // Return a hash code for the specified 'k'.
 };
 
 
@@ -2970,8 +3002,8 @@ inline
 native_std::size_t
 TestFacilityHasher<KEY, HASHER>::operator() (const KEY& k) const
 {
-    return HASHER::operator()(
-                           bsltf::TemplateTestFacility::getIdentifier<KEY>(k));
+    int temp =  bsltf::TemplateTestFacility::getIdentifier<KEY>(k);
+    return HASHER::operator()(temp);
 }
 
                        // --------------------------------
@@ -3019,9 +3051,8 @@ bsltf::EvilBooleanType TestConvertibleValueComparator<KEY>::operator() (
 // ACCESSORS
 template <class ARG1_TYPE, class ARG2_TYPE>
 inline
-bsltf::EvilBooleanType GenericComparator::operator() (
-                                                   const ARG1_TYPE& arg1,
-                                                   const ARG2_TYPE& arg2) const
+bsltf::EvilBooleanType GenericComparator::operator() (ARG1_TYPE& arg1,
+                                                      ARG2_TYPE& arg2)
 {
     return BSL_TF_EQ(arg1, arg2);
 }
@@ -3032,11 +3063,44 @@ bsltf::EvilBooleanType GenericComparator::operator() (
 
 // ACCESSORS
 template <class KEY>
-native_std::size_t GenericHasher::operator() (const KEY& k) const
+native_std::size_t GenericHasher::operator() (KEY& k)
 {
     // do not inline initially due to static local data
 
-    static const TestFacilityHasher<KEY> HASHER;
+    typedef typename bsl::remove_const<KEY>::type KEY_TYPE;
+
+    static const TestFacilityHasher<KEY_TYPE> HASHER;
+    return HASHER(k);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // --------------------------
+                       // class ModifiableComparator
+                       // --------------------------
+
+// ACCESSORS
+template <class KEY>
+inline
+bsltf::EvilBooleanType ModifiableComparator<KEY>::operator() (KEY& arg1,
+                                                              KEY& arg2)
+{
+    return BSL_TF_EQ(arg1, arg2);
+}
+
+                       // ----------------------
+                       // class ModifiableHasher
+                       // ----------------------
+
+// ACCESSORS
+template <class KEY>
+native_std::size_t ModifiableHasher<KEY>::operator() (KEY& k)
+{
+    // do not inline initially due to static local data
+
+    typedef typename bsl::remove_const<KEY>::type KEY_TYPE;
+
+    static const TestFacilityHasher<KEY_TYPE> HASHER;
     return HASHER(k);
 }
 
@@ -3660,7 +3724,7 @@ size_t predictNumBuckets(size_t length, float maxLoadFactor)
 
 template<class KEY_CONFIG, class COMPARATOR, class VALUES>
 int verifyListContents(Link              *containerList,
-                       const COMPARATOR&  compareKeys,
+                       const COMPARATOR&  compare,
                        const VALUES&      expectedValues,
                        size_t             expectedSize)
     // NOTE: THIS TEST IS EXPENSIVE, WITH QUADRATIC COMPLEXITY ON LIST LENGTH
@@ -3721,10 +3785,36 @@ int verifyListContents(Link              *containerList,
         return missing;                                               // RETURN
     }
 
+    // We make a copy of the comparator in case we are supplied a predicate
+    // that has a non-cons qualified 'operator()'.  Note that we are now
+    // requiring that the comparator be copy-constructible, which may be an
+    // issue for testing a HashTable default-constructed with functors that are
+    // only default-constructible themselves.
+
+    COMPARATOR  compareKeys(compare);
+
     // All elements are present, check the contiguity requirement
     // Note that this test is quadratic in the length of the list, although we
     // will optimize for the case of duplicates actually occurring.
     for (Link *cursor = containerList; cursor; cursor = cursor->nextLink()) {
+#if !defined(IGNORE_WACKY_FUNCTORS)
+        Link *next = cursor->nextLink();
+        // Walk to end of key-equivalent sequence
+        while (next && compareKeys(ImpUtil::extractKey<KEY_CONFIG>(cursor),
+                                   ImpUtil::extractKey<KEY_CONFIG>(next))) {
+            cursor = next;
+            next   = next->nextLink();
+        }
+
+        // Check there are no more equivalent keys in the list.
+        // Note that this test also serves to check there are no duplicates in
+        // the preceding part of the list, as this check would have failed
+        // earlier if that were the case.
+        while (next && !compareKeys(ImpUtil::extractKey<KEY_CONFIG>(cursor),
+                                    ImpUtil::extractKey<KEY_CONFIG>(next))) {
+            next = next->nextLink();
+        }
+#else
         const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(cursor);
 
         Link *next = cursor->nextLink();
@@ -3743,6 +3833,7 @@ int verifyListContents(Link              *containerList,
                !compareKeys(key, ImpUtil::extractKey<KEY_CONFIG>(next))) {
             next = next->nextLink();
         }
+#endif
 
         if (0 != next) {
             return -3; // code for discontiguous list                 // RETURN
@@ -3808,6 +3899,24 @@ struct BasicKeyConfig {
     typedef ELEMENT ValueType;
 
     static const KeyType& extractKey(const ValueType& value)
+    {
+        return value;
+    }
+};
+
+
+template <class ELEMENT>
+struct ModifiableKeyConfig {
+    // This class provides the most primitive possible KEY_CONFIG type that
+    // can support a 'HashTable'.  It might be consistent with use as a 'set'
+    // or a 'multiset' container.  It also allows for functors that expect to
+    // take their argument by a reference to non-const, although behavior will
+    // be undefined should any such functor actually modify such an argument.
+
+    typedef ELEMENT KeyType;
+    typedef ELEMENT ValueType;
+
+    static KeyType& extractKey(ValueType& value)
     {
         return value;
     }
@@ -4131,6 +4240,17 @@ struct TestDriver_GenericFunctors
            TestDriver< BasicKeyConfig<ELEMENT>
                      , GenericHasher
                      , GenericComparator
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+};
+
+template <class ELEMENT>
+struct TestDriver_ModifiableFunctors
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< ModifiableKeyConfig<ELEMENT>
+                     , ModifiableHasher<ELEMENT>
+                     , ModifiableComparator<ELEMENT>
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
@@ -7276,6 +7396,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //*  insertElement      (test driver function, proxy for basic manipulator)
     // ------------------------------------------------------------------------
 
+    typedef typename KEY_CONFIG::KeyType   Key;
     typedef typename KEY_CONFIG::ValueType Element;
     typedef bslalg::HashTableImpUtil       ImpUtil;
     typedef typename Obj::SizeType         SizeType;
@@ -7440,10 +7561,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
                     ASSERT(0 != RESULT);
+                    Element elem = VALUES[tj];
+                    Key key = ImpUtil::extractKey<KEY_CONFIG>(RESULT);
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
-                                     KEY_CONFIG::extractKey(VALUES[tj]),
-                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
+                                     KEY_CONFIG::extractKey(elem),
+                                     key));
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
                                    VALUES[tj],
@@ -7452,8 +7575,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
                 ASSERT(0 != RESULT);
+                Element lastElem = VALUES[LENGTH - 1];
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
-                        BSL_TF_EQ(KEY_CONFIG::extractKey(VALUES[LENGTH - 1]),
+                        BSL_TF_EQ(KEY_CONFIG::extractKey(lastElem),
                                   ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
                         BSL_TF_EQ(VALUES[LENGTH - 1],
@@ -7482,8 +7606,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                          it = it->nextLink(), ++i)
                     {
                         for (SizeType j = 0; j != X.size(); ++j) {
+                            Element elem = VALUES[j];
                             if (BSL_TF_EQ(
-                                        KEY_CONFIG::extractKey(VALUES[j]),
+                                        KEY_CONFIG::extractKey(elem),
                                         ImpUtil::extractKey<KEY_CONFIG>(it))) {
                                 ASSERTV(MAX_LF, LENGTH, CONFIG, VALUES[j],
                                         !foundKeys[j]);
@@ -7536,9 +7661,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 for (SizeType tj = 0; tj < LENGTH - 1; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
                     ASSERT(0 != RESULT);
+                    Element elem = VALUES[tj];
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
-                                     KEY_CONFIG::extractKey(VALUES[tj]),
+                                     KEY_CONFIG::extractKey(elem),
                                      ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
@@ -7548,8 +7674,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
                 ASSERT(0 != RESULT);
+                Element lastElem = VALUES[LENGTH - 1];
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
-                        BSL_TF_EQ(KEY_CONFIG::extractKey(VALUES[LENGTH - 1]),
+                        BSL_TF_EQ(KEY_CONFIG::extractKey(lastElem),
                                   ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
                         BSL_TF_EQ(VALUES[LENGTH - 1],
@@ -7572,8 +7699,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                          it = it->nextLink(), ++i)
                     {
                         for (SizeType j = 0; j != X.size(); ++j) {
+                            Element elem = VALUES[j];
                             if (BSL_TF_EQ(
-                                        KEY_CONFIG::extractKey(VALUES[j]),
+                                        KEY_CONFIG::extractKey(elem),
                                         ImpUtil::extractKey<KEY_CONFIG>(it))) {
                                 ASSERTV(MAX_LF, LENGTH, CONFIG, VALUES[j],
                                         !foundKeys[j]);
@@ -7605,9 +7733,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 for (SizeType tj = 0; tj < LENGTH; ++tj) {
                     ITER[tj] = insertElement(&mX, VALUES[tj]);
                     ASSERT(0 != ITER[tj]);
+                    Element elem = VALUES[tj];
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
-                                   KEY_CONFIG::extractKey(VALUES[tj]),
+                                   KEY_CONFIG::extractKey(elem),
                                    ImpUtil::extractKey<KEY_CONFIG>(ITER[tj])));
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
@@ -7625,9 +7754,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 for (SizeType tj = 0; tj < LENGTH; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
                     ASSERT(0 != RESULT);
+                    Element elem = VALUES[tj];
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
-                                     KEY_CONFIG::extractKey(VALUES[tj]),
+                                     KEY_CONFIG::extractKey(elem),
                                      ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
@@ -8060,6 +8190,14 @@ void mainTestCase14()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
+#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase14,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                  bsltf::NonAssignableTestType,
+                  bsltf::NonDefaultConstructibleTestType);
+#endif
+
 #if 0
     // The stateless allocator flags issues installing the chosen allocator
     // when it is not the default.
@@ -8255,6 +8393,14 @@ void mainTestCase11()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
+#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase11,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                  bsltf::NonAssignableTestType,
+                  bsltf::NonDefaultConstructibleTestType);
+#endif
+
 #if 0
     if (verbose) printf("\nTesting stateless STL allocators"
                         "\n--------------------------------\n");
@@ -8407,6 +8553,13 @@ void mainTestCase9()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
+#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase9,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                  bsltf::NonAssignableTestType,
+                  bsltf::NonDefaultConstructibleTestType);
+#endif
     // The non-BDE allocators do not propagate the container allocator to
     // their elements, and so will make use of the default allocator when
     // making copies.  Therefore, we use a slightly different list of types
@@ -8570,6 +8723,14 @@ void mainTestCase8()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
+#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase8,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                  bsltf::NonAssignableTestType,
+                  bsltf::NonDefaultConstructibleTestType);
+#endif
+
 #if 0
     // Revisit these tests once validated the rest.
     // Initial problem are testing the stateless allocator while trying
@@ -8703,6 +8864,14 @@ void mainTestCase7()
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
+
+#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase7,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                  bsltf::NonAssignableTestType,
+                  bsltf::NonDefaultConstructibleTestType);
+#endif
 
 #if 0
     // Revisit these tests once validated the rest.
@@ -8909,7 +9078,13 @@ void mainTestCase4()
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
-    if (verbose) printf("\nTesting stateless STL allocators"
+//#if defined(STILL_WORKING_UP_THE_MODIFIABLE_TEST_CASES)
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase4,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+//#endif
+
+if (verbose) printf("\nTesting stateless STL allocators"
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
                   testCase4,
@@ -9005,6 +9180,10 @@ void mainTestCase3()
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase3,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase3,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
@@ -9178,6 +9357,10 @@ void mainTestCase2()
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase2,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 

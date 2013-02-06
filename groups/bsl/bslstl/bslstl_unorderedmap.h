@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE:Provide an STL-compliant 'unordered_map' class.
+//@PURPOSE:Provide an STL-compliant 'unordered_map' container.
 //
 //@CLASSES:
-//   bsl::unordered_map : STL-compliant 'unordered-map' class
+//   bsl::unordered_map : STL-compliant 'unordered_map' container
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
@@ -37,10 +37,12 @@ BSLS_IDENT("$Id: $")
 // An 'unordered_map' meets the requirements of an unordered associative
 // container with forward iterators in the C++11 standard [unord].  The
 // 'unordered_map' implemented here adheres to the C++11 standard, except that
-// it does not have interfaces that take rvalue references, 'initializer_list',
-// 'emplace', or operations taking a variadic number of template parameters.
-// Note that excluded C++11 features are those that require (or are greatly
-// simplified by) C++11 compiler support.
+// it may rehash when setting the 'max_load_factor' in order to preserve the
+// property that the value is always respected (which is a potentially throwing
+// operation) and it does not have interfaces that take rvalue references,
+// 'initializer_list', 'emplace', or operations taking a variadic number of
+// template parameters.  Note that excluded C++11 features are those that
+// require (or are greatly simplified by) C++11 compiler support.
 //
 ///Requirements on 'KEY' and 'VALUE'
 ///---------------------------------
@@ -69,10 +71,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
-// The (template parameter) types 'HASH' and 'EQUAL' shall be
-// copy-constructible function-objects.  Note that this requirement is somewhat
-// stronger than the requirement currently in the standard; see the discussion
-// for Issue 2215 (http://cplusplus.github.com/LWG/lwg-active.html#2215);
+// The (template parameter) types 'HASH' and 'EQUAL' must be copy-constructible
+// function-objects.  Note that this requirement is somewhat stronger than the
+// requirement currently in the standard; see the discussion for Issue 2215
+// (http://cplusplus.github.com/LWG/lwg-active.html#2215);
 //
 // Naturally, if either 'HASH' or 'EQUAL' is to be the default for its type, it
 // must be default-constructible as well.
