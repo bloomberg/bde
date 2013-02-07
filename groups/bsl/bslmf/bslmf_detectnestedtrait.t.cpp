@@ -197,7 +197,8 @@ int main(int argc, char *argv[])
         ASSERT((! IsInflatable<Container<NonInflatableType> >::value));
         ASSERT((! IsInflatable<void>::value));
 
-        ASSERT((!bslmf::DetectNestedTrait<ConvertibleToAny, IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<ConvertibleToAny,
+                                           IsInflatable>::value));
 
       } break;
 
