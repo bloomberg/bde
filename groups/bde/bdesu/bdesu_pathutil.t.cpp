@@ -9,20 +9,25 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-static int testStatus = 0;
 static int verbose, veryVerbose, veryVeryVerbose;
 
+// ============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
+static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
+
+// ============================================================================
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -35,14 +40,35 @@ static void aSsErT(int c, const char *s, int i)
                     << J << "\t" \
                     << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+#define LOOP4_ASSERT(I,J,K,L,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
+// ============================================================================
+//                  SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
+#define T_  cout << "\t" << flush;          // Print a tab (w/o newline)
 #define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+
+typedef bdesu_PathUtil Obj;
 
 struct Parameters {
     int d_line;
@@ -163,6 +189,27 @@ struct Parameters {
 #endif
 };
 
+void convertToWindowsSeparator(bsl::string *path)
+   // Replace each occurance of '/' with '\\' in the specified 'path'.
+{
+    bsl::string::size_type position = path->find('/'); 
+    for ( ; position != bsl::string::npos; position = path->find('/')) {
+        (*path)[position] = '\\';
+    }
+}
+
+void convertToUnixSeparator(bsl::string *path)
+   // Replace each occurance of '\\' with '\' in the specified 'path'.
+{
+    bsl::string::size_type position = path->find('\\'); 
+    for ( ; 
+         position != bsl::string::npos; 
+         position = path->find('\\', position)) {
+        (*path)[position] = '/';
+    }
+}
+
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
@@ -171,6 +218,225 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
 
     switch(test) { case 0:
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING: 'appendIfValid'
+        //
+        // Concerns:
+        //: 1 Return an error code is the appended path is an absolute path.
+        //:
+        //: 2 If 'path' does not contain trialing seperators, 'filename' is
+        //:   appended with the appropriate separator.
+        //:
+        //: 3 If 'path' does contain trialing seperators, 'filename' is
+        //:   appended with only a single separator.
+        //:
+        //: 4 If 'filename' contains trialing separators, they are not in
+        //:   appeneded to 'path'.
+        //:
+        //: 5 If 'path' contains only separators it is simplified to a single
+        //:   separator. 
+        //:
+        //: 6 If 'filename' is an alias for any element in 'path', it is still
+        //:   correctly appended.
+        //:
+        //: 7 Windows file names properly handle drive names in the absolute
+        //:   path.
+        //
+        // Plan:
+        //: 1 Create a table of test input values and expected results, and
+        //:   iterate over this table verifying that 'appendIfValue' produces
+        //:   the expected results.  (C-1, C-2, C-3, C-4, C-5, C-6)
+        //:  
+        //: 1 Iterate over a series of simple test paths, and for each
+        //:   path, iterate over a series of sub-string within that path.
+        //:   For each sub-string, create a bdeut_StringRef aliasing that
+        //:   sub-string, create an expected result value, and verify
+        //:   that 'appendIfValid' also generates that expected value (C-7).
+        //
+        // Testing:
+        //  int appendIfValid(bsl::string *, const bdeut_StringRef& );
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING: appendIfValid" << endl
+                 << "======================" << endl;
+        }
+        
+        if (verbose) {
+            cout << "\tUse table of distinct object values." << endl;
+        }
+
+        {
+            struct TestData {
+                    int         d_line;
+                    const char *d_path;
+                    const char *d_filename;
+                    bool        d_expectSuccess;
+                    const char *d_expectedResult;
+            } VALUES [] = {
+                { L_,  "" , "" , true, ""    },
+                { L_,  "a", "" , true, "a"   },
+                { L_,  "" , "a", true, "a"   },
+                { L_,  "a", "b", true, "a/b" },
+
+                { L_,  "a/" , "b"   , true,  "a/b" },
+                { L_,  "a//", "b"   , true,  "a/b" },
+                { L_,  "a"  , "b/"  , true,  "a/b" },
+                { L_,  "a"  , "b//" , true,  "a/b" },
+                { L_,  "a//", "b//" , true,  "a/b" },
+                { L_,  "a//", "/b//", false, "" },
+
+                { L_,  "/a/" , "b"   , true , "/a/b" },
+                { L_,  "/a//", "b"   , true , "/a/b" },
+                { L_,  "/a"  , "b/"  , true , "/a/b" },
+                { L_,  "/a"  , "b//" , true , "/a/b" },
+                { L_,  "/a//", "b//" , true , "/a/b" },
+                { L_,  "/a//", "/b//", false, "" },
+
+
+                { L_,  "/"     , "b" , true, "/b" },
+                { L_,  "//////", "b" , true, "/b" },
+                { L_,  "//////", "b/", true, "/b" },
+
+                { L_,  "/a/b/c/" , "e/f/g"   , true,  "/a/b/c/e/f/g" },
+                { L_,  "/a/b/c//", "e/f/g"   , true,  "/a/b/c/e/f/g" },
+                { L_,  "/a/b/c"  , "e/f/g/"  , true,  "/a/b/c/e/f/g" },
+                { L_,  "/a/b/c"  , "e/f/g//" , true,  "/a/b/c/e/f/g" },
+                { L_,  "/a/b/c//", "e/f/g//" , true,  "/a/b/c/e/f/g" },
+                { L_,  "/a/b/c//", "/e/f/g//", false, "" },
+
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                // Test a path starting with a drive letter.
+                { L_,  "z:"    , "b" , true ,  "z:/b" },
+                { L_,  "z:/"   , "b" , true ,  "z:/b" },
+                { L_,  "z://"  , "b" , true ,  "z:/b" },
+                { L_,  "z://"  , "b/", true ,  "z:/b" },
+                { L_,  "z:/a"  , "b" , true ,  "z:/a/b" },
+                { L_,  "z:/a/" , "b" , true ,  "z:/a/b" },
+                { L_,  "z:/a//", "b" , true ,  "z:/a/b" },
+                { L_,  "z:/"   , "/b", false,  "z:/b" },
+
+                // Test UNC paths
+                { L_,  "//UNC "   , "b" , true ,  "//UNC/b" },
+                { L_,  "//UNC/"   , "b" , true ,  "//UNC/b" },
+                { L_,  "//UNC//"  , "b" , true ,  "//UNC/b" },
+                { L_,  "//UNC//"  , "b/", true ,  "//UNC/b" },
+                { L_,  "//UNC/a"  , "b" , true ,  "//UNC/a/b" },
+                { L_,  "//UNC/a/" , "b" , true ,  "//UNC/a/b" },
+                { L_,  "//UNC/a//", "b" , true ,  "//UNC/a/b" },
+                { L_,  "//UNC/"   , "/b", false,  "//UNC/b" },
+
+                // Test device paths
+                { L_,  "//?/"   , "b" , true ,  "//?/b" },
+                { L_,  "//?//"  , "b" , true ,  "//?/b" },
+                { L_,  "//?//"  , "b/", true ,  "//?/b" },
+                { L_,  "//?/a"  , "b" , true ,  "//?/a/b" },
+                { L_,  "//?/a/" , "b" , true ,  "//?/a/b" },
+                { L_,  "//?/a//", "b" , true ,  "//?/a/b" },
+                { L_,  "//?/"   , "/b", false,  "//?/b" },                
+#endif
+            
+            };
+            const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                bsl::string path(VALUES[i].d_path);
+                bsl::string filename(VALUES[i].d_filename);
+                bsl::string expectedResult(VALUES[i].d_expectedResult);
+
+                const int  LINE    = VALUES[i].d_line;
+                const bool success = VALUES[i].d_expectSuccess;
+
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                convertToWindowsSeparator(&path);
+                convertToWindowsSeparator(&filename);
+                convertToWindowsSeparator(&expectedResult);
+#endif
+
+                bsl::string originalPath(path);
+
+                int rc = Obj::appendIfValid(&path, filename);
+
+                if (veryVeryVerbose) {
+                    P_(LINE); P_(originalPath); P_(filename);
+                    P_(path); P(expectedResult);
+                }
+            
+                if (!success) {
+                    LOOP_ASSERT(LINE, 0 != rc);
+                    continue;
+                }
+
+                LOOP_ASSERT(LINE, 0 == rc);
+                LOOP4_ASSERT(LINE, originalPath, filename, path, 
+                             expectedResult == path);
+            }
+        }
+        if (verbose) {
+            cout << "\tTest for aliasing." << endl;
+        }
+
+        {
+            const char *VALUES[] = {
+                "",
+                "a",
+                "abc",
+                "thisisalongpathnamexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            };
+            const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                int pathLen = bsl::strlen(VALUES[i]);
+
+                for (int subStrLen = 0; subStrLen < pathLen; ++subStrLen) {
+                    for (int offset=0; offset<pathLen-subStrLen+1; ++offset){
+                        
+                        bsl::string path(VALUES[i]);
+                        bdeut_StringRef filename(path.c_str() + offset,
+                                                 subStrLen);
+
+                        if ('/' == filename[0]) {
+                            continue;
+                        }
+
+                        bsl::string expectedResult(path);
+                        if (path.size() > 0 && filename.length() > 0) {
+                            expectedResult += "/";                            
+                        }
+                        expectedResult+=
+                            bsl::string(filename.data(), filename.length());
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                        convertToWindowsSeparator(&path);
+                        convertToWindowsSeparator(&expectedResult);
+#endif
+                        bsl::string originalPath(path);
+                        bsl::string originalFilename(filename.data(),
+                                                     filename.length());
+
+                        int rc = Obj::appendIfValid(&path, filename);
+
+                        if (veryVeryVerbose) {
+                            P_(originalPath); P(originalFilename);
+                            P_(path); P(expectedResult);
+                        }
+
+                        ASSERT(0 == rc);
+                        LOOP4_ASSERT(originalPath, 
+                                     originalFilename, 
+                                     path, 
+                                     expectedResult,
+                                     expectedResult == path);
+                    }
+                }
+            }
+
+        }
+        
+      } break;
       case 4: {
         /////////////////////////////////////////////////////////////
         // Special path parsing test
@@ -275,7 +541,8 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << "Native Parsing Test" << endl;
         }
-        for (int i = 0; i < sizeof(parameters) / sizeof(Parameters); ++i) {
+        const int NUM_PARAMETERS = sizeof(parameters) / sizeof(Parameters);
+        for (int i = 0; i < NUM_PARAMETERS; ++i) {
             const Parameters& pi = parameters[i];
 
             string iTest(pi.d_path);
@@ -327,7 +594,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(root, root == pi.d_root);
             }
 
-            for (int j = 0; j < sizeof(parameters) / sizeof(Parameters); ++j) {
+            for (int j = 0; j < NUM_PARAMETERS; ++j) {
                 const Parameters& pj = parameters[j];
 
                 int referenceCount;

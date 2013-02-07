@@ -72,15 +72,20 @@ struct baem_MetricsManager_PublicationHelper {
     // private template operations in the header.  Note that this class is a
     // friend of 'baem_MetricsManager'.
 
-    typedef bsl::map<baem_Publisher *, baem_MetricSample> SampleCache;
+    typedef bcema_SharedPtrUtil::PtrLess<baem_Publisher> PublisherSpLess;
+
+    typedef bsl::map<bcema_SharedPtr<baem_Publisher>,
+                     baem_MetricSample,
+                     PublisherSpLess> SampleCache;
         // An alias for a mapping of 'baem_Publisher' to the
         // 'baem_MetricSample' for that publisher.
 
     // CLASS METHODS
-    static void updateSampleCache(SampleCache                   *sampleCache,
-                                  baem_Publisher                *publisher,
-                                  const baem_MetricSampleGroup&  sampleGroup,
-                                  const bdet_DatetimeTz&         timeStamp);
+    static void updateSampleCache(
+                        SampleCache                            *sampleCache,
+                        const bcema_SharedPtr<baem_Publisher>&  publisher,
+                        const baem_MetricSampleGroup&           sampleGroup,
+                        const bdet_DatetimeTz&                  timeStamp);
         // Update the specified 'sampleCache' entry for the specified
         // 'publisher' with the specified 'sampleGroup' collected at the
         // specified 'timeStamp'.  If a 'baem_MetricSample' does not already
@@ -487,10 +492,10 @@ class baem_MetricsManager_CallbackRegistry {
                 // --------------------------------------------
 
 void baem_MetricsManager_PublicationHelper::updateSampleCache(
-                               SampleCache                   *sampleCache,
-                               baem_Publisher                *publisher,
-                               const baem_MetricSampleGroup&  sampleGroup,
-                               const bdet_DatetimeTz&         timeStamp)
+                        SampleCache                            *sampleCache,
+                        const bcema_SharedPtr<baem_Publisher>&  publisher,
+                        const baem_MetricSampleGroup&           sampleGroup,
+                        const bdet_DatetimeTz&                  timeStamp)
 {
     SampleCache::iterator it = sampleCache->find(publisher);
     if (it == sampleCache->end()) {
@@ -559,8 +564,6 @@ void baem_MetricsManager_PublicationHelper::publish(
     if (categoriesBegin == categoriesEnd) {
         return;                                                       // RETURN
     }
-
-    typedef bsl::map<baem_Publisher *, baem_MetricSample>  SampleCache;
     typedef bsl::vector<bcema_SharedPtr<bsl::vector<baem_MetricRecord> > >
                                                            RecordBuffer;
 
@@ -618,8 +621,7 @@ void baem_MetricsManager_PublicationHelper::publish(
         baem_MetricsManager_PublisherRegistry::general_iterator gIt =
                                          manager->d_publishers->beginGeneral();
         for (; gIt != manager->d_publishers->endGeneral(); ++gIt) {
-            updateSampleCache(&sampleCache, gIt->ptr(),
-                              sampleGroup, timeStamp);
+            updateSampleCache(&sampleCache, *gIt, sampleGroup, timeStamp);
         }
 
         baem_MetricsManager_PublisherRegistry::specific_iterator sIt =
@@ -627,17 +629,23 @@ void baem_MetricsManager_PublicationHelper::publish(
         baem_MetricsManager_PublisherRegistry::specific_iterator sEnd =
                                      manager->d_publishers->upperBound(*catIt);
         for (; sIt != sEnd; ++sIt) {
-            updateSampleCache(&sampleCache, sIt->second.ptr(),
+            updateSampleCache(&sampleCache, sIt->second,
                               sampleGroup, timeStamp);
         }
     }
+
+    // SampleCache does not hold any pointers to internal state of
+    // MetricsManager, so we can release the lock.  This frees the
+    // implementations of the concrete 'publish' methods from any deadlock
+    // concerns.
+    propertiesGuard.release()->unlock();
 
     // We now have a 'sampleCache' containing a map from a publisher to the
     // sample to publish for that publisher.  Iterate over the 'sampleCache'
     // and publish those samples.
     SampleCache::iterator smplIt;
     for (smplIt = sampleCache.begin(); smplIt != sampleCache.end(); ++smplIt) {
-        baem_Publisher     *publisher = smplIt->first;
+        baem_Publisher     *publisher = smplIt->first.ptr();
         baem_MetricSample&  sample    = smplIt->second;
 
         publisher->publish(sample);

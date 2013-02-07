@@ -22,6 +22,7 @@ bslmf_isbitwisemoveable
 bslmf_isclass
 bslmf_isconst
 bslmf_isconvertible
+bslmf_isconvertibletoany
 bslmf_isenum
 bslmf_isfloatingpoint
 bslmf_isfunction

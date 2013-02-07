@@ -736,23 +736,32 @@ class bdeut_VariantImp;
                     // struct bdeut_Variant_ReturnValueHelper
                     // ======================================
 
+// These definitions provided outside of 'bdeut_Variant_ReturnValueHelper'
+// because of a bug in IBM xlC compiler, DRQS 37714216.
+typedef char                  bdeut_Variant_ReturnValueHelper_YesType;
+typedef struct { char a[2]; } bdeut_Variant_ReturnValueHelper_NoType;
+BSLMF_ASSERT(sizeof(bdeut_Variant_ReturnValueHelper_YesType)
+             != sizeof(bdeut_Variant_ReturnValueHelper_NoType));
+
 template <class VISITOR>
 struct bdeut_Variant_ReturnValueHelper {
     // This struct is a component-private meta-function.  Do *not* use.  This
     // meta-function checks whether the parameterized 'VISITOR' type has the
-    // member 'Type' defined using "SFINAE" - substitution failure is not an
-    // error.
+    // member 'ResultType' defined using "SFINAE" - substitution failure is not
+    // an error.
 
-    template <typename T> static bslmf_MetaInt<1> match(
-                                                      typename T::ResultType*);
-    template <typename T> static bslmf_MetaInt<0> match(...);
+    template <typename T> static bdeut_Variant_ReturnValueHelper_YesType
+        match(typename T::ResultType*);
+    template <typename T> static bdeut_Variant_ReturnValueHelper_NoType
+        match(...);
         // If 'T::Type' exists, then the first function will be a better match
-        // than the ellipsis version, which will return a 'bslmf_MetaInt<1>',
-        // indicating the existence of 'T::Type'.
+        // than the ellipsis version, which will return a 'YesType', indicating
+        // the existence of 'T::ResultType'.
 
-    enum { VALUE = BSLMF_METAINT_TO_BOOL(match<VISITOR>(0)) };
-        // A 'VALUE' of 1 indicates 'VISITOR::ResultType' exists, and 0
-        // otherwise.
+    enum { VALUE = sizeof(match<VISITOR>(0))
+                   == sizeof(bdeut_Variant_ReturnValueHelper_YesType) };
+        // A 'VALUE' of 'true' indicates 'VISITOR::ResultType' exists, and
+        // 'false' otherwise.
 };
 
                         // =============================
@@ -1093,7 +1102,7 @@ struct bdeut_VariantImp_Traits {
          && bslmf::IsBitwiseMoveable<Type17>::value
          && bslmf::IsBitwiseMoveable<Type18>::value
          && bslmf::IsBitwiseMoveable<Type19>::value
-         && bslmf::IsBitwiseMoveable<Type20>::value),
+         && bslmf::IsBitwiseMoveable<Type20>::value)
     };
 
     typedef typename bslmf_If<

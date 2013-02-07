@@ -207,6 +207,35 @@ enum my_Enum
     MY_ENUM_0
 };
 
+struct ConvertibleToAnyNoTraits
+    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
+    // assign it any traits.  The concern is that since
+    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
+    // the "convert to anything" operator shouldn't interfere with the nested
+    // trait logic.
+{
+    template <typename T>
+    operator T() const { return T(); }
+};
+
+struct ConvertibleToAnyWithTraits {
+    template <typename T>
+    operator T() const { return T(); }
+};
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<ConvertibleToAnyWithTraits> : bsl::true_type {
+    // Even though the nested trait logic is disabled by the template
+    // conversion operator, the out-of-class trait specialization should still
+    // work.
+};
+
+}
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -279,6 +308,10 @@ int main(int argc, char *argv[])
         // Explicit traits
         TRAIT_TEST(my_Class1, TRAIT_USESBSLMAALLOCATOR);
         TRAIT_TEST(my_Class2<int>, TRAIT_POD);
+
+        // Trait tests for type convertible to anything
+        TRAIT_TEST(ConvertibleToAnyNoTraits, TRAIT_NIL);
+        TRAIT_TEST(ConvertibleToAnyWithTraits, TRAIT_USESBSLMAALLOCATOR);
 
       } break;
 

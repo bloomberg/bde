@@ -1,4 +1,4 @@
-// bslmf_detectnestedtrait.t.cpp                  -*-C++-*-
+// bslmf_detectnestedtrait.t.cpp                                      -*-C++-*-
 
 #include <bslmf_detectnestedtrait.h>
 
@@ -141,6 +141,17 @@ struct Container
                                       IsInflatable<TYPE>::value);
 };
 
+struct ConvertibleToAny
+    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
+    // assign it any traits.  The concern is that since
+    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
+    // the "convert to anything" operator shouldn't interfere with the nested
+    // trait logic.
+{
+    template <typename T>
+    operator T() const { return T(); }
+};
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -185,6 +196,9 @@ int main(int argc, char *argv[])
         ASSERT((  IsInflatable<Container<InflatableType> >::value));
         ASSERT((! IsInflatable<Container<NonInflatableType> >::value));
         ASSERT((! IsInflatable<void>::value));
+
+        ASSERT((! bslmf::DetectNestedTrait<ConvertibleToAny,
+                                           IsInflatable>::value));
 
       } break;
 
