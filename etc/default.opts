@@ -927,13 +927,13 @@ windows         _   MT_LIBTYPE  = L
 # Once the DRQS 22615679 warnings are cleaned up, we can reconsider making this
 # error= to force these 64-bit portability warnings to be treated as errors.
 #unix-SunOS-*-*-gcc  64  GCCEXTRAWERROR  = error=
-unix-SunOS-*-*-gcc  64  GCCEXTRAWERROR  =
+unix-*-*-*-gcc   _  GCCEXTRAWERROR  =
 
-unix-SunOS-*-*-gcc  64  GCCEXTRAWFLAGS  =   \
+unix-*-*-*-gcc   _  GCCEXTRAWFLAGS  =   \
      -Wno-sign-conversion -W$(GCCEXTRAWERROR)conversion -W$(GCCEXTRAWERROR)address \
      -W$(GCCEXTRAWERROR)type-limits -W$(GCCEXTRAWERROR)cast-align           \
-     -W$(GCCEXTRAWERROR)sign-compare -W$(GCCEXTRAWERROR)format -Wformat     \
-     -W$(GCCEXTRAWERROR)overflow -Wlarger-than-100000                       \
+     -W$(GCCEXTRAWERROR)sign-compare -W$(GCCEXTRAWERROR)format              \
+     -W$(GCCEXTRAWERROR)overflow                                            \
      -W$(GCCEXTRAWERROR)larger-than-100000
 
 *                       _   CC64FLAGS   =
