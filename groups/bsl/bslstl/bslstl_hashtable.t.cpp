@@ -16,6 +16,8 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_conditional.h>
+#include <bslmf_isfunction.h>
 #include <bslmf_removeconst.h>
 
 #include <bsls_asserttest.h>
@@ -1805,6 +1807,27 @@ struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+                       // ======================
+                       // class CallableVariable
+                       // ======================
+
+template <class CALLABLE>
+struct CallableVariable {
+    // This metafunction returns a 'type' that is an alias for 'CALLABLE'
+    // unless that is a function type, in which case it is an alias for
+    // 'CALLABLE &'.  This should be used to declare variables of an arbitrary
+    // callable type, typically a template type parameter, that may turn out to
+    // be a function type.  Note that this metafunction is necessary as the C++
+    // language does not allow variables of function type, nor may functions
+    // return a function type.
+
+    typedef typename bsl::conditional<bsl::is_function<CALLABLE>::value,
+                                     CALLABLE&,
+                                     CALLABLE>::type type;
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 namespace TestTypes
 {
 
@@ -2325,31 +2348,74 @@ struct FunctionPointerPolicies {
 };
 
                        // ========================
-                       // class MakeDefaultFunctor
+                       // class MakeCallableEntity
                        // ========================
 
-template <class FUNCTOR>
-struct MakeDefaultFunctor {
-    static FUNCTOR make();
+template <class CALLABLE>
+struct MakeCallableEntity {
+    typedef CALLABLE CallableEntityType;
+
+    static CallableEntityType make();
+};
+
+template <class CALLABLE>
+struct MakeCallableEntity<CALLABLE&> {
+    typedef CALLABLE& CallableEntityType;
+
+    static CallableEntityType make();
 };
 
 template <class FUNCTOR, bool ENABLE_SWAP>
-struct MakeDefaultFunctor<bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> > {
-    static bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> make();
+struct MakeCallableEntity<bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> > {
+    typedef bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> CallableEntityType;
+
+    static CallableEntityType make();
 };
 
 template <class KEY>
-struct MakeDefaultFunctor<size_t (*)(const KEY&)> {
+struct MakeCallableEntity<size_t (*)(const KEY&)> {
     typedef size_t FunctionType(const KEY&);
+    typedef FunctionType *CallableEntityType;
 
-    static FunctionType *make();
+    static CallableEntityType make();
 };
 
 template <class KEY>
-struct MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)> {
+struct MakeCallableEntity<bool (*)(const KEY&, const KEY&)> {
     typedef bool FunctionType(const KEY&, const KEY&);
+    typedef FunctionType *CallableEntityType;
 
-    static FunctionType *make();
+    static CallableEntityType make();
+};
+
+template <class RESULT, class ARG>
+struct MakeCallableEntity<RESULT(&)(ARG)> {
+    typedef RESULT FunctionType(ARG);
+    typedef FunctionType& CallableEntityType;
+
+    static CallableEntityType make();
+};
+
+template <class RESULT, class ARG1, class ARG2>
+struct MakeCallableEntity<RESULT(&)(ARG1, ARG2)> {
+    typedef RESULT FunctionType(ARG1, ARG2);
+    typedef FunctionType& CallableEntityType;
+
+    static CallableEntityType make();
+};
+
+template <class RESULT, class ARG>
+struct MakeCallableEntity<RESULT(ARG)> {
+    typedef RESULT CallableEntityType(ARG);
+
+    static CallableEntityType& make();
+};
+
+template <class RESULT, class ARG1, class ARG2>
+struct MakeCallableEntity<RESULT(ARG1, ARG2)> {
+    typedef RESULT CallableEntityType(ARG1, ARG2);
+
+    static CallableEntityType& make();
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2461,7 +2527,7 @@ struct ObjectMaker {
                              char                   config,
                              bslma::Allocator      *fa, //"footprint" allocator
                              bslma::TestAllocator  *objectAllocator,
-                             const HASHER           hash,
+                             const HASHER&          hash,
                              const COMPARATOR&      compare,
                              SizeType               initialBuckets,
                              float                  initialMaxLoadFactor);
@@ -2527,7 +2593,7 @@ struct ObjectMaker<KEY_CONFIG,
                              char                   config,
                              bslma::Allocator      *fa, //"footprint" allocator
                              bslma::TestAllocator  *objectAllocator,
-                             const HASHER           hash,
+                             const HASHER&          hash,
                              const COMPARATOR&      compare,
                              SizeType               initialBuckets,
                              float                  initialMaxLoadFactor);
@@ -2597,7 +2663,7 @@ struct ObjectMaker<
                              char                   config,
                              bslma::Allocator      *fa, //"footprint" allocator
                              bslma::TestAllocator  *objectAllocator,
-                             const HASHER           hash,
+                             const HASHER&          hash,
                              const COMPARATOR&      compare,
                              SizeType               initialBuckets,
                              float                  initialMaxLoadFactor);
@@ -3128,39 +3194,83 @@ bool FunctionPointerPolicies<KEY>::compare(const KEY& lhs, const KEY& rhs)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                        // ------------------------
-                       // class MakeDefaultFunctor
+                       // class MakeCallableEntity
                        // ------------------------
 
-template <class FUNCTOR>
+template <class CALLABLE>
 inline
-FUNCTOR MakeDefaultFunctor<FUNCTOR>::make()
+typename MakeCallableEntity<CALLABLE>::CallableEntityType
+MakeCallableEntity<CALLABLE>::make()
 {
-    return FUNCTOR();
+    return CALLABLE();
 }
 
 template <class FUNCTOR, bool ENABLE_SWAP>
 inline
-bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP>
-MakeDefaultFunctor<bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> >::make()
+typename MakeCallableEntity<bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> >::
+                                                             CallableEntityType
+MakeCallableEntity<bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> >::make()
 {
     return bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP>::
-                          cloneBaseObject(MakeDefaultFunctor<FUNCTOR>::make());
+                          cloneBaseObject(MakeCallableEntity<FUNCTOR>::make());
 }
 
 template <class KEY>
 inline
-typename MakeDefaultFunctor<size_t (*)(const KEY&)>::FunctionType *
-MakeDefaultFunctor<size_t (*)(const KEY&)>::make()
+typename MakeCallableEntity<size_t (*)(const KEY&)>::CallableEntityType
+MakeCallableEntity<size_t (*)(const KEY&)>::make()
 {
     return &FunctionPointerPolicies<KEY>::hash;
 }
 
 template <class KEY>
 inline
-typename MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)>::FunctionType *
-MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)>::make()
+typename
+       MakeCallableEntity<bool (*)(const KEY&, const KEY&)>::CallableEntityType
+MakeCallableEntity<bool (*)(const KEY&, const KEY&)>::make()
 {
     return &FunctionPointerPolicies<KEY>::compare;
+}
+
+template <class CALLABLE>
+inline
+typename MakeCallableEntity<CALLABLE &>::CallableEntityType
+MakeCallableEntity<CALLABLE &>::make()
+{
+    static CALLABLE sharedCallable = MakeCallableEntity<CALLABLE>::make();
+    return sharedCallable;
+}
+
+template <class RESULT, class ARG>
+inline
+typename MakeCallableEntity<RESULT(&)(ARG)>::CallableEntityType
+MakeCallableEntity<RESULT(&)(ARG)>::make()
+{
+    return *MakeCallableEntity<FunctionType *>::make();
+}
+
+template <class RESULT, class ARG1, class ARG2>
+inline
+typename MakeCallableEntity<RESULT(&)(ARG1, ARG2)>::CallableEntityType
+MakeCallableEntity<RESULT(&)(ARG1, ARG2)>::make()
+{
+    return *MakeCallableEntity<FunctionType *>::make();
+}
+
+template <class RESULT, class ARG>
+inline
+typename MakeCallableEntity<RESULT(ARG)>::CallableEntityType &
+MakeCallableEntity<RESULT(ARG)>::make()
+{
+    return *MakeCallableEntity<CallableEntityType *>::make();
+}
+
+template <class RESULT, class ARG1, class ARG2>
+inline
+typename MakeCallableEntity<RESULT(ARG1, ARG2)>::CallableEntityType &
+MakeCallableEntity<RESULT(ARG1, ARG2)>::make()
+{
+    return *MakeCallableEntity<CallableEntityType *>::make();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3281,7 +3391,7 @@ makeObject(Obj                  **objPtr,
            char                   config,
            bslma::Allocator      *fa,  // "footprint" allocator
            bslma::TestAllocator  *objectAllocator,
-           const HASHER           hash,
+           const HASHER&          hash,
            const COMPARATOR&      compare,
            SizeType               initialBuckets,
            float                  initialMaxLoadFactor)
@@ -3398,7 +3508,7 @@ makeObject(Obj                  **objPtr,
            char                   config,
            bslma::Allocator      *fa,  // "footprint" allocator
            bslma::TestAllocator  *objectAllocator,
-           const HASHER           hash,
+           const HASHER&          hash,
            const COMPARATOR&      compare,
            SizeType               initialBuckets,
            float                  initialMaxLoadFactor)
@@ -3507,7 +3617,7 @@ makeObject(Obj                  **objPtr,
            char                   config,
            bslma::Allocator      *fa,  // "footprint" allocator
            bslma::TestAllocator  *objectAllocator,
-           const HASHER           hash,
+           const HASHER&          hash,
            const COMPARATOR&      compare,
            SizeType               initialBuckets,
            float                  initialMaxLoadFactor)
@@ -3791,7 +3901,9 @@ int verifyListContents(Link              *containerList,
     // issue for testing a HashTable default-constructed with functors that are
     // only default-constructible themselves.
 
-    COMPARATOR  compareKeys(compare);
+    typename bsl::conditional<bsl::is_function<COMPARATOR>::value,
+                             COMPARATOR&,
+                             COMPARATOR>::type compareKeys(compare);
 
     // All elements are present, check the contiguity requirement
     // Note that this test is quadratic in the length of the list, although we
@@ -4173,6 +4285,28 @@ struct TestDriver_DegenerateConfiguationWithNoSwap
 };
 
 template <class ELEMENT>
+struct TestDriver_ConstFunctors
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , const TestFacilityHasher<ELEMENT>
+                     , const ::bsl::equal_to<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+};
+
+template <class ELEMENT>
+struct TestDriver_FunctorReferences
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , TestFacilityHasher<ELEMENT> &
+                     , ::bsl::equal_to<ELEMENT> &
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+};
+
+template <class ELEMENT>
 struct TestDriver_BsltfConfiguation
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver< BsltfConfig<ELEMENT>
@@ -4192,11 +4326,37 @@ struct TestDriver_BsltfConfiguation
 };
 
 template <class ELEMENT>
+struct TestDriver_FunctionTypes
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , size_t(const ELEMENT&)
+                     , bool(const ELEMENT&, const ELEMENT&)
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This is more general than C++11 requires, as the hasher must be a
+    // hash function *object*.  Technically we must support the comparator
+    // being a function-type or a function-reference, so we test this
+    // implementation-detail compenet supports the hasher as well.
+};
+
+template <class ELEMENT>
 struct TestDriver_FunctionPointers
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver< BasicKeyConfig<ELEMENT>
                      , size_t(*)(const ELEMENT&)
-                     , bool(*)(const ELEMENT&,const ELEMENT&)
+                     , bool(*)(const ELEMENT&, const ELEMENT&)
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+};
+
+template <class ELEMENT>
+struct TestDriver_FunctionReferences
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , size_t(&)(const ELEMENT&)
+                     , bool(&)(const ELEMENT&, const ELEMENT&)
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
@@ -4665,8 +4825,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
 
-    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
-    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
     if (verbose) printf("Testing exteme values.\n");
     {
@@ -4783,8 +4943,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
 
     // Probably want to pick these up as values from some injected policy, so
     // that we can test with stateful variants
-    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
-    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
 #if 1 // defined(THE_TEST_IS_YET_TO_COME)
     const size_t MAX_LENGTH = 9;
@@ -5315,8 +5475,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
-    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
@@ -5598,8 +5758,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
-    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
     if (verbose) printf("\nCompare each pair of similar and different"
                         " values (u, ua, v, va) in S X A X S X A"
@@ -5911,8 +6071,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
-    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
     for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -6219,8 +6379,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
          bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
          + bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 
-    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
-    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
     if (verbose) printf("\nTesting parameters: TYPE_ALLOC = %d.\n",
                         TYPE_ALLOC);
@@ -6612,8 +6772,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
 
     if (verbose) printf("\nCompare every value with every value.\n");
     {
-        const HASHER     HASH  = MakeDefaultFunctor<HASHER>::make();
-        const COMPARATOR EQUAL = MakeDefaultFunctor<COMPARATOR>::make();
+        const HASHER     HASH  = MakeCallableEntity<HASHER>::make();
+        const COMPARATOR EQUAL = MakeCallableEntity<COMPARATOR>::make();
 
         // Create first object
         for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
@@ -6837,8 +6997,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-    const HASHER     HASH  = MakeDefaultFunctor<HASHER>::make();
-    const COMPARATOR EQUAL = MakeDefaultFunctor<COMPARATOR>::make();
+    typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
+    typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
+
+    const HASHER_TYPE     HASH  = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR_TYPE EQUAL = MakeCallableEntity<COMPARATOR>::make();
 
     const char *ALLOC_SPEC = ObjMaker::specForBootstrapTests();
 
@@ -6859,8 +7022,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
             // We can now provide a better estimate for number of buckets
 //            const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
 
-            HASHER hash = HASH;
-            COMPARATOR comp = EQUAL;
+            HASHER_TYPE     hash = HASH;
+            COMPARATOR_TYPE comp = EQUAL;
 #if defined(AJM_HAS_IMPLMENTED_GENERIC_STATEFUL_FUNCTOR_CHECKS)
             setHasherState(bsls::Util::addressOf(hash), ti);
             setComparatorState(bsls::Util::addressOf(comp), ti);
@@ -7084,8 +7247,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&oa);
     ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&oa);
 
-    const HASHER     HASH  = MakeDefaultFunctor<HASHER>::make();
-    const COMPARATOR EQUAL = MakeDefaultFunctor<COMPARATOR>::make();
+    typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
+    typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
+
+    const HASHER_TYPE     HASH  = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR_TYPE EQUAL = MakeCallableEntity<COMPARATOR>::make();
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
     {
@@ -7219,7 +7385,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //   its elements and leaks no memory on destruction.  For the purposes of
     //   testing, the well-defined state will be a 'HashTable' having no
     //   elements, having the specified or default-constructed allocator,
-    //   having a hasher and comparator supplied by the 'makeDefaultFunctor'
+    //   having a hasher and comparator supplied by the 'MakeCallableEntity'
     //   factory function (which provides a default-constructed functor where
     //   available, and is specialized to provide a standard functor object
     //   otherwise), and having a number of buckets calcluated to be sufficient
@@ -7404,8 +7570,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     // to the 'make' function to support stateful functors actually having
     // different states.  Note that we need the 'make' function to supply a
     // default state for functors that are not default constructible.
-    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
-    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+    typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
+    typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
+
+    const HASHER_TYPE     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR_TYPE COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
     const char *ALLOC_SPEC = ObjMaker::specForBootstrapTests();
 
@@ -9030,6 +9199,18 @@ void mainTestCase4()
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+    if (verbose) printf("\nTesting const functors"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConstFunctors,
+                  testCase4,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    if (verbose) printf("\nTesting functor referencess"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctorReferences,
+                  testCase4,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
@@ -9039,6 +9220,18 @@ void mainTestCase4()
     if (verbose) printf("\nTesting pointers for functors"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase4,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    if (verbose) printf("\nTesting function types"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionTypes,
+                  testCase4,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    if (verbose) printf("\nTesting function referecnes"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionReferences,
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
@@ -9052,7 +9245,7 @@ void mainTestCase4()
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
-if (verbose) printf("\nTesting stateless STL allocators"
+   if (verbose) printf("\nTesting stateless STL allocators"
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
                   testCase4,
@@ -9133,6 +9326,18 @@ void mainTestCase3()
                   testCase3,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+    if (verbose) printf("\nTesting const functors"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConstFunctors,
+                  testCase3,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    if (verbose) printf("\nTesting functor referencess"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctorReferences,
+                  testCase3,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
@@ -9142,6 +9347,18 @@ void mainTestCase3()
     if (verbose) printf("\nTesting pointers for functors"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase3,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    if (verbose) printf("\nTesting function types"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionTypes,
+                  testCase3,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    if (verbose) printf("\nTesting function referecnes"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionReferences,
                   testCase3,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
@@ -9310,15 +9527,39 @@ void mainTestCase2()
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+    if (verbose) printf("\nTesting const functors"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConstFunctors,
+                  testCase2,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    if (verbose) printf("\nTesting functor referencess"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctorReferences,
+                  testCase2,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
-    if (verbose) printf("\nTesting pointers for functors"
-                        "\n-----------------------------\n");
+    if (verbose) printf("\nTesting function pointers"
+                        "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase2,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    if (verbose) printf("\nTesting function types"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionTypes,
+                  testCase2,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+    if (verbose) printf("\nTesting function referecnes"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionReferences,
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 

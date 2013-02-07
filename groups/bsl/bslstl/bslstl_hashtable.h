@@ -1504,8 +1504,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISCONST
-#include <bslmf_isconst.h>
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -1525,7 +1525,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_ALGORITHM
-#include <algorithm>  // for fill_n, max 
+#include <algorithm>  // for fill_n, max
 #define INCLUDED_ALGORITHM
 #endif
 
@@ -1561,7 +1561,11 @@ class HashTable_HashWrapper {
     // whether ot not 'FUNCTOR' provided a const-qualified 'operator()'.
 
   private:
-    mutable FUNCTOR d_functor;
+    typedef typename bsl::conditional<bsl::is_function<FUNCTOR>::value,
+                                     FUNCTOR&,
+                                     FUNCTOR>::type FunctorMember;
+
+    mutable FunctorMember d_functor;
 
   public:
     // CREATORS
@@ -1609,7 +1613,11 @@ class HashTable_ComparatorWrapper {
     //     we can safely const_cast want calling the base class operator.
 
   private:
-    mutable FUNCTOR d_functor;
+    typedef typename bsl::conditional<bsl::is_function<FUNCTOR>::value,
+                                     FUNCTOR&,
+                                     FUNCTOR>::type FunctorMember;
+
+    mutable FunctorMember d_functor;
 
   public:
     // CREATORS
@@ -3414,7 +3422,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
         }
 
         position = d_parameters.nodeFactory().createNode(
-                                            key, 
+                                            key,
                                             typename ValueType::second_type());
 
         bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
