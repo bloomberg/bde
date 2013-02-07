@@ -54,7 +54,7 @@ BDES_IDENT("$Id: $")
 //..
 //  assert(bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
 //                              bcemt_Configuration::defaultThreadStackSize());
-//
+//..
 // Next, we define 'newDefaultStackSize' to some size other than the platform's
 // native default stack size:
 //..

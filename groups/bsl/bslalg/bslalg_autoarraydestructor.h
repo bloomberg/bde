@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //                               // ===============
 //                               // class UsageType
 //                               // ===============
-//..
+//
 //  class UsageType {
 //      // This test type contains a 'char' in some allocated storage.  It has
 //      // no traits other than using a 'bslma' allocator.
