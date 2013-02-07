@@ -328,6 +328,7 @@ int main(int argc, char *argv[])
         // This part has been copied from bslstl_allocator's test driver and
         // had been originally written by Pablo.
 
+#if 0
         typedef bslma::Allocator::size_type bsize;
 
         enum {
@@ -341,17 +342,20 @@ int main(int argc, char *argv[])
         if (verbose) {
             printf("Illustrating the reason for the cast in the"
                    " enumeration (on AIX 64-bit mode):\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
+            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", (int)BSLMA_SIZE_IS_SIGNED);
             printf("\tMAX_NUM_BYTES = %ld\n", (bsize)MAX_NUM_BYTES);
             printf("\tMAX_ELEMENTS1 = %ld\n", (bsize)MAX_ELEMENTS1);
             printf("\tMAX_ELEMENTS2 = %ld\n", (bsize)MAX_ELEMENTS2);
 
             printf("Printing the same values as unsigned:\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
+            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", (int)BSLMA_SIZE_IS_SIGNED);
             printf("\tMAX_NUM_BYTES = %lu\n", (bsize)MAX_NUM_BYTES);
             printf("\tMAX_ELEMENTS1 = %lu\n", (bsize)MAX_ELEMENTS1);
             printf("\tMAX_ELEMENTS2 = %lu\n", (bsize)MAX_ELEMENTS2);
         }
+#else
+        typedef StdTestAllocator<char>::size_type bsize;
+#endif
 
         StdTestAllocator<char> X;
         bsize cas = X.max_size();
@@ -547,6 +551,7 @@ int main(int argc, char *argv[])
         typedef StdTestAllocator<float> AF;
         typedef StdTestAllocator<void>  AV;
 
+#if 0
         if (verbose) printf("\tTesting 'size_type'.\n");
         {
             ASSERT(sizeof(AI::size_type) == sizeof(int*));
@@ -564,6 +569,19 @@ int main(int argc, char *argv[])
             ASSERT(0 > ~(AI::difference_type)0);
             ASSERT(0 > ~(AV::difference_type)0);
         }
+#else
+        if (verbose) printf("\tTesting 'size_type'.\n");
+        {
+            ASSERT((bsl::is_same<AI::size_type, unsigned int>::value));
+            ASSERT((bsl::is_same<AV::size_type, unsigned int>::value));
+        }
+
+        if (verbose) printf("\tTesting 'difference_type'.\n");
+        {
+            ASSERT((bsl::is_same<AI::difference_type, int>::value));
+            ASSERT((bsl::is_same<AV::difference_type, int>::value));
+        }
+#endif
 
         if (verbose) printf("\tTesting 'pointer'.\n");
         {

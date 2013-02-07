@@ -318,8 +318,17 @@ class StdTestAllocator<void> {
 
   public:
     // PUBLIC TYPES
+#if 0
     typedef std::size_t     size_type;
     typedef std::ptrdiff_t  difference_type;
+#else
+    // Deliberately use types that will *not* have the same representation as
+    // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
+    // wide enough to support our regular testing, as verified on 32-bit
+    // platforms.
+    typedef unsigned int     size_type;
+    typedef int              difference_type;
+#endif
     typedef void           *pointer;
     typedef const void     *const_pointer;
     typedef void            value_type;
@@ -360,7 +369,6 @@ class StdTestAllocator<void> {
     //                          const StdTestAllocator& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
-
 };
 
 // FREE OPERATORS
