@@ -69,6 +69,7 @@ struct add_rvalue_reference {
     // This 'struct' template implements a meta-function to transform the
     // (template parameter) 'TYPE' to its rvalue reference type.
 
+    // PUBLIC TYPES
     typedef TYPE&& type;
         // This 'typedef' is an alias to the return value of this
         // meta-function.
@@ -79,6 +80,7 @@ struct add_rvalue_reference<void> {
     // This partial specialization of 'add_rvalue_reference' defines the return
     // type when it is instantiated with the 'void' type.
 
+    // PUBLIC TYPES
     typedef void type;
         // This 'typedef' is an alias to the return value of this
         // meta-function.
@@ -89,6 +91,7 @@ struct add_rvalue_reference<void const> {
     // This partial specialization of 'add_rvalue_reference' defines the return
     // type when it is instantiated with the 'void const' type.
 
+    // PUBLIC TYPES
     typedef void const type;
         // This 'typedef' is an alias to the return value of this
         // meta-function.
@@ -99,6 +102,7 @@ struct add_rvalue_reference<void volatile> {
     // This partial specialization of 'add_rvalue_reference' defines the return
     // type when it is instantiated with the 'void volatile' type.
 
+    // PUBLIC TYPES
     typedef void volatile type;
         // This 'typedef' is an alias to the return value of this
         // meta-function.
@@ -109,6 +113,7 @@ struct add_rvalue_reference<void const volatile> {
     // This partial specialization of 'add_rvalue_reference' defines the return
     // type when it is instantiated with the 'void const volatile' type.
 
+    // PUBLIC TYPES
     typedef void const volatile type;
         // This 'typedef' is an alias to the return value of this
         // meta-function.

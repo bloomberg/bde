@@ -7,9 +7,8 @@
 #include <bslmf_ispolymorphic.h>  // for testing only
 #include <bslmf_issame.h>         // for testing only
 
-#include <bsls_bsltestutil.h>     // for testing only
+#include <bsls_bsltestutil.h>
 
-// limit ourselves to the "C" library for packages below 'bslstl'
 #include <iso646.h>  // required only by the Microsoft compiler
 #include <limits.h>
 #include <stddef.h>
@@ -24,17 +23,19 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::enable_if' and
-// 'bslmf::EnableIf', that provides a 'typedef' 'type' only if a (template
-// parameter) condition is 'true'.  Since both meta-functions provides
-// identical functionality, they are both tested by verifying their behavior
-// against a the enumerations of 'true' and 'false' conditions.
+// The component under test defines two meta-functions, 'bsl::enable_if' and
+// 'bslmf::EnableIf', that provide a 'typedef' 'type' only if a (template
+// parameter) condition is 'true'.  Since both meta-functions provide identical
+// functionality, they are both tested by verifying their behavior against an
+// enumeration of 'true' and 'false' conditions.
 //-----------------------------------------------------------------------------
 // [ 2] bsl::enable_if
 // [ 1] bslmf::EnableIf
 //
 // ----------------------------------------------------------------------------
-// [ 5] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE 1
+// [ 4] USAGE EXAMPLE 2
+// [ 5] USAGE EXAMPLE 3
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -581,49 +582,57 @@ int main(int argc, char *argv[])
         //   Test the 'bsl::enable_if' meta-function.
         //
         // Concerns:
-        //:  1 If the supplied boolean template parameter is true, then
-        //:    'bsl::enable_if' provides a type named 'type' matching the
-        //:    second template parameter.
+        //:  1 If the first template argument is 'true', then 'bsl::enable_if'
+        //:    provides a 'typedef' 'type' that is an alias to the second
+        //:    template argument if it is supplied, and 'void' otherwise.
         //:
-        //:  2 If the supplied boolean template parameter is 'false', then
-        //:    'bsl::enable_if' does not provide a type named 'type'.
+        //:  2 If the first template parameter is 'false', then
+        //:    'bsl::enable_if' does not provide a 'typedef' 'type'.
         //
         // Plan:
-        //:  1 For a series of possible types, instantiate 'bsl::enable_if'
-        //:    with a first parameter 'true' and the second parameter of the
-        //:    test type.  Verify that 'bsl::enable_if' defines a type 'type'
-        //:    matching the second template parameter type.  (C-1)
+        //:  1 For a set of possible types, instantiate 'bsl::enable_if' with
+        //:    'true' as the first template argument and the said type as the
+        //:    second template argument.  Verify each instantiation provides a
+        //:    'typeef' 'type' that is an alias to the second template
+        //:    argument.  (C-1)
+        //:
+        //:  1 Instantiate 'bsl::enable_if' with 'true' as the first template
+        //:    argument and omit the second template argument.  Verify that
+        //:    'bsl::enable_if' provides an 'typedef' 'type' that is an alias
+        //:    to 'void'.  (C-1)
         //:
         //:  2 Create two instances of a template function parameterized on a
         //:    boolean, one returning 1, the other returning 2.  If 'true' is
         //:    supplied as the template parameter, only the first function is
-        //:    part of the overload set, if 'false' is then only the second
-        //:    function is part of the overload set.  Call the template
+        //:    part of the overload set, if 'false' is supplied then only the
+        //:    second function is part of the overload set.  Call the template
         //:    function with both 'true' and 'false', verify that there is no
-        //:    compilation error, and that the return value is 1 and 2
-        //:    respectively (for 'true' and 'false).  (C-2)
+        //:    that the return value is 1 and 2 respectively (for 'true' and
+        //:    'false).  (C-2)
         //:
-        //:  3 Create a two instances of a template function parameterized on a
-        //:    boolean, the first simply returns void, and the second returns a
-        //:    'bsl::enable_if' supplied the boolean parameter value.  (C-2)
+        //:  3 Define template functions having the same name and both
+        //:    parameterized on a boolean value.  The first simply returns
+        //:    'void', and the second returns the 'typedef' 'type' of an
+        //:    instantiation of 'bsl::enable_if' parameterized on a boolean
+        //:    value.  (C-2)
         //:
-        //:    1 Instantiate this template function for 'false' to verify
-        //:      enable-if removes the second implementation from the overload
-        //:      set.
+        //:    1 Instantiate the template function with 'false' and verify
+        //:      'bsl::enable_if' removes the second implementation from the
+        //:      overload set.
         //:
-        //:    2 Manually verify that if the template function is instantiated
-        //:      for 'true' that enable-if leaves the second implementation in
-        //:      the overload set, resulting in a compiler diagnostic (for an
-        //:      ambiguous function declaration).
+        //:    2 Manually verify that if the template functions are
+        //:      instantiated with 'true' that 'bsl::enable_if' leaves the
+        //:      second implementation in the overload set, resulting in a
+        //:      compile-time failure (due to ambiguous function declaration).
         //
         // Testing:
-        //   bsl::enable_if<CONDITION, RESULT_TYPE>
+        //   bsl::enable_if
         // --------------------------------------------------------------------
 
         if (verbose) printf("bsl::enable_if\n"
                             "==============\n");
 
-        if (veryVerbose) printf("\nTest the return type\n");
+        if (veryVerbose) printf("\nTest the return type.\n");
         {
             {
                 const bool R =
@@ -667,10 +676,15 @@ int main(int argc, char *argv[])
                               bsl::enable_if<true, DummyClass&>::type >::value;
                 ASSERT(R);
             }
+            {
+                const bool R =
+                    bsl::is_same<void,bslmf::EnableIf<true>::type >::value;
+                ASSERT(R);
+            }
         }
 
         if (veryVerbose) {
-            printf("\nTest whether enabelif modifies the overload set\n");
+            printf("\nTest whether 'enable_if' modifies the overload set\n");
         }
         {
 
@@ -678,64 +692,71 @@ int main(int argc, char *argv[])
             ASSERT(2 == testMutuallyExclusiveFunctionBsl<false>());
         }
         if (veryVerbose) {
-            printf("\nManually test if enableif modifies the overload set\n");
+          printf("\nManually test if 'enable_if' modifies the overload set\n");
         }
         {
             testFunctionBsl<false>();
             // This should fail to compile if un-commented.
             // testFunctionBsl<true>();
-
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING BSLMF_ENABLEIF
+        // 'bslmf::EnableIf'
         //   Test the 'bslmf::EnableIf' meta-function.
         //
         // Concerns:
-        //:  1 If the supplied boolean template parameter is true, then
-        //:    'bslmf::EnableIf' provides a type named 'type' matching the
-        //:     second template parameter.
+        //:  1 If the first template argument is 'true', then 'bslmf::EnableIf'
+        //:    provides a 'typedef' 'type' that is an alias to the second
+        //:    template argument if it is supplied, and 'void' otherwise.
         //:
-        //:  2 If the supplied boolean template parameter is 'false', then
-        //:    'bslmf::EnableIf' does not provide a type named 'type'.
+        //:  2 If the first template parameter is 'false', then
+        //:    'bslmf::EnableIf' does not provide a 'typedef' 'type'.
+        //
         // Plan:
-        //:  1 For a series of possible types, instantiate 'bslmf::EnableIf'
-        //:    with a first parameter 'true' and the second parameter of the
-        //:    test type.  Verify that 'bslmf::EnableIf' defines a type 'type'
-        //:    matching the second template parameter type.  (C-1)
+        //:  1 For a set of possible types, instantiate 'bslmf::EnableIf' with
+        //:    'true' as the first template argument and the said type as the
+        //:    second template argument.  Verify each instantiation provides a
+        //:    'typeef' 'type' that is an alias to the second template
+        //:    argument.  (C-1)
+        //:
+        //:  1 Instantiate 'bslmf::EnableIf' with 'true' as the first template
+        //:    argument and omit the second template argument.  Verify that
+        //:    'bslmf::EnableIf' provides an 'typedef' 'type' that is an alias
+        //:    to 'void'.  (C-1)
         //:
         //:  2 Create two instances of a template function parameterized on a
         //:    boolean, one returning 1, the other returning 2.  If 'true' is
         //:    supplied as the template parameter, only the first function is
-        //:    part of the overload set, if 'false' is then only the second
-        //:    function is part of the overload set.  Call the template
+        //:    part of the overload set, if 'false' is supplied then only the
+        //:    second function is part of the overload set.  Call the template
         //:    function with both 'true' and 'false', verify that there is no
-        //:    compilation error, and that the return value is 1 and 2
-        //:    respectively (for 'true' and 'false).  (C-2)
+        //:    that the return value is 1 and 2 respectively (for 'true' and
+        //:    'false).  (C-2)
         //:
-        //:  3 Create a two instances of a template function parameterized on
-        //:    a boolean, the first simply returns void, and the second returns
-        //:    a 'bslmf::EnableIf' supplied the boolean parameter value.  (C-2)
+        //:  3 Define template functions having the same name and both
+        //:    parameterized on a boolean value.  The first simply returns
+        //:    'void', and the second returns the 'typedef' 'type' of an
+        //:    instantiation of 'bslmf::EnableIf' parameterized on a boolean
+        //:    value.  (C-2)
         //:
-        //:    1 Instantiate this template function for 'false' to verify
-        //:      enable-if removes the second implementation from the overload
-        //:      set.
+        //:    1 Instantiate the template function with 'false' and verify
+        //:      'bslmf::EnableIf' removes the second implementation from the
+        //:      overload set.
         //:
-        //:    2 Manually verify that if the template function is instantiated
-        //:      for 'true' that enable-if leaves the second implementation in
-        //:      the overload set, resulting in a compiler diagnostic (for an
-        //:      ambiguous function declaration).
+        //:    2 Manually verify that if the template functions are
+        //:      instantiated with 'true' that 'bslmf::EnableIf' leaves the
+        //:      second implementation in the overload set, resulting in a
+        //:      compile-time failure (due to ambiguous function declaration).
         //
         // Testing:
-        //   bslmf::EnableIf<CONDITION, RESULT_TYPE>
+        //   bslmf::EnableIf
         // --------------------------------------------------------------------
 
         if (verbose) printf("bslmf::EnableIf\n"
                             "===============\n");
 
-        if (veryVerbose) printf("\nTest the return type\n");
+        if (veryVerbose) printf("\nTest the return type.\n");
         {
             {
                 const bool R =
@@ -779,10 +800,15 @@ int main(int argc, char *argv[])
                     bslmf::EnableIf<true, DummyClass&>::type >::value;
                 ASSERT(R);
             }
+            {
+                const bool R =
+                    bsl::is_same<void,bslmf::EnableIf<true>::type >::value;
+                ASSERT(R);
+            }
         }
 
         if (veryVerbose) {
-            printf("\nTest whether enabelif modifies the overload set\n");
+            printf("\nTest whether 'EnableIf' modifies the overload set\n");
         }
         {
 
@@ -790,7 +816,7 @@ int main(int argc, char *argv[])
             ASSERT(2 == testMutuallyExclusiveFunction<false>());
         }
         if (veryVerbose) {
-            printf("\nManually test if enableif modifies the overload set\n");
+           printf("\nManually test if 'EnableIf' modifies the overload set\n");
         }
         {
             testFunction<false>();

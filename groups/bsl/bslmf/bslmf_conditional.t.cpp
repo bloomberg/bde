@@ -4,6 +4,7 @@
 #include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <cstdio>     // 'printf'
 #include <cstdlib>    // 'atoi'
@@ -17,12 +18,12 @@ using namespace std;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function, 'bsl::conditional', that
-// conditionally selects to one of the two template parameter types based on a
+// conditionally selects to one of its two template parameter types based on a
 // 'bool' (template parameter) value.  Thus, we need to ensure that the values
-// returned by this meta-functions are correct for each possible set of types.
+// returned by this meta-function are correct for each possible set of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
+// PUBLIC TYPES
 // [ 1] bsl::conditional::type
 //
 // ----------------------------------------------------------------------------
@@ -160,13 +161,13 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Conditional Select From Two Types
-/// - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Conditionally Select From Two Types
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to select between two types based on a 'bool' value.
 //
 // Now, we use 'bsl::conditional' to select between two types, 'int' and
 // 'char', with a 'bool' value.  When the 'bool' is 'true', we select 'int';
-// otherwise, we select 'char'.  We verify our code behaves correctly by
+// otherwise, we select 'char'.  We verify that our code behaves correctly by
 // asserting the result of 'bsl::conditional' with the expected type using
 // 'bsl::is_same':
 //..
@@ -180,15 +181,15 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::conditional::type'
-        //   Ensure that each 'typedef''type' of 'bsl::conditional'
+        //   Ensure that each 'typedef' 'type' of 'bsl::conditional'
         //   instantiations has the correct return value.
         //
         // Concerns:
-        //: 1 'bsl::conditional' selects the first of the two (template
+        //: 1 'bsl::conditional' selects the first of its two (template
         //:   parameter) types when the (template parameter) value 'COND' is
         //:   'true'.
         //:
-        //: 2 'bsl::conditional' selects the second of the two (template
+        //: 2 'bsl::conditional' selects the second of its two (template
         //:   parameter) types when the (template parameter) value 'COND' is
         //:   'false'.
         //

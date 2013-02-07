@@ -7,17 +7,17 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time conditional type transformation.
+//@PURPOSE: Provide a compile-time conditional type selector.
 //
 //@CLASSES:
-//  bsl::conditional: standard meta-function for conditional type transforming
+//  bsl::conditional: standard meta-function for conditional type selection
 //
-//@SEE_ALSO: bslmf_integralconstant, bslmf_enableif
+//@SEE_ALSO: bslmf_enableif
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::conditional',
-// that may be used to conditionally select one of the two (template parameter)
+// that may be used to conditionally select one of its two (template parameter)
 // types based on a 'bool' (template parameter) value.
 //
 // 'bsl::conditional' meets the requirements of the 'conditional' template
@@ -30,13 +30,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Conditional Select From Two Types
-/// - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Conditionally Select From Two Types
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to select between two types based on a 'bool' value.
 //
 // Now, we use 'bsl::conditional' to select between two types, 'int' and
 // 'char', with a 'bool' value.  When the 'bool' is 'true', we select 'int';
-// otherwise, we select 'char'.  We verify our code behaves correctly by
+// otherwise, we select 'char'.  We verify that our code behaves correctly by
 // asserting the result of 'bsl::conditional' with the expected type using
 // 'bsl::is_same':
 //..
@@ -63,9 +63,9 @@ struct conditional {
     // 'COND' is 'true', then 'type' has the same type as the (template
     // parameter) type 'TRUE_TYPE'; otherwise, 'type' has the same type as the
     // (template parameter) type 'FALSE_TYPE'.  Note that this generic default
-    // template provides 'type' that is an alias to 'TRUE_TYPE' for when 'COND'
-    // is 'true'.  A template specialization is provided (below) handles the
-    // case for when 'COND' is 'false'.
+    // template defines 'type' to be an alias to 'TRUE_TYPE' for when 'COND' is
+    // 'true'.  A template specialization is provided (below) handles the case
+    // for when 'COND' is 'false'.
 
     typedef TRUE_TYPE type;
         // This 'typedef' is an alias to the (template parameter) type

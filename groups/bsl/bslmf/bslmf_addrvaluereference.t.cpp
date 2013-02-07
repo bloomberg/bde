@@ -17,13 +17,13 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test is a meta-function, 'bsl::add_rvalue_reference',
-// that transforms a template parameter 'TYPE' to its rvalue reference type.
-// Thus, we need to ensure that the values returned by this meta-function are
-// correct for each possible category of types.
+// The component under test defines a meta-function,
+// 'bsl::add_rvalue_reference', that transforms a template parameter 'TYPE' to
+// its rvalue reference type.  Thus, we need to ensure that the values returned
+// by this meta-function are correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC TYPE
+// PUBLIC TYPES
 // [ 1] bsl::add_rvalue_reference::type
 //
 // ----------------------------------------------------------------------------
