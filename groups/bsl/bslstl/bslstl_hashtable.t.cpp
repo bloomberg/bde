@@ -9227,7 +9227,7 @@ void mainTestCase4()
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_PLATFORM_CMP_SUN)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
@@ -9247,7 +9247,8 @@ void mainTestCase4()
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
+ && !defined(BSLS_PLATFORM_CMP_MSVC)
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,
@@ -9366,7 +9367,7 @@ void mainTestCase3()
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_PLATFORM_CMP_SUN)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
@@ -9386,7 +9387,8 @@ void mainTestCase3()
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
+ && !defined(BSLS_PLATFORM_CMP_MSVC)
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,
@@ -9579,7 +9581,7 @@ void mainTestCase2()
                   testCase2,
                   BSLSTL_HASHTABLE_TESTCASE2_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_PLATFORM_CMP_SUN)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
@@ -9599,7 +9601,8 @@ void mainTestCase2()
                   testCase2,
                   BSLSTL_HASHTABLE_TESTCASE2_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
+ && !defined(BSLS_PLATFORM_CMP_MSVC)
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,
