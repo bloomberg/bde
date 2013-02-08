@@ -1547,6 +1547,44 @@ namespace BloombergLP {
 
 namespace bslstl {
 
+template <class FUNCTOR>
+class HashTable_HashWrapper;
+
+template <class FUNCTOR>
+class HashTable_HashWrapper<const FUNCTOR>;
+
+template <class FUNCTOR>
+class HashTable_HashWrapper<FUNCTOR &>;
+
+template <class FUNCTOR>
+class HashTable_ComparatorWrapper;
+
+template <class FUNCTOR>
+class HashTable_ComparatorWrapper<const FUNCTOR>;
+
+template <class FUNCTOR>
+class HashTable_ComparatorWrapper<FUNCTOR &>;
+
+                       // ======================
+                       // class CallableVariable
+                       // ======================
+
+template <class CALLABLE>
+struct CallableVariable {
+    // This metafunction returns a 'type' that is an alias for 'CALLABLE'
+    // unless that is a function type, in which case it is an alias for
+    // 'CALLABLE &'.  This should be used to declare variables of an arbitrary
+    // callable type, typically a template type parameter, that may turn out to
+    // be a function type.  Note that this metafunction is necessary as the C++
+    // language does not allow variables of function type, nor may functions
+    // return a function type.
+
+    typedef typename bsl::conditional<
+                            bsl::is_function<CALLABLE>::value,
+                            typename bsl::add_lvalue_reference<CALLABLE>::type,
+                            CALLABLE>::type type;
+};
+
                            // ===========================
                            // class HashTable_HashWrapper
                            // ===========================
@@ -1565,12 +1603,7 @@ class HashTable_HashWrapper {
     // whether or not 'FUNCTOR' provided a const-qualified 'operator()'.
 
   private:
-    typedef typename bsl::conditional<
-                             bsl::is_function<FUNCTOR>::value,
-                             typename bsl::add_lvalue_reference<FUNCTOR>::type,
-                             FUNCTOR>::type FunctorMember;
-
-    mutable FunctorMember d_functor;
+    mutable FUNCTOR d_functor;
 
   public:
     // CREATORS
@@ -1599,6 +1632,74 @@ class HashTable_HashWrapper {
 };
 
 template <class FUNCTOR>
+class HashTable_HashWrapper<const FUNCTOR> {
+    // This partial specialization handles 'const' qualified functors, that may
+    // not be stored as a 'mutable' member in the primary template.  The need
+    // to wrap such functors diminishes greatly, as there is no need to play
+    // mutable tricks to invoke the function call operator.  An alternative to
+    // providing this specialization would be to skip the wrapper entirely if
+    // using a 'const' qualified functor in a 'HashTable'.  Note that this type
+    // has a 'const' qualified data member, so is neither assignable nor
+    // swappable.
+
+  private:
+    const FUNCTOR d_functor;
+
+  public:
+    // CREATORS
+    HashTable_HashWrapper();
+        // Create a 'HashTable_HashWrapper' object wrapping a 'FUNCTOR' that
+        // has its default value.
+
+    explicit HashTable_HashWrapper(const FUNCTOR& fn);
+        // Create a 'HashTable_HashWrapper' object wrapping a 'FUNCTOR' that is
+        // a copy of the specified 'fn'.
+
+    // ACCESSORS
+    template <class ARG_TYPE>
+    native_std::size_t operator()(ARG_TYPE& arg) const;
+        // Call the wrapped 'functor' with the specified 'arg' and return the
+        // result.  Note that 'ARG_TYPE' will typically be deduced as a 'const'
+        // type.
+
+    const FUNCTOR& functor() const;
+        // Return a reference providing non-modifiable access to the
+        // hash functor wrapped by this object.
+};
+
+template <class FUNCTOR>
+class HashTable_HashWrapper<FUNCTOR &> {
+    // This partial specialization handles 'const' qualified functors, that may
+    // not be stored as a 'mutable' member in the primary template.  Note that
+    // the 'FUNCTOR' type itself may be 'const'-qualified, so this one partial
+    // template specialization also handles 'const FUNCTOR&' references.  In
+    // order to correctly parse with the reference-binding rules, we drop the
+    // 'const' in front of many of the references to 'FUNCTOR' seen in the
+    // primary template definition.  Note that this type has a reference
+    // data member, so is not default constructible, assignable or swappable.
+
+  private:
+    FUNCTOR& d_functor;
+
+  public:
+    // CREATORS
+    explicit HashTable_HashWrapper(FUNCTOR& fn);
+        // Create a 'HashTable_HashWrapper' object wrapping a 'FUNCTOR' that is
+        // a copy of the specified 'fn'.
+
+    // ACCESSORS
+    template <class ARG_TYPE>
+    native_std::size_t operator()(ARG_TYPE& arg) const;
+        // Call the wrapped 'functor' with the specified 'arg' and return the
+        // result.  Note that 'ARG_TYPE' will typically be deduced as a 'const'
+        // type.
+
+    FUNCTOR& functor() const;
+        // Return a reference providing non-modifiable access to the
+        // hash functor wrapped by this object.
+};
+
+template <class FUNCTOR>
 void swap(HashTable_HashWrapper<FUNCTOR> &a,
           HashTable_HashWrapper<FUNCTOR> &b);
     // Swap the functor wrapped by the specified 'a' object with the functor
@@ -1618,11 +1719,7 @@ class HashTable_ComparatorWrapper {
     //     we can safely const_cast want calling the base class operator.
 
   private:
-    typedef typename bsl::conditional<bsl::is_function<FUNCTOR>::value,
-                                     FUNCTOR&,
-                                     FUNCTOR>::type FunctorMember;
-
-    mutable FunctorMember d_functor;
+    mutable FUNCTOR d_functor;
 
   public:
     // CREATORS
@@ -1646,6 +1743,75 @@ class HashTable_ComparatorWrapper {
         // typically be deduced as a 'const' type.
 
     const FUNCTOR& functor() const;
+        // Return a reference providing non-modifiable access to the
+        // hash functor wrapped by this object.
+};
+
+template <class FUNCTOR>
+class HashTable_ComparatorWrapper<const FUNCTOR> {
+    // This partial specialization handles 'const' qualified functors, that may
+    // not be stored as a 'mutable' member in the primary template.  The need
+    // to wrap such functors diminishes greatly, as there is no need to play
+    // mutable tricks to invoke the function call operator.  An alternative to
+    // providing this specialization would be to skip the wrapper entirely if
+    // using a 'const' qualified functor in a 'HashTable'.  Note that this type
+    // has a 'const' qualified data member, so is neither assignable nor
+    // swappable.
+
+  private:
+    const FUNCTOR d_functor;
+
+  public:
+    // CREATORS
+    HashTable_ComparatorWrapper();
+        // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR' that
+        // has its default value.
+
+    explicit HashTable_ComparatorWrapper(const FUNCTOR& fn);
+        // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR' that is
+        // a copy of the specified 'fn'.
+
+    // ACCESSORS
+    template <class ARG1_TYPE, class ARG2_TYPE>
+    bool operator()(ARG1_TYPE& arg1, ARG2_TYPE& arg2) const;
+        // Call the wrapped 'functor' with the specified 'arg1' and 'arg2' (in
+        // that order) and return the result.  Note that 'ARGn_TYPE' will
+        // typically be deduced as a 'const' type.
+
+
+    const FUNCTOR& functor() const;
+        // Return a reference providing non-modifiable access to the
+        // hash functor wrapped by this object.
+};
+
+template <class FUNCTOR>
+class HashTable_ComparatorWrapper<FUNCTOR &> {
+    // This partial specialization handles 'const' qualified functors, that may
+    // not be stored as a 'mutable' member in the primary template.  Note that
+    // the 'FUNCTOR' type itself may be 'const'-qualified, so this one partial
+    // template specialization also handles 'const FUNCTOR&' references.  In
+    // order to correctly parse with the reference-binding rules, we drop the
+    // 'const' in front of many of the references to 'FUNCTOR' seen in the
+    // primary template definition.  Note that this type has a reference
+    // data member, so is not default constructible, assignable or swappable.
+
+  private:
+    FUNCTOR& d_functor;
+
+  public:
+    // CREATORS
+    explicit HashTable_ComparatorWrapper(FUNCTOR& fn);
+        // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR' that is
+        // a copy of the specified 'fn'.
+
+    // ACCESSORS
+    template <class ARG1_TYPE, class ARG2_TYPE>
+    bool operator()(ARG1_TYPE& arg1, ARG2_TYPE& arg2) const;
+        // Call the wrapped 'functor' with the specified 'arg1' and 'arg2' (in
+        // that order) and return the result.  Note that 'ARGn_TYPE' will
+        // typically be deduced as a 'const' type.
+
+    FUNCTOR& functor() const;
         // Return a reference providing non-modifiable access to the
         // hash functor wrapped by this object.
 };
@@ -1719,13 +1885,33 @@ class HashTable {
     typedef typename AllocatorTraits::size_type    SizeType;
 
   private:
+#if 0
     typedef typename
                   bslalg::FunctorAdapter<HashTable_HashWrapper<HASHER> >::Type
                                                                     BaseHasher;
     typedef typename
          bslalg::FunctorAdapter<HashTable_ComparatorWrapper<COMPARATOR> >::Type
                                                                 BaseComparator;
+#else
+    // It looks like the 'CallableVariable' adaptation would be more
+    // appropriately addressed as part of the 'bslalg::FunctorAdapter' wrapper
+    // than intrusively in this component, and in similar ways by any other
+    // container trying to support the full range of standard conforming
+    // functors.  Given that our intent is to support standard predicates, it
+    // may be appropriate to handle calling non-const 'operator()' overloads
+    // (via a mutable member) too.
 
+    typedef
+    typename bslalg::FunctorAdapter<
+                     HashTable_HashWrapper<
+                               typename CallableVariable<HASHER>::type> >::Type
+                                                                    BaseHasher;
+    typedef
+    typename bslalg::FunctorAdapter<
+                     HashTable_ComparatorWrapper<
+                           typename CallableVariable<COMPARATOR>::type> >::Type
+                                                                BaseComparator;
+#endif
     // PRIVATE TYPES
     struct ImplParameters : private BaseHasher, private BaseComparator
     {
@@ -2497,6 +2683,63 @@ void HashTable_HashWrapper<FUNCTOR>::swap(HashTable_HashWrapper &other)
                 static_cast<FUNCTOR*>(bsls::Util::addressOf(other.d_functor)));
 }
 
+                 // 'const FUNCTOR' partial specialization
+
+template <class FUNCTOR>
+inline
+HashTable_HashWrapper<const FUNCTOR>::HashTable_HashWrapper()
+: d_functor()
+{
+}
+
+template <class FUNCTOR>
+inline
+HashTable_HashWrapper<const FUNCTOR>::HashTable_HashWrapper(const FUNCTOR& fn)
+: d_functor(fn)
+{
+}
+
+template <class FUNCTOR>
+template <class ARG_TYPE>
+inline
+native_std::size_t
+HashTable_HashWrapper<const FUNCTOR>::operator()(ARG_TYPE& arg) const
+{
+    return d_functor(arg);
+}
+
+template <class FUNCTOR>
+inline
+const FUNCTOR& HashTable_HashWrapper<const FUNCTOR>::functor() const
+{
+    return d_functor;
+}
+
+                 // 'FUNCTOR &' partial specialization
+
+template <class FUNCTOR>
+inline
+HashTable_HashWrapper<FUNCTOR &>::HashTable_HashWrapper(FUNCTOR& fn)
+: d_functor(fn)
+{
+}
+
+template <class FUNCTOR>
+template <class ARG_TYPE>
+inline
+native_std::size_t
+HashTable_HashWrapper<FUNCTOR &>::operator()(ARG_TYPE& arg) const
+{
+    return d_functor(arg);
+}
+
+template <class FUNCTOR>
+inline
+FUNCTOR& HashTable_HashWrapper<FUNCTOR &>::functor() const
+{
+    return d_functor;
+}
+
                    // ---------------------------------
                    // class HashTable_ComparatorWrapper
                    // ---------------------------------
@@ -2540,6 +2783,67 @@ HashTable_ComparatorWrapper<FUNCTOR>::swap(HashTable_ComparatorWrapper &other)
     bslalg::SwapUtil::swap(
                 static_cast<FUNCTOR*>(bsls::Util::addressOf(d_functor)),
                 static_cast<FUNCTOR*>(bsls::Util::addressOf(other.d_functor)));
+}
+
+                 // 'const FUNCTOR' partial specialization
+
+
+template <class FUNCTOR>
+inline
+HashTable_ComparatorWrapper<const FUNCTOR>::HashTable_ComparatorWrapper()
+: d_functor()
+{
+}
+
+template <class FUNCTOR>
+inline
+HashTable_ComparatorWrapper<const FUNCTOR>::
+HashTable_ComparatorWrapper(const FUNCTOR& fn)
+: d_functor(fn)
+{
+}
+
+template <class FUNCTOR>
+template <class ARG1_TYPE, class ARG2_TYPE>
+inline
+bool
+HashTable_ComparatorWrapper<const FUNCTOR>::operator()(ARG1_TYPE& arg1,
+                                                       ARG2_TYPE& arg2) const
+{
+    return d_functor(arg1, arg2);
+}
+
+template <class FUNCTOR>
+const FUNCTOR& HashTable_ComparatorWrapper<const FUNCTOR>::functor() const
+{
+    return d_functor;
+}
+
+                 // 'FUNCTOR &' partial specialization
+
+template <class FUNCTOR>
+inline
+HashTable_ComparatorWrapper<FUNCTOR &>::
+HashTable_ComparatorWrapper(FUNCTOR& fn)
+: d_functor(fn)
+{
+}
+
+template <class FUNCTOR>
+template <class ARG1_TYPE, class ARG2_TYPE>
+inline
+bool
+HashTable_ComparatorWrapper<FUNCTOR &>::operator()(ARG1_TYPE& arg1,
+                                                   ARG2_TYPE& arg2) const
+{
+    return d_functor(arg1, arg2);
+}
+
+template <class FUNCTOR>
+inline
+FUNCTOR& HashTable_ComparatorWrapper<FUNCTOR &>::functor() const
+{
+    return d_functor;
 }
 
                     // ---------------------------
