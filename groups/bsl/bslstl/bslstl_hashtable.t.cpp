@@ -59,9 +59,23 @@
 // them, until such time as we can provide a more specific review of the type
 // based concerns, and narrow the range of tests needed for confirmed coverage.
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
+ && !defined(BSLS_PLATFORM_OS_SOLARIS)
 #  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
+
+// Change '0' to '1' below to speed up testing, but do not commit
+
+#if 0 && defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#undef BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
+#endif
+
+#define BSLSTL_HASHTABLE_MINIMALTEST_TYPES      \
+        signed char,                            \
+        bsltf::TemplateTestFacility::MethodPtr, \
+        bsltf::NonTypicalOverloadsTestType,     \
+        bsltf::NonAssignableTestType,           \
+        bsltf::NonDefaultConstructibleTestType
 
 #if 0   // bslalg::SwapUtil is our componentized ADL swap-invoker.
 // ============================================================================
@@ -1821,9 +1835,10 @@ struct CallableVariable {
     // language does not allow variables of function type, nor may functions
     // return a function type.
 
-    typedef typename bsl::conditional<bsl::is_function<CALLABLE>::value,
-                                     CALLABLE&,
-                                     CALLABLE>::type type;
+    typedef typename bsl::conditional<
+                            bsl::is_function<CALLABLE>::value,
+                            typename bsl::add_lvalue_reference<CALLABLE>::type,
+                            CALLABLE>::type type;
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2196,7 +2211,7 @@ class TestConvertibleValueComparator {
 
   public:
     // ACCESSORS
-      bsltf::EvilBooleanType operator()(
+    bsltf::EvilBooleanType operator()(
                            const bsltf::ConvertibleValueWrapper<KEY>& a,
                            const bsltf::ConvertibleValueWrapper<KEY>& b) const;
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
@@ -4284,6 +4299,11 @@ struct TestDriver_DegenerateConfiguationWithNoSwap
        > {
 };
 
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+// IBM complains about the 'mutable' 'const functor' created by the wrapper
+// functor inside the HashTable, which supports the more frequently encountered
+// functors that omit 'const' on their overload of 'operator()'.
+
 template <class ELEMENT>
 struct TestDriver_ConstFunctors
      : TestDriver_ForwardTestCasesByConfiguation<
@@ -4294,7 +4314,9 @@ struct TestDriver_ConstFunctors
                      >
        > {
 };
+#endif
 
+#if !defined(BSLS_PLATFORM_CMP_SUN)
 template <class ELEMENT>
 struct TestDriver_FunctorReferences
      : TestDriver_ForwardTestCasesByConfiguation<
@@ -4305,6 +4327,7 @@ struct TestDriver_FunctorReferences
                      >
        > {
 };
+#endif
 
 template <class ELEMENT>
 struct TestDriver_BsltfConfiguation
@@ -4351,6 +4374,7 @@ struct TestDriver_FunctionPointers
        > {
 };
 
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
 template <class ELEMENT>
 struct TestDriver_FunctionReferences
      : TestDriver_ForwardTestCasesByConfiguation<
@@ -4372,6 +4396,7 @@ struct TestDriver_ConvertibleValueConfiguation
                      >
        > {
 };
+#endif
 
 template <class ELEMENT>
 struct TestDriver_GenericFunctors
@@ -5832,9 +5857,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
 
                     ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
 
-                    // Should test that alloctor propagates if, and only if,
-                    // the allocator has the propogate_on_container_copy_assign
-                    // trait.  Currently we assme (and test) that allocators
+                    // Should test that allocator propagates if, and only if,
+                    // the allocator has the propagate_on_container_copy_assign
+                    // trait.  Currently we assume (and test) that allocators
                     // never propagate.
 
                     ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
@@ -7127,7 +7152,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                 // Verify no allocation from the non-object allocator.
 
                 // In build configuration 'a', the 'noa' allocator is the
-                // default allocator, otherwsie 'oa' is the default allocator.
+                // default allocator, otherwise 'oa' is the default allocator.
                 // If the allocator type is not 'bsl::allocator' and the
                 // elements being inserted allocate memory, the element stored
                 // in the container will be created using the default allocator
@@ -7388,12 +7413,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //   having a hasher and comparator supplied by the 'MakeCallableEntity'
     //   factory function (which provides a default-constructed functor where
     //   available, and is specialized to provide a standard functor object
-    //   otherwise), and having a number of buckets calcluated to be sufficient
+    //   otherwise), and having a number of buckets calculated to be sufficient
     //   to support the largest number of elements required for that test
     //   iteration, at the specified maximum load factor.  The primary
     //   manipulators will be a free function ('insertElement', created for the
     //   purpose of testing) that inserts a single element of a specific type,
-    //   but only if there is sufficient capticity in the table to insert
+    //   but only if there is sufficient capacity in the table to insert
     //   without requiring a rehash, and the 'removeAll' method.
     //
     // Concerns:
@@ -7408,7 +7433,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 //:   is thrown (need to nail down the contract on which exception)
     //:
     //: 2 If more than zero buckets are requested, there shall be at least
-    //:   enough buckets to insert one element, or else the contructor will
+    //:   enough buckets to insert one element, or else the constructor will
     //:   fail with an exception.
     //:
     //: 2 The maximum load factor may be arbitrarily large, including
@@ -8255,6 +8280,13 @@ void mainTestCase14()
     // DEFAULT CONSTRUCTOR
     // --------------------------------------------------------------------
 
+#define BSLSTL_HASHTABLE_TESTCASE14_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
     if (verbose) printf("\nTesting default constructor"
                         "\n===========================\n");
 
@@ -8262,9 +8294,7 @@ void mainTestCase14()
                         "\n----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     if (verbose) printf("\nTesting non-copyable functors"
                         "\n-----------------------------\n");
@@ -8273,11 +8303,13 @@ void mainTestCase14()
     // concerns as well, notably with the different allocator patterns.
     RUN_EACH_TYPE(TestDriver_DefaultOnlyFunctors,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
-#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE14_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE14_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
     // We need to limit the test coverage on IBM as the compiler cannot
     // cope with so many template instantiations.
 
@@ -8285,9 +8317,7 @@ void mainTestCase14()
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
 #if 0
     // These configurations not available, as functors are not default
@@ -8297,26 +8327,20 @@ void mainTestCase14()
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors without swap"
                         "\n----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 #endif
 
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
 #if 0
     // Function pointers do not give usable defaults for functors.
@@ -8325,24 +8349,18 @@ void mainTestCase14()
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 #endif
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GenericFunctors,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
 #if 0
     // The stateless allocator flags issues installing the chosen allocator
@@ -8352,30 +8370,22 @@ void mainTestCase14()
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 #endif
 
     if (verbose) printf("\nTesting stateful STL allocators"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
@@ -8387,25 +8397,17 @@ void mainTestCase14()
     // these tests.
     RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
 #if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
-                  testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
-                  testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 #endif
-
-#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -8421,30 +8423,39 @@ void mainTestCase13()
     //  TESTING 'setMaxLoadFactor'
     // --------------------------------------------------------------------
 
+#define BSLSTL_HASHTABLE_TESTCASE13_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
     if (verbose) printf("\nTesting 'setMaxLoadFactor'"
                         "\n==========================\n");
 
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase14,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
-#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE13_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE13_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
     // We need to limit the test coverage on IBM as the compiler cannot
     // cope with so many template instantiations.
 
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase13,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                   testCase13,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                   testCase13,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
     // Remaining special cases
     TestDriver_AwkwardMaplike::testCase13();
@@ -8457,16 +8468,28 @@ void mainTestCase12()
     // TESTING 'insert'
     // --------------------------------------------------------------------
 
+#define BSLSTL_HASHTABLE_TESTCASE12_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
     if (verbose) printf("\nTesting 'insert'"
                         "\n================\n");
 
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase12,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE12_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE12_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
 
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase12,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
 }
 
 static
@@ -8476,6 +8499,13 @@ void mainTestCase11()
     // TESTING 'rehashFor...' FUNCTIONS
     // --------------------------------------------------------------------
 
+#define BSLSTL_HASHTABLE_TESTCASE11_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
     if (verbose) printf("\nTesting 'rehashFor...' functions"
                         "\n================================\n");
 
@@ -8483,11 +8513,13 @@ void mainTestCase11()
                         "\n----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
-#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE11_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE11_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
     // We need to limit the test coverage on IBM as the compiler cannot
     // cope with so many template instantiations.
 
@@ -8495,85 +8527,63 @@ void mainTestCase11()
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors without swap"
                         "\n----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     if (verbose) printf("\nTesting pointers for functors"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GenericFunctors,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
 #if 0
     if (verbose) printf("\nTesting stateless STL allocators"
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 #endif
 
     if (verbose) printf("\nTesting stateful STL allocators"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
@@ -8585,22 +8595,15 @@ void mainTestCase11()
     // these tests.
     RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase11,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
-#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -8628,6 +8631,22 @@ void mainTestCase9()
     // ASSIGNMENT OPERATOR
     // --------------------------------------------------------------------
 
+#define BSLSTL_HASHTABLE_TESTCASE9_TYPES                           \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
+                  bsltf::EnumeratedTestType::Enum,                 \
+                  bsltf::UnionTestType,                            \
+                  bsltf::SimpleTestType,                           \
+                  bsltf::BitwiseMoveableTestType,                  \
+                  bsltf::NonTypicalOverloadsTestType,              \
+                  bsltf::NonAssignableTestType,                    \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+    // We also have a sub-set of tests that do not yet want to support testing
+    // the allocatable types, as non-BDE allocators do not scope the object
+    // allocator to the elements, and so use the default allocator instead,
+    // which confuses the math of the test case.
+
     if (verbose) printf("\nTesting Assignment Operator"
                         "\n===========================\n");
 
@@ -8635,12 +8654,16 @@ void mainTestCase9()
                         "\n----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE9_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
 
 #if !defined(RUN_ALL_TESTS_IGNORE_THE_COST)
-#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
     // We need to limit the test coverage on IBM as the compiler cannot
     // cope with so many template instantiations.
 
@@ -8648,17 +8671,17 @@ void mainTestCase9()
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 
 #if 0
     // degenerate functors are not CopyAssignable, and rely on the
@@ -8668,40 +8691,40 @@ void mainTestCase9()
                         "\n----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 #endif
 
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 
     if (verbose) printf("\nTesting pointers for functors"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GenericFunctors,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 
     // The non-BDE allocators do not propagate the container allocator to
     // their elements, and so will make use of the default allocator when
@@ -8720,50 +8743,22 @@ void mainTestCase9()
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
-                  bsltf::EnumeratedTestType::Enum,
-                  bsltf::UnionTestType,
-                  bsltf::SimpleTestType,
-                  bsltf::BitwiseMoveableTestType,
-                  bsltf::NonTypicalOverloadsTestType,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 #endif
 
     if (verbose) printf("\nTesting stateful STL allocators"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
-                  bsltf::EnumeratedTestType::Enum,
-                  bsltf::UnionTestType,
-                  bsltf::SimpleTestType,
-                  bsltf::BitwiseMoveableTestType,
-                  bsltf::NonTypicalOverloadsTestType,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
-                  bsltf::EnumeratedTestType::Enum,
-                  bsltf::UnionTestType,
-                  bsltf::SimpleTestType,
-                  bsltf::BitwiseMoveableTestType,
-                  bsltf::NonTypicalOverloadsTestType,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
-                  bsltf::EnumeratedTestType::Enum,
-                  bsltf::UnionTestType,
-                  bsltf::SimpleTestType,
-                  bsltf::BitwiseMoveableTestType,
-                  bsltf::NonTypicalOverloadsTestType,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
@@ -8771,31 +8766,30 @@ void mainTestCase9()
                         "\n-------------------------------------------\n");
     RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 
     RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 
 #if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase9,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
 #endif
 
-#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif  // RUN_ALL_TESTS_IGNORE_THE_COST
 
     // Remaining special cases
@@ -8811,6 +8805,13 @@ void mainTestCase8()
     // MANIPULATOR AND FREE FUNCTION 'swap'
     // --------------------------------------------------------------------
 
+#define BSLSTL_HASHTABLE_TESTCASE8_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
     if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION 'swap'"
                         "\n====================================\n");
 
@@ -8818,11 +8819,13 @@ void mainTestCase8()
                         "\n----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
-#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE8_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE8_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
     // We need to limit the test coverage on IBM as the compiler cannot
     // cope with so many template instantiations.
 
@@ -8830,47 +8833,35 @@ void mainTestCase8()
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     if (verbose) printf("\nTesting pointers for functors"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GenericFunctors,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
 #if 0
     // Revisit these tests once validated the rest.
@@ -8882,30 +8873,22 @@ void mainTestCase8()
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 #endif
 
     if (verbose) printf("\nTesting stateful STL allocators"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
@@ -8913,22 +8896,15 @@ void mainTestCase8()
                         "\n-------------------------------------------\n");
     RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase8,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
-#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -8943,6 +8919,13 @@ void mainTestCase7()
     // COPY CONSTRUCTOR
     // --------------------------------------------------------------------
 
+#define BSLSTL_HASHTABLE_TESTCASE7_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
     if (verbose) printf("\nTesting Copy Constructors"
                         "\n=========================\n");
 
@@ -8954,63 +8937,50 @@ void mainTestCase7()
                   bsltf::NonAssignableTestType,
                   bsltf::NonDefaultConstructibleTestType);
 
-#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-    // We need to limit the test coverage on IBM as the compiler cannot
-    // cope with so many template instantiations.
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE7_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE7_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
 
     if (verbose) printf("\nTesting stateful functors"
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors without swap"
                         "\n----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     if (verbose) printf("\nTesting pointers for functors"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GenericFunctors,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
 #if 0
     // Revisit these tests once validated the rest.
@@ -9022,30 +8992,22 @@ void mainTestCase7()
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 #endif
 
     if (verbose) printf("\nTesting stateful STL allocators"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
@@ -9053,28 +9015,19 @@ void mainTestCase7()
                         "\n-------------------------------------------\n");
     RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
-#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -9089,63 +9042,52 @@ void mainTestCase6()
     // EQUALITY OPERATORS
     // --------------------------------------------------------------------
 
+#define BSLSTL_HASHTABLE_TESTCASE6_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+
     if (verbose) printf("\nTesting Equality Operators"
                         "\n==========================\n");
 
     // Note that the 'NonEqualComparableTestType' is not appropriate here.
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase6,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
-#if defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-    // We need to limit the test coverage on IBM as the compiler cannot
-    // cope with so many template instantiations.
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE6_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE6_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
 
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase6,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                   testCase6,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                   testCase6,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
     // Grouped tests
     RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                   testCase6,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
     RUN_EACH_TYPE(TestCase_GroupedSharedKeys,
                   testCase6,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase6,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase6,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
-#endif  // BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
     // Remaining special cases
     TestDriverForCase6_AwkwardMaplike::testCase6();
@@ -9199,17 +9141,21 @@ void mainTestCase4()
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_CLANG)
     if (verbose) printf("\nTesting const functors"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_ConstFunctors,
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
 
+#if !defined(BSLS_PLATFORM_CMP_SUN) && !defined(BSLS_PLATFORM_CMP_CLANG)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
 
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
@@ -9223,6 +9169,8 @@ void mainTestCase4()
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,
@@ -9234,6 +9182,8 @@ void mainTestCase4()
     RUN_EACH_TYPE(TestDriver_FunctionReferences,
                   testCase4,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
+#endif
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
@@ -9328,15 +9278,19 @@ void mainTestCase3()
 
     if (verbose) printf("\nTesting const functors"
                         "\n----------------------\n");
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_CLANG)
     RUN_EACH_TYPE(TestDriver_ConstFunctors,
                   testCase3,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
 
+#if !defined(BSLS_PLATFORM_CMP_SUN) && !defined(BSLS_PLATFORM_CMP_CLANG)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
                   testCase3,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
 
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
@@ -9350,6 +9304,8 @@ void mainTestCase3()
                   testCase3,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,
@@ -9361,6 +9317,8 @@ void mainTestCase3()
     RUN_EACH_TYPE(TestDriver_FunctionReferences,
                   testCase3,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
+#endif
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
@@ -9527,17 +9485,21 @@ void mainTestCase2()
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_CLANG)
     if (verbose) printf("\nTesting const functors"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_ConstFunctors,
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
 
+#if !defined(BSLS_PLATFORM_CMP_SUN) && !defined(BSLS_PLATFORM_CMP_CLANG)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
 
     if (verbose) printf("\nTesting 'bsltf' configuration"
                         "\n-----------------------------\n");
@@ -9551,17 +9513,21 @@ void mainTestCase2()
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
-    if (verbose) printf("\nTesting function referecnes"
+    if (verbose) printf("\nTesting function references"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionReferences,
                   testCase2,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
+#endif
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");

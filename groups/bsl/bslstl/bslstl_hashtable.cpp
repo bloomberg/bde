@@ -92,7 +92,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
         static size_t roundToMax(double d)
             // Return the integer value corresponding to the specified 'd', or
             // the highest unsigned value representable by 'size_t' if 'd' is
-            // larger.  The behaviour is undefine unless '0.0 <= d'.
+            // larger.  The behavior is undefine unless '0.0 <= d'.
         {
             BSLS_ASSERT_SAFE(0.0 <= d);
 
@@ -102,10 +102,10 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
         }
 
         static size_t throwIfOverMax(double d)
-            // Throw a 'std::length_error' exception if 'd' is  larger than the
+            // Throw a 'std::length_error' exception if 'd' is larger than the
             // highest unsigned value representable by 'size_t'.  Return the
             // integer value corresponding to the specified 'd', rounding down.
-            // The behaviour is undefine unless '0.0 <= d'.
+            // The behavior is undefine unless '0.0 <= d'.
         {
             BSLS_ASSERT_SAFE(0.0 <= d);
 

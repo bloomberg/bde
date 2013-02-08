@@ -1492,6 +1492,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
+#include <bslmf_addlvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -1558,12 +1562,13 @@ class HashTable_HashWrapper {
     //
     // Note that we would only one class, not two, with C++11 variadic
     // templates and perfect forwarding, and we could also easily detect
-    // whether ot not 'FUNCTOR' provided a const-qualified 'operator()'.
+    // whether or not 'FUNCTOR' provided a const-qualified 'operator()'.
 
   private:
-    typedef typename bsl::conditional<bsl::is_function<FUNCTOR>::value,
-                                     FUNCTOR&,
-                                     FUNCTOR>::type FunctorMember;
+    typedef typename bsl::conditional<
+                             bsl::is_function<FUNCTOR>::value,
+                             typename bsl::add_lvalue_reference<FUNCTOR>::type,
+                             FUNCTOR>::type FunctorMember;
 
     mutable FunctorMember d_functor;
 
@@ -2134,7 +2139,7 @@ class HashTable {
         // both objects in an safely destructible, but otherwise unusable,
         // state.  The operation guarantees O[1] complexity.  The behavior is
         // undefined unless either this object has an allocator that compares
-        // equl to the allocator of 'other', or the trait
+        // equal to the allocator of 'other', or the trait
         // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
         // 'true'.
 
@@ -2253,9 +2258,9 @@ void swap(HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& x,
     // modify either allocator otherwise.  This method guarantees O[1]
     // complexity if 'a' and 'b' have the same allocator or if the allocators
     // propagate on swap, otherwise this operation will typically pay the cost
-    // of two copy construcutors, which may in turn throw.  If the allocators
+    // of two copy constructors, which may in turn throw.  If the allocators
     // are the same or propageate, then this method provides the no-throw
-    // exception-safety guarantee unless the 'swap' funcion of the hasher
+    // exception-safety guarantee unless the 'swap' function of the hasher
     // or comparator throw.  Otherwise this method offers only the basic
     // exception safety guarantee.
 
@@ -2793,7 +2798,7 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     // The assertions above are a loose safety check that this conversion
     // can never overflow - which would require an allocator using a
     // 'size_type' larger than 'std::size_t', with the requirement that a
-    // standard coforming allocator must use a 'size_type' that is a buit-in
+    // standard conforming allocator must use a 'size_type' that is a built-in
     // unsigned integer type.
 
     const SizeType newArraySize = static_cast<SizeType>(bucketArraySize);
@@ -2928,7 +2933,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
     // allocator *is* the default allocator, and so may be restricted during
     // testing.  This would cause the test below to fail by throwing a bad
     // allocation exception, and so result in a throwing destructor.  While the
-    // MallocFree alloctor might also run out of resources, that is not the
+    // MallocFree allocator might also run out of resources, that is not the
     // kind of catastrophic failure we are concerned with handling in an
     // invariant check that runs only in SAFE_2 builds from a destructor.
     //
@@ -3304,7 +3309,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 
     // Insert logic, first test the hint
 
-    size_t hashCode = this->d_parameters.hashCodeForKey(ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
     if (!d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
                                    ImpUtil::extractKey<KEY_CONFIG>(hint))) {
         hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
