@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdet_timeinterval
 //
-//@AUTHOR: Khalid Shafiq (kshafiq)
+//@AUTHOR: Khalid Shafiq (kshafiq), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component provides static methods for retrieving system
 // time.  The system time is expressed as a time interval between the current
@@ -211,7 +211,7 @@ namespace BloombergLP {
                             // class bdetu_SystemTime
                             // ======================
 
-class bdetu_SystemTime {
+struct bdetu_SystemTime {
     // This class provides a namespace for stateful system-time-retrieval
     // procedures.  These methods are alias-safe and exception-neutral.  These
     // procedures are *not* thread-safe.  The behavior is undefined if an
@@ -224,7 +224,6 @@ class bdetu_SystemTime {
     // a multi-threaded environment, 'setSystemTimeCallback' should be called
     // at most once in 'main' before any threads have been started.
 
-  public:
     // TYPES
     typedef void (*SystemTimeCallback)(bdet_TimeInterval *result);
         // 'SystemTimeCallback' is a callback function pointer for a callback
@@ -236,14 +235,37 @@ class bdetu_SystemTime {
         // callback function that returns the time difference between local
         // time and UTC time.
 
+    typedef bdet_DatetimeInterval (*GetLocalTimeOffsetCallback)(
+                                                       bdet_TimeInterval  now,
+                                                       const void        *arg);
+        // 'GetLocalTimeOffsetCallback' is a function that retrieve the offset
+        // between local time and UTC when called with the specified, 'now'
+        // (the current system time), and the specified opaque argument pointer
+        // 'arg' (which must define the local timezone in a manner known to
+        // 'callback').
+
+    typedef struct {
+        GetLocalTimeOffsetCallback  d_callback;
+        const void                 *d_arg;
+    } GetLocalTimeOffsetCallbackSpec;
+
+
   private:
     static SystemTimeCallback s_systime_callback_p;
                                        // address of system-time callback
     static LocalTimeOffsetCallback s_localtimeoffset_callback_p;
                                        // address of local-time offset callback
 
+    static const GetLocalTimeOffsetCallbackSpec
+                                           *s_getLocalTimeOffsetCallbackSpec_p;
+                                       // address of get local-time callback
+                                       // specifcation
+
   public:
     // CLASS METHODS
+
+                        // ** now methods **
+
     static bdet_TimeInterval now();
         // Return a 'bdet_TimeInterval' value representing the current system
         // time using the currently installed callback function.  Note that the
@@ -273,6 +295,8 @@ class bdetu_SystemTime {
         // Return a 'bdet_Datetime' value representing the current system time
         // in the local time zone.
 
+                        // ** invoke callbacks **
+
     static bdet_DatetimeInterval localTimeOffset();
         // Return a 'bdet_DatetimeInterval' value representing the current
         // differential between the local time and the UTC time.  This method
@@ -297,25 +321,48 @@ class bdetu_SystemTime {
         // default local-time-offset callback implementation for local time
         // offset retrieval.
 
+                        // ** set callbacks **
+
     static SystemTimeCallback
     setSystemTimeCallback(SystemTimeCallback callback);
         // Install the user-specified custom 'callback' function to retrieve
-        // the system time.  The behavior of other methods in this component
-        // will be corrupted unless 'callback' returns an absolute offset since
-        // the epoch time 00:00 UTC, January 1, 1970.
+        // the system time.  Return the previously installed callback function.
+        // The behavior of other methods in this component will be corrupted
+        // unless 'callback' returns an absolute offset since the epoch time
+        // 00:00 UTC, January 1, 1970.
 
     static LocalTimeOffsetCallback
     setLocalTimeOffsetCallback(LocalTimeOffsetCallback callback);
         // Install the user-specified custom 'callback' function to retrieve
-        // the offset between local time and UTC time.  The behavior of other
-        // methods in this component will be corrupted unless 'callback'
-        // returns a correct offset.
+        // the offset between local time and UTC time.  Return the previously
+        // installed callback function.  The behavior of other methods in this
+        // component will be corrupted unless 'callback' returns a correct
+        // offset.
+       
+    static const GetLocalTimeOffsetCallbackSpec *
+    setGetLocalTimeOffsetCallback(
+                           const GetLocalTimeOffsetCallbackSpec *callbackSpec);
+        // Install from the specified 'callbackSpec' a callback function to
+        // retrieve the offset between local time and UTC when called with the
+        // current system time and with the opaque argument pointer from
+        // 'callbackSpec'.  The opaque argument must define the local timezone
+        // in a manner known to the callback function).  Return the previously
+        // installed callback specification.  The behavior of other methods in
+        // this component will be corrupted unless 'callback' returns a correct
+        // offset.
+
+                        // ** get callbacks **
 
     static SystemTimeCallback currentSystemTimeCallback();
         // Return the currently installed 'SystemTimeCallback' function.
 
     static LocalTimeOffsetCallback currentLocalTimeOffsetCallback();
         // Return the currently installed 'LocalTimeOffsetCallback' function.
+
+    static const GetLocalTimeOffsetCallbackSpec *
+                                       currentGetLocalTimeOffsetCallbackSpec();
+        // Return the currently installed 'GetLocalTimeOffsetCallback'
+        // function and its opaque argument pointer.
 };
 
 // ==========================================================================
@@ -327,6 +374,9 @@ class bdetu_SystemTime {
                             // ----------------------
 
 // CLASS METHODS
+
+                        // ** now methods **
+
 inline
 bdet_TimeInterval bdetu_SystemTime::now()
 {
@@ -356,6 +406,8 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
     return nowAsDatetimeUtc();
 }
 
+                        // ** invoke callbacks **
+
 inline
 bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
 {
@@ -367,6 +419,8 @@ void bdetu_SystemTime::loadCurrentTime(bdet_TimeInterval *result)
 {
     s_systime_callback_p(result);
 }
+
+                        // ** set callbacks **
 
 inline
 bdetu_SystemTime::SystemTimeCallback
@@ -390,6 +444,19 @@ bdetu_SystemTime::setLocalTimeOffsetCallback(LocalTimeOffsetCallback callback)
 }
 
 inline
+const bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec *
+bdetu_SystemTime::setGetLocalTimeOffsetCallback(
+                            const GetLocalTimeOffsetCallbackSpec *callbackSpec)
+{
+    const GetLocalTimeOffsetCallbackSpec *previousCallbackSpec =
+                                            s_getLocalTimeOffsetCallbackSpec_p;
+    s_getLocalTimeOffsetCallbackSpec_p = callbackSpec;
+    return previousCallbackSpec;
+}
+
+                        // ** get callbacks **
+
+inline
 bdetu_SystemTime::SystemTimeCallback
 bdetu_SystemTime::currentSystemTimeCallback()
 {
@@ -401,6 +468,13 @@ bdetu_SystemTime::LocalTimeOffsetCallback
 bdetu_SystemTime::currentLocalTimeOffsetCallback()
 {
     return s_localtimeoffset_callback_p;
+}
+
+inline
+const  bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec *
+bdetu_SystemTime::currentGetLocalTimeOffsetCallbackSpec()
+{
+    return s_getLocalTimeOffsetCallbackSpec_p;
 }
 
 }  // close namespace BloombergLP

@@ -9,6 +9,8 @@
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 
+#include <bsls_stopwatch.h>  // case -2
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -185,10 +187,10 @@ bdet_DatetimeInterval getLocalTimeOffset()
 int main(int argc, char *argv[])
 {
 
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
+    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -1449,6 +1451,92 @@ int main(int argc, char *argv[])
             cout << "Resolution: " << (ti2 - ti1).totalSecondsAsDouble() <<
                                                                   " seconds\n";
         }
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE 'localTimeOffset'
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PERFORMANCE 'localTimeOffset'" << endl
+                          << "=============================" << endl;
+
+
+        int count = argc > 2 ? atoi(argv[2]) : 100;
+
+        if (verbose) P(count);
+
+#if   defined(TEST_EMPTY_LOOP)
+            Q(TEST_EMPTY_LOOP)
+#elif defined(TEST_BASELINE)
+            Q(TEST_BASELINE)
+#elif defined(TEST_SET_CALLBACK)
+            Q(TEST_SET_CALLBACK)
+#else
+#error "UNKNOWN BUILD FLAG"
+#endif
+
+#ifdef TEST_SET_CALLBACK
+        Q(USE! alternate callback)
+
+        struct MyUtil {
+
+            static bdet_DatetimeInterval getLocalTimeOffset()
+            {
+                return bdet_DatetimeInterval();
+            }
+        };
+
+        bdetu_SystemTime::LocalTimeOffsetCallback oldCallback;
+        oldCallback = bdetu_SystemTime::setLocalTimeOffsetCallback(
+                                                  &MyUtil::getLocalTimeOffset);
+#else
+        Q(USE! default callback)
+#endif
+
+        bsls::Stopwatch stopwatch;
+
+        stopwatch.start(true);
+
+        for (int i = 0; i < count; ++i) {
+#ifdef TEST_EMPTY_LOOP
+#else
+            bdet_DatetimeInterval dti;
+            dti = bdetu_SystemTime::localTimeOffset();
+#endif
+            //if (veryVerbose) { T_() P_(i) P(dti) }
+        }
+        stopwatch.stop();
+
+#ifdef TEST_SET_CALLBACK
+        Q(USED alternate callback)
+        bdetu_SystemTime::setLocalTimeOffsetCallback(oldCallback);
+#else
+        Q(USED default callback)
+#endif
+
+        if (verbose) {
+            double systemTime, userTime, wallTime;
+            stopwatch.accumulatedTimes(&systemTime,
+                                       &userTime,
+                                       &wallTime);
+            P_(systemTime) P_(userTime) P(wallTime);
+        }
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // BUILD EXPERIMENT
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BUILD EXPERIMENT" << endl
+                          << "================" << endl;
+
+//#if   defined(BUILD_OPTION1)
+#ifdef BUILD_OPTION1
+            Q(BUILD_OPTION1)
+#endif
+
       } break;
       default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
