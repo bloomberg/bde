@@ -1,4 +1,4 @@
-// bdetu_systemtime.t.cpp         -*-C++-*-
+// bdetu_systemtime.t.cpp                                             -*-C++-*-
 
 #include <bdetu_systemtime.h>
 #include <bdet_datetimeinterval.h>
@@ -9,7 +9,7 @@
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 
-#include <bsls_stopwatch.h>  // case -2
+#include <bsls_stopwatch.h>          // case -2
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
     int            test = argc > 1 ? atoi(argv[1]) : 0;
     int         verbose = argc > 2;
     int     veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -1537,6 +1537,44 @@ int main(int argc, char *argv[])
             Q(BUILD_OPTION1)
 #endif
 
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // NEW INTERFACES
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "NEW INTERFACES" << endl
+                          << "==============" << endl;
+
+        struct MyTimeoffsetUtil
+        {
+            static bdet_DatetimeInterval getTimeOffset(bdet_TimeInterval  now,
+                                                       void              *arg)
+            {
+                P_(now) P((const char *)arg)
+                return bdet_DatetimeInterval();
+            }
+        };
+
+        char localTimezone[] = "America/New_York";
+
+        bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec callbackSpec = {
+                                               MyTimeoffsetUtil::getTimeOffset,
+                                               &localTimezone
+                                             };
+
+         bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec *oldCallbackSpec =
+                bdetu_SystemTime::setGetLocalTimeOffsetCallback(&callbackSpec);
+         ASSERT(0 == oldCallbackSpec);
+
+         bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec *currentCallbackSpec
+                   = bdetu_SystemTime::currentGetLocalTimeOffsetCallbackSpec();
+         ASSERT(&callbackSpec == currentCallbackSpec);
+
+         bdet_DatetimeInterval offset = bdetu_SystemTime::getLocalTimeOffset();
+         ASSERT(bdet_DatetimeInterval() == offset);
+       
       } break;
       default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

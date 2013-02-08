@@ -23,11 +23,14 @@ BDES_IDENT_RCSID(bdetu_systemtime_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 bdetu_SystemTime::SystemTimeCallback
-bdetu_SystemTime::s_systime_callback_p
-                                     = bdetu_SystemTime::loadSystemTimeDefault;
+bdetu_SystemTime::s_systime_callback_p =
+                                       bdetu_SystemTime::loadSystemTimeDefault;
 bdetu_SystemTime::LocalTimeOffsetCallback
-bdetu_SystemTime::s_localtimeoffset_callback_p
-                                = bdetu_SystemTime::loadLocalTimeOffsetDefault;
+bdetu_SystemTime::s_localtimeoffset_callback_p =
+                                  bdetu_SystemTime::loadLocalTimeOffsetDefault;
+
+bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec *
+bdetu_SystemTime::s_getLocalTimeOffsetCallbackSpec_p = 0;
 
                             // ----------------------
                             // class bdetu_SystemTime
