@@ -322,11 +322,15 @@ class baejsn_Decoder {
                   int                mode,
                   bdeat_TypeCategory::Array);
     template <typename TYPE, typename ANY_CATEGORY>
-    int decodeImp(TYPE *object, ANY_CATEGORY category);
-        // Decode into the specified 'value' of the corresponding 'bdeat' type
-        // and using the specified formatting 'mode' the JSON data currently
-        // referred to by the parser owned by this object.  Return 0 on success
-        // and a non-zero value otherwise.
+    int decodeImp(TYPE *value, ANY_CATEGORY category);
+        // Decode into the specified 'value', of a (template parameter) 'TYPE'
+        // corresponding to the specified 'bdeat' category, the JSON data
+        // currently referred to by the tokenizer owned by this object, using
+        // the specified formatting 'mode'.  Return 0 on success and a non-zero
+        // value otherwise.  The behavior is undefined unless 'value'
+        // corresponds to the specified 'bdeat' category and 'mode' is a valid
+        // formatting mode as specified in 'bdeat_FormattingMode'.  Note that
+        // 'ANY_CATEGORY' shall be a tag defined in 'bdeat_TypeCategory'.
 
     int skipUnknownElement(const bslstl::StringRef& elementName);
         // Skip the unknown element specified by 'elementName' by discarding
@@ -348,7 +352,9 @@ class baejsn_Decoder {
         // Decode an object of (template parameter) 'TYPE' from the specified
         // 'streamBuf' and using the specified 'options'.  Load the result into
         // the specified modifiable 'value'.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // non-zero value otherwise.  Note that 'value' is expected to refer to
+        // a sequence, choice, or array type and an error is returned if it
+        // does not.
 
     template <typename TYPE>
     int decode(bsl::istream&                 stream,
@@ -358,7 +364,9 @@ class baejsn_Decoder {
         // 'stream' and using the specified 'options'.  Load the result into
         // the specified modifiable 'value'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that 'stream' will be invalidated if
-        // the decoding fails.
+        // the decoding fails.  Also note that 'value' is expected to refer to
+        // a sequence, choice, or array type and an error is returned if it
+        // does not.
 
     template <typename TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
@@ -393,13 +401,9 @@ class baejsn_Decoder {
 struct baejsn_Decoder_ElementVisitor {
     // This 'class' implements a visitor for decoding elements within a
     // sequence, choice, or array type.  This is a component-private class and
-    // should not be used outside of this component.  Note that this 'class'
-    // provides the following operators:
-    //..
-    //  template <typename TYPE> int operator()(TYPE *value);
-    //  template <typename TYPE, typename INFO>
-    //  int operator()(TYPE *value, const INFO& info);
-    //..
+    // should not be used outside of this component.  Note that the operators
+    // provided in this 'class' match the function signatures required of
+    // visitors decoding into elements of compatible types.
 
     // DATA
     baejsn_Decoder *d_decoder_p;  // decoder (held, not owned)
@@ -428,14 +432,9 @@ struct baejsn_Decoder_ElementVisitor {
 
 struct baejsn_Decoder_DecodeImpProxy {
     // This class provides a functor that dispatches the appropriate
-    // 'decodeImp' method for a 'bdeat' Dynamic type.  This is a
-    // component-private class and should not be used outside of this
-    // component.  Note that this 'class'
-    // provides the following operator:
-    //..
-    //  template <typename TYPE, typename ANY_CATEGORY>
-    //  int operator()(TYPE *value, ANY_CATEGORY category);
-    //..
+    // 'decodeImp' method for a 'bdeat' Dynamic type.  Note that the operators
+    // provided in this 'class' match the function signatures required of
+    // visitors decoding into compatible types.
 
     // DATA
     baejsn_Decoder *d_decoder_p;  // decoder (held, not owned)

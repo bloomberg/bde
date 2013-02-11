@@ -29,10 +29,6 @@ baejsn_Encoder_Formatter::baejsn_Encoder_Formatter(
         d_indentLevel    = 0;
         d_spacesPerLevel = 0;
     }
-
-    if (d_usePrettyStyle) {
-        bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
-    }
 }
 
 // MANIPULATORS
@@ -124,6 +120,21 @@ void baejsn_Encoder_Formatter::closeElement()
         d_outputStream << '\n';
     }
 }
+
+void baejsn_Encoder_Formatter::openDocument()
+{
+    if (d_usePrettyStyle) {
+        bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+    }
+}
+
+void baejsn_Encoder_Formatter::endDocument()
+{
+    if (d_usePrettyStyle) {
+        d_outputStream << '\n';
+    }
+}
+
 
                             // -------------------------------
                             // class baejsn_Encoder_EncodeImpl

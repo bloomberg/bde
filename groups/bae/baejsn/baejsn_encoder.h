@@ -331,7 +331,9 @@ class baejsn_Encoder {
                const baejsn_EncoderOptions&  options);
         // Encode the specified 'value' of (template parameter) 'TYPE' into the
         // specified 'streamBuf' using the specified 'options'.  Return 0 on
-        // success, and a non-zero value otherwise.
+        // success, and a non-zero value otherwise.  Note that 'value' is
+        // expected to refer to a sequence, choice, or array type and an error
+        // is returned if it does not.
 
     template <typename TYPE>
     int encode(bsl::ostream&                stream,
@@ -340,7 +342,9 @@ class baejsn_Encoder {
         // Encode the specified 'value' of (template parameter) 'TYPE' into the
         // specified 'streamBuf' using the specified 'options'.  Return 0 on
         // success, and a non-zero value otherwise.  Note that 'stream' will be
-        // invalidated if the encoding failed.
+        // invalidated if the encoding failed.  Note that 'value' is expected
+        // to refer to a sequence, choice, or array type and an error is
+        // returned if it does not.
 
     template <typename TYPE>
     int encode(bsl::streambuf *streamBuf, const TYPE& value);
@@ -376,7 +380,10 @@ class baejsn_Encoder_Formatter {
     // This class implements a formatter that allows providing the appropriate
     // indentation when encoding objects in the JSON format.  This is a
     // component-private class and should not be used outside of this
-    // component.
+    // component.  This class implements a formatter providing operations for
+    // rending JSON text elements to an output stream (supplied at
+    // construction) according to a set formatting options (also supplied at
+    // construction).
 
     // DATA
     bsl::ostream& d_outputStream;     // stream for output (held, not owned)
@@ -397,32 +404,41 @@ class baejsn_Encoder_Formatter {
 
     // MANIPULATORS
     void openObject();
-        // Print onto the held stream the sequence of characters for the
-        // opening of an object.
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of an object.
 
     void closeObject();
-        // Print onto the held stream the sequence of characters for the
-        // closing of an object.
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of an object.
 
     void openArray();
-        // Print onto the held stream the sequence of characters for the
-        // opening of an array.
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of an array.
 
     void closeArray();
-        // Print onto the held stream the sequence of characters for the
-        // closing of an array.
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of an array.
 
     void indent();
-        // Indent the current element.
+        // Print onto the stream supplied at construction the sequence of
+        // whitespace characters for an element.
 
     int openElement(const bsl::string& name);
-        // Print onto the held stream the sequence of characters for the
-        // opening of an element having the specified 'name'.  Return 0 on
-        // success and a non-zero value otherwise.
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of an element having the specified
+        // 'name'.  Return 0 on success and a non-zero value otherwise.
 
     void closeElement();
-        // Print onto the held stream the sequence of characters for the
-        // closing of an element.
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of an element.
+
+    void openDocument();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of the document.
+
+    void endDocument();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of the document.
 
     void setIsArrayElement(bool isArrayElement);
         // Set the flag denoting if the current element refers to an array
@@ -497,10 +513,13 @@ class baejsn_Encoder_EncodeImpl {
     int encodeImp(const TYPE& value,
                   int,
                   bdeat_TypeCategory::Simple);
-        // Encode the specified 'value' invoking the appropriate function based
-        // on the corresponding 'bdeat' type of 'value' and the specified
-        // formatting 'mode'.  Return 0 on success, and a non-zero value
-        // otherwise.
+        // Encode the specified 'value', of a (template parameter) 'TYPE'
+        // corresponding to the specified 'bdeat' category, into JSON onto the
+        // 'streambuf' supplied at construction, using the specified formatting
+        // 'mode'.  Return 0 on success and a non-zero value otherwise.  The
+        // behavior is undefined unless 'value' corresponds to the specified
+        // 'bdeat' category and 'mode' is a valid formatting mode as specified
+        // in 'bdeat_FormattingMode'.
 
   public:
     // CREATORS
@@ -529,12 +548,9 @@ class baejsn_Encoder_EncodeImpl {
 struct baejsn_Encoder_ElementVisitor {
     // This class encodes elements in an array or a choice in the JSON format.
     // This is a component-private class and should not be used outside of this
-    // component.  Note that this 'class' provides the following operators:
-    //..
-    //  template <typename TYPE> int operator()(TYPE *value);
-    //  template <typename TYPE, typename INFO>
-    //  int operator()(TYPE *value, const INFO& info);
-    //..
+    // component.  Note that the operators provided in this 'class' match the
+    // function signatures required of visitors encoding elements of compatible
+    // types.
 
     // DATA
     baejsn_Encoder_EncodeImpl *d_encoder;  // encoder (held, not owned)
@@ -563,8 +579,9 @@ struct baejsn_Encoder_ElementVisitor {
 class baejsn_Encoder_SequenceVisitor {
     // This functor class encodes element in a sequence.  It should be passed
     // as an argument to the 'bdeat_SequenceFunctions::accessAttributes'
-    // function.  This is a component-private class and should not be used
-    // outside of this component.
+    // function.  Note that the operators provided in this 'class' match the
+    // function signatures required of visitors encoding elements of 'bdeat'
+    // sequence types.
 
     // DATA
     baejsn_Encoder_EncodeImpl *d_encoder;          // encoder (held, not owned)
@@ -612,7 +629,9 @@ class baejsn_Encoder_SequenceVisitor {
 struct baejsn_Encoder_DynamicTypeDispatcher {
     // This class is used to dispatch the appropriate 'encodeImp' method for a
     // 'bdeat' Dynamic type.  This is a component-private class and should not
-    // be used outside of this component.
+    // be used outside of this component.  Note that the operators provided in
+    // this 'class' match the function signatures required of visitors encoding
+    // elements of 'bdeat' dynamic types.
 
     // DATA
     baejsn_Encoder_EncodeImpl *d_encoder;  // encoder (held, not owned)
@@ -694,12 +713,14 @@ int baejsn_Encoder::encode(bsl::streambuf               *streamBuf,
 
     baejsn_Encoder_EncodeImpl encoderImpl(this, streamBuf, options);
 
+    d_formatter.openDocument();
+
     const int rc = encoderImpl.encode(value, 0);
 
-    if (!rc
-     && baejsn_EncoderOptions::BAEJSN_PRETTY == options.encodingStyle()) {
-        streamBuf->sputc('\n');
+    if (!rc) {
+        d_formatter.closeDocument();
     }
+
     return rc;
 }
 

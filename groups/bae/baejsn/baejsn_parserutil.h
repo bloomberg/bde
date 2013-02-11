@@ -138,18 +138,22 @@ struct baejsn_ParserUtil {
         // as a string in the ISO 8601 format in the specified 'data' and
         // having a maximum data length of the specified 'maxLength'.  Return 0
         // on success and a non-zero value otherwise.  Note that an error is
-        // returned if 'data.length() > maxLength'.
+        // returned if 'data.length() > maxLength'.  Also note that 'TYPE' is
+        // expected to be one of 'bdet_Date', 'bdet_Time', bdet_Datetime',
+        // 'bdet_DateTz', 'bdet_TimeTz', or 'bdet_DatetimeTz'.
 
     template <typename TYPE>
     static int getIntegralValue(TYPE *value, bslstl::StringRef data);
         // Load into the specified 'value' the integer value in the specified
-        // 'data'.  Return 0 on success and a non-zero value otherwise.
+        // 'data'.  Return 0 on success and a non-zero value otherwise.  Note
+        // that 'TYPE' is expected to be a *signed* integral type.
 
     template <typename TYPE>
     static int getUnsignedIntegralValue(TYPE *value, bslstl::StringRef data);
         // Load into the specified 'value' the unsigned integer value in the
         // specified 'data'.  Return 0 on success and a non-zero value
-        // otherwise.
+        // otherwise.  Note that 'TYPE' is expected to be a *unsigned* integral
+        // type.
 
     static int getUint64(bsls::Types::Uint64 *value, bslstl::StringRef data);
         // Load into the specified 'value' the value in the specified 'data'.
