@@ -3,6 +3,6 @@ baejsn_decoder
 baejsn_decoderoptions
 baejsn_encoder
 baejsn_encoderoptions
-baejsn_parser
 baejsn_parserutil
 baejsn_printutil
+baejsn_tokenizer

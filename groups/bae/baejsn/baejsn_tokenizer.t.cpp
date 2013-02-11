@@ -1,5 +1,5 @@
-// baejsn_parser.t.cpp                                                -*-C++-*-
-#include <baejsn_parser.h>
+// baejsn_tokenizer.t.cpp                                             -*-C++-*-
+#include <baejsn_tokenizer.h>
 
 #include <baejsn_parserutil.h>
 
@@ -31,17 +31,17 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test implements a parser for traversing a stream filled
-// with JSON data and allows populating an in-memory structure with almost no
-// memory allocations.  The implementation works as a finite state machine
-// moving from one token to another when the 'advanceToNextToken' function is
-// called.  The majority of this test driver tests that function by starting
-// at a particular token, calling that function, and ensuring that after the
-// advance the next token and the data value is as expected.
+// The component under test implements a tokenizer for traversing a stream
+// filled with JSON data and allows populating an in-memory structure with
+// almost no memory allocations.  The implementation works as a finite state
+// machine moving from one token to another when the 'advanceToNextToken'
+// function is called.  The majority of this test driver tests that function by
+// starting at a particular token, calling that function, and ensuring that
+// after the advance the next token and the data value is as expected.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] baejsn_Parser(bslma_Allocator *bA = 0);
-// [ 2] ~baejsn_Parser();
+// [ 2] baejsn_Tokenizer(bslma_Allocator *bA = 0);
+// [ 2] ~baejsn_Tokenizer();
 //
 // MANIPULATORS
 // [ 9] void reset(bsl::streambuf &streamBuf);
@@ -140,7 +140,7 @@ static void aSsErT(int c, const char *s, int i)
 
 enum { SUCCESS = 0, FAILURE = -1 };
 
-typedef baejsn_Parser Obj;
+typedef baejsn_Tokenizer Obj;
 
 bsl::ostream& operator<<(bsl::ostream& stream, Obj::TokenType value)
 {
@@ -211,10 +211,10 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Extracting JSON data into an object
 ///----------------------------------------------
-// For this example, we will use 'baejsn_Parser' to read each node in a
+// For this example, we will use 'baejsn_Tokenizer' to read each node in a
 // JSON document and populate a simple 'Employee' object.
 //
-// First, we will define the JSON data that the parser will traverse over:
+// First, we will define the JSON data that the tokenizer will traverse over:
 //..
     const char *INPUT = "    {\n"
                         "        \"street\" : \"Lexington Ave\",\n"
@@ -226,11 +226,11 @@ int main(int argc, char *argv[])
 //..
     bdesb_FixedMemInStreamBuf isb(INPUT, bsl::strlen(INPUT));
 //..
-// Then, we will create a 'baejsn_Parser' object and associate the above
+// Then, we will create a 'baejsn_Tokenizer' object and associate the above
 // streambuf with it:
 //..
-    baejsn_Parser parser;
-    parser.reset(&isb);
+    baejsn_Tokenizer tokenizer;
+    tokenizer.reset(&isb);
 //..
 // Next, we will create a 'bcem_Aggregate' representing an employee:
 //..
@@ -247,38 +247,38 @@ int main(int argc, char *argv[])
 //..
     // Read '{'
 
-    int rc = parser.advanceToNextToken();
+    int rc = tokenizer.advanceToNextToken();
     ASSERT(!rc);
 
-    baejsn_Parser::TokenType token = parser.tokenType();
-    ASSERT(baejsn_Parser::BAEJSN_START_OBJECT == token);
+    baejsn_Tokenizer::TokenType token = tokenizer.tokenType();
+    ASSERT(baejsn_Tokenizer::BAEJSN_START_OBJECT == token);
 
-    rc = parser.advanceToNextToken();
+    rc = tokenizer.advanceToNextToken();
     ASSERT(!rc);
-    token = parser.tokenType();
+    token = tokenizer.tokenType();
 
     // Continue reading elements till '}' is encountered
 
-    while (baejsn_Parser::BAEJSN_END_OBJECT != token) {
-        ASSERT(baejsn_Parser::BAEJSN_ELEMENT_NAME == token);
+    while (baejsn_Tokenizer::BAEJSN_END_OBJECT != token) {
+        ASSERT(baejsn_Tokenizer::BAEJSN_ELEMENT_NAME == token);
 
         // Read element name
 
         bslstl::StringRef nodeValue;
-        rc = parser.value(&nodeValue);
+        rc = tokenizer.value(&nodeValue);
         ASSERT(!rc);
 
         bsl::string elementName = nodeValue;
 
         // Read element value
 
-        int rc = parser.advanceToNextToken();
+        int rc = tokenizer.advanceToNextToken();
         ASSERT(!rc);
 
-        token = parser.tokenType();
-        ASSERT(baejsn_Parser::BAEJSN_ELEMENT_VALUE == token);
+        token = tokenizer.tokenType();
+        ASSERT(baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE == token);
 
-        rc = parser.value(&nodeValue);
+        rc = tokenizer.value(&nodeValue);
         ASSERT(!rc);
 
         // Extract the simple type with the data
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
         if (bdem_ElemType::BDEM_STRING == address.fieldType(elementName)) {
 
             bsl::string data;
-            rc = baejsn_ParserUtil::getValue(&data, nodeValue);
+            rc = baejsn_Parserutil::getValue(&data, nodeValue);
             ASSERT(!rc);
 
             // Populate the element with the read value
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
         }
         else if (bdem_ElemType::BDEM_INT == address.fieldType(elementName)) {
             int data;
-            rc = baejsn_ParserUtil::getValue(&data, nodeValue);
+            rc = baejsn_Parserutil::getValue(&data, nodeValue);
             ASSERT(!rc);
 
             // Populate the element with the read value
@@ -303,9 +303,9 @@ int main(int argc, char *argv[])
             address.setField(elementName, data);
         }
 
-        rc = parser.advanceToNextToken();
+        rc = tokenizer.advanceToNextToken();
         ASSERT(!rc);
-        token = parser.tokenType();
+        token = tokenizer.tokenType();
     }
 //..
 // Finally, we will verify that the 'address' aggregate has the correct values:

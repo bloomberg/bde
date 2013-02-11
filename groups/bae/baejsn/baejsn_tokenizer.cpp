@@ -1,8 +1,8 @@
-// baejsn_parser.cpp                                                  -*-C++-*-
-#include <baejsn_parser.h>
+// baejsn_tokenizer.cpp                                               -*-C++-*-
+#include <baejsn_tokenizer.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baejsn_tokenizer_cpp,"$Id$ $CSID$")
 
 #include <bdeu_chartype.h>
 
@@ -13,7 +13,7 @@ BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
 // IMPLEMENTATION NOTES
 // --------------------
 // The following table provides the various transitions that need to be
-// handled with the parser.
+// handled with the tokenizer.
 //
 //   Current Token             Curr Char    Next Char         Following Token
 //   -------------             ---------    ---------         ---------------
@@ -58,12 +58,12 @@ namespace {
     const char *TOKENS     = "{}[]:,";
 }
 
-                            // --------------------
-                            // struct baejsn_Parser
-                            // --------------------
+                            // -----------------------
+                            // struct baejsn_Tokenizer
+                            // -----------------------
 
 // PRIVATE MANIPULATORS
-int baejsn_Parser::reloadStringBuffer()
+int baejsn_Tokenizer::reloadStringBuffer()
 {
     d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
     const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[0],
@@ -73,7 +73,7 @@ int baejsn_Parser::reloadStringBuffer()
     return numRead;
 }
 
-int baejsn_Parser::skipWhitespace()
+int baejsn_Tokenizer::skipWhitespace()
 {
     while (true) {
         bsl::size_t pos = d_stringBuffer.find_first_not_of(WHITESPACE,
@@ -91,7 +91,7 @@ int baejsn_Parser::skipWhitespace()
     return 0;
 }
 
-int baejsn_Parser::extractStringValue()
+int baejsn_Tokenizer::extractStringValue()
 {
     d_valueBegin          = d_cursor;
     bsl::size_t iter      = d_cursor + 1;
@@ -138,7 +138,7 @@ int baejsn_Parser::extractStringValue()
     return 0;
 }
 
-int baejsn_Parser::skipNonWhitespaceOrTillToken()
+int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
 {
     d_valueBegin          = d_cursor;
     bsl::size_t iter      = d_cursor + 1;
@@ -187,7 +187,7 @@ int baejsn_Parser::skipNonWhitespaceOrTillToken()
 }
 
 // MANIPULATORS
-int baejsn_Parser::advanceToNextToken()
+int baejsn_Tokenizer::advanceToNextToken()
 {
     if (BAEJSN_ERROR == d_tokenType) {
         return -1;                                                    // RETURN
@@ -403,7 +403,7 @@ int baejsn_Parser::advanceToNextToken()
 }
 
 // ACCESSORS
-int baejsn_Parser::value(bslstl::StringRef *data) const
+int baejsn_Tokenizer::value(bslstl::StringRef *data) const
 {
     if ((BAEJSN_ELEMENT_NAME == d_tokenType
                                         || BAEJSN_ELEMENT_VALUE == d_tokenType)

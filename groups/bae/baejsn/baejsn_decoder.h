@@ -203,8 +203,8 @@ BDES_IDENT("$Id: $")
 #include <baejsn_parserutil.h>
 #endif
 
-#ifndef INCLUDED_BAEJSN_PARSER
-#include <baejsn_parser.h>
+#ifndef INCLUDED_BAEJSN_TOKENIZER
+#include <baejsn_tokenizer.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
@@ -286,7 +286,7 @@ class baejsn_Decoder {
 
     // DATA
     bsl::ostringstream  d_logStream;            // stream to record errors
-    baejsn_Parser       d_parser;               // JSON parser
+    baejsn_Tokenizer    d_tokenizer;            // JSON tokenizer
     bsl::string         d_elementName;          // current element name
     int                 d_currentDepth;         // current decoding depth
     int                 d_maxDepth;             // max decoding depth
@@ -520,21 +520,22 @@ int baejsn_Decoder::decodeImp(TYPE *value,
             return -1;                                                // RETURN
         }
 
-        if (baejsn_Parser::BAEJSN_START_OBJECT != d_parser.tokenType()) {
+        if (baejsn_Tokenizer::BAEJSN_START_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode sequence, missing starting '{'\n";
             return -1;                                                // RETURN
         }
 
-        int rc = d_parser.advanceToNextToken();
+        int rc = d_tokenizer.advanceToNextToken();
         if (rc) {
             d_logStream << "Could not decode sequence, "
                         << "error reading token after '{'\n";
             return -1;                                                // RETURN
         }
 
-        while (baejsn_Parser::BAEJSN_ELEMENT_NAME == d_parser.tokenType()) {
+        while (baejsn_Tokenizer::BAEJSN_ELEMENT_NAME ==
+                                                     d_tokenizer.tokenType()) {
             bslstl::StringRef elementName;
-            rc = d_parser.value(&elementName);
+            rc = d_tokenizer.value(&elementName);
             if (rc) {
                 d_logStream << "Error reading attribute name after '{'\n";
                 return -1;                                            // RETURN
@@ -546,7 +547,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                                      static_cast<int>(elementName.length()))) {
                 d_elementName = elementName;
 
-                rc = d_parser.advanceToNextToken();
+                rc = d_tokenizer.advanceToNextToken();
                 if (rc) {
                     d_logStream << "Error reading value for attribute '"
                                 << d_elementName << "' \n";
@@ -582,7 +583,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                 }
             }
 
-            rc = d_parser.advanceToNextToken();
+            rc = d_tokenizer.advanceToNextToken();
             if (rc) {
                 d_logStream << "Could not decode sequence, error reading token"
                             << " after value for attribute '"
@@ -591,7 +592,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
             }
         }
 
-        if (baejsn_Parser::BAEJSN_END_OBJECT != d_parser.tokenType()) {
+        if (baejsn_Tokenizer::BAEJSN_END_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode sequence, "
                         << "missing terminator '}' or seperator ','\n";
             return -1;                                                // RETURN
@@ -657,21 +658,21 @@ int baejsn_Decoder::decodeImp(TYPE *value,
             return -1;                                                // RETURN
         }
 
-        if (baejsn_Parser::BAEJSN_START_OBJECT != d_parser.tokenType()) {
+        if (baejsn_Tokenizer::BAEJSN_START_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode choice, missing starting {\n";
             return -1;                                                // RETURN
         }
 
-        int rc = d_parser.advanceToNextToken();
+        int rc = d_tokenizer.advanceToNextToken();
         if (rc) {
             d_logStream << "Could not decode choice, "
                         << "error reading token after {\n";
             return -1;                                                // RETURN
         }
 
-        if (baejsn_Parser::BAEJSN_ELEMENT_NAME == d_parser.tokenType()) {
+        if (baejsn_Tokenizer::BAEJSN_ELEMENT_NAME == d_tokenizer.tokenType()) {
             bslstl::StringRef selectionName;
-            rc = d_parser.value(&selectionName);
+            rc = d_tokenizer.value(&selectionName);
             if (rc) {
                 d_logStream << "Error reading selection name after '{'\n";
                 return -1;                                            // RETURN
@@ -690,7 +691,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                     return -1;                                        // RETURN
                 }
 
-                rc = d_parser.advanceToNextToken();
+                rc = d_tokenizer.advanceToNextToken();
                 if (rc) {
                     d_logStream << "Could not decode choice, "
                                 << "error reading value \n";
@@ -723,7 +724,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                 }
             }
 
-            rc = d_parser.advanceToNextToken();
+            rc = d_tokenizer.advanceToNextToken();
             if (rc) {
                 d_logStream << "Could not decode choice, error reading "
                             << "token after value for selection \n";
@@ -731,7 +732,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
             }
         }
 
-        if (baejsn_Parser::BAEJSN_END_OBJECT != d_parser.tokenType()) {
+        if (baejsn_Tokenizer::BAEJSN_END_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode choice, "
                         << "missing terminator '}'\n";
             return -1;                                                // RETURN
@@ -749,13 +750,13 @@ int baejsn_Decoder::decodeImp(TYPE *value,
 {
     enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
 
-    if (baejsn_Parser::BAEJSN_ELEMENT_VALUE != d_parser.tokenType()) {
+    if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Enumeration element value was not found\n";
         return -1;                                                    // RETURN
     }
 
     bslstl::StringRef dataValue;
-    int rc = d_parser.value(&dataValue);
+    int rc = d_tokenizer.value(&dataValue);
     if (rc
      || dataValue.length() <= BAEJSN_MIN_ENUM_STRING_LENGTH
      || '"'                != dataValue[0]
@@ -781,13 +782,13 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                               int,
                               bdeat_TypeCategory::CustomizedType)
 {
-    if (baejsn_Parser::BAEJSN_ELEMENT_VALUE != d_parser.tokenType()) {
+    if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Customized element value was not found\n";
         return -1;                                                    // RETURN
     }
 
     bslstl::StringRef dataValue;
-    int rc = d_parser.value(&dataValue);
+    int rc = d_tokenizer.value(&dataValue);
     if (rc) {
         d_logStream << "Error reading customized type value\n";
         return -1;                                                    // RETURN
@@ -816,13 +817,13 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                               int,
                               bdeat_TypeCategory::Simple)
 {
-    if (baejsn_Parser::BAEJSN_ELEMENT_VALUE != d_parser.tokenType()) {
+    if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Simple element value was not found\n";
         return -1;                                                    // RETURN
     }
 
     bslstl::StringRef dataValue;
-    int rc = d_parser.value(&dataValue);
+    int rc = d_tokenizer.value(&dataValue);
     if (rc) {
         d_logStream << "Error reading simple value\n";
         return -1;                                                    // RETURN
@@ -844,21 +845,21 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                               int   mode,
                               bdeat_TypeCategory::Array)
 {
-    if (baejsn_Parser::BAEJSN_START_ARRAY != d_parser.tokenType()) {
+    if (baejsn_Tokenizer::BAEJSN_START_ARRAY != d_tokenizer.tokenType()) {
         d_logStream << "Could not decode vector, missing start token: '['\n";
         return -1;                                                    // RETURN
     }
 
-    const int rc = d_parser.advanceToNextToken();
+    const int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
         return rc;                                                    // RETURN
     }
 
     int i = 0;
-    while (baejsn_Parser::BAEJSN_END_ARRAY != d_parser.tokenType()) {
-        if (baejsn_Parser::BAEJSN_ELEMENT_VALUE == d_parser.tokenType()
-         || baejsn_Parser::BAEJSN_START_OBJECT  == d_parser.tokenType()) {
-
+    while (baejsn_Tokenizer::BAEJSN_END_ARRAY != d_tokenizer.tokenType()) {
+        if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()
+         || baejsn_Tokenizer::BAEJSN_START_OBJECT  ==
+                                                     d_tokenizer.tokenType()) {
             ++i;
             bdeat_ArrayFunctions::resize(value, i);
 
@@ -871,7 +872,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                 return -1;                                            // RETURN
             }
 
-            const int rc = d_parser.advanceToNextToken();
+            const int rc = d_tokenizer.advanceToNextToken();
             if (rc) {
                 d_logStream << "Error reading token after value of element '"
                             << i - 1 << "'\n";
@@ -884,7 +885,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
         }
     }
 
-    if (baejsn_Parser::BAEJSN_END_ARRAY != d_parser.tokenType()) {
+    if (baejsn_Tokenizer::BAEJSN_END_ARRAY != d_tokenizer.tokenType()) {
         d_logStream << "Could not decode vector, missing end token: ']'\n";
         return -1;                                                    // RETURN
     }
@@ -899,9 +900,9 @@ int baejsn_Decoder::decodeImp(TYPE *value,
 {
     enum { BAEJSN_NULL_VALUE_LENGTH = 4 };
 
-    if (baejsn_Parser::BAEJSN_ELEMENT_VALUE == d_parser.tokenType()) {
+    if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()) {
         bslstl::StringRef dataValue;
-        const int rc = d_parser.value(&dataValue);
+        const int rc = d_tokenizer.value(&dataValue);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -934,7 +935,7 @@ int baejsn_Decoder::decodeImp(TYPE *, ANY_CATEGORY)
 inline
 baejsn_Decoder::baejsn_Decoder(bslma_Allocator *basicAllocator)
 : d_logStream(basicAllocator)
-, d_parser(basicAllocator)
+, d_tokenizer(basicAllocator)
 , d_elementName(basicAllocator)
 , d_currentDepth(0)
 , d_maxDepth(0)
@@ -962,11 +963,11 @@ int baejsn_Decoder::decode(bsl::streambuf               *streamBuf,
         return -1;                                                    // RETURN
     }
 
-    d_parser.reset(streamBuf);
+    d_tokenizer.reset(streamBuf);
 
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    const int rc = d_parser.advanceToNextToken();
+    const int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
         d_logStream << "Error advancing to the first token. "
                     << "Expecting a '{' or '[' as the first character\n";

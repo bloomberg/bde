@@ -18,9 +18,9 @@ namespace BloombergLP {
 // PRIVATE MANIPULATORS
 int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 {
-    if (baejsn_Parser::BAEJSN_ELEMENT_VALUE == d_parser.tokenType()) {
+    if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()) {
         bslstl::StringRef dataValue;
-        int rc = d_parser.value(&dataValue);
+        int rc = d_tokenizer.value(&dataValue);
 
         const int MAX_LENGTH = 255;
         char      buffer[MAX_LENGTH + 1];
@@ -28,7 +28,7 @@ int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
         bdema_BufferedSequentialAllocator allocator(buffer, MAX_LENGTH + 1);
         bsl::string base64String(&allocator);
 
-        rc = baejsn_ParserUtil::getValue(&base64String, dataValue);
+        rc = baejsn_TokenizerUtil::getValue(&base64String, dataValue);
 
         bdede_Base64Decoder base64Decoder(true);
         bsl::back_insert_iterator<bsl::vector<char> > outputIterator(*value);
@@ -52,25 +52,26 @@ int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 
 int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
 {
-    int rc = d_parser.advanceToNextToken();
+    int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
         d_logStream << "Error advancing to token after '"
                     << elementName << "'\n";
         return -1;                                                    // RETURN
     }
 
-    if (baejsn_Parser::BAEJSN_ELEMENT_VALUE == d_parser.tokenType()) {
+    if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()) {
         // 'elementName' is a simple type.  Extract its value and return.
 
         bslstl::StringRef tmp;
-        rc = d_parser.value(&tmp);
+        rc = d_tokenizer.value(&tmp);
         if (rc) {
             d_logStream << "Error reading attribute value for "
                         << elementName << "'\n";
         }
         return rc;                                                    // RETURN
     }
-    else if (baejsn_Parser::BAEJSN_START_OBJECT == d_parser.tokenType()) {
+    else if (baejsn_Tokenizer::BAEJSN_START_OBJECT ==
+                                                     d_tokenizer.tokenType()) {
         // 'elementName' is a sequence or choice.  Descend into the element
         // and skip all its sub-elements.
 
@@ -85,25 +86,25 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
             // Use 'skippingDepth' to keep track of how we have descended and
             // when to return.
 
-            int rc = d_parser.advanceToNextToken();
+            int rc = d_tokenizer.advanceToNextToken();
             if (rc) {
                 d_logStream << "Error reading unknown element '"
                             << elementName << "' or after that element\n";
                 return -1;                                            // RETURN
             }
 
-            switch (d_parser.tokenType()) {
-              case baejsn_Parser::BAEJSN_ELEMENT_NAME:
-              case baejsn_Parser::BAEJSN_ELEMENT_VALUE: {       // FALL THROUGH
+            switch (d_tokenizer.tokenType()) {
+              case baejsn_Tokenizer::BAEJSN_ELEMENT_NAME:
+              case baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE: {    // FALL THROUGH
                 bslstl::StringRef tmp;
-                rc = d_parser.value(&tmp);
+                rc = d_tokenizer.value(&tmp);
                 if (rc) {
                     d_logStream << "Error reading attribute name after '{'\n";
                     return -1;                                        // RETURN
                 }
               } break;
 
-              case baejsn_Parser::BAEJSN_START_OBJECT: {
+              case baejsn_Tokenizer::BAEJSN_START_OBJECT: {
                 if (++d_currentDepth > d_maxDepth) {
                     d_logStream << "Maximum allowed decoding depth reached: "
                                 << d_currentDepth << "\n";
@@ -112,7 +113,7 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
                 ++skippingDepth;
               } break;
 
-              case baejsn_Parser::BAEJSN_END_OBJECT: {
+              case baejsn_Tokenizer::BAEJSN_END_OBJECT: {
                 --d_currentDepth;
                 --skippingDepth;
               } break;
@@ -122,7 +123,7 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
             }
         }
     }
-    else if (baejsn_Parser::BAEJSN_START_ARRAY == d_parser.tokenType()) {
+    else if (baejsn_Tokenizer::BAEJSN_START_ARRAY == d_tokenizer.tokenType()) {
         // 'elementName' is an array.  Descend into the array element till we
         // encounter the matching end array token (']').
 
@@ -131,25 +132,25 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
             // Use 'skippingDepth' to keep track of how we have descended and
             // when to return.
 
-            int rc = d_parser.advanceToNextToken();
+            int rc = d_tokenizer.advanceToNextToken();
             if (rc) {
                 d_logStream << "Error reading unknown element '"
                             << elementName << "' or after that element\n";
                 return -1;                                            // RETURN
             }
 
-            switch (d_parser.tokenType()) {
-              case baejsn_Parser::BAEJSN_ELEMENT_NAME:
-              case baejsn_Parser::BAEJSN_ELEMENT_VALUE: {       // FALL THROUGH
+            switch (d_tokenizer.tokenType()) {
+              case baejsn_Tokenizer::BAEJSN_ELEMENT_NAME:
+              case baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE: {    // FALL THROUGH
                 bslstl::StringRef tmp;
-                rc = d_parser.value(&tmp);
+                rc = d_tokenizer.value(&tmp);
                 if (rc) {
                     d_logStream << "Error reading attribute name after '{'\n";
                     return -1;                                        // RETURN
                 }
               } break;
 
-              case baejsn_Parser::BAEJSN_START_OBJECT: {
+              case baejsn_Tokenizer::BAEJSN_START_OBJECT: {
                 if (++d_currentDepth > d_maxDepth) {
                     d_logStream << "Maximum allowed decoding depth reached: "
                                 << d_currentDepth << "\n";
@@ -157,15 +158,15 @@ int baejsn_Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
                 }
               } break;
 
-              case baejsn_Parser::BAEJSN_END_OBJECT: {
+              case baejsn_Tokenizer::BAEJSN_END_OBJECT: {
                 --d_currentDepth;
               } break;
 
-              case baejsn_Parser::BAEJSN_START_ARRAY: {
+              case baejsn_Tokenizer::BAEJSN_START_ARRAY: {
                 ++skippingDepth;
               } break;
 
-              case baejsn_Parser::BAEJSN_END_ARRAY: {
+              case baejsn_Tokenizer::BAEJSN_END_ARRAY: {
                 --skippingDepth;
               } break;
 
