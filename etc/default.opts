@@ -929,7 +929,7 @@ windows         _   MT_LIBTYPE  = L
 #unix-SunOS-*-*-gcc  64  GCCEXTRAWERROR  = error=
 unix-*-*-*-gcc   _  GCCEXTRAWERROR  =
 
-unix-*-*-*-gcc   _  GCCEXTRAWFLAGS  =   \
+unix-*-*-*-gcc-4.2   _  GCCEXTRAWFLAGS  =   \
      -Wno-sign-conversion -W$(GCCEXTRAWERROR)conversion -W$(GCCEXTRAWERROR)address \
      -W$(GCCEXTRAWERROR)type-limits -W$(GCCEXTRAWERROR)cast-align           \
      -W$(GCCEXTRAWERROR)sign-compare -W$(GCCEXTRAWERROR)format              \
