@@ -436,7 +436,7 @@ class baejsn_Encoder_Formatter {
         // Print onto the stream supplied at construction the sequence of
         // characters designating the start of the document.
 
-    void endDocument();
+    void closeDocument();
         // Print onto the stream supplied at construction the sequence of
         // characters designating the end of the document.
 
@@ -534,11 +534,19 @@ class baejsn_Encoder_EncodeImpl {
         // Destroy this object.
 
     // MANIPULATORS
+    void openDocument();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of the document.
+
     template <typename TYPE>
     int encode(const TYPE& value, int mode);
         // Encode the specified 'value' in the JSON format using the specified
         // formatting 'mode'.  Return 0 on success and a non-zero value
         // otherwise.
+
+    void closeDocument();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of the document.
 };
 
                  // ====================================
@@ -713,12 +721,12 @@ int baejsn_Encoder::encode(bsl::streambuf               *streamBuf,
 
     baejsn_Encoder_EncodeImpl encoderImpl(this, streamBuf, options);
 
-    d_formatter.openDocument();
+    encoderImpl.openDocument();
 
     const int rc = encoderImpl.encode(value, 0);
 
     if (!rc) {
-        d_formatter.closeDocument();
+        encoderImpl.closeDocument();
     }
 
     return rc;
@@ -952,6 +960,19 @@ baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(
 , d_formatter(d_outputStream, options)
 {
 }
+
+inline
+void baejsn_Encoder_EncodeImpl::openDocument()
+{
+    d_formatter.openDocument();
+}
+
+inline
+void baejsn_Encoder_EncodeImpl::closeDocument()
+{
+    d_formatter.closeDocument();
+}
+
 
                     // -------------------------------------
                     // struct baejsn_Encoder_SequenceVisitor

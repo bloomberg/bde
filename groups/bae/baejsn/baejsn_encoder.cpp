@@ -128,7 +128,7 @@ void baejsn_Encoder_Formatter::openDocument()
     }
 }
 
-void baejsn_Encoder_Formatter::endDocument()
+void baejsn_Encoder_Formatter::closeDocument()
 {
     if (d_usePrettyStyle) {
         d_outputStream << '\n';

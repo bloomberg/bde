@@ -28,7 +28,7 @@ int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
         bdema_BufferedSequentialAllocator allocator(buffer, MAX_LENGTH + 1);
         bsl::string base64String(&allocator);
 
-        rc = baejsn_TokenizerUtil::getValue(&base64String, dataValue);
+        rc = baejsn_ParserUtil::getValue(&base64String, dataValue);
 
         bdede_Base64Decoder base64Decoder(true);
         bsl::back_insert_iterator<bsl::vector<char> > outputIterator(*value);

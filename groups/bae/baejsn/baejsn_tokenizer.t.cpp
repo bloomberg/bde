@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
         if (bdem_ElemType::BDEM_STRING == address.fieldType(elementName)) {
 
             bsl::string data;
-            rc = baejsn_Parserutil::getValue(&data, nodeValue);
+            rc = baejsn_ParserUtil::getValue(&data, nodeValue);
             ASSERT(!rc);
 
             // Populate the element with the read value
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
         }
         else if (bdem_ElemType::BDEM_INT == address.fieldType(elementName)) {
             int data;
-            rc = baejsn_Parserutil::getValue(&data, nodeValue);
+            rc = baejsn_ParserUtil::getValue(&data, nodeValue);
             ASSERT(!rc);
 
             // Populate the element with the read value
