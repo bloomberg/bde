@@ -18,6 +18,37 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// ----------------------------------------------------------------------------
+// CREATORS
+// [ 1] static int printValue(bsl::ostream& s, bool                    value);
+// [ 1] static int printValue(bsl::ostream& s, char                    value);
+// [ 1] static int printValue(bsl::ostream& s, signed char             value);
+// [ 1] static int printValue(bsl::ostream& s, unsigned char           value);
+// [ 1] static int printValue(bsl::ostream& s, short                   value);
+// [ 1] static int printValue(bsl::ostream& s, unsigned short          value);
+// [ 1] static int printValue(bsl::ostream& s, int                     value);
+// [ 1] static int printValue(bsl::ostream& s, unsigned int            value);
+// [ 1] static int printValue(bsl::ostream& s, bsls::Types::Int64      value);
+// [ 1] static int printValue(bsl::ostream& s, bsls::Types::Uint64     value);
+// [ 1] static int printValue(bsl::ostream& s, float                   value);
+// [ 1] static int printValue(bsl::ostream& s, double                  value);
+// [ 1] static int printValue(bsl::ostream& s, const char             *value);
+// [ 1] static int printValue(bsl::ostream& s, const bsl::string&      value);
+// [ 1] static int printValue(bsl::ostream& s, const bdet_Time&        value);
+// [ 1] static int printValue(bsl::ostream& s, const bdet_Date&        value);
+// [ 1] static int printValue(bsl::ostream& s, const bdet_Datetime&    value);
+// [ 1] static int printValue(bsl::ostream& s, const bdet_TimeTz&      value);
+// [ 1] static int printValue(bsl::ostream& s, const bdet_DateTz&      value);
+// [ 1] static int printValue(bsl::ostream& s, const bdet_DatetimeTz&  value);
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [11] USAGE EXAMPLE
+
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -150,17 +181,15 @@ void testNumber()
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    //veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
-    //veryVeryVeryVerbose = argc > 5;
+
+    bool verbose             = argc > 2;
+    bool veryVerbose         = argc > 3;
+    bool veryVeryVerbose     = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-//       case 7: {
-//           bsl::size_t i = 10;
-//           baejsn_PrintUtil::printValue(bsl::cout, i);
-//       } break;
       case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -239,8 +268,8 @@ int main(int argc, char *argv[])
         //: 1 Date/time are encoded in ISO 8601 format.
         //:
         //: 2 Output contains only information contained in the type being
-        //:   encoded.  (i.e., encoding 'bdet_Date' will not print out a time or
-        //:   offset.)
+        //:   encoded.  (i.e., encoding 'bdet_Date' will not print out a time
+        //:   or offset.)
         //
         // Plan:
         //: 1 Use the table-driven technique:
@@ -252,6 +281,7 @@ int main(int argc, char *argv[])
         //: 2 Perform step one for every date/time types.
         //
         // --------------------------------------------------------------------
+
         const struct {
             int d_line;
             int d_year;
@@ -670,7 +700,8 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test 'string'" << endl;
                 {
                     bsl::ostringstream oss;
-                    ASSERTV(LINE, 0 == Obj::printValue(oss, bsl::string(VALUE)));
+                    ASSERTV(LINE, 0 == Obj::printValue(oss,
+                                                       bsl::string(VALUE)));
 
                     bsl::string result = oss.str();
                     ASSERTV(LINE, result, EXP, result == EXP);
@@ -709,7 +740,8 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test 'string'" << endl;
                 {
                     bsl::ostringstream oss;
-                    ASSERTV(LINE, 0 != Obj::printValue(oss, bsl::string(VALUE)));
+                    ASSERTV(LINE, 0 != Obj::printValue(oss,
+                                                       bsl::string(VALUE)));
                 }
             }
         }
@@ -875,11 +907,13 @@ int main(int argc, char *argv[])
             oss.str("");
 
             Obj::printValue(oss, theDatetimeTz);
-            ASSERTV(oss.str(),"\"9999-12-31T23:59:59.999-12:00\"" == oss.str());
+            ASSERTV(oss.str(),
+                    "\"9999-12-31T23:59:59.999-12:00\"" == oss.str());
             oss.str("");
 
             Obj::printValue(oss, theDatetimeTz);
-            ASSERTV(oss.str(),"\"9999-12-31T23:59:59.999-12:00\"" == oss.str());
+            ASSERTV(oss.str(),
+                    "\"9999-12-31T23:59:59.999-12:00\"" == oss.str());
             oss.str("");
         }
       } break;

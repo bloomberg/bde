@@ -142,9 +142,9 @@ class bdet_DatetimeTz;
                         // class baejsn_PrintUtil
                         // ======================
 
-class baejsn_PrintUtil {
-    // This class provides functions for printing objects to output streams in
-    // JSON format.
+struct baejsn_PrintUtil {
+    // This 'struct' provides functions for printing objects to output streams
+    // in JSON format.
 
     // PRIVATE CLASS METHODS
     template <class TYPE>
@@ -163,6 +163,7 @@ class baejsn_PrintUtil {
         // result to the specified 'stream'.
 
   public:
+    // CLASS METHODS
     static int printValue(bsl::ostream& stream, bool                    value);
     static int printValue(bsl::ostream& stream, char                    value);
     static int printValue(bsl::ostream& stream, signed char             value);
@@ -192,9 +193,9 @@ class baejsn_PrintUtil {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                            // ----------------------
-                            // class baejsn_PrintUtil
-                            // ----------------------
+                            // -----------------------
+                            // struct baejsn_PrintUtil
+                            // -----------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>

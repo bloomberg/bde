@@ -63,6 +63,28 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
+// The component under test implements a tokenizer for traversing a stream
+// filled with JSON data and allows populating an in-memory structure with
+// almost no memory allocations.  The implementation works as a finite state
+// machine moving from one token to another when the 'advanceToNextToken'
+// function is called.  The majority of this test driver tests that function by
+// starting at a particular token, calling that function, and ensuring that
+// after the advance the next token and the data value is as expected.
+// ----------------------------------------------------------------------------
+// CREATORS
+// [ 2] baejsn_Tokenizer(bslma_Allocator *bA = 0);
+// [ 2] ~baejsn_Tokenizer();
+//
+// MANIPULATORS
+// [ 9] void reset(bsl::streambuf &streamBuf);
+// [ 3] int advanceToNextToken();
+//
+// ACCESSORS
+// [ 3] TokenType tokenType() const;
+// [ 3] int value(bslstl::StringRef *data) const;
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [11] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
