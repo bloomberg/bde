@@ -413,16 +413,7 @@ bool operator==(const TYPE&                      lhs,
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  A nullable object and a value of the
     // underlying type have the same value if the nullable object is not null
-    // and its underlying value compare equal to the other value.
-
-template <typename LHS_TYPE, typename RHS_TYPE>
-bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
-                const bdeut_NullableValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two nullable objects do not have the
-    // same value if one, but not both, are null, or neither is null and their
-    // respective underlying type values are equality comparable and do not
-    // compare equal.
+    // and its underlying value compares equal to the other value.
 
 template <typename TYPE>
 bool operator!=(const bdeut_NullableValue<TYPE>& lhs,
@@ -431,7 +422,7 @@ template <typename TYPE>
 bool operator!=(const TYPE&                      lhs,
                 const bdeut_NullableValue<TYPE>& rhs);    
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  A nullable object a value of the
+    // same value, and 'false' otherwise.  A nullable object and a value of the
     // underlying type do not have the same value if either the nullable
     // object is null, or its underlying value does not compare equal to the
     // other value.
