@@ -439,7 +439,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TEST USAGE
         //   Verify that the usage example for testing exception neutrality is
@@ -555,6 +555,262 @@ int main(int argc, char *argv[])
 // Note that the 'BDE_BUILD_TARGET_EXC' macro is defined at compile-time to
 // indicate whether or not exceptions are enabled.
 
+      } break;
+     case 12: {
+        // --------------------------------------------------------------------
+        // TEST 'print' METHOD
+        //
+        // Concerns:
+        //: 1 The method correctly prints the allocator state including the
+        //:   in use, maximum, and total number of blocks and bytes.
+        //:
+        //: 2 Any outstanding allocations are mentioned.
+        //:
+        //: 3 The allocator name is provided is specified.
+        //:
+        //: 4 The method is declared 'const'.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //: 4 For each row (representing a distinct attribute value, 'V') in
+        //:   the table of P-3, verify that the class method returns the
+        //:   expected value.  (C-1)
+        //:
+        //: 1 Create a 'bslma_TestAllocator' object, and install it as the
+        //:   default allocator (note that a ubiquitous test allocator is
+        //:   already installed as the global allocator).
+        //:
+        //: 5 Use the test allocator from P-2 to verify that no memory is ever
+        //:   allocated from the default allocator.  (C-3)
+        //
+        // Testing:
+        //   void print() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "TEST 'print' METHOD"
+                          << endl << "===================" << endl;
+
+        static const char *PRINT_TEMPLATE =
+            "\n"
+            "==================================================\n"
+            "                TEST ALLOCATOR %s STATE\n"
+            "--------------------------------------------------\n"
+            "        Category\tBlocks\tBytes\n"
+            "        --------\t------\t-----\n"
+            "          IN USE\t%d\t%d\n"
+            "             MAX\t%d\t%d\n"
+            "           TOTAL\t%d\t%d\n"
+            "  NUM MISMATCHES\t%d\n"
+            "   BOUNDS ERRORS\t%d\n"
+            "--------------------------------------------------\n"
+            "%s";
+
+        const int MAX_ENTRIES = 10;
+        static const
+        struct DefaultDataRow {
+            int         d_line;                  // source line number
+            const char *d_name_p;                // allocator name
+            int         d_numAllocs;             // number of allocations
+            int         d_allocs[MAX_ENTRIES];   // num allocation bytes
+            int         d_numDeallocs;           // number of deallocations
+            int         d_deallocs[MAX_ENTRIES]; // num deallocation indices
+        } DATA [] = {
+            {
+                L_,
+                0,
+                0,
+                { 0 },
+                0,
+                { 0 },
+            },
+            {
+                L_,
+                "",
+                0,
+                { 0 },
+                0,
+                { 0 },
+            },
+//             {
+//                 L_,
+//                 0,
+//                 5,
+//                 { 10, 20, 30, 40 },
+//                 2,
+//                 { 1, 3 },
+//             },
+//             {
+//                 L_,
+//                 "testAlloc",
+//                 5,
+//                 { 10, 20, 30, 40 },
+//                 2,
+//                 { 1, 3 },
+//             },
+            };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE         = DATA[ti].d_line;
+            const char       *NAME         = DATA[ti].d_name_p;
+            const int         NUM_ALLOCS   = DATA[ti].d_numAllocs;
+            const int        *ALLOCS       = DATA[ti].d_allocs;
+            const int         NUM_DEALLOCS = DATA[ti].d_numDeallocs;
+            const int        *DEALLOCS     = DATA[ti].d_deallocs;
+                  void       *addresses[MAX_ENTRIES];
+
+            bslma::TestAllocator mX(NAME);  const bslma::TestAllocator& X = mX;
+            for (int di = 0; di < NUM_ALLOCS; ++di) {
+                const int BYTES = DATA[ti].d_allocs[di];
+
+                addresses[di] = mX.allocate(BYTES);
+            }
+
+            for (int di = 0; di < NUM_DEALLOCS; ++di) {
+                const int INDEX = DATA[ti].d_deallocs[di];
+
+                ASSERT(0 <= INDEX && INDEX < NUM_ALLOCS);
+
+                mX.deallocate(addresses[INDEX]);
+            }
+
+            const int EXP_BUF_SIZE = 256;
+            char      expBuffer[EXP_BUF_SIZE];
+            char      remBuffer[EXP_BUF_SIZE];
+
+            const char *remaining = NUM_ALLOCS == NUM_DEALLOCS ? NAME : "";
+
+            const char *name      = NAME ? NAME : "";
+
+            sprintf(expBuffer,
+                    PRINT_TEMPLATE,
+                    name,
+                    X.numBlocksInUse(), X.numBytesInUse(),
+                    X.numBlocksMax(), X.numBytesMax(),
+                    X.numBlocksTotal(), X.numBytesTotal(),
+                    X.numMismatches(), X.numBoundsErrors(),
+                    "");
+
+            ASSERT(0 == verifyPrint(X, expBuffer, argc));
+            mX.setNoAbort(true);
+        }
+
+//         {
+//         if (verbose) cout << "\tTest full memory allocation list" <<endl;
+
+//         bslma::TestAllocator a;
+
+//         void *p1 = a.allocate(40);
+//         void *p2 = a.allocate(30);
+//         void *p3 = a.allocate(20);
+//         void *p4 = a.allocate(10);
+//         void *p5 = a.allocate( 1);
+//         void *p6 = a.allocate( 1);
+//         void *p7 = a.allocate( 1);
+//         void *p8 = a.allocate( 1);
+//         void *p9 = a.allocate( 1);
+
+//         const char* const FMT =
+//             "\n"
+//             "==================================================\n"
+//             "                TEST ALLOCATOR STATE\n"
+//             "--------------------------------------------------\n"
+//             "        Category\tBlocks\tBytes\n"
+//             "        --------\t------\t-----\n"
+//             "          IN USE\t9\t105\n"
+//             "             MAX\t9\t105\n"
+//             "           TOTAL\t9\t105\n"
+//             "  NUM MISMATCHES\t0\n"
+//             "   BOUNDS ERRORS\t0\n"
+//             "--------------------------------------------------\n"
+//             " Indices of Outstanding Memory Allocation:\n"
+//             " 0\t1\t2\t3\t4\t5\t6\t7\t\n"
+//             " 8\t\n "
+//             ;
+
+//         ASSERT(0 == verifyPrint(a, FMT, argc));
+
+//         a.deallocate(p1);
+//         a.deallocate(p2);
+//         a.deallocate(p3);
+//         a.deallocate(p4);
+//         a.deallocate(p5);
+//         a.deallocate(p6);
+//         a.deallocate(p7);
+//         a.deallocate(p8);
+//         a.deallocate(p9);
+//         }
+
+//         {
+//         if (verbose) cout << "\tTest partial memory allocation list" <<endl;
+
+//         bslma::TestAllocator a;
+
+//         void *p1 = a.allocate(40);
+//         void *p2 = a.allocate(30);
+//         void *p3 = a.allocate(20);
+//         void *p4 = a.allocate(10);
+//         void *p5 = a.allocate( 1);
+
+//         a.deallocate(p3);
+//         a.deallocate(p5);
+
+//         void *p6 = a.allocate(10);
+
+//         const char* const FMT =
+//             "\n"
+//             "==================================================\n"
+//             "                TEST ALLOCATOR STATE\n"
+//             "--------------------------------------------------\n"
+//             "        Category\tBlocks\tBytes\n"
+//             "        --------\t------\t-----\n"
+//             "          IN USE\t4\t90\n"
+//             "             MAX\t5\t101\n"
+//             "           TOTAL\t6\t111\n"
+//             "  NUM MISMATCHES\t0\n"
+//             "   BOUNDS ERRORS\t0\n"
+//             "--------------------------------------------------\n"
+//             " Indices of Outstanding Memory Allocation:\n"
+//             " 0\t1\t3\t5\t\n "
+//             ;
+
+//         ASSERT(0 == verifyPrint(a, FMT, argc));
+
+//         a.deallocate(p1);
+//         a.deallocate(p2);
+//         a.deallocate(p4);
+//         a.deallocate(p6);
+//         }
+
+//         {
+//         if (verbose) cout << "\tTest empty memory allocation list" <<endl;
+
+//         bslma::TestAllocator a;
+
+//         void *p1 = a.allocate(40);
+//         void *p2 = a.allocate(30);
+
+//         a.deallocate(p1);
+//         a.deallocate(p2);
+
+//         const char* const FMT =
+//             "\n"
+//             "==================================================\n"
+//             "                TEST ALLOCATOR STATE\n"
+//             "--------------------------------------------------\n"
+//             "        Category\tBlocks\tBytes\n"
+//             "        --------\t------\t-----\n"
+//             "          IN USE\t0\t0\n"
+//             "             MAX\t2\t70\n"
+//             "           TOTAL\t2\t70\n"
+//             "  NUM MISMATCHES\t0\n"
+//             "   BOUNDS ERRORS\t0\n"
+//             "--------------------------------------------------\n"
+//             ;
+
+//         ASSERT(0 == verifyPrint(a, FMT, argc));
+//         }
       } break;
       case 11: {
         // --------------------------------------------------------------------
