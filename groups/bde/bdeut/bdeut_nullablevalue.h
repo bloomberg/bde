@@ -368,6 +368,22 @@ class bdeut_NullableValue {
     const TYPE& value() const;
         // Return a reference to the underlying non-modifiable 'ValueType'
         // of this object.  The behavior is undefined if this object is null.
+
+    TYPE valueOr(const TYPE& defaultValue) const;
+        // Return the value of the underlying 'ValueType', or the specified
+        // 'defaultValue' if this object is null.  Note that this method
+        // returns by value and may be *inefficient* in some contexts (for
+        // example returning a type that allocates memory).
+
+    const TYPE& rawValueOr(const TYPE& defaultValue) const;
+        // Return a reference providing non-modifiable access to the
+        // underlying 'ValueType', or the specified 'defaultValue' if this
+        // object is null.  The returned reference must *not* be bound to a
+        // variable if the supplied 'defaultValue' is a temporary object.
+
+    const TYPE* valueOrNull() const;
+        // Return the address of the underlying non-modifiable 'ValueType' of
+        // this object, or 0 if this object is null.
 };
 
 // FREE OPERATORS
@@ -387,6 +403,38 @@ bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
     // same value if one, but not both, are null, or neither is null and their
     // respective underlying type values are equality comparable and do not
     // compare equal.
+
+template <typename TYPE>
+bool operator==(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs);
+template <typename TYPE>
+bool operator==(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs);    
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  A nullable object and a value of the
+    // underlying type have the same value if the nullable object is not null
+    // and its underlying value compare equal to the other value.
+
+template <typename LHS_TYPE, typename RHS_TYPE>
+bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
+                const bdeut_NullableValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two nullable objects do not have the
+    // same value if one, but not both, are null, or neither is null and their
+    // respective underlying type values are equality comparable and do not
+    // compare equal.
+
+template <typename TYPE>
+bool operator!=(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs);
+template <typename TYPE>
+bool operator!=(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs);    
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  A nullable object a value of the
+    // underlying type do not have the same value if either the nullable
+    // object is null, or its underlying value does not compare equal to the
+    // other value.
 
 template <typename TYPE>
 bsl::ostream& operator<<(bsl::ostream&                    stream,
@@ -824,6 +872,30 @@ const TYPE& bdeut_NullableValue<TYPE>::value() const
     return d_imp.value();
 }
 
+template <typename TYPE>
+inline
+const TYPE *bdeut_NullableValue<TYPE>::valueOrNull() const
+{
+    return d_imp.isNull() ? 0 : &d_imp.value();
+}
+
+template <typename TYPE>
+inline
+TYPE bdeut_NullableValue<TYPE>::valueOr(const TYPE& defaultValue) const
+{
+    return rawValueOr(defaultValue);
+}
+
+template <typename TYPE>
+inline
+const TYPE& bdeut_NullableValue<TYPE>::rawValueOr(
+                                                const TYPE& defaultValue) const
+{
+    return d_imp.isNull() ? defaultValue : d_imp.value();
+}
+
+
+
 // FREE OPERATORS
 
 template <typename LHS_TYPE, typename RHS_TYPE>
@@ -838,6 +910,22 @@ bool operator==(const bdeut_NullableValue<LHS_TYPE>& lhs,
     return lhs.isNull() == rhs.isNull();
 }
 
+template <typename TYPE>
+inline
+bool operator==(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs)
+{
+    return !lhs.isNull() && lhs.value() == rhs;
+}
+
+template <typename TYPE>
+inline
+bool operator==(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs)
+{
+    return !rhs.isNull() && rhs.value() == lhs;
+}    
+
 template <typename LHS_TYPE, typename RHS_TYPE>
 inline
 bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
@@ -849,6 +937,22 @@ bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
 
     return lhs.isNull() != rhs.isNull();
 }
+
+template <typename TYPE>
+inline
+bool operator!=(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs)
+{
+    return lhs.isNull() || lhs.value() != rhs;
+}
+
+template <typename TYPE>
+inline
+bool operator!=(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs)
+{
+    return rhs.isNull() || rhs.value() != lhs;
+}    
 
 template <typename TYPE>
 inline
