@@ -129,8 +129,8 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <typename TYPE> class  bdeut_NullableValue_WithAllocator;
-template <typename TYPE> class  bdeut_NullableValue_WithoutAllocator;
+template <typename TYPE> class bdeut_NullableValue_WithAllocator;
+template <typename TYPE> class bdeut_NullableValue_WithoutAllocator;
 
                       // ===============================
                       // class bdeut_NullableValue<TYPE>
@@ -210,7 +210,7 @@ class bdeut_NullableValue {
         // constructor for an underlying 'ValueType' that does not take an
         // optional allocator at construction will fail to compile.
 
-    bdeut_NullableValue(const TYPE& value);
+    bdeut_NullableValue(const TYPE& value);                         // IMPLICIT
         // Create a nullable object having the specified (non-null) 'value' of
         // parameterized 'TYPE'.  Note that this object will initially not be
         // null.
@@ -409,7 +409,7 @@ bool operator==(const bdeut_NullableValue<TYPE>& lhs,
                 const TYPE&                      rhs);
 template <typename TYPE>
 bool operator==(const TYPE&                      lhs,
-                const bdeut_NullableValue<TYPE>& rhs);    
+                const bdeut_NullableValue<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  A nullable object and a value of the
     // underlying type have the same value if the nullable object is not null
@@ -420,7 +420,7 @@ bool operator!=(const bdeut_NullableValue<TYPE>& lhs,
                 const TYPE&                      rhs);
 template <typename TYPE>
 bool operator!=(const TYPE&                      lhs,
-                const bdeut_NullableValue<TYPE>& rhs);    
+                const bdeut_NullableValue<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  A nullable object and a value of the
     // underlying type do not have the same value if either the nullable
@@ -848,6 +848,7 @@ bsl::ostream& bdeut_NullableValue<TYPE>::print(
 {
     if (d_imp.isNull()) {
         return bdeu_PrintMethods::print(stream, "NULL", level, spacesPerLevel);
+                                                                      // RETURN
     }
 
     return bdeu_PrintMethods::print(stream,
@@ -895,7 +896,7 @@ bool operator==(const bdeut_NullableValue<LHS_TYPE>& lhs,
                 const bdeut_NullableValue<RHS_TYPE>& rhs)
 {
     if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() == rhs.value();
+        return lhs.value() == rhs.value();                            // RETURN
     }
 
     return lhs.isNull() == rhs.isNull();
@@ -915,7 +916,7 @@ bool operator==(const TYPE&                      lhs,
                 const bdeut_NullableValue<TYPE>& rhs)
 {
     return !rhs.isNull() && rhs.value() == lhs;
-}    
+}
 
 template <typename LHS_TYPE, typename RHS_TYPE>
 inline
@@ -923,7 +924,7 @@ bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
                 const bdeut_NullableValue<RHS_TYPE>& rhs)
 {
     if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() != rhs.value();
+        return lhs.value() != rhs.value();                            // RETURN
     }
 
     return lhs.isNull() != rhs.isNull();
@@ -943,7 +944,7 @@ bool operator!=(const TYPE&                      lhs,
                 const bdeut_NullableValue<TYPE>& rhs)
 {
     return rhs.isNull() || rhs.value() != lhs;
-}    
+}
 
 template <typename TYPE>
 inline
@@ -1026,7 +1027,8 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
     }
 
     if (!isNull() && !other.isNull()) {
-        // swap typed values
+        // Swap typed values.
+        
         bslalg_SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
@@ -1045,7 +1047,8 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
         nonNullObj = this;
     }
 
-    // copy-construct and reset
+    // Copy-construct and reset.
+    
     nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
                                              // is only strongly exception-safe
     nonNullObj->reset();
@@ -1196,7 +1199,8 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::swap(
     }
 
     if (!isNull() && !other.isNull()) {
-        // swap typed values
+        // Swap typed values.
+        
         bslalg_SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
@@ -1215,7 +1219,8 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::swap(
         nonNullObj = this;
     }
 
-    // copy-construct and reset
+    // Copy-construct and reset.
+
     nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
                                              // is only strongly exception-safe
     nonNullObj->reset();

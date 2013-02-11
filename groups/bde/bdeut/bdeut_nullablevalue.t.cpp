@@ -186,7 +186,7 @@ class Recipient {
     MessageType d_msgType;
 
     // FRIENDS
-    friend bool operator==(const Recipient& lhs, const Recipient& rhs);
+    friend bool operator==(const Recipient&, const Recipient&);
 
   public:
     explicit Recipient(const MessageType& msgType) : d_msgType(msgType)
@@ -195,11 +195,13 @@ class Recipient {
     {
     }
 
-    void operator=(const MessageType& msgType) {
+    void operator=(const MessageType& msgType)
+    {
         d_msgType = msgType;
     }
 
-    MessageType getMsgType() {
+    MessageType getMsgType()
+    {
         return d_msgType;
     }
 };
@@ -213,11 +215,13 @@ struct Swappable {
     int d_value;
     static int d_swap_called;
 
-    static void swap_reset() {
+    static void swap_reset()
+    {
         d_swap_called = 0;
     }
 
-    static int swap_called() {
+    static int swap_called()
+    {
         return d_swap_called;
     }
 
@@ -225,14 +229,16 @@ struct Swappable {
         : d_value(v)
     {}
 
-    bool operator==(const Swappable& rhs) const {
+    bool operator==(const Swappable& rhs) const
+    {
         return d_value == rhs.d_value;
     }
 };
 
 int Swappable::d_swap_called = 0;
 
-void swap(Swappable& lhs, Swappable& rhs) {
+void swap(Swappable& lhs, Swappable& rhs)
+{
     ++Swappable::d_swap_called;
 
     bsl::swap(lhs.d_value, rhs.d_value);
@@ -242,7 +248,7 @@ void swap(Swappable& lhs, Swappable& rhs) {
 template <class TEST_TYPE>
 class TestDriver {
     // This templatized struct provide a namespace for testing
-    // 'bdeut_NullableValue'. The parameterized 'TEST_TYPE' specifies the type
+    // 'bdeut_NullableValue'.  The parameterized 'TEST_TYPE' specifies the type
     // contained in the nullable-value.
 
 
@@ -265,7 +271,7 @@ class TestDriver {
 
     static void testCase15();
         // Test 'rawValueOr'
-       
+
     static void testCase16();
         // Test 'valueOrNull'
 
@@ -281,25 +287,25 @@ void TestDriver<TEST_TYPE>::testCase14()
     // ------------------------------------------------------------------------
     // TESTING: 'valueOr'
     // Concerns:
-    //  1 'valueOr' returns the supplied value if the nullable value is null
-    // 
-    //  2 'valueOr' returns the contained value value if the nullable
-    //    value is not-null 
-    // 
-    //  3 'valueOr' returns by value.
-    // 
-    //  4 'valueOr' can be called on a 'const' object.
+    //: 1 'valueOr' returns the supplied value if the nullable value is null
+    //:
+    //: 2 'valueOr' returns the contained value value if the nullable
+    //:   value is not-null
+    //:
+    //: 3 'valueOr' returns by value.
+    //:
+    //: 4 'valueOr' can be called on a 'const' object.
     //
     // Plan:
-    //  1 Create a member-function pointer matching the expected signature,
-    //    and assign 'valueOr' to the function (C-3)
-    //
-    //  2 Call 'valueOr' for a null nullable value and verify that it
-    //    returns the supplied value. (C-2)
-    //
-    //  2 For a series of test values, assign the nullable value to the test
-    //    value, and call 'valueOr' and verify the return value is the test
-    //    value (C-2, C-4) 
+    //: 1 Create a member-function pointer matching the expected signature,
+    //:   and assign 'valueOr' to the function (C-3)
+    //:
+    //: 2 Call 'valueOr' for a null nullable value and verify that it
+    //:   returns the supplied value. (C-2)
+    //:
+    //: 3 For a series of test values, assign the nullable value to the test
+    //:   value, and call 'valueOr' and verify the return value is the test
+    //:   value (C-2, C-4)
     //
     // Testing:
     //   TYPE valueOr(const TYPE&) const;
@@ -339,7 +345,7 @@ void TestDriver<TEST_TYPE>::testCase14()
 
             ASSERT(true == X.isNull());
 
-            ASSERT(0 == oa.numBlocksInUse());   
+            ASSERT(0 == oa.numBlocksInUse());
         }
     }
 
@@ -353,10 +359,10 @@ void TestDriver<TEST_TYPE>::testCase14()
         for (int i = 0; i < NUM_VALUES; ++i) {
             ASSERT(0 == oa.numBlocksInUse());
             ASSERT(0 == da.numBlocksInUse());
-        
+
             ASSERT(VALUES[i] == x.valueOr(VALUES[i]));
             ASSERT(VALUES[i] == X.valueOr(VALUES[i]));
-           
+
             x = VALUES[0];
 
             bslma::TestAllocatorMonitor oam(&oa);
@@ -384,25 +390,25 @@ void TestDriver<TEST_TYPE>::testCase15()
     // ------------------------------------------------------------------------
     // TESTING: 'rawValueOr'
     // Concerns:
-    //  1 'rawValueOr' returns the supplied value if the nullable value is null
-    // 
-    //  2 'rawValueOr' returns the contained value value if the nullable
-    //    value is not-null 
-    // 
-    //  3 'rawValueOr' returns by const-reference.
-    // 
-    //  4 'rawValueOr' can be called on a 'const' object.
+    //: 1 'rawValueOr' returns the supplied value if the nullable value is null
+    //:
+    //: 2 'rawValueOr' returns the contained value value if the nullable
+    //:   value is not-null
+    //:
+    //: 3 'rawValueOr' returns by const-reference.
+    //:
+    //: 4 'rawValueOr' can be called on a 'const' object.
     //
     // Plan:
-    //  1 Create a member-function pointer matching the expected signature,
-    //    and assign 'rawValueOr' to the function (C-3)
-    //
-    //  2 Call 'rawValueOr' for a null nullable value and verify that it
-    //    returns a reference to the supplied value. (C-2)
-    //
-    //  2 For a series of test values, assign the nullable value to the test
-    //    value, and call 'rawValueOr' and verify the return value is a
-    //    reference to the contained value (C-2, C-4) 
+    //: 1 Create a member-function pointer matching the expected signature,
+    //:   and assign 'rawValueOr' to the function (C-3)
+    //:
+    //: 2 Call 'rawValueOr' for a null nullable value and verify that it
+    //:   returns a reference to the supplied value. (C-2)
+    //:
+    //: 3 For a series of test values, assign the nullable value to the test
+    //:   value, and call 'rawValueOr' and verify the return value is a
+    //:   reference to the contained value (C-2, C-4)
     //
     // Testing:
     //   const TYPE& rawValueOr(const TYPE&) const;
@@ -420,7 +426,7 @@ void TestDriver<TEST_TYPE>::testCase15()
         cout << "\tCompile time verification the function returns by value\n";
     }
     {
-        typedef const TEST_TYPE& 
+        typedef const TEST_TYPE&
                              (Obj::* MemberFunction)(const TEST_TYPE&) const;
         MemberFunction memberFunction = &Obj::rawValueOr;
         (void **)&memberFunction;
@@ -446,7 +452,7 @@ void TestDriver<TEST_TYPE>::testCase15()
 
             ASSERT(true == X.isNull());
 
-            ASSERT(0 == oa.numBlocksInUse());   
+            ASSERT(0 == oa.numBlocksInUse());
         }
     }
 
@@ -460,13 +466,13 @@ void TestDriver<TEST_TYPE>::testCase15()
         for (int i = 0; i < NUM_VALUES; ++i) {
             ASSERT(0 == oa.numBlocksInUse());
             ASSERT(0 == da.numBlocksInUse());
-        
+
             ASSERT(VALUES[i] == x.rawValueOr(VALUES[i]));
             ASSERT(VALUES[i] == X.rawValueOr(VALUES[i]));
 
             ASSERT(&VALUES[i] == &x.rawValueOr(VALUES[i]));
             ASSERT(&VALUES[i] == &X.rawValueOr(VALUES[i]));
-           
+
             x = VALUES[0];
 
             bslma::TestAllocatorMonitor oam(&oa);
@@ -502,25 +508,25 @@ void TestDriver<TEST_TYPE>::testCase16()
     // ------------------------------------------------------------------------
     // TESTING: 'valueOrNull'
     // Concerns:
-    //  1 'valueOrNull' returns 0 if the nullable value is null
-    // 
-    //  2 'valueOrNull' returns a the address of the non-modifiable value if
-    //    the nullable value is not-null
-    // 
-    //  3 The returned address, if not 0, remains valid until the
-    //    nullable-value is destroyed.
-    // 
-    //  4 No memory allocation is performed.
-    // 
-    //  5 'valueOrNull' can be called on a 'const' object.
+    //: 1 'valueOrNull' returns 0 if the nullable value is null
+    //:
+    //: 2 'valueOrNull' returns a the address of the non-modifiable value if
+    //:   the nullable value is not-null
+    //:
+    //: 3 The returned address, if not 0, remains valid until the
+    //:   nullable-value is destroyed.
+    //:
+    //: 4 No memory allocation is performed.
+    //:
+    //: 5 'valueOrNull' can be called on a 'const' object.
     //
     // Plan:
-    //  1 Call 'valueOrNull' for a null nullable value and verify that it
-    //    returns 0. (C-1)
-    //
-    //  2 For a series of test values, assign the nullable value to the test
-    //    value, and call 'valueOrNull' and verify the return value. (C-2,
-    //    C-3, C-4, C-5) 
+    //: 1 Call 'valueOrNull' for a null nullable value and verify that it
+    //:   returns 0. (C-1)
+    //:
+    //: 2 For a series of test values, assign the nullable value to the test
+    //:   value, and call 'valueOrNull' and verify the return value. (C-2,
+    //:   C-3, C-4, C-5)
     //
     // Testing:
     //   const TYPE* valueOrNull() const;
@@ -569,7 +575,7 @@ void TestDriver<TEST_TYPE>::testCase16()
         ObjWithAllocator object(&oa);
         Obj& x = object.object(); const Obj& X = x;
 
-        
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             ASSERT(0 == x.valueOrNull());
             ASSERT(0 == X.valueOrNull());
@@ -589,7 +595,7 @@ void TestDriver<TEST_TYPE>::testCase16()
             ASSERT(&X.value()      == X.valueOrNull());
 
             const TEST_TYPE *valuePtr = X.valueOrNull();
-            
+
             ASSERT(VALUES[i] == *valuePtr);
 
 
@@ -607,22 +613,22 @@ void TestDriver<TEST_TYPE>::testCase17()
     // ------------------------------------------------------------------------
     // TESTING: Comparison with the contained 'TYPE'
     // Concerns:
-    //  1 Comparing a value with a null value always returns that
-    //    the values are not the same.
-    // 
-    //  2 Comparing a value with a nullable value having the same value
-    //    returns the values are the same. 
-    //
-    //  3 Comparing a value with a nullable value having a different value
-    //    returns the values are not the same. 
+    //: 1 Comparing a value with a null value always returns that
+    //:   the values are not the same.
+    //:
+    //: 2 Comparing a value with a nullable value having the same value
+    //:   returns the values are the same.
+    //:
+    //: 3 Comparing a value with a nullable value having a different value
+    //:   returns the values are not the same.
     //
     // Plan:
-    //  1 Create a null nullable-value and verify it does not compare equal   
-    //    (using the 4 different operator variants) to any test-value. (C-1)
-    //
-    //  2 Create a non-null nullable-value for a series of test values and
-    //    verify it does not compares equal (using the 4 different operator
-    //    variants) only to the same test-value. (C-2, C-3)
+    //: 1 Create a null nullable-value and verify it does not compare equal
+    //:   (using the 4 different operator variants) to any test-value. (C-1)
+    //:
+    //: 2 Create a non-null nullable-value for a series of test values and
+    //:   verify it does not compares equal (using the 4 different operator
+    //:   variants) only to the same test-value. (C-2, C-3)
     //
     // Testing:
     //   bool operator==(const bdeut_NullableValue<TYPE>& , const TYPE&);
@@ -672,7 +678,7 @@ void TestDriver<TEST_TYPE>::testCase17()
 
             ASSERT(0 == oa.numBlocksInUse());
             ASSERT(0 == da.numBlocksInUse());
-        
+
             x = VALUES[i];
 
             bslma::TestAllocatorMonitor oam(&oa);
@@ -724,7 +730,7 @@ void TestDriver<TEST_TYPE>::testCase17()
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    
+
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
