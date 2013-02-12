@@ -6,7 +6,7 @@
 
 // #include <bsls_ident.h>      // included below in usage example.
 #include <cstdlib>              // 'atoi'
-#include <iostream>
+#include <cstdio>
 
 // using namespace BloombergLP;
 
@@ -26,52 +26,12 @@ static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
     if (c) {
-        std::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << std::endl;
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { std::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " \
-                          << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\n";           \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J    \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\t" << #M << ": " << M << "\n";         \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J     \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": "  \
-                         << L << "\t" << #M << ": " << M << "\t" << #N     \
-                         << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) std::cout << #X " = " << (X) << std::endl; // Print ID and value.
-#define Q(X) std::cout << "<| " #X " |>" << std::endl;  // Quote ID literally.
-#define P_(X) std::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
-#define L_ __LINE__                                // current Line number
-#define T_ std::cout << "\t" << flush;             // Print a tab (w/o newline)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -140,7 +100,7 @@ int main(int argc, char *argv[])
 //    int veryVerbose = argc > 3;
 //    int veryVeryVerbose = argc > 4;
 
-    std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
@@ -153,24 +113,23 @@ int main(int argc, char *argv[])
         //   Do nothing.
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nBREATHING TEST"
-                               << "\n==============" << std::endl;
+        if (verbose) printf( "\nBREATHING TEST"
+                             "\n==============");
 
         ASSERT(true);  // Reference assert implementation
 
-        std::cout << "\nThere is no real runtime test for this component"
-                  << std::endl;
+        printf("\nThere is no real runtime test for this component");
+
 
       } break;
       default: {
-        std::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << std::endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        std::cerr << "Error, non-zero test status = " << testStatus << "."
-                  << std::endl;
+      fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus );
     }
 
     return testStatus;
