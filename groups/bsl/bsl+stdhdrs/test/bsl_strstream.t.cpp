@@ -7,8 +7,10 @@
 // backward/backward_warning.h header, so we block its effect by defining its
 // include guard.
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM__CMP_GNU)
 #define _BACKWARD_BACKWARD_WARNING_H 1
+#endif
 #endif
 
 #undef BSL_OVERRIDES_STD
