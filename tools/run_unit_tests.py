@@ -45,6 +45,7 @@ def parseOptions():
     parser.add_option("--abi", dest="abi")
     parser.add_option("--lib", dest="lib")
     parser.add_option("--junit", dest="junit")
+    parser.add_option("--valgrind", dest="valgrind")
     (options, args) = parser.parse_args()
 
     return options
@@ -403,7 +404,7 @@ class TestRunner:
         return TestRunner.testOver.match(line)
 
     @staticmethod
-    def runTest(test, verbosityLevel, timeout):
+    def runTest(test, verbosityLevel, timeout, valgrind):
         failures = 0
         testNumber = 1
 
@@ -416,7 +417,14 @@ class TestRunner:
                 
             policy = PolicyFilter.getTestPolicy(test, testNumber)
                 
-            args = [program, str(testNumber)]
+            args = []
+
+            if (valgrind):
+                valgrindFile = valgrind % (testNumber)
+                args.extend(['valgrind','--quiet','--tool=memcheck','--leak-check=yes','--xml=yes',"--xml-file=%s" % valgrindFile])
+
+            args.extend([program, str(testNumber)])
+
             out.startTestCase(testNumber)
             if verbosityLevel >= 0:
                 args.extend(['v' for n in range(verbosityLevel)])
@@ -506,7 +514,7 @@ if 'TIMEOUT' in os.environ:
 
 out.startTestSuite(sys.argv[1], verbosityLevel, timeout)
 
-returncode = TestRunner.runTest(sys.argv[1], verbosityLevel, timeout)
+returncode = TestRunner.runTest(sys.argv[1], verbosityLevel, timeout, commandLineOptions.valgrind)
 
 returncode = out.endTestSuite(returncode)
 
