@@ -425,6 +425,7 @@ bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
 inline
 void bdetu_SystemTime::loadCurrentTime(bdet_TimeInterval *result)
 {
+    BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(s_systime_callback_p);
     s_systime_callback_p(result);
 }

@@ -29,6 +29,11 @@
 
 #include <bsls_asserttest.h>
 
+#include <baetzo_timezoneutil.h>     // case -1
+#include <baetzo_localtimeperiod.h>  // case -1
+#include <bdetu_systemtime.h>        // case -1
+#include <bsls_stopwatch.h>          // case -1
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -101,6 +106,8 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define T_  cout << "\t" << flush;          // Print a tab (w/o newline)
 #define L_ __LINE__                           // current Line number
+
+bool g_verbose;
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -872,14 +879,86 @@ static bdet_Datetime toDatetime(const char *iso8601TimeString)
 }
 
 // ============================================================================
+//                      NEW INTERFACES: HELPER CLASSES
+// ----------------------------------------------------------------------------
+
+struct MyTimeoffsetUtil
+{
+    static baetzo_LocalTimePeriod s_localTimePeriod;
+
+    static void setFixedLocalTimePeriod(
+                                 const baetzo_LocalTimePeriod& localTimePeriod)
+    {
+        s_localTimePeriod = localTimePeriod;
+    }
+
+    static bdet_DatetimeInterval getTimeOffset(bdet_TimeInterval  now,
+                                               void              *arg)
+    {
+        // if (g_verbose) { P_(now) P((const char *)arg) }
+
+        bdet_DatetimeInterval datetimeInterval;
+        bdetu_DatetimeInterval::convertToDatetimeInterval(&datetimeInterval,
+                                                          now);
+        bdet_Datetime          utcTime = bdetu_Epoch::epoch() 
+                                       + datetimeInterval;
+#if   defined(TEST_FIXED)
+        //if (g_verbose) { P(s_localTimePeriod) }
+        bdet_DatetimeInterval value(
+                          0,
+                          0,
+                          0,
+                          s_localTimePeriod.descriptor().utcOffsetInSeconds());
+#elif defined(TEST_DYNAMIC)
+        baetzo_LocalTimePeriod localTimePeriod;
+        int                    status = baetzo_TimeZoneUtil::
+                                        loadLocalTimePeriodForUtc(
+                                                             &localTimePeriod,
+                                                             (const char *)arg,
+                                                             utcTime);
+        //ASSERT(0 == status);
+        //if (g_verbose) { P(localTimePeriod) }
+        bdet_DatetimeInterval value(
+                            0,
+                            0,
+                            0,
+                            localTimePeriod.descriptor().utcOffsetInSeconds());
+#elif defined(TEST_CACHED)
+       if (utcTime <  s_localTimePeriod.utcStartTime()
+        || utcTime >= s_localTimePeriod.utcEndTime()) {
+
+           //if (g_verbose) { P(s_localTimePeriod) }
+
+           int status = baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(
+                                                             &s_localTimePeriod,
+                                                             (const char *)arg,
+                                                             utcTime);
+           //ASSERT(0 == status);
+           //if (g_verbose) { P(s_localTimePeriod) }
+       }
+       bdet_DatetimeInterval value(
+                          0,
+                          0,
+                          0,
+                          s_localTimePeriod.descriptor().utcOffsetInSeconds());
+#else
+#error "UNKNOWN BUILD FLAG"
+#endif
+        return value;
+    }
+};
+
+baetzo_LocalTimePeriod MyTimeoffsetUtil::s_localTimePeriod;
+
+// ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2; g_verbose = verbose;
+    bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
@@ -3362,6 +3441,63 @@ int main(int argc, char *argv[])
                            offset == result.descriptor().utcOffsetInSeconds());
             }
         }
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // NEW INTERFACES
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "NEW INTEFACES" << endl
+                                  << "=============" << endl;
+
+        MyTimeoffsetUtil::setFixedLocalTimePeriod(
+                      baetzo_LocalTimePeriod(baetzo_LocalTimeDescriptor(-18000,
+                                                                        false,
+                                                                        "BOO"),
+                                             bdet_Datetime(),
+                                             bdet_Datetime()));
+
+        char localTimezone[] = "America/New_York";
+
+        bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec callbackSpec = {
+                                               MyTimeoffsetUtil::getTimeOffset,
+                                               &localTimezone
+                                             };
+
+        bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec *oldCallbackSpec =
+                bdetu_SystemTime::setGetLocalTimeOffsetCallback(&callbackSpec);
+        ASSERT(0 == oldCallbackSpec);
+
+        bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec *currentCallbackSpec
+                   = bdetu_SystemTime::currentGetLocalTimeOffsetCallbackSpec();
+        ASSERT(&callbackSpec == currentCallbackSpec);
+
+        bdet_DatetimeInterval offset = bdetu_SystemTime::getLocalTimeOffset();
+        ASSERT(bdet_DatetimeInterval(0, 0, 0, -18000) == offset);
+
+        int count = argc > 2 ? atoi(argv[2]) : 100;
+        if (verbose) { P(count) }
+
+        bsls::Stopwatch stopwatch;
+
+        stopwatch.start(true);
+        for (int i = 0; i < count; ++i) {
+            bdet_DatetimeInterval offset = bdetu_SystemTime::getLocalTimeOffset();
+        }
+        stopwatch.stop();
+
+        if (verbose) {
+            double systemTime, userTime, wallTime;
+            stopwatch.accumulatedTimes(&systemTime,
+                                       &userTime,
+                                       &wallTime);
+            P_(systemTime) P_(userTime) P(wallTime);
+        }
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
