@@ -33,6 +33,9 @@ using bsl::atoi;
 // This component implements a wrapper for a value-semantic type, and itself
 // exhibits value-semantic properties.
 //
+// Global Concerns:
+//   o No memory is allocated from the global-allocator
+//
 //-----------------------------------------------------------------------------
 // TYPEDEFS
 // [ 3] typedef TYPE ValueType;
@@ -61,9 +64,8 @@ using bsl::atoi;
 // [10] void reset();
 // [10] TYPE& value();
 // [14] TYPE valueOr(const TYPE& ) const;
-// [15] const TYPE& rawValueOr(const TYPE& ) const;
+// [15] const TYPE *valueOr(const TYPE *) const;
 // [16] const TYPE* valueOrNull() const;
-
 //
 // ACCESSORS
 // [ 8] STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -160,14 +162,18 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       GLOBAL TEST VALUES
+// ----------------------------------------------------------------------------
 
 static bool         verbose;
 static bool     veryVerbose;
 static bool veryVeryVerbose;
 static bool testAllocatorVerbosity;
+
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
 
 enum MessageType {
     // Type used for testing 'makeValue' in case 12.
@@ -263,22 +269,18 @@ class TestDriver {
     typedef bsltf::TestValuesArray<TEST_TYPE> TestValues;
         // Array of test values of 'TEST_TYPE'.
 
-
   public:
-
     static void testCase14();
         // Test 'valueOr'
 
     static void testCase15();
-        // Test 'rawValueOr'
+        // Test 'valueOr'
 
     static void testCase16();
         // Test 'valueOrNull'
 
     static void testCase17();
         // Test comparisons with the contained 'TYPE'.
-
-
 };
 
 template <class TEST_TYPE>
@@ -388,30 +390,33 @@ template <class TEST_TYPE>
 void TestDriver<TEST_TYPE>::testCase15()
 {
     // ------------------------------------------------------------------------
-    // TESTING: 'rawValueOr'
+    // TESTING: 'valueOr'
     // Concerns:
-    //: 1 'rawValueOr' returns the supplied value if the nullable value is null
+    //: 1 'valueOr' returns the supplied value if the nullable value is null
     //:
-    //: 2 'rawValueOr' returns the contained value value if the nullable
+    //: 2 'valueOr' returns the contained value value if the nullable
     //:   value is not-null
     //:
-    //: 3 'rawValueOr' returns by const-reference.
+    //: 3 'valueOr' returns an address.
     //:
-    //: 4 'rawValueOr' can be called on a 'const' object.
+    //: 4 'valueOr' can be called on a 'const' object.
+    //:
+    //: 5 No memory is requested of any allocator (global, default, this
+    //:   object, supplied object)
     //
     // Plan:
     //: 1 Create a member-function pointer matching the expected signature,
-    //:   and assign 'rawValueOr' to the function (C-3)
+    //:   and assign 'valueOr' to the function (C-3)
     //:
-    //: 2 Call 'rawValueOr' for a null nullable value and verify that it
+    //: 2 Call 'valueOr' for a null nullable value and verify that it
     //:   returns a reference to the supplied value. (C-2)
     //:
     //: 3 For a series of test values, assign the nullable value to the test
-    //:   value, and call 'rawValueOr' and verify the return value is a
+    //:   value, and call 'valueOr' and verify the return value is a
     //:   reference to the contained value (C-2, C-4)
     //
     // Testing:
-    //   const TYPE& rawValueOr(const TYPE&) const;
+    //   const TYPE& valueOr(const TYPE&) const;
     // ------------------------------------------------------------------------
 
     const TestValues VALUES;
@@ -423,12 +428,12 @@ void TestDriver<TEST_TYPE>::testCase15()
     bslma::DefaultAllocatorGuard dag(&da);
 
     if (veryVerbose) {
-        cout << "\tCompile time verification the function returns by value\n";
+        cout << "\tCompile time verify the function returns an address\n";
     }
     {
-        typedef const TEST_TYPE&
-                             (Obj::* MemberFunction)(const TEST_TYPE&) const;
-        MemberFunction memberFunction = &Obj::rawValueOr;
+        typedef const TEST_TYPE *
+                             (Obj::* MemberFunction)(const TEST_TYPE *) const;
+        MemberFunction memberFunction = &Obj::valueOr;
         (void **)&memberFunction;
     }
 
@@ -444,11 +449,11 @@ void TestDriver<TEST_TYPE>::testCase15()
 
         for (int i = 0; i < NUM_VALUES; ++i) {
 
-            ASSERT(VALUES[i] == x.rawValueOr(VALUES[i]));
-            ASSERT(VALUES[i] == X.rawValueOr(VALUES[i]));
+            ASSERT(VALUES[i] == *x.valueOr(&VALUES[i]));
+            ASSERT(VALUES[i] == *X.valueOr(&VALUES[i]));
 
-            ASSERT(&VALUES[i] == &x.rawValueOr(VALUES[i]));
-            ASSERT(&VALUES[i] == &X.rawValueOr(VALUES[i]));
+            ASSERT(&VALUES[i] == x.valueOr(&VALUES[i]));
+            ASSERT(&VALUES[i] == X.valueOr(&VALUES[i]));
 
             ASSERT(true == X.isNull());
 
@@ -467,27 +472,27 @@ void TestDriver<TEST_TYPE>::testCase15()
             ASSERT(0 == oa.numBlocksInUse());
             ASSERT(0 == da.numBlocksInUse());
 
-            ASSERT(VALUES[i] == x.rawValueOr(VALUES[i]));
-            ASSERT(VALUES[i] == X.rawValueOr(VALUES[i]));
+            ASSERT(VALUES[i] == *x.valueOr(&VALUES[i]));
+            ASSERT(VALUES[i] == *X.valueOr(&VALUES[i]));
 
-            ASSERT(&VALUES[i] == &x.rawValueOr(VALUES[i]));
-            ASSERT(&VALUES[i] == &X.rawValueOr(VALUES[i]));
+            ASSERT(&VALUES[i] == x.valueOr(&VALUES[i]));
+            ASSERT(&VALUES[i] == X.valueOr(&VALUES[i]));
 
             x = VALUES[0];
 
             bslma::TestAllocatorMonitor oam(&oa);
 
-            ASSERT(VALUES[0] == x.rawValueOr(VALUES[i]));
-            ASSERT(VALUES[0] == X.rawValueOr(VALUES[i]));
+            ASSERT(VALUES[0] == *x.valueOr(&VALUES[i]));
+            ASSERT(VALUES[0] == *X.valueOr(&VALUES[i]));
 
-            ASSERT(i == 0 || VALUES[i] != x.rawValueOr(VALUES[i]));
-            ASSERT(i == 0 || VALUES[i] != X.rawValueOr(VALUES[i]));
+            ASSERT(i == 0 || VALUES[i] != *x.valueOr(&VALUES[i]));
+            ASSERT(i == 0 || VALUES[i] != *X.valueOr(&VALUES[i]));
 
-            ASSERT(&VALUES[i] != &x.rawValueOr(VALUES[i]));
-            ASSERT(&VALUES[i] != &X.rawValueOr(VALUES[i]));
+            ASSERT(&VALUES[i] != x.valueOr(&VALUES[i]));
+            ASSERT(&VALUES[i] != X.valueOr(&VALUES[i]));
 
-            ASSERT(&X.value() == &x.rawValueOr(VALUES[i]));
-            ASSERT(&X.value() == &X.rawValueOr(VALUES[i]));
+            ASSERT(&X.value() == x.valueOr(&VALUES[i]));
+            ASSERT(&X.value() == X.valueOr(&VALUES[i]));
 
 
             ASSERT(oam.isInUseSame());
@@ -621,6 +626,10 @@ void TestDriver<TEST_TYPE>::testCase17()
     //:
     //: 3 Comparing a value with a nullable value having a different value
     //:   returns the values are not the same.
+    //:
+    //: 4 Both operators can be called for 'const' objects.
+    //:
+    //: 5 No memory is allocated
     //
     // Plan:
     //: 1 Create a null nullable-value and verify it does not compare equal
@@ -712,18 +721,6 @@ void TestDriver<TEST_TYPE>::testCase17()
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//            GENERATOR FUNCTIONS 'g', 'gg' and 'ggg' FOR TESTING
-//-----------------------------------------------------------------------------
-//
-// LANGUAGE SPECIFICATION
-// ----------------------
-//
-//
-// Spec String       Description
-// ----------------- ----------------------------------------------------------
-// ----------------------------------------------------------------------------
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -738,8 +735,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator  testAllocator(testAllocatorVerbosity);
-    bslma_TestAllocator *ALLOC = &testAllocator;
+    bslma::TestAllocator  testAllocator(testAllocatorVerbosity);
+    bslma::TestAllocator *ALLOC = &testAllocator;
+    bslma::TestAllocator globalAllocator(testAllocatorVerbosity);
+
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 18: {
@@ -801,11 +801,11 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // rawValueOr
+        // valueOr
         // --------------------------------------------------------------------
 
-          if (verbose) cout << "\nTesting: rawValueOr"
-                            << "\n===================\n";
+          if (verbose) cout << "\nTesting: valueOr"
+                            << "\n================\n";
 
           RUN_EACH_TYPE(TestDriver, testCase15, TEST_TYPES);
 
@@ -2489,6 +2489,8 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

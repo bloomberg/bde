@@ -129,8 +129,8 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <typename TYPE> class bdeut_NullableValue_WithAllocator;
-template <typename TYPE> class bdeut_NullableValue_WithoutAllocator;
+template <class TYPE> class bdeut_NullableValue_WithAllocator;
+template <class TYPE> class bdeut_NullableValue_WithoutAllocator;
 
                       // ===============================
                       // class bdeut_NullableValue<TYPE>
@@ -367,23 +367,21 @@ class bdeut_NullableValue {
 
     const TYPE& value() const;
         // Return a reference to the underlying non-modifiable 'ValueType'
-        // of this object.  The behavior is undefined if this object is null.
+        // of this object.  The behavior is undefined if 'isNull' is 'true'.
 
     TYPE valueOr(const TYPE& defaultValue) const;
         // Return the value of the underlying 'ValueType', or the specified
-        // 'defaultValue' if this object is null.  Note that this method
-        // returns by value and may be *inefficient* in some contexts (for
-        // example returning a type that allocates memory).
+        // 'defaultValue' if 'isNull' is 'true'.  Note that this method
+        // returns by value and may be inefficient in some contexts.
 
-    const TYPE& rawValueOr(const TYPE& defaultValue) const;
-        // Return a reference providing non-modifiable access to the
-        // underlying 'ValueType', or the specified 'defaultValue' if this
-        // object is null.  The returned reference must *not* be bound to a
-        // variable if the supplied 'defaultValue' is a temporary object.
+    const TYPE *valueOr(const TYPE *defaultValue) const;
+        // Return the address of the underlying non-modifiable 'ValueType' of
+        // this object, or the specified 'defaultValue' if 'isNull' is
+        // 'true'.
 
     const TYPE* valueOrNull() const;
         // Return the address of the underlying non-modifiable 'ValueType' of
-        // this object, or 0 if this object is null.
+        // this object, or 0 if this 'isNull' is 'true'.
 };
 
 // FREE OPERATORS
@@ -868,22 +866,23 @@ template <typename TYPE>
 inline
 const TYPE *bdeut_NullableValue<TYPE>::valueOrNull() const
 {
-    return d_imp.isNull() ? 0 : &d_imp.value();
+    return d_imp.isNull() ? 0 : bsls::Util::addressOf(d_imp.value());
 }
 
 template <typename TYPE>
 inline
 TYPE bdeut_NullableValue<TYPE>::valueOr(const TYPE& defaultValue) const
 {
-    return rawValueOr(defaultValue);
+    return d_imp.isNull() ? defaultValue : d_imp.value();
 }
 
 template <typename TYPE>
 inline
-const TYPE& bdeut_NullableValue<TYPE>::rawValueOr(
-                                                const TYPE& defaultValue) const
+const TYPE *bdeut_NullableValue<TYPE>::valueOr(const TYPE *defaultValue) const
 {
-    return d_imp.isNull() ? defaultValue : d_imp.value();
+    return d_imp.isNull()
+           ? defaultValue
+           : bsls::Util::addressOf(d_imp.value());
 }
 
 
@@ -1028,8 +1027,9 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
 
     if (!isNull() && !other.isNull()) {
         // Swap typed values.
-        
-        bslalg_SwapUtil::swap(&this->value(), &other.value());
+
+        bslalg_SwapUtil::swap(bsls::Util::addressOf(this->value()),
+                              bsls::Util::addressOf(other.value()));
         return;                                                       // RETURN
     }
 
@@ -1040,15 +1040,15 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
 
     if (isNull()) {
         nullObj    = this;
-        nonNullObj = &other;
+        nonNullObj = bsls::Util::addressOf(other);
     }
     else {
-        nullObj    = &other;
+        nullObj    = bsls::Util::addressOf(other);
         nonNullObj = this;
     }
 
     // Copy-construct and reset.
-    
+
     nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
                                              // is only strongly exception-safe
     nonNullObj->reset();
@@ -1200,7 +1200,7 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::swap(
 
     if (!isNull() && !other.isNull()) {
         // Swap typed values.
-        
+
         bslalg_SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
