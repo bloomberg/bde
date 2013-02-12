@@ -68,20 +68,24 @@ using bsl::endl;
 // encoded include 'bdeat' sequence, choice, array, enumeration, customized,
 // simple, and dynamic types.  In addition, the encoder supports options to
 // allow compact and pretty formatting.
+//
+// We use standard table-based approach to testing where we put both input and
+// expected output in the same table row and verify that the actual result
+// matches the expected value.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] baejsn_Encoder(bslma::Allocator *basicAllocator = 0);
-// [ 2] ~baejsn_Encoder();
+// [  ] baejsn_Encoder(bslma::Allocator *basicAllocator = 0);
+// [  ] ~baejsn_Encoder();
 //
 // MANIPULATORS
-// [ 9] int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
-// [ 9] int encode(bsl::ostream& stream, const TYPE& v, options);
+// [  ] int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
+// [  ] int encode(bsl::ostream& stream, const TYPE& v, options);
 //
 // ACCESSORS
-// [ 3] bsl::string loggedMessages() const;
+// [  ] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -30294,29 +30298,6 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-//       case 16: {
-//           bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
-//           bdem_RecordDef *person = schema->createRecord("Person");
-//           person->appendField(bdem_ElemType::BDEM_STRING, "LastName");
-//           person->appendField(bdem_ElemType::BDEM_STRING, "FirstName");
-//           person->appendField(bdem_ElemType::BDEM_DATE,   "BirthDate");
-
-//           bcem_Aggregate michael(schema, "Person");
-//           michael["LastName"].setValue("Bloomberg");
-//           michael["FirstName"].setValue("Michael");
-//           P(michael);
-
-//           bslma::TestAllocator ta("testAllocator", 1);
-//           bcema_PooledBlobBufferFactory blobFactory(2, &ta);
-//           bcema_Blob blob(&blobFactory);
-//           bcesb_OutBlobStreamBuf buffer(&blob);
-//           baejsn_Encoder encoder;
-//           P("BeginEncoding");
-//           ASSERT(!encoder.encode(&buffer, michael));
-//           P(blob.length());
-//           bcema_BlobUtilAsciiDumper dumper(&blob);
-//           P(dumper);
-//       } break;
       case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -30730,7 +30711,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TEST BCEM_AGGREGATE
+        // ENCODING BCEM_AGGREGATE
         //
         // Concerns:
         //: 1 The encoder can be use on 'bcem_Aggregate'
@@ -30743,6 +30724,10 @@ int main(int argc, char *argv[])
         //
         // Testing:
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING BCEM_AGGREGATE" << endl
+                          << "=======================" << endl;
 
         const char                *SCHEMA     = XML_SCHEMA;
         const int                  SCHEMA_LEN = sizeof(XML_SCHEMA);
@@ -30826,7 +30811,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // COMPLEX TEST MESSAGES
+        // ENCODING COMPLEX TEST MESSAGES
         //
         // Concerns:
         //: 1 Encoder produce expected results for a variety of message.
@@ -30836,8 +30821,11 @@ int main(int argc, char *argv[])
         //:   values.
         //
         // Testing:
-        //   BREATHING TEST
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING COMPLEX TEST MESSAGES" << endl
+                          << "==============================" << endl;
 
         bsl::vector<bsl::pair<int, baea::FeatureTestMessage> > testObjects;
         constructFeatureTestMessage(&testObjects);
@@ -30894,6 +30882,7 @@ int main(int argc, char *argv[])
         // Testing:
         //  int encode(const TYPE & value);
         // --------------------------------------------------------------------
+
         {
             Obj encoder;
             bsl::ostringstream oss;
@@ -30930,7 +30919,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // Encode Sequence
+        // ENCODING SEQUENCES
         //
         // Concerns:
         //: 1 Sequence objects are encoded as name-value pairs.
@@ -30952,6 +30941,10 @@ int main(int argc, char *argv[])
         //: 3 Encoded a sequence with an unselected Choice and verify an error
         //:   is returned.
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING SEQUENCES" << endl
+                          << "==================" << endl;
 
         if (verbose) cout << "Encode empty sequence." << endl;
         {
@@ -31025,7 +31018,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // Encode Choice
+        // ENCODING CHOICES
         //
         // Concerns:
         //: 1 Encoding a Choice object results in a JSON object with one
@@ -31050,6 +31043,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING CHOICES" << endl
+                          << "================" << endl;
+
         if (verbose) cout << "Encode Choice" << endl;
         {
             baea::Choice2 mX; const baea::Choice2& X = mX;
@@ -31110,7 +31108,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // Encode Array
+        // ENCODING ARRAYS
         //
         // Concerns:
         //: 1 'bsl::vector<char>' is encoded into as a JSON string type in
@@ -31129,6 +31127,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 Repeat step one with 'vector<int>' instead.
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING ARRAYS" << endl
+                          << "===============" << endl;
 
         if (verbose) cout << "Encode 'vector<char>'" << endl;
         {
@@ -31210,7 +31212,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // Encode Nullable
+        // ENCODING NULLABLES
         //
         // Concerns:
         //: 1 Null value is encoded to "null".
@@ -31231,6 +31233,10 @@ int main(int argc, char *argv[])
         //
         // Testing:
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING NULLABLES" << endl
+                          << "==================" << endl;
 
         if (verbose) cout << "Encode null value" << endl;
         {
@@ -31281,7 +31287,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // Encode Enumeration
+        // ENCODING ENUMERATIONS
         //
         // Concerns:
         //: 1 Encoding an Enumeration object result in a JSON string of the
@@ -31294,6 +31300,11 @@ int main(int argc, char *argv[])
         //: 2 Verify that the result is equal the the value of the 'toString'
         //:   method enclosed in double quotes.
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING ENUMERATIONS" << endl
+                          << "=====================" << endl;
+
         const int NUM_ENUMERATORS = baea::Enumerated::NUM_ENUMERATORS;
         for (int ti = 0; ti < NUM_ENUMERATORS; ++ti) {
             baea::Enumerated::Value mX = (baea::Enumerated::Value) ti;
@@ -31314,14 +31325,14 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // Encode Date/Time
+        // ENCODING DATE AND TIME TYPES
         //
         // Concerns:
         //: 1 Date/time are encoded in ISO 8601 format.
         //:
         //: 2 Output contains only information contained in the type being
-        //:   encoded.  (i.e., encoding 'bdet_Date' will not print out a time or
-        //:   offset.)
+        //:   encoded.  (i.e., encoding 'bdet_Date' will not print out a time
+        //:   or offset.)
         //
         // Plan:
         //: 1 Use the table-driven technique:
@@ -31333,6 +31344,11 @@ int main(int argc, char *argv[])
         //: 2 Perform step one for every date/time types.
         //
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING DATE AND TIME TYPES" << endl
+                          << "============================" << endl;
+
         const struct {
             int         d_line;
             int         d_year;
@@ -31528,7 +31544,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // Encode Numbers
+        // ENCODING NUMBERS
         //
         // Concerns:
         //: 1 Encoded numbers have the expected precisions.
@@ -31547,6 +31563,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING NUMBERS" << endl
+                          << "================" << endl;
+
         if (verbose) cout << "Encode double" << endl;
         {
             const struct {
@@ -31623,7 +31644,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // Encode Strings
+        // ENCODING STRINGS
         //
         // Concerns:
         //: 1 Character are encoded as a single character string.
@@ -31643,10 +31664,13 @@ int main(int argc, char *argv[])
         //: 2 Repeat for strings and Customized type.
         //
         // Testing:
-        //  int encode(char value);
         //  int encode(const bsl::string & value);
         //  int encode(const char *value);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING STRINGS" << endl
+                          << "================" << endl;
 
         if (verbose) cout << "Encode char" << endl;
         {
@@ -31767,7 +31791,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // ENCODE bool
+        // ENCODING BOOLEAN
         //
         // Concerns:
         //: 1 'true' is encoded into "true" and 'false' is encoded into
@@ -31779,6 +31803,11 @@ int main(int argc, char *argv[])
         // Testing:
         //: int Impl::encode(const bool& value);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING BOOLEAN" << endl
+                          << "================" << endl;
+
         if (verbose) cout << "Encode 'true'" << endl;
         {
             Obj  encoder;
@@ -31815,6 +31844,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
         test::Employee bob;
 

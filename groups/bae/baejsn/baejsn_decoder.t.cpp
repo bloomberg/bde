@@ -48,6 +48,35 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// The component under test implements an decoder for decoding into
+// 'bdeat'-compatible objects in the JSON format.  The object types that can be
+// decoded include 'bdeat' sequence, choice, array, enumeration, customized,
+// simple, and dynamic types.  In addition, the decoder supports options to
+// specify the max depth and whether unknown elements should be skipped.
+//
+// We use standard table-based approach to testing where we put both input and
+// expected output in the same table row and verify that the actual result
+// matches the expected value.
+// ----------------------------------------------------------------------------
+// CREATORS
+// [  ] baejsn_Decoder(bslma::Allocator *basicAllocator = 0);
+// [  ] ~baejsn_Decoder();
+//
+// MANIPULATORS
+// [  ] int decode(bsl::streambuf *streamBuf, TYPE *v, options);
+// [  ] int decode(bsl::istream& stream, TYPE *v, options);
+//
+// ACCESSORS
+// [  ] bsl::string loggedMessages() const;
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 6] USAGE EXAMPLE
+
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
