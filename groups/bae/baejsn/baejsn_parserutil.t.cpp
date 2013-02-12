@@ -21,6 +21,45 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// The component under test implements a utility for parsing 'bdeat' compatible
+// simple types from a 'bslstl::StringRef'.  The parsing is done via overloaded
+// 'getValue' functions that are provided for fundamental types and 'bdet'
+// types.  Since the functions are independent and do not share any state we
+// will test them independently.
+//
+// We use standard table-based approach to testing where we put both input and
+// expected output in the same table row and verify that the actual result
+// matches the expected value.
+// ----------------------------------------------------------------------------
+// CLASS METHODS
+// [ 2] static int getValue(bool                *v, bslstl::StringRef s);
+// [ 3] static int getValue(char                *v, bslstl::StringRef s);
+// [ 3] static int getValue(signed char         *v, bslstl::StringRef s);
+// [ 4] static int getValue(unsigned char       *v, bslstl::StringRef s);
+// [ 5] static int getValue(short               *v, bslstl::StringRef s);
+// [ 6] static int getValue(unsigned short      *v, bslstl::StringRef s);
+// [ 7] static int getValue(int                 *v, bslstl::StringRef s);
+// [ 8] static int getValue(unsigned int        *v, bslstl::StringRef s);
+// [ 9] static int getValue(bsls::Types::Int64  *v, bslstl::StringRef s);
+// [10] static int getValue(bsls::Types::Uint64 *v, bslstl::StringRef s);
+// [11] static int getValue(float               *v, bslstl::StringRef s);
+// [12] static int getValue(double              *v, bslstl::StringRef s);
+// [13] static int getValue(bsl::string         *v, bslstl::StringRef s);
+// [14] static int getValue(bdet_Time           *v, bslstl::StringRef s);
+// [15] static int getValue(bdet_TimeTz         *v, bslstl::StringRef s);
+// [16] static int getValue(bdet_Date           *v, bslstl::StringRef s);
+// [17] static int getValue(bdet_DateTz         *v, bslstl::StringRef s);
+// [18] static int getValue(bdet_Datetime       *v, bslstl::StringRef s);
+// [19] static int getValue(bdet_DatetimeTz     *v, bslstl::StringRef s);
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [20] USAGE EXAMPLE
+
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -166,6 +205,10 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -215,10 +258,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_DatetimeTz values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_DatetimeTz     *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_DatetimeTz'"
@@ -596,10 +661,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_Datetime values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_Datetime       *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_Datetime'"
@@ -971,10 +1058,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_DateTz values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_DateTz         *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_DateTz'"
@@ -1204,10 +1313,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_Date values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_Date           *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_Date' types"
@@ -1323,10 +1454,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_TimeTz values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_TimeTz         *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_TimeTz'"
@@ -1442,10 +1595,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_Time values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_Time           *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_Time'"
@@ -1540,10 +1715,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for string values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bsl::string         *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for string"
@@ -1614,10 +1811,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for double values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(double              *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for double"
@@ -1765,10 +1984,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for float values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(float               *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for float"
@@ -1909,10 +2150,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for Uint64 values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bsls::Types::Uint64 *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for Uint64"
@@ -2147,10 +2410,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for Int64 values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bsls::Types::Int64  *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for Int64"
@@ -2447,10 +2732,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for unsigned int values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(unsigned int        *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned int"
@@ -2672,10 +2979,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for int values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(int                 *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for int"
@@ -2945,10 +3274,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for unsigned short values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(unsigned short      *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned short"
@@ -3163,10 +3514,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for short values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(short               *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for short"
@@ -3419,10 +3792,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for unsigned char values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(unsigned char       *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned char"
@@ -3608,10 +4003,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for signed char values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(char                *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for signed char"
@@ -3814,10 +4231,20 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bool values
         //
         // Concerns:
+        //: 1 "true" is decoded into 'true' and "false" is decoded into
+        //:   'false'.
+        //:
+        //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Use a brute force approach to test both cases.  Confirm that the
+        //:   return value is 0.
+        //:
+        //: 2 Try to decode an errorneous value and verify that the return
+        //:   value is non-zero.
         //
         // Testing:
+        //   static int getValue(bool                *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for bool"
@@ -3845,14 +4272,14 @@ int main(int argc, char *argv[])
 
             {
                 StringRef isb(EC.data(), EC.length());
-                ASSERT(FAILURE == Util::getValue(&XC1, isb));
-                ASSERT(true == XC1);
+                ASSERT(SUCCESS != Util::getValue(&XC1, isb));
+                ASSERT(true    == XC1);
             }
 
             {
                 StringRef isb(EC.data(), EC.length());
-                ASSERT(FAILURE == Util::getValue(&XC2, isb));
-                ASSERT(false == XC2);
+                ASSERT(SUCCESS != Util::getValue(&XC2, isb));
+                ASSERT(false   == XC2);
             }
         }
       } break;
@@ -3947,3 +4374,12 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------

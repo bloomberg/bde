@@ -23,31 +23,40 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
+// The component under test implements a utility for printing 'bdeat'
+// compatible simple types onto an 'bsl::ostream'.  The printing is done via
+// overloaded 'printValue' functions that are overloaded for fundamental types
+// and 'bdet' types.  Since the functions are independent and do not share any
+// state we will test them independently.
+//
+// We use standard table-based approach to testing where we put both input and
+// expected output in the same table row and verify that the actual result
+// matches the expected value.
 // ----------------------------------------------------------------------------
-// CREATORS
-// [ 1] static int printValue(bsl::ostream& s, bool                    value);
-// [ 1] static int printValue(bsl::ostream& s, char                    value);
-// [ 1] static int printValue(bsl::ostream& s, signed char             value);
-// [ 1] static int printValue(bsl::ostream& s, unsigned char           value);
-// [ 1] static int printValue(bsl::ostream& s, short                   value);
-// [ 1] static int printValue(bsl::ostream& s, unsigned short          value);
-// [ 1] static int printValue(bsl::ostream& s, int                     value);
-// [ 1] static int printValue(bsl::ostream& s, unsigned int            value);
-// [ 1] static int printValue(bsl::ostream& s, bsls::Types::Int64      value);
-// [ 1] static int printValue(bsl::ostream& s, bsls::Types::Uint64     value);
-// [ 1] static int printValue(bsl::ostream& s, float                   value);
-// [ 1] static int printValue(bsl::ostream& s, double                  value);
-// [ 1] static int printValue(bsl::ostream& s, const char             *value);
-// [ 1] static int printValue(bsl::ostream& s, const bsl::string&      value);
-// [ 1] static int printValue(bsl::ostream& s, const bdet_Time&        value);
-// [ 1] static int printValue(bsl::ostream& s, const bdet_Date&        value);
-// [ 1] static int printValue(bsl::ostream& s, const bdet_Datetime&    value);
-// [ 1] static int printValue(bsl::ostream& s, const bdet_TimeTz&      value);
-// [ 1] static int printValue(bsl::ostream& s, const bdet_DateTz&      value);
-// [ 1] static int printValue(bsl::ostream& s, const bdet_DatetimeTz&  value);
+// CLASS METHODS
+// [ 2] static int printValue(bsl::ostream& s, bool                    v);
+// [ 4] static int printValue(bsl::ostream& s, char                    v);
+// [ 4] static int printValue(bsl::ostream& s, signed char             v);
+// [ 4] static int printValue(bsl::ostream& s, unsigned char           v);
+// [ 4] static int printValue(bsl::ostream& s, short                   v);
+// [ 4] static int printValue(bsl::ostream& s, unsigned short          v);
+// [ 4] static int printValue(bsl::ostream& s, int                     v);
+// [ 4] static int printValue(bsl::ostream& s, unsigned int            v);
+// [ 4] static int printValue(bsl::ostream& s, bsls::Types::Int64      v);
+// [ 4] static int printValue(bsl::ostream& s, bsls::Types::Uint64     v);
+// [ 4] static int printValue(bsl::ostream& s, float                   v);
+// [ 4] static int printValue(bsl::ostream& s, double                  v);
+// [ 3] static int printValue(bsl::ostream& s, const char             *v);
+// [ 3] static int printValue(bsl::ostream& s, const bsl::string&      v);
+// [ 5] static int printValue(bsl::ostream& s, const bdet_Time&        v);
+// [ 5] static int printValue(bsl::ostream& s, const bdet_Date&        v);
+// [ 5] static int printValue(bsl::ostream& s, const bdet_Datetime&    v);
+// [ 5] static int printValue(bsl::ostream& s, const bdet_TimeTz&      v);
+// [ 5] static int printValue(bsl::ostream& s, const bdet_DateTz&      v);
+// [ 5] static int printValue(bsl::ostream& s, const bdet_DatetimeTz&  v);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -208,6 +217,10 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
 ///Example 1: Encoding a Simple 'struct' into JSON
 ///-----------------------------------------------
 // Suppose we want to serialize some data into JSON.
@@ -262,7 +275,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // Encode Date/Time
+        // ENCODING DATE AND TIME TYPES
         //
         // Concerns:
         //: 1 Date/time are encoded in ISO 8601 format.
@@ -280,7 +293,18 @@ int main(int argc, char *argv[])
         //:
         //: 2 Perform step one for every date/time types.
         //
+        // Testing:
+        //   static int printValue(bsl::ostream& s, const bdet_Time&       v);
+        //   static int printValue(bsl::ostream& s, const bdet_Date&       v);
+        //   static int printValue(bsl::ostream& s, const bdet_Datetime&   v);
+        //   static int printValue(bsl::ostream& s, const bdet_TimeTz&     v);
+        //   static int printValue(bsl::ostream& s, const bdet_DateTz&     v);
+        //   static int printValue(bsl::ostream& s, const bdet_DatetimeTz& v);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING DATE AND TIME TYPES" << endl
+                          << "============================" << endl;
 
         const struct {
             int d_line;
@@ -387,10 +411,10 @@ int main(int argc, char *argv[])
             const int MILLISECOND = DATA[ti].d_millisecond;
             const int OFFSET      = DATA[ti].d_offset;;
 
-            bdet_Date theDate(YEAR, MONTH, DAY);
-            bdet_Time theTime(HOUR, MINUTE, SECOND, MILLISECOND);
-            bdet_Datetime theDatetime(YEAR, MONTH, DAY,
-                                      HOUR, MINUTE, SECOND, MILLISECOND);
+            bdet_Date       theDate(YEAR, MONTH, DAY);
+            bdet_Time       theTime(HOUR, MINUTE, SECOND, MILLISECOND);
+            bdet_Datetime   theDatetime(YEAR, MONTH, DAY,
+                                        HOUR, MINUTE, SECOND, MILLISECOND);
 
             bdet_DateTz     theDateTz(theDate, OFFSET);
             bdet_TimeTz     theTimeTz(theTime, OFFSET);
@@ -464,7 +488,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // Encode Numbers
+        // ENCODING NUMBERS
         //
         // Concerns:
         //: 1 Encoded numbers have the expected precisions.
@@ -482,7 +506,23 @@ int main(int argc, char *argv[])
         //:   2 Encode each value and verify the output is as expected.
         //
         // Testing:
+        //  static int printValue(bsl::ostream& s, char                    v);
+        //  static int printValue(bsl::ostream& s, signed char             v);
+        //  static int printValue(bsl::ostream& s, unsigned char           v);
+        //  static int printValue(bsl::ostream& s, short                   v);
+        //  static int printValue(bsl::ostream& s, unsigned short          v);
+        //  static int printValue(bsl::ostream& s, int                     v);
+        //  static int printValue(bsl::ostream& s, unsigned int            v);
+        //  static int printValue(bsl::ostream& s, bsls::Types::Int64      v);
+        //  static int printValue(bsl::ostream& s, bsls::Types::Uint64     v);
+        //  static int printValue(bsl::ostream& s, float                   v);
+        //  static int printValue(bsl::ostream& s, double                  v);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING NUMBERS" << endl
+                          << "================" << endl;
+
         if (verbose) cout << "Encode float" << endl;
         {
             const struct {
@@ -621,7 +661,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // Encode Strings
+        // ENCODING STRINGS
         //
         // Concerns:
         //: 1 Character are encoded as a single character string.
@@ -643,10 +683,13 @@ int main(int argc, char *argv[])
         //: 2 Repeat for strings and Customized type.
         //
         // Testing:
-        //  int encode(char value);
-        //  int encode(const bsl::string & value);
-        //  int encode(const char *value);
+        //  static int printValue(bsl::ostream& s, const char             *v);
+        //  static int printValue(bsl::ostream& s, const bsl::string&      v);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING STRINGS" << endl
+                          << "================" << endl;
 
         if (verbose) cout << "Encode string" << endl;
         {
@@ -748,7 +791,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // ENCODE bool
+        // ENCODING BOOLEAN
         //
         // Concerns:
         //: 1 'true' is encoded into "true" and 'false' is encoded into
@@ -758,8 +801,13 @@ int main(int argc, char *argv[])
         //: 1 Use a brute force approach to test both cases.
         //
         // Testing:
-        //: int Impl::encode(const bool& value);
+        //   static int printValue(bsl::ostream& s, bool                    v);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING BOOLEAN" << endl
+                          << "================" << endl;
+
         if (verbose) cout << "Encode 'true'" << endl;
         {
             bsl::ostringstream oss;
@@ -793,6 +841,11 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
         bsl::ostringstream oss;
 
         if (verbose) cout << "Test boolean" << endl;
@@ -930,3 +983,12 @@ int main(int argc, char *argv[])
     return testStatus;
     return -1;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------
