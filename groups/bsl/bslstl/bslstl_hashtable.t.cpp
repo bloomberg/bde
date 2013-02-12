@@ -54,6 +54,16 @@
 #  define ZU "%zu"
 #endif
 
+// We note that certain test cases rely on the reference collapising rules
+// that were adopted shortly after C++03, and so are not a feature of many
+// older compilers, or perhaps compilers in strictly conforming modes.
+
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1600)  \
+ || (defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VER_MAJOR < 40300) \
+ ||  defined(BSLS_PLATFORM_CMP_SUN)
+#  define BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING
+#endif
+
 // Note that some compilers struggle with the number of template instantiations
 // in this test driver.  We define this macro to simplify the test driver for
 // them, until such time as we can provide a more specific review of the type
@@ -70,20 +80,11 @@
 #undef BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
-#if 0
-#define BSLSTL_HASHTABLE_MINIMALTEST_TYPES      \
-        signed char,                            \
-        bsltf::TemplateTestFacility::MethodPtr, \
-        bsltf::NonTypicalOverloadsTestType,     \
-        bsltf::NonAssignableTestType,           \
-        bsltf::NonDefaultConstructibleTestType
-#else
 #define BSLSTL_HASHTABLE_MINIMALTEST_TYPES      \
         signed char,                            \
         bsltf::TemplateTestFacility::MethodPtr, \
         bsltf::AllocBitwiseMoveableTestType,    \
         TestTypes::MostEvilTestType
-#endif
 
 using namespace BloombergLP;
 using bslstl::CallableVariable;
@@ -131,17 +132,20 @@ using bslstl::CallableVariable;
 //
 // We note that of the basic accessors, only 'size' and 'elementListRoot'
 // contribute to value; while none of the others are salient to value, they
-// are important for maintaining the efficient indexing of the container.
+// are important for maintaining the efficient indexing of the container, and
+// are required to properly inspect the state of the container after any
+// manipulation in the succeeding test cases.
 //
 // One unusual aspect of this class is that the default constructor creates
 // an empty container with no space reserved for elements to insert.  As we
-// are avoiding rehash operations, this means we must use the value constructor
-// through the value semantic bootstrap tests, which does allow us to specify
-// an initial capacity.  Further, the default constructor has a more minimal
-// set of requirements on the template arguments than other constructors, so we
-// will test this constructor as the very final test case, to confirm that all
-// the other validated functions operate correctly when instantiated with the
-// more minimal contracts.
+// are avoiding rehash operations during the (idiomatic) initial ten value-
+// semantic class test cases, this means we must use the value constructor
+// through the value semantic bootstrap tests, as this constructor does allow
+// us to specify an initial capacity.  Further, the default constructor has a
+// more minimal set of requirements on the template arguments than other
+// constructors, so we will test this constructor as the very final test case,
+// to confirm that all the other validated functions operate correctly when
+// instantiated with the more minimal contracts.
 //
 // As we are testing a template, we will make heavy use of the blstf template
 // test facility.  Our primary means of implementing each test case will be to
@@ -4332,6 +4336,167 @@ struct TestDriver_ForwardTestCasesByConfiguation {
     // there is no testCase1();
 };
 
+// Concerns for template parameters
+// --------------------------------
+// The primary template supports four template parameters, each of which raises
+// concerns that the template behaves correctly when instantiated with a
+// variety of types that satisfy the requirements of the appropriate type
+// parameter.  These concerns may affect all test cases, although a subset of
+// concerns may not apply in specific cases where more precise requirements
+// apply.  We enumerate the type-related concerns for each template parameter
+// here in a common place that may be referenced in the testing concerns for
+// each test case below.  There are also common concerns for the function-like
+// types 'HSAHER' and 'COMPARATOR' that we catalog separately.
+//
+// Function-like types
+// - - - - - - - - - -
+// A function-like type used to instantiate the 'HashTable' template may be:
+//: o A function type
+//: o A function pointer type
+//: o An object type convertible to a function pointer
+//: o An object type convertible to a function reference
+//: o An object type that overloads 'operator()'
+//: o A reference to a function
+//: o A reference to a function pointer
+//: o A reference to an object type convertible to a function pointer
+//: o A reference to an object type convertible to a function reference
+//: o A reference to an object type that overloads 'operator()'
+//
+// For each function-like type, the arguments to the function call me be:
+//: o Passed by 'const &'
+//: o Passed by 'const &' to something convertible from the desired argument
+//: o Passed by const-unqualified '&' (subject to constraints below)
+//: o Passed by value
+//: o Passed by value convertible from the desired argument
+//
+// In each case, the callable signature may have a trailing elipsis.
+//
+// For function, function-pointer, and reference-to-function types, the
+// underlying function type may also have 'extern "C"' linkage.
+//
+// For an object-type overloading 'operator()', there are additional concerns:
+//: o The operator might be 'const' qualified
+//: o The operator might not be 'const' qualified
+//: o The operator may be a virtual function
+//: o The operator may be a function template
+//: o The object-type may be a class template
+//: o THe object-type may be a union (THIS IS NOT SUPPORTED)
+//
+// For an object-type overloading 'operator()'
+//: o The type may be const-qualified
+//: o The object may have internal state
+//: o The object may allocate memory for state from its own allocator
+// We note that a simple example of a funtion-like type holding state is a
+// function pointer.
+//
+// Any invocation of a function-like type, within contract, may throw an
+// exception of any type.
+//
+// For user-defined class types, any constructor may throw an exception of
+// any type, as may any assignment operator.
+//
+// User defined types need not support all the implicitly declared operations,
+// such as:
+//: o default constructor
+//: o copy constructor
+//: o operator=
+//: o operator&
+//: o operator,
+//: o operator new
+//: o operator delete
+//
+// QoI: Where the function-like entity is an empty class type, it should not
+//      add to the overall size of the 'HashTable' object.
+//
+// We note, with mild relief, that the one thing we are not required to support
+// is a pointer-to-member-function.
+//
+// ALLOCATOR
+// - - - - -
+// The 'ALLOCATOR' argument must conform to the C++11 allocator requirements,
+// and a minimal allocator would have (alomst) all of its properties deduced by
+// 'std::allocator_traits'.  Therefore, allocators that do or do not supply
+// each of the following should be supported, and behave as specified by
+// 'std::allocator_traits' (noting that 'allocator_traits' is a separately
+// implemented and tested component that we depend on - this is not intended to
+// test 'allcotor_traits', but merely that this component correctly uses
+// 'allocator_traits' rather than the object allocator directly):
+//: o type alias 'pointer'
+//: o type alias 'const_pointer'
+//: o type alias 'void_pointer'
+//: o type alias 'const_void_pointer'
+//: o type alias 'size_type'
+//: o type alias 'difference_type'
+//: o type alias 'propagate_on_constainer_copy_construction'
+//: o type alias 'propagate_on_constainer_copy_assignment'
+//: o type alias 'propagate_on_constainer_swap'
+//: o alias template 'rebind<OTHER>'
+//: o 'construct(ANY*, ARGS...)'
+//: o 'destroy(ANY*)'
+//: o 'max_size()'
+//
+// While an allocator must be CopyConstructible, there is no requirement that
+// it support any of the other implicitly declared operations:
+//: o default constructor
+//: o operator=
+//: o operator&
+//: o operator,
+//: o operator new
+//: o operator delete
+// Note that some specific functions, such as the 'HashTable' default
+// constructor, may require some of these extra functions, but there is no
+// general requirement to supply these unless a specific function contract
+// explicitly states that this operation is required, and that additional
+// requirement applies to only that one function.
+//
+// When the allocator is 'bsl::allocator<TYPE>' then we have a number of
+// additional concerns, that are mostly runtime issues rather than type-
+// related issues.  They will be raised and addressed in the usual manner
+// under the actual test case.
+//
+// KEY_CONFIG
+// - - - - -
+//
+// HASHER
+// - - -
+// 'HASHER' is a function-like type that takes a single argument convertible
+// from 'typename KEY_CONFIG::KeyType' and returns a value of the type
+// 'std::size_t'.
+//
+// COMPARATOR
+// - - - - -
+// 'COMPARATOR' is a function-like type that takes two arguments, each
+// convertible from 'typename KEY_CONFIG::KeyType', and returns a value of a
+// type that is implcitly convertible to 'bool'.
+//
+//Test Plan
+//---------
+// We will use a variety of test allocators from 'bsltf' to test the range of
+// allocator-related concerns.
+//
+// Test with a minimal allocator relying on 'allocator_traits' for everything.
+// Test with a complete allocator that supplies distinct, observable behavior
+//   for each property supported by 'allocator_traits'
+// Provide allocators supporting each combination of trait that triggers
+//   different allocator behavior
+//: o type alias 'propagate_on_constainer_copy_construction'  (true false)
+//: o type alias 'propagate_on_constainer_copy_assignment'    (true false)
+//: o type alias 'propagate_on_constainer_swap'               (true false)
+//: o type alias 'pointer' is a native pointer, or a "smart" pointer
+//
+// Note that for this initial release we can use a greatly simplified plan, as
+// our current implementation of 'allocator_traits' does not support any
+// deduction of traits.  We will still use the minimal and maximal allocator
+// interfaces supported by this implementation, and the range of customizable
+// behaviors.
+//
+// Simplifying assumptions of our limited 'allocator_traits' implementaiton:
+//: o no support for allocators returning smart pointers
+//: o no support for any of the fine-grained propagation traits
+//: o no deducing typedefs, everything must be supplied in the allocator
+//: o copy constructing a container copies the allocator of the original
+//    unless it is 'bsl::allocator', in which case the default is used.
+//
 // - - - - - - - - - - Pre-packaged test harness adapters - - - - - - - - - - -
 // The template test facility, bsltf, requires class templates taking a single
 // argument, that is the element type to vary in the test.  We desire a variety
@@ -4402,7 +4567,7 @@ struct TestDriver_ConstFunctors
        > {
 };
 
-#if !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
 template <class ELEMENT>
 struct TestDriver_FunctorReferences
      : TestDriver_ForwardTestCasesByConfiguation<
@@ -4460,7 +4625,8 @@ struct TestDriver_FunctionPointers
        > {
 };
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
 template <class ELEMENT>
 struct TestDriver_FunctionReferences
      : TestDriver_ForwardTestCasesByConfiguation<
@@ -8830,6 +8996,7 @@ void mainTestCase9()
                   bsltf::NonTypicalOverloadsTestType,              \
                   bsltf::NonAssignableTestType,                    \
                   bsltf::NonDefaultConstructibleTestType
+
     // Next we have a sub-set of tests that do not yet want to support testing
     // the allocatable types, as non-BDE allocators do not scope the object
     // allocator to the elements, and so use the default allocator instead,
@@ -9227,7 +9394,7 @@ void mainTestCase4()
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
@@ -9247,8 +9414,8 @@ void mainTestCase4()
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
- && !defined(BSLS_PLATFORM_CMP_MSVC)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,
@@ -9367,7 +9534,7 @@ void mainTestCase3()
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
@@ -9387,8 +9554,8 @@ void mainTestCase3()
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
- && !defined(BSLS_PLATFORM_CMP_MSVC)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,
@@ -9581,7 +9748,7 @@ void mainTestCase2()
                   testCase2,
                   BSLSTL_HASHTABLE_TESTCASE2_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
@@ -9601,8 +9768,8 @@ void mainTestCase2()
                   testCase2,
                   BSLSTL_HASHTABLE_TESTCASE2_TYPES);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
- && !defined(BSLS_PLATFORM_CMP_MSVC)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,

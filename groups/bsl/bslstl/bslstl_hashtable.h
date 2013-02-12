@@ -44,6 +44,19 @@ BSLS_IDENT("$Id: $")
 //      // Return a non-modifiable reference to the key for the specified
 //      // 'value'.
 //..
+// Optionally, the 'KEY_CONFIG' class might provide an 'extractKey' function
+// with the alternative signature:
+//..
+//  static KeyType& extractKey(ValueType& value);
+//      // Return a reference to the key for the specified 'value'.
+//..
+// This alternative signature is necessary to support the rare case that a
+// hash function or comparator used to configure the 'HashTable' template below
+// take their arguments by non-const reference.  This is subject to additional
+// constraints that these functions may not modify the passed arguments, and is
+// inherently a fragile interface and not recommended.  It is supported only
+// for C++ Standard conformance.
+//
 // A 'HashTable' is a fully "Value-Semantic Type" (see {'bsldoc_glossary'})
 // only if the configured 'ValueType' is fully value-semantic.  It is possible
 // to instantiate a 'HashTable' configured with a 'ValueType' that does not
