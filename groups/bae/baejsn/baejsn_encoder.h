@@ -377,13 +377,11 @@ class baejsn_Encoder {
                         // ==============================
 
 class baejsn_Encoder_Formatter {
-    // This class implements a formatter that allows providing the appropriate
-    // indentation when encoding objects in the JSON format.  This is a
-    // component-private class and should not be used outside of this
-    // component.  This class implements a formatter providing operations for
-    // rending JSON text elements to an output stream (supplied at
-    // construction) according to a set formatting options (also supplied at
-    // construction).
+    // This class implements a formatter providing operations for rending JSON
+    // text elements to an output stream (supplied at construction) according
+    // to a set of formatting options (also supplied at construction).  This is
+    // a component-private class and should not be used outside of this
+    // component.
 
     // DATA
     bsl::ostream& d_outputStream;     // stream for output (held, not owned)
@@ -421,7 +419,8 @@ class baejsn_Encoder_Formatter {
 
     void indent();
         // Print onto the stream supplied at construction the sequence of
-        // whitespace characters for an element.
+        // whitespace characters for the proper indentation of an element
+        // given the encoding options supplied at construction.
 
     int openElement(const bsl::string& name);
         // Print onto the stream supplied at construction the sequence of

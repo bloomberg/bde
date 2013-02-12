@@ -324,13 +324,13 @@ class baejsn_Decoder {
     template <typename TYPE, typename ANY_CATEGORY>
     int decodeImp(TYPE *value, ANY_CATEGORY category);
         // Decode into the specified 'value', of a (template parameter) 'TYPE'
-        // corresponding to the specified 'bdeat' category, the JSON data
+        // corresponding to the specified 'bdeat' 'category', the JSON data
         // currently referred to by the tokenizer owned by this object, using
         // the specified formatting 'mode'.  Return 0 on success and a non-zero
         // value otherwise.  The behavior is undefined unless 'value'
         // corresponds to the specified 'bdeat' category and 'mode' is a valid
         // formatting mode as specified in 'bdeat_FormattingMode'.  Note that
-        // 'ANY_CATEGORY' shall be a tag defined in 'bdeat_TypeCategory'.
+        // 'ANY_CATEGORY' shall be a tag-type defined in 'bdeat_TypeCategory'.
 
     int skipUnknownElement(const bslstl::StringRef& elementName);
         // Skip the unknown element specified by 'elementName' by discarding
@@ -349,24 +349,23 @@ class baejsn_Decoder {
     int decode(bsl::streambuf               *streamBuf,
                TYPE                         *value,
                const baejsn_DecoderOptions&  options);
-        // Decode an object of (template parameter) 'TYPE' from the specified
-        // 'streamBuf' and using the specified 'options'.  Load the result into
-        // the specified modifiable 'value'.  Return 0 on success, and a
-        // non-zero value otherwise.  Note that 'value' is expected to refer to
-        // a sequence, choice, or array type and an error is returned if it
-        // does not.
+        // Decode into the specified 'value', of a (template parameter) 'TYPE',
+        // the JSON data read from the specified 'streamBuf' and using the
+        // specified 'options'.  'TYPE' shall be a type, or a
+        // 'bdeat'-compatible dynamic type referring to a type, corresponding
+        // to a 'bdeat'-compatible sequence, choice, or array type.  Return 0
+        // on success, and a non-zero value otherwise.
 
     template <typename TYPE>
     int decode(bsl::istream&                 stream,
                TYPE                         *value,
                const baejsn_DecoderOptions&  options);
-        // Decode an object of (template parameter) 'TYPE' from the specified
-        // 'stream' and using the specified 'options'.  Load the result into
-        // the specified modifiable 'value'.  Return 0 on success, and a
-        // non-zero value otherwise.  Note that 'stream' will be invalidated if
-        // the decoding fails.  Also note that 'value' is expected to refer to
-        // a sequence, choice, or array type and an error is returned if it
-        // does not.
+        // Decode into the specified 'value', of a (template parameter) 'TYPE',
+        // the JSON data read from the specified 'stream' and using the
+        // specified 'options'.  'TYPE' shall be a type, or a
+        // 'bdeat'-compatible dynamic type referring to a type, corresponding
+        // to a 'bdeat'-compatible sequence, choice, or array type.  Return 0
+        // on success, and a non-zero value otherwise.
 
     template <typename TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
@@ -479,6 +478,9 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                               bdeat_TypeCategory::Sequence)
 {
     if (bdeat_FormattingMode::BDEAT_UNTAGGED & mode) {
+        // This is an anonymous element.  Do not read anything and instead
+        // decode into the corresponding sub-element.
+
         if (bdeat_SequenceFunctions::hasAttribute(
                                    *value,
                                    d_elementName.data(),
@@ -608,6 +610,9 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                               bdeat_TypeCategory::Choice)
 {
     if (bdeat_FormattingMode::BDEAT_UNTAGGED & mode) {
+        // This is an anonymous element.  Do not read anything and instead
+        // decode into the corresponding sub-element.
+
         bslstl::StringRef selectionName;
         selectionName.assign(d_elementName.begin(), d_elementName.end());
 

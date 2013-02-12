@@ -320,8 +320,29 @@ int main(int argc, char *argv[])
         // TESTING that large values (greater than 1K) are handled correctly
         //
         // Concerns:
+        //: 1 Values of larger sizes are handled correctly.
+        //:
+        //: 2 Only values larger than 1K result in an allocation.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text and whether external memory is
+        //:   allocated.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text and
+        //:     including the opening brace and name.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
+        //:     to get to a value token.
+        //:
+        //:   4 Confirm that the value of that token is as expected.
+        //:
+        //:   5 Verify that memory is allocated when expected.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -600,22 +621,61 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_END_ARRAY
         //
         // Concerns:
-        //: 1 START_ARRAY    -> END_ARRAY                            '[' -> ']'
-        //: 2 VALUE (number) -> END_ARRAY                          VALUE -> ']'
-        //: 3 VALUE (string) -> END_ARRAY                            '"' -> ']'
-        //: 4 END_OBJECT     -> END_ARRAY                            '}' -> ']'
-        //: 5 END_ARRAY      -> END_ARRAY                            ']' -> ']'
+        //: 1 The following transitions are correctly handled:
+        //:
+        //:   1 START_ARRAY    -> END_ARRAY                          '[' -> ']'
+        //:
+        //:   2 VALUE (number) -> END_ARRAY                        VALUE -> ']'
+        //:
+        //:   3 VALUE (string) -> END_ARRAY                          '"' -> ']'
+        //:
+        //:   4 END_OBJECT     -> END_ARRAY                          '}' -> ']'
+        //:
+        //:   5 END_ARRAY      -> END_ARRAY                          ']' -> ']'
+        //:
+        //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 NAME (no ':')         -> END_ARRAY                     '"' -> ']'
-        //: 2 NAME (with ':')       -> END_ARRAY                     ':' -> ']'
-        //: 3 NAME (with ',')       -> END_ARRAY             NAME -> ',' -> ']'
-        //: 4 VALUE (with ',')      -> END_ARRAY            VALUE -> ',' -> ']'
-        //: 5 START_OBJECT          -> END_ARRAY                     '{' -> ']'
-        //: 6 END_OBJECT (with ',') -> END_ARRAY              '}' -> ',' -> ']'
-        //: 7 END_ARRAY (with ',')  -> END_ARRAY              ']' -> ',' -> ']'
+        //: 1 The following transitions return an error:
+        //:
+        //:   1 NAME (no ':')         -> END_ARRAY                   '"' -> ']'
+        //:
+        //:   2 NAME (with ':')       -> END_ARRAY                   ':' -> ']'
+        //:
+        //:   3 NAME (with ',')       -> END_ARRAY           NAME -> ',' -> ']'
+        //:
+        //:   4 VALUE (with ',')      -> END_ARRAY          VALUE -> ',' -> ']'
+        //:
+        //:   5 START_OBJECT          -> END_ARRAY                   '{' -> ']'
+        //:
+        //:   6 END_OBJECT (with ',') -> END_ARRAY            '}' -> ',' -> ']'
+        //:
+        //:   7 END_ARRAY (with ',')  -> END_ARRAY            ']' -> ',' -> ']'
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text, the number of times to invoke
+        //:   'advanceToNextToken', the result of an additional invocation of
+        //:   'advanceToNextToken', and the expected token and value, if
+        //:   applicable, after that invocation.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
+        //:     specified in that row.
+        //:
+        //:   4 Invoke 'advanceToNextToken' one more time and record the
+        //:     return value, the token type, and the value of that token.
+        //:
+        //:   5 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  Also confirm that the token type is as expected.
+        //:     Finally, if that token is expected to have a value, then the
+        //:     value of that token is as expected.
         //
         // Testing:
         //   int advanceToNextToken();
@@ -1577,17 +1637,51 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_START_ARRAY
         //
         // Concerns:
-        //: 1 NAME             -> START_ARRAY                        ':' -> '['
-        //: 2 START_ARRAY      -> START_ARRAY                        '[' -> '['
-        //: 3 END_ARRAY        -> START_ARRAY                 ']' -> ',' -> '['
+        //: 1 The following transitions are correctly handled:
+        //:
+        //:   1 NAME             -> START_ARRAY                      ':' -> '['
+        //:
+        //:   2 START_ARRAY      -> START_ARRAY                      '[' -> '['
+        //:
+        //:   3 END_ARRAY        -> START_ARRAY               ']' -> ',' -> '['
+        //:
+        //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 NAME (no ':')    -> START_ARRAY                        '"' -> '['
-        //: 2 VALUE (with ',') -> START_ARRAY               VALUE -> ',' -> '['
-        //: 3 START_OBJECT     -> START_ARRAY                        '{' -> '['
-        //: 4 END_OBJECT       -> START_ARRAY                        '}' -> '['
+        //: 1 The following transitions return an error:
+        //:
+        //:   1 NAME (no ':')    -> START_ARRAY                      '"' -> '['
+        //:
+        //:   2 VALUE (with ',') -> START_ARRAY             VALUE -> ',' -> '['
+        //:
+        //:   3 START_OBJECT     -> START_ARRAY                      '{' -> '['
+        //:
+        //:   4 END_OBJECT       -> START_ARRAY                      '}' -> '['
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text, the number of times to invoke
+        //:   'advanceToNextToken', the result of an additional invocation of
+        //:   'advanceToNextToken', and the expected token and value, if
+        //:   applicable, after that invocation.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
+        //:     specified in that row.
+        //:
+        //:   4 Invoke 'advanceToNextToken' one more time and record the
+        //:     return value, the token type, and the value of that token.
+        //:
+        //:   5 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  Also confirm that the token type is as expected.
+        //:     Finally, if that token is expected to have a value, then the
+        //:     value of that token is as expected.
         //
         // Testing:
         //   int advanceToNextToken();
@@ -1883,22 +1977,61 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_END_OBJECT
         //
         // Concerns:
-        //: 1 START_OBJECT     -> END_OBJECT                         '{' -> '}'
-        //: 2 VALUE (number)   -> END_OBJECT                       VALUE -> '}'
-        //: 3 VALUE (string)   -> END_OBJECT                         '"' -> '}'
-        //: 4 START_OBJECT     -> END_OBJECT                  '[' -> '{' -> '}'
-        //: 5 START_OBJECT     -> END_OBJECT                  '{' -> '{' -> '}'
-        //: 6 END_OBJECT       -> END_OBJECT           '{' -> '{' -> '}' -> '}'
-        //: 7 END_OBJECT       -> END_OBJECT    '{' -> '{' -> '{' -> '}' -> '}'
-        //: 8 END_ARRAY        -> END_OBJECT                  '[' -> ']' -> '}'
+        //: 1 The following transitions are correctly handled:
+        //:
+        //:   1 START_OBJECT     -> END_OBJECT                       '{' -> '}'
+        //:
+        //:   2 VALUE (number)   -> END_OBJECT                     VALUE -> '}'
+        //:
+        //:   3 VALUE (string)   -> END_OBJECT                       '"' -> '}'
+        //:
+        //:   4 START_OBJECT     -> END_OBJECT                '[' -> '{' -> '}'
+        //:
+        //:   5 START_OBJECT     -> END_OBJECT                '{' -> '{' -> '}'
+        //:
+        //:   6 END_OBJECT       -> END_OBJECT         '{' -> '{' -> '}' -> '}'
+        //:
+        //:   7 END_OBJECT       -> END_OBJECT  '{' -> '{' -> '{' -> '}' -> '}'
+        //:
+        //:   8 END_ARRAY        -> END_OBJECT                '[' -> ']' -> '}'
+        //:
+        //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 NAME             -> END_OBJECT                      '"'  -> '}'
-        //: 2 NAME (with ':')  -> END_OBJECT                      ':'  -> '}'
-        //: 3 VALUE (with ',') -> END_OBJECT                    VALUE  -> '}'
-        //: 4 START_ARRAY      -> END_OBJECT                    '['    -> VALUE
+        //: 1 The following transitions return an error:
+        //:
+        //:   1 NAME             -> END_OBJECT                    '"'  -> '}'
+        //:
+        //:   2 NAME (with ':')  -> END_OBJECT                    ':'  -> '}'
+        //:
+        //:   3 VALUE (with ',') -> END_OBJECT                  VALUE  -> '}'
+        //:
+        //:   4 START_ARRAY      -> END_OBJECT                  '['    -> VALUE
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text, the number of times to invoke
+        //:   'advanceToNextToken', the result of an additional invocation of
+        //:   'advanceToNextToken', and the expected token and value, if
+        //:   applicable, after that invocation.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
+        //:     specified in that row.
+        //:
+        //:   4 Invoke 'advanceToNextToken' one more time and record the
+        //:     return value, the token type, and the value of that token.
+        //:
+        //:   5 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  Also confirm that the token type is as expected.
+        //:     Finally, if that token is expected to have a value, then the
+        //:     value of that token is as expected.
         //
         // Testing:
         //   int advanceToNextToken();
@@ -2678,21 +2811,59 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_VALUE
         //
         // Concerns:
-        //: 1 NAME           -> VALUE (number)                     ':' -> VALUE
-        //: 2 NAME           -> VALUE (string)                     ':' -> VALUE
-        //: 3 START_ARRAY    -> VALUE (number)                     '[' -> VALUE
-        //: 4 START_ARRAY    -> VALUE (string)                     '[' -> VALUE
-        //: 5 VALUE (number) -> VALUE (number)                   VALUE -> VALUE
-        //: 6 VALUE (string) -> VALUE (string)                   VALUE -> VALUE
-        //: 7 VALUE (number) -> VALUE (string)                   VALUE -> VALUE
-        //: 8 VALUE (string) -> VALUE (number)                   VALUE -> VALUE
+        //: 1 The following transitions are correctly handled:
+        //:
+        //:   1 NAME           -> VALUE (number)                   ':' -> VALUE
+        //:
+        //:   2 NAME           -> VALUE (string)                   ':' -> VALUE
+        //:
+        //:   3 START_ARRAY    -> VALUE (number)                   '[' -> VALUE
+        //:
+        //:   4 START_ARRAY    -> VALUE (string)                   '[' -> VALUE
+        //:
+        //:   5 VALUE (number) -> VALUE (number)                 VALUE -> VALUE
+        //:
+        //:   6 VALUE (string) -> VALUE (string)                 VALUE -> VALUE
+        //:
+        //:   7 VALUE (number) -> VALUE (string)                 VALUE -> VALUE
+        //:
+        //:   8 VALUE (string) -> VALUE (number)                 VALUE -> VALUE
+        //:
+        //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 VALUE (no ,)   -> VALUE                           VALUE  -> VALUE
-        //: 2 END_OBJECT     -> VALUE                             '}'  -> VALUE
-        //: 3 END_ARRAY      -> VALUE                             ']'  -> VALUE
+        //: 1 The following transitions return an error:
+        //:
+        //:   1 VALUE (no ,)   -> VALUE                         VALUE  -> VALUE
+        //:
+        //:   2 END_OBJECT     -> VALUE                           '}'  -> VALUE
+        //:
+        //:   3 END_ARRAY      -> VALUE                           ']'  -> VALUE
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text, the number of times to invoke
+        //:   'advanceToNextToken', the result of an additional invocation of
+        //:   'advanceToNextToken', and the expected token and value, if
+        //:   applicable, after that invocation.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
+        //:     specified in that row.
+        //:
+        //:   4 Invoke 'advanceToNextToken' one more time and record the
+        //:     return value, the token type, and the value of that token.
+        //:
+        //:   5 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  Also confirm that the token type is as expected.
+        //:     Finally, if that token is expected to have a value, then the
+        //:     value of that token is as expected.
         //
         // Testing:
         //   int advanceToNextToken();
@@ -3512,18 +3683,53 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_NAME
         //
         // Concerns:
-        //: 1 START_OBJECT   -> NAME                                 '{' -> '"'
-        //: 2 END_OBJECT     -> NAME            ':' -> '{' -> '}' -> ',' -> '"'
-        //: 3 END_ARRAY      -> NAME            ':' -> '[' -> ']' -> ',' -> '"'
-        //: 4 VALUE (number) -> NAME                 ':' -> VALUE -> ',' -> '"'
-        //: 5 VALUE (string) -> NAME                 ':' -> VALUE -> ',' -> '"'
+        //: 1 The following transitions are correctly handled:
+        //:
+        //:   1 START_OBJECT   -> NAME                               '{' -> '"'
+        //:
+        //:   2 END_OBJECT     -> NAME          ':' -> '{' -> '}' -> ',' -> '"'
+        //:
+        //:   3 END_ARRAY      -> NAME          ':' -> '[' -> ']' -> ',' -> '"'
+        //:
+        //:   4 VALUE (number) -> NAME               ':' -> VALUE -> ',' -> '"'
+        //:
+        //:   5 VALUE (string) -> NAME               ':' -> VALUE -> ',' -> '"'
+        //:
+        //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 END_OBJECT (no ',') -> NAME                           '}'  -> '"'
-        //: 2 END_ARRAY (no ',')  -> NAME                           ']'  -> '"'
-        //: 3 NAME                -> NAME                           '"'  -> '"'
+        //: 1 The following transitions return an error:
+        //:
+        //:   1 END_OBJECT (no ',') -> NAME                         '}'  -> '"'
+        //:
+        //:   2 END_ARRAY (no ',')  -> NAME                         ']'  -> '"'
+        //:
+        //:   3 NAME                -> NAME                         '"'  -> '"'
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text, the number of times to invoke
+        //:   'advanceToNextToken', the result of an additional invocation of
+        //:   'advanceToNextToken', and the expected token and value, if
+        //:   applicable, after that invocation.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
+        //:     specified in that row.
+        //:
+        //:   4 Invoke 'advanceToNextToken' one more time and record the
+        //:     return value, the token type, and the value of that token.
+        //:
+        //:   5 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  Also confirm that the token type is as expected.
+        //:     Finally, if that token is expected to have a value, then the
+        //:     value of that token is as expected.
         //
         // Testing:
         //   int advanceToNextToken();
@@ -4019,18 +4225,53 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_START_OBJECT
         //
         // Concerns:
-        //: 1 BEGIN          -> START_OBJECT                       BEGIN -> '{'
-        //: 2 NAME           -> START_OBJECT                         ':' -> '{'
-        //: 3 START_ARRAY    -> START_OBJECT                         '[' -> '{'
-        //: 4 END_OBJECT     -> START_OBJECT    '[' -> '{' -> '}' -> ',' -> '{'
+        //: 1 The following transitions are correctly handled:
+        //:
+        //:   1 BEGIN          -> START_OBJECT                     BEGIN -> '{'
+        //:
+        //:   2 NAME           -> START_OBJECT                       ':' -> '{'
+        //:
+        //:   3 START_ARRAY    -> START_OBJECT                       '[' -> '{'
+        //:
+        //:   4 END_OBJECT     -> START_OBJECT  '[' -> '{' -> '}' -> ',' -> '{'
+        //:
+        //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 NAME (no ':')  -> START_OBJECT                        '"'  -> '{'
-        //: 2 START_OBJECT   -> START_OBJECT                        '{'  -> '{'
-        //: 3 END_ARRAY      -> START_OBJECT                        ']'  -> '{'
-        //: 4 VALUE          -> START_OBJECT                       VALUE -> '{'
+        //: 1 The following transitions return an error:
+        //:
+        //:   1 NAME (no ':')  -> START_OBJECT                      '"'  -> '{'
+        //:
+        //:   2 START_OBJECT   -> START_OBJECT                      '{'  -> '{'
+        //:
+        //:   3 END_ARRAY      -> START_OBJECT                      ']'  -> '{'
+        //:
+        //:   4 VALUE          -> START_OBJECT                     VALUE -> '{'
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text, the number of times to invoke
+        //:   'advanceToNextToken', the result of an additional invocation of
+        //:   'advanceToNextToken', and the expected token and value, if
+        //:   applicable, after that invocation.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
+        //:     specified in that row.
+        //:
+        //:   4 Invoke 'advanceToNextToken' one more time and record the
+        //:     return value, the token type, and the value of that token.
+        //:
+        //:   5 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  Also confirm that the token type is as expected.
+        //:     Finally, if that token is expected to have a value, then the
+        //:     value of that token is as expected.
         //
         // Testing:
         //   int advanceToNextToken();
@@ -4647,26 +4888,60 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The first character is always '{' or '['
+        //:
+        //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 WHITESPACE ONLY                                    " \t\n\v\f\r"
-        //: 2 BEGIN -> START_ARRAY                               BEGIN -> '['
-        //: 3 BEGIN -> END_ARRAY                                 BEGIN -> ']'
-        //: 4 BEGIN -> END_OBJECT                                BEGIN -> '}'
-        //: 5 BEGIN -> '"'                                       BEGIN -> '"'
-        //: 6 BEGIN -> ','                                       BEGIN -> ','
-        //: 7 BEGIN -> ':'                                       BEGIN -> ':'
-        //: 8 BEGIN -> VALUE                                     BEGIN -> VALUE
+        //: 1 The following transitions return an error:
+        //:
+        //:   1 WHITESPACE ONLY                                  " \t\n\v\f\r"
+        //:
+        //:   2 BEGIN -> START_ARRAY                             BEGIN -> '['
+        //:
+        //:   3 BEGIN -> END_ARRAY                               BEGIN -> ']'
+        //:
+        //:   4 BEGIN -> END_OBJECT                              BEGIN -> '}'
+        //:
+        //:   5 BEGIN -> '"'                                     BEGIN -> '"'
+        //:
+        //:   6 BEGIN -> ','                                     BEGIN -> ','
+        //:
+        //:   7 BEGIN -> ':'                                     BEGIN -> ':'
+        //:
+        //:   8 BEGIN -> VALUE                                   BEGIN -> VALUE
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text, the number of times to invoke
+        //:   'advanceToNextToken', the result of an additional invocation of
+        //:   'advanceToNextToken', and the expected token and value, if
+        //:   applicable, after that invocation.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
+        //:     specified in that row.
+        //:
+        //:   4 Invoke 'advanceToNextToken' one more time and record the
+        //:     return value, the token type, and the value of that token.
+        //:
+        //:   5 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  Also confirm that the token type is as expected.
+        //:     Finally, if that token is expected to have a value, then the
+        //:     value of that token is as expected.
         //
         // Testing:
         //   int advanceToNextToken();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                    << "TESTING 'advanceToNextToken'  FIRST CHARACTER" << endl
-                    << "=============================================" << endl;
+                    << "TESTING 'advanceToNextToken' FIRST CHARACTER" << endl
+                    << "============================================" << endl;
 
         const struct {
             int             d_line;

@@ -63,25 +63,22 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test implements a tokenizer for traversing a stream
-// filled with JSON data and allows populating an in-memory structure with
-// almost no memory allocations.  The implementation works as a finite state
-// machine moving from one token to another when the 'advanceToNextToken'
-// function is called.  The majority of this test driver tests that function by
-// starting at a particular token, calling that function, and ensuring that
-// after the advance the next token and the data value is as expected.
+// The component under test implements an encoder for outputting
+// 'bdeat'-compatible objects in the JSON format.  The object types that can be
+// encoded include 'bdeat' sequence, choice, array, enumeration, customized,
+// simple, and dynamic types.  In addition, the encoder supports options to
+// allow compact and pretty formatting.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] baejsn_Tokenizer(bslma_Allocator *bA = 0);
-// [ 2] ~baejsn_Tokenizer();
+// [ 2] baejsn_Encoder(bslma::Allocator *basicAllocator = 0);
+// [ 2] ~baejsn_Encoder();
 //
 // MANIPULATORS
-// [ 9] void reset(bsl::streambuf &streamBuf);
-// [ 3] int advanceToNextToken();
+// [ 9] int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
+// [ 9] int encode(bsl::ostream& stream, const TYPE& v, options);
 //
 // ACCESSORS
-// [ 3] TokenType tokenType() const;
-// [ 3] int value(bslstl::StringRef *data) const;
+// [ 3] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] USAGE EXAMPLE

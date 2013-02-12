@@ -37,6 +37,9 @@
 #include <baexml_minireader.h>
 #include <baexml_errorinfo.h>
 
+// TBD: Remove
+#include <bael_record.h>
+
 #include <bsl_vector.h>
 #include <bsl_iostream.h>
 
