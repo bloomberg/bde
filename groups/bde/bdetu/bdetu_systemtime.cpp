@@ -59,6 +59,26 @@ bdet_DatetimeInterval bdetu_SystemTime::loadLocalTimeOffsetDefault()
     return localDateTime - gmtDateTime;
 }
 
+bdet_DatetimeInterval bdetu_SystemTime::getLocalTimeOffset(
+                                              const bdet_Datetime& utcDatetime)
+{
+    //time_t currentTime = time(0);
+    bsl::time_t currentTime;
+    bdetu_Datetime::convertToTimeT(&currentTime, utcDatetime);
+    struct tm localtm, gmtm;
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
+    localtm = *localtime(&currentTime);
+    gmtm    = *gmtime(&currentTime);
+#else
+    localtime_r(&currentTime, &localtm);
+    gmtime_r(&currentTime, &gmtm);
+#endif
+    bdet_Datetime gmtDateTime, localDateTime;
+    bdetu_Datetime::convertFromTm(&gmtDateTime, gmtm);
+    bdetu_Datetime::convertFromTm(&localDateTime, localtm);
+    return localDateTime - gmtDateTime;
+}
+
 void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
 {
     BSLS_ASSERT(result);

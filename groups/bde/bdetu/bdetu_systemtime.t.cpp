@@ -1472,6 +1472,8 @@ int main(int argc, char *argv[])
             Q(TEST_BASELINE)
 #elif defined(TEST_SET_CALLBACK)
             Q(TEST_SET_CALLBACK)
+#elif defined(TEST_NEW_GETLOCALTIMEOFFSET)
+            Q(TEST_NEW_GETLOCALTIMEOFFSET)
 #else
 #error "UNKNOWN BUILD FLAG"
 #endif
@@ -1576,6 +1578,43 @@ int main(int argc, char *argv[])
          ASSERT(bdet_DatetimeInterval() == offset);
        
       } break;
+#if defined(TEST_NEW_GETLOCALTIMEOFFSET)
+      case -5: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE 'localTimeOffset(bdet_Datetime utcDatetime)'
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+         << endl
+         << "PERFORMANCE 'localTimeOffset(bdet_Datetime utcDatetime)'" << endl
+         << "========================================================" << endl;
+
+
+        int count = argc > 2 ? atoi(argv[2]) : 100;
+
+        if (verbose) P(count);
+
+        bsls::Stopwatch stopwatch;
+
+        bdet_Datetime utcDatetime(2013, 2, 13, 18, 30);
+
+        stopwatch.start(true);
+        for (int i = 0; i < count; ++i) {
+            bdet_DatetimeInterval dti;
+            dti = bdetu_SystemTime::getLocalTimeOffset(utcDatetime);
+            //if (veryVerbose) { T_() P_(i) P(dti) }
+        }
+        stopwatch.stop();
+
+        if (verbose) {
+            double systemTime, userTime, wallTime;
+            stopwatch.accumulatedTimes(&systemTime,
+                                       &userTime,
+                                       &wallTime);
+            P_(systemTime) P_(userTime) P(wallTime);
+        }
+      } break;
+#endif
       default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
           testStatus = -1;

@@ -327,6 +327,11 @@ struct bdetu_SystemTime {
         // currently installed 'GetLocalTimeOffsetCallback' function and its
         // opaque argument pointer.
 
+    static bdet_DatetimeInterval getLocalTimeOffset(
+                                             const bdet_Datetime& utcDatetime);
+        // Return a 'bdet_DatetimeInterval' value representing the current
+        // differential between the local time and UTC time at the specified
+        // 'utcDatetime'.
 
                         // ** set callbacks **
 
