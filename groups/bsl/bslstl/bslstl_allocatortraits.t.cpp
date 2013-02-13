@@ -191,8 +191,10 @@ class NonBslmaAllocator
         return pointer(d_mechanism->allocate(n * sizeof(T)));
     }
 
-    void deallocate(pointer p, size_type n = 1)
-        { d_mechanism->deallocate(p); }
+    void deallocate(pointer p, size_type n = 1) {
+        (void) n;
+        d_mechanism->deallocate(p);
+    }
 
     void construct(T *p, const T& val) { ::new ((void*)p) T(val); }
     void destroy(T *p) { p->~T(); }
@@ -261,8 +263,10 @@ class BslmaAllocator
         return pointer(d_mechanism->allocate(n * sizeof(T)));
     }
 
-    void deallocate(pointer p, size_type n = 1)
-        { d_mechanism->deallocate(p); }
+    void deallocate(pointer p, size_type n = 1) {
+        (void) n;
+        d_mechanism->deallocate(p);
+    }
 
     void construct(T *p, const T& val)
     {
@@ -369,8 +373,10 @@ class FunkyAllocator
         return pointer((T*) d_mechanism->allocate(n * sizeof(T)), 0);
     }
 
-    void deallocate(pointer p, size_type n = 1)
-        { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
+    void deallocate(pointer p, size_type n = 1) {
+        (void) n;
+        d_mechanism->deallocate(bsls::Util::addressOf(*p));
+    }
 
     void construct(T *p, const T& val)
     {
@@ -1086,7 +1092,7 @@ void testAttribClass(const char* className)
         {  'm', -7, 0.25, "test driver",             0 },
         {  'z', 98, 3.25, "test driver", &addresses[3] }
     };
-    static const std::size_t NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+    static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
     bslma::TestAllocator ta;
     const Alloc DFLT_ALLOC(bslma::Default::allocator(0));
@@ -1355,7 +1361,7 @@ void testAllocateDeallocate(const char *name)
         const int blocksInUseB = ta.numBlocksInUse();
         const int bytesInUseB  = ta.numBytesInUse();
 
-        const size_type blockSize = N * sizeof(value_type);
+        const int blockSize = N * sizeof(value_type);
 
         g_lastHint = nonHint;
         if (useHint) {
@@ -1392,7 +1398,7 @@ void testAllocateDeallocate(const char *name)
         const int blocksInUseB = ta.numBlocksInUse();
         const int bytesInUseB  = ta.numBytesInUse();
 
-        const size_type blockSize = N * sizeof(value_type);
+        const int blockSize = N * sizeof(value_type);
 
         TraitsT::deallocate(a, pointers[i], N);
 
