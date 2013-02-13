@@ -7,7 +7,7 @@
 #include <bcemt_mutex.h>       // for testing only
 #include <bcemt_threadutil.h>  // for testing only
 
-#include <bcemt_semaphoreimpl_countedpthread.h>
+#include <bcemt_semaphoreimpl_counted.h>
 
 #include <bces_atomictypes.h>
 #include <bces_platform.h>

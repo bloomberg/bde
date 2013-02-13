@@ -1,5 +1,5 @@
-// bcemt_semaphoreimpl_countedpthread.t.cpp                           -*-C++-*-
-#include <bcemt_semaphoreimpl_countedpthread.h>
+// bcemt_semaphoreimpl_counted.t.cpp                                  -*-C++-*-
+#include <bcemt_semaphoreimpl_counted.h>
 
 #include <bcemt_lockguard.h>   // for testing only
 #include <bcemt_mutex.h>       // for testing only

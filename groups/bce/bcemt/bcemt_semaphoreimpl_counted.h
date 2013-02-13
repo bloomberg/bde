@@ -1,6 +1,6 @@
-// bcemt_semaphoreimpl_countedpthread.h                               -*-C++-*-
-#ifndef INCLUDED_BCEMT_SEMAPHOREIMPL_COUNTEDPTHREAD
-#define INCLUDED_BCEMT_SEMAPHOREIMPL_COUNTEDPTHREAD
+// bcemt_semaphoreimpl_counted.h                                      -*-C++-*-
+#ifndef INCLUDED_BCEMT_SEMAPHOREIMPL_COUNTED
+#define INCLUDED_BCEMT_SEMAPHOREIMPL_COUNTED
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>

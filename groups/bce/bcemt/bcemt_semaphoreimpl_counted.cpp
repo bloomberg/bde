@@ -1,8 +1,8 @@
-// bcemt_semaphoreimpl_countedpthread.cpp                             -*-C++-*-
-#include <bcemt_semaphoreimpl_countedpthread.h>
+// bcemt_semaphoreimpl_counted.cpp                                    -*-C++-*-
+#include <bcemt_semaphoreimpl_counted.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bcemt_semaphoreimpl_countedpthread_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(bcemt_semaphoreimpl_counted_cpp,"$Id$ $CSID$")
 
 #ifdef BCES_PLATFORM_COUNTED_SEMAPHORE
 
