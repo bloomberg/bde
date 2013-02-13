@@ -643,8 +643,8 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                 const int rc = skipUnknownElement(selectionName);
                 if (rc) {
                      d_logStream << "Error reading unknown element '"
-                                << selectionName << "' or after that "
-                                << "element\n";
+                                 << selectionName << "' or after that "
+                                 << "element\n";
                     return -1;                                        // RETURN
                 }
             }

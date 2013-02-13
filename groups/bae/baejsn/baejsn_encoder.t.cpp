@@ -74,15 +74,15 @@ using bsl::endl;
 // matches the expected value.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [  ] baejsn_Encoder(bslma::Allocator *basicAllocator = 0);
-// [  ] ~baejsn_Encoder();
+// [ 2] baejsn_Encoder(bslma::Allocator *basicAllocator = 0);
+// [ 2] ~baejsn_Encoder();
 //
 // MANIPULATORS
-// [  ] int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
-// [  ] int encode(bsl::ostream& stream, const TYPE& v, options);
+// [13] int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
+// [13] int encode(bsl::ostream& stream, const TYPE& v, options);
 //
 // ACCESSORS
-// [  ] bsl::string loggedMessages() const;
+// [13] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [15] USAGE EXAMPLE
@@ -30476,10 +30476,32 @@ int main(int argc, char *argv[])
         // TESTING PRETTY FORMATTING
         //
         // Concerns:
+        //: 1 Encoder produces the expected results for a variety of complex
+        //:   'bcem_Aggregate' objects.
+        //:
+        //: 2 The encoder correctly generates the output in pretty or compact
+        //:   style based on the passed in encoder options.
         //
         // Plan:
+        //: 1 Create a 'bcem_Aggregate' object populated with some data.
+        //:
+        //: 2 Using the table-driven technique, specify a table with
+        //:   a set of distinct rows of initial indent level, spaces per
+        //:   level, and the expected JSON corresponding to that object.
+        //:
+        //: 3 For each row in the tables of P-1:
+        //:
+        //:   1 Create a 'baejsn_Encoder' object.
+        //:
+        //:   2 Create a 'bdesb_MemOutStreamBuf' object and encode the
+        //:     'bcem_Aggregate' object specifying the pretty print option.
+        //:
+        //:   3 Compare the generated JSON with the expected JSON in the
+        //:     pretty format.
         //
         // Testing:
+        //   int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
+        //   int encode(bsl::ostream& stream, const TYPE& v, options);
         // --------------------------------------------------------------------
         bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
 
@@ -30714,15 +30736,38 @@ int main(int argc, char *argv[])
         // ENCODING BCEM_AGGREGATE
         //
         // Concerns:
-        //: 1 The encoder can be use on 'bcem_Aggregate'
+        //: 1 Encoder produces the expected results for a variety of complex
+        //:   'bcem_Aggregate' objects.
+        //:
+        //: 2 The encoder correctly generates the output in pretty or compact
+        //:   style based on the passed in encoder options.
         //
         // Plan:
-        //: 1 Create a 'bcem_Aggregate' containing a variety of type and encode
-        //:   the object.
+        //: 1 Using the table-driven technique, specify three tables: one with
+        //:   a set of distinct rows of XML string value corresponding to a
+        //:   'bcem_Aggregate' object, the second with the expected
+        //:   JSON corresponding to that object's value in pretty format, and
+        //:   third with the expected JSON in compact format.
         //:
-        //: 2 Verify the result is as expected.
+        //: 2 For each row in the tables of P-1:
+        //:
+        //:   1 Construct a 'bcem_Aggregate' object from the XML string using
+        //:     the XML decoder.
+        //:
+        //:   2 Create a 'baejsn_Encoder' object.
+        //:
+        //:   3 Create a 'bdesb_MemOutStreamBuf' object and encode the
+        //:     'bcem_Aggregate' object specifying the pretty print option.
+        //:
+        //:   4 Compare the generated JSON with the expected JSON in the
+        //:     pretty format.
+        //:
+        //:   5 Repeat steps 1 - 4 in the compact format.
         //
         // Testing:
+        //   int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
+        //   int encode(bsl::ostream& stream, const TYPE& v, options);
+        //   bsl::string loggedMessages() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -30771,13 +30816,27 @@ int main(int argc, char *argv[])
             options.setInitialIndentLevel(0);
             options.setSpacesPerLevel(2);
 
-            bdesb_MemOutStreamBuf osb;
-            ASSERTV(0 == encoder.encode(&osb, VALUE, options));
+            {
+                bdesb_MemOutStreamBuf osb;
+                ASSERTV(0 == encoder.encode(&osb, VALUE, options));
 
-            bsl::string ACTUAL(osb.data(), osb.length());
-            ASSERTV(LINE, ACTUAL, EXP, ACTUAL == EXP);
-            if (ACTUAL != EXP) {
-                printStringDifferences(ACTUAL, EXP);
+                bsl::string ACTUAL(osb.data(), osb.length());
+                ASSERTV(LINE, ACTUAL, EXP, ACTUAL == EXP);
+                if (ACTUAL != EXP) {
+                    printStringDifferences(ACTUAL, EXP);
+                }
+            }
+
+            {
+                bdesb_MemOutStreamBuf osb;
+                bsl::ostream          oss(&osb);
+                ASSERTV(0 == encoder.encode(oss, VALUE, options));
+
+                bsl::string ACTUAL(osb.data(), osb.length());
+                ASSERTV(LINE, ACTUAL, EXP, ACTUAL == EXP);
+                if (ACTUAL != EXP) {
+                    printStringDifferences(ACTUAL, EXP);
+                }
             }
         }
 
@@ -30797,15 +30856,29 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, !rc);
 
             baejsn_Encoder encoder;
-
             baejsn_EncoderOptions options;
-            bdesb_MemOutStreamBuf osb;
-            ASSERTV(0 == encoder.encode(&osb, VALUE, options));
-            
-            bsl::string ACTUAL(osb.data(), osb.length());
-            ASSERTV(LINE, ACTUAL, EXP, ACTUAL == EXP);
-            if (ACTUAL != EXP) {
-                printStringDifferences(ACTUAL, EXP);
+
+            {
+                bdesb_MemOutStreamBuf osb;
+                ASSERTV(0 == encoder.encode(&osb, VALUE, options));
+
+                bsl::string ACTUAL(osb.data(), osb.length());
+                ASSERTV(LINE, ACTUAL, EXP, ACTUAL == EXP);
+                if (ACTUAL != EXP) {
+                    printStringDifferences(ACTUAL, EXP);
+                }
+            }
+
+            {
+                bdesb_MemOutStreamBuf osb;
+                bsl::ostream          oss(&osb);
+                ASSERTV(0 == encoder.encode(oss, VALUE, options));
+
+                bsl::string ACTUAL(osb.data(), osb.length());
+                ASSERTV(LINE, ACTUAL, EXP, ACTUAL == EXP);
+                if (ACTUAL != EXP) {
+                    printStringDifferences(ACTUAL, EXP);
+                }
             }
         }
       } break;
@@ -30814,13 +30887,38 @@ int main(int argc, char *argv[])
         // ENCODING COMPLEX TEST MESSAGES
         //
         // Concerns:
-        //: 1 Encoder produce expected results for a variety of message.
+        //: 1 Encoder produces the expected results for a variety of complex
+        //:   'bas-codegen' generated objects.
+        //:
+        //: 2 The encoder correctly generates the output in pretty or compact
+        //:   style based on the passed in encoder options.
         //
         // Plan:
-        //: 1 Use the 'baea::FeatureTestMessage' and encode a variety of
-        //:   values.
+        //: 1 Using the table-driven technique, specify three tables: one with
+        //:   a set of distinct rows of XML string value corresponding to a
+        //:   'baea_FeatureTestMessage' object, the second with the expected
+        //:   JSON corresponding to that object's value in pretty format, and
+        //:   third with the expected JSON in compact format.
+        //:
+        //: 2 For each row in the tables of P-1:
+        //:
+        //:   1 Construct a 'baea::FeatureTestMessage' object from the XML
+        //:     string using the XML decoder.
+        //:
+        //:   2 Create a 'baejsn_Encoder' object.
+        //:
+        //:   3 Create a 'bdesb_MemOutStreamBuf' object and encode the
+        //:     'baea_FeatureTestMessage' object specifying the pretty print
+        //:     option.
+        //:
+        //:   4 Compare the generated JSON with the expected JSON in the
+        //:     pretty format.
+        //:
+        //:   5 Repeat steps 1 - 4 in the compact format.
         //
         // Testing:
+        //   int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
+        //   int encode(bsl::ostream& stream, const TYPE& v, options);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -30842,13 +30940,31 @@ int main(int argc, char *argv[])
             options.setInitialIndentLevel(0);
             options.setSpacesPerLevel(2);
 
-            bdesb_MemOutStreamBuf osb;
-            ASSERTV(0 == encoder.encode(&osb, testObjects[i].second, options));
+            {
+                bdesb_MemOutStreamBuf osb;
+                ASSERTV(0 == encoder.encode(&osb, testObjects[i].second,
+                                            options));
 
-            bsl::string ACTUAL(osb.data(), osb.length());
-            ASSERTV(LINE, ACTUAL, EXP, testObjects[i].first, ACTUAL == EXP);
-            if (ACTUAL != EXP) {
-                printStringDifferences(ACTUAL, EXP);
+                bsl::string ACTUAL(osb.data(), osb.length());
+                ASSERTV(LINE, ACTUAL, EXP, testObjects[i].first,
+                        ACTUAL == EXP);
+                if (ACTUAL != EXP) {
+                    printStringDifferences(ACTUAL, EXP);
+                }
+            }
+
+            {
+                bdesb_MemOutStreamBuf osb;
+                bsl::ostream          oss(&osb);
+                ASSERTV(0 == encoder.encode(oss, testObjects[i].second,
+                                            options));
+
+                bsl::string ACTUAL(osb.data(), osb.length());
+                ASSERTV(LINE, ACTUAL, EXP, testObjects[i].first,
+                        ACTUAL == EXP);
+                if (ACTUAL != EXP) {
+                    printStringDifferences(ACTUAL, EXP);
+                }
             }
         }
 
@@ -30857,16 +30973,34 @@ int main(int argc, char *argv[])
             const int         LINE = JSON_COMPACT_MESSAGES[i].d_line;
             const bsl::string EXP  = JSON_COMPACT_MESSAGES[i].d_text_p;
 
-            baejsn_Encoder encoder;
-
+            baejsn_Encoder        encoder;
             baejsn_EncoderOptions options;
-            bdesb_MemOutStreamBuf osb;
-            ASSERTV(0 == encoder.encode(&osb, testObjects[i].second, options));
-            
-            bsl::string ACTUAL(osb.data(), osb.length());
-            ASSERTV(LINE, testObjects[i].first, ACTUAL, EXP, ACTUAL == EXP);
-            if (ACTUAL != EXP) {
-                printStringDifferences(ACTUAL, EXP);
+
+            {
+                bdesb_MemOutStreamBuf osb;
+                ASSERTV(0 == encoder.encode(&osb, testObjects[i].second,
+                                            options));
+
+                bsl::string ACTUAL(osb.data(), osb.length());
+                ASSERTV(LINE, testObjects[i].first, ACTUAL, EXP,
+                        ACTUAL == EXP);
+                if (ACTUAL != EXP) {
+                    printStringDifferences(ACTUAL, EXP);
+                }
+            }
+
+            {
+                bdesb_MemOutStreamBuf osb;
+                bsl::ostream          oss(&osb);
+                ASSERTV(0 == encoder.encode(oss, testObjects[i].second,
+                                            options));
+
+                bsl::string ACTUAL(osb.data(), osb.length());
+                ASSERTV(LINE, testObjects[i].first, ACTUAL, EXP,
+                        ACTUAL == EXP);
+                if (ACTUAL != EXP) {
+                    printStringDifferences(ACTUAL, EXP);
+                }
             }
         }
       } break;
@@ -30880,7 +31014,7 @@ int main(int argc, char *argv[])
         //: 2 'encode' a bad stream returns an error.
         //
         // Testing:
-        //  int encode(const TYPE & value);
+        //  int encode(const TYPE& value);
         // --------------------------------------------------------------------
 
         {
@@ -30940,6 +31074,9 @@ int main(int argc, char *argv[])
         //:
         //: 3 Encoded a sequence with an unselected Choice and verify an error
         //:   is returned.
+        //
+        // Testing:
+        //   int encode(bsl::ostream& stream, const TYPE& v, options);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -30973,7 +31110,7 @@ int main(int argc, char *argv[])
                 Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X, 0));
 
-                const char *EXP = 
+                const char *EXP =
                     "{"
                         "\"element1\":\"Hello\","
                         "\"element2\":42,"
@@ -31002,7 +31139,7 @@ int main(int argc, char *argv[])
                 bsl::ostringstream oss;
                 Impl impl(&encoder, oss.rdbuf(), Options());
                 ASSERTV(0 == impl.encode(X, 0));
-                const char *EXP = 
+                const char *EXP =
                     "{"
                         "\"element1\":\"Hello\","
                         "\"element2\":42,"
@@ -31042,6 +31179,7 @@ int main(int argc, char *argv[])
         //:     Choice and verify it returns an error.
         //
         // Testing:
+        //   int encode(bsl::ostream& stream, const TYPE& v, options);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -31126,6 +31264,9 @@ int main(int argc, char *argv[])
         //:   2 Encode each values and verify the result is in base64 format.
         //:
         //: 2 Repeat step one with 'vector<int>' instead.
+        //
+        // Testing:
+        //   int encode(bsl::ostream& s, const bsl::vector<TYPE>& v, options);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -31232,6 +31373,7 @@ int main(int argc, char *argv[])
         //:   4 Encode the value and verify the result is as expected.
         //
         // Testing:
+        //   int encode(ostream& s, const bdeut_NullableValue<TYPE>& v, o);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -31299,6 +31441,9 @@ int main(int argc, char *argv[])
         //:
         //: 2 Verify that the result is equal the the value of the 'toString'
         //:   method enclosed in double quotes.
+        //
+        // Testing:
+        //   int encode(ostream& s, const TYPE& v, o);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -31343,6 +31488,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 Perform step one for every date/time types.
         //
+        // Testing:
+        //   int encode(ostream& s, const TYPE& v, o);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -31562,6 +31709,7 @@ int main(int argc, char *argv[])
         //:   2 Encode each value and verify the output is as expected.
         //
         // Testing:
+        //   int encode(ostream& s, const TYPE& v, o);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -31801,7 +31949,9 @@ int main(int argc, char *argv[])
         //: 1 Use a brute force approach to test both cases.
         //
         // Testing:
-        //: int Impl::encode(const bool& value);
+        //   int encode(const bool& value);
+        //   baejsn_Encoder(bslma::Allocator *basicAllocator = 0);
+        //   ~baejsn_Encoder();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

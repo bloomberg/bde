@@ -356,6 +356,8 @@ int main(int argc, char *argv[])
             const bsl::string d_text;
             bool              d_allocatesMemory;
         } DATA[] = {
+#if !defined(BSLS_PLATFORM_CPU_64_BIT)
+        // 32-bit
         {
             L_,
             "selection11selection1element1255element43123123123elementasdd5255"
@@ -373,7 +375,7 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelementtruetrue",
+            "element6element7ABCDEFGHIJKLMNOPQRSTUV",
             false
         },
         {
@@ -393,7 +395,7 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelementtruetruetrue",
+            "element6element7ABCDEFGHIJKLMNOPQRSTUVW",
             false
         },
         {
@@ -413,7 +415,90 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelementtruetruetrue1",
+            "element6element7ABCDEFGHIJKLMNOPQRSTUVWX",
+            true
+        },
+#else
+        // 64-bit
+        {
+            L_,
+            "selection11selection1element1255element43123123123elementasdd5255"
+            "element6999999element7customelement8999element10255255elementsd11"
+            "element12element13255255element14element1531231231233123123112323"
+            "selection6arbitrarystringvalueselection7element1element1elements2"
+            "element4element5element1element1element2element4element5elemenst1"
+            "element1element2element4element6LONDONLONDONelement2truetruement6"
+            "element31.51.5element4element5-980123-980123element6elemen123t608"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
+            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
+            "element5-980123-980123element62012-08-18T132500.000+0000element68"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
+            "element2element4element5element1element1element2element4edlement5"
+            "element1element1element2element4element6LONDONLONDONelemendt2true"
+            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
+            "element6ABCDEFGHIJKLMNOPQRSTUV",
+            false
+        },
+        {
+            L_,
+            "selection11selection1element1255element43123123123elementasdd5255"
+            "element6999999element7customelement8999element10255255elementsd11"
+            "element12element13255255element14element1531231231233123123112323"
+            "selection6arbitrarystringvalueselection7element1element1elements2"
+            "element4element5element1element1element2element4element5elemenst1"
+            "element1element2element4element6LONDONLONDONelement2truetruement6"
+            "element31.51.5element4element5-980123-980123element6elemen123t608"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
+            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
+            "element5-980123-980123element62012-08-18T132500.000+0000element68"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
+            "element2element4element5element1element1element2element4edlement5"
+            "element1element1element2element4element6LONDONLONDONelemendt2true"
+            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
+            "element6ABCDEFGHIJKLMNOPQRSTUVW",
+            false
+        },
+        {
+            L_,
+            "selection11selection1element1255element43123123123elementasdd5255"
+            "element6999999element7customelement8999element10255255elementsd11"
+            "element12element13255255element14element1531231231233123123112323"
+            "selection6arbitrarystringvalueselection7element1element1elements2"
+            "element4element5element1element1element2element4element5elemenst1"
+            "element1element2element4element6LONDONLONDONelement2truetruement6"
+            "element31.51.5element4element5-980123-980123element6elemen123t608"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
+            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
+            "element5-980123-980123element62012-08-18T132500.000+0000element68"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
+            "element2element4element5element1element1element2element4edlement5"
+            "element1element1element2element4element6LONDONLONDONelemendt2true"
+            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
+            "element6ABCDEFGHIJKLMNOPQRSTUVWX",
+            true
+        },
+#endif
+        {
+            L_,
+            "selection11selection1element1255element43123123123elementasdd5255"
+            "element6999999element7customelement8999element10255255elementsd11"
+            "element12element13255255element14element1531231231233123123112323"
+            "selection6arbitrarystringvalueselection7element1element1elements2"
+            "element4element5element1element1element2element4element5elemenst1"
+            "element1element2element4element6LONDONLONDONelement2truetruement6"
+            "element31.51.5element4element5-980123-980123element6elemen123t608"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
+            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
+            "element5-980123-980123element62012-08-18T132500.000+0000element68"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
+            "element2element4element5element1element1element2element4edlement5"
+            "element1element1element2element4element6LONDONLONDONelemendt2true"
+            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
+            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXY",
             true
         },
         {
@@ -433,7 +518,7 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelementtruetruetrue12",
+            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF",
             true
         },
         {
@@ -453,27 +538,7 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelementtruetruetrue12345",
-            true
-        },
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelement2truetrue1234567890",
+            "element6element7LONDONLONDONelementtruetruetrue12345",
             true
         },
         {

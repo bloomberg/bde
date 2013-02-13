@@ -64,15 +64,15 @@ using bsl::endl;
 // matches the expected value.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [  ] baejsn_Decoder(bslma::Allocator *basicAllocator = 0);
-// [  ] ~baejsn_Decoder();
+// [ 2] baejsn_Decoder(bslma::Allocator *basicAllocator = 0);
+// [ 2] ~baejsn_Decoder();
 //
 // MANIPULATORS
-// [  ] int decode(bsl::streambuf *streamBuf, TYPE *v, options);
-// [  ] int decode(bsl::istream& stream, TYPE *v, options);
+// [ 5] int decode(bsl::streambuf *streamBuf, TYPE *v, options);
+// [ 5] int decode(bsl::istream& stream, TYPE *v, options);
 //
 // ACCESSORS
-// [  ] bsl::string loggedMessages() const;
+// [ 5] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
@@ -35115,6 +35115,10 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -35274,14 +35278,38 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TEST THAT WRONG JSON RESULTS IN AN ERROR
+        // TESTING INVALID JSON RETURNS AN ERROR
         //
         // Concerns:
+        //: 1 The decoder returns an error on encoutering invalid JSON text.
         //
         // Plan:
+        //: 1 Construct a schema object for constructing 'bcem_Aggregate'
+        //:   objects.
+        //:
+        //: 2 Using the table-driven technique, specify a table with JSON text.
+        //:
+        //: 3 For each row in the tables of P-1:
+        //:
+        //:   1 Construct a 'bcem_Aggregate' object from the created schema.
+        //:
+        //:   2 Create a 'baejsn_Decoder' object.
+        //:
+        //:   3 Create a 'bsl::istringstream' object with the JSON text.
+        //:
+        //:   4 Decode that JSON into a 'bcem_Aggregate' object.
+        //:
+        //:   5 Verify that the return code from 'decode' is *not* 0.
         //
         // Testing:
+        //   int decode(bsl::streambuf *streamBuf, TYPE *v, options);
+        //   int decode(bsl::istream& stream, TYPE *v, options);
+        //   bsl::string loggedMessages() const;
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING INVALID JSON RETURNS AN ERROR" << endl
+                          << "=====================================" << endl;
 
         // Testing first character
         {
@@ -35323,7 +35351,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, RC, 0 != RC);
                 if (veryVerbose) {
                     P(decoder.loggedMessages())
-                        }
+                }
             }
         }
 
@@ -36502,14 +36530,48 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TEST SKIPPING UNKNOWN ELEMENTS
+        // TESTING SKIPPING UNKNOWN ELEMENTS
         //
         // Concerns:
+        //: 1 The decoder correctly skips unknown elements if the
+        //:   'skipUnknownElement' decoder option is specified.
+        //:
+        //: 2 The decoder returns an error on encoutering unknown elements if
+        //:   the 'skipUnknownElement' decoder option is *not* specified.
         //
         // Plan:
+        //: 1 Construct a schema object for constructing 'bcem_Aggregate'
+        //:   objects.
+        //:
+        //: 2 Using the table-driven technique, specify a table with JSON text.
+        //:
+        //: 3 For each row in the tables of P-1:
+        //:
+        //:   1 Construct a 'bcem_Aggregate' object from the created schema.
+        //:
+        //:   2 Create a 'baejsn_Decoder' object.
+        //:
+        //:   3 Create a 'bsl::istringstream' object with the JSON text.
+        //:
+        //:   4 Decode that JSON into a 'bcem_Aggregate' object specifying
+        //:     that unknown elements be skipped.
+        //:
+        //:   5 Verify that the decoded object has the expected data.
+        //:
+        //:   6 Verify that the return code from 'decode' is 0.
+        //:
+        //:   7 Repeat steps 1 - 6 with the 'skipUnknownElements' option set
+        //:     to 'false'.  Verify that an error code is returned by 'decode'.
         //
         // Testing:
+        //   int decode(bsl::streambuf *streamBuf, TYPE *v, options);
+        //   int decode(bsl::istream& stream, TYPE *v, options);
+        //   bsl::string loggedMessages() const;
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING SKIPPING UNKNOWN ELEMENTS" << endl
+                          << "=================================" << endl;
 
         static const struct {
             int         d_lineNum;  // source line number
@@ -36632,7 +36694,7 @@ int main(int argc, char *argv[])
                 "       },\n"
                 "       \"age\" : 21,\n"
                 "       \"aliases\" : [ \"Foo\", \"Bar\" ]\n"  // <--- unknown
-                                                               //      element 
+                                                               //      element
                 "}"
             },
             {
@@ -36645,7 +36707,7 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"aliases\" : [ \"Foo\", \"Bar\" ],\n" // <--- unknown
-                                                               //      element 
+                                                               //      element
                 "       \"age\" : 21\n"
                 "}"
             },
@@ -37259,11 +37321,43 @@ int main(int argc, char *argv[])
         // TESTING COMPLEX MESSAGES USING 'bcem_Aggregate'
         //
         // Concerns:
+        //: 1 The decoder correctly decodes a variety of complex JSON data into
+        //:   'bcem_Aggregate' objects.
+        //:
+        //: 2 The decoder correctly parses the input in both pretty and compact
+        //:   style.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify three tables: one with
+        //:   a set of distinct rows of XML string value corresponding to a
+        //:   'bcem_Aggregate' object, the second with JSON in pretty format,
+        //:   and third with the JSON in the compact format.
+        //:
+        //: 2 For each row in the tables of P-1:
+        //:
+        //:   1 Construct a 'bcem_Aggregate' object from the XML string using
+        //:     the XML decoder.
+        //:
+        //:   2 Create a 'baejsn_Decoder' object.
+        //:
+        //:   3 Create a 'bdesb_FixedMemInStreamBuf' object with the pretty
+        //:     JSON text.
+        //:
+        //:   4 Decode that JSON into a 'bcem_Aggregate' object.
+        //:
+        //:   5 Verify that the decoded object matches the original object
+        //:     from step 1.
+        //:
+        //:   6 Repeat steps 1 - 5 using JSON in the compact format.
         //
         // Testing:
+        //   int decode(bsl::streambuf *streamBuf, TYPE *v, options);
+        //   int decode(bsl::istream& stream, TYPE *v, options);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                  << "TESTING COMPLEX MESSAGES USING 'bcem_Aggregate'" << endl
+                  << "===============================================" << endl;
 
         const char                *SCHEMA     = XML_SCHEMA;
         const int                  SCHEMA_LEN = sizeof(XML_SCHEMA);
@@ -37305,21 +37399,43 @@ int main(int argc, char *argv[])
 
             bcem_Aggregate value(schemaPtr, "Obj");
 
-            baejsn_DecoderOptions     options;
-            baejsn_Decoder            jsonDecoder;
-            bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
+            {
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            jsonDecoder;
+                bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
 
-            const int rc = jsonDecoder.decode(&isb, &value, options);
-            ASSERTV(LINE, !rc);
-            if (rc) {
-                if (veryVerbose) {
-                    P(LINE) P(jsonDecoder.loggedMessages());
+                const int rc = jsonDecoder.decode(&isb, &value, options);
+                ASSERTV(LINE, !rc);
+                if (rc) {
+                    if (veryVerbose) {
+                        P(LINE) P(jsonDecoder.loggedMessages());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, isb.length(), 0 == isb.length());
+                    ASSERTV(LINE, ti, exp, value,
+                            bcem_Aggregate::areEquivalent(exp, value));
                 }
             }
-            else {
-                ASSERTV(LINE, isb.length(), 0 == isb.length());
-                ASSERTV(LINE, ti, exp, value,
-                        bcem_Aggregate::areEquivalent(exp, value));
+
+            {
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            jsonDecoder;
+                bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
+                bsl::istream              iss(&isb);
+
+                const int rc = jsonDecoder.decode(&isb, &value, options);
+                ASSERTV(LINE, !rc);
+                if (rc) {
+                    if (veryVerbose) {
+                        P(LINE) P(jsonDecoder.loggedMessages());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, isb.length(), 0 == isb.length());
+                    ASSERTV(LINE, ti, exp, value,
+                            bcem_Aggregate::areEquivalent(exp, value));
+                }
             }
         }
 
@@ -37341,21 +37457,45 @@ int main(int argc, char *argv[])
 
             bcem_Aggregate value(schemaPtr, "Obj");
 
-            baejsn_DecoderOptions     options;
-            baejsn_Decoder            jsonDecoder;
-            bdesb_FixedMemInStreamBuf isb(COMPACT.data(), COMPACT.length());
+            {
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            jsonDecoder;
+                bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
+                                              COMPACT.length());
 
-            const int rc = jsonDecoder.decode(&isb, &value, options);
-            ASSERTV(LINE, !rc);
-            if (rc) {
-                if (veryVerbose) {
-                    P(LINE) P(jsonDecoder.loggedMessages());
+                const int rc = jsonDecoder.decode(&isb, &value, options);
+                ASSERTV(LINE, !rc);
+                if (rc) {
+                    if (veryVerbose) {
+                        P(LINE) P(jsonDecoder.loggedMessages());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, isb.length(), 0 == isb.length());
+                    ASSERTV(LINE, ti, exp, value,
+                            bcem_Aggregate::areEquivalent(exp, value));
                 }
             }
-            else {
-                ASSERTV(LINE, isb.length(), 0 == isb.length());
-                ASSERTV(LINE, ti, exp, value,
-                        bcem_Aggregate::areEquivalent(exp, value));
+
+            {
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            jsonDecoder;
+                bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
+                                              COMPACT.length());
+                bsl::istream              iss(&isb);
+
+                const int rc = jsonDecoder.decode(&isb, &value, options);
+                ASSERTV(LINE, !rc);
+                if (rc) {
+                    if (veryVerbose) {
+                        P(LINE) P(jsonDecoder.loggedMessages());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, isb.length(), 0 == isb.length());
+                    ASSERTV(LINE, ti, exp, value,
+                            bcem_Aggregate::areEquivalent(exp, value));
+                }
             }
         }
       } break;
@@ -37364,11 +37504,45 @@ int main(int argc, char *argv[])
         // TESTING COMPLEX MESSAGES
         //
         // Concerns:
+        //: 1 The decoder correctly decodes a variety of complex JSON data into
+        //:   'bas-codegen' generated objects.
+        //:
+        //: 2 The decoder correctly parses the input in both pretty and compact
+        //:   style.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify three tables: one with
+        //:   a set of distinct rows of XML string value corresponding to a
+        //:   'baea_FeatureTestMessage' object, the second with JSON in pretty
+        //:   format, and third with the JSON in the compact format.
+        //:
+        //: 2 For each row in the tables of P-1:
+        //:
+        //:   1 Construct a 'baea::FeatureTestMessage' object from the XML
+        //:     string using the XML decoder.
+        //:
+        //:   2 Create a 'baejsn_Decoder' object.
+        //:
+        //:   3 Create a 'bdesb_FixedMemInStreamBuf' object with the pretty
+        //:     JSON text.
+        //:
+        //:   4 Decode that JSON into a 'baea::FeatureTestMessage' object.
+        //:
+        //:   5 Verify that the decoded object matches the original object
+        //:     from step 1.
+        //:
+        //:   6 Repeat steps 1 - 5 using JSON in the compact format.
         //
         // Testing:
+        //   baejsn_Decoder(bslma::Allocator *basicAllocator = 0);
+        //   ~baejsn_Decoder();
+        //   int decode(bsl::streambuf *streamBuf, TYPE *v, options);
+        //   int decode(bsl::istream& stream, TYPE *v, options);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING COMPLEX MESSAGES" << endl
+                          << "========================" << endl;
 
         bsl::vector<baea::FeatureTestMessage> testObjects;
         constructFeatureTestMessage(&testObjects);
@@ -37383,16 +37557,32 @@ int main(int argc, char *argv[])
                 EXP.print(bsl::cout, 1, 4);
             }
 
-            baea::FeatureTestMessage value;
+            {
+                baea::FeatureTestMessage value;
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            decoder;
+                bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
 
-            baejsn_DecoderOptions     options;
-            baejsn_Decoder            decoder;
-            bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
+                const int rc = decoder.decode(&isb, &value, options);
+                ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
+                ASSERTV(LINE, isb.length(), 0 == isb.length());
+                ASSERTV(LINE, decoder.loggedMessages(), EXP, value,
+                        EXP == value);
+            }
 
-            const int rc = decoder.decode(&isb, &value, options);
-            ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
-            ASSERTV(LINE, isb.length(), 0 == isb.length());
-            ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
+            {
+                baea::FeatureTestMessage  value;
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            decoder;
+                bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
+                bsl::istream              iss(&isb);
+
+                const int rc = decoder.decode(iss, &value, options);
+                ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
+                ASSERTV(LINE, isb.length(), 0 == isb.length());
+                ASSERTV(LINE, decoder.loggedMessages(), EXP, value,
+                        EXP == value);
+            }
         }
 
         for (int ti = 0; ti < NUM_JSON_COMPACT_MESSAGES; ++ti) {
@@ -37405,16 +37595,21 @@ int main(int argc, char *argv[])
                 EXP.print(bsl::cout, 1, 4);
             }
 
-            baea::FeatureTestMessage value;
+            {
+                baea::FeatureTestMessage value;
 
-            baejsn_DecoderOptions     options;
-            baejsn_Decoder            decoder;
-            bdesb_FixedMemInStreamBuf isb(COMPACT.data(), COMPACT.length());
+                baejsn_DecoderOptions     options;
+                baejsn_Decoder            decoder;
+                bdesb_FixedMemInStreamBuf isb(COMPACT.data(),
+                                              COMPACT.length());
+                bsl::istream              iss(&isb);
 
-            const int rc = decoder.decode(&isb, &value, options);
-            ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
-            ASSERTV(LINE, isb.length(), 0 == isb.length());
-            ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
+                const int rc = decoder.decode(&isb, &value, options);
+                ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
+                ASSERTV(LINE, isb.length(), 0 == isb.length());
+                ASSERTV(LINE, decoder.loggedMessages(), EXP, value,
+                        EXP == value);
+            }
         }
       } break;
       case 1: {
@@ -37431,6 +37626,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
         char jsonText[] =
             "{\n"
@@ -37478,7 +37677,7 @@ int main(int argc, char *argv[])
             baejsn_DecoderOptions options;
             baejsn_Decoder        decoder;
             bsl::istringstream iss(jsonText);
-            
+
             ASSERTV(0 == decoder.decode(iss, &bob, options));
 
             if (veryVerbose) {
