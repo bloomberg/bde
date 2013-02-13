@@ -169,9 +169,6 @@ int main(int argc, char *argv[])
 {
     int test                = argc > 1 ? atoi(argv[1]) : 0;
     int verbose             = argc > 2;
-    int veryVerbose         = argc > 3;
-    int veryVeryVerbose     = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
