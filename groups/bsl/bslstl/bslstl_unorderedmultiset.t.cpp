@@ -789,26 +789,6 @@ void debugprint(const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>& s)
 
 namespace {
 
-struct BoolArray {
-    // This class holds a set of boolean flags...
-
-    explicit BoolArray(size_t n)
-    : d_data(new bool[n])
-    {
-        for (size_t i = 0; i != n; ++i) {
-            d_data[i] = false;
-        }
-    }
-
-    ~BoolArray()
-    {
-        delete[] d_data;
-    }
-
-    bool& operator[](size_t index) { return d_data[index]; }
-    bool *d_data;
-};
-
                             // ====================
                             // class ExceptionGuard
                             // ====================
