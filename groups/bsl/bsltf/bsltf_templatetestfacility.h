@@ -532,6 +532,13 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_STDIO_H
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_GNU)
+#ifndef INCLUDED_CSTDINT
+#include <stdint.h> // for 'intptr_t'
+#define INCLUDED_CSTDINT
+#endif
+#endif
+
 namespace BloombergLP {
 namespace bsltf {
 
