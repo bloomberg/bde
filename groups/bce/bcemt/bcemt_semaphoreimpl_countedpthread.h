@@ -7,19 +7,17 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a POSIX implementation of 'bcemt_Semaphore' with count.
+//@PURPOSE: Provide an implementation of 'bcemt_Semaphore' with count.
 //
 //@CLASSES:
-//  bcemt_SemaphoreImpl<CountedPosixSemaphore>: POSIX specialization with count
+//  bcemt_SemaphoreImpl<CountedSemaphore>: semaphore specialization with count
 //
 //@SEE_ALSO: bcemt_semaphore
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides an implementation of 'bcemt_Semaphore'
-// for POSIX threads ("pthreads") via the template specialization:
+// via the template specialization:
 //..
-//  bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>
+//  bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bcemt_Semaphore'.
@@ -47,7 +45,7 @@ BDES_IDENT("$Id: $")
 #include <bces_platform.h>
 #endif
 
-#ifdef BCES_PLATFORM_POSIX_THREADS
+#ifdef BCES_PLATFORM_COUNTED_SEMAPHORE
 
 // Platform-specific implementation starts here.
 
@@ -59,29 +57,34 @@ BDES_IDENT("$Id: $")
 #include <bcemt_semaphoreimpl_pthread.h>
 #endif
 
+#ifndef BCEMT_SEMAPHOREIMPL_DARWIN
+#include <bcemt_semaphoreimpl_darwin.h>
+#endif
+
 namespace BloombergLP {
 
 template <typename SEMAPHORE_POLICY>
 class bcemt_SemaphoreImpl;
 
-         // ===============================================================
-         // class bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>
-         // ===============================================================
+         // ==========================================================
+         // class bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>
+         // ==========================================================
 
 template <>
-class bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore> {
-    // This class provides a full specialization of 'bcemt_SemaphoreImpl'
-    // for pthreads with a separate count variable.  This implementation
-    // maintains the value of the semaphore in a separate atomic integer,
-    // so as to allow for large counts on platforms where pthread supports a
-    // very limited range of values.
+class bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore> {
+    // This class provides a full specialization of 'bcemt_SemaphoreImpl' with
+    // a separate count variable.  This implementation maintains the value of
+    // the semaphore in a separate atomic integer count, so as to allow for
+    // semaphore count on platforms where a semaphore implementation doesn't
+    // provide the count or the provided count has very limited range of
+    // values.
 
     // DATA
     bsls::AtomicInt d_resources; // if positive, number of available resources
                                  // if negative: number of waiting threads
 
-    bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>
-                   d_sem;        // posix semaphore implementation
+    bcemt_SemaphoreImpl<bces_Platform::CountedSemaphoreImplPolicy>
+                   d_sem;        // platform semaphore implementation
 
     // NOT IMPLEMENTED
     bcemt_SemaphoreImpl(const bcemt_SemaphoreImpl&);
@@ -120,13 +123,13 @@ class bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore> {
 //                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-         // ---------------------------------------------------------------
-         // class bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>
-         // ---------------------------------------------------------------
+         // ----------------------------------------------------------
+         // class bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>
+         // ----------------------------------------------------------
 
 // CREATORS
 inline
-bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::bcemt_SemaphoreImpl(
+bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::bcemt_SemaphoreImpl(
                                                                      int count)
 : d_resources(count)
 , d_sem(0)
@@ -134,14 +137,13 @@ bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::bcemt_SemaphoreImpl(
 }
 
 inline
-bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::
-                                                         ~bcemt_SemaphoreImpl()
+bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::~bcemt_SemaphoreImpl()
 {
 }
 
 // MANIPULATORS
 inline
-void bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::post()
+void bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::post()
 {
     if (++d_resources <= 0) {
         d_sem.post();
@@ -150,7 +152,7 @@ void bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::post()
 
 inline
 void
-bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::post(int number)
+bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::post(int number)
 {
     for (int i = 0; i < number; ++i) {
         post();
@@ -158,7 +160,7 @@ bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::post(int number)
 }
 
 inline
-void bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::wait()
+void bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::wait()
 {
     if (--d_resources >= 0) {
         return;
@@ -169,7 +171,7 @@ void bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::wait()
 
 // ACCESSORS
 inline
-int bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::getValue() const
+int bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::getValue() const
 {
     const int v = d_resources;
     return v > 0 ? v : 0;
@@ -183,7 +185,7 @@ int bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::getValue() const
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

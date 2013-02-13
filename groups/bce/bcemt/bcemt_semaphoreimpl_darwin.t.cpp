@@ -1,9 +1,13 @@
-// bcemt_semaphoreimpl_countedpthread.t.cpp                           -*-C++-*-
-#include <bcemt_semaphoreimpl_countedpthread.h>
+// bcemt_semaphoreimpl_darwin.t.cpp                                   -*-C++-*-
+#include <bcemt_semaphoreimpl_darwin.h>
+
+#if defined(BSLS_PLATFORM_OS_DARWIN)
 
 #include <bcemt_lockguard.h>   // for testing only
 #include <bcemt_mutex.h>       // for testing only
 #include <bcemt_threadutil.h>  // for testing only
+
+#include <bcemt_semaphoreimpl_countedpthread.h>
 
 #include <bces_atomictypes.h>
 #include <bces_platform.h>
@@ -13,17 +17,16 @@
 
 #include <bsls_timeutil.h>
 
+#include <bsl_vector.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 
 #include <bsl_cstdlib.h>
 
-#ifdef BCES_PLATFORM_COUNTED_SEMAPHORE
-
-#include <pthread.h>
-
 #include <bsl_c_time.h>
 #include <bsl_c_stdio.h>
+
+#include <pthread.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -92,7 +95,7 @@ static bcemt_Mutex coutMutex;
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore> Obj;
+typedef bcemt_SemaphoreImpl<bces_Platform::SemaphorePolicy> Obj;
 
 class MyCondition {
     // This class defines a platform-independent condition variable.  Using
@@ -483,6 +486,31 @@ static const char* fmt(int n) {
     return buf;
 }
 
+void *createSemaphoresWorker(void *arg)
+{
+    bsl::vector<bsls::ObjectBuffer<Obj> > semaphores(10);
+
+    for (int i = 0; i != 1000; ++i) {
+        // create a bunch of semaphores
+        for (int j = 0; j != semaphores.size(); ++j) {
+            new (semaphores[j].buffer()) Obj(i);
+        }
+
+        // use semaphores
+        for (int j = 0; j != semaphores.size(); ++j) {
+            int result = semaphores[j].object().tryWait();
+            ASSERT((i == 0) == (result != 0)); // lock fails on initial count 0
+        }
+
+        // delete semaphores
+        for (int j = 0; j != semaphores.size(); ++j) {
+            semaphores[j].object().~Obj();
+        }
+    }
+
+    return 0;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -496,7 +524,39 @@ int main(int argc, char *argv[]) {
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) {
+    switch (test) { case 0:
+    case 7: {
+        // --------------------------------------------------------------------
+        // TESTING CONCURRENT SEMAPHORE CREATION
+        //
+        // Concerns:
+        // 1. On Darwin the creation of the semaphore object is synchronized
+        //    because it's implemented via named semaphores.  Concurrent
+        //    creation of multiple semaphores should not lead to invalid
+        //    semaphore objects or deadlock.
+        //
+        // Plan:
+        // 1. In multiple threads, create a number of semaphore objects and
+        //    verify that they are valid.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing concurrent creation\n"
+                          << "===========================\n";
+
+        vector<bcemt_ThreadUtil::Handle> threads(16);
+
+        for (int i = 0; i != threads.size(); ++i) {
+            int rc = bcemt_ThreadUtil::create(&threads[i],
+                                              &createSemaphoresWorker,
+                                              NULL);
+            ASSERT(rc == 0);
+        }
+
+        for (int i = 0; i != threads.size(); ++i) {
+            bcemt_ThreadUtil::join(threads[i]);
+        }
+
+    } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING MULTIPLE POST
@@ -891,7 +951,7 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-#else  // not 'CountedSemaphore'
+#else
 
 int main()
 {
@@ -902,7 +962,7 @@ int main()
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_semaphoreimpl_countedpthread_cpp,"$Id$ $CSID$")
 
-#ifdef BCES_PLATFORM_POSIX_THREADS
+#ifdef BCES_PLATFORM_COUNTED_SEMAPHORE
 
 #include <bcemt_lockguard.h>    // for testing only
 #include <bcemt_mutex.h>        // for testing only
@@ -14,12 +14,12 @@ BDES_IDENT_RCSID(bcemt_semaphoreimpl_countedpthread_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-         // ---------------------------------------------------------------
-         // class bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>
-         // ---------------------------------------------------------------
+         // ----------------------------------------------------------
+         // class bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>
+         // ----------------------------------------------------------
 
 // MANIPULATORS
-int bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::tryWait()
+int bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::tryWait()
 {
     for (int i = d_resources; i > 0; i = d_resources) {
         if (i == d_resources.testAndSwap(i, i - 1)) {
