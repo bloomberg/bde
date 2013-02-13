@@ -2,9 +2,13 @@
 #include <bcemt_semaphoreimpl_darwin.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bcemt_semaphoreimpl_pthread_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(bcemt_semaphoreimpl_darwin_cpp,"$Id$ $CSID$")
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
+
+#include <bcemt_lockguard.h>    // for testing only
+#include <bcemt_mutex.h>        // for testing only
+#include <bcemt_threadutil.h>   // for testing only
 
 #include <bsl_string.h>
 #include <bsl_sstream.h>

@@ -10,26 +10,7 @@ BDES_IDENT_RCSID(bcemt_semaphoreimpl_counted_cpp,"$Id$ $CSID$")
 #include <bcemt_mutex.h>        // for testing only
 #include <bcemt_threadutil.h>   // for testing only
 
-#include <bsl_c_errno.h>
-
 namespace BloombergLP {
-
-         // ----------------------------------------------------------
-         // class bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>
-         // ----------------------------------------------------------
-
-// MANIPULATORS
-int bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::tryWait()
-{
-    for (int i = d_resources; i > 0; i = d_resources) {
-        if (i == d_resources.testAndSwap(i, i - 1)) {
-            return 0;
-        }
-    }
-
-    return -1;
-}
-
 }  // close namespace BloombergLP
 
 #endif  // BCES_PLATFORM_POSIX_THREADS

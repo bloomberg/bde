@@ -160,6 +160,18 @@ bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::post(int number)
 }
 
 inline
+int bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::tryWait()
+{
+    for (int i = d_resources; i > 0; i = d_resources) {
+        if (i == d_resources.testAndSwap(i, i - 1)) {
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+inline
 void bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::wait()
 {
     if (--d_resources >= 0) {
