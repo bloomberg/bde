@@ -228,7 +228,7 @@ void debugprint(const bsl::Vector_Imp<TYPE,ALLOC>& v)
     }
     else {
       for (size_t i = 0; i < v.size(); ++i) {
-	bsls::BslTestUtil::callDebugprint(v[i]);
+        bsls::BslTestUtil::callDebugprint(v[i]);
       }
     }
     fflush(stdout);

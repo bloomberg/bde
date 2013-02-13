@@ -284,7 +284,7 @@ void debugprint(const bsl::deque<TYPE,ALLOC>& v)
     }
     else {
         for (size_t i = 0; i < v.size(); ++i) {
-	  bsls::BslTestUtil::callDebugprint(v[i]);
+          bsls::BslTestUtil::callDebugprint(v[i]);
         }
     }
     fflush(stdout);
@@ -6128,8 +6128,8 @@ void TestDriver<TYPE,ALLOC>::testCase8()
         gg(&mX, SPEC);  const Obj& X = mX;
 
         if (veryVerbose) {
-	  printf("\t g = "); bsls::BslTestUtil::callDebugprint((g(SPEC))); printf("\n");
-	  printf("\tgg = "); bsls::BslTestUtil::callDebugprint(X); printf("\n");
+          printf("\t g = "); bsls::BslTestUtil::callDebugprint((g(SPEC))); printf("\n");
+          printf("\tgg = "); bsls::BslTestUtil::callDebugprint(X); printf("\n");
         }
         const int TOTAL_BLOCKS_BEFORE = (int) testAllocator.numBlocksTotal();
         const int IN_USE_BYTES_BEFORE = (int) testAllocator.numBytesInUse();
