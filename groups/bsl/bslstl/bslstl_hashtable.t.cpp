@@ -20,6 +20,9 @@
 #include <bslmf_isfunction.h>
 #include <bslmf_removeconst.h>
 
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
@@ -4246,6 +4249,8 @@ class TestDriver {
   public:
     // TEST CASES
 
+    static void testCase15();
+
     static void testCase14();
 
     static void testCase13();
@@ -4280,6 +4285,17 @@ class TestDriver {
 
 template <class CONFIGURED_DRIVER>
 struct TestDriver_ForwardTestCasesByConfiguation {
+    // This utilty class template provides forwarding utilities for invoking
+    // test case functions of the (template type parameter) 'CONFIGURED_DRIVER'
+    // class.  It is expected that a 'CONFIGURED_DRIVER' class is an
+    // instantiation of the 'TestDriver' class template, with the template
+    // arguments chosen to provide a specific portion of test coverage of the
+    // whole type-space under test.
+    //
+    // This supports the following set of templates, implemented in terms of
+    // this class template, that are parameterized on the single value type
+    // for the container under test, which is the form required for support by
+    // the 'bsltf' template testing facility.
 
     // TEST CASES
 
@@ -4878,6 +4894,79 @@ TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
 }
 
 //- - - - - - - - - - - - - TEST CASE IMPLEMENTATIONS - - - - - - - - - - - - -
+
+template <class TYPE>
+struct IsBslAllocator : bsl::false_type {};
+
+template <class TYPE>
+struct IsBslAllocator<bsl::allocator<TYPE> > : bsl::true_type {};
+
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase15()
+{
+    // ------------------------------------------------------------------------
+    // TESTING traits and other compile-time properties
+    //
+    // Concerns:
+    //: 1 HashTable supports the expected traits
+    //:
+    //: 2 HashTable has the expected size
+    //
+    // Plan:
+    //: 1 For each value of increasing length, 'L':
+    //:
+    //
+    // Testing:
+    //*  traits
+    //*  sizeof(HashTable)
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        printf("\nTesting bsl traits.\n");
+    }
+
+    typedef typename KEY_CONFIG::KeyType   KeyType;
+    typedef typename KEY_CONFIG::ValueType ValueType;
+
+    // These traits should never be true
+
+    ASSERT(!bsl::is_trivially_copyable<             Obj>::value);
+    ASSERT(!bsl::is_trivially_default_constructible<Obj>::value);
+    ASSERT(!bslmf::IsBitwiseEqualityComparable<     Obj>::value);
+
+    // The uses-allocator trait should depend only on the stored value-type,
+    // and the allocator type.
+
+    bool valueUsesBslmaAllocator = bslma::UsesBslmaAllocator<ValueType>::value;
+    bool usesBslAllocator        = IsBslAllocator<ALLOCATOR>::value;
+    bool objUsesBslmaAlloctor    = bslma::UsesBslmaAllocator<Obj>::value;
+
+    // Late observation - where the stored value uses bslma allocators or not
+    // has no bearing on whethier *this* container uses bslma allocators, that
+    // is controlled entirely by the allocator itself.
+
+    ASSERTV(valueUsesBslmaAllocator, usesBslAllocator, objUsesBslmaAlloctor,
+                                     usesBslAllocator == objUsesBslmaAlloctor);
+//      (valueUsesBslmaAllocator && usesBslAllocator) == objUsesBslmaAlloctor);
+
+    // The stored type has no bearing on whether a node-based container is
+    // bitwise-mvoveable.  However, the allocator and two custom function-like
+    // types must all be bitwise-moveable for the whole container to be
+    // bitwise-moveable.
+
+    bool allocIsBitwiseMoveable = bslmf::IsBitwiseMoveable<ALLOCATOR>::value;
+    bool hashIsBitwiseMoveable  = bslmf::IsBitwiseMoveable<HASHER>::value;
+    bool compIsBitwiseMoveable  = bslmf::IsBitwiseMoveable<COMPARATOR>::value;
+    bool objIsBitwiseMoveable   = bslmf::IsBitwiseMoveable<Obj>::value;
+    
+    ASSERTV(allocIsBitwiseMoveable,
+            hashIsBitwiseMoveable,
+            compIsBitwiseMoveable,
+            objIsBitwiseMoveable,
+     (allocIsBitwiseMoveable && hashIsBitwiseMoveable && compIsBitwiseMoveable)
+                                                      == objIsBitwiseMoveable);
+}
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
@@ -8526,6 +8615,91 @@ void mainTestCase15()
 #endif
 
 static
+void mainTestCase15()
+{
+    // --------------------------------------------------------------------
+    // TESTING traits and other compile-time properties
+    // --------------------------------------------------------------------
+    // For this test, the standard "minimal" set of test types provides
+    // adequate coverage for the different properties dependent on the
+    // value type.  We must simply test sufficient pre-packaged configurations
+    // to cover the possibilities of the hash functor, comparator and
+    // allocator too.  As of this writing, there is no package that serately
+    // isolates bitwise copyable hasher and comparator, to test as separate
+    // dimensions.
+
+    if (verbose) printf("\nTesting basic configuration"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting const functors"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConstFunctors,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
+    if (verbose) printf("\nTesting functor referencess"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctorReferences,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting function pointers"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
+    if (verbose) printf("\nTesting function types"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionTypes,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting function references"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionReferences,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase15();
+}
+
+static
 void mainTestCase14()
 {
     // --------------------------------------------------------------------
@@ -10235,10 +10409,10 @@ int main(int argc, char *argv[])
                                                            g_bsltfAllocator_p);
 
     switch (test) { case 0:
-      case 15: mainTestCaseUsageExample(); break;
+      case 16: mainTestCaseUsageExample(); break;
 //      case 17: mainTestCase17(); break;
 //      case 16: mainTestCase16(); break;
-//      case 15: mainTestCase15(); break;
+      case 15: mainTestCase15(); break;
       case 14: mainTestCase14(); break;
       case 13: mainTestCase13(); break;
       case 12: mainTestCase12(); break;

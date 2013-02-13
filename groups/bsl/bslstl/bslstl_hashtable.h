@@ -1560,14 +1560,17 @@ namespace BloombergLP {
 
 namespace bslstl {
 
-template <class FUNCTOR>
-class HashTable_HashWrapper;
+template <class KEY_CONFIG,
+          class HASHER,
+          class COMPARATOR,
+          class ALLOCATOR = ::bsl::allocator<typename KEY_CONFIG::ValueType> >
+class HashTable;
 
-template <class FUNCTOR>
-class HashTable_HashWrapper<const FUNCTOR>;
+template <class FACTORY>
+class HashTable_ArrayProctor;
 
-template <class FUNCTOR>
-class HashTable_HashWrapper<FUNCTOR &>;
+template <class FACTORY>
+class HashTable_NodeProctor;
 
 template <class FUNCTOR>
 class HashTable_ComparatorWrapper;
@@ -1577,6 +1580,18 @@ class HashTable_ComparatorWrapper<const FUNCTOR>;
 
 template <class FUNCTOR>
 class HashTable_ComparatorWrapper<FUNCTOR &>;
+
+template <class FUNCTOR>
+class HashTable_HashWrapper;
+
+template <class FUNCTOR>
+class HashTable_HashWrapper<const FUNCTOR>;
+
+template <class FUNCTOR>
+class HashTable_HashWrapper<FUNCTOR &>;
+
+struct HashTable_ImpDetails;
+struct HashTable_Util;
 
                        // ======================
                        // class CallableVariable
@@ -1839,10 +1854,7 @@ void swap(HashTable_ComparatorWrapper<FUNCTOR> &lhs,
                            // class HashTable
                            // ===============
 
-template <class KEY_CONFIG,
-          class HASHER,
-          class COMPARATOR,
-          class ALLOCATOR = ::bsl::allocator<typename KEY_CONFIG::ValueType> >
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 class HashTable {
     // This class template implements a value-semantic container type holding
     // an unordered sequence of (possibly duplicate) elements, that can be
@@ -3286,17 +3298,14 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
     // Allocate an appropriate number of buckets
 
     size_t capacity;
-    SizeType numBuckets = static_cast<SizeType>(
-                          HashTable_ImpDetails::growBucketsForLoadFactor(
+    size_t numBuckets = HashTable_ImpDetails::growBucketsForLoadFactor(
                                                    &capacity,
                                                    static_cast<size_t>(d_size),
                                                    2,
-                                                   d_maxLoadFactor));
+                                                   d_maxLoadFactor);
 
     d_anchor.setListRootAddress(0);
-    HashTable_Util::initAnchor(&d_anchor,
-                               static_cast<size_t>(numBuckets),
-                               this->allocator());
+    HashTable_Util::initAnchor(&d_anchor, numBuckets, this->allocator());
 
     // create a proctor for d_anchor's allocated array, and the list to follow.
 
@@ -3311,7 +3320,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
         // before any memory is allocated, so there is no risk of leaking an
         // object.  The hash code must be the same for both elements.
 
-        native_std::size_t hashCode = this->hashCodeForNode(cursor);
+        size_t hashCode = this->hashCodeForNode(cursor);
         bslalg::BidirectionalLink *newNode =
                                  d_parameters.nodeFactory().cloneNode(*cursor);
 
@@ -4051,7 +4060,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 float HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::loadFactor() const
 {
-    return static_cast<float>(static_cast<double>(size())
+    return static_cast<float>(static_cast<double>(this->size())
                                     / static_cast<double>(this->numBuckets()));
 }
 
