@@ -191,14 +191,14 @@ class bcemt_Condition {
         // either 'signal' or 'broadcast' is invoked on this object in another
         // thread), or until the specified 'absoluteTime' (expressed as the
         // !ABSOLUTE! time from 00:00:00 UTC, January 1, 1970), then re-acquire
-        // a lock on the 'mutex'.  Return 0 on success, -1 on absoluteTime,
+        // a lock on the 'mutex'.  Return 0 on success, -1 on timeout,
         // and a non-zero value different from -1 if an error occurs.  Spurious
         // wakeups are rare but possible; i.e., this method may succeed (return
         // 0), and return control to the thread without the condition object
         // being signaled.  The behavior is undefined unless 'mutex' is locked
         // by the calling thread prior to calling this method.  Note that
         // 'mutex' remains locked by the calling thread upon returning from
-        // this function on success or absoluteTime, but is *not* guaranteed to
+        // this function on success or timeout, but is *not* guaranteed to
         // remain locked if an error occurs.
 
     int wait(bcemt_Mutex *mutex);
