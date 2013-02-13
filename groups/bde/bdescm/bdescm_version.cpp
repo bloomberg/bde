@@ -4,9 +4,11 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdescm_version_cpp,"$Id$ $CSID$")
 
+#include <bdescm_patchversion.h> // BDESCM_PATCHVERSION_PATCH
+
 namespace BloombergLP {
 
-#define BDE_VERSION_PATCH 0
+#define BDE_VERSION_PATCH BDESCM_PATCHVERSION_PATCH
 
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)

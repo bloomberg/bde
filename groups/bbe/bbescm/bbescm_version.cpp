@@ -6,6 +6,8 @@ BDES_IDENT_RCSID(bbescm_version_cpp,"$Id$ $CSID$")
 #include <bbescm_version.h>
 #include <bbescm_versiontag.h>
 
+#include <bdescm_patchversion.h> // BDESCM_PATCHVERSION_PATCH
+
 namespace BloombergLP {
 
 #define STRINGIFY2(a) #a
@@ -16,7 +18,7 @@ namespace BloombergLP {
                                              "." STRINGIFY(BDE_VERSION_MINOR) \
                                              "." STRINGIFY(REQUIRED_BDE_PATCH)
 
-#define BBE_VERSION_PATCH 0
+#define BBE_VERSION_PATCH BDESCM_PATCHVERSION_PATCH
 #define BBESCM_VERSION_STRING "BLP_LIB_BDE_BBE_" STRINGIFY(BBE_VERSION_MAJOR) \
                                              "." STRINGIFY(BBE_VERSION_MINOR) \
                                              "." STRINGIFY(BBE_VERSION_PATCH) \
