@@ -460,6 +460,7 @@ int main(int argc, char *argv[])
             "element6ABCDEFGHIJKLMNOPQRSTUVW",
             false
         },
+#if !defined(BSLS_PLATFORM_CMP_AIX)
         {
             L_,
             "selection11selection1element1255element43123123123elementasdd5255"
@@ -480,6 +481,8 @@ int main(int argc, char *argv[])
             "element6ABCDEFGHIJKLMNOPQRSTUVWX",
             true
         },
+#endif // AIX
+
 #endif
         {
             L_,
