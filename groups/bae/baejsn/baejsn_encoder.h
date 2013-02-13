@@ -329,22 +329,23 @@ class baejsn_Encoder {
     int encode(bsl::streambuf               *streamBuf,
                const TYPE&                   value,
                const baejsn_EncoderOptions&  options);
-        // Encode the specified 'value' of (template parameter) 'TYPE' into the
-        // specified 'streamBuf' using the specified 'options'.  Return 0 on
-        // success, and a non-zero value otherwise.  Note that 'value' is
-        // expected to refer to a sequence, choice, or array type and an error
-        // is returned if it does not.
+        // Encode the specified 'value', of (template parameter) 'TYPE', in the
+        // JSON format using the specified 'options' and output it onto the
+        // specified 'streamBuf'.  'TYPE' shall be a 'bdeat'-compatible
+        // sequence, choice, or array type, or a 'bdeat'-compatible dynamic
+        // type referring to one of those types.  Return 0 on success, and a
+        // non-zero value otherwise.
 
     template <typename TYPE>
     int encode(bsl::ostream&                stream,
                const TYPE&                  value,
                const baejsn_EncoderOptions& options);
-        // Encode the specified 'value' of (template parameter) 'TYPE' into the
-        // specified 'streamBuf' using the specified 'options'.  Return 0 on
-        // success, and a non-zero value otherwise.  Note that 'stream' will be
-        // invalidated if the encoding failed.  Note that 'value' is expected
-        // to refer to a sequence, choice, or array type and an error is
-        // returned if it does not.
+        // Encode the specified 'value', of (template parameter) 'TYPE', in the
+        // JSON format using the specified 'options' and output it onto the
+        // specified 'stream'.  'TYPE' shall be a 'bdeat'-compatible sequence,
+        // choice, or array type, or a 'bdeat'-compatible dynamic type
+        // referring to one of those types.  Return 0 on success, and a
+        // non-zero value otherwise.
 
     template <typename TYPE>
     int encode(bsl::streambuf *streamBuf, const TYPE& value);

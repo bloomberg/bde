@@ -351,10 +351,10 @@ class baejsn_Decoder {
                const baejsn_DecoderOptions&  options);
         // Decode into the specified 'value', of a (template parameter) 'TYPE',
         // the JSON data read from the specified 'streamBuf' and using the
-        // specified 'options'.  'TYPE' shall be a type, or a
-        // 'bdeat'-compatible dynamic type referring to a type, corresponding
-        // to a 'bdeat'-compatible sequence, choice, or array type.  Return 0
-        // on success, and a non-zero value otherwise.
+        // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
+        // choice, or array type, or a 'bdeat'-compatible dynamic type
+        // referring to one of those types.  Return 0 on success, and a
+        // non-zero value otherwise.
 
     template <typename TYPE>
     int decode(bsl::istream&                 stream,
@@ -362,10 +362,10 @@ class baejsn_Decoder {
                const baejsn_DecoderOptions&  options);
         // Decode into the specified 'value', of a (template parameter) 'TYPE',
         // the JSON data read from the specified 'stream' and using the
-        // specified 'options'.  'TYPE' shall be a type, or a
-        // 'bdeat'-compatible dynamic type referring to a type, corresponding
-        // to a 'bdeat'-compatible sequence, choice, or array type.  Return 0
-        // on success, and a non-zero value otherwise.
+        // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
+        // choice, or array type, or a 'bdeat'-compatible dynamic type
+        // referring to one of those types.  Return 0 on success, and a
+        // non-zero value otherwise.
 
     template <typename TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
