@@ -148,7 +148,8 @@ class bdeut_NullableValue {
     // equal if they their underlying types are comparable and either
     // (1) both objects are null or (2) the non-null values compare equal.
     // Attempts to copy construct, copy assign, or compare incompatible
-    // values will fail to compile.
+    // values will fail to compile.  The 'bdeut_NullableValue<TYPE>' template
+    // cannot be instantiated on a type that overloads 'operator&'.
 
     // PRIVATE TYPES
     typedef typename
@@ -866,7 +867,7 @@ template <typename TYPE>
 inline
 const TYPE *bdeut_NullableValue<TYPE>::valueOrNull() const
 {
-    return d_imp.isNull() ? 0 : bsls::Util::addressOf(d_imp.value());
+    return d_imp.isNull() ? 0 : &d_imp.value();
 }
 
 template <typename TYPE>
@@ -880,9 +881,7 @@ template <typename TYPE>
 inline
 const TYPE *bdeut_NullableValue<TYPE>::valueOr(const TYPE *defaultValue) const
 {
-    return d_imp.isNull()
-           ? defaultValue
-           : bsls::Util::addressOf(d_imp.value());
+    return d_imp.isNull() ? defaultValue : &d_imp.value();
 }
 
 
@@ -1028,8 +1027,7 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
     if (!isNull() && !other.isNull()) {
         // Swap typed values.
 
-        bslalg_SwapUtil::swap(bsls::Util::addressOf(this->value()),
-                              bsls::Util::addressOf(other.value()));
+        bslalg_SwapUtil::swap(this->value(), other.value());
         return;                                                       // RETURN
     }
 
@@ -1040,10 +1038,10 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
 
     if (isNull()) {
         nullObj    = this;
-        nonNullObj = bsls::Util::addressOf(other);
+        nonNullObj = &other;
     }
     else {
-        nullObj    = bsls::Util::addressOf(other);
+        nullObj    = &other;
         nonNullObj = this;
     }
 

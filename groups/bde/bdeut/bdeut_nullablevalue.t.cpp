@@ -92,15 +92,20 @@ using bsl::atoi;
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
+}
+
 }
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -271,10 +276,10 @@ class TestDriver {
 
   public:
     static void testCase14();
-        // Test 'valueOr'
+        // Test 'T valueOr(const T&)'
 
     static void testCase15();
-        // Test 'valueOr'
+        // Test 'const T *valueOr(const T*)'
 
     static void testCase16();
         // Test 'valueOrNull'
@@ -287,7 +292,7 @@ template <class TEST_TYPE>
 void TestDriver<TEST_TYPE>::testCase14()
 {
     // ------------------------------------------------------------------------
-    // TESTING: 'valueOr'
+    // TESTING: 'T valueOr(const T&)'
     // Concerns:
     //: 1 'valueOr' returns the supplied value if the nullable value is null
     //:
@@ -368,6 +373,7 @@ void TestDriver<TEST_TYPE>::testCase14()
             x = VALUES[0];
 
             bslma::TestAllocatorMonitor oam(&oa);
+            bslma::TestAllocatorMonitor dam(&da);
 
             ASSERT(VALUES[0] == x.valueOr(VALUES[i]));
             ASSERT(VALUES[0] == X.valueOr(VALUES[i]));
@@ -375,6 +381,8 @@ void TestDriver<TEST_TYPE>::testCase14()
             ASSERT(i == 0 || VALUES[i] != x.valueOr(VALUES[i]));
             ASSERT(i == 0 || VALUES[i] != X.valueOr(VALUES[i]));
 
+            bool usesAllocator = bslma::UsesBslmaAllocator<TEST_TYPE>::value;
+            ASSERT(usesAllocator ? dam.isTotalUp() : dam.isTotalSame());
             ASSERT(oam.isInUseSame());
 
             x.reset();
@@ -390,7 +398,7 @@ template <class TEST_TYPE>
 void TestDriver<TEST_TYPE>::testCase15()
 {
     // ------------------------------------------------------------------------
-    // TESTING: 'valueOr'
+    // TESTING: 'const T* valueOr(const T*)'
     // Concerns:
     //: 1 'valueOr' returns the supplied value if the nullable value is null
     //:
@@ -416,7 +424,7 @@ void TestDriver<TEST_TYPE>::testCase15()
     //:   reference to the contained value (C-2, C-4)
     //
     // Testing:
-    //   const TYPE& valueOr(const TYPE&) const;
+    //   const TYPE *valueOr(const TYPE*) const;
     // ------------------------------------------------------------------------
 
     const TestValues VALUES;
@@ -804,8 +812,8 @@ int main(int argc, char *argv[])
         // valueOr
         // --------------------------------------------------------------------
 
-          if (verbose) cout << "\nTesting: valueOr"
-                            << "\n================\n";
+          if (verbose) cout << "\nTesting: const T *valueOr(const T*)"
+                            << "\n===================================\n";
 
           RUN_EACH_TYPE(TestDriver, testCase15, TEST_TYPES);
 
@@ -815,8 +823,8 @@ int main(int argc, char *argv[])
         // valueOr
         // --------------------------------------------------------------------
 
-          if (verbose) cout << "\nTesting: valueOr"
-                            << "\n================\n";
+          if (verbose) cout << "\nTesting: T valueOr(const T&)"
+                            << "\n===================================\n";
 
         RUN_EACH_TYPE(TestDriver, testCase14, TEST_TYPES);
 
