@@ -65,28 +65,26 @@ void aSsErT(int c, const char *s, int i)
 //                    STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
-#define ASSERT BSLS_BSLTESTUTIL_ASSERT
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 
 // ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT BSLS_BSLTESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV BSLS_BSLTESTUTIL_ASSERTV
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
 // ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
-#define Q BSLS_BSLTESTUTIL_Q // Quote identifier literally.
-#define P BSLS_BSLTESTUTIL_P // Print identifier and value.
+#define Q  BSLS_BSLTESTUTIL_Q  // Quote identifier literally.
+#define P  BSLS_BSLTESTUTIL_P  // Print identifier and value.
 #define P_ BSLS_BSLTESTUTIL_P_ // P(X) without '\n'.
 #define T_ BSLS_BSLTESTUTIL_T_ // Print a tab (w/o newline).
 #define L_ BSLS_BSLTESTUTIL_L_ // current Line number
@@ -95,16 +93,10 @@ void aSsErT(int c, const char *s, int i)
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_SAFE_FAIL(expr)     BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr)     BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 #define ASSERT_SAFE_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(expr)
 #define ASSERT_SAFE_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(expr)
-
-// ============================================================================
-//                  EXCEPTION TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define EXCEPTION_COUNT bslmaExceptionCounter
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
