@@ -13,11 +13,11 @@ BDES_IDENT_RCSID(bcemt_semaphoreimpl_counted_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM_POSIX_THREADS
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

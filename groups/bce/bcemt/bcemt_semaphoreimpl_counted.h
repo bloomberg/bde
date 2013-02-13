@@ -22,14 +22,14 @@ BDES_IDENT("$Id: $")
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bcemt_Semaphore'.
 //
-// This pthreads-based implementation of 'bcemt_Semaphore' differs from that of
-// 'bcemt_semaphoreimpl_pthread' for platforms where a separate count must be
-// maintained.  'bcemt_Semaphore' supports large values, but the native
-// semaphores provided on some platforms are restricted to a relatively small
-// range of values (e.g., '[ 0 .. 32000 ]' on AIX).  To support uniform
-// usage across platforms, this component maintains the count of the semaphore
-// in a separate atomic integer.  'post' is only invoked on the underlying
-// semaphore when it is known there are threads blocked on it.
+// This implementation of 'bcemt_Semaphore' is intended for platforms where a
+// separate count must be maintained.  'bcemt_Semaphore' supports large values,
+// but the native semaphores provided on some platforms are restricted to a
+// relatively small range of values (e.g., '[ 0 .. 32000 ]' on AIX) or doesn't
+// provide the semaphore count at all (Darwin).  To support uniform usage
+// across platforms, this component maintains the count of the semaphore in a
+// separate atomic integer.  'post' is only invoked on the underlying semaphore
+// when it is known there are threads blocked on it.
 //
 ///Usage
 ///-----
@@ -191,7 +191,7 @@ int bcemt_SemaphoreImpl<bces_Platform::CountedSemaphore>::getValue() const
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM_POSIX_THREADS
+#endif
 
 #endif
 
