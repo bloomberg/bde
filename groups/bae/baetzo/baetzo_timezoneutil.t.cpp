@@ -900,8 +900,8 @@ struct MyTimeoffsetUtil
         bdet_DatetimeInterval datetimeInterval;
         bdetu_DatetimeInterval::convertToDatetimeInterval(&datetimeInterval,
                                                           now);
-        bdet_Datetime          utcTime = bdetu_Epoch::epoch() 
-                                       + datetimeInterval;
+        bdet_Datetime utcTime = bdetu_Epoch::epoch() 
+                              + datetimeInterval;
 #if   defined(TEST_FIXED)
         //if (g_verbose) { P(s_localTimePeriod) }
         bdet_DatetimeInterval value(
@@ -923,6 +923,20 @@ struct MyTimeoffsetUtil
                             0,
                             0,
                             localTimePeriod.descriptor().utcOffsetInSeconds());
+#elif defined(TEST_DYNAMIC2)
+        int status = baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(
+                                                            &s_localTimePeriod,
+                                                            (const char *)arg,
+                                                            utcTime);
+        //ASSERT(0 == status);
+        //if (g_verbose) { P(s_localTimePeriod) }
+        //ASSERT(-5 * 3600  == s_localTimePeriod.descriptor().utcOffsetInSeconds());
+
+        bdet_DatetimeInterval value(
+                          0,
+                          0,
+                          0,
+                          s_localTimePeriod.descriptor().utcOffsetInSeconds());
 #elif defined(TEST_CACHED)
        if (utcTime <  s_localTimePeriod.utcStartTime()
         || utcTime >= s_localTimePeriod.utcEndTime()) {
@@ -941,6 +955,18 @@ struct MyTimeoffsetUtil
                           0,
                           0,
                           s_localTimePeriod.descriptor().utcOffsetInSeconds());
+#elif defined(TEST_DIFFERENCE)
+        bdet_DatetimeTz localDateTz;
+        int             status =  baetzo_TimeZoneUtil::convertUtcToLocalTime(
+                                                             &localDateTz,
+                                                             (const char *)arg,
+                                                             utcTime);
+        //ASSERT(0 == status);
+
+        int offset = localDateTz.offset(); //P(offset)
+        //ASSERT(-5 * 60 == offset);
+
+        bdet_DatetimeInterval value(0, 0, offset); //P(value)
 #else
 #error "UNKNOWN BUILD FLAG"
 #endif
@@ -3453,6 +3479,19 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "NEW INTEFACES" << endl
                                   << "=============" << endl;
+#if   defined(TEST_FIXED)
+            Q(TEST_FIXED)
+#elif defined(TEST_DYNAMIC)
+            Q(TEST_DYNAMIC)
+#elif defined(TEST_DYNAMIC2)
+            Q(TEST_DYNAMIC2)
+#elif defined(TEST_CACHED)
+            Q(TEST_CACHED)
+#elif defined(TEST_DIFFERENCE)
+            Q(TEST_DIFFERENCE)
+#else
+#error "UNKNOWN BUILD FLAG"
+#endif
 
         MyTimeoffsetUtil::setFixedLocalTimePeriod(
                       baetzo_LocalTimePeriod(baetzo_LocalTimeDescriptor(-18000,
