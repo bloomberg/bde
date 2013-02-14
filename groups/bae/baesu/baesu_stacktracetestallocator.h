@@ -339,12 +339,12 @@ namespace BloombergLP {
 class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     // This class defines a concrete "test" allocator mechanism that implements
     // the 'bslma::ManagedAllocator' protocol, and provides instrumentation to
-    // track the set of all segments allocted by this allocator that have yet
-    // to be freed.  At any time it can produce a report about such segments,
-    // listing for each place that any unfreed segments were allocated
-    //: o the number of unfreed segments allocated at that place
+    // track the set of all blocks allocted by this allocator that have yet to
+    // be freed.  At any time it can produce a report about such blocks,
+    // listing for each place that any unfreed blocks were allocated
+    //: o the number of unfreed blocks allocated at that place
     //: o the stack trace at that place
-    // The allocator will also detect redundant frees of the same segment, and
+    // The allocator will also detect redundant frees of the same block, and
     // frees by the wrong allocator.  The client can choose whether such
     // violations are handled by a core dump, or merely a report being written.
     //
@@ -367,8 +367,8 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     // PRIVATE TYPES
     enum AllocatorMagic { STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
 
-    struct SegmentHeader;                       // information stored in each
-                                                // segment
+    struct BlockHeader;                         // information stored in each
+                                                // block
 
     // DATA
     AllocatorMagic            d_magic;          // magic # to identify type of
@@ -377,8 +377,8 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     volatile int              d_numBlocksInUse; // number of allocated blocks
                                                 // currently unfreed
 
-    SegmentHeader            *d_segments;       // list of allocated, unfreed
-                                                // segments
+    BlockHeader              *d_blocks;         // list of allocated, unfreed
+                                                // blocks
 
     mutable bcemt_Mutex       d_mutex;          // mutex used to synchronize
                                                 // access to this object
@@ -391,7 +391,7 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
 
     const int                 d_maxRecordedFrames; // max number of stack trace
                                                    // frames to store in each
-                                                   // segment.  May be larger
+                                                   // block.  May be larger
                                                    // than the number of frames
                                                    // requested to the c'tor
                                                    // due to ignored frames.
@@ -420,11 +420,11 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
 
   private:
     // PRIVATE ACCESSORS
-    int preDeallocateCheckSegmentHeader(
-                                     const SegmentHeader *segmentHdr) const;
-        // Perform sanity checks on segment header, reporting any
-        // irregularities to '*d_ostream' Return 0 if no irregularities are
-        // found, and a non-zero value otherwise.
+    int preDeallocateCheckBlockHeader(
+                                     const BlockHeader *blockHdr) const;
+        // Perform sanity checks on block header, reporting any irregularities
+        // to '*d_ostream' Return 0 if no irregularities are found, and a
+        // non-zero value otherwise.
 
   public:
     // CLASS METHODS
@@ -489,9 +489,8 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
         // Return a newly allocated block of memory of the specified positive
         // 'size' (in bytes).  If 'size' is 0, a null pointer is returned with
         // no other other effect.  Otherwise, invoke the 'allocate' method of
-        // the allocator supplied at construction and record the returned
-        // segment in order to be able to report leaked segments upon
-        // destruction.
+        // the allocator supplied at construction and record the returned block
+        // in order to be able to report leaked blocks upon destruction.
 
     virtual void deallocate(void *address);
         // Return the memory block at the specified 'address' back to this
@@ -500,9 +499,9 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
         // allocated from this test allocator, deallocate it using the
         // underlying allocator and delete it from the data structures keeping
         // track of blocks in use'.  If 'address' is not zero and is not the
-        // address of a segment allocated with this allocator (or if it is
-        // being deallocated a second time), write an error message and call
-        // the failure handler.
+        // address of a block allocated with this allocator (or if it is being
+        // deallocated a second time), write an error message and call the
+        // failure handler.
 
     virtual void release();
         // Deallocate all memory held by this allocator.
@@ -523,14 +522,14 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
         // this allocator object's handling of failure.
 
     bsl::size_t numBlocksInUse() const;
-        // Return the number of segments that have been allocated and are not
-        // yet freed.  Note that this is not guaranteed to execute in constant
+        // Return the number of blocks that have been allocated and are not yet
+        // freed.  Note that this is not guaranteed to execute in constant
         // time.
 
     void reportBlocksInUse(bsl::ostream *ostream = 0) const;
         // Write a report to the output stream associated with this test
-        // allocator, reporting the unique call-stacks for each segment that
-        // has been allocated and has not yet been freed.
+        // allocator, reporting the unique call-stacks for each block that has
+        // been allocated and has not yet been freed.
 };
 
 }  // close namespace BloombergLP

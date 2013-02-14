@@ -67,11 +67,11 @@ using bsl::flush;
 //
 //-----------------------------------------------------------------------------
 // [23] o usage example
-// [22] o segment header test -- use 'my_SegmentHeader' to test
+// [22] o block header test -- use 'my_BlockHeader' to test
 //      o magic number
 //      o pointer to allocator
-//      o validity of next segment
-//      o validity of pointer from prev segment
+//      o validity of next block
+//      o validity of pointer from prev block
 // [20] o testing for undefined behavior with setjmp/longjmp
 //      o 'numRecordedFrames >= 2'
 //      o 'name == 0' is handled by substituting "<unnamed>" form 'name'.
@@ -85,19 +85,19 @@ using bsl::flush;
 //      o Pass the allocator a bslma::TestAllocator rigged to throw exceptions
 //        and verify that the allocator handles this properly.
 // [17] o alignment & min size test
-//      o allocate segments from 0 byte to 100 bytes long, several segments for
+//      o allocate blocks from 0 byte to 100 bytes long, several blocks for
 //        each size.  Calculate alignment
 //        via 'bsls::AlignmentUtil::calculateAlignmentFromSize', and verify
-//        that the segment return always satisfies the alignment requirement.
-//        Write over the full length of the segment. Use 'bslma::TestAllocator'
+//        that the block return always satisfies the alignment requirement.
+//        Write over the full length of the block. Use 'bslma::TestAllocator'
 //        as the underlying allocator as it will detect overruns if the any of
-//        the segments were smaller than requested.
-//      o fill segments with random byte, verify they still contain this byte
+//        the blocks were smaller than requested.
+//      o fill blocks with random byte, verify they still contain this byte
 //        when freed
-//      o store segments in struct { void *d_p; int d_len; char d_fill;};
-//      o have array of segments, use a random number generator to determine
+//      o store blocks in struct { void *d_p; int d_len; char d_fill;};
+//      o have array of blocks, use a random number generator to determine
 //        which is allocated or freed next.  Maintain count of existing
-//        segments so never exceed available slots and only free when there is
+//        blocks so never exceed available slots and only free when there is
 //        something to be freed.  Also monitor 'numBlocksInUse' during this
 //        and make sure it is accurate.
 // [16] o demanglingPreferredFlag
@@ -114,19 +114,19 @@ using bsl::flush;
 //        before the start -- such writes will always hit the magic number.
 // [14] Deallocation errors test
 //      o repeat all tests with and without 'noAbort'
-//      o attempt to deallocate segments allocated with 'malloc' and
+//      o attempt to deallocate blocks allocated with 'malloc' and
 //        global 'new' (actually, since we override 'new' to call 'malloc'
 //        for the sake of other tests, we can only check 'malloc').
-//      o Attempt to free segments created by 'bslma::TestAllocator' and
+//      o Attempt to free blocks created by 'bslma::TestAllocator' and
 //        'bcema_TestAllocator'
 //      o Pass a pointer that is not pointer-aligned, triggering alignment
 //        error detection
-// [13] Calling 'release' successfully frees all allocated segments
-//      o add test to verify that calling it when no segments are outstanding
+// [13] Calling 'release' successfully frees all allocated blocks
+//      o add test to verify that calling it when no blocks are outstanding
 //        does no harm
-//      o call it with 0 through 100 segments outstanding
-//      o verify that d'tor also successfully frees all allocated segments
-//      o if d'tor aborts, it should be before segments are released (to
+//      o call it with 0 through 100 blocks outstanding
+//      o verify that d'tor also successfully frees all allocated blocks
+//      o if d'tor aborts, it should be before blocks are released (to
 //        provide a more meaningful core dump)
 // [12] Thread-safety test
 //      o Overhaul so that threads do less work and more allocating.
@@ -135,7 +135,7 @@ using bsl::flush;
 //        happening, and asserts they're never happening at once.
 //      o Have test set up a barrier before allocating, allocates, a bunch of
 //        times, does same thing with frees.
-// [11] Successful freeing of all allocated segments results in no report
+// [11] Successful freeing of all allocated blocks results in no report
 //      being written at destruction
 // [10] Bslx streaming (N/A)
 // [ 9] Assignment (N/A)
@@ -159,7 +159,7 @@ using bsl::flush;
 //        was abandoned -- stringstream uses global 'new' & 'delete', even when
 //        an allocator is passed.o -- huge number of calls to 'new' & 'delete'
 //        beyond our control)
-//      o assert there is no output about leaked segments before d'tor is
+//      o assert there is no output about leaked blocks before d'tor is
 //        called
 //      o repeat all tests with and without abort flag (no abort is expected
 //        in this case
@@ -555,33 +555,33 @@ static
 const UintPtr my_HIGH_ONES = 0;
 #endif
 
-static const UintPtr my_UNFREED_SEGMENT_MAGIC = 1222222221 + my_HIGH_ONES;
-static const UintPtr my_FREED_SEGMENT_MAGIC   = 1999999991 + my_HIGH_ONES;
+static const UintPtr my_UNFREED_BLOCK_MAGIC = 1222222221 + my_HIGH_ONES;
+static const UintPtr my_FREED_BLOCK_MAGIC   = 1999999991 + my_HIGH_ONES;
 
-struct my_SegmentHeader {
+struct my_BlockHeader {
     // It was felt that we should go totally white box and test the internal
     // data structures of this component, even though that is not generally
     // done in bde.
     //
-    // This is an exact copy of the private 'SegmentHeader' 'struct' in the
+    // This is an exact copy of the private 'BlockHeader' 'struct' in the
     // imp file.
 
     // DATA
-    my_SegmentHeader              *d_next_p;      // next object in the
+    my_BlockHeader                *d_next_p;      // next object in the
                                                   // doubly-linked list
 
-    my_SegmentHeader             **d_prevNext_p;  // pointer to the 'd_next_p'
+    my_BlockHeader               **d_prevNext_p;  // pointer to the 'd_next_p'
                                                   // field of the previous
                                                   // object, or the head ptr of
                                                   // the linked list if there
                                                   // is no previous object.
 
-    baesu_StackTraceTestAllocator *d_allocator_p; // creator of segment
+    baesu_StackTraceTestAllocator *d_allocator_p; // creator of block
 
     UintPtr                        d_magic;       // Magic number -- has
                                                   // different values for
-                                                  // an unfreed segment, a
-                                                  // freed segment, or the
+                                                  // an unfreed block, a
+                                                  // freed block, or the
                                                   // head node.
 };
 
@@ -745,16 +745,16 @@ struct Functor {
     void freeOne(int index)
     {
         ASSERT((unsigned) index < d_alloced.size());
-        int *segment = d_alloced[index];
-        d_allocator_p->deallocate(segment);
+        int *block = d_alloced[index];
+        d_allocator_p->deallocate(block);
         d_alloced[index] = d_alloced.back();
         d_alloced.pop_back();
     }
 
     void freeSome()
-        // Free a random number of segments in random order, but never free if
-        // there are less than 5 segments -- so if there are >= 4 segments
-        // when we start, there will be >= 4 segments when we finish.
+        // Free a random number of blocks in random order, but never free if
+        // there are less than 5 blocks -- so if there are >= 4 blocks when we
+        // start, there will be >= 4 blocks when we finish.
     {
         int sz = (int) d_alloced.size();
         int maxNumToFree = bsl::max(0, bsl::min(sz / 2, sz - 4));
@@ -799,8 +799,8 @@ void Functor::allocOne()
                                   // iterations to stress thread safety
     }
 
-    int *segment = (int *) d_allocator_p->allocate(allocLength);
-    d_alloced.push_back(segment);
+    int *block = (int *) d_allocator_p->allocate(allocLength);
+    d_alloced.push_back(block);
 }
 
 void Functor::nest4()
@@ -820,8 +820,8 @@ void Functor::nest4()
         if (75 == i) {
             s_underwayBarrier.wait();
 
-            // Main thread will now gather a report on unfreed segments while
-            // the other threads continue to thrash.
+            // Main thread will now gather a report on unfreed blocks while the
+            // other threads continue to thrash.
         }
     }
 
@@ -998,10 +998,10 @@ int main(int argc, char *argv[])
         //
         // ====================================================================
         // Error: memory leaked:
-        // 1 segment(s) in allocator 'Test Allocator' in use.
-        // Segment(s) allocated from 1 trace(s).
+        // 1 block(s) in allocator 'Test Allocator' in use.
+        // Block(s) allocated from 1 trace(s).
         // --------------------------------------------------------------------
-        // Allocation trace 1, 1 segment(s) in use.
+        // Allocation trace 1, 1 block(s) in use.
         // Stack trace at allocation time:
         // (0): BloombergLP::baesu_StackTraceTestAllocator::.allocate(long)+
         //      0x2fc at 0x100007b64 source:baesu_stacktracetestallocator.cpp:
@@ -1049,27 +1049,27 @@ int main(int argc, char *argv[])
       }  break;
       case 21: {
         //---------------------------------------------------------------------
-        // WHITE-BOX EXAMINATION OF SEGMENT HEADER
+        // WHITE-BOX EXAMINATION OF BLOCK HEADER
         //
         // Concern:
-        //   That the segment header is as it should be.  This test is
-        //   redundant with asserts already done every time a segment is
+        //   That the block header is as it should be.  This test is
+        //   redundant with asserts already done every time a block is
         //   deallocated.
         //
         // Plan:
-        //: 1 Allocate two segments, and use Use the 'my_SegmentHeader'
-        //:   redefinition of the segment header to examine the segment header
-        //:   on an allocated segments.
+        //: 1 Allocate two blocks, and use Use the 'my_BlockHeader'
+        //:   redefinition of the block header to examine the block header on
+        //:   an allocated blocks.
         //---------------------------------------------------------------------
 
-        if (verbose) cout << "WHITE-BOX EXAMINATION OF SEGMENT HEADER\n"
-                             "=======================================\n";
+        if (verbose) cout << "WHITE-BOX EXAMINATION OF BLOCK HEADER\n"
+                             "=====================================\n";
 
         Obj ta;
 
-        my_SegmentHeader *seg1 = (my_SegmentHeader *) ta.allocate(10);
+        my_BlockHeader *seg1 = (my_BlockHeader *) ta.allocate(10);
         --seg1;
-        my_SegmentHeader *seg2 = (my_SegmentHeader *) ta.allocate(10);
+        my_BlockHeader *seg2 = (my_BlockHeader *) ta.allocate(10);
         --seg2;
 
         ASSERT(seg2->d_next_p == seg1);
@@ -1078,8 +1078,8 @@ int main(int argc, char *argv[])
         ASSERT(seg2 == *seg2->d_prevNext_p);
         ASSERT(&ta == seg1->d_allocator_p);
         ASSERT(&ta == seg2->d_allocator_p);
-        ASSERT(my_UNFREED_SEGMENT_MAGIC == seg1->d_magic);
-        ASSERT(my_UNFREED_SEGMENT_MAGIC == seg2->d_magic);
+        ASSERT(my_UNFREED_BLOCK_MAGIC == seg1->d_magic);
+        ASSERT(my_UNFREED_BLOCK_MAGIC == seg2->d_magic);
 
         ta.release();
       }  break;
@@ -1119,7 +1119,7 @@ int main(int argc, char *argv[])
             (void) ta.allocate(100);
             ta.reportBlocksInUse();
             ASSERT(npos != ss.str().find(
-                               "segment(s) in allocator '<unnamed>' in use."));
+                                 "block(s) in allocator '<unnamed>' in use."));
             ta.release();
         }
         ss.str("");
@@ -1174,7 +1174,7 @@ int main(int argc, char *argv[])
         //:     'recurseDepth' times, then leak some memory allocated by the
         //:     object under test.
         //:   o Call 'reportBlocksInUse' to get the report about the leaked
-        //:     segment.
+        //:     block.
         //:   o Count the number of times the function name 'recurser' occurs
         //:     in the report created by 'reportBlocksInUse', and verify that
         //:     this number is one less than 'RECORDED_FRAMES'.
@@ -1243,7 +1243,7 @@ int main(int argc, char *argv[])
         //:     allocator.  If any memory is leaked due to exceptions being
         //:     unsafe, we'll find out about it when we destroy the bslma test
         //:     allocator.
-        //:   o Allocate a segment and call 'reportBlocksInUse' with a
+        //:   o Allocate a block and call 'reportBlocksInUse' with a
         //:     stringstream that uses 'sta'.  We create a new stringstream for
         //:     this purpose so all it's memory will be released when
         //:     subsequent exceptions are thrown.
@@ -1282,28 +1282,27 @@ int main(int argc, char *argv[])
         // ALIGNMENT & RANDOM ALLOCATE / FREE TEST
         //
         // Concerns:
-        //: o That allocated segments are properly aligned
+        //: o That allocated blocks are properly aligned
         //: o That the allocator functions properly when a large number of
-        //:   segments of varying sizes are allocated and freed in random
-        //:   order
+        //:   blocks of varying sizes are allocated and freed in random order
         //
         // Plan:
-        //: 1 Maintain a large array of objects of 'struct' 'Segment', where
-        //:   'Segment' defines a record that will store a length, an expected
+        //: 1 Maintain a large array of objects of 'struct' 'Block', where
+        //:   'Block' defines a record that will store a length, an expected
         //:   alignment, a randomly-generated fill char, a pointer to an
-        //:   allocated segment, and a state flag to indicate whether the
-        //:   segment has been allocated or not.
+        //:   allocated block, and a state flag to indicate whether the block
+        //:   has been allocated or not.
         //: 2 Define the 'length' field ('d_len') to have values which will
         //:   provoke all possible alignments, and the 'alignment' field
         //:   ('d_align') to have the alignment requirement appropriate for
         //:   'd_len'.
         //: 3 Iterate 128K times, randomly chosing whether to allocate or free
         //:   each iteration.
-        //:   o Upon allocating, fill each segment with a random byte, and save
-        //:     the byte.  Check that the segment meets the alignment
-        //:     requirement appropriate for its length.
-        //:   o When freeing, verify the segment is still filled with the byte
-        //:     it was filled with when allocated.
+        //:   o Upon allocating, fill each block with a random byte, and save
+        //:     the byte.  Check that the block meets the alignment requirement
+        //:     appropriate for its length.
+        //:   o When freeing, verify the block is still filled with the byte it
+        //:     was filled with when allocated.
         //:   o Check the 'numBlocksInUse' accessor to verify that it properly
         //:     tracks its expected value.
         //---------------------------------------------------------------------
@@ -1314,26 +1313,26 @@ int main(int argc, char *argv[])
         namespace TC = AlignAndFillTest;
 
         enum { NUM_SIZES        = 128,
-               MAX_NUM_SEGMENTS = NUM_SIZES * 2,
-               QUARTER_SEGMENTS = MAX_NUM_SEGMENTS / 4,
+               MAX_NUM_BLOCKS = NUM_SIZES * 2,
+               QUARTER_BLOCKS = MAX_NUM_BLOCKS / 4,
                ITERATIONS       = 128 << 10 };    // 128K
 
-        struct Segment {
+        struct Block {
             char *d_ptr;
             int   d_len;
             int   d_align;
             char  d_fill;
             bool  d_alloced;
-        } segments[MAX_NUM_SEGMENTS];
+        } blocks[MAX_NUM_BLOCKS];
 
         // Initialize the 'd_len', 'd_align', and 'd_fill' fields.
 
         const int ptrAlign = bsls::AlignmentUtil::calculateAlignmentFromSize(
                                                                sizeof(void *));
 
-        memset(segments, 0, sizeof(segments));
-        for (int i = 0; i < MAX_NUM_SEGMENTS; ++i) {
-            Segment& s = segments[i];
+        memset(blocks, 0, sizeof(blocks));
+        for (int i = 0; i < MAX_NUM_BLOCKS; ++i) {
+            Block& s = blocks[i];
             s.d_len = i / 2;
 
             // 'AlignmentUtil' fails if passed an argument of 0
@@ -1353,15 +1352,15 @@ int main(int argc, char *argv[])
         int randNum;
         bdeu_Random::generate15(&randNum, 987654321);
 
-        // allocate 100% of the segments, in random order
+        // allocate 100% of the blocks, in random order
 
-        for (int i = 0; i < MAX_NUM_SEGMENTS; ++i) {
-            int index = bdeu_Random::generate15(&randNum) % MAX_NUM_SEGMENTS;
-            while (segments[index].d_alloced) {
-                index = (index + 1) % MAX_NUM_SEGMENTS;
+        for (int i = 0; i < MAX_NUM_BLOCKS; ++i) {
+            int index = bdeu_Random::generate15(&randNum) % MAX_NUM_BLOCKS;
+            while (blocks[index].d_alloced) {
+                index = (index + 1) % MAX_NUM_BLOCKS;
             }
 
-            Segment& s = segments[index];
+            Block& s = blocks[index];
 
             s.d_ptr     = (char *) ta.allocate(s.d_len);
             s.d_alloced = true;
@@ -1370,33 +1369,33 @@ int main(int argc, char *argv[])
 
             ASSERT(!s.d_ptr == !s.d_len);
 
-            // verify segment aligned
+            // verify block aligned
 
             LOOP3_ASSERT((void *) s.d_ptr, s.d_len, s.d_align,
                                    0 == ((UintPtr) s.d_ptr & (s.d_align - 1)));
         }
-        int numSegments = MAX_NUM_SEGMENTS;
-        int numBlocksInUse = numSegments - 2;
+        int numBlocks = MAX_NUM_BLOCKS;
+        int numBlocksInUse = numBlocks - 2;
         ASSERT((int) ta.numBlocksInUse() == numBlocksInUse);
 
-        // Now go around chosing segments at random to be allocated or freed
-        // in random order.
+        // Now go around chosing blocks at random to be allocated or freed in
+        // random order.
 
         for (int i = 0; i < ITERATIONS; ++i) {
-            const bool alloc = numSegments > 3 * QUARTER_SEGMENTS
+            const bool alloc = numBlocks > 3 * QUARTER_BLOCKS
                              ? false
-                             : numSegments <     QUARTER_SEGMENTS
+                             : numBlocks <     QUARTER_BLOCKS
                              ? true
                              : (bdeu_Random::generate15(&randNum) & 1);
 
-            // Steer the # of segments allocated to be at around half the
+            // Steer the # of blocks allocated to be at around half the
             // slots, give or take a quarter.
 
-            int index = bdeu_Random::generate15(&randNum) % MAX_NUM_SEGMENTS;
-            while (alloc == segments[index].d_alloced) {
-                index = (index + 1) % MAX_NUM_SEGMENTS;
+            int index = bdeu_Random::generate15(&randNum) % MAX_NUM_BLOCKS;
+            while (alloc == blocks[index].d_alloced) {
+                index = (index + 1) % MAX_NUM_BLOCKS;
             }
-            Segment& s = segments[index];
+            Block& s = blocks[index];
 
             if (alloc) {
                 // allocate
@@ -1406,7 +1405,7 @@ int main(int argc, char *argv[])
 
                 s.d_ptr     = (char *) ta.allocate(s.d_len);
                 s.d_alloced = true;
-                ++numSegments;
+                ++numBlocks;
                 if (s.d_ptr) {
                     ++numBlocksInUse;
                 }
@@ -1415,7 +1414,7 @@ int main(int argc, char *argv[])
                 s.d_fill = (char) bdeu_Random::generate15(&randNum);
                 memset(s.d_ptr, s.d_fill, s.d_len);
 
-                // verify segment aligned
+                // verify block aligned
 
                 LOOP3_ASSERT((void *) s.d_ptr, s.d_len, s.d_align,
                                    0 == ((UintPtr) s.d_ptr & (s.d_align - 1)));
@@ -1434,7 +1433,7 @@ int main(int argc, char *argv[])
                 ta.deallocate(s.d_ptr);
                 s.d_ptr = 0;
                 s.d_alloced = false;
-                --numSegments;
+                --numBlocks;
                 if (s.d_len) {
                     --numBlocksInUse;
                 }
@@ -1468,7 +1467,7 @@ int main(int argc, char *argv[])
         //:   on those platforms.
         //: 2 Create an STTA, specifying 'demangleExpected' to the c'tor and
         //:   with a stringstream specified to the 'ostream' argument.
-        //: 3 Allocate a segment
+        //: 3 Allocate a block
         //: 4 Call 'reportBlocksInUse'
         //: 5 Release memory and destroy the STTA.
         //: 6 Observe that whether the substring
@@ -1530,14 +1529,14 @@ int main(int argc, char *argv[])
         //: That the allocator will detect certain types of underruns.  Two
         //: specific types are tested:
         //: 1 Continuous underruns, writing continuously from the first byte
-        //:   before the segment start to up to 4 pointer sizes before the
-        //:   first byte start.
+        //:   before the block start to up to 4 pointer sizes before the first
+        //:   byte start.
         //: 2 Single-byte wild writes, at any byte up to one pointer size
-        //:   before the start of the segment.
+        //:   before the start of the block.
         //
         // Plan:
         //   Underruns are detected via a magic number that is flush against
-        //   the client's area of the segment.  All of the underruns detected
+        //   the client's area of the block.  All of the underruns detected
         //   are detected by this magic number being perterbed.  The data
         //   before this magic number consists of pointers, so we cannot
         //   guarantee that corruption of these pointers will be detectable.
@@ -1548,11 +1547,11 @@ int main(int argc, char *argv[])
         //   be repeatedly tested for those 3 values, verifying that they do
         //   not naturally occur anywhere in the magic numbers.
         //
-        //: 1 Allocate a segment
+        //: 1 Allocate a block
         //: 2 Record the number of blocks in use from the STTA with the
         //:   'numBlocksInUse' method.
-        //: 3 Write either a contiguous area before the start of the segment,
-        //:   or a wild write to a single byte, after first saving the value of
+        //: 3 Write either a contiguous area before the start of the block, or
+        //:   a wild write to a single byte, after first saving the value of
         //:   the area that will be over written.
         //: 4 Repeat each test with the two possible boolean values of the
         //:   ABORT variable, in one case with 'deallocate' calling a failure
@@ -1566,7 +1565,7 @@ int main(int argc, char *argv[])
         //:   the 'numBlocksInUse' accessor.
         //: 8 Restore the state of the memory that was corrupted to its
         //:   pre-corrupted state.
-        //: 9 Deallocate the segment, which should be successful.
+        //: 9 Deallocate the block, which should be successful.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "UNDERRUN DETECTION\n"
@@ -1626,7 +1625,7 @@ int main(int argc, char *argv[])
                         ta.setFailureHandler(&Obj::failureHandlerAbort);
 
                         LOOP_ASSERT(ss.str(), npos != ss.str().find(
-                                              "Error: corrupted segment at "));
+                                                "Error: corrupted block at "));
                         LOOP_ASSERT(ss.str(), npos != ss.str().find(
                                " attempted to be freed by allocator 'alpha'"));
 
@@ -1685,7 +1684,7 @@ int main(int argc, char *argv[])
                         ta.setFailureHandler(&Obj::failureHandlerAbort);
 
                         LOOP_ASSERT(ss.str(), npos != ss.str().find(
-                                              "Error: corrupted segment at "));
+                                                "Error: corrupted block at "));
                         LOOP_ASSERT(ss.str(), npos != ss.str().find(
                                " attempted to be freed by allocator 'alpha'"));
 
@@ -1711,13 +1710,13 @@ int main(int argc, char *argv[])
         // Concern:
         //: That the stack trace test allocator properly detects certain
         //: classes of errors at deallocation:
-        //: 1 Deallocating same segment twice.
-        //: 2 Freeing a STTA allocated segment by another STTA
-        //: 3 Freeing a 'malloc' allocated segment by an STTA
-        //: 4 Freeing a 'new[]' allocated segment by an STTA
-        //: 5 Freeing a 'new' allocated segment by an STTA
-        //: 6 Freeing a 'bslma::TestAllocator' allocated segment by an STTA
-        //: 7 Freeing a 'bcema_TestAllocator' allocated segment by an STTA
+        //: 1 Deallocating same block twice.
+        //: 2 Freeing a STTA allocated block by another STTA
+        //: 3 Freeing a 'malloc' allocated block by an STTA
+        //: 4 Freeing a 'new[]' allocated block by an STTA
+        //: 5 Freeing a 'new' allocated block by an STTA
+        //: 6 Freeing a 'bslma::TestAllocator' allocated block by an STTA
+        //: 7 Freeing a 'bcema_TestAllocator' allocated block by an STTA
         //: 8 Freeing a misaligned semgent
         //
         // Plan:
@@ -1727,20 +1726,20 @@ int main(int argc, char *argv[])
         //:     2 Install a failure handler in the STTA
         //:       o If 'ABORT' is set, install a 'Longjmp' handler
         //:       o If 'ABORT' is not set, install a "Noop' handler
-        //:     3 Allocate a segment of memory, the source depending on which
-        //:       of test cases 1-7 we're in.
+        //:     3 Allocate a block of memory, the source depending on which of
+        //:       test cases 1-7 we're in.
         //:     4 Note the number of blocks allocated by the STTA
-        //:     5 Attempt to 'deallocate' the segment with the STTA
+        //:     5 Attempt to 'deallocate' the block with the STTA
         //:     6 Verify that either a longjmp occurred or the deallocate
         //:       returned, depending on the value of 'ABORT'
         //:     7 Verify that no memory was freed using 'numBlocksInUse'
         //:     8 Verify that the expected report of the problem (1-7) under
-        //:       'Concerns' above was written to the stream passed to the
-        //:       STTA at its construction.
+        //:       'Concerns' above was written to the stream passed to the STTA
+        //:       at its construction.
         //:     9 Wipe the string stream clean and properly deallocate the
-        //:       segment allocated in step 1.
-        //:   o Category 8 in 'Concerns" -- misaligned segments.
-        //:     1 Allocate a segment of memory from the STTA, store it in a
+        //:       block allocated in step 1.
+        //:   o Category 8 in 'Concerns" -- misaligned blocks.
+        //:     1 Allocate a block of memory from the STTA, store it in a
         //:       pointer 'cPtr' of type 'char *'
         //:     2 Iterate the variable 'offset' from
         //:       '[ 1 .. sizeof(void *) - 1 ]'
@@ -1758,7 +1757,7 @@ int main(int argc, char *argv[])
         //:         'Concerns' above was written to the stream passed to the
         //:         STTA at its construction.
         //:       o Wipe the string stream clean
-        //:     3 Properly deallocate the segment allocated in step 1.
+        //:     3 Properly deallocate the block allocated in step 1.
         //---------------------------------------------------------------------
 
         expectedDefaultAllocations = -1;    // turn off default alloc checking
@@ -1774,13 +1773,13 @@ int main(int argc, char *argv[])
 
             ASSERT(oss.str().empty());
 
-            if (verbose) Q(Check deallocating same segment twice);
+            if (verbose) Q(Check deallocating same block twice);
             {
                 // We use a special underlying allocator in this place, because
                 // if the underlying OS writes over freed memory, we cannot
                 // detect redundant frees as such.  We use a
                 // 'bslma::BufferAllocator' because it won't actually write
-                // over a freed segment, nor will it turn it over to the
+                // over a freed block, nor will it turn it over to the
                 // underlying OS which may do uncontrollable things with it.
 
                 char buffer[4 * 1000];
@@ -1789,7 +1788,7 @@ int main(int argc, char *argv[])
 
                 unsigned tbaBlocks;
                 if (setjmp(my_setJmpBuf)) {
-                    if (veryVerbose) Q(Abort: deallocating same segment twice);
+                    if (veryVerbose) Q(Abort: deallocating same block twice);
 
                     ASSERT(ABORT);
                 }
@@ -1808,7 +1807,7 @@ int main(int argc, char *argv[])
 
                     tba.deallocate(ptr);
 
-                    if (veryVerbose) Q(NoAbort: dealloc same segment twice);
+                    if (veryVerbose) Q(NoAbort: dealloc same block twice);
 
                     ASSERT(!ABORT);
                     ASSERT(my_failureHandlerFlag);
@@ -1820,7 +1819,7 @@ int main(int argc, char *argv[])
                 // Make sure nothing was freed before the failure handler
                 // was called.
 
-                ASSERT(tbaBlocks  == tba.numBlocksInUse());
+                ASSERT(tbaBlocks == tba.numBlocksInUse());
 
                 // Make sure a report was written.
 
@@ -1876,14 +1875,14 @@ int main(int argc, char *argv[])
                 ASSERT(oss2.str().empty());
                 LOOP_ASSERT(oss.str(),
                                 npos != oss.str().find("Error: attempt to free"
-                        " segment by wrong allocator.\n    Segment belongs to"
+                        " block by wrong allocator.\n    Block belongs to"
                         " allocator '<unnamed>'\n    Attempted to free by"
                         " allocator 'alpha'"));
                 oss.str("");
                 ta2.deallocate(ptr);
             }
 
-            if (verbose) Q(Check freeing of segment allocated with malloc);
+            if (verbose) Q(Check freeing of block allocated with malloc);
             {
                 void *ptr;
 
@@ -1918,7 +1917,7 @@ int main(int argc, char *argv[])
                 ASSERT(taBlocks  == ta.numBlocksInUse());
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
-                                              "Error: corrupted segment at "));
+                                                "Error: corrupted block at "));
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
                                " attempted to be freed by allocator 'alpha'"));
 
@@ -1959,7 +1958,7 @@ int main(int argc, char *argv[])
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
-                                              "Error: corrupted segment at "));
+                                                "Error: corrupted block at "));
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
                                " attempted to be freed by allocator 'alpha'"));
 
@@ -2002,7 +2001,7 @@ int main(int argc, char *argv[])
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
-                                              "Error: corrupted segment at "));
+                                              "Error: corrupted block at "));
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
                                " attempted to be freed by allocator 'alpha'"));
 
@@ -2046,7 +2045,7 @@ int main(int argc, char *argv[])
                 ASSERT(ta.numBlocksInUse() == numBlocks);
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
-                                              "Error: corrupted segment at "));
+                                                "Error: corrupted block at "));
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
                                " attempted to be freed by allocator 'alpha'"));
 
@@ -2090,7 +2089,7 @@ int main(int argc, char *argv[])
                 ASSERT(ta.numBlocksInUse() == numBlocks);
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
-                                              "Error: corrupted segment at "));
+                                                "Error: corrupted block at "));
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
                                " attempted to be freed by allocator 'alpha'"));
 
@@ -2098,7 +2097,7 @@ int main(int argc, char *argv[])
                 taBce.deallocate(ptr);
             }
 
-            if (verbose) Q(Check freeing of misaligned segment);
+            if (verbose) Q(Check freeing of misaligned block);
             {
                 char *cPtr = (char *) ta.allocate(100);
                 unsigned numBlocks;
@@ -2134,7 +2133,7 @@ int main(int argc, char *argv[])
                     ASSERT(ta.numBlocksInUse() == numBlocks);
 
                     LOOP_ASSERT(oss.str(), npos != oss.str().find(
-                            "Badly aligned segment passed to allocator"
+                            "Badly aligned block passed to allocator"
                             " 'alpha' must have been allocated by another"
                             " type of allocator\n"));
 
@@ -2151,7 +2150,7 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //: o That the 'release' function properly frees all outstanding
-        //:   segments.
+        //:   blocks.
         //: o If the destructor is called with memory outstanding, and the
         //:   failure handler returns without aborting or throwing, the d'tor
         //:   reports and frees all outstanding memory.
@@ -2162,9 +2161,8 @@ int main(int argc, char *argv[])
         //: 1 Release test.  Loop for 'numAllocs' from 0 to 100:
         //:   o Create a 'bslma::TestAllocator', and a stack trace test
         //:     allocator based on that 'bslma::TestAllocator'.
-        //:   o Allocate 'numAllocs' segments.
-        //:   o Verify the number of outstanding memory segments is
-        //:     'numAllocs'.
+        //:   o Allocate 'numAllocs' blocks.
+        //:   o Verify the number of outstanding memory blocks is 'numAllocs'.
         //:   o Call 'release'.
         //:   o Verify, with the 'numBlocksInUse' allocator, that the memory
         //:     has been freed.
@@ -2176,9 +2174,8 @@ int main(int argc, char *argv[])
         //:   100:
         //:   o Create a 'bslma::TestAllocator', and a stack trace test
         //:     allocator based on that 'bslma::TestAllocator'.
-        //:   o Allocate 'numAllocs' segments.
-        //:   o Verify the number of outstanding memory segments is
-        //:     'numAllocs'.
+        //:   o Allocate 'numAllocs' blocks.
+        //:   o Verify the number of outstanding memory blocks is 'numAllocs'.
         //:   o Install the 'Noop' failure assert handler.
         //:   o Destroy the stack trace test allocator.
         //:   o Verify that a report was written if 'numAllocs > 0'.
@@ -2188,17 +2185,16 @@ int main(int argc, char *argv[])
         //:   one to 100:
         //:   o Create a 'bslma::TestAllocator', and a stack trace test
         //:     allocator based on that 'bslma::TestAllocator'.
-        //:   o Allocate 'numAllocs' segments.
-        //:   o Verify the number of outstanding memory segments is
-        //:     'numAllocs'.
+        //:   o Allocate 'numAllocs' blocks.
+        //:   o Verify the number of outstanding memory blocks is 'numAllocs'.
         //:   o Install the 'longjmp' failure assert handler.
         //:   o Attempt to destroy the stack trace test allocator.
         //:   o Verify that the d'tor did a longjmp.
         //:   o Verify that a report was written
         //:   o Verify with the 'numBlocksInUse' accessor of both allocators
         //:     that *NO* memory has been freed.
-        //:   o 'release' the remaining memory and destroy the stack trace
-        //:     test allocator.
+        //:   o 'release' the remaining memory and destroy the stack trace test
+        //:     allocator.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "Release Test\n"
@@ -2206,7 +2202,7 @@ int main(int argc, char *argv[])
 
         expectedDefaultAllocations = -1;
 
-        if (verbose) Q(Verify release works on varying number of segments);
+        if (verbose) Q(Verify release works on varying number of blocks);
         {
             bsl::stringstream ss;
 
@@ -2237,7 +2233,7 @@ int main(int argc, char *argv[])
         }
 
 
-        if (verbose) Q(Destroy with varying number of segments allocated);
+        if (verbose) Q(Destroy with varying number of blocks allocated);
         {
             bsl::stringstream ss;
 
@@ -2283,7 +2279,7 @@ int main(int argc, char *argv[])
         }
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-        if (verbose) Q(Longjmp on destruction with segments outstanding);
+        if (verbose) Q(Longjmp on destruction with blocks outstanding);
         {
             bsl::stringstream ss;
 
@@ -2360,7 +2356,7 @@ int main(int argc, char *argv[])
         //:   passed as the underlying allocator.
         //: 3 Create a functor object.  The function 'Functor::operator()' will
         //:   nest several routine calls deep, then frequently allocate and
-        //:   deallocate segments in random order from an allocator passed at
+        //:   deallocate blocks in random order from an allocator passed at
         //:   construction.
         //: 4 Start many threads, all calling 'Functor::operator()', all
         //:   sharing a stack trace test allocator whose underlying allocator
@@ -2373,7 +2369,7 @@ int main(int argc, char *argv[])
         //: 7 After the threads have done a lot of allocating and freeing, have
         //:   them pause with some memory outstanding.  While they are paused,
         //:   generate a report from the main thread of the stack trace from
-        //:   the outstanding segments (which should all be allocated from the
+        //:   the outstanding blocks (which should all be allocated from the
         //:   same point in the code) and verify that the report is as
         //:   expected.
         //: 8 Allow the paused threads to continue and join them.
@@ -2429,7 +2425,7 @@ int main(int argc, char *argv[])
         ++expectedDefaultAllocations;                  // otherSs.str() uses da
 
         const char *expectedStrings[] = {
-                                    " segment(s) in allocator 'ta' in use",
+                                    " block(s) in allocator 'ta' in use",
                                     " trace(s)",
                                     "StackTraceTestAllocator",
                                     "allocate",
@@ -2468,7 +2464,7 @@ int main(int argc, char *argv[])
             Util::join(handles[i]);
         }
 
-        // Threads should each have at least 4 segments allocated left over
+        // Threads should each have at least 4 blocks allocated left over
         // after they finish.
 
         LOOP_ASSERT(pta->numBlocksInUse(),
@@ -2484,7 +2480,7 @@ int main(int argc, char *argv[])
         //---------------------------------------------------------------------
         // SUCCESSFUL FREEING TEST
         //
-        // Concern: If segments are allocated and deallocated, that the test
+        // Concern: If blocks are allocated and deallocated, that the test
         //   allocator issues no complaints and leaks no memory of its own.
         //
         // Plan:
@@ -2492,10 +2488,10 @@ int main(int argc, char *argv[])
         //: 1 Create a 'stringstream' 'ss'.
         //: 2 Create an allocator 'ta', named or unnamed, depending on which
         //:   block we're in, with output redirected to 'ss'.
-        //: 3 Allocate 100 segments.
+        //: 3 Allocate 100 blocks.
         //: 4 Create a 'stringstream' 'otherSs' and write a report to it with
         //:   'reportBlocksInUse', verify it reports the outstanding memory.
-        //: 5 Free the 100 segments.
+        //: 5 Free the 100 blocks.
         //: 6 Destroy 'ta'.
         //: 7 Verify that nothing was written to 'ss' since no memory was
         //:   outstanding when 'ta' was destroyed.
@@ -2516,15 +2512,15 @@ int main(int argc, char *argv[])
                                              true,
                                              &sta);
 
-            enum { NUM_SEGMENTS = 100 };
+            enum { NUM_BLOCKS = 100 };
 
-            void *segment[NUM_SEGMENTS];
+            void *block[NUM_BLOCKS];
 
-            for (int i = 0; i < NUM_SEGMENTS; ++i) {
-                segment[i] = ta.allocate(1 + i * 3);
+            for (int i = 0; i < NUM_BLOCKS; ++i) {
+                block[i] = ta.allocate(1 + i * 3);
             }
 
-            ASSERT(NUM_SEGMENTS == ta.numBlocksInUse());
+            ASSERT(NUM_BLOCKS == ta.numBlocksInUse());
 
             bsl::stringstream otherSs(&sta);
             ta.reportBlocksInUse(&otherSs);
@@ -2533,15 +2529,15 @@ int main(int argc, char *argv[])
             ++expectedDefaultAllocations;              // otherSs.str() uses da
 
             LOOP_ASSERT(otherStr, npos != otherStr.find(
-                                   "100 segment(s) in allocator 'ta' in use"));
+                                     "100 block(s) in allocator 'ta' in use"));
             LOOP_ASSERT(otherStr, npos != otherStr.find(" from 1 trace"));
 
             if (verbose) {
                 cout << otherStr;
             }
 
-            for (int i = 0; i < NUM_SEGMENTS; ++i) {
-                ta.deallocate(segment[i]);
+            for (int i = 0; i < NUM_BLOCKS; ++i) {
+                ta.deallocate(block[i]);
             }
 
             ASSERT(0 == ta.numBlocksInUse());
@@ -2554,15 +2550,15 @@ int main(int argc, char *argv[])
                                              true,
                                              &sta);
 
-            enum { NUM_SEGMENTS = 100 };
+            enum { NUM_BLOCKS = 100 };
 
-            void *segment[NUM_SEGMENTS];
+            void *block[NUM_BLOCKS];
 
-            for (int i = 0; i < NUM_SEGMENTS; ++i) {
-                segment[i] = ta.allocate(1 + i * 3);
+            for (int i = 0; i < NUM_BLOCKS; ++i) {
+                block[i] = ta.allocate(1 + i * 3);
             }
 
-            ASSERT(NUM_SEGMENTS == ta.numBlocksInUse());
+            ASSERT(NUM_BLOCKS == ta.numBlocksInUse());
 
             bsl::stringstream otherSs(&sta);
             ta.reportBlocksInUse(&otherSs);
@@ -2571,15 +2567,15 @@ int main(int argc, char *argv[])
             ++expectedDefaultAllocations;              // otherSs.str() uses da
 
             LOOP_ASSERT(otherStr, npos != otherStr.find(
-                                                    " 100 segment(s) in use"));
+                                                      " 100 block(s) in use"));
             LOOP_ASSERT(otherStr, npos != otherStr.find(" from 1 trace"));
 
             if (verbose) {
                 cout << otherStr;
             }
 
-            for (int i = 0; i < NUM_SEGMENTS; ++i) {
-                ta.deallocate(segment[i]);
+            for (int i = 0; i < NUM_BLOCKS; ++i) {
+                ta.deallocate(block[i]);
             }
 
             ASSERT(0 == ta.numBlocksInUse());
@@ -2653,20 +2649,20 @@ int main(int argc, char *argv[])
         //:     output defaulting to 'taOss'.  Nothing should be written to
         //:     'taOss'.  Verify this.
         //: 6 Loop 100 times
-        //:   o Allocate segments of random lengths, keeping pointers to up to
-        //:     4 segments.
-        //:   o Freeing one of the 4 segments in random order
+        //:   o Allocate blocks of random lengths, keeping pointers to up to
+        //:     4 blocks.
+        //:   o Freeing one of the 4 blocks in random order
         //:   o After every allocate or free, verify that the 'numBlocksInUse'
-        //:     accessor accurately tracks the number of unfreed segments in
+        //:     accessor accurately tracks the number of unfreed blocks in
         //:     existance.
-        //: 7 After the loop, 3 segments should remain allocated.  Verify this.
+        //: 7 After the loop, 3 blocks should remain allocated.  Verify this.
         //: 8 Call 'reportBlocksInUse' twice.
         //:   o The first time, call it with output redirected to 'oss'.
         //:   o The second time, call it with output defaulting to 'taOss.
-        //:   o Examine 'oss.str()' to see it reports the 3 outstanding
-        //:     segments properly, and the name of the allocator.
+        //:   o Examine 'oss.str()' to see it reports the 3 outstanding blocks
+        //:     properly, and the name of the allocator.
         //:   o Verify 'oss.str() == taOss.str()'.
-        //: 9 Free the remaining segments.
+        //: 9 Free the remaining blocks.
         //:10 Call 'reportBlocksInUse' twice again, with output going to 'oss'
         //:   and 'taOss', and verify that this time no output is written.
         //:11 Destroy 'ta' and verify that nothing is written to 'taOss'.
@@ -2683,7 +2679,7 @@ int main(int argc, char *argv[])
 
                 // The following 3 numbers should all be relatively prime
 
-                SEGMENT_ARRAY_LENGTH = 10,
+                BLOCK_ARRAY_LENGTH = 10,
                 ALLOC_INC            = 3,
                 FREE_INC             = 7
             };
@@ -2700,43 +2696,43 @@ int main(int argc, char *argv[])
             ta.reportBlocksInUse();
             ASSERT(taOss.str().empty());    // no blocks in use
 
-            void *segments[SEGMENT_ARRAY_LENGTH] = { 0 };
+            void *blocks[BLOCK_ARRAY_LENGTH] = { 0 };
 
             int randNum;
             bdeu_Random::generate15(&randNum, 987654321);
-            unsigned numSegments = 0;
+            unsigned numBlocks = 0;
 
-            // do a lot of allocating and freeing, not just freeing the segment
-            // most recently allocated, but rather choosing the segment to free
+            // do a lot of allocating and freeing, not just freeing the block
+            // most recently allocated, but rather choosing the block to free
             // in a somewhat random fashion.
 
             for (int i = 0; i < 100; ++i) {
                 unsigned allocIdx = bdeu_Random::generate15(&randNum) %
-                                                          SEGMENT_ARRAY_LENGTH;
-                while (segments[allocIdx]) {
-                    allocIdx = (allocIdx + ALLOC_INC) % SEGMENT_ARRAY_LENGTH;
+                                                          BLOCK_ARRAY_LENGTH;
+                while (blocks[allocIdx]) {
+                    allocIdx = (allocIdx + ALLOC_INC) % BLOCK_ARRAY_LENGTH;
                 }
-                segments[allocIdx] = ta.allocate(
+                blocks[allocIdx] = ta.allocate(
                        bsl::max<int>(1, bdeu_Random::generate15(&randNum) %
                                                             MAX_ALLOC_LENGTH));
-                ++numSegments;
-                LOOP3_ASSERT(i, ta.numBlocksInUse(), numSegments,
-                                           ta.numBlocksInUse() == numSegments);
+                ++numBlocks;
+                LOOP3_ASSERT(i, ta.numBlocksInUse(), numBlocks,
+                                           ta.numBlocksInUse() == numBlocks);
 
-                if (numSegments >= 4) {
+                if (numBlocks >= 4) {
                     unsigned freeIdx = bdeu_Random::generate15(&randNum) %
-                                                          SEGMENT_ARRAY_LENGTH;
-                    while (! segments[freeIdx]) {
-                        freeIdx = (freeIdx+ FREE_INC) % SEGMENT_ARRAY_LENGTH;
+                                                          BLOCK_ARRAY_LENGTH;
+                    while (! blocks[freeIdx]) {
+                        freeIdx = (freeIdx+ FREE_INC) % BLOCK_ARRAY_LENGTH;
                     }
-                    ta.deallocate(segments[freeIdx]);
-                    segments[freeIdx] = 0;
-                    --numSegments;
-                    ASSERT(ta.numBlocksInUse() == numSegments);
+                    ta.deallocate(blocks[freeIdx]);
+                    blocks[freeIdx] = 0;
+                    --numBlocks;
+                    ASSERT(ta.numBlocksInUse() == numBlocks);
                 }
             }
 
-            ASSERT(3 == numSegments);
+            ASSERT(3 == numBlocks);
             ASSERT(3 == ta.numBlocksInUse());
 
             ASSERT(oss.str().empty());
@@ -2745,7 +2741,7 @@ int main(int argc, char *argv[])
 
             ASSERT(!report.empty());
             LOOP_ASSERT(report,
-                npos != report.find("3 segment(s) in allocator 'my_allocator'"
+                npos != report.find("3 block(s) in allocator 'my_allocator'"
                                     " in use"));
             ASSERT(!CAN_FIND_SYMBOLS || npos != report.find("main"));
 
@@ -2756,16 +2752,16 @@ int main(int argc, char *argv[])
             ASSERT(!taReport.empty());
             ASSERT(taReport == report);
 
-            for (int i = 0; i < SEGMENT_ARRAY_LENGTH; ++i) {
-                if (segments[i]) {
-                    ta.deallocate(segments[i]);
-                    --numSegments;
+            for (int i = 0; i < BLOCK_ARRAY_LENGTH; ++i) {
+                if (blocks[i]) {
+                    ta.deallocate(blocks[i]);
+                    --numBlocks;
                 }
-                ASSERT(ta.numBlocksInUse() == numSegments);
+                ASSERT(ta.numBlocksInUse() == numBlocks);
             }
 
             ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(0 == numSegments);
+            ASSERT(0 == numBlocks);
 
             oss.str("");
             taOss.str("");
@@ -2789,8 +2785,7 @@ int main(int argc, char *argv[])
         //---------------------------------------------------------------------
         // DEFAULT C'TOR, PRIMARY MANIPULATORS, D'TOR
         //
-        // Concern:
-        //   Need to test creators and all manipulators
+        // Concern: Need to test creators and all manipulators
         //
         // Plan:
         //: 1 Monitor use of the default alloctor throughout this example,
@@ -2820,18 +2815,18 @@ int main(int argc, char *argv[])
         //:       allocator using 'ta', it should make no difference to the
         //:       number of blocks allocated by 'ta' or 'ota', observe this
         //:       with the 'numBlocksInUse' accessors of 'ta' and 'ota'.
-        //:     3 Allocate a segment of memory.  Observe the difference using
-        //:       the 'numBlocksInUse' accessors of 'ta' and 'ota'.  Deallocate
-        //:       the segment again and observe via the 'numBlocksInUse'
-        //:       accessors that the memory usage by 'ta' and 'ota' returns to
-        //:       what it previously was.
-        //:     4 Allocate another segment, then call the 'release' manipulator
+        //:     3 Allocate a block of memory.  Observe the difference using the
+        //:       'numBlocksInUse' accessors of 'ta' and 'ota'.  Deallocate the
+        //:       block again and observe via the 'numBlocksInUse' accessors
+        //:       that the memory usage by 'ta' and 'ota' returns to what it
+        //:       previously was.
+        //:     4 Allocate another block, then call the 'release' manipulator
         //:       of 'ta' and observe that the memory usage of 'ta' and 'ota'
         //:       is restored to what it was before the memory was allocated.
-        //:     5 Allocate 100 segments, then call the 'release' manipulator of
+        //:     5 Allocate 100 blocks, then call the 'release' manipulator of
         //:       'ta' and observe that the memory usage of 'ta' and 'ota' is
         //:       restored to what it was before the memory was allocated.
-        //:     6 Allocate one segment, and if the 'CLEAN_DESTROY' flag is set,
+        //:     6 Allocate one block, and if the 'CLEAN_DESTROY' flag is set,
         //:       deallocate it again.
         //:     7 Call 'setjmp' to install a block as the handler if a
         //:       'longjmp' occurs.  The block is described beginning in
@@ -2867,7 +2862,7 @@ int main(int argc, char *argv[])
         //:   3 In both branches of an if statement
         //:     o Create an object 'ta' with one of the two c'tors of 'Obj'
         //:       that don't take an argument for 'ostream'.
-        //:     o Allocate a segment.
+        //:     o Allocate a block.
         //:     o Set the failure handler to 'Noop'.
         //:     o Destroy 'ta'.
         //:   4 Examine oss.str() to verify that it meets expectations, using
@@ -2966,16 +2961,16 @@ int main(int argc, char *argv[])
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(otaNumBlocks == ota.numBlocksInUse());
 
-                void *segment = ta.allocate(100);
+                void *block = ta.allocate(100);
                 ASSERT(1 == ta.numBlocksInUse());
                 ASSERT(!otaPassed || otaNumBlocks + 1 == ota.numBlocksInUse());
-                ta.deallocate(segment);
+                ta.deallocate(block);
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(otaNumBlocks == ota.numBlocksInUse());
 
                 // Verify release works for 1 block allocated.
 
-                segment = ta.allocate(50);
+                block = ta.allocate(50);
                 ASSERT(1 == ta.numBlocksInUse());
                 ta.release();
                 ASSERT(0 == ta.numBlocksInUse());
@@ -2993,13 +2988,13 @@ int main(int argc, char *argv[])
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(otaNumBlocks == ota.numBlocksInUse());
 
-                segment = ta.allocate(200);
+                block = ta.allocate(200);
                 if (CLEAN_DESTROY) {
-                    ta.deallocate(segment);
+                    ta.deallocate(block);
                 }
 
                 // If 'CLEAN_DESTROY' there will be no blocks in use and the
-                // d'tor will not write a report.  Otherwise, 'segment' will
+                // d'tor will not write a report.  Otherwise, 'block' will
                 // still be unfreed and a report will be written.
 
                 ASSERT(! CLEAN_DESTROY == ta.numBlocksInUse());
@@ -3038,7 +3033,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(report.empty() == !OSS_REPORT);
                 if (OSS_REPORT) {
-                    ASSERT(npos != report.find("1 segment(s) in use"));
+                    ASSERT(npos != report.find("1 block(s) in use"));
                     ASSERT(npos != report.find("Error: memory leaked"));
                     ASSERT((c >= 'f') ==
                                         (npos != report.find("my_allocator")));
@@ -3094,7 +3089,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_STDERR(!report.empty());
                 ASSERT_STDERR(npos != report.find("Error: memory leaked"));
-                ASSERT_STDERR(npos != report.find("1 segment(s) in use"));
+                ASSERT_STDERR(npos != report.find("1 block(s) in use"));
                 ASSERT_STDERR((npos != report.find("my_allocator")) == NAME);
                 if (CAN_FIND_SYMBOLS) {
                     ASSERT_STDERR(npos != report.find("BloombergLP"));
