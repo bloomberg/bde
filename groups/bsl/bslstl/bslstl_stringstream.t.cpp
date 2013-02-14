@@ -1252,6 +1252,15 @@ int main(int argc, char *argv[])
         ASSERT(empty.good());
         ASSERT(empty.tellg() == std::streampos(0));
         ASSERT(empty.tellp() == std::streampos(0));
+
+        // Verify the output position after writing to a stream
+        bsl::stringstream out2;
+        bsl::string str2 =
+            "sufficiently long string longer than the short string buffer";
+        out2 << str2;
+        std::streamoff endPos2 = out2.tellp();
+
+        ASSERT(endPos2 == str2.size());
       } break;
       case 8: {
         // --------------------------------------------------------------------

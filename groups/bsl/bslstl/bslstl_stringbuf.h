@@ -595,7 +595,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 {
     BSLS_ASSERT(d_mode & ios_base::out);
     BSLS_ASSERT(&d_str[0] <= currentOutputPosition);
-    BSLS_ASSERT(currentOutputPosition < &d_str[0] + d_str.size());
+    BSLS_ASSERT(currentOutputPosition <= &d_str[0] + d_str.size());
 
     char_type          *dataPtr  = &d_str[0];
     native_std::size_t  dataSize =  d_str.size();
