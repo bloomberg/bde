@@ -765,6 +765,11 @@ native_std::streamsize
         return 0;                                                     // RETURN
     }
 
+    // Additional characters may become available for reading when the
+    // input area is extended to account for any characters newly written
+    // to the output sequence.
+    extendInputArea();
+
     if (this->gptr() != this->egptr()) {
         // There are characters available in this buffer.
 
@@ -776,14 +781,6 @@ native_std::streamsize
         this->gbump(int(readChars));
 
         return readChars;                                             // RETURN
-    }
-
-    if (extendInputArea()) {
-        // Additional characters may become available for reading when the
-        // input area is extended to account for any characters newly written
-        // to the output sequence.
-
-        return this->basic_stringbuf::xsgetn(result, numCharacters);  // RETURN
     }
 
     return 0;
