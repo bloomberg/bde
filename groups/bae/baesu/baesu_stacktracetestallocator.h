@@ -7,21 +7,21 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an allocator that reports the call stack for leaks.
+//@PURPOSE: Provide a test allocator that reports the call stack for leaks.
 //
 //@CLASSES:
-//   baesu_StackTraceTestAllocator: reports the call stack for memory leaks.
+//   baesu_StackTraceTestAllocator: allocator that reports call stack for leaks
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides an instrumented allocator,
-// 'baesu_StackTraceTestAllocator' that implements the
-// 'bslma::ManagedAllocator' protocol.  An object of this type records the call
+// 'baesu_StackTraceTestAllocator', that implements the
+// 'bdema_ManagedAllocator' protocol.  An object of this type records the call
 // stack for each allocation performed, and can report, either using the
 // 'reportBlocksInUse' method or implicitly at destruction, the call stack
 // associated with every allocated block that has not (yet) been freed.  It is
 // optionally supplied a 'bslma::Allocator' at construction that it uses to
-// allocator memory.
+// allocate memory.
 //..
 //                    ,------------------------------.
 //                   ( baesu_StackTraceTestAllocator  )
@@ -29,11 +29,11 @@ BDES_IDENT("$Id: $")
 //                                    |    ctor/dtor
 //                                    |    numBlocksInUse
 //                                    |    reportBlocksInUse
-//                                    |    setNoAbort
+//                                    |    setFailureHandler
 //                                    V
-//                         ,-----------------------.
-//                        ( bslma::ManagedAllocator )
-//                         `-----------------------'
+//                         ,----------------------.
+//                        ( bdema_ManagedAllocator)
+//                         `----------------------'
 //                                    |    release
 //                                    V
 //                             ,----------------.
@@ -47,18 +47,41 @@ BDES_IDENT("$Id: $")
 // Using 'delete' or 'free' to free memory supplied by this allocator will
 // corrupt the dynamic memory manager and also cause a memory leak (and will be
 // reported by purify as freeing mismatched memory, freeing unallocated memory,
-// and as a memory leak).  Using 'deallocate' to free memory supplied by global
+// or as a memory leak).  Using 'deallocate' to free memory supplied by global
 // 'new' or 'malloc' will immediately cause an error to be reported to the
-// associated 'ostream' and, unless the 'noAbort' flag is set, an abort (core
-// dump).
+// associated 'ostream' and the abort handler (which can be configured to be
+// a no-op) called.
 //
-///No-Abort Mode
-///-------------
-// A 'baesu_StackTraceTestAllocator' object can be put into 'noAbort' mode.  If
-// 'true', the stack trace test allocator won't abort if it detects user
-// errors, though it will still abort if it detects a consistency error within
-// its own code.  The 'noAbort' flag is 'false' at construction, and can be set
-// afterward with the 'setNoAbort' manipulator.
+///Overhead / Efficiency
+///---------------------
+// There is some overhead to using this allocator.  It's is slower than
+// 'bslma::NewDeleteAllocator' and uses more memory.  It is, however,
+// comparable in speed and memory usage to 'bslma::TestAllocator'.  The stack
+// trace stored for each allocation is stack pointers only, which are compact
+// and quick to obtain.  Actual respolving of the stack pointer to subroutine
+// names and, on some platforms, source file names and line numbers, is
+// expensive but doesn't happen during allocation or deallocation and is put
+// off until a memory leak report is being generated.
+//
+///FailureHandler
+///--------------
+// An object of type 'baesu_StackTraceTestAllocator' always has a failuer
+// handler associated with it.  This a a configurable subroutine that will be
+// called if any error condition is detected, after the error condition is
+// reported.  By default, it is set to
+// 'baesu_StackTraceTestAllocator::failureHandlerAbort' which calls 'abort',
+// but it may be set by 'setFailureHandler' to another routine.  If the client
+// does not want a core dump to occur, it is recommended they do:
+//..
+//    stackTraceTestAllocator.setFailurehandler(
+//                         &baesu_StackTraceTestAllocator::failureHandlerNoop);
+//..
+// The stack trace test allocator is prepared for the failure handler to
+// return, throw (provided the client will catch the exception) or longjmp
+// without undefined behavior, except that if it throws or longjmps when a
+// memory leak is detected during destruction, the memory will remain leaked.
+// If the failure handler returns, the destructor will release the leaked
+// memory before returning.
 //
 ///Usage
 ///-----
@@ -336,7 +359,7 @@ namespace BloombergLP {
                         // class bcema_TestAllocator
                         // =========================
 
-class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
+class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
     // This class defines a concrete "test" allocator mechanism that implements
     // the 'bslma::ManagedAllocator' protocol, and provides instrumentation to
     // track the set of all blocks allocted by this allocator that have yet to
@@ -386,7 +409,7 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     const char               *d_name;           // name of this allocator
                                                 // (held, not owned)
 
-    volatile FailureHandler  d_failureHandler;  // function we are to call to
+    volatile FailureHandler   d_failureHandler; // function we are to call to
                                                 // abort.
 
     const int                 d_maxRecordedFrames; // max number of stack trace
