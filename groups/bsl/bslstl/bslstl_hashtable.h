@@ -284,7 +284,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Then, we define our 'MyHashedSet' class template with an instance of
-// 'bststl::HashTable' (configured using 'UseEntireValueAsKey') as its sole
+// 'bslstl::HashTable' (configured using 'UseEntireValueAsKey') as its sole
 // data member.  We provide 'insert' method, to allow us to populate these
 // sets, and the 'find' method to allow us to examine those elements.  We also
 // provide 'size' and 'bucket_count' accessor methods to let us check the inner
@@ -554,7 +554,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Next, we define our 'MyHashedMap' class template with an instance of
-// 'bststl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
+// 'bslstl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
 // sole data member.  In this example, we choose to implement 'operator[]'
 // (corresponding to the signature method of 'bsl::unordered_map') to allow us
 // to populate our maps and to examine their elements.
@@ -709,7 +709,7 @@ BSLS_IDENT("$Id: $")
 // 'UseFirstValueOfPairAsKey' class template (see {Example 2}) suits perfectly.
 //
 // Next, we define our 'MyHashedMultiMap' class template with an instance of
-// 'bststl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
+// 'bslstl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
 // sole data member.  In this example, we choose to implement an 'insert'
 // method to populate our container, and an 'equal_range' method (a signature
 // method of the multi containers) to provide access to those elements.
@@ -1792,12 +1792,12 @@ class HashTable_ComparatorWrapper<const FUNCTOR> {
   public:
     // CREATORS
     HashTable_ComparatorWrapper();
-        // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR' that
-        // has its default value.
+        // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR'
+        // that has its default value.
 
     explicit HashTable_ComparatorWrapper(const FUNCTOR& fn);
-        // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR' that is
-        // a copy of the specified 'fn'.
+        // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR'
+        // that is a copy of the specified 'fn'.
 
     // ACCESSORS
     template <class ARG1_TYPE, class ARG2_TYPE>
@@ -1829,8 +1829,8 @@ class HashTable_ComparatorWrapper<FUNCTOR &> {
   public:
     // CREATORS
     explicit HashTable_ComparatorWrapper(FUNCTOR& fn);
-        // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR' that is
-        // a copy of the specified 'fn'.
+        // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR'
+        // that is a copy of the specified 'fn'.
 
     // ACCESSORS
     template <class ARG1_TYPE, class ARG2_TYPE>
@@ -2366,7 +2366,7 @@ class HashTable {
         // Return a reference providing non-modifiable access to the
         // key-equality comparison functor used by this hash table.
 
-    const HASHER& hasher()     const;
+    const HASHER& hasher() const;
         // Return a reference providing non-modifiable access to the
         // hash functor used by this hash-table.
 
@@ -2402,6 +2402,11 @@ class HashTable {
         // maximum load factor.  The maximum load factor may actually be less
         // than the current load factor if the maximum load factor has been
         // reset, but no insert operations have yet occurred.
+
+    SizeType rehashThreshold() const;
+        // Return the number of elements this hash table can hold without
+        // requiring a rehash operation in order to respect the
+        // 'maxLoadFactor'.
 
     bslalg::BidirectionalLink *elementListRoot() const;
         // Return the address of the first element in this hash table, or a
@@ -2470,7 +2475,7 @@ void swap(HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& x,
     // complexity if 'a' and 'b' have the same allocator or if the allocators
     // propagate on swap, otherwise this operation will typically pay the cost
     // of two copy constructors, which may in turn throw.  If the allocators
-    // are the same or propageate, then this method provides the no-throw
+    // are the same or propagate, then this method provides the no-throw
     // exception-safety guarantee unless the 'swap' function of the hasher
     // or comparator throw.  Otherwise this method offers only the basic
     // exception safety guarantee.
@@ -3922,6 +3927,14 @@ typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::size() const
 {
     return d_size;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashThreshold() const
+{
+    return d_capacity;
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

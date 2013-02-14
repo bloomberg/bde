@@ -18,10 +18,9 @@
 
 #include <bslmf_conditional.h>
 #include <bslmf_isfunction.h>
-#include <bslmf_removeconst.h>
-
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
+#include <bslmf_removeconst.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_buildtarget.h>
@@ -57,11 +56,14 @@
 #  define ZU "%zu"
 #endif
 
-// We note that certain test cases rely on the reference collapising rules
+// We note that certain test cases rely on the reference collapsing rules
 // that were adopted shortly after C++03, and so are not a feature of many
-// older compilers, or perhaps compilers in strictly conforming modes.
+// older compilers, or perhaps compilers in strictly conforming modes.  We
+// include VC2010 in this set of compilers for this test driver, as there
+// is a bug that triggers in type traits dealing with function references
+// that means we should disable the same set of tests.
 
-#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1600)  \
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1700)  \
  || (defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VER_MAJOR < 40300) \
  ||  defined(BSLS_PLATFORM_CMP_SUN)
 #  define BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING
@@ -79,7 +81,7 @@
 
 // Change '0' to '1' below to speed up testing, but do not commit
 
-#if 0 && defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#if 1 && defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
 #undef BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
@@ -129,6 +131,7 @@ using bslstl::CallableVariable;
 //: o 'size'
 //: o 'numBuckets'
 //: o 'maxLoadFactor'
+//: o 'rehashThreshold'
 //: o 'elementListRoot'
 //: o 'bucketAtIndex'
 //: o 'bucketIndexForKey'
@@ -150,7 +153,7 @@ using bslstl::CallableVariable;
 // to confirm that all the other validated functions operate correctly when
 // instantiated with the more minimal contracts.
 //
-// As we are testing a template, we will make heavy use of the blstf template
+// As we are testing a template, we will make heavy use of the bsltf template
 // test facility.  Our primary means of implementing each test case will be to
 // write a single function template for the case, that can test and satisfy all
 // the concerns of each of the eventual instantiations.  For example, while
@@ -207,6 +210,7 @@ using bslstl::CallableVariable;
 //*[18] maxNumBuckets() const;
 //*[13] loadFactor() const;
 //*[ 4] maxLoadFactor() const;
+//*[ 4] rehashThreshold() const;
 //*[ 4] elementListRoot() const;
 //*[17] find(const KeyType& key) const;
 //*[17] findRange(BLink **first, BLink **last, const KeyType& k) const;
@@ -229,9 +233,9 @@ using bslstl::CallableVariable;
 //*[  ] size_t nextPrime(size_t n);
 //*[  ] bslalg::HashTableBucket *defaultBucketAddress();
 //
-// Class HashTable_Util<ALLOCATOR>
-//*[  ] initAnchor(bslalg::HashTableAnchor *, SizeType, const ALLOC&);
-//*[  ] destroyBucketArray(bslalg::HashTableBucket *, SizeType, const ALLOC&)
+// Class HashTable_Util
+//*[  ] initAnchor<ALLOC>(bslalg::HashTableAnchor *, size_t, const ALLOC&)
+//*[  ] destroyBucketArray<A>(bslalg::HashTableBucket *, size_t, const A&)
 //
 // Class HashTable_ListProctor
 //*[  ] TBD...
@@ -480,7 +484,7 @@ namespace UsageExamples {
     }
 //..
 // Then, we define our 'MyHashedSet' class template with an instance of
-// 'bststl::HashTable' (configured using 'UseEntireValueAsKey') as its sole
+// 'bslstl::HashTable' (configured using 'UseEntireValueAsKey') as its sole
 // data member.  We provide 'insert' method, to allow us to populate these
 // sets, and the 'find' method to allow us to examine those elements.  We also
 // provide 'size' and 'bucket_count' accessor methods to let us check the inner
@@ -757,7 +761,7 @@ if (verbose) {
     }
 //..
 // Next, we define our 'MyHashedMap' class template with an instance of
-// 'bststl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
+// 'bslstl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
 // sole data member.  In this example, we choose to implement 'operator[]'
 // (corresponding to the signature method of 'bsl::unordered_map') to allow us
 // to populate our maps and to examine their elements.
@@ -919,7 +923,7 @@ if (verbose) {
 // 'UseFirstValueOfPairAsKey' class template (see {Example 2}) suits perfectly.
 //
 // Next, we define our 'MyHashedMultiMap' class template with an instance of
-// 'bststl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
+// 'bslstl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
 // sole data member.  In this example, we choose to implement an 'insert'
 // method to populate our container, and an 'equal_range' method (a signature
 // method of the multi containers) to provide access to those elements.
@@ -1699,6 +1703,13 @@ if (verbose) {
 // ----------------------------------------------------------------------------
 bslma::TestAllocator *g_bsltfAllocator_p = 0;
 
+// Peeking into the "white box" of our standard table of prime numbers in
+// 'HashTable_Util', we can see critical sequence lengths around 2, 5 and 13.
+// That suggests we will want to pay attention to length 0, 1, 2, 3, 4, 5, 6,
+// 12, 13 and 14.  We will pay special attention to all permutations around the
+// smaller lengths, and test a representative range of concerns of distinct/
+// duplicate values, in and out of order, for the longer sequences.
+
 struct DefaultDataRow {
     int         d_line;     // source line number
     int         d_index;    // lexical order
@@ -1712,12 +1723,17 @@ const DefaultDataRow DEFAULT_DATA[] = {
     //---- ---  --------             -------
     { L_,    0, "",                  "" },
     { L_,    1, "A",                 "A" },
-    { L_,    2, "AA",                "AA" },
     { L_,   20, "B",                 "B" },
+    { L_,    2, "AA",                "AA" },
     { L_,    5, "AB",                "AB" },
     { L_,    5, "BA",                "AB" },
     { L_,   19, "AC",                "AC" },
+    { L_,   97, "BB",                "BB" },
     { L_,   23, "CD",                "CD" },
+    { L_,   99, "AAA",               "AAA" },
+    { L_,   98, "AAB",               "AAB" },
+    { L_,   98, "ABA",               "AAB" },
+    { L_,   98, "BAA",               "AAB" },
     { L_,    7, "ABC",               "ABC" },
     { L_,    7, "ACB",               "ABC" },
     { L_,    7, "BAC",               "ABC" },
@@ -1725,20 +1741,26 @@ const DefaultDataRow DEFAULT_DATA[] = {
     { L_,    7, "CAB",               "ABC" },
     { L_,    7, "CBA",               "ABC" },
     { L_,   17, "BAD",               "ABD" },
+    { L_,   96, "AAAA",              "AAAA" },
+    { L_,   95, "AABA",              "AAAB" },
+    { L_,   94, "ABAB",              "AABB" },
+    { L_,    4, "AABC",              "AABC" },
     { L_,    4, "ABCA",              "AABC" },
     { L_,    6, "ABCB",              "ABBC" },
     { L_,    8, "ABCC",              "ABCC" },
-    { L_,    3, "ABCABC",            "AABBCC" },
-    { L_,    3, "AABBCC",            "AABBCC" },
     { L_,    9, "ABCD",              "ABCD" },
     { L_,    9, "ACBD",              "ABCD" },
     { L_,   18, "BEAD",              "ABDE" },
     { L_,   10, "ABCDE",             "ABCDE" },
     { L_,   22, "FEDCB",             "BCDEF" },
+    { L_,    3, "ABCABC",            "AABBCC" },
+    { L_,    3, "AABBCC",            "AABBCC" },
     { L_,   11, "FEDCBA",            "ABCDEF" },
-    { L_,   14, "ABCDEFGHI",         "ABCDEFGHI" },
-    { L_,   16, "ABCDEFGHIJKLMNOPQ", "ABCDEFGHIJKLMNOPQ" },
-    { L_,   16, "DHBIMACOPELGFKNJQ", "ABCDEFGHIJKLMNOPQ" }
+    { L_,   14, "ABCDEFGHIJKL",      "ABCDEFGHIJKL" },
+    { L_,   84, "ABCDEFGHIJKLM",     "ABCDEFGHIJKLM" },
+    { L_,   85, "ABCDEFGHIJKLMN",    "ABCDEFGHIJKLMN" },
+//    { L_,   16, "ABCDEFGHIJKLMNOPQ", "ABCDEFGHIJKLMNOPQ" },
+//    { L_,   16, "DHBIMACOPELGFKNJQ", "ABCDEFGHIJKLMNOPQ" }
 };
 
 static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
@@ -3966,11 +3988,15 @@ int verifyListContents(Link              *containerList,
 
     // Check to avoid creating an array of length zero.
     if (0 == containerList) {
-        ASSERTV(0 == expectedSize);
-        return 0;                                                     // RETURN
+        return 0 == expectedSize ? 0 : -2;                            // RETURN
+    }
+
+    if (0 == expectedSize) {
+        return 0 == expectedSize ? 0 : -2;                            // RETURN
     }
 
     BoolArray foundValues(expectedSize);
+
     size_t i = 0;
     for (Link *cursor = containerList;
          cursor;
@@ -3978,20 +4004,21 @@ int verifyListContents(Link              *containerList,
     {
         const ValueType& element = ImpUtil::extractValue<KEY_CONFIG>(cursor);
         const int nextId = bsltf::TemplateTestFacility::getIdentifier(element);
-        size_t j = 0;
-        do {
+
+        for (size_t j = 0; j != expectedSize; ++j) {
             if (bsltf::TemplateTestFacility::getIdentifier(expectedValues[j])
                                                                    == nextId) {
-                ASSERTV(j, expectedValues[j], element, !foundValues[j]);
-                foundValues[j] = true;
-                break;
+                if (!foundValues[j]) {
+                    foundValues[j] = true;
+                    break;
+                }
             }
         }
-        while (++j != expectedSize);
     }
+
     ASSERTV(expectedSize, i, expectedSize == i);
     if (expectedSize != i) {
-        return -2;                                                    // RETURN
+        return -3;                                                    // RETURN
     }
 
     int missing = 0;
@@ -4035,13 +4062,11 @@ int verifyListContents(Link              *containerList,
         // Note that this test also serves to check there are no duplicates in
         // the preceding part of the list, as this check would have failed
         // earlier if that were the case.
-        while (next && !compareKeys(ImpUtil::extractKey<KEY_CONFIG>(cursor),
-                                    ImpUtil::extractKey<KEY_CONFIG>(next))) {
-            next = next->nextLink();
-        }
-
-        if (0 != next) {
-            return -3; // code for discontiguous list                 // RETURN
+        for ( ; next; next = next->nextLink()) {
+            if (compareKeys(ImpUtil::extractKey<KEY_CONFIG>(cursor),
+                            ImpUtil::extractKey<KEY_CONFIG>(next))) {
+                return -3; // code for discontiguous list             // RETURN
+            }
         }
     }
 
@@ -4055,18 +4080,17 @@ Link* insertElement(
     // Insert an element into the specified 'hashTable' and return the address
     // of the new node, unless the insertion would cause the hash table to
     // exceed its 'maxLoadFactor' and rehash, in which case return a null
-    // pointer value.
+    // pointer value.  Return a null pointer value if the 'hashTable' address
+    // is a null pointer value.
 {
-    BSLS_ASSERT(hashTable);
-
-    // static_casts are necessary to avoid warnings with gcc.  We have
-    // determined that within the scope of this test driver, these casts are
-    // not discarding important information, even on 64-bit platforms.
-    if (static_cast<double>(hashTable->size() + 1) >
-                             static_cast<double>(hashTable->maxLoadFactor()) *
-                             static_cast<double>(hashTable->numBuckets()) ) {
+    if (!hashTable) {
         return 0;                                                     // RETURN
     }
+
+    if (hashTable->size() == hashTable->rehashThreshold()) {
+        return 0;                                                     // RETURN
+    }
+
     return hashTable->insert(value);
 }
 
@@ -4233,14 +4257,15 @@ class TestDriver {
     // "ABC"        Insert three values corresponding to A, B and C.
     //-------------------------------------------------------------------------
 
-    static int ggg(Obj *object, const char *spec, int verbose = 1);
+    static int ggg(Obj *object, const char *spec, bool verbose = true);
         // Configure the specified 'object' according to the specified 'spec',
         // using only the primary manipulator function 'insert' and white-box
-        // manipulator 'clear'.  Optionally specify a zero 'verbose' to
+        // manipulator 'clear'.  Optionally specify 'verbose' as false to
         // suppress 'spec' syntax error messages.  Return the index of the
-        // first invalid character, and a negative value otherwise.  Note that
-        // this function is used to implement 'gg' as well as allow for
-        // verification of syntax error detection.
+        // first invalid character, and a negative value otherwise.  Returned
+        // values lower than '-1' indicate some error other than parsing the
+        // 'spec' string.  Note that this function is used to implement 'gg' as
+        // well as allow for verification of syntax error detection.
 
     static Obj& gg(Obj *object, const char *spec);
         // Return, by reference, the specified object with its value adjusted
@@ -4285,7 +4310,7 @@ class TestDriver {
 
 template <class CONFIGURED_DRIVER>
 struct TestDriver_ForwardTestCasesByConfiguation {
-    // This utilty class template provides forwarding utilities for invoking
+    // This utility class template provides forwarding utilities for invoking
     // test case functions of the (template type parameter) 'CONFIGURED_DRIVER'
     // class.  It is expected that a 'CONFIGURED_DRIVER' class is an
     // instantiation of the 'TestDriver' class template, with the template
@@ -4362,7 +4387,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 // apply.  We enumerate the type-related concerns for each template parameter
 // here in a common place that may be referenced in the testing concerns for
 // each test case below.  There are also common concerns for the function-like
-// types 'HSAHER' and 'COMPARATOR' that we catalog separately.
+// types 'HASHER' and 'COMPARATOR' that we catalog separately.
 //
 // Function-like types
 // - - - - - - - - - -
@@ -4385,7 +4410,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 //: o Passed by value
 //: o Passed by value convertible from the desired argument
 //
-// In each case, the callable signature may have a trailing elipsis.
+// In each case, the callable signature may have a trailing ellipsis.
 //
 // For function, function-pointer, and reference-to-function types, the
 // underlying function type may also have 'extern "C"' linkage.
@@ -4402,7 +4427,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 //: o The type may be const-qualified
 //: o The object may have internal state
 //: o The object may allocate memory for state from its own allocator
-// We note that a simple example of a funtion-like type holding state is a
+// We note that a simple example of a function-like type holding state is a
 // function pointer.
 //
 // Any invocation of a function-like type, within contract, may throw an
@@ -4430,12 +4455,12 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 // ALLOCATOR
 // - - - - -
 // The 'ALLOCATOR' argument must conform to the C++11 allocator requirements,
-// and a minimal allocator would have (alomst) all of its properties deduced by
+// and a minimal allocator would have (almost) all of its properties deduced by
 // 'std::allocator_traits'.  Therefore, allocators that do or do not supply
 // each of the following should be supported, and behave as specified by
 // 'std::allocator_traits' (noting that 'allocator_traits' is a separately
 // implemented and tested component that we depend on - this is not intended to
-// test 'allcotor_traits', but merely that this component correctly uses
+// test 'allocator_traits', but merely that this component correctly uses
 // 'allocator_traits' rather than the object allocator directly):
 //: o type alias 'pointer'
 //: o type alias 'const_pointer'
@@ -4443,9 +4468,9 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 //: o type alias 'const_void_pointer'
 //: o type alias 'size_type'
 //: o type alias 'difference_type'
-//: o type alias 'propagate_on_constainer_copy_construction'
-//: o type alias 'propagate_on_constainer_copy_assignment'
-//: o type alias 'propagate_on_constainer_swap'
+//: o type alias 'propagate_on_container_copy_construction'
+//: o type alias 'propagate_on_container_copy_assignment'
+//: o type alias 'propagate_on_container_swap'
 //: o alias template 'rebind<OTHER>'
 //: o 'construct(ANY*, ARGS...)'
 //: o 'destroy(ANY*)'
@@ -4483,7 +4508,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 // - - - - -
 // 'COMPARATOR' is a function-like type that takes two arguments, each
 // convertible from 'typename KEY_CONFIG::KeyType', and returns a value of a
-// type that is implcitly convertible to 'bool'.
+// type that is implicitly convertible to 'bool'.
 //
 //Test Plan
 //---------
@@ -4495,9 +4520,9 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 //   for each property supported by 'allocator_traits'
 // Provide allocators supporting each combination of trait that triggers
 //   different allocator behavior
-//: o type alias 'propagate_on_constainer_copy_construction'  (true false)
-//: o type alias 'propagate_on_constainer_copy_assignment'    (true false)
-//: o type alias 'propagate_on_constainer_swap'               (true false)
+//: o type alias 'propagate_on_container_copy_construction'  (true false)
+//: o type alias 'propagate_on_container_copy_assignment'    (true false)
+//: o type alias 'propagate_on_container_swap'               (true false)
 //: o type alias 'pointer' is a native pointer, or a "smart" pointer
 //
 // Note that for this initial release we can use a greatly simplified plan, as
@@ -4506,7 +4531,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 // interfaces supported by this implementation, and the range of customizable
 // behaviors.
 //
-// Simplifying assumptions of our limited 'allocator_traits' implementaiton:
+// Simplifying assumptions of our limited 'allocator_traits' implementation:
 //: o no support for allocators returning smart pointers
 //: o no support for any of the fine-grained propagation traits
 //: o no deducing typedefs, everything must be supplied in the allocator
@@ -4627,7 +4652,7 @@ struct TestDriver_FunctionTypes
     // This is more general than C++11 requires, as the hasher must be a
     // hash function *object*.  Technically we must support the comparator
     // being a function-type or a function-reference, so we test this
-    // implementation-detail compenet supports the hasher as well.
+    // implementation-detail component supports the hasher as well.
 };
 
 template <class ELEMENT>
@@ -4849,36 +4874,40 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 int TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ggg(
                                                            Obj        *object,
                                                            const char *spec,
-                                                           int         verbose)
+                                                           bool        verbose)
 {
-    bslma::TestAllocator tda("generated values", veryVeryVeryVerbose);
-    const TestValues VALUES(&tda);
-
     enum { SUCCESS = -1 };
 
+    if (!object) {
+        return -2;                                                    // RETURN
+    }
+
+    if (!spec) {
+        return -3;                                                    // RETURN
+    }
+
+    if (object->rehashThreshold() < object->size() + strlen(spec)) {
+        return -4;                                                    // RETURN
+    }
+
+    bslma::TestAllocator tda("test-array values", veryVeryVeryVerbose);
+    const TestValues VALUES(&tda);
+
     for (int i = 0; spec[i]; ++i) {
-        if ('A' <= spec[i] && spec[i] <= 'Z') {
-            if (!insertElement(object, VALUES[spec[i] - 'A'])) {
-                if (verbose) {
-                    printf("Error, spec string ('%s') longer than the"
-                           "'HashTable' can support without a rehash.\n",
-                           spec);
-                }
-
-                // Discontinue processing this spec.
-
-                return i;                                             // RETURN
-            }
-        }
-        else {
+        if (spec[i] <'A' || 'Z' < spec[i]) {
             if (verbose) {
                 printf("Error, bad character ('%c') "
                        "in spec \"%s\" at position %d.\n", spec[i], spec, i);
             }
+            return i;   // Discontinue processing this spec.          // RETURN
+        }
 
-            // Discontinue processing this spec.
-
-            return i;                                                 // RETURN
+        if (!insertElement(object, VALUES[spec[i] - 'A'])) {
+            if (verbose) {
+                printf("Unexpected error inserting element no. %d from the "
+                       "spec string ('%s').\n", i, spec);
+            }
+            return -100 -i;   // Discontinue processing this spec.    // RETURN
         }
    }
    return SUCCESS;
@@ -4889,7 +4918,7 @@ bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>&
 TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
                                                           const char *spec)
 {
-    ASSERTV(ggg(object, spec) < 0);
+    ASSERTV(-1 == ggg(object, spec));
     return *object;
 }
 
@@ -4940,18 +4969,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase15()
 
     bool valueUsesBslmaAllocator = bslma::UsesBslmaAllocator<ValueType>::value;
     bool usesBslAllocator        = IsBslAllocator<ALLOCATOR>::value;
-    bool objUsesBslmaAlloctor    = bslma::UsesBslmaAllocator<Obj>::value;
+    bool objUsesBslmaAllocator   = bslma::UsesBslmaAllocator<Obj>::value;
 
     // Late observation - where the stored value uses bslma allocators or not
-    // has no bearing on whethier *this* container uses bslma allocators, that
+    // has no bearing on whether *this* container uses bslma allocators, that
     // is controlled entirely by the allocator itself.
 
-    ASSERTV(valueUsesBslmaAllocator, usesBslAllocator, objUsesBslmaAlloctor,
-                                     usesBslAllocator == objUsesBslmaAlloctor);
-//      (valueUsesBslmaAllocator && usesBslAllocator) == objUsesBslmaAlloctor);
+    ASSERTV(valueUsesBslmaAllocator, usesBslAllocator, objUsesBslmaAllocator,
+                                    usesBslAllocator == objUsesBslmaAllocator);
+//     (valueUsesBslmaAllocator && usesBslAllocator) == objUsesBslmaAllocator);
 
     // The stored type has no bearing on whether a node-based container is
-    // bitwise-mvoveable.  However, the allocator and two custom function-like
+    // bitwise-moveable.  However, the allocator and two custom function-like
     // types must all be bitwise-moveable for the whole container to be
     // bitwise-moveable.
 
@@ -4959,7 +4988,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase15()
     bool hashIsBitwiseMoveable  = bslmf::IsBitwiseMoveable<HASHER>::value;
     bool compIsBitwiseMoveable  = bslmf::IsBitwiseMoveable<COMPARATOR>::value;
     bool objIsBitwiseMoveable   = bslmf::IsBitwiseMoveable<Obj>::value;
-    
+
     ASSERTV(allocIsBitwiseMoveable,
             hashIsBitwiseMoveable,
             compIsBitwiseMoveable,
@@ -6620,6 +6649,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         const Obj& Z = gg(&mZ, SPEC2);
         const Obj ZZ(Z, scratchAlloc);
 
+        // Sanity check
+
+        ASSERTV(XX, X, XX == X);
+        ASSERTV(ZZ, Z, ZZ == Z);
+        ASSERTV( X, Z,  X != Z);
+
         // free function 'swap'
         {
             bslma::TestAllocatorMonitor oaxm(&oax);
@@ -6635,8 +6670,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
                 guardZ.release();
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            ASSERTV(XX, X, XX == X);
-            ASSERTV(ZZ, Z, ZZ == Z);
+            ASSERTV(XX, Z, XX == Z);
+            ASSERTV(ZZ, X, ZZ == X);
             ASSERTV(oaxAlloc == X.allocator());
             ASSERTV(oazAlloc == Z.allocator());
 
@@ -6754,9 +6789,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
         static const char *SPECS[] = {
             "",
             "A",
+            "AA",
+            "AB",
             "BC",
+            "AAA",
+            "ABB",
             "CDE",
+            "AAAA",
+            "ABBA",
             "DEAB",
+            "AAAAA",
+            "AAABC",
+            "ABBAC",
             "EABCD",
             "ABCDEFG",
             "HFGEDCBA",
@@ -7321,6 +7365,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     //*  size() const;
     //*  numBuckets() const;
     //*  maxLoadFactor() const;
+    //*  rehashThreshold() const;
     //*  elementListRoot() const;
     //*  bucketAtIndex(SizeType index) const;
     //*  bucketIndexForKey(const KeyType& key) const;
@@ -7559,7 +7604,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
 {
     // ------------------------------------------------------------------------
-    // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg:
+    // TESTING PRIMITIVE GENERATOR FUNCTIONS 'gg' AND 'ggg':
     //   Having demonstrated that our primary manipulators work as expected
     //   under normal conditions
     //
@@ -7601,7 +7646,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     //*  bool isValidHashTable(Link *, const HashTableBucket&, int numBuckets);
     // ------------------------------------------------------------------------
 
-    bslma::TestAllocator oa("generator allocator", veryVeryVerbose);
+    bslma::TestAllocator oa("generator allocator", veryVeryVeryVerbose);
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
     // There is no easy way to create this guard for the specific
     // test case of the stateless 'bsltf::StdTestAllocator', nor
@@ -7619,46 +7667,111 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     const HASHER_TYPE     HASH  = MakeCallableEntity<HASHER>::make();
     const COMPARATOR_TYPE EQUAL = MakeCallableEntity<COMPARATOR>::make();
 
-    if (verbose) printf("\nTesting generator on valid specs.\n");
+    if (verbose) printf("\nTesting generator initial conditions.\n");
+    {
+        bslma::TestAllocator tda("bad gerenators", veryVeryVeryVerbose);
+        Obj obj(HASH, EQUAL, 0, 1.0f, objAlloc);
+
+        int failCode = ggg(&obj, "", verbose);  // success!
+        ASSERTV(&obj, failCode, -1 == failCode);
+
+        failCode = ggg(0, "", verbose);         // null OBJ address
+        ASSERTV(failCode, -2 == failCode);
+
+        failCode = ggg(&obj, 0, verbose);       // null SPEC address
+        ASSERTV(&obj, failCode, -3 == failCode);
+
+        failCode = ggg(&obj, "A", verbose);     // not enough buckets
+        ASSERTV(&obj, failCode, -4 == failCode);
+    }
+
+    if (verbose) printf("\nTesting verifyListContents initial conditions.\n");
     {
         static const struct {
-            int         d_line;                 // source line number
-            const char *d_spec;                 // specification string
-            const char *d_results;  // expected element values
+            int         d_line;     // source line number
+            const char *d_spec;     // specification string
+            bool        d_obj;      // pass object pointer or not
+            size_t      d_expSz;    // expected size
+            int         d_error;    // expected error code
         } DATA[] = {
-            //line  spec      results
-            //----  --------  -------
-            { L_,   "",       ""      },
-            { L_,   "A",      "A"     },
-            { L_,   "B",      "B"     },
-            { L_,   "AB",     "AB"    },
-            { L_,   "CD",     "CD"    },
-            { L_,   "ABC",    "ABC"   },
-            { L_,   "ABCD",   "ABCD"  },
-            { L_,   "ABCDE",  "ABCDE" },
-
+            //line  spec  obj  expSz  error
+            //----  ----  ---  -----  -----
+            { L_,    "",    0,     0,     0 }, // control
+            { L_,    "",    1,     0,     0 },
+            { L_,    "",    0,     1,    -2 },
+            { L_,   "A",    0,     0,     0 },
+            { L_,   "A",    1,     0,     0 },
+            { L_,   "A",    0,     1,    -2 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        int oldLen = -1;
-        for (int ti = 0; ti < NUM_DATA ; ++ti) {
-            const int         LINE   = DATA[ti].d_line;
-            const char *const SPEC   = DATA[ti].d_spec;
-            const size_t      LENGTH = strlen(DATA[ti].d_results);
+        for (int ti = 0; ti != NUM_DATA ; ++ti) {
+            const int         LINE     = DATA[ti].d_line;
+            const char *const SPEC     = DATA[ti].d_spec;
+            const bool        USE_OBJ  = DATA[ti].d_obj;
+            const size_t      EXP_SIZE = DATA[ti].d_expSz;
+            const int         EXP_ERR  = DATA[ti].d_error;
 
             bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
-            const TestValues  EXP(DATA[ti].d_results, &tda);
+            const TestValues  EXP_VALS(SPEC, &tda);
 
-            const int         curLen = (int)strlen(SPEC);
+            Link root = Link();
+            Link *pRoot = USE_OBJ ? &root : 0;
+            if (USE_OBJ) {
+                ASSERTV(pRoot, 0 != pRoot);
+            }
+
+            int failCode = verifyListContents<KEY_CONFIG>(pRoot,
+                                                          EQUAL,
+                                                          EXP_VALS,
+                                                          EXP_SIZE);
+            ASSERTV(LINE, EXP_ERR, failCode, EXP_ERR == failCode);
+        }
+    }
+
+    if (verbose) printf("\nTesting generator on valid specs.\n");
+    {
+        size_t oldLen = 0;
+        for (size_t ti = 0; ti != NUM_DATA ; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const char *const SPEC   = DATA[ti].d_spec;
+            const char *const EXP_S  = DATA[ti].d_results;
+
+            const size_t      LENGTH = strlen(EXP_S);
+
+            bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
+            const TestValues  EXP(EXP_S, &tda);
+
+            const size_t curLen = strlen(SPEC);
+
+            if (curLen != oldLen || !oldLen) {
+                if (verbose) printf("\tof length " ZU ":\n", curLen);
+                ASSERTV(LINE, oldLen <= curLen);  // non-decreasing
+
+                // Let us check for a fail code reported from 'ggg' for
+                // a SPEC string longer than can be supported without a
+                // rehash.
+
+                if (0 < oldLen) {
+                    // First we compute a number of buckets to request that
+                    // should be too few to support the required number of
+                    // elements.
+
+                    size_t badLen = oldLen / 2;
+                    if (0 < badLen) {
+                        --badLen;
+                    }
+
+                    Obj mBadObj(HASH, EQUAL, badLen, 1.0f, objAlloc);
+                    int failCode = ggg(&mBadObj, SPEC, verbose); // long SPEC
+                    ASSERTV(LINE, SPEC, LENGTH, badLen, failCode,
+                            -4 == failCode);
+                }
+                oldLen = curLen;
+            }
 
             Obj mX(HASH, EQUAL, LENGTH, 1.0f, objAlloc);
             const Obj& X = gg(&mX, SPEC);   // original spec
-
-            if (curLen != oldLen) {
-                if (verbose) printf("\tof length %d:\n", curLen);
-                ASSERTV(LINE, oldLen <= curLen);  // non-decreasing
-                oldLen = curLen;
-            }
 
             if (veryVerbose) {
                 printf("\t\tSpec = \"%s\"\n", SPEC);
@@ -7666,10 +7779,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             }
 
             ASSERTV(LINE, LENGTH == X.size());
-            ASSERT(0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
-                                                       EQUAL,
-                                                       EXP,
-                                                       LENGTH));
+            ASSERTV(LINE, SPEC, EXP_S,
+                    0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
+                                                        EQUAL,
+                                                        EXP,
+                                                        LENGTH));
         }
     }
 
@@ -8624,7 +8738,7 @@ void mainTestCase15()
     // adequate coverage for the different properties dependent on the
     // value type.  We must simply test sufficient pre-packaged configurations
     // to cover the possibilities of the hash functor, comparator and
-    // allocator too.  As of this writing, there is no package that serately
+    // allocator too.  As of this writing, there is no package that separately
     // isolates bitwise copyable hasher and comparator, to test as separate
     // dimensions.
 
@@ -9074,6 +9188,10 @@ void mainTestCase9()
                   BSLSTL_HASHTABLE_TESTCASE9_TYPES,
                   bsltf::AllocTestType,
                   bsltf::AllocBitwiseMoveableTestType);
+
+#if 0  // abbreviate runtime of longest running test while in development
+return;
+#endif
 
 #if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
 #  undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES

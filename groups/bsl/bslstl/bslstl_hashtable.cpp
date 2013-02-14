@@ -125,6 +125,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     // it a pre-condition of the function, as some callers have contextual
     // knowledge that the argument must be non-zero, and so avoid a redundant
     // 'min' call.
+
     size_t result = native_std::max(
                             requestedBuckets,
                             Impl::throwIfOverMax(minElements / maxLoadFactor));
