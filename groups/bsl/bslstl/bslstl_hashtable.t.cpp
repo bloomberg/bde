@@ -95,6 +95,10 @@
 # define BSLSTL_HASHTABLE_MINIMALTEST_TYPES  TestTypes::MostEvilTestType
 #endif
 
+
+// Optional macros to turn on various test-development configurations
+#define AJM_HAS_IMPLMENTED_GENERIC_STATEFUL_FUNCTOR_CHECKS
+
 using namespace BloombergLP;
 using bslstl::CallableVariable;
 
@@ -253,7 +257,7 @@ using bslstl::CallableVariable;
 // [ 2] insertElement(HashTable<K, H, E, A> *, const K::ValueType&)
 // [ 3] verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
 //*[  ] bool expectPoolToAllocate(int n)
-//*[  ] size_t predictNumBickets(size_t length, float maxLoadFactor)
+//*[  ] size_t predictNumBuckets(size_t length, float maxLoadFactor)
 //
 //*[  ] CONCERN: The type employs the expected size optimizations.
 // [  ] CONCERN: The type has the necessary type traits.
@@ -1725,48 +1729,46 @@ struct DefaultDataRow {
 
 static
 const DefaultDataRow DEFAULT_DATA[] = {
-    //line idx  spec                 results
-    //---- ---  --------             -------
-    { L_,    0, "",                  "" },
-    { L_,    1, "A",                 "A" },
-    { L_,   20, "B",                 "B" },
-    { L_,    2, "AA",                "AA" },
-    { L_,    5, "AB",                "AB" },
-    { L_,    5, "BA",                "AB" },
-    { L_,   19, "AC",                "AC" },
-    { L_,   97, "BB",                "BB" },
-    { L_,   23, "CD",                "CD" },
-    { L_,   99, "AAA",               "AAA" },
-    { L_,   98, "AAB",               "AAB" },
-    { L_,   98, "ABA",               "AAB" },
-    { L_,   98, "BAA",               "AAB" },
-    { L_,    7, "ABC",               "ABC" },
-    { L_,    7, "ACB",               "ABC" },
-    { L_,    7, "BAC",               "ABC" },
-    { L_,    7, "BCA",               "ABC" },
-    { L_,    7, "CAB",               "ABC" },
-    { L_,    7, "CBA",               "ABC" },
-    { L_,   17, "BAD",               "ABD" },
-    { L_,   96, "AAAA",              "AAAA" },
-    { L_,   95, "AABA",              "AAAB" },
-    { L_,   94, "ABAB",              "AABB" },
-    { L_,    4, "AABC",              "AABC" },
-    { L_,    4, "ABCA",              "AABC" },
-    { L_,    6, "ABCB",              "ABBC" },
-    { L_,    8, "ABCC",              "ABCC" },
-    { L_,    9, "ABCD",              "ABCD" },
-    { L_,    9, "ACBD",              "ABCD" },
-    { L_,   18, "BEAD",              "ABDE" },
-    { L_,   10, "ABCDE",             "ABCDE" },
-    { L_,   22, "FEDCB",             "BCDEF" },
-    { L_,    3, "ABCABC",            "AABBCC" },
-    { L_,    3, "AABBCC",            "AABBCC" },
-    { L_,   11, "FEDCBA",            "ABCDEF" },
-    { L_,   14, "ABCDEFGHIJKL",      "ABCDEFGHIJKL" },
-    { L_,   84, "ABCDEFGHIJKLM",     "ABCDEFGHIJKLM" },
-    { L_,   85, "ABCDEFGHIJKLMN",    "ABCDEFGHIJKLMN" },
-//    { L_,   16, "ABCDEFGHIJKLMNOPQ", "ABCDEFGHIJKLMNOPQ" },
-//    { L_,   16, "DHBIMACOPELGFKNJQ", "ABCDEFGHIJKLMNOPQ" }
+    //line grp              spec            results
+    //---- ---  ----------------     --------------
+    { L_,    0,               "",                "" },
+    { L_,    1,              "A",               "A" },
+    { L_,    2,              "B",               "B" },
+    { L_,    3,             "AA",              "AA" },
+    { L_,    4,             "AB",              "AB" },
+    { L_,    4,             "BA",              "AB" },
+    { L_,    5,             "AC",              "AC" },
+    { L_,    6,             "BB",              "BB" },
+    { L_,    7,             "CD",              "CD" },
+    { L_,    8,            "AAA",             "AAA" },
+    { L_,    9,            "AAB",             "AAB" },
+    { L_,    9,            "ABA",             "AAB" },
+    { L_,    9,            "BAA",             "AAB" },
+    { L_,   10,            "ABC",             "ABC" },
+    { L_,   10,            "ACB",             "ABC" },
+    { L_,   10,            "BAC",             "ABC" },
+    { L_,   10,            "BCA",             "ABC" },
+    { L_,   10,            "CAB",             "ABC" },
+    { L_,   10,            "CBA",             "ABC" },
+    { L_,   11,            "BAD",             "ABD" },
+    { L_,   12,           "AAAA",            "AAAA" },
+    { L_,   13,           "AABA",            "AAAB" },
+    { L_,   14,           "ABAB",            "AABB" },
+    { L_,   15,           "AABC",            "AABC" },
+    { L_,   15,           "ABCA",            "AABC" },
+    { L_,   16,           "ABCB",            "ABBC" },
+    { L_,   17,           "ABCC",            "ABCC" },
+    { L_,   18,           "ABCD",            "ABCD" },
+    { L_,   18,           "ACBD",            "ABCD" },
+    { L_,   19,           "BEAD",            "ABDE" },
+    { L_,   20,          "ABCDE",           "ABCDE" },
+    { L_,   21,          "FEDCB",           "BCDEF" },
+    { L_,   22,         "ABCABC",          "AABBCC" },
+    { L_,   22,         "AABBCC",          "AABBCC" },
+    { L_,   23,         "FEDCBA",          "ABCDEF" },
+    { L_,   24,   "ABCDEFGHIJKL",    "ABCDEFGHIJKL" },
+    { L_,   25,  "ABCDEFGHIJKLM",   "ABCDEFGHIJKLM" },
+    { L_,   26, "ABCDEFGHIJKLMN",  "ABCDEFGHIJKLMN" },
 };
 
 static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
@@ -2807,29 +2809,53 @@ extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc);
 
 //       test support functions dealing with hash and comparator functors
 
-void setHasherState(bsl::hash<int> *hasher, int id);
+template <class HASHER>
+void setHasherState(HASHER *hasher, int id);
+    // This is a null function, that provides a common signature that may be
+    // overloaded for specific hasher types that can support the idea of
+    // setting a state value.
+
 void setHasherState(TestHashFunctor<int> *hasher, int id);
 
-bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&);
-    // Provide an overloaded function to compare hash functors.  Return 'true'
-    // because 'bsl::hash' is stateless.
+template <class HASHER>
+bool isEqualHasher(const HASHER&, const HASHER&);
+    // Return true.  This function template provides a common signature that
+    // may be overloaded for specific hasher types that can support the idea of
+    // setting a state value.
+
+template <class RESULT, class ARGUMENT>
+bool isEqualHasher(RESULT (*a)(ARGUMENT), RESULT (*b)(ARGUMENT));
+    // Return 'true' if the specified addresses 'a' and 'b' are the same, and
+    // 'false' otherwise.
 
 bool isEqualHasher(const TestHashFunctor<int>& lhs,
                    const TestHashFunctor<int>& rhs);
     // Provide an overloaded function to compare hash functors.  Return
     // 'lhs == rhs'.
 
-template <class KEY>
-void setComparatorState(bsl::equal_to<KEY> *comparator, int id);
+
+template <class COMPARATOR>
+void setComparatorState(COMPARATOR *comparator, int id);
+    // This is a null function, that provides a common signature that may be
+    // overloaded for specific comparator types that can support the idea of
+    // setting a state value.
 
 template <class KEY>
 void setComparatorState(TestEqualityComparator<KEY> *comparator, int id);
 
 
-template <class KEY>
-bool isEqualComparator(const bsl::equal_to<KEY>&, const bsl::equal_to<KEY>&);
-    // Provide an overloaded function to compare comparators.  Return 'true'
-    // because 'bsl::equal_to' is stateless.
+template <class COMPARATOR>
+bool isEqualComparator(const COMPARATOR&, const COMPARATOR&);
+    // Return true.  This function template provides a common signature that
+    // may be overloaded for specific hasher types that can support the idea of
+    // setting a state value.  It is assumed that any comparator that does not
+    // overload this functor is stateless, and so equivalent to any other
+    // hasher.
+
+template <class RESULT, class ARG1, class ARG2>
+bool isEqualComparator(RESULT (*a)(ARG1, ARG2), RESULT (*b)(ARG1, ARG2));
+    // Return 'true' if the specified addresses 'a' and 'b' are the same, and
+    // 'false' otherwise.
 
 template <class KEY>
 bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
@@ -3883,23 +3909,32 @@ extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+template <class HASHER>
 inline
-void setHasherState(bsl::hash<int> *hasher, int id)
+void setHasherState(HASHER *hasher, int id)
 {
     (void) hasher;
     (void) id;
 }
 
 inline
-bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&)
+void setHasherState(TestHashFunctor<int> *hasher, int id)
+{
+    hasher->setId(id);
+}
+
+template <class HASHER>
+inline
+bool isEqualHasher(const HASHER&, const HASHER&)
 {
     return true;
 }
 
+template <class RESULT, class ARGUMENT>
 inline
-void setHasherState(TestHashFunctor<int> *hasher, int id)
+bool isEqualHasher(RESULT (*a)(ARGUMENT), RESULT (*b)(ARGUMENT))
 {
-    hasher->setId(id);
+    return a == b;
 }
 
 inline
@@ -3909,9 +3944,10 @@ bool isEqualHasher(const TestHashFunctor<int>& lhs,
     return lhs == rhs;
 }
 
-template <class KEY>
+
+template <class COMPARATOR>
 inline
-void setComparatorState(bsl::equal_to<KEY> *comparator, int id)
+void setComparatorState(COMPARATOR *comparator, int id)
 {
     (void) comparator;
     (void) id;
@@ -3925,11 +3961,18 @@ void setComparatorState(TestEqualityComparator<KEY> *comparator, int id)
 }
 
 
-template <class KEY>
+template <class COMPARATOR>
 inline
-bool isEqualComparator(const bsl::equal_to<KEY>&, const bsl::equal_to<KEY>&)
+bool isEqualComparator(const COMPARATOR&, const COMPARATOR&)
 {
     return true;
+}
+
+template <class RESULT, class ARG1, class ARG2>
+inline
+bool isEqualComparator(RESULT (*a)(ARG1, ARG2), RESULT (*b)(ARG1, ARG2))
+{
+    return a == b;
 }
 
 template <class KEY>
@@ -6607,14 +6650,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
         bslma::TestAllocatorMonitor oam(&oa);
 
-#if 0
-        invokeAdlSwap(mX, mY);
-#else
         // We know that the types of 'mX' and 'mY' do not overload the unary
         // address-of 'operator&'.
 
         bslalg::SwapUtil::swap(&mX, &mY);
-#endif
 
         ASSERTV(YY, X, YY == X);
         ASSERTV(XX, Y, XX == Y);
@@ -6799,28 +6838,27 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
     if (verbose) printf("\nTesting parameters: TYPE_ALLOC = %d.\n",
                         TYPE_ALLOC);
     {
-        static const char *SPECS[] = {
-            "",
-            "A",
-            "AA",
-            "AB",
-            "BC",
-            "AAA",
-            "ABB",
-            "CDE",
-            "AAAA",
-            "ABBA",
-            "DEAB",
-            "AAAAA",
-            "AAABC",
-            "ABBAC",
-            "EABCD",
-            "ABCDEFG",
-            "HFGEDCBA",
-            "CFHEBIDGA",
-            "BENCKHGMALJDFOI",
-            "IDMLNEFHOPKGBCJA",
-            "OIQGDNPMLKBACHFEJ"
+        static const char *SPECS[] = { "",
+                                      "A",
+                                     "AA",
+                                     "AB",
+                                     "BC",
+                                    "AAA",
+                                    "ABB",
+                                    "CDE",
+                                   "AAAA",
+                                   "ABBA",
+                                   "DEAB",
+                                  "AAAAA",
+                                  "AAABC",
+                                  "ABBAC",
+                                  "EABCD",
+                                "ABCDEFG",
+                               "HFGEDCBA",
+                              "CFHEBIDGA",
+                        "BENCKHGMALJDFOI",
+                       "IDMLNEFHOPKGBCJA",
+                      "OIQGDNPMLKBACHFEJ"
         };
         const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
 
@@ -7947,7 +7985,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
                         }
 
                         Obj mBadObj(HASH, EQUAL, badLen, 1.0f, objAlloc);
-                        int failCode = ggg(&mBadObj, SPEC, verbose); // long SPEC
+                        int failCode = ggg(&mBadObj, SPEC, verbose);
                         ASSERTV(LINE, SPEC, LENGTH, badLen, failCode,
                                 -4 == failCode);
                     }
@@ -10188,9 +10226,9 @@ void mainTestCase2()
     // Testing:
     //   BOOTSTRAP
     //*  HashTable(HASHER, COMPARATOR, SizeType, float, ALLOC)
-    //*  ~HashTable();
-    //*  void removeAll();
-    //*  insertElement      (test driver function, proxy for basic manipulator)
+    //   ~HashTable();
+    //   void removeAll();
+    //   insertElement  (test driver function, proxy for basic manipulator)
     // --------------------------------------------------------------------
 
 #define BSLSTL_HASHTABLE_TESTCASE2_TYPES \
