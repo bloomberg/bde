@@ -96,9 +96,6 @@
 #endif
 
 
-// Optional macros to turn on various test-development configurations
-#define AJM_HAS_IMPLMENTED_GENERIC_STATEFUL_FUNCTOR_CHECKS
-
 using namespace BloombergLP;
 using bslstl::CallableVariable;
 
@@ -2118,8 +2115,9 @@ class TestEqualityComparator {
     // of this class can be identified by an id passed on construction.
 
     // DATA
-    int         d_id;           // identifier for the functor
-    mutable int d_count;        // number of times 'operator()' is called
+    int            d_id;            // identifier for the functor
+    mutable size_t d_count;         // number of times 'operator()' is called
+    size_t         d_throwInterval; // throw after this many 'operator()' calls
 
   public:
     // CREATORS
@@ -2133,6 +2131,13 @@ class TestEqualityComparator {
 
     // MANIPULATORS
     void setId(int value);
+        // Set the 'id' of this object.
+
+    void setThrowInterval(size_t value);
+        // Set the number of times 'operator()' may be called after throwing
+        // an exception before another such call would throw to the specified
+        // 'value'.  If '0 == value' then disable throwing of exceptions by
+        // 'operator()'.
 
     // ACCESSORS
     bool operator() (const TYPE& lhs, const TYPE& rhs) const;
@@ -2146,6 +2151,11 @@ class TestEqualityComparator {
 
     size_t count() const;
         // Return the number of times 'operator()' is called.
+
+    size_t throwInterval() const;
+        // Return the number of times 'operator()' may be called after throwing
+        // an exception before another such call would throw, or '0' if no
+        // exceptions are ever thrown.
 };
 
 template <class TYPE>
@@ -2184,8 +2194,9 @@ class TestHashFunctor {
     // of this class can be identified by an id passed on construction.
 
     // DATA
-    int         d_id;           // identifier for the functor
-    mutable int d_count;        // number of times 'operator()' is called
+    int            d_id;            // identifier for the functor
+    mutable size_t d_count;         // number of times 'operator()' is called
+    size_t         d_throwInterval; // throw after this many 'operator()' calls
 
   public:
     // CREATORS
@@ -2203,6 +2214,12 @@ class TestHashFunctor {
         // so the 'id' of a 'TestHashFunctor' should not be changed for
         // functors that are installed in 'HashTable' objects.
 
+    void setThrowInterval(size_t value);
+        // Set the number of times 'operator()' may be called after throwing
+        // an exception before another such call would throw to the specified
+        // 'value'.  If '0 == value' then disable throwing of exceptions by
+        // 'operator()'.
+
     // ACCESSORS
     native_std::size_t operator() (const TYPE& obj) const;
         // Increment a counter that records the number of times this method is
@@ -2215,6 +2232,11 @@ class TestHashFunctor {
 
     size_t count() const;
         // Return the number of times 'operator()' is called.
+
+    size_t throwInterval() const;
+        // Return the number of times 'operator()' may be called after throwing
+        // an exception before another such call would throw, or '0' if no
+        // exceptions are ever thrown.
 };
 
 template <class TYPE>
@@ -3099,6 +3121,8 @@ size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
 }
 
 
+struct TestException {};
+
                        // ----------------------------
                        // class TestEqualityComparator
                        // ----------------------------
@@ -3109,6 +3133,7 @@ inline
 TestEqualityComparator<TYPE>::TestEqualityComparator(int id)
 : d_id(id)
 , d_count(0)
+, d_throwInterval(0)
 {
 }
 
@@ -3120,6 +3145,13 @@ void TestEqualityComparator<TYPE>::setId(int value)
     d_id = value;
 }
 
+template <class TYPE>
+inline
+void TestEqualityComparator<TYPE>::setThrowInterval(size_t value)
+{
+    d_throwInterval = value;
+}
+
 // ACCESSORS
 template <class TYPE>
 inline
@@ -3127,6 +3159,10 @@ bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
                                                const TYPE& rhs) const
 {
     ++d_count;
+
+    if (d_throwInterval && !d_count % d_throwInterval) {
+        BSLS_THROW(TestException());
+    }
 
     return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
         == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
@@ -3144,6 +3180,13 @@ inline
 size_t TestEqualityComparator<TYPE>::count() const
 {
     return d_count;
+}
+
+template <class TYPE>
+inline
+size_t TestEqualityComparator<TYPE>::throwInterval() const
+{
+    return d_throwInterval;
 }
 
 template <class TYPE>
@@ -3172,6 +3215,7 @@ inline
 TestHashFunctor<TYPE>::TestHashFunctor(int id)
 : d_id(id)
 , d_count(0)
+, d_throwInterval()
 {
 }
 
@@ -3183,12 +3227,23 @@ void TestHashFunctor<TYPE>::setId(int value)
     d_id = value;
 }
 
+template <class TYPE>
+inline
+void TestHashFunctor<TYPE>::setThrowInterval(size_t value)
+{
+    d_throwInterval = value;
+}
+
 // ACCESSORS
 template <class TYPE>
 inline
 native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
 {
     ++d_count;
+
+    if (d_throwInterval && !d_count % d_throwInterval) {
+        BSLS_THROW(TestException());
+    }
 
     return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj) + d_id;
 }
@@ -3205,6 +3260,13 @@ inline
 size_t TestHashFunctor<TYPE>::count() const
 {
     return d_count;
+}
+
+template <class TYPE>
+inline
+size_t TestHashFunctor<TYPE>::throwInterval() const
+{
+    return d_throwInterval;
 }
 
 template <class TYPE>
@@ -4640,7 +4702,7 @@ struct TestDriver_DegenerateConfiguation
            TestDriver< BasicKeyConfig<ELEMENT>
                      , bsltf::DegenerateFunctor<TestFacilityHasher<ELEMENT> >
                      , bsltf::DegenerateFunctor<
-                                              TestEqualityComparator<ELEMENT> >
+                                               TestEqualityComparator<ELEMENT> >
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
@@ -4863,7 +4925,7 @@ struct TestDriver_AwkwardMaplikeForDefault
 // remaining test cases as well, using the familiar pattern above.
 
 template <class ELEMENT>
-struct TestCase_GroupedUniqueKeys
+struct TestDriver_GroupedUniqueKeys
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver< BasicKeyConfig<ELEMENT>
                      , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
@@ -4877,7 +4939,7 @@ struct TestCase_GroupedUniqueKeys
 };
 
 template <class ELEMENT>
-struct TestCase_GroupedSharedKeys
+struct TestDriver_GroupedSharedKeys
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver< BasicKeyConfig<ELEMENT>
                      , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
@@ -6907,10 +6969,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
 
             HASHER     hash = HASH;
             COMPARATOR comp = COMPARE;
-#if defined(AJM_HAS_IMPLMENTED_GENERIC_STATEFUL_FUNCTOR_CHECKS)
             setHasherState(bsls::Util::addressOf(hash), ti);
             setComparatorState(bsls::Util::addressOf(comp), ti);
-#endif
 
             const ALLOCATOR dfltAlloc = MakeAllocator<ALLOCATOR>::make(&da);
             const ALLOCATOR objAlloc  = MakeAllocator<ALLOCATOR>::make(&oa);
@@ -7493,10 +7553,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
             HASHER_TYPE     hash = HASH;
             COMPARATOR_TYPE comp = EQUAL;
-#if defined(AJM_HAS_IMPLMENTED_GENERIC_STATEFUL_FUNCTOR_CHECKS)
             setHasherState(bsls::Util::addressOf(hash), ti);
             setComparatorState(bsls::Util::addressOf(comp), ti);
-#endif
 
             if (veryVerbose) { P_(LINE) P_(LENGTH) P(SPEC); }
 
@@ -7567,17 +7625,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
                 bslma::TestAllocatorMonitor oam(oa);
 
-#if defined(AJM_HAS_IMPLMENTED_GENERIC_STATEFUL_FUNCTOR_CHECKS)
                 ASSERTV(LINE, SPEC, CONFIG,
                         isEqualComparator(comp, X.comparator()));
                 ASSERTV(LINE, SPEC, CONFIG,
                         isEqualHasher(hash, X.hasher()));
-#else
-                {
-                    HASHER_TYPE     H = X.hasher();     (void)H;
-                    COMPARATOR_TYPE C = X.comparator(); (void)C;
-                }
-#endif
 
                 ASSERTV(LINE, SPEC, CONFIG, NUM_BUCKETS, X.numBuckets(),
                         NUM_BUCKETS <= X.numBuckets());
@@ -8516,6 +8567,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             // ----------------------------------------------------------------
 
+            // If we repeat the 'insertElement' test, then memory usage is much
+            // more predictable, as the nodepool should have sufficient free
+            // nodes from the previous loop.
+
             if (veryVerbose) { printf(
                   "\n\tRepeat testing 'insertElement', with memory checks.\n");
             }
@@ -8552,38 +8607,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 // check elements with equivalent keys are contiguous
                 // check expected elements are present in container, with
                 // expected number of duplicates
-                {
-                    int *foundKeys = new int[X.size()];
-                    for (SizeType j = 0; j != X.size(); ++j) {
-                        foundKeys[j] = 0;
-                    }
 
-                    size_t i = 0;
-                    for (Link *it = X.elementListRoot();
-                         0 != it;
-                         it = it->nextLink(), ++i)
-                    {
-                        for (SizeType j = 0; j != X.size(); ++j) {
-                            Element elem = VALUES[j];
-                            if (BSL_TF_EQ(
-                                        KEY_CONFIG::extractKey(elem),
-                                        ImpUtil::extractKey<KEY_CONFIG>(it))) {
-                                ASSERTV(MAX_LF, LENGTH, CONFIG, VALUES[j],
-                                        !foundKeys[j]);
-                                ++foundKeys[j];
-                            }
-                        }
-                    }
-                    SizeType missing = 0;
-                    for (SizeType j = 0; j != X.size(); ++j) {
-                        if (!foundKeys[j]) { ++missing; }
-                    }
-                    ASSERTV(MAX_LF, LENGTH, CONFIG, missing, 0 == missing);
-
-                    delete[] foundKeys;
-
-                    ASSERTV(MAX_LF, LENGTH, CONFIG, X.size() == i);
-                }
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X,
+                       0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
+                                                           COMPARE,
+                                                           VALUES,
+                                                           LENGTH));
             }
 
             // ----------------------------------------------------------------
@@ -8613,6 +8642,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
                         2 * LENGTH == X.size());
 
+#if 0
                 // The second loop adds another duplicate in front of each
                 // the items from the previous loop, and not in the middle of
                 // any subranges.
@@ -8621,19 +8651,20 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                     ASSERT(0 != RESULT);
                     Element elem = VALUES[tj];
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            BSL_TF_EQ(
+                            X.comparator()(
                                      KEY_CONFIG::extractKey(elem),
                                      ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
-                                   VALUES[tj],
-                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
+                                 VALUES[tj],
+                                 ImpUtil::extractValue<KEY_CONFIG>(ITER[tj])));
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             ITER[tj] == RESULT->nextLink());
                 }
 
                 ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
                          3 * LENGTH == X.size());
+#endif
             }
 
             // ----------------------------------------------------------------
@@ -8991,6 +9022,18 @@ void mainTestCase15()
                   testCase15,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
     if (verbose) printf("\nTesting degenerate functors without swap"
                         "\n----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
@@ -9096,6 +9139,18 @@ void mainTestCase14()
                   testCase14,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
 #if 0
     // These configurations not available, as functors are not default
     // constructible.
@@ -9166,17 +9221,13 @@ void mainTestCase14()
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
+#if 0
+    // These configurations not available, as functors are not default
+    // constructible.
 
-    // These 3 cases do not have unique keys, which fools the final part of
+    // These 2 cases do not have unique keys, which fools the final part of
     // the basic test case.  Will review test logic later, to re-enable
     // these tests.
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-#if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase14,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
@@ -9306,6 +9357,18 @@ void mainTestCase11()
                   testCase11,
                   BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
@@ -9364,16 +9427,10 @@ void mainTestCase11()
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-
-    // These 3 cases do not have unique keys, which fools the final part of
+#if 0
+    // These 2 cases do not have unique keys, which fools the final part of
     // the basic test case.  Will review test logic later, to re-enable
     // these tests.
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase11,
                   BSLSTL_HASHTABLE_TESTCASE11_TYPES);
@@ -9381,6 +9438,7 @@ void mainTestCase11()
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase11,
                   BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+#endif
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -9456,6 +9514,18 @@ void mainTestCase9()
                   testCase9,
                   BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
@@ -9499,21 +9569,11 @@ void mainTestCase9()
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
+#if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase9,
                   BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
-#if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase9,
                   BSLSTL_HASHTABLE_TESTCASE9_TYPES);
@@ -9614,6 +9674,18 @@ void mainTestCase8()
                   testCase8,
                   BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
@@ -9671,19 +9743,11 @@ void mainTestCase8()
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
+#if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase8,
                   BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+#endif
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -9724,6 +9788,18 @@ void mainTestCase7()
     if (verbose) printf("\nTesting stateful functors"
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
                   testCase7,
                   BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
@@ -9790,16 +9866,7 @@ void mainTestCase7()
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
+#if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase7,
                   BSLSTL_HASHTABLE_TESTCASE7_TYPES);
@@ -9807,6 +9874,7 @@ void mainTestCase7()
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase7,
                   BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+#endif
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -9852,14 +9920,19 @@ void mainTestCase6()
                   BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
     // Grouped tests
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
                   testCase6,
                   BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
-    RUN_EACH_TYPE(TestCase_GroupedSharedKeys,
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
                   testCase6,
                   BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
+#if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase6,
                   BSLSTL_HASHTABLE_TESTCASE6_TYPES);
@@ -9867,6 +9940,7 @@ void mainTestCase6()
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase6,
                   BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+#endif
 
     // Remaining special cases
     TestDriverForCase6_AwkwardMaplike::testCase6();
@@ -9913,6 +9987,18 @@ void mainTestCase4()
     if (verbose) printf("\nTesting stateful functors"
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
 
@@ -10003,16 +10089,7 @@ void mainTestCase4()
 
     // Be sure to bootstrap the special 'grouped' configurations used in
     // test case 6.
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
+#if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
@@ -10020,6 +10097,7 @@ void mainTestCase4()
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+#endif
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -10054,6 +10132,18 @@ void mainTestCase3()
     if (verbose) printf("\nTesting stateful functors"
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
 
@@ -10140,19 +10230,7 @@ void mainTestCase3()
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
 
-
-    // Be sure to bootstrap the special 'grouped' configurations used in
-    // test case 6.
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
+#if 0
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
@@ -10160,6 +10238,7 @@ void mainTestCase3()
     RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+#endif
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -10268,6 +10347,18 @@ void mainTestCase2()
                   testCase2,
                   BSLSTL_HASHTABLE_TESTCASE2_TYPES);
 
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
@@ -10351,22 +10442,12 @@ void mainTestCase2()
                   testCase2,
                   BSLSTL_HASHTABLE_TESTCASE2_TYPES);
 
-    // Be sure to bootstrap the special 'grouped' configurations used in
-    // test case 6.
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
 
-#if 0
-    // These 3 cases do not have unique keys, which fools the final part of
-    // the basic test case.  Will review test logic later, to re-enable
-    // these tests.
-    RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
+#if 0  // This should not be necessary as an additional combined package,
+       // if TestCase6 has broad coverage, rather than assuming it tests
+       // only grouped behavior.
+    if (verbose) printf("\nTesting degenerate functors with grouping"
+                        "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                   testCase2,
                   BSLSTL_HASHTABLE_TESTCASE2_TYPES);

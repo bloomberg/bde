@@ -1525,6 +1525,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfunction.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include <bslmf_ispointer.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -2648,6 +2652,19 @@ struct HashTable_Util {
     // standard library 'bslstl_allocatortraits' for their implementation.
 
     // CLASS METHODS
+    template <class TYPE>
+    static void assertNotNullPointer(TYPE&);
+    template <class TYPE>
+    static void assertNotNullPointer(TYPE * const& ptr);
+    template <class TYPE>
+    static void assertNotNullPointer(TYPE * & ptr);
+        // Assert that the passed argument is not a null pointer value.  Note
+        // that this utility is necessary as the 'HashTable' class template
+        // may be instantiated with function pointers for the hasher or
+        // comparator policies, but there is no easy way to assert in general
+        // that the value of a generic type passed to a function is a null
+        // pointer value.
+
     template<class ALLOCATOR>
     static void initAnchor(bslalg::HashTableAnchor *anchor,
                            native_std::size_t       bucketArraySize,
@@ -3099,6 +3116,26 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
                     // class HashTable_Util
                     // --------------------
 
+template <class TYPE>
+inline
+void HashTable_Util::assertNotNullPointer(TYPE&)
+{
+}
+
+template <class TYPE>
+inline
+void HashTable_Util::assertNotNullPointer(TYPE * const& ptr)
+{
+    BSLS_ASSERT(ptr);
+}
+
+template <class TYPE>
+inline
+void HashTable_Util::assertNotNullPointer(TYPE * & ptr)
+{
+    BSLS_ASSERT(ptr);
+}
+
 template <class ALLOCATOR>
 inline
 void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
@@ -3194,6 +3231,8 @@ HashTable(const ALLOCATOR& basicAllocator)
 , d_capacity()
 , d_maxLoadFactor(1.0)
 {
+    BSLMF_ASSERT(!bsl::is_pointer<HASHER>::value &&
+                 !bsl::is_pointer<COMPARATOR>::value);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -3211,6 +3250,13 @@ HashTable(const HASHER&     hash,
 , d_maxLoadFactor(initialMaxLoadFactor)
 {
     BSLS_ASSERT(0.0f < initialMaxLoadFactor);
+
+    if (bsl::is_pointer<HASHER>::value) {
+        HashTable_Util::assertNotNullPointer(hash);
+    }
+    if (bsl::is_pointer<COMPARATOR>::value) {
+        HashTable_Util::assertNotNullPointer(compare);
+    }
 
     if (0 != initialNumBuckets) {
         size_t capacity;  // This may be a different type than SizeType.
