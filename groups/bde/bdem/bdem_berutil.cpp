@@ -1358,6 +1358,14 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_Date&              value,
                                const bdem_BerEncoderOptions *options)
 {
+    // Applications can create invalid dates in optimized build modes.  As this
+    // function assumes that 'value' is valid, it is possible to encode an
+    // invalid date without returning an error.  Decoding this output would
+    // result in hard-to-trace errors.  So to identify such errors early, we
+    // assert that 'value' is valid.
+
+    BSLS_ASSERT_OPT(0 == const_cast<bdet_Date&>(value).addDaysIfValid(0));
+
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDateValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
