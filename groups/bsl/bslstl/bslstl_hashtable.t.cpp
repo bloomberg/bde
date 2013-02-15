@@ -2824,9 +2824,12 @@ bool isEqualHasher(const HASHER&, const HASHER&);
     // setting a state value.
 
 template <class RESULT, class ARGUMENT>
-bool isEqualHasher(RESULT (*a)(ARGUMENT), RESULT (*b)(ARGUMENT));
+bool isEqualHasher(RESULT (*const &a)(ARGUMENT),
+                   RESULT (*const &b)(ARGUMENT));
     // Return 'true' if the specified addresses 'a' and 'b' are the same, and
-    // 'false' otherwise.
+    // 'false' otherwise.  Note that we pass pointers by 'const &' in order to
+    // avoid ambiguities on the IBM XLC compiler.
+
 
 bool isEqualHasher(const TestHashFunctor<int>& lhs,
                    const TestHashFunctor<int>& rhs);
@@ -2853,9 +2856,11 @@ bool isEqualComparator(const COMPARATOR&, const COMPARATOR&);
     // hasher.
 
 template <class RESULT, class ARG1, class ARG2>
-bool isEqualComparator(RESULT (*a)(ARG1, ARG2), RESULT (*b)(ARG1, ARG2));
+bool isEqualComparator(RESULT (*const &a)(ARG1, ARG2),
+                       RESULT (*const &b)(ARG1, ARG2));
     // Return 'true' if the specified addresses 'a' and 'b' are the same, and
-    // 'false' otherwise.
+    // 'false' otherwise.  Note that we pass pointers by 'const &' in order
+    // to avoid ambiguities on the IBM XLC compiler.
 
 template <class KEY>
 bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
@@ -3932,7 +3937,8 @@ bool isEqualHasher(const HASHER&, const HASHER&)
 
 template <class RESULT, class ARGUMENT>
 inline
-bool isEqualHasher(RESULT (*a)(ARGUMENT), RESULT (*b)(ARGUMENT))
+bool isEqualHasher(RESULT (*const &a)(ARGUMENT),
+                   RESULT (*const &b)(ARGUMENT))
 {
     return a == b;
 }
@@ -3970,7 +3976,8 @@ bool isEqualComparator(const COMPARATOR&, const COMPARATOR&)
 
 template <class RESULT, class ARG1, class ARG2>
 inline
-bool isEqualComparator(RESULT (*a)(ARG1, ARG2), RESULT (*b)(ARG1, ARG2))
+bool isEqualComparator(RESULT (*const &a)(ARG1, ARG2),
+                       RESULT (*const &b)(ARG1, ARG2))
 {
     return a == b;
 }
@@ -7565,7 +7572,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                         isEqualComparator(comp, X.comparator()));
                 ASSERTV(LINE, SPEC, CONFIG,
                         isEqualHasher(hash, X.hasher()));
+#else
+                {
+                    HASHER_TYPE     H = X.hasher();     (void)H;
+                    COMPARATOR_TYPE C = X.comparator(); (void)C;
+                }
 #endif
+
                 ASSERTV(LINE, SPEC, CONFIG, NUM_BUCKETS, X.numBuckets(),
                         NUM_BUCKETS <= X.numBuckets());
                 ASSERTV(LINE, SPEC, CONFIG, MAX_LF, X.maxLoadFactor(),
@@ -9921,7 +9934,8 @@ void mainTestCase4()
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
 
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM) // 'Obj::comparator()' does not resolve
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
