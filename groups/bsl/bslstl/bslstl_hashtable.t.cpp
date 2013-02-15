@@ -80,17 +80,20 @@
 #  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
-// Change '0' to '1' below to speed up testing, but do not commit
-
-#if 1 && defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#undef BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
-#endif
-
 #define BSLSTL_HASHTABLE_MINIMALTEST_TYPES      \
         signed char,                            \
         bsltf::TemplateTestFacility::MethodPtr, \
         bsltf::AllocBitwiseMoveableTestType,    \
         TestTypes::MostEvilTestType
+
+// Change '0' to '1' below to speed up testing, but do not commit
+
+#if 0 || defined(BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK)
+# undef BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
+#
+# undef  BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+# define BSLSTL_HASHTABLE_MINIMALTEST_TYPES  TestTypes::MostEvilTestType
+#endif
 
 using namespace BloombergLP;
 using bslstl::CallableVariable;
@@ -228,7 +231,7 @@ using bslstl::CallableVariable;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-//*[  ] USAGE EXAMPLE
+// [  ] USAGE EXAMPLE
 //
 // Class HashTable_ImpDetails
 //*[  ] size_t nextPrime(size_t n);
@@ -245,13 +248,15 @@ using bslstl::CallableVariable;
 //*[  ] TBD...
 //
 // TEST TEST APPARATUS AND GENERATOR FUNCTIONS
-//*[ 3] int ggg(HashTable *object, const char *spec, int verbose = 1);
-//*[ 3] HashTable& gg(HashTable *object, const char *spec);
-//*[ 2] insertElement(HashTable<K, H, E, A> *, const K::ValueType&)
+// [ 3] int ggg(HashTable *object, const char *spec, int verbose = 1);
+// [ 3] HashTable& gg(HashTable *object, const char *spec);
+// [ 2] insertElement(HashTable<K, H, E, A> *, const K::ValueType&)
 // [ 3] verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
+//*[  ] bool expectPoolToAllocate(int n)
+//*[  ] size_t predictNumBickets(size_t length, float maxLoadFactor)
 //
 //*[  ] CONCERN: The type employs the expected size optimizations.
-//*[  ] CONCERN: The type has the necessary type traits.
+// [  ] CONCERN: The type has the necessary type traits.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -3965,8 +3970,17 @@ size_t predictNumBuckets(size_t length, float maxLoadFactor)
     // merely predict the minimum number of buckets that strategy must
     // accommodate.
 {
-    return static_cast<size_t>(ceil(static_cast<double>(length) /
-                                                        maxLoadFactor));
+    if (!length) {
+        return 0;                                                     // RETURN
+    }
+
+    if(1.0 / native_std::numeric_limits<size_t>::max() > maxLoadFactor) {
+        return native_std::numeric_limits<size_t>::max();             // RETURN
+    }
+
+    size_t result =  static_cast<size_t>(ceil(static_cast<double>(length) /
+                                                               maxLoadFactor));
+    return result ? result : 1;
 }
 
 template<class KEY_CONFIG, class COMPARATOR, class VALUE>
@@ -7832,8 +7846,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     //:     location of the first invalid value of the 'spec'.  (C-2)
     //
     // Testing:
-    //*  int ggg(HashTable *object, const char *spec, bool verbose);
-    //*  HashTable& gg(HashTable *object, const char *spec);
+    //   int ggg(HashTable *object, const char *spec, bool verbose);
+    //   HashTable& gg(HashTable *object, const char *spec);
     //   verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
     // ------------------------------------------------------------------------
 
@@ -7880,59 +7894,83 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
     {
-        size_t oldLen = 0;
-        for (size_t ti = 0; ti != NUM_DATA ; ++ti) {
-            const int         LINE   = DATA[ti].d_line;
-            const char *const SPEC   = DATA[ti].d_spec;
-            const char *const EXP_S  = DATA[ti].d_results;
+        static const float MAX_LOAD_FACTOR[] = {
+            1e-5,    // This is small enough to test extremely low value
+            0.125f,  // Low value used throughout the test driver
+            1.0f,    // Default and most common value
+            8.0f,    // High value used throughout the test driver
+            native_std::numeric_limits<float>::infinity()  // edge case
+        };
+        static const int MAX_LOAD_FACTOR_SIZE =
+                         sizeof MAX_LOAD_FACTOR / sizeof *MAX_LOAD_FACTOR;
 
-            const size_t      LENGTH = strlen(EXP_S);
+        if (veryVerbose) {
+            printf("\tTesting with Max Load Factor\n");
+        }
 
-            bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
-            const TestValues  EXP(EXP_S, &tda);
-
-            const size_t curLen = strlen(SPEC);
-
-            if (curLen != oldLen || !oldLen) {
-                if (verbose) printf("\tof length " ZU ":\n", curLen);
-                ASSERTV(LINE, oldLen <= curLen);  // non-decreasing
-
-                // Let us check for a fail code reported from 'ggg' for
-                // a SPEC string longer than can be supported without a
-                // rehash.
-
-                if (0 < oldLen) {
-                    // First we compute a number of buckets to request that
-                    // should be too few to support the required number of
-                    // elements.
-
-                    size_t badLen = oldLen / 2;
-                    if (0 < badLen) {
-                        --badLen;
-                    }
-
-                    Obj mBadObj(HASH, EQUAL, badLen, 1.0f, objAlloc);
-                    int failCode = ggg(&mBadObj, SPEC, verbose); // long SPEC
-                    ASSERTV(LINE, SPEC, LENGTH, badLen, failCode,
-                            -4 == failCode);
-                }
-                oldLen = curLen;
-            }
-
-            Obj mX(HASH, EQUAL, LENGTH, 1.0f, objAlloc);
-            const Obj& X = gg(&mX, SPEC);   // original spec
+        for (int lfi = 0; lfi < MAX_LOAD_FACTOR_SIZE; ++lfi) {
+            const float    MAX_LF = MAX_LOAD_FACTOR[lfi];
 
             if (veryVerbose) {
-                printf("\t\tSpec = \"%s\"\n", SPEC);
-                T_ T_ T_ P(X);
+                T_ P(MAX_LF);
             }
 
-            ASSERTV(LINE, LENGTH == X.size());
-            ASSERTV(LINE, SPEC, EXP_S,
+            size_t oldLen = 0;
+            for (size_t ti = 0; ti != NUM_DATA ; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const char *const SPEC   = DATA[ti].d_spec;
+                const char *const EXP_S  = DATA[ti].d_results;
+
+                const size_t      LENGTH = strlen(EXP_S);
+
+                bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
+                const TestValues  EXP(EXP_S, &tda);
+
+                const size_t curLen = strlen(SPEC);
+
+                if (curLen != oldLen || !oldLen) {
+                    if (verbose) printf("\tof length " ZU ":\n", curLen);
+                    ASSERTV(LINE, oldLen <= curLen);  // non-decreasing
+
+                    // Let us check for a fail code reported from 'ggg' for
+                    // a SPEC string longer than can be supported without a
+                    // rehash.
+
+                    if (0 < oldLen) {
+                        // First we compute a number of buckets to request that
+                        // should be too few to support the required number of
+                        // elements.
+
+                        size_t badLen = oldLen / 2;
+                        if (0 < badLen) {
+                            --badLen;
+                        }
+
+                        Obj mBadObj(HASH, EQUAL, badLen, 1.0f, objAlloc);
+                        int failCode = ggg(&mBadObj, SPEC, verbose); // long SPEC
+                        ASSERTV(LINE, SPEC, LENGTH, badLen, failCode,
+                                -4 == failCode);
+                    }
+                    oldLen = curLen;
+                }
+
+                const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
+
+                Obj mX(HASH, EQUAL, NUM_BUCKETS, MAX_LF, objAlloc);
+                const Obj& X = gg(&mX, SPEC);   // original spec
+
+                if (veryVerbose) {
+                    printf("\t\tSpec = \"%s\"\n", SPEC);
+                    T_ T_ T_ P(X);
+                }
+
+                ASSERTV(LINE, LENGTH == X.size());
+                ASSERTV(LINE, MAX_LF, SPEC, EXP_S,
                     0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
                                                         EQUAL,
                                                         EXP,
                                                         LENGTH));
+            }
         }
     }
 
@@ -8182,7 +8220,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
     bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
     const TestValues VALUES(&tda);  // Contains 52 distinct increasing values.
-    const size_t MAX_LENGTH = 9;    // This should be sufficient to bootstrap.
+    const size_t MAX_LENGTH = 19;   // This should be sufficient to bootstrap.
 
     {
         // Reassert a global invariant, that should not be necessary to state,
@@ -8199,6 +8237,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     // to the 'make' function to support stateful functors actually having
     // different states.  Note that we need the 'make' function to supply a
     // default state for functors that are not default constructible.
+
     typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
     typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
 
@@ -8206,6 +8245,35 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     const COMPARATOR_TYPE COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
     const char *ALLOC_SPEC = ObjMaker::specForBootstrapTests();
+
+    if (verbose) printf("\nTesting fail-modes of 'insertElement'.\n");
+    {
+        bslma::TestAllocator dummy("dummy allocator", veryVeryVeryVerbose);
+        bsltf::StdTestAllocatorConfigurationGuard dummyGuard(&dummy);
+        ALLOCATOR dummyAlloc = MakeAllocator<ALLOCATOR>::make(&dummy);
+
+        Link *inserted = insertElement((Obj *)0, VALUES[0]);
+        ASSERT(0 == inserted);
+
+        Obj mX(HASH, COMPARE, 0, 1.0f, dummyAlloc);
+        ASSERTV(mX.rehashThreshold(), 0 == mX.rehashThreshold());
+
+        inserted = insertElement(&mX, VALUES[0]);
+        ASSERT(0 == inserted);
+
+        // An infinite max load factor appears to imply "never rehash" but a
+        // default-constructed HashTable has no storage.
+
+        Obj mY(HASH,
+               COMPARE,
+               0,
+               native_std::numeric_limits<float>::infinity(),
+               dummyAlloc);
+        ASSERTV(mY.rehashThreshold(), 0 == mY.rehashThreshold());
+
+        inserted = insertElement(&mY, VALUES[0]);
+        ASSERT(0 == inserted);
+    }
 
     if (verbose) printf("\nTesting with various allocator configurations.\n");
 
