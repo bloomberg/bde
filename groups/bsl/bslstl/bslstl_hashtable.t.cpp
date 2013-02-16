@@ -76,7 +76,7 @@
 // based concerns, and narrow the range of tests needed for confirmed coverage.
 
 #if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
- && !defined(BSLS_PLATFORM_OS_SOLARIS)
+ && !defined(BSLS_PLATFORM_OS_SOLARIS) // gcc on Sun runs out of resources
 #  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
@@ -1998,7 +1998,11 @@ int TemplateTestFacility::getIdentifier<TestTypes::MostEvilTestType>(
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
+namespace TestMachinery
+#else
 namespace
+#endif
 {
 
                        // ===============
@@ -2892,7 +2896,11 @@ bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
     // Provide an overloaded function to compare comparators.  Return
     // 'lhs == rhs'.
 
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
+}  // close namespace TestMachinery
+#else
 }  // close unnamed namespace
+#endif
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -3088,7 +3096,11 @@ int TemplateTestFacility::getIdentifier<TestTypes::MostEvilTestType>(
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
+namespace TestMachinery
+#else
 namespace
+#endif
 {
                        // -------------------------------
                        // class GroupedEqualityComparator
@@ -4051,7 +4063,11 @@ bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
     return lhs == rhs;
 }
 
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
+}  // close namespace TestMachinery
+#else
 }  // close unnamed namespace
+#endif
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -4133,7 +4149,11 @@ int verifyListContents(Link                                 *containerList,
         return TOO_FEW_VALUES;                                        // RETURN
     }
 
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
+    TestMachinery::BoolArray foundValues(expectedSize);
+#else
     BoolArray foundValues(expectedSize);
+#endif
 
     size_t i = 0;
     for (Link *cursor = containerList;
@@ -4239,6 +4259,10 @@ Link* insertElement(
 // ============================================================================
 //                         TEST DRIVER HARNESS
 // ----------------------------------------------------------------------------
+
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
+using namespace TestMachinery;
+#endif
 
 // - - - - - - Configuration policies to instantiate HashTable with - - - - - -
 
@@ -9859,7 +9883,7 @@ void mainTestCase6()
                   BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
 #if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM) // 'Obj::comparator()' does not resolve
+ && !defined(BSLS_PLATFORM_CMP_IBM) // name mangling bug
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
@@ -10138,7 +10162,8 @@ void mainTestCase3()
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
 
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM) // name mangling bug
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
@@ -10340,7 +10365,8 @@ void mainTestCase2()
                   testCase2,
                   BSLSTL_HASHTABLE_TESTCASE2_TYPES);
 
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM) // name mangling bug
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
