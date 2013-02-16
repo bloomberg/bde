@@ -3159,7 +3159,7 @@ bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
 {
     ++d_count;
 
-    if (d_throwInterval && !d_count % d_throwInterval) {
+    if (d_throwInterval && !(d_count % d_throwInterval)) {
         BSLS_THROW(TestException());
     }
 
@@ -3240,7 +3240,7 @@ native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
 {
     ++d_count;
 
-    if (d_throwInterval && !d_count % d_throwInterval) {
+    if (d_throwInterval && !(d_count % d_throwInterval)) {
         BSLS_THROW(TestException());
     }
 
