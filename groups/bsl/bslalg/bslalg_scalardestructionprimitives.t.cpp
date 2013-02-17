@@ -42,6 +42,11 @@ using namespace BloombergLP;
 // [ 2] void destroy(T *dst);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
+// [ 2] int ggg(TYPE *scalar, const char *spec, int verboseFlag = 1)
+// [ 2] TYPE& gg(TYPE *scalar, const char *spec)
+//-----------------------------------------------------------------------------
+
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -695,6 +700,9 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Usage Example"
@@ -735,6 +743,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void destroy(T *dst);
+        //   int ggg(TYPE *scalar, const char *spec, int verboseFlag = 1)
+        //   TYPE& gg(TYPE *scalar, const char *spec)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'destroy'\n");
