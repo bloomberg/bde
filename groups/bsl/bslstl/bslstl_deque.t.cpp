@@ -1,23 +1,24 @@
 // bslstl_deque.t.cpp                                                 -*-C++-*-
 
 #include <bslstl_deque.h>
+
 #include <bslstl_forwarditerator.h>
 #include <bslstl_iterator.h>
 #include <bslstl_randomaccessiterator.h>
-#include <bslstl_string.h>                 // for testing only
-#include <bslstl_vector.h>                 // for testing only
+#include <bslstl_string.h>
+#include <bslstl_vector.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>   // for testing only
-#include <bslma_testallocator.h>           // for testing only
-#include <bslma_testallocatorexception.h>  // for testing only
-#include <bslmf_ispointer.h>               // for testing only
-#include <bslmf_issame.h>                  // for testing only
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+#include <bslmf_ispointer.h>
+#include <bslmf_issame.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>
-#include <bsls_stopwatch.h>                // for testing only
-#include <bsls_types.h>                    // for testing only
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 #include <bsls_util.h>
 
 #include <iterator>
