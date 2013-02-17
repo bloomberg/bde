@@ -1,6 +1,7 @@
 // bslstl_stringbuf.t.cpp                                             -*-C++-*-
 
 #include <bslstl_stringbuf.h>
+
 #include <bslstl_allocator.h>
 #include <bslstl_string.h>
 
