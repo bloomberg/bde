@@ -1,17 +1,18 @@
 // bslalg_arraydestructionprimitives.t.cpp                            -*-C++-*-
 
 #include <bslalg_arraydestructionprimitives.h>
-#include <bslalg_scalarprimitives.h>             // for testing only
 
-#include <bslma_allocator.h>                     // for testing only
-#include <bslma_default.h>                       // for testing only
-#include <bslma_testallocator.h>                 // for testing only
-#include <bslmf_istriviallycopyable.h>           // for testing only
-#include <bsls_alignmentutil.h>                  // for testing only
-#include <bsls_assert.h>                         // for testing only
-#include <bsls_asserttest.h>                     // for testing only
-#include <bsls_objectbuffer.h>                   // for testing only
-#include <bsls_types.h>                          // for testing only
+#include <bslalg_scalarprimitives.h>
+
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bsls_alignmentutil.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
+#include <bsls_objectbuffer.h>
+#include <bsls_types.h>
 
 #include <stdio.h>
 #include <stdlib.h>    // atoi()
