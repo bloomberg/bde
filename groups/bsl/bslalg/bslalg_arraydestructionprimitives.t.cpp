@@ -47,6 +47,8 @@ using namespace BloombergLP;
 // TESTING APPARATUS:
 // [ 2] int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
 // [ 2] TYPE& gg(TYPE *array, const char *spec)
+//-----------------------------------------------------------------------------
+
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
