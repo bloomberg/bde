@@ -5,10 +5,10 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
-#include <bslma_usesbslmaallocator.h>                   // for testing only
-#include <bslmf_isbitwiseequalitycomparable.h>          // for testing only
-#include <bslmf_nestedtraitdeclaration.h>               // for testing only
-#include <bsls_bsltestutil.h>                           // for testing only
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_isbitwiseequalitycomparable.h>
+#include <bslmf_nestedtraitdeclaration.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
