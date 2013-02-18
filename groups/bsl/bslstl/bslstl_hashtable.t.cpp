@@ -1977,7 +1977,9 @@ void debugprint(const MostEvilTestType& value);
 
 namespace BloombergLP {
 namespace bslstl {
-// HashTable-specific print function.
+// HashTable-specific print function, which must be provided in the same
+// namespace as the class do be printed.
+
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void debugprint(
         const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t);
@@ -2004,6 +2006,17 @@ namespace TestMachinery
 namespace
 #endif
 {
+                       // ====================
+                       // class IsBslAllocator
+                       // ====================
+
+template <class TYPE>
+struct IsBslAllocator : bsl::false_type {};
+template <class TYPE>
+struct IsBslAllocator<bsl::allocator<TYPE> > : bsl::true_type {};
+    // This simple traits class reports 'true' is the parameterizing 'TYPE'
+    // is an instantiation of the 'bsl::allocator' template, and 'false'
+    // otherwise.
 
                        // ===============
                        // class BoolArray
@@ -3326,7 +3339,7 @@ template <class KEY, class HASHER>
 inline
 TestConvertibleValueHasher<KEY, HASHER>::TestConvertibleValueHasher(
                                                             const HASHER& hash)
-: HASHER(hash)
+: Base(hash)
 {
 }
 
@@ -3351,7 +3364,8 @@ bsltf::EvilBooleanType TestConvertibleValueComparator<KEY>::operator() (
                             const bsltf::ConvertibleValueWrapper<KEY>& a,
                             const bsltf::ConvertibleValueWrapper<KEY>& b) const
 {
-    return BSL_TF_EQ(a, b);
+    return BSL_TF_EQ(static_cast<const KEY&>(a),
+                     static_cast<const KEY&>(b));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -4264,6 +4278,114 @@ Link* insertElement(
 using namespace TestMachinery;
 #endif
 
+// - - - - - Wrapper to forward test-class adapters to the main harness - - - -
+// Note that this is a generic facility that should be exported to a component
+// in its own right, in the 'bsltf' package.
+
+template <class CONFIGURED_DRIVER>
+struct TestDriver_ForwardTestCasesByConfiguation {
+    // This utility class template provides forwarding utilities for invoking
+    // test case functions of the (template type parameter) 'CONFIGURED_DRIVER'
+    // class.  It is expected that a 'CONFIGURED_DRIVER' class is an
+    // instantiation of the 'TestDriver' class template, with the template
+    // arguments chosen to provide a specific portion of test coverage of the
+    // whole type-space under test.
+    //
+    // This supports the following set of templates, implemented in terms of
+    // this class template, that are parameterized on the single value type
+    // for the container under test, which is the form required for support by
+    // the 'bsltf' template testing facility.
+
+    // TEST CASES
+
+    // there is no testCase1();
+    static void testCase2() { CONFIGURED_DRIVER::testCase2(); }
+    static void testCase3() { CONFIGURED_DRIVER::testCase3(); }
+    static void testCase4() { CONFIGURED_DRIVER::testCase4(); }
+    // there is no testCase5();
+    static void testCase6() { CONFIGURED_DRIVER::testCase6(); }
+    static void testCase7() { CONFIGURED_DRIVER::testCase7(); }
+    static void testCase8() { CONFIGURED_DRIVER::testCase8(); }
+    static void testCase9() { CONFIGURED_DRIVER::testCase9(); }
+    // there is no testCase10();
+    static void testCase11() { CONFIGURED_DRIVER::testCase11(); }
+    static void testCase12() { CONFIGURED_DRIVER::testCase12(); }
+    static void testCase13() { CONFIGURED_DRIVER::testCase13(); }
+    static void testCase14() { CONFIGURED_DRIVER::testCase14(); }
+    static void testCase15() { CONFIGURED_DRIVER::testCase15(); }
+    static void testCase16() { CONFIGURED_DRIVER::testCase16(); }
+    static void testCase17() { CONFIGURED_DRIVER::testCase17(); }
+    static void testCase18() { CONFIGURED_DRIVER::testCase18(); }
+    static void testCase19() { CONFIGURED_DRIVER::testCase19(); }
+    static void testCase20() { CONFIGURED_DRIVER::testCase20(); }
+    static void testCase21() { CONFIGURED_DRIVER::testCase21(); }
+    static void testCase22() { CONFIGURED_DRIVER::testCase22(); }
+    static void testCase23() { CONFIGURED_DRIVER::testCase23(); }
+    static void testCase24() { CONFIGURED_DRIVER::testCase24(); }
+    static void testCase25() { CONFIGURED_DRIVER::testCase25(); }
+    static void testCase26() { CONFIGURED_DRIVER::testCase26(); }
+};
+
+//- - - - - - - - - - - - Classes to implement test cases - - - - - - - - - - -
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+class TestDriver;
+    // Forward declaration of the main test driver.
+
+// Concerns for template parameters
+// --------------------------------
+// The primary template supports four template parameters, each of which raises
+// concerns that the template behaves correctly when instantiated with a
+// variety of types that satisfy the requirements of the appropriate type
+// parameter.  These concerns may affect all test cases, although a subset of
+// concerns may not apply in specific cases where more precise requirements
+// apply.  We enumerate the type-related concerns for each template parameter
+// here in a common place that may be referenced in the testing concerns for
+// each test case below.  There are also common concerns for the function-like
+// types 'HASHER' and 'COMPARATOR' that we catalog separately.
+//
+// KEY_CONFIG
+// - - - - -
+//
+//Test Plan
+//---------
+// We will use a variety of test allocators from 'bsltf' to test the range of
+// allocator-related concerns.
+//
+// Test with a minimal allocator relying on 'allocator_traits' for everything.
+// Test with a complete allocator that supplies distinct, observable behavior
+//   for each property supported by 'allocator_traits'
+// Provide allocators supporting each combination of trait that triggers
+//   different allocator behavior
+//: o type alias 'propagate_on_container_copy_construction'  (true false)
+//: o type alias 'propagate_on_container_copy_assignment'    (true false)
+//: o type alias 'propagate_on_container_swap'               (true false)
+//: o type alias 'pointer' is a native pointer, or a "smart" pointer
+//
+// Note that for this initial release we can use a greatly simplified plan, as
+// our current implementation of 'allocator_traits' does not support any
+// deduction of traits.  We will still use the minimal and maximal allocator
+// interfaces supported by this implementation, and the range of customizable
+// behaviors.
+//
+// Simplifying assumptions of our limited 'allocator_traits' implementation:
+//: o no support for allocators returning smart pointers
+//: o no support for any of the fine-grained propagation traits
+//: o no deducing typedefs, everything must be supplied in the allocator
+//: o copy constructing a container copies the allocator of the original
+//    unless it is 'bsl::allocator', in which case the default is used.
+//
+// - - - - - - - - - - Pre-packaged test harness adapters - - - - - - - - - - -
+// The template test facility, bsltf, requires class templates taking a single
+// argument, that is the element type to vary in the test.  We desire a variety
+// of configurations pushing the various policy parameters of the 'HashTable'
+// class template, such as the type of functors, the key extraction policy,
+// etc. so we write some simple adapters that will generate the appropriate
+// instantiation of the test harness, from a template parameterized on only the
+// element type (to be tested).  Note that in C++11 we would use the alias-
+// template facility to define these templates, rather than using public
+// inheritance through a dispatcher-shim.
+
 // - - - - - - Configuration policies to instantiate HashTable with - - - - - -
 
 template <class ELEMENT>
@@ -4346,6 +4468,504 @@ struct TrickyConfig {
     }
 };
 
+//- - - - - - - - - - - Test Driver Configuration classes - - - - - - - - - - -
+// - - - - - - (providing coverage of test-parameter concernes) - - - - - - - -
+
+// Configurations concerned with the 'KEY_CONFIG' template parameter
+
+template <class ELEMENT>
+struct TestDriver_BasicConfiguation
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , TestFacilityHasher<ELEMENT>
+                     , ::bsl::equal_to<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // Basic configuration that acts like a multi-set of 'ELEMENT' values.
+    // This is the most basic configuration that test the overwhelmingly
+    // common case usage.
+};
+
+template <class ELEMENT>
+struct TestDriver_BsltfConfiguation
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BsltfConfig<ELEMENT>
+                     , ::bsl::hash<int>
+                     , ::bsl::equal_to<int>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // Basic configuration to test a key-type different to the value-type.
+    // This is a simple attempt to deliver something approximating a map with
+    // 'int' as key, where the 'int' is computed for each element.  This is
+    // the simplest way to generate a configuration compatible with the 'bsltf'
+    // template testing framework used above, without rewriting each test case
+    // to additional support for separate test tables of pairs to initialize a
+    // more traditional-style map, with different math for computed values and
+    // separate logic for duplicate elements and groups.
+};
+
+struct TestDriver_AwkwardMaplike
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< TrickyConfig
+                     , TestFacilityHasher<TrickyConfig::KeyType>
+                     , ::bsl::equal_to<TrickyConfig::KeyType>
+                     , ::bsl::allocator<TrickyConfig::ValueType>
+                     >
+       > {
+    // This configuration is especially tricky, as the element type itself is
+    // not equality comparable, but the key-type of the element, which is the
+    // sole constituent of the element, does support key-comparison (but not
+    // equality comparison) through the supplied comparison functor.
+};
+
+// Configurations concerned with the 'HASHER' and 'COMPARATOR' parameters
+//
+// Function-like types
+// - - - - - - - - - -
+// A function-like type used to instantiate the 'HashTable' template may be:
+//: o A function type
+//: o A function pointer type
+//: o An object type convertible to a function pointer
+//: o An object type convertible to a function reference
+//: o An object type that overloads 'operator()'
+//: o A reference to a function
+//: o A reference to a function pointer
+//: o A reference to an object type convertible to a function pointer
+//: o A reference to an object type convertible to a function reference
+//: o A reference to an object type that overloads 'operator()'
+//
+// For each function-like type, the arguments to the function call me be:
+//: o Passed by 'const &'
+//: o Passed by 'const &' to something convertible from the desired argument
+//: o Passed by const-unqualified '&' (subject to constraints below)
+//: o Passed by value
+//: o Passed by value convertible from the desired argument
+//
+// In each case, the callable signature may have a trailing ellipsis.
+//
+// For function, function-pointer, and reference-to-function types, the
+// underlying function type may also have 'extern "C"' linkage.
+//
+// For an object-type overloading 'operator()', there are additional concerns:
+//: o The operator might be 'const' qualified
+//: o The operator might not be 'const' qualified
+//: o The operator may be a virtual function
+//: o The operator may be a function template
+//: o The object-type may be a class template
+//: o THe object-type may be a union (THIS IS NOT SUPPORTED)
+//
+// For an object-type overloading 'operator()'
+//: o The type may be const-qualified
+//: o The object may have internal state
+//: o The object may allocate memory for state from its own allocator
+// We note that a simple example of a function-like type holding state is a
+// function pointer.
+//
+// Any invocation of a function-like type, within contract, may throw an
+// exception of any type.
+//
+// For user-defined class types, any constructor may throw an exception of
+// any type, as may any assignment operator.
+//
+// User defined types need not support all the implicitly declared operations,
+// such as:
+//: o default constructor
+//: o copy constructor
+//: o operator=
+//: o operator&
+//: o operator,
+//: o operator new
+//: o operator delete
+//
+// QoI: Where the function-like entity is an empty class type, it should not
+//      add to the overall size of the 'HashTable' object.
+//
+// We note, with mild relief, that the one thing we are not required to support
+// is a pointer-to-member-function.
+//
+// HASHER
+// - - -
+// 'HASHER' is a function-like type that takes a single argument convertible
+// from 'typename KEY_CONFIG::KeyType' and returns a value of the type
+// 'std::size_t'.
+//
+// COMPARATOR
+// - - - - -
+// 'COMPARATOR' is a function-like type that takes two arguments, each
+// convertible from 'typename KEY_CONFIG::KeyType', and returns a value of a
+// type that is implicitly convertible to 'bool'.
+
+template <class ELEMENT>
+struct TestDriver_StatefulConfiguation
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , TestHashFunctor<ELEMENT>
+                     , TestEqualityComparator<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // Simple configuration to test simple stateful functors for the hasher and
+    // comparator policies.  Both functors support an 'id' that provids state
+    // that is not actually used when evaluating the function call operator,
+    // and track the total number of calls to the function call operator.  An
+    // additional member may be used to enable testing of exception safety, by
+    // throwing exceptions from the function call operator every 'N'th time it
+    // is called.  This extra state is declared as 'mutable' so that, as a
+    // particularly unusual case, the function to change this state can be
+    // declared 'const' to better facilitate testing.
+};
+
+template <class ELEMENT>
+struct TestDriver_GroupedUniqueKeys
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
+                     , ::bsl::equal_to<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration "groups" values into buckets by hashing 5 consecutive
+    // values of the 'ELEMENT' type to the same hash code, but maintaining a
+    // unique key value for each of those cases.  This should lead to a higher
+    // rate of collisions.
+};
+
+template <class ELEMENT>
+struct TestDriver_GroupedSharedKeys
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
+                     , GroupedEqualityComparator<ELEMENT, 5>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration "groups" values into buckets by hashing 5 consecutive
+    // values of the 'ELEMENT' type to the same hash code, and similarly
+    // arranging for those keys to compare equal to each other.  This should
+    // lead to behavior similar to a multiset.
+};
+
+template <class ELEMENT>
+struct TestDriver_DegenerateConfiguation
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , bsltf::DegenerateFunctor<TestFacilityHasher<ELEMENT> >
+                     , bsltf::DegenerateFunctor<
+                                               TestEqualityComparator<ELEMENT> >
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration utilies awkward functors, that abuse the implicitly
+    // declared operations (such as the address-of and comma operators) and
+    // return awkward types from predicates, rather than a simple 'bool'.
+    // However, this configuration does support the 'swap' operation in order
+    // to support a broad range of test cases.
+};
+
+template <class ELEMENT>
+struct TestDriver_DegenerateConfiguationWithNoSwap
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , bsltf::DegenerateFunctor<TestFacilityHasher<ELEMENT>,
+                                                false>
+                     , bsltf::DegenerateFunctor<
+                                               TestEqualityComparator<ELEMENT>,
+                                               false>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration utilies awkward functors, that abuse the implicitly
+    // declared operations (such as the address-of and comma operators) and
+    // return awkward types from predicates, rather than a simple 'bool'.
+    // As thos configuration does not support swapping of the functor types, it
+    // does not support as broad a range of test cases as some of the other
+    // configurations.
+};
+
+template <class ELEMENT>
+struct TestDriver_ConstFunctors
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , const TestFacilityHasher<ELEMENT>
+                     , const ::bsl::equal_to<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration employs const-qualified functors, and so cannot
+    // be used to test behavior that may require modifying functors, such as
+    // the assignment operator, or 'swap'.
+};
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
+template <class ELEMENT>
+struct TestDriver_FunctorReferences
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , TestFacilityHasher<ELEMENT> &
+                     , ::bsl::equal_to<ELEMENT> &
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration insatantiates the HashTable with reference type for
+    // the callable template parameters, which reference types that overload
+    // the function call operator.  Note that this is more general than C++11
+    // requires, as the hasher must be a hash function *object*.  Technically
+    // we must support the comparator being a function-type or a function-
+    // reference, so we test this implementation-detail component supports the
+    // hasher as well.
+};
+#endif
+
+template <class ELEMENT>
+struct TestDriver_FunctionTypes
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , size_t(const ELEMENT&)
+                     , bool(const ELEMENT&, const ELEMENT&)
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration insatantiates the HashTable with function-type
+    // arguments for the hash type and key-comparison type.  Note that this is
+    // more general than C++11 requires, as the hasher must be a hash function
+    // *object*.  Technically we must support the comparator being a
+    // function-type or a function-reference, so we test this implementation-
+    // detail component supports the hasher as well.
+};
+
+template <class ELEMENT>
+struct TestDriver_FunctionPointers
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , size_t(*)(const ELEMENT&)
+                     , bool(*)(const ELEMENT&, const ELEMENT&)
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration insatantiates the HashTable with function-pointer
+    // type arguments for the hash type and key-comparison type.  Note that
+    // this corresponds to testing a stateful functor, with the awkward case
+    // that the default value for the callable types is known to produce
+    // undefinded behavior (null pointer values for the function pointers).
+};
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
+template <class ELEMENT>
+struct TestDriver_FunctionReferences
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , size_t(&)(const ELEMENT&)
+                     , bool(&)(const ELEMENT&, const ELEMENT&)
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration insatantiates the HashTable with function-reference
+    // arguments for the hash type and key-comparison type.  Note that this is
+    // more general than C++11 requires, as the hasher must be a hash function
+    // *object*.  Technically we must support the comparator being a
+    // function-type or a function-reference, so we test this implementation-
+    // detail component supports the hasher as well.
+};
+#endif
+
+template <class ELEMENT>
+struct TestDriver_ConvertibleValueConfiguation
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , TestConvertibleValueHasher<ELEMENT>
+                     , TestConvertibleValueComparator<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // TDB This configuration is never tested
+};
+
+template <class ELEMENT>
+struct TestDriver_GenericFunctors
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GenericHasher
+                     , GenericComparator
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration test functors whose function-call operator is
+    // a function template that will deduce type as appropriate from the
+    // arguments supplied to the function call.
+};
+
+template <class ELEMENT>
+struct TestDriver_ModifiableFunctors
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< ModifiableKeyConfig<ELEMENT>
+                     , ModifiableHasher<ELEMENT>
+                     , ModifiableComparator<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration test functors whose arguments to the function-
+    // call operator are passed by non-modifiable reference, but honor the
+    // spririt of the rule by not actually making any modifactions to those
+    // arguments.  This is something we test only because standard conformance
+    // requires it.
+};
+
+// Configurations concerned with the 'ALLOCATOR' template parameter
+
+// ALLOCATOR
+// - - - - -
+// The 'ALLOCATOR' argument must conform to the C++11 allocator requirements,
+// and a minimal allocator would have (almost) all of its properties deduced by
+// 'std::allocator_traits'.  Therefore, allocators that do or do not supply
+// each of the following should be supported, and behave as specified by
+// 'std::allocator_traits' (noting that 'allocator_traits' is a separately
+// implemented and tested component that we depend on - this is not intended to
+// test 'allocator_traits', but merely that this component correctly uses
+// 'allocator_traits' rather than the object allocator directly):
+//: o type alias 'pointer'
+//: o type alias 'const_pointer'
+//: o type alias 'void_pointer'
+//: o type alias 'const_void_pointer'
+//: o type alias 'size_type'
+//: o type alias 'difference_type'
+//: o type alias 'propagate_on_container_copy_construction'
+//: o type alias 'propagate_on_container_copy_assignment'
+//: o type alias 'propagate_on_container_swap'
+//: o alias template 'rebind<OTHER>'
+//: o 'construct(ANY*, ARGS...)'
+//: o 'destroy(ANY*)'
+//: o 'max_size()'
+//
+// While an allocator must be CopyConstructible, there is no requirement that
+// it support any of the other implicitly declared operations:
+//: o default constructor
+//: o operator=
+//: o operator&
+//: o operator,
+//: o operator new
+//: o operator delete
+// Note that some specific functions, such as the 'HashTable' default
+// constructor, may require some of these extra functions, but there is no
+// general requirement to supply these unless a specific function contract
+// explicitly states that this operation is required, and that additional
+// requirement applies to only that one function.
+//
+// When the allocator is 'bsl::allocator<TYPE>' then we have a number of
+// additional concerns, that are mostly runtime issues rather than type-
+// related issues.  They will be raised and addressed in the usual manner
+// under the actual test case.
+
+template <class ELEMENT>
+struct TestDriver_StdAllocatorConfiguation
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GenericHasher
+                     , bsl::equal_to<ELEMENT>
+                     , bsltf::StdTestAllocator<ELEMENT>
+                     >
+       > {
+    // This configuration uses a stateless std-conforming allocator, rather
+    // than using the BDE allocator model.  To enhance test coverage of the
+    // functor, we mix the generic hsaher with 'bsl::equal_to', the default
+    // comparator.  Note that all of these parameter types are empty, so we
+    // expect to see the largest benefit from empty-base optimziations.
+};
+
+template <class ELEMENT>
+struct TestDriver_StatefulAllocatorConfiguation
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
+                     , GenericComparator
+                     , bsltf::StdStatefulAllocator<ELEMENT,
+                                                   true,
+                                                   false,
+                                                   false,
+                                                   false>
+                     >
+       > {
+    // This configuration uses a std-conforming allocator with per-object state
+    // rather than using the BDE allocator model, and uses a different
+    // allocator propagation strategy.  Allocators will propogate on copy
+    // construction, but on no other operation.  We pick another mix of hasher
+    // and comparator that were previosuly paired differently when testing
+    // callable-parameter concerns.
+};
+
+#if 0
+// bsl::alloctor_traits does not yet detect and support the allocator
+// propagation predicate traits; these test configurations will be fully
+// specced out once support is available
+
+template <class ELEMENT>
+struct TestDriver_StatefulAllocatorConfiguation1
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GenericHasher
+                     , GenericComparator
+                     , bsltf::StdStatefulAllocator<ELEMENT>
+                     >
+       > {
+    // Propagate all allocator operations.
+};
+
+template <class ELEMENT>
+struct TestDriver_StatefulAllocatorConfiguation2
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GenericHasher
+                     , GenericComparator
+                     , bsltf::StdStatefulAllocator<ELEMENT, false>
+                     >
+       > {
+    // Propagate all allocator operations but copy construction.
+};
+
+template <class ELEMENT>
+struct TestDriver_StatefulAllocatorConfiguation3
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GenericHasher
+                     , GenericComparator
+                     , bsltf::StdStatefulAllocator<ELEMENT, true, false>
+                     >
+       > {
+    // Propagate all allocator operations but swap.
+};
+#endif
+
+// - - - - - Special configurations for testing default constructor - - - - - -
+
+// These configurations are required only for a special set of tests using the
+// default constructor for HashTable, which can be instatiated for hasher and
+// comparator types that are default constructible, but awkward in every other
+// way.  This will be the only test driver to examine the limits of default
+// constructible (only) types.
+
+template <class ELEMENT>
+struct TestDriver_DefaultOnlyFunctors
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , DefaultOnlyHasher<ELEMENT>
+                     , DefaultOnlyComparator<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+};
+
+struct TestDriver_AwkwardMaplikeForDefault
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< TrickyConfig
+                     , DefaultOnlyHasher<TrickyConfig::KeyType>
+                     , DefaultOnlyComparator<TrickyConfig::KeyType>
+                     , ::bsl::allocator<TrickyConfig::ValueType>
+                     >
+       > {
+};
+
 // - - - - - Main test driver harness, that implements the test cases - - - - -
 
 template <class KEY_CONFIG,
@@ -4422,562 +5042,36 @@ class TestDriver {
   public:
     // TEST CASES
 
-    static void testCase15();
-
-    static void testCase14();
-
-    static void testCase13();
-
-    static void testCase12();
-
-    static void testCase11();
-
-    //        Test case 10 is not supported
-
-    static void testCase9();
-
-    static void testCase8();
-
-    static void testCase7();
-
-    static void testCase6();
-
-    //        Test case 5 is not supported
-
-    static void testCase4();
-
-    static void testCase3();
+    //        Test case 1 is handled separately
 
     static void testCase2();
 
-    //        Test case 1 is handled separately
+    static void testCase3();
 
-};
+    static void testCase4();
 
-// - - - - - Wrapper to forward test-class adapters to the main harness - - - -
+    //        Test case 5 is not supported
 
-template <class CONFIGURED_DRIVER>
-struct TestDriver_ForwardTestCasesByConfiguation {
-    // This utility class template provides forwarding utilities for invoking
-    // test case functions of the (template type parameter) 'CONFIGURED_DRIVER'
-    // class.  It is expected that a 'CONFIGURED_DRIVER' class is an
-    // instantiation of the 'TestDriver' class template, with the template
-    // arguments chosen to provide a specific portion of test coverage of the
-    // whole type-space under test.
-    //
-    // This supports the following set of templates, implemented in terms of
-    // this class template, that are parameterized on the single value type
-    // for the container under test, which is the form required for support by
-    // the 'bsltf' template testing facility.
+    static void testCase6();
 
-    // TEST CASES
+    static void testCase7();
 
-    static void testCase26() { CONFIGURED_DRIVER::testCase26(); }
+    static void testCase8();
 
-    static void testCase25() { CONFIGURED_DRIVER::testCase25(); }
+    static void testCase9();
 
-    static void testCase24() { CONFIGURED_DRIVER::testCase24(); }
+    //        Test case 10 is not supported
 
-    static void testCase23() { CONFIGURED_DRIVER::testCase23(); }
+    static void testCase11();
 
-    static void testCase22() { CONFIGURED_DRIVER::testCase22(); }
+    static void testCase12();
 
-    static void testCase21() { CONFIGURED_DRIVER::testCase21(); }
+    static void testCase13();
 
-    static void testCase20() { CONFIGURED_DRIVER::testCase20(); }
+    static void testCase14();
 
-    static void testCase19() { CONFIGURED_DRIVER::testCase19(); }
+    static void testCase15();
 
-    static void testCase18() { CONFIGURED_DRIVER::testCase18(); }
-
-    static void testCase17() { CONFIGURED_DRIVER::testCase17(); }
-
-    static void testCase16() { CONFIGURED_DRIVER::testCase16(); }
-
-    static void testCase15() { CONFIGURED_DRIVER::testCase15(); }
-
-    static void testCase14() { CONFIGURED_DRIVER::testCase14(); }
-
-    static void testCase13() { CONFIGURED_DRIVER::testCase13(); }
-
-    static void testCase12() { CONFIGURED_DRIVER::testCase12(); }
-
-    static void testCase11() { CONFIGURED_DRIVER::testCase11(); }
-
-    // there is no testCase10();
-
-    static void testCase9() { CONFIGURED_DRIVER::testCase9(); }
-
-    static void testCase8() { CONFIGURED_DRIVER::testCase8(); }
-
-    static void testCase7() { CONFIGURED_DRIVER::testCase7(); }
-
-    static void testCase6() { CONFIGURED_DRIVER::testCase6(); }
-
-    // there is no testCase5();
-
-    static void testCase4() { CONFIGURED_DRIVER::testCase4(); }
-
-    static void testCase3() { CONFIGURED_DRIVER::testCase3(); }
-
-    static void testCase2() { CONFIGURED_DRIVER::testCase2(); }
-
-    // there is no testCase1();
-};
-
-// Concerns for template parameters
-// --------------------------------
-// The primary template supports four template parameters, each of which raises
-// concerns that the template behaves correctly when instantiated with a
-// variety of types that satisfy the requirements of the appropriate type
-// parameter.  These concerns may affect all test cases, although a subset of
-// concerns may not apply in specific cases where more precise requirements
-// apply.  We enumerate the type-related concerns for each template parameter
-// here in a common place that may be referenced in the testing concerns for
-// each test case below.  There are also common concerns for the function-like
-// types 'HASHER' and 'COMPARATOR' that we catalog separately.
-//
-// Function-like types
-// - - - - - - - - - -
-// A function-like type used to instantiate the 'HashTable' template may be:
-//: o A function type
-//: o A function pointer type
-//: o An object type convertible to a function pointer
-//: o An object type convertible to a function reference
-//: o An object type that overloads 'operator()'
-//: o A reference to a function
-//: o A reference to a function pointer
-//: o A reference to an object type convertible to a function pointer
-//: o A reference to an object type convertible to a function reference
-//: o A reference to an object type that overloads 'operator()'
-//
-// For each function-like type, the arguments to the function call me be:
-//: o Passed by 'const &'
-//: o Passed by 'const &' to something convertible from the desired argument
-//: o Passed by const-unqualified '&' (subject to constraints below)
-//: o Passed by value
-//: o Passed by value convertible from the desired argument
-//
-// In each case, the callable signature may have a trailing ellipsis.
-//
-// For function, function-pointer, and reference-to-function types, the
-// underlying function type may also have 'extern "C"' linkage.
-//
-// For an object-type overloading 'operator()', there are additional concerns:
-//: o The operator might be 'const' qualified
-//: o The operator might not be 'const' qualified
-//: o The operator may be a virtual function
-//: o The operator may be a function template
-//: o The object-type may be a class template
-//: o THe object-type may be a union (THIS IS NOT SUPPORTED)
-//
-// For an object-type overloading 'operator()'
-//: o The type may be const-qualified
-//: o The object may have internal state
-//: o The object may allocate memory for state from its own allocator
-// We note that a simple example of a function-like type holding state is a
-// function pointer.
-//
-// Any invocation of a function-like type, within contract, may throw an
-// exception of any type.
-//
-// For user-defined class types, any constructor may throw an exception of
-// any type, as may any assignment operator.
-//
-// User defined types need not support all the implicitly declared operations,
-// such as:
-//: o default constructor
-//: o copy constructor
-//: o operator=
-//: o operator&
-//: o operator,
-//: o operator new
-//: o operator delete
-//
-// QoI: Where the function-like entity is an empty class type, it should not
-//      add to the overall size of the 'HashTable' object.
-//
-// We note, with mild relief, that the one thing we are not required to support
-// is a pointer-to-member-function.
-//
-// ALLOCATOR
-// - - - - -
-// The 'ALLOCATOR' argument must conform to the C++11 allocator requirements,
-// and a minimal allocator would have (almost) all of its properties deduced by
-// 'std::allocator_traits'.  Therefore, allocators that do or do not supply
-// each of the following should be supported, and behave as specified by
-// 'std::allocator_traits' (noting that 'allocator_traits' is a separately
-// implemented and tested component that we depend on - this is not intended to
-// test 'allocator_traits', but merely that this component correctly uses
-// 'allocator_traits' rather than the object allocator directly):
-//: o type alias 'pointer'
-//: o type alias 'const_pointer'
-//: o type alias 'void_pointer'
-//: o type alias 'const_void_pointer'
-//: o type alias 'size_type'
-//: o type alias 'difference_type'
-//: o type alias 'propagate_on_container_copy_construction'
-//: o type alias 'propagate_on_container_copy_assignment'
-//: o type alias 'propagate_on_container_swap'
-//: o alias template 'rebind<OTHER>'
-//: o 'construct(ANY*, ARGS...)'
-//: o 'destroy(ANY*)'
-//: o 'max_size()'
-//
-// While an allocator must be CopyConstructible, there is no requirement that
-// it support any of the other implicitly declared operations:
-//: o default constructor
-//: o operator=
-//: o operator&
-//: o operator,
-//: o operator new
-//: o operator delete
-// Note that some specific functions, such as the 'HashTable' default
-// constructor, may require some of these extra functions, but there is no
-// general requirement to supply these unless a specific function contract
-// explicitly states that this operation is required, and that additional
-// requirement applies to only that one function.
-//
-// When the allocator is 'bsl::allocator<TYPE>' then we have a number of
-// additional concerns, that are mostly runtime issues rather than type-
-// related issues.  They will be raised and addressed in the usual manner
-// under the actual test case.
-//
-// KEY_CONFIG
-// - - - - -
-//
-// HASHER
-// - - -
-// 'HASHER' is a function-like type that takes a single argument convertible
-// from 'typename KEY_CONFIG::KeyType' and returns a value of the type
-// 'std::size_t'.
-//
-// COMPARATOR
-// - - - - -
-// 'COMPARATOR' is a function-like type that takes two arguments, each
-// convertible from 'typename KEY_CONFIG::KeyType', and returns a value of a
-// type that is implicitly convertible to 'bool'.
-//
-//Test Plan
-//---------
-// We will use a variety of test allocators from 'bsltf' to test the range of
-// allocator-related concerns.
-//
-// Test with a minimal allocator relying on 'allocator_traits' for everything.
-// Test with a complete allocator that supplies distinct, observable behavior
-//   for each property supported by 'allocator_traits'
-// Provide allocators supporting each combination of trait that triggers
-//   different allocator behavior
-//: o type alias 'propagate_on_container_copy_construction'  (true false)
-//: o type alias 'propagate_on_container_copy_assignment'    (true false)
-//: o type alias 'propagate_on_container_swap'               (true false)
-//: o type alias 'pointer' is a native pointer, or a "smart" pointer
-//
-// Note that for this initial release we can use a greatly simplified plan, as
-// our current implementation of 'allocator_traits' does not support any
-// deduction of traits.  We will still use the minimal and maximal allocator
-// interfaces supported by this implementation, and the range of customizable
-// behaviors.
-//
-// Simplifying assumptions of our limited 'allocator_traits' implementation:
-//: o no support for allocators returning smart pointers
-//: o no support for any of the fine-grained propagation traits
-//: o no deducing typedefs, everything must be supplied in the allocator
-//: o copy constructing a container copies the allocator of the original
-//    unless it is 'bsl::allocator', in which case the default is used.
-//
-// - - - - - - - - - - Pre-packaged test harness adapters - - - - - - - - - - -
-// The template test facility, bsltf, requires class templates taking a single
-// argument, that is the element type to vary in the test.  We desire a variety
-// of configurations pushing the various policy parameters of the 'HashTable'
-// class template, such as the type of functors, the key extraction policy,
-// etc. so we write some simple adapters that will generate the appropriate
-// instantiation of the test harness, from a template parameterized on only the
-// element type (to be tested).  Note that in C++11 we would use the alias-
-// template facility to define these templates, rather than using public
-// inheritance through a dispatcher-shim.
-
-template <class ELEMENT>
-struct TestDriver_BasicConfiguation
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , TestFacilityHasher<ELEMENT>
-                     , ::bsl::equal_to<ELEMENT>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-template <class ELEMENT>
-struct TestDriver_StatefulConfiguation
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , TestHashFunctor<ELEMENT>
-                     , TestEqualityComparator<ELEMENT>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-template <class ELEMENT>
-struct TestDriver_DegenerateConfiguation
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , bsltf::DegenerateFunctor<TestFacilityHasher<ELEMENT> >
-                     , bsltf::DegenerateFunctor<
-                                               TestEqualityComparator<ELEMENT> >
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-template <class ELEMENT>
-struct TestDriver_DegenerateConfiguationWithNoSwap
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , bsltf::DegenerateFunctor<TestFacilityHasher<ELEMENT>,
-                                                false>
-                     , bsltf::DegenerateFunctor<
-                                               TestEqualityComparator<ELEMENT>,
-                                               false>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-template <class ELEMENT>
-struct TestDriver_ConstFunctors
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , const TestFacilityHasher<ELEMENT>
-                     , const ::bsl::equal_to<ELEMENT>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
-template <class ELEMENT>
-struct TestDriver_FunctorReferences
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , TestFacilityHasher<ELEMENT> &
-                     , ::bsl::equal_to<ELEMENT> &
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-#endif
-
-template <class ELEMENT>
-struct TestDriver_BsltfConfiguation
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BsltfConfig<ELEMENT>
-                     , ::bsl::hash<int>
-                     , ::bsl::equal_to<int>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-    // Basic configuration to test a key-type different to the value-type.
-    // This is a simple attempt to deliver something approximating a map with
-    // 'int' as key, where the 'int' is computed for each element.  This is
-    // the simplest way to generate a configuration compatible with the 'bsltf'
-    // template testing framework used above, without rewriting each test case
-    // to additional support for separate test tables of pairs to initialize a
-    // more traditional-style map, with different math for computed values and
-    // separate logic for duplicate elements and groups.
-};
-
-template <class ELEMENT>
-struct TestDriver_FunctionTypes
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , size_t(const ELEMENT&)
-                     , bool(const ELEMENT&, const ELEMENT&)
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-    // This is more general than C++11 requires, as the hasher must be a
-    // hash function *object*.  Technically we must support the comparator
-    // being a function-type or a function-reference, so we test this
-    // implementation-detail component supports the hasher as well.
-};
-
-template <class ELEMENT>
-struct TestDriver_FunctionPointers
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , size_t(*)(const ELEMENT&)
-                     , bool(*)(const ELEMENT&, const ELEMENT&)
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM)
-template <class ELEMENT>
-struct TestDriver_FunctionReferences
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , size_t(&)(const ELEMENT&)
-                     , bool(&)(const ELEMENT&, const ELEMENT&)
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-#endif
-
-template <class ELEMENT>
-struct TestDriver_ConvertibleValueConfiguation
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , TestConvertibleValueHasher<ELEMENT>
-                     , TestConvertibleValueComparator<ELEMENT>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-template <class ELEMENT>
-struct TestDriver_GenericFunctors
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , GenericHasher
-                     , GenericComparator
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-template <class ELEMENT>
-struct TestDriver_ModifiableFunctors
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< ModifiableKeyConfig<ELEMENT>
-                     , ModifiableHasher<ELEMENT>
-                     , ModifiableComparator<ELEMENT>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-template <class ELEMENT>
-struct TestDriver_StdAllocatorConfiguation
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , GenericHasher
-                     , GenericComparator
-                     , bsltf::StdTestAllocator<ELEMENT>
-                     >
-       > {
-};
-
-template <class ELEMENT>
-struct TestDriver_StatefulAllocatorConfiguation1
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , GenericHasher
-                     , GenericComparator
-                     , bsltf::StdStatefulAllocator<ELEMENT>
-                     >
-       > {
-    // Propagate all allocator operations.
-};
-
-template <class ELEMENT>
-struct TestDriver_StatefulAllocatorConfiguation2
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , GenericHasher
-                     , GenericComparator
-                     , bsltf::StdStatefulAllocator<ELEMENT, false>
-                     >
-       > {
-    // Propagate all allocator operations but copy construction.
-};
-
-template <class ELEMENT>
-struct TestDriver_StatefulAllocatorConfiguation3
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , GenericHasher
-                     , GenericComparator
-                     , bsltf::StdStatefulAllocator<ELEMENT, true, false>
-                     >
-       > {
-    // Propagate all allocator operations but swap.
-};
-
-struct TestDriver_AwkwardMaplike
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< TrickyConfig
-                     , TestFacilityHasher<TrickyConfig::KeyType>
-                     , ::bsl::equal_to<TrickyConfig::KeyType>
-                     , ::bsl::allocator<TrickyConfig::ValueType>
-                     >
-       > {
-    // This configuration is especially tricky, as the element type itself is
-    // not equality comparable, but the key-type of the element, which is the
-    // sole constituent of the element, does support key-comparison (but not
-    // equality comparison) through the supplied comparison functor.
-};
-
-// - - - - - Special configurations for testing default constructor - - - - - -
-
-template <class ELEMENT>
-struct TestDriver_DefaultOnlyFunctors
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , DefaultOnlyHasher<ELEMENT>
-                     , DefaultOnlyComparator<ELEMENT>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-};
-
-struct TestDriver_AwkwardMaplikeForDefault
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< TrickyConfig
-                     , DefaultOnlyHasher<TrickyConfig::KeyType>
-                     , DefaultOnlyComparator<TrickyConfig::KeyType>
-                     , ::bsl::allocator<TrickyConfig::ValueType>
-                     >
-       > {
-};
-
-// - - - - - - - - - - - Special adapters for grouping keys - - - - - - - - - -
-// As initially written, test case 6 requires special handling with distinct
-// functor classes to demonstrate and test the necessary key-equivalent groups.
-// We hope to fold these cases in as regular test cases that pass through the
-// remaining test cases as well, using the familiar pattern above.
-
-template <class ELEMENT>
-struct TestDriver_GroupedUniqueKeys
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
-                     , ::bsl::equal_to<ELEMENT>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-    // This configuration "groups" values into buckets by hashing 5 consecutive
-    // values to the same hash code, but maintaining a unique key value for
-    // each of those cases.  This should lead to a high rate of collisions.
-};
-
-template <class ELEMENT>
-struct TestDriver_GroupedSharedKeys
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
-                     , GroupedEqualityComparator<ELEMENT, 5>
-                     , ::bsl::allocator<ELEMENT>
-                     >
-       > {
-    // This configuration "groups" values into buckets by hashing 5 consecutive
-    // values to the same hash code, and similarly arranging for those keys to
-    // compare equal to each other.  This should lead to behavior similar to a
-    // multiset.
 };
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5039,2680 +5133,6 @@ TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
 }
 
 //- - - - - - - - - - - - - TEST CASE IMPLEMENTATIONS - - - - - - - - - - - - -
-
-template <class TYPE>
-struct IsBslAllocator : bsl::false_type {};
-
-template <class TYPE>
-struct IsBslAllocator<bsl::allocator<TYPE> > : bsl::true_type {};
-
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase15()
-{
-    // ------------------------------------------------------------------------
-    // TESTING traits and other compile-time properties
-    //
-    // Concerns:
-    //: 1 HashTable supports the expected traits
-    //:
-    //: 2 HashTable has the expected size
-    //
-    // Plan:
-    //: 1 For each value of increasing length, 'L':
-    //:
-    //
-    // Testing:
-    //*  traits
-    //*  sizeof(HashTable)
-    // ------------------------------------------------------------------------
-
-    if (verbose) {
-        printf("\nTesting bsl traits.\n");
-    }
-
-    typedef typename KEY_CONFIG::KeyType   KeyType;
-    typedef typename KEY_CONFIG::ValueType ValueType;
-
-    // These traits should never be true
-
-    ASSERT(!bsl::is_trivially_copyable<             Obj>::value);
-    ASSERT(!bsl::is_trivially_default_constructible<Obj>::value);
-    ASSERT(!bslmf::IsBitwiseEqualityComparable<     Obj>::value);
-
-    // The uses-allocator trait should depend only on the stored value-type,
-    // and the allocator type.
-
-    bool valueUsesBslmaAllocator = bslma::UsesBslmaAllocator<ValueType>::value;
-    bool usesBslAllocator        = IsBslAllocator<ALLOCATOR>::value;
-    bool objUsesBslmaAllocator   = bslma::UsesBslmaAllocator<Obj>::value;
-
-    // Late observation - where the stored value uses bslma allocators or not
-    // has no bearing on whether *this* container uses bslma allocators, that
-    // is controlled entirely by the allocator itself.
-
-    ASSERTV(valueUsesBslmaAllocator, usesBslAllocator, objUsesBslmaAllocator,
-                                    usesBslAllocator == objUsesBslmaAllocator);
-//     (valueUsesBslmaAllocator && usesBslAllocator) == objUsesBslmaAllocator);
-
-    // The stored type has no bearing on whether a node-based container is
-    // bitwise-moveable.  However, the allocator and two custom function-like
-    // types must all be bitwise-moveable for the whole container to be
-    // bitwise-moveable.
-
-    bool allocIsBitwiseMoveable = bslmf::IsBitwiseMoveable<ALLOCATOR>::value;
-    bool hashIsBitwiseMoveable  = bslmf::IsBitwiseMoveable<HASHER>::value;
-    bool compIsBitwiseMoveable  = bslmf::IsBitwiseMoveable<COMPARATOR>::value;
-    bool objIsBitwiseMoveable   = bslmf::IsBitwiseMoveable<Obj>::value;
-
-    ASSERTV(allocIsBitwiseMoveable,
-            hashIsBitwiseMoveable,
-            compIsBitwiseMoveable,
-            objIsBitwiseMoveable,
-     (allocIsBitwiseMoveable && hashIsBitwiseMoveable && compIsBitwiseMoveable)
-                                                      == objIsBitwiseMoveable);
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
-{
-    // ------------------------------------------------------------------------
-    // TESTING DEFAULT CONSTRUCTOR:
-    //   The default constructor creates an empty container having one bucket.
-    //   However, any attempt to insert is going to allocate a new bucket
-    //   array, and any attempt to use the 'insertElement' function should fail
-    //   as it protects against such use.  The state of a default constructed
-    //   HashTable is that of a value-constructed HashTable requesting zero
-    //   initial buckets, a maximum load factor of '1.0', and default values
-    //   for the functors.  This state is extensively tested as a starting
-    //   point for most other test cases.  However, the default constructor
-    //   also allows for a different type of hasher/comparator functor that
-    //   is DefaultConstructible, but is not CopyConstructible.  Such functors
-    //   produce a HashTable that, in turn, is not CopyConstructible - but may
-    //   be Swappable if the functor, in turn, are swappable.  It is important
-    //   to test all the other methods of this class work with such a type,
-    //   although we are not really adding anything new other than constructing
-    //   into this state - therefore, the default constructor should be the
-    //   last method tested, so that it can check every other method being
-    //   called for a type that is only default constructible, relying on their
-    //   otherwise validated behavior from known states.
-    //
-    // Concerns:
-    //: 1 An object created with the default constructor (with or without a
-    //:   supplied allocator) has the contractually specified default value.
-    //:
-    //: 2 If an allocator is NOT supplied to the default constructor, the
-    //:   default allocator in effect at the time of construction becomes the
-    //:   object allocator for the resulting object.
-    //:
-    //: 3 If an allocator IS supplied to the default constructor, that
-    //:   allocator becomes the object allocator for the resulting object.
-    //:
-    //: 4 Supplying a null allocator address has the same effect as not
-    //:   supplying an allocator.
-    //:
-    //: 5 Supplying an allocator to the default constructor has no effect on
-    //:   subsequent object values.
-    //:
-    //: 6 Any memory allocation is from the object allocator.
-    //:
-    //: 7 There is no temporary allocation from any allocator.
-    //:
-    //: 8 Every object releases any allocated memory at destruction.
-    //:
-    //: 9 QoI: The default constructor allocates no memory.
-    //:
-    // Plan:
-    //: 1 For each value of increasing length, 'L':
-    //:
-    //:   2 Using a loop-based approach, default-construct three distinct
-    //:     objects, in turn, but configured differently: (a) without passing
-    //:     an allocator, (b) passing a null allocator address explicitly,
-    //:     and (c) passing the address of a test allocator distinct from the
-    //:     default.  For each of these three iterations:  (C-1..14)
-    //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
-    //:       the current default allocator (note that a ubiquitous test
-    //:       allocator is already installed as the global allocator).
-    //:
-    //:     2 Use the default constructor to dynamically create an object
-    //:       'X', with its object allocator configured appropriately (see
-    //:       P-2); use a distinct test allocator for the object's footprint.
-    //:
-    //:     3 Use the (as yet unproven) 'allocator' to ensure that its
-    //:       object allocator is properly installed.  (C-2..4)
-    //:
-    //:     4 Use the appropriate test allocators to verify that no memory is
-    //:       allocated by the default constructor.  (C-9)
-    //:
-    //:     5 Use the individual (as yet unproven) salient attribute accessors
-    //:       to verify the default-constructed value.  (C-1)
-    //:
-    //:     6 Verify that no temporary memory is allocated from the object
-    //:       allocator.  (C-7)
-    //:
-    //:     7 Verify that all object memory is released when the object is
-    //:       destroyed.  (C-8)
-    //
-    // Testing:
-    //   HashTable(const A& allocator);
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf("\nTesting with various allocator configurations.\n");
-
-    bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
-    const TestValues VALUES(&tda);  // Contains 52 distinct increasing values.
-
-    const char *ALLOC_SPEC = ObjMaker::specForDefaultTests();
-
-    for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
-        const char CONFIG = *cfg;  // how we specify the allocator
-
-        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
-        bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
-
-        // ----------------------------------------------------------------
-
-        if (veryVerbose) {
-            printf("\n\tTesting default constructor.\n");
-        }
-
-        Obj       *objPtr;
-        ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
-                                                   CONFIG,
-                                                   &fa,
-                                                   &sa);
-        Obj& mX = *objPtr;  const Obj& X = mX;
-
-        // Verify any attribute allocators are installed properly.
-
-        ASSERTV(CONFIG, expAlloc == X.allocator());
-
-        const bslma::TestAllocator  *oa = extractTestAllocator(expAlloc);
-        const bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
-
-        // It is important that these allocators are found, or else the
-        // following tests will break severely, dereferencing null
-        // pointer.
-
-        BSLS_ASSERT_OPT(oa);
-        BSLS_ASSERT_OPT(noa);
-
-        // Confirm the expected state.
-
-        ASSERTV(CONFIG, 0 == X.size());
-        ASSERTV(CONFIG, 1 == X.numBuckets());
-        ASSERTV(CONFIG, 0 == X.elementListRoot());
-        ASSERTV(CONFIG, 1.0f == X.maxLoadFactor());
-        ASSERTV(CONFIG, 0.0f == X.loadFactor());
-        ASSERTV(CONFIG, 0 == X.countElementsInBucket(0));
-
-        const bslalg::HashTableBucket& bucket = X.bucketAtIndex(0);
-        ASSERTV(CONFIG, 0 == bucket.first());
-        ASSERTV(CONFIG, 0 == bucket.last());
-
-//        ASSERTV(CONFIG, isEqualComparator(COMPARATOR(), X.comparator()));
-//        ASSERTV(CONFIG, isEqualHasher(HASHER(), X.hasher()));
-
-        // Add any additional fine-grained tests that might be interesting.
-
-
-        // Verify no allocation from the object/non-object allocators.
-
-        ASSERTV(CONFIG,  oa->numBlocksTotal(), 0 ==  oa->numBlocksTotal());
-        ASSERTV(CONFIG, noa->numBlocksTotal(), 0 == noa->numBlocksTotal());
-
-        // -----------------------------------------------------------------
-
-        // check all other methods of the class continue to work as expected
-        // for a default constructed object.
-
-        ASSERTV(CONFIG,   X == X);
-        ASSERTV(CONFIG, !(X != X));
-
-        // an infinite load factor suggests we should never rehash.  However,
-        // in setting the load factor we will allocate the initial bucket
-        // array.
-
-        mX.setMaxLoadFactor(std::numeric_limits<float>::infinity());
-        ASSERTV(CONFIG, X.maxLoadFactor(),
-                X.maxLoadFactor() == std::numeric_limits<float>::infinity());
-
-        size_t INITIAL_BUCKETS = X.numBuckets();
-        ASSERTV(CONFIG, 0 == X.size());
-        ASSERTV(CONFIG, 1  < INITIAL_BUCKETS);
-        ASSERTV(CONFIG, 0 == X.elementListRoot());
-        ASSERTV(CONFIG, 0.0f == X.loadFactor());
-
-        mX.insert(VALUES[0]);
-
-        ASSERTV(CONFIG, 1 == X.size());
-        ASSERTV(CONFIG, INITIAL_BUCKETS == X.numBuckets());
-        ASSERTV(CONFIG, 0 != X.elementListRoot());
-        ASSERTV(CONFIG, 0.0f < X.loadFactor());
-
-        // -----------------------------------------------------------------
-
-        // Reclaim dynamically allocated object under test.
-
-        fa.deleteObject(objPtr);
-
-        // Verify all memory is released on object destruction.
-
-        ASSERTV(CONFIG, da.numBlocksInUse(), 0 == da.numBlocksInUse());
-        ASSERTV(CONFIG, fa.numBlocksInUse(), 0 == fa.numBlocksInUse());
-        ASSERTV(CONFIG, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
-    }
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
-{
-    // ------------------------------------------------------------------------
-    // TESTING setMaxLoadFactor METHOD
-    //
-    // Concerns:
-    //: 1 ...
-    //:
-    //
-    // Plan:
-    //: 1 For each value of increasing length, 'L':
-    //:
-    //
-    // Testing:
-    //*  setMaxLoadFactor
-    // ------------------------------------------------------------------------
-
-    if (verbose) {
-        printf("\nTesting 'setMaxLoadFactor'.\n");
-    }
-
-    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard dag(&da);
-
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
-
-    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
-    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
-
-    if (verbose) printf("Testing exteme values.\n");
-    {
-
-        Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);  const Obj& X = mX;
-
-        mX.setMaxLoadFactor(std::numeric_limits<float>::max());
-        ASSERT(std::numeric_limits<float>::max() == X.maxLoadFactor());
-
-        mX.setMaxLoadFactor(std::numeric_limits<float>::infinity());
-        ASSERT(std::numeric_limits<float>::infinity() == X.maxLoadFactor());
-    }
-
-#if defined(BDE_BUILD_TARGET_EXC)
-    if (verbose) printf("Testing exceptional trigger values.\n");
-    {
-        Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);
-        try {
-            mX.setMaxLoadFactor(std::numeric_limits<float>::min());
-            ASSERT(!"setMaxLoadFactor(min) should throw a 'logic_error'");
-        }
-        catch (const std::logic_error &) {
-            // This is the expected code path
-        }
-        catch (...) {
-            ASSERT(!"rehash(max size_t) threw the wrong exception type");
-        }
-
-        try {
-            mX.setMaxLoadFactor(std::numeric_limits<float>::denorm_min());
-            ASSERT(!"setMaxLoadFactor(denorm) should throw a 'logic_error'");
-        }
-        catch (const std::logic_error &) {
-            // This is the expected code path
-        }
-        catch (...) {
-            ASSERT(!"rehash(max size_t) threw the wrong exception type");
-        }
-    }
-#endif
-
-    if (verbose) printf("Negative testing.\n");
-    {
-        bsls::AssertTestHandlerGuard hG;
-
-        const float FLT_TINY = std::numeric_limits<float>::denorm_min();
-        const float FLT_NAN  = std::numeric_limits<float>::quiet_NaN();
-        const float FLT_INF  = std::numeric_limits<float>::infinity();
-
-        Obj mX(HASH, COMPARE, 0, 1.0f, scratchAlloc);
-
-//        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(  FLT_TINY));
-        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(      0.5f));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(      0.0f));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(     -0.0f));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor( -FLT_TINY));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(     -1.0f));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(  -FLT_INF));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(   FLT_NAN));
-        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(   FLT_INF));
-
-#if 0
-        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(1.0f));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(0.0f));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(-1.0f));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(
-                                     std::numeric_limits<float>::quiet_NaN()));
-        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(
-                                     -std::numeric_limits<float>::infinity()));
-        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(
-                                      std::numeric_limits<float>::infinity()));
-#endif
-    }
-
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
-{
-    // ------------------------------------------------------------------------
-    // TESTING 'insert' METHODS
-    //
-    // Concerns:
-    //: 1 ...
-    //:
-    //
-    // Plan:
-    //: 1 For each value of increasing length, 'L':
-    //:
-    //
-    // Testing:
-    //   insert(const SOURCE_TYPE& obj);
-    //   insert(const ValueType& obj, const bslalg::BidirectionalLink *hint);
-    // ------------------------------------------------------------------------
-
-    if (verbose) {
-        printf("\nTesting is not yet implemented.\n");
-    }
-
-
-    typedef typename KEY_CONFIG::ValueType Element;
-    typedef bslalg::HashTableImpUtil       ImpUtil;
-    typedef typename Obj::SizeType         SizeType;
-
-    const bool VALUE_TYPE_USES_ALLOCATOR =
-                                     bslma::UsesBslmaAllocator<Element>::value;
-
-    if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
-
-    const char *ALLOC_SPEC = ObjMaker::specForBootstrapTests();
-
-    const TestValues VALUES;  // contains 52 distinct increasing values
-
-
-    // Probably want to pick these up as values from some injected policy, so
-    // that we can test with stateful variants
-    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
-    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
-
-#if 1 // defined(THE_TEST_IS_YET_TO_COME)
-    const size_t MAX_LENGTH = 9;
-
-    for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
-    for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-        const float    MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
-        const SizeType LENGTH = ti;
-
-        if (verbose) {
-            printf("\nTesting with various allocator configurations.\n");
-        }
-
-        for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
-            const char CONFIG = *cfg;  // how we specify the allocator
-            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
-            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
-
-            bslma::DefaultAllocatorGuard dag(&da);
-
-            // ----------------------------------------------------------------
-
-            if (veryVerbose) {
-                printf("\n\tTesting bootstrap constructor.\n");
-            }
-
-            Obj                  *objPtr;
-
-            //const size_t NUM_BUCKETS = predictNumBuckets(3*LENGTH, MAX_LF);
-
-            ALLOCATOR expAllocator = ObjMaker::makeObject( &objPtr
-                                                         , CONFIG
-                                                         , &fa
-                                                         , &sa
-                                                         , HASH
-                                                         , COMPARE
-                                                         , 0
-                                                         , MAX_LF);
-
-            Obj&                   mX = *objPtr;  const Obj& X = mX;
-
-            // Verify any attribute allocators are installed properly.
-
-            ASSERTV(MAX_LF, LENGTH, CONFIG, expAllocator == X.allocator());
-
-
-            bslma::TestAllocator  *oa = extractTestAllocator(expAllocator);
-            bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
-
-            // It is important that these allocators are found, or else the
-            // following tests will break severely, dereferencing null
-            // pointer.
-            BSLS_ASSERT_OPT(oa);
-            BSLS_ASSERT_OPT(noa);
-
-            // QoI: Verify no allocation from the object/non-object allocators
-            // if no buckets are requested (as per the default constructor).
-            if (0 == LENGTH) {
-                ASSERTV(MAX_LF, LENGTH, CONFIG, oa->numBlocksTotal(),
-                        0 ==  oa->numBlocksTotal());
-            }
-            ASSERTV(MAX_LF, LENGTH, CONFIG, noa->numBlocksTotal(),
-                    0 == noa->numBlocksTotal());
-
-            // Record blocks used by the initial bucket array
-            const bsls::Types::Int64 INITIAL_OA_BLOCKS  = oa->numBlocksTotal();
-
-
-            // Verify attributes of an empty container.
-            // Note that not all of these attributes are salient to value.
-            // None of these accessors are deemed tested until their own test
-            // case, but many witnesses give us some confidence in the state.
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.size());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 < X.numBuckets());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.elementListRoot());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, MAX_LF == X.maxLoadFactor());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
-
-            const bslalg::HashTableBucket& bucket = X.bucketAtIndex(0);
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.first());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.last());
-
-            // Verify no allocation from the object/non-object allocators.
-
-            ASSERTV(MAX_LF, LENGTH, CONFIG, oa->numBlocksTotal(),
-                    INITIAL_OA_BLOCKS ==  oa->numBlocksTotal());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, noa->numBlocksTotal(),
-                    0 == noa->numBlocksTotal());
-
-            // ----------------------------------------------------------------
-
-            if (veryVerbose) {
-                printf("\n\tTesting 'insert(element)'.\n");
-            }
-            if (0 < LENGTH) {
-                if (verbose) printf(
-                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG,
-                        oa->numBlocksTotal(),   oa->numBlocksInUse(),
-                        oa->numBlocksTotal() == oa->numBlocksInUse());
-
-                for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
-                    Link *RESULT = mX.insert(VALUES[tj]);
-                    ASSERT(0 != RESULT);
-                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            BSL_TF_EQ(
-                                     KEY_CONFIG::extractKey(VALUES[tj]),
-                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
-                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            BSL_TF_EQ(
-                                   VALUES[tj],
-                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
-                }
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH - 1 == X.size());
-                if (veryVerbose) {
-                    printf("\t\t\tBEFORE: ");
-                    P(X);
-                }
-
-                bslma::TestAllocator scratch1("scratch1", veryVeryVeryVerbose);
-
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*oa) {
-                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch1);
-
-                    // This will fail on the initial insert as we must also
-                    // create the bucket array, so there is an extra pass.
-                    // Not sure why that means the block counts get out of
-                    // synch though, is this catching a real bug?
-#if defined(HAVE_WORKED_OUT_CORRECT_MEMORY_USE_COMPUTATIONS)
-                    ASSERTV(CONFIG, LENGTH,
-                            oa->numBlocksTotal(),   oa->numBlocksInUse(),
-                            oa->numBlocksTotal() == oa->numBlocksInUse());
-#endif
-
-                    bslma::TestAllocatorMonitor tam(oa);
-                    Link *RESULT = mX.insert(VALUES[LENGTH - 1]);
-                    ASSERT(0 != RESULT);
-
-                    // These tests assume that the object allocator is used
-                    // only is stored elements also allocate memory.  This
-                    // does not allow for rehashes as the container grows.
-#if defined(HAVE_WORKED_OUT_CORRECT_MEMORY_USE_COMPUTATIONS)
-                    if (VALUE_TYPE_USES_ALLOCATOR  ||
-                                                expectPoolToAllocate(LENGTH)) {
-                        ASSERTV(CONFIG, tam.isTotalUp());
-                        ASSERTV(CONFIG, tam.isInUseUp());
-                    }
-                    else {
-                        ASSERTV(CONFIG, tam.isTotalSame());
-                        ASSERTV(CONFIG, tam.isInUseSame());
-                    }
-#endif
-
-                    // Verify no temporary memory is allocated from the object
-                    // allocator.
-                    // BROKEN TEST CONDITION
-                    // We need to think carefully about how we allow for the
-                    // allocation of the bucket-array
-
-#if defined(HAVE_WORKED_OUT_CORRECT_MEMORY_USE_COMPUTATIONS)
-                    ASSERTV(CONFIG, LENGTH,
-                            oa->numBlocksTotal(),   oa->numBlocksInUse(),
-                            oa->numBlocksTotal() == oa->numBlocksInUse());
-#endif
-
-                    ASSERTV(CONFIG, LENGTH - 1,
-                            BSL_TF_EQ(
-                                    KEY_CONFIG::extractKey(VALUES[LENGTH - 1]),
-                                    ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
-                    ASSERTV(CONFIG, LENGTH - 1,
-                            BSL_TF_EQ(
-                                   VALUES[LENGTH - 1],
-                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
-
-                    guard.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
-                        LENGTH == X.size());
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, X,
-                       0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
-                                                           COMPARE,
-                                                           VALUES,
-                                                           LENGTH));
-                // check elements with equivalent keys are contiguous
-                // check expected elements are present in container, with
-                // expected number of duplicates
-                {
-                    int *foundKeys = new int[X.size()];
-                    for (SizeType j = 0;j != X.size(); ++j) {
-                        foundKeys[j] = 0;
-                    }
-
-                    SizeType i = 0;
-                    for (Link *it = X.elementListRoot();
-                         0 != it;
-                         it = it->nextLink(), ++i)
-                    {
-                        for (SizeType j = 0; j != X.size(); ++j) {
-                            if (BSL_TF_EQ(
-                                        KEY_CONFIG::extractKey(VALUES[j]),
-                                        ImpUtil::extractKey<KEY_CONFIG>(it))) {
-                                ASSERTV(MAX_LF, LENGTH, CONFIG, VALUES[j],
-                                        !foundKeys[j]);
-                                ++foundKeys[j];
-                            }
-                        }
-                    }
-                    SizeType missing = 0;
-                    for (SizeType j = 0; j != X.size(); ++j) {
-                        if (!foundKeys[j]) { ++missing; }
-                    }
-                    ASSERTV(MAX_LF, LENGTH, CONFIG, missing, 0 == missing);
-
-                    delete[] foundKeys;
-
-                    ASSERTV(MAX_LF, LENGTH, CONFIG, X.size() == i);
-                }
-            }
-
-            // ----------------------------------------------------------------
-
-            if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
-            {
-                const bsls::Types::Int64 BB = oa->numBlocksTotal();
-
-                mX.removeAll();
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.size());
-                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 < X.numBuckets());
-                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(MAX_LF, LENGTH, CONFIG, MAX_LF == X.maxLoadFactor());
-                ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
-                ASSERTV(MAX_LF, LENGTH, CONFIG,
-                        0 == X.countElementsInBucket(0));
-
-                const bsls::Types::Int64 AA = oa->numBlocksTotal();
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, BB == AA);
-            }
-
-            // ----------------------------------------------------------------
-
-            if (veryVerbose) { printf(
-                "\n\tRepeat testing 'insert(element)', with memory checks.\n");
-            }
-            if (0 < LENGTH) {
-                if (verbose) printf(
-                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
-
-                for (SizeType tj = 0; tj < LENGTH - 1; ++tj) {
-                    Link *RESULT = mX.insert(VALUES[tj]);
-                    ASSERT(0 != RESULT);
-                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            BSL_TF_EQ(
-                                     KEY_CONFIG::extractKey(VALUES[tj]),
-                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
-                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            BSL_TF_EQ(
-                                   VALUES[tj],
-                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
-                }
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH - 1 == X.size());
-                if (veryVerbose) {
-                    printf("\t\t\tBEFORE: ");
-                    P(X);
-                }
-
-                bslma::TestAllocator scratch2("scratch2", veryVeryVeryVerbose);
-
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*oa) {
-                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch2);
-
-                    bslma::TestAllocatorMonitor tam(oa);
-                    Link *RESULT = mX.insert(VALUES[LENGTH - 1]);
-                    ASSERT(0 != RESULT);
-
-                    // The number of buckets should not have changed, so no
-                    // reason to allocate a fresh bucket array
-//                    ASSERTV(MAX_LF, LENGTH, CONFIG,
-//                            bucketCount,   X.numBuckets(),
-//                            bucketCount == X.numBuckets());
-
-                    // These tests assume that the object allocator is used
-                    // only if stored elements also allocate memory.  This
-                    // does not allow for rehashes as the container grows.
-                    // Hence we run the same test sequence a second time after
-                    // clearing the container, so we can validate knowing that
-                    // no rehashes should be necessary, and will in fact show
-                    // up as a memory use error.  'LENGTH' was the high-water
-                    // mark of the initial run on the container before removing
-                    // all elements.
-                    if ((LENGTH < X.size() && expectPoolToAllocate(LENGTH))
-                        || VALUE_TYPE_USES_ALLOCATOR) {
-                        ASSERTV(CONFIG, LENGTH, tam.isTotalUp());
-                        ASSERTV(CONFIG, LENGTH, tam.isInUseUp());
-                    }
-                    else {
-                        ASSERTV(CONFIG, LENGTH, tam.isTotalSame());
-                        ASSERTV(CONFIG, LENGTH, tam.isInUseSame());
-                    }
-
-                    ASSERTV(MAX_LF, LENGTH, CONFIG,
-                            BSL_TF_EQ(
-                                    KEY_CONFIG::extractKey(VALUES[LENGTH - 1]),
-                                    ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
-                    ASSERTV(MAX_LF, LENGTH, CONFIG,
-                            BSL_TF_EQ(
-                                   VALUES[LENGTH - 1],
-                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
-
-                    guard.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH == X.size());
-
-                // check elements with equivalent keys are contiguous
-                // check expected elements are present in container, with
-                // expected number of duplicates
-                {
-                    int *foundKeys = new int[X.size()];
-                    for (SizeType j = 0; j != X.size(); ++j) {
-                        foundKeys[j] = 0;
-                    }
-
-                    size_t i = 0;
-                    for (Link *it = X.elementListRoot();
-                         0 != it;
-                         it = it->nextLink(), ++i)
-                    {
-                        for (SizeType j = 0; j != X.size(); ++j) {
-                            if (BSL_TF_EQ(
-                                        KEY_CONFIG::extractKey(VALUES[j]),
-                                        ImpUtil::extractKey<KEY_CONFIG>(it))) {
-                                ASSERTV(MAX_LF, LENGTH, CONFIG, VALUES[j],
-                                        !foundKeys[j]);
-                                ++foundKeys[j];
-                            }
-                        }
-                    }
-                    SizeType missing = 0;
-                    for (SizeType j = 0; j != X.size(); ++j) {
-                        if (!foundKeys[j]) { ++missing; }
-                    }
-                    ASSERTV(MAX_LF, LENGTH, CONFIG, missing, 0 == missing);
-
-                    delete[] foundKeys;
-
-                    ASSERTV(MAX_LF, LENGTH, CONFIG, X.size() == i);
-                }
-            }
-
-            // ----------------------------------------------------------------
-
-            if (veryVerbose) { printf(
-                                "\n\tTesting 'insert' duplicated values.\n"); }
-            {
-                Link *ITER[MAX_LENGTH + 1];
-
-                // The first loop adds a duplicate in front of each already
-                // inserted element
-                for (SizeType tj = 0; tj < LENGTH; ++tj) {
-                    ITER[tj] = mX.insert(VALUES[tj]);
-                    ASSERT(0 != ITER[tj]);
-                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            BSL_TF_EQ(
-                                   KEY_CONFIG::extractKey(VALUES[tj]),
-                                   ImpUtil::extractKey<KEY_CONFIG>(ITER[tj])));
-                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            BSL_TF_EQ(
-                                 VALUES[tj],
-                                 ImpUtil::extractValue<KEY_CONFIG>(ITER[tj])));
-                }
-                ITER[LENGTH] = 0;
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
-                        2 * LENGTH == X.size());
-
-                // The second loop adds another duplicate in front of each
-                // the items from the previous loop, and not in the middle of
-                // any subranges.
-                for (SizeType tj = 0; tj < LENGTH; ++tj) {
-                    Link *RESULT = mX.insert(VALUES[tj]);
-                    ASSERT(0 != RESULT);
-                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            BSL_TF_EQ(
-                                     KEY_CONFIG::extractKey(VALUES[tj]),
-                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
-                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            BSL_TF_EQ(
-                                   VALUES[tj],
-                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
-                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
-                            ITER[tj] == RESULT->nextLink());
-                }
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
-                        3 * LENGTH == X.size());
-            }
-
-            // ----------------------------------------------------------------
-
-            // Reclaim dynamically allocated object under test.
-
-            fa.deleteObject(objPtr);
-
-            // Verify all memory is released on object destruction.
-
-            ASSERTV(MAX_LF, LENGTH, CONFIG, da.numBlocksInUse(),
-                    0 == da.numBlocksInUse());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, fa.numBlocksInUse(),
-                    0 == fa.numBlocksInUse());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, sa.numBlocksInUse(),
-                    0 == sa.numBlocksInUse());
-        }
-    }
-    }
-
-    // ----------------------------------------------------------------
-
-#if defined BDE_BUILD_TARGET_EXC
-    {
-        Obj mR(HASH,
-               COMPARE,
-               0,
-               native_std::numeric_limits<float>::denorm_min());
-        try {
-            mR.insert(VALUES[0]);
-
-            P(mR.numBuckets())
-            P(mR.size());
-
-            ASSERT(false);
-        }
-        catch(const native_std::length_error& e) {
-            // This is the expected code path
-        }
-        catch(...) {
-            ASSERT(!"The wrong exception type was thrown.");
-        }
-    }
-#endif  // BDE_BUILD_TARGET_EXC
-
-#endif  //  1 // defined(THE_TEST_IS_YET_TO_COME)
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
-{
-    // ------------------------------------------------------------------------
-    // TESTING REHASH METHODS
-    //
-    // Concerns:
-    //: 1 'rehashForNumBuckets' allocates at least the specified number of
-    //:   buckets.
-    //:
-    //: 2 'reserveForNumElements' allocates sufficient buckets so that, after
-    //:   the rehash, 'numBuckets() / maxLoadFactor()' >= the specified number
-    //:   of elements.
-    //:
-    //: 3 Neither rehash function affects the value of the object.
-    //:
-    //: 4 Neither rehash function affects the order of the inserted elements
-    //:   with the same value.
-    //:
-    //: 5 'rehashForNumBuckets' is a no-op if the requested number of buckets
-    //:   is less than the current 'numBuckets' in the object.
-    //:
-    //: 6 'reserveForNumElements' is a no-op if the requested number of
-    //:   elements can already be accommodated without exceeding the
-    //:   'maxLoadFactor' of the object.
-    //:
-    //: 7 Any memory allocation is from the object allocator.
-    //:
-    //: 8 The only memory allocation is a single allocation for the new bucket
-    //:   array; no new nodes are allocated, and the old array is reclaimed by
-    //:   the object allocator.
-    //:
-    //: 9 'rehashForNumBuckets' provides the strong exception guarantee if the
-    //:   hasher does not throw.
-    //:
-    //:10 'rehashForNumBuckets' will reset the object to an empty container,
-    //:   without leaking memory or objects, if a hasher throws.
-    //:
-    //:11 'reserveForNumElements' provides the strong exception guarantee if
-    //:   the hasher does not throw.
-    //:
-    //:12 'reserveForNumElements' will reset the object to an empty container,
-    //:   without leaking memory or objects, if a hasher throws.
-    //:
-    //
-    // Plan:
-    //: 1 TBD
-    //
-    // Testing:
-    //   rehashForNumBuckets(SizeType newNumBuckets);
-    //   reserveForNumElements(SizeType numElements);
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf(
-                 "\nCreate a test allocator and install it as the default.\n");
-
-    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard dag(&da);
-
-    if (verbose) printf(
-       "\nUse a table of distinct object values and expected memory usage.\n");
-
-    const size_t REHASH_SIZE[] = {
-        0,
-        1,
-        2,
-        3,
-        5,
-        8,
-        12,
-        13,
-        2099
-    };
-    const int NUM_REHASH_SIZE = sizeof REHASH_SIZE / sizeof *REHASH_SIZE;
-
-    const int NUM_DATA                     = DEFAULT_NUM_DATA;
-    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
-
-    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
-    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
-
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const int         LINE   = DATA[ti].d_line;
-        const char *const SPEC   = DATA[ti].d_spec;
-        const size_t      LENGTH = strlen(SPEC);
-
-        for (int tj = 0; tj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++tj) {
-            const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
-            const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
-
-            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-            ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
-
-            Obj mZ(HASH, COMPARE, NUM_BUCKETS, MAX_LF, scratchAlloc);
-            const Obj& Z = gg(&mZ,  SPEC);
-
-            for (int tk = 0; tk < NUM_REHASH_SIZE; ++tk) {
-                bslma::TestAllocator  oa("object",  veryVeryVeryVerbose);
-                ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&oa);
-
-                Obj mX(Z, objAlloc); const Obj& X = mX;
-
-                if (veryVerbose) { T_ P_(LINE) P_(Z) P(X) }
-
-                const size_t OLD_NUM_BUCKETS = X.numBuckets();
-                const size_t NEW_NUM_BUCKETS = std::max(
-                                      REHASH_SIZE[tk],
-                                      predictNumBuckets(X.size() + 1, MAX_LF));
-
-                const size_t EXP_NUM_BUCKETS =
-                      bslstl::HashTable_ImpDetails::nextPrime(NEW_NUM_BUCKETS);
-
-                bslma::TestAllocatorMonitor oam(&oa);
-
-                mX.rehashForNumBuckets(REHASH_SIZE[tk]);
-
-                ASSERTV(LINE, tk, MAX_LF, X == Z);
-                ASSERTV(LINE, tk, MAX_LF, REHASH_SIZE[tk], X.numBuckets(),
-                        REHASH_SIZE[tk] <= X.numBuckets());
-
-                // If request is smaller than current number of buckets, there
-                // should be no effect, no change in buckets, and no chance to
-                // allocate memory.
-                if (REHASH_SIZE[tk] <= OLD_NUM_BUCKETS) {
-                    ASSERTV(LINE, tk, MAX_LF,
-                            OLD_NUM_BUCKETS == X.numBuckets());
-                    ASSERTV(LINE, tk, MAX_LF, oam.isTotalSame());
-                    ASSERTV(LINE, tk, MAX_LF, oam.isInUseSame());
-                }
-                // Otherwise, we have computed the new expected number of
-                // buckets, and there should be exactly one allocation for the
-                // new bucket array.
-                else {
-                    ASSERTV(LINE, tk, MAX_LF,
-                            EXP_NUM_BUCKETS,   X.numBuckets(),
-                            EXP_NUM_BUCKETS == X.numBuckets());
-
-                    ASSERTV(LINE, tk, oam.numBlocksTotalChange(),
-                            1 == oam.numBlocksTotalChange());
-
-                    // We release the old array allocation to make use of the
-                    // new, so there should be no change in the number of
-                    // allocated blocks in use.  However, in the case of
-                    // the first allocation on an empty container, we will
-                    // actually be creating the first array block.
-                    if (0 < LENGTH ) {
-                        ASSERTV(LINE, tk, oam.isInUseSame());
-                    }
-                    else {
-                        ASSERTV(LINE, tk, oam.numBlocksInUseChange(),
-                                1 == oam.numBlocksInUseChange());
-                    }
-                }
-            }
-        }
-#if defined BDE_BUILD_TARGET_EXC
-        // The following set of tests are expected, at least in some test
-        // configurations, to fail by throwing exceptions.
-        if (verbose) printf("Testing behavior at extremities.\n");
-        {
-            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-            ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
-
-            Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);
-            try {
-                mX.rehashForNumBuckets(std::numeric_limits<size_t>::max());
-                ASSERT(!"rehash(max size_t) should throw a 'logic_error'");
-            }
-            catch (const std::logic_error &) {
-                // This is the expected code path
-            }
-            catch (...) {
-                ASSERT(!"rehash(max size_t) threw the wrong exception type");
-            }
-        }
-//        {
-//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1e30f, scratchAlloc);
-//            const Obj& Z = gg(&mZ,  SPEC);
-//        }
-//        {
-//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1e-6f, scratchAlloc);
-//            const Obj& Z = gg(&mZ,  SPEC);
-//        }
-//        {
-//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1.0f, scratchAlloc);
-//            const Obj& Z = gg(&mZ,  SPEC);
-//        }
-//        {
-//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1.0f, scratchAlloc);
-//            const Obj& Z = gg(&mZ,  SPEC);
-//        }
-#endif
-    }
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
-{
-    // ------------------------------------------------------------------------
-    // COPY-ASSIGNMENT OPERATOR:
-    //   Ensure that we can assign the value of any object of the class to any
-    //   object of the class, such that the two objects subsequently have the
-    //   same value.
-    //
-    // Concerns:
-    //: 1 The assignment operator can change the value of any modifiable target
-    //:   object to that of any source object.
-    //:
-    //: 2 If allocator propagation is not enabled for copy assignment, the
-    //:   allocator address held by the target object is unchanged.
-    //:
-    //: 3 If allocator propagation is not enabled for copy assignment, any
-    //:   memory allocation is from the target object's allocator.
-    //:
-    //: 4 The signature and return type are standard.
-    //:
-    //: 5 The reference returned is to the target object (i.e., '*this').
-    //:
-    //: 6 The value of the source object is not modified.
-    //:
-    //: 7 The allocator address held by the source object is unchanged.
-    //:
-    //: 8 QoI: Assigning a source object having the default-constructed value
-    //:   allocates no memory.
-    //:
-    //: 9 Any memory allocation is exception neutral.
-    //:
-    //:10 Assigning an object to itself behaves as expected (alias-safety).
-    //:
-    //:11 Every object releases any allocated memory at destruction.
-    //:
-    //:12 If allocator propagation is enabled for copy assignment,
-    //:   any memory allocation is from the source object's
-    //:   allocator.
-    //:
-    //:13 If allocator propagation is enabled for copy assignment, the
-    //:   allocator address held by the target object is changed to that of the
-    //:   source.
-    //:
-    //:14 If allocator propagation is enabled for copy assignment, any memory
-    //:   allocation is from the original target allocator will be released
-    //:   after copy assignment.
-    //
-    // Plan:
-    //: 1 Use the address of 'operator=' to initialize a member-function
-    //:   pointer having the appropriate signature and return type for the
-    //:   copy-assignment operator defined in this component.  (C-4)
-    //:
-    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 3 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid object values.
-    //:
-    //: 4 For each row 'R1' (representing a distinct object value, 'V') in the
-    //:   table described in P-3: (C-1..2, 5..8, 11)
-    //:
-    //:   1 Use the value constructor and a "scratch" allocator to create two
-    //:     'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
-    //:
-    //:   2 Execute an inner loop that iterates over each row 'R2'
-    //:     (representing a distinct object value, 'W') in the table described
-    //:     in P-3:
-    //:
-    //:   3 For each of the iterations (P-4.2): (C-1..2, 5..8, 11)
-    //:
-    //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
-    //:
-    //:     2 Use the value constructor and 'oa' to create a modifiable 'Obj',
-    //:       'mX', having the value 'W'.
-    //:
-    //:     3 Assign 'mX' from 'Z' in the presence of injected exceptions
-    //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-    //:
-    //:     4 Verify that the address of the return value is the same as that
-    //:       of 'mX'.  (C-5)
-    //:
-    //:     5 Use the equality-comparison operator to verify that: (C-1, 6)
-    //:
-    //:       1 The target object, 'mX', now has the same value as that of 'Z'.
-    //:         (C-1)
-    //:
-    //:       2 'Z' still has the same value as that of 'ZZ'.  (C-6)
-    //:
-    //:     6 Use the 'allocator' accessor of both 'mX' and 'Z' to verify that
-    //:       the respective allocator addresses held by the target and source
-    //:       objects are unchanged.  (C-2, 7)
-    //:
-    //:     7 Use the appropriate test allocators to verify that: (C-8, 11)
-    //:
-    //:       1 For an object that (a) is initialized with a value that did NOT
-    //:         require memory allocation, and (b) is then assigned a value
-    //:         that DID require memory allocation, the target object DOES
-    //:         allocate memory from its object allocator only (irrespective of
-    //:         the specific number of allocations or the total amount of
-    //:         memory allocated); also cross check with what is expected for
-    //:         'mX' and 'Z'.
-    //:
-    //:       2 An object that is assigned a value that did NOT require memory
-    //:         allocation, does NOT allocate memory from its object allocator;
-    //:         also cross check with what is expected for 'Z'.
-    //:
-    //:       3 No additional memory is allocated by the source object.  (C-8)
-    //:
-    //:       4 All object memory is released when the object is destroyed.
-    //:         (C-11)
-    //:
-    //: 5 Repeat steps similar to those described in P-4 except that, this
-    //:   time, there is no inner loop (as in P-4.2); instead, the source
-    //:   object, 'Z', is a reference to the target object, 'mX', and both 'mX'
-    //:   and 'ZZ' are initialized to have the value 'V'.  For each row
-    //:   (representing a distinct object value, 'V') in the table described in
-    //:   P-3: (C-9)
-    //:
-    //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-    //:
-    //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
-    //:     'mX'; also use the value constructor and a distinct "scratch"
-    //:     allocator to create a 'const' 'Obj' 'ZZ'.
-    //:
-    //:   3 Let 'Z' be a reference providing only 'const' access to 'mX'.
-    //:
-    //:   4 Assign 'mX' from 'Z' in the presence of injected exceptions (using
-    //:     the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  (C-9)
-    //:
-    //:   5 Verify that the address of the return value is the same as that of
-    //:     'mX'.
-    //:
-    //:   6 Use the equality-comparison operator to verify that the target
-    //:     object, 'mX', still has the same value as that of 'ZZ'.
-    //:
-    //:   7 Use the 'allocator' accessor of 'mX' to verify that it is still the
-    //:     object allocator.
-    //:
-    //:   8 Use the appropriate test allocators to verify that:
-    //:
-    //:     1 Any memory that is allocated is from the object allocator.
-    //:
-    //:     2 No additional (e.g., temporary) object memory is allocated when
-    //:       assigning an object value that did NOT initially require
-    //:       allocated memory.
-    //:
-    //:     3 All object memory is released when the object is destroyed.
-    //:
-    //: 6 Use the test allocator from P-2 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-3)
-    //
-    // Testing:
-    //   HashTable& operator=(const HashTable& rhs);
-    // ------------------------------------------------------------------------
-
-    typedef MakeAllocator<ALLOCATOR> AllocMaker;
-
-    const int NUM_DATA                     = DEFAULT_NUM_DATA;
-    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
-
-    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard dag(&da);
-
-    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
-    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
-
-    if (verbose) printf("\nCompare each pair of similar and different"
-                        " values (u, ua, v, va) in S X A X S X A"
-                        " without perturbation.\n");
-    {
-        // Create first object
-        for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const float MAX_LF1 = DEFAULT_MAX_LOAD_FACTOR[lfi];
-
-            const int         LINE1   = DATA[ti].d_line;
-            const int         INDEX1  = DATA[ti].d_index;
-            const char *const SPEC1   = DATA[ti].d_spec;
-
-            const size_t      LENGTH1 = strlen(SPEC1);
-            const size_t NUM_BUCKETS1 = predictNumBuckets(LENGTH1, MAX_LF1);
-
-            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
-            const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
-
-            Obj mZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, scratchAlloc);
-            const Obj& Z  = gg(&mZ,  SPEC1);
-            const Obj ZZ(Z, scratchAlloc);
-
-            if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
-
-            // should perform a self-assignment test here
-
-            // Create second object
-            for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const float MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
-
-                const int         LINE2   = DATA[tj].d_line;
-                const int         INDEX2  = DATA[tj].d_index;
-                const char *const SPEC2   = DATA[tj].d_spec;
-
-                const size_t      LENGTH2 = strlen(SPEC2);
-                const size_t NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
-                                                              MAX_LF2);
-
-                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                const ALLOCATOR objAlloc  = AllocMaker::make(&oa);
-
-                {
-                    Obj mX(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, objAlloc);
-                    const Obj& X  = gg(&mX,  SPEC2);
-
-                    if (veryVerbose) { T_ P_(LINE2) P(X) }
-
-                    ASSERTV(LINE1, LINE2, Z, X,
-                            (Z == X) == (INDEX1 == INDEX2));
-
-                    bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
-
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
-
-                        Obj *mR = &(mX = Z);
-                        ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
-                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
-                        ASSERTV(LINE1, LINE2,
-                                Z.maxLoadFactor(),   X.maxLoadFactor(),
-                                Z.maxLoadFactor() == X.maxLoadFactor());
-
-                        // If we can compare the two functor objects, we should
-                        // do so, to verify stateful allocators are copied too.
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-                    ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
-
-                    // Should test that allocator propagates if, and only if,
-                    // the allocator has the propagate_on_container_copy_assign
-                    // trait.  Currently we assume (and test) that allocators
-                    // never propagate.
-
-                    ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
-                    ASSERTV(LINE1, LINE2, scratchAlloc == Z.allocator());
-
-                    ASSERTV(LINE1, LINE2, sam.isInUseSame());
-
-                    ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
-                }
-
-                // Verify all memory is released on object destruction.
-
-                ASSERTV(LINE1, LINE2, oa.numBlocksInUse(),
-                        0 == oa.numBlocksInUse());
-            }
-            }
-        }
-        }
-    }
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
-{
-    // ------------------------------------------------------------------------
-    // SWAP MEMBER AND FREE FUNCTIONS
-    //   Ensure that, when member and free 'swap' are implemented, we can
-    //   exchange the values of any two objects that use the same
-    //   allocator.
-    //
-    // Concerns:
-    //: 1 Both functions exchange the state of the (two) supplied objects,
-    //:   comprising their values, their functors, and their 'maxLoadFactor'
-    //:   attribute.
-    //:
-    //: 2 Both functions have standard signatures and return types.
-    //:
-    //: 3 Using either function to swap an object with itself does not
-    //:   affect the value of the object (alias-safety).
-    //:
-    //: 4 If the two objects being swapped use the same allocator, neither
-    //:   function allocates memory from any allocator and the allocator
-    //:   address held by both objects is unchanged.
-    //:
-    //: 5 If the two objects being swapped uses different allocators and
-    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
-    //:   'false_type', then both function may allocate memory and the
-    //:   allocator address held by both object is unchanged.
-    //:
-    //: 6 If the two objects being swapped uses different allocators and
-    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
-    //:   'true_type', then no memory will be allocated and the allocators will
-    //:   also be swapped.
-    //:
-    //: 7 Both functions provides the strong exception guarantee w.t.r. to
-    //:   memory allocation .
-    //:
-    //: 8 The free 'swap' function is discoverable through ADL (Argument
-    //:   Dependent Lookup).
-    //:
-    //: 9 'swap' does not invalidate any references or pointers to elements
-    //:   stored in either hash table, unless allocators are unequal and
-    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
-    //:   'false_type'.
-    //
-    // Plan:
-    //: 1 Use the addresses of the 'swap' member and free functions defined
-    //:   in this component to initialize, respectively, member-function
-    //:   and free-function pointers having the appropriate signatures and
-    //:   return types.  (C-2)
-    //:
-    //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-    //:   default allocator (note that a ubiquitous test allocator is
-    //:   already installed as the global allocator).
-    //:
-    //: 3 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid object values (one per row) in
-    //:     terms of their individual attributes, including (a) first, the
-    //:     default value, (b) boundary values corresponding to every range
-    //:     of values that each individual attribute can independently
-    //:     attain, and (c) values that should require allocation from each
-    //:     individual attribute that can independently allocate memory.
-    //:
-    //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-    //:     the expectation of memory allocation for all typical
-    //:     implementations of individual attribute types: ('Y') "Yes",
-    //:     ('N') "No", or ('?') "implementation-dependent".
-    //:
-    //: 4 For each row 'R1' in the table of P-3:  (C-1, 3..7)
-    //:
-    //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-    //:
-    //:   2 Use the value constructor and 'oa' to create a modifiable
-    //:     'Obj', 'mW', having the value described by 'R1'; also use the
-    //:     copy constructor and a "scratch" allocator to create a 'const'
-    //:     'Obj' 'XX' from 'mW'.
-    //:
-    //:   3 Use the member and free 'swap' functions to swap the value of
-    //:     'mW' with itself; verify, after each swap, that:  (C-3..4)
-    //:
-    //:     1 The value is unchanged.  (C-3)
-    //:
-    //:     2 The allocator address held by the object is unchanged.  (C-4)
-    //:
-    //:     3 There was no additional object memory allocation.  (C-4)
-    //:
-    //:   4 For each row 'R2' in the table of P-3:  (C-1, 4)
-    //:
-    //:     1 Use the copy constructor and 'oa' to create a modifiable
-    //:       'Obj', 'mX', from 'XX' (P-4.2).
-    //:
-    //:     2 Use the value constructor and 'oa' to create a modifiable
-    //:       'Obj', 'mY', and having the value described by 'R2'; also use
-    //:       the copy constructor to create, using a "scratch" allocator,
-    //:       a 'const' 'Obj', 'YY', from 'Y'.
-    //:
-    //:     3 Use, in turn, the member and free 'swap' functions to swap
-    //:       the values of 'mX' and 'mY'; verify, after each swap, that:
-    //:       (C-1..2)
-    //:
-    //:       1 The values have been exchanged.  (C-1)
-    //:
-    //:       2 The common object allocator address held by 'mX' and 'mY'
-    //:         is unchanged in both objects.  (C-4)
-    //:
-    //:       3 There was no additional object memory allocation.  (C-4)
-    //:
-    //:     5 Use the value constructor and 'oaz' to a create a modifiable
-    //:       'Obj' 'mZ', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scratch" allocator, a const
-    //:       'Obj', 'ZZ', from 'Z'.
-    //:
-    //:     6 Use the member and free 'swap' functions to swap the values of
-    //:       'mX' and 'mZ' respectively (when
-    //:       AllocatorTraits::propagate_on_container_swap is an alias to
-    //:       false_type) under the presence of exception; verify, after each
-    //:       swap, that:  (C-1, 5, 7)
-    //:
-    //:       1 If exception occurred during the swap, both values are
-    //:         unchanged.  (C-7)
-    //:
-    //:       2 If no exception occurred, the values have been exchanged.
-    //:         (C-1)
-    //:
-    //:       3 The common object allocator address held by 'mX' and 'mZ' is
-    //:         unchanged in both objects.  (C-5)
-    //:
-    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is is not
-    //:         empty, and temporary memory were allocated from 'oaz' if 'mX'
-    //:         is not empty.  (C-5)
-    //:
-    //:     7 Create a new object allocator, 'oap'.
-    //:
-    //:     8 Use the value constructor and 'oap' to create a modifiable 'Obj'
-    //:       'mP', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scratch" allocator, a const
-    //:       'Obj', 'PP', from 'P.
-    //:
-    //:     9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
-    //:       be an alias to 'true_type' (Instead of this manual step, use an
-    //:       allocator that enables propagate_on_container_swap when
-    //:       AllocatorTraits supports it) and use the the member and free
-    //:       'swap functions to swap the values 'mX' and 'mZ' respectively;
-    //:       verify, after each swap, that: (C-1, 6)
-    //:
-    //:       1 The values have been exchanged.  (C-1)
-    //:
-    //:       2 The allocators addresses have been exchanged.  (C-6)
-    //:
-    //:       3 There was no additional object memory allocation.  (C-6)
-    //:
-    //: 5 Verify that the free 'swap' function is discoverable through ADL:
-    //:   (C-8)
-    //:
-    //:   1 Create a set of attribute values, 'A', distinct from the values
-    //:     corresponding to the default-constructed object, choosing
-    //:     values that allocate memory if possible.
-    //:
-    //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
-    //:
-    //:   3 Use the default constructor and 'oa' to create a modifiable
-    //:     'Obj' 'mX' (having default attribute values); also use the copy
-    //:     constructor and a "scratch" allocator to create a 'const' 'Obj'
-    //:     'XX' from 'mX'.
-    //:
-    //:   4 Use the value constructor and 'oa' to create a modifiable 'Obj'
-    //:     'mY' having the value described by the 'Ai' attributes; also
-    //:     use the copy constructor and a "scratch" allocator to create a
-    //:     'const' 'Obj' 'YY' from 'mY'.
-    //:
-    //:   5 Use the 'invokeAdlSwap' helper function template to swap the
-    //:     values of 'mX' and 'mY', using the free 'swap' function defined
-    //:     in this component, then verify that:  (C-8)
-    //:
-    //:     1 The values have been exchanged.  (C-1)
-    //:
-    //:     2 There was no additional object memory allocation.  (C-4)
-    //
-    // Testing:
-    //   void swap(HashTable& other);
-    //   void swap(HashTable<K, V, C, A>& a, HashTable<K, V, C, A>& b);
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
-                        "\n==============================\n");
-
-    typedef MakeAllocator<ALLOCATOR> AllocMaker;
-
-    if (verbose) printf(
-                     "\nAssign the address of each function to a variable.\n");
-    {
-        typedef void (Obj::*funcPtr)(Obj&);
-        typedef void (*freeFuncPtr)(Obj&, Obj&);
-
-        // Verify that the signatures and return types are standard.
-
-        funcPtr     memberSwap = &Obj::swap;
-        freeFuncPtr freeSwap   = bslstl::swap;
-
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
-    }
-
-    if (verbose) printf(
-                 "\nCreate a test allocator and install it as the default.\n");
-
-    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard dag(&da);
-
-    if (verbose) printf(
-       "\nUse a table of distinct object values and expected memory usage.\n");
-
-    const int NUM_DATA                     = DEFAULT_NUM_DATA;
-    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
-
-    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
-    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
-
-    for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const float       MAX_LF1 = DEFAULT_MAX_LOAD_FACTOR[lfi];
-
-        const int         LINE1   = DATA[ti].d_line;
-        const char *const SPEC1   = DATA[ti].d_spec;
-
-        const size_t      LENGTH1      = strlen(SPEC1);
-        const size_t      NUM_BUCKETS1 = predictNumBuckets(LENGTH1, MAX_LF1);
-
-        bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
-        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
-        const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
-        const ALLOCATOR objAlloc     = AllocMaker::make(&oa);
-
-        Obj mW(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, objAlloc);
-        const Obj& W = gg(&mW,  SPEC1);
-        const Obj XX(W, scratchAlloc);
-
-        if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
-
-        // member 'swap'
-        {
-            bslma::TestAllocatorMonitor oam(&oa);
-
-            mW.swap(mW);
-
-            ASSERTV(LINE1, XX, W, XX == W);
-            ASSERTV(LINE1, objAlloc == W.allocator());
-            ASSERTV(LINE1, oam.isTotalSame());
-        }
-
-        // free function 'swap'
-        {
-            bslma::TestAllocatorMonitor oam(&oa);
-
-            swap(mW, mW);
-
-            ASSERTV(LINE1, XX, W, XX == W);
-            ASSERTV(LINE1, objAlloc == W.allocator());
-            ASSERTV(LINE1, oam.isTotalSame());
-        }
-
-        // There is a symmetry to testing, so test only the "lower triangle"
-        // of indices.  Note that we want to support the limiting case where
-        // the indices match.
-        for (int lfj = 0; lfj <= lfi; ++lfj) {
-        for (int  tj = 0;  tj <=  ti; ++ tj) {
-            const float       MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
-
-            const int         LINE2   = DATA[tj].d_line;
-            const char *const SPEC2   = DATA[tj].d_spec;
-
-            const size_t      LENGTH2      = strlen(SPEC2);
-            const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
-                                                               MAX_LF2);
-
-            Obj mX(XX, objAlloc);  const Obj& X = mX;
-
-            Obj mY(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, objAlloc);
-            const Obj& Y = gg(&mY, SPEC2);
-            const Obj YY(Y, scratchAlloc);
-
-            if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
-
-            // free function 'swap' is always well-defined
-            {
-                bslma::TestAllocatorMonitor oam(&oa);
-
-                swap(mX, mY);
-
-                ASSERTV(LINE1, LINE2, YY, X, YY == X);
-                ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
-                ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
-                ASSERTV(LINE1, LINE2, objAlloc == Y.allocator());
-                ASSERTV(LINE1, LINE2, oam.isTotalSame());
-            }
-
-            // member 'swap' may not be defined if allocators are not the
-            // same, although guaranteed in this case.
-            {
-                ASSERT(X.allocator() == Y.allocator()); // sanity check
-
-                bslma::TestAllocatorMonitor oam(&oa);
-
-                mX.swap(mY);
-
-                ASSERTV(LINE1, LINE2, XX, X, XX == X);
-                ASSERTV(LINE1, LINE2, YY, Y, YY == Y);
-                ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
-                ASSERTV(LINE1, LINE2, objAlloc == Y.allocator());
-                ASSERTV(LINE1, LINE2, oam.isTotalSame());
-            }
-
-            // We may consider restoring a test of unequal allocators if the
-            // allocator propagate_on_container_swap trait is true, but
-            // 'bsl::allocator_traits' does not properly detect this trait yet.
-        }
-        }
-    }
-    }
-
-    if (verbose) printf(
-            "\nInvoke free 'swap' function in a context where ADL is used.\n");
-    {
-        // 'A' values: Should cause memory allocation if possible.
-
-        bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
-        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
-        const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
-        const ALLOCATOR objAlloc     = AllocMaker::make(&oa);
-
-        Obj mX(HASH, COMPARE, 0, 1.0f, objAlloc);  const Obj& X = mX;
-        const Obj XX(X, scratchAlloc);
-
-        Obj mY(HASH, COMPARE, 40, 0.1f, objAlloc);
-        const Obj& Y = gg(&mY, "ABC");
-        const Obj YY(Y, scratchAlloc);
-
-        if (veryVerbose) { T_ P_(X) P(Y) }
-
-        bslma::TestAllocatorMonitor oam(&oa);
-
-        // We know that the types of 'mX' and 'mY' do not overload the unary
-        // address-of 'operator&'.
-
-        bslalg::SwapUtil::swap(&mX, &mY);
-
-        ASSERTV(YY, X, YY == X);
-        ASSERTV(XX, Y, XX == Y);
-        ASSERTV(YY, X, YY.maxLoadFactor() == X.maxLoadFactor());
-        ASSERTV(XX, Y, XX.maxLoadFactor() == Y.maxLoadFactor());
-        ASSERT(oam.isTotalSame());
-
-        if (veryVerbose) { T_ P_(X) P(Y) }
-    }
-
-    if (verbose) printf("Check our implementation of undefined behavior.\n");
-    {
-        // Ideally we would negatively test for an ASSERT in SAFE mode, and
-        // test the strongly exception-safe 'swap' only in other build modes.
-        // We will test only one 'swap' of two large containers of different
-        // sizes, and having different load factors, as well as different
-        // allocators to represent a fair test of our expected implementation
-        // of the undefine behavior.
-
-        const float       MAX_LF1 = 0.125f;
-        const float       MAX_LF2 = 2.5f;
-
-        const char *const SPEC1   = DATA[NUM_DATA-1].d_spec;
-        const char *const SPEC2   = DATA[NUM_DATA-2].d_spec;
-
-        const size_t      LENGTH1      = strlen(SPEC1);
-        const size_t      NUM_BUCKETS1 = predictNumBuckets(LENGTH1, MAX_LF1);
-
-        const size_t      LENGTH2      = strlen(SPEC2);
-        const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2, MAX_LF2);
-
-        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-        bslma::TestAllocator oax("x_object", veryVeryVeryVerbose);
-        bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
-
-        const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
-        const ALLOCATOR oaxAlloc     = AllocMaker::make(&oax);
-        const ALLOCATOR oazAlloc     = AllocMaker::make(&oaz);
-
-        Obj mX(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, oaxAlloc);
-        const Obj& X = gg(&mX, SPEC1);
-        const Obj XX(X, scratchAlloc);
-
-        Obj mZ(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, oazAlloc);
-        const Obj& Z = gg(&mZ, SPEC2);
-        const Obj ZZ(Z, scratchAlloc);
-
-        // Sanity check
-
-        ASSERTV(XX, X, XX == X);
-        ASSERTV(ZZ, Z, ZZ == Z);
-        ASSERTV( X, Z,  X != Z);
-
-        // free function 'swap'
-        {
-            bslma::TestAllocatorMonitor oaxm(&oax);
-            bslma::TestAllocatorMonitor oazm(&oaz);
-
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oax) {
-                bslma::ExceptionGuard<Obj> guardX(&X, L_, scratchAlloc);
-                bslma::ExceptionGuard<Obj> guardZ(&Z, L_, scratchAlloc);
-
-                swap(mX, mZ);
-
-                guardX.release();
-                guardZ.release();
-            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-            ASSERTV(XX, Z, XX == Z);
-            ASSERTV(ZZ, X, ZZ == X);
-            ASSERTV(oaxAlloc == X.allocator());
-            ASSERTV(oazAlloc == Z.allocator());
-
-            // Concerns about allocated memory?
-        }
-
-        if (verbose) printf("\nNegative Testing.\n");
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            // member 'swap'
-            ASSERT_PASS(mX.swap(mX));
-            ASSERT_FAIL(mZ.swap(mX));
-            ASSERT_FAIL(mX.swap(mZ));
-            ASSERT_PASS(mZ.swap(mZ));
-        }
-
-    }
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
-{
-    // ------------------------------------------------------------------------
-    // TESTING COPY CONSTRUCTOR:
-    //  One additional constraint to bear in mind, while testing the copy
-    //  constructor, is that the copy does not give us any control over the
-    //  'numBuckets' allocated for the new copy.  Given our primary manipulator
-    //  is a special 'insertElement' function that does not allow us to insert
-    //  past the precomputed capacity of a HashTable, some test scenarios may
-    //  produce copies that cannot be further modified by our chosen primary
-    //  manipulator.  Therefor, we will test for a failed insertion in the case
-    //  that the number of elements in the test data exactly matches the limit
-    //  that can be allocated to the buckets without forcing a rehash, and in
-    //  that case our mutate-event will be to clear the container instead.  We
-    //  considered selectively avoiding this corner case with careful selection
-    //  of test data, but realized that simply left a predictable, untested
-    //  pattern in our test driver.  We will validate the proper behavior when
-    //  an 'insert' operation forces a rehash when testing the 'insert' methods
-    //  in a subsequent test case.
-    //
-    // Concern:
-    //: 1 The new object's value is the same as that of the original object
-    //:   (relying on the equality operator), the same 'maxLoadFactor', the
-    //:   same 'hasher' and the same 'comparator'.
-    //:
-    //: 2 All internal representations of a given value can be used to create a
-    //:   new object of equivalent value.
-    //:
-    //: 3 The value of the original object is left unaffected.
-    //:
-    //: 4 Subsequent changes in or destruction of the source object have no
-    //:   effect on the copy-constructed object.
-    //:
-    //: 5 Subsequent changes ('insert's) on the created object have no
-    //:   effect on the original.
-    //:
-    //: 6 The object has its internal memory management system hooked up
-    //:   properly so that *all* internally allocated memory draws from a
-    //:   user-supplied allocator whenever one is specified.
-    //:
-    //: 7 The function is exception neutral w.r.t. memory allocation.
-    //:
-    //: 8 QoI The new object has a 'loadFactor' <= its 'maxLoadFactor'.
-    //
-    // Plan:
-    //: 1 Specify a set S of object values with substantial and varied
-    //:   differences, ordered by increasing length, to be used in the
-    //:   following tests.
-    //:
-    //: 2 For each value in S, initialize objects w and x, copy construct y
-    //:   from x and use 'operator==' to verify that both x and y subsequently
-    //:   have the same value as w.  Let x go out of scope and again verify
-    //:   that w == y.  (C-1..4)
-    //:
-    //: 3 For each value in S initialize objects w and x, and copy construct y
-    //:   from x.  Change the state of y, by using the *primary* *manipulator*
-    //:   'insertElement' (or 'removeAll' if 'insertElement' returns a null
-    //:   pointer value).  Using the 'operator!=' verify that y differs from x
-    //:   and w.  Then apply the same operation to 'w' and verify that y still
-    //:   differs from x, and now has the same value as w. (C-5)
-    //:
-    //: 4 Perform tests performed as P-2:  (C-6)
-    //:   1 While passing a testAllocator as a parameter to the new object and
-    //:     ascertaining that the new object gets its memory from the provided
-    //:     testAllocator.
-    //:   2 Verify neither of global and default allocator is used to supply
-    //:     memory.  (C-6)
-    //:
-    //: 5 Perform tests as P-2 in the presence of exceptions during memory
-    //:   allocations using a 'bslma::TestAllocator' and varying its
-    //:   *allocation* *limit*.  (C-7)
-    //
-    // Testing:
-    //   HashTable(const HashTable& original);
-    //   HashTable(const HashTable& original, const A& allocator);
-    // ------------------------------------------------------------------------
-
-    typedef typename KEY_CONFIG::KeyType KEY;
-    typedef typename KEY_CONFIG::ValueType VALUE;
-
-    bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
-    const TestValues VALUES(&tda);
-
-    const int TYPE_ALLOC =
-         bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
-         + bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
-
-    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
-    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
-
-    if (verbose) printf("\nTesting parameters: TYPE_ALLOC = %d.\n",
-                        TYPE_ALLOC);
-    {
-        static const char *SPECS[] = { "",
-                                      "A",
-                                     "AA",
-                                     "AB",
-                                     "BC",
-                                    "AAA",
-                                    "ABB",
-                                    "CDE",
-                                   "AAAA",
-                                   "ABBA",
-                                   "DEAB",
-                                  "AAAAA",
-                                  "AAABC",
-                                  "ABBAC",
-                                  "EABCD",
-                                "ABCDEFG",
-                               "HFGEDCBA",
-                              "CFHEBIDGA",
-                        "BENCKHGMALJDFOI",
-                       "IDMLNEFHOPKGBCJA",
-                      "OIQGDNPMLKBACHFEJ"
-        };
-        const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
-
-        for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
-        for (int ti = 0; ti < NUM_SPECS; ++ti) {
-            const float       MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[lfi];
-            const char *const SPEC        = SPECS[ti];
-
-            const size_t      LENGTH      = strlen(SPEC);
-            const size_t      NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
-
-            if (veryVerbose) {
-                printf("\nFor an object of length " ZU ":\n", LENGTH);
-                P(SPEC);
-            }
-
-            bslma::TestAllocator da("default", veryVeryVeryVerbose);
-            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
-
-            bslma::DefaultAllocatorGuard dag(&da);
-
-#if 0
-            // It is not yet clear how to handle the "stateless" std-test
-            // allocator in this one general function, as we now construct
-            // two allocator objects with different test allocators, which
-            // violates the contract that we install only the current default
-            // allocator when creating a 'stateless' object via the 'make'
-            // call.
-            //
-            // There is no easy way to create this guard for the specific
-            // test case of the stateless 'bsltf::StdTestAllocator', nor
-            // without second guessing the allocator to use based upon the
-            // 'cfg' code.  By the time we return from 'makeAllocator' the
-            // test allocator will already have been installed, with no
-            // easy way to restore at the end of the test case.
-
-            bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&oa);
-#endif
-
-            HASHER     hash = HASH;
-            COMPARATOR comp = COMPARE;
-            setHasherState(bsls::Util::addressOf(hash), ti);
-            setComparatorState(bsls::Util::addressOf(comp), ti);
-
-            const ALLOCATOR dfltAlloc = MakeAllocator<ALLOCATOR>::make(&da);
-            const ALLOCATOR objAlloc  = MakeAllocator<ALLOCATOR>::make(&oa);
-
-            // Create control object w, with space for an extra element.
-            Obj mW(hash, comp, NUM_BUCKETS + 1, MAX_LF, dfltAlloc);
-            const Obj& W = gg(&mW, SPEC);
-
-            ASSERTV(ti, LENGTH == W.size()); // same lengths
-            if (veryVerbose) { printf("\tControl Obj: "); P(W); }
-
-            Obj mX(hash, comp, NUM_BUCKETS, MAX_LF, objAlloc);
-            const Obj& X = gg(&mX, SPEC);
-
-            // Sanity check only, previous test cases established this.
-            ASSERTV(MAX_LF, SPEC, W, X,  W == X);
-
-            if (veryVerbose) { printf("\t\tDynamic Obj: "); P(X); }
-
-            {   // Testing concern 1..4 and 8
-
-                if (veryVeryVerbose) { printf("\t\t\tRegular Case :"); }
-
-                Obj *pX =
-                         new Obj(HASH, COMPARE, NUM_BUCKETS, MAX_LF, objAlloc);
-                gg(pX, SPEC);
-
-                ASSERTV(MAX_LF, SPEC, *pX, X, *pX == X);
-                ASSERTV(MAX_LF, SPEC, *pX, W, *pX == W);
-
-                const Obj Y0(*pX);
-
-                ASSERTV(MAX_LF, SPEC, *pX, Y0, *pX == Y0);
-                ASSERTV(MAX_LF, SPEC,   X, Y0,   X == Y0);
-                ASSERTV(MAX_LF, SPEC,   W, Y0,   W == Y0);
-                ASSERTV(MAX_LF, SPEC,   W,  X,   W ==  X);
-
-                const ALLOCATOR expectedAlloc =
-                    bsl::allocator_traits<ALLOCATOR>::
-                        select_on_container_copy_construction(pX->allocator());
-                ASSERTV(MAX_LF, SPEC,
-                        BSL_TF_EQ(Y0.allocator(), expectedAlloc));
-                ASSERTV(MAX_LF, SPEC, pX->maxLoadFactor(), Y0.maxLoadFactor(),
-                         pX->maxLoadFactor() == Y0.maxLoadFactor());
-                ASSERTV(MAX_LF, SPEC, Y0.loadFactor(), Y0.maxLoadFactor(),
-                        Y0.loadFactor() <= Y0.maxLoadFactor());
-                delete pX;
-                ASSERTV(MAX_LF, SPEC, W, Y0, W == Y0);
-            }
-            {   // Testing concern 5.
-
-                if (veryVeryVerbose) printf("\t\t\tInsert into created obj, "
-                                            "without test allocator:\n");
-
-                Obj Y1(W);
-
-                if (veryVeryVerbose) {
-                    printf("\t\t\t\tBefore Insert: "); P(Y1);
-                }
-
-                Link *RESULT = insertElement(&Y1, VALUES['Z' - 'A']);
-                if(0 == RESULT) {
-                    Y1.removeAll();
-                }
-
-                if (veryVeryVerbose) {
-                    printf("\t\t\t\tAfter Insert : "); P(Y1);
-                }
-
-                if (RESULT || 0 != W.size()) {
-                    const size_t EXPECTED_LENGTH = RESULT
-                                                 ? LENGTH + 1
-                                                 : 0;
-
-                    ASSERTV(MAX_LF, SPEC, Y1.size(), EXPECTED_LENGTH,
-                            Y1.size() == EXPECTED_LENGTH);
-                    ASSERTV(MAX_LF, SPEC, W, Y1, W != Y1);
-                    ASSERTV(MAX_LF, SPEC, X, Y1, X != Y1);
-                }
-
-                if (RESULT) {
-                    RESULT = insertElement(&mW, VALUES['Z' - 'A']);
-                    // Remember we reserved enough space at construction.
-                    ASSERT(0 != RESULT);
-                }
-                else {
-                    mW.removeAll();
-                }
-
-                ASSERTV(MAX_LF, SPEC, W, Y1, W == Y1);
-                if (RESULT || 0 < X.size()) {
-                    ASSERTV(MAX_LF, SPEC, X, Y1, X != Y1);
-                }
-            }
-            {   // Testing concern 5 with test allocator.
-
-                if (veryVerbose)
-                    printf("\t\t\tInsert into created obj, "
-                           "with test allocator:\n");
-
-                bslma::TestAllocatorMonitor oam(&oa);
-
-                Obj Y11(X, objAlloc);
-
-                if (LENGTH == 0) {
-                    ASSERTV(MAX_LF, SPEC, oam.isTotalSame());
-                    ASSERTV(MAX_LF, SPEC, oam.isInUseSame());
-                }
-                else {
-                    //const int TYPE_ALLOCS = TYPE_ALLOC * X.size();
-                    //ASSERTV(SPEC, BB, AA, BB + 1 + TYPE_ALLOCS == AA);
-                    //ASSERTV(SPEC, B, A, B + 1 + TYPE_ALLOCS ==  A);
-                    ASSERTV(MAX_LF, SPEC, oam.isTotalUp());
-                    ASSERTV(MAX_LF, SPEC, oam.isInUseUp());
-                }
-
-                oam.reset(&oa);
-
-                Y11.removeAll();
-
-                if (veryVerbose) {
-                    printf("\t\t\t\tAfter Insert : ");
-                    P(Y11);
-                }
-
-                ASSERTV(SPEC, oam.isTotalSame());
-
-                ASSERTV(SPEC, 0 == Y11.size());
-                if (LENGTH != 0) {
-                    ASSERTV(MAX_LF, SPEC, W != Y11 || !W.size());
-                    ASSERTV(MAX_LF, SPEC, X != Y11);
-                }
-                ASSERTV(MAX_LF, SPEC, Y11.allocator() == X.allocator());
-            }
-
-            if (0 < X.size())
-            {   // Exception checking.
-                // There is nothing to test if 'X' is empty, and several test
-                // conditions would be complicated to allow for 'W == X' in
-                // this state.
-
-                bslma::TestAllocatorMonitor oam(&oa);
-
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    Obj Y2(X, objAlloc);
-                    if (veryVerbose) {
-                        printf("\t\t\tException Case  :\n");
-                        printf("\t\t\t\tObj : "); P(Y2);
-                    }
-                    ASSERTV(MAX_LF, SPEC,  W, Y2, W  != Y2);
-                    ASSERTV(MAX_LF, SPEC, Y2,  X, Y2 ==  X);
-                    ASSERTV(MAX_LF, SPEC, Y2.allocator() == X.allocator());
-
-                    Link *RESULT = insertElement(&Y2, VALUES['Z' - 'A']);
-                    if(0 == RESULT) {
-                        Y2.removeAll();
-                    }
-                    ASSERTV(MAX_LF, SPEC,  W, Y2, W  == Y2);
-                    ASSERTV(MAX_LF, SPEC, Y2,  X, Y2 !=  X);
-
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-                if (LENGTH == 0) {
-                    ASSERTV(MAX_LF, SPEC, oam.isTotalSame());
-                    ASSERTV(MAX_LF, SPEC, oam.isInUseSame());
-                }
-                else {
-                    ASSERTV(MAX_LF, SPEC, oam.isInUseSame());
-                }
-            }
-        }
-        }
-    }
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
-{
-    // ---------------------------------------------------------------------
-    // TESTING EQUALITY OPERATORS:
-    // Concerns:
-    //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
-    //:   the same values.
-    //:
-    //: 2 No non-salient attributes participate.  The non-salient attributes of
-    //:   a 'HashTable' include the 'allocator', 'loadFactor', 'maxLoadFactor'
-    //:   and 'numBuckets'.
-    //:
-    //: 3 'true  == (X == X)' (i.e., identity)
-    //:
-    //: 4 'false == (X != X)' (i.e., identity)
-    //:
-    //: 5 'X == Y' if and only if 'Y == X' (i.e., commutativity)
-    //:
-    //: 6 'X != Y' if and only if 'Y != X' (i.e., commutativity)
-    //:
-    //: 7 'X != Y' if and only if '!(X == Y)'
-    //:
-    //: 8 Comparison is symmetric with respect to user-defined conversion
-    //:   (i.e., both comparison operators are free functions).
-    //:
-    //: 9 Non-modifiable objects can be compared (i.e., objects or references
-    //:   providing only non-modifiable access).
-    //:
-    //:10 'operator==' is defined in terms of
-    //:   'operator==(KEY_CONFIG::ValueType)' instead of the supplied
-    //:   comparator function (which, along with the hasher, is still used to
-    //:   establish key-equivalent groups).
-    //:
-    //:11 No memory allocation occurs as a result of comparison (e.g., the
-    //:   arguments are not passed by value).
-    //:
-    //:12 The equality operator's signature and return type are standard.
-    //:
-    //:13 The inequality operator's signature and return type are standard.
-    //:
-    //:14 Two object with the same elements in different permutation compare
-    //:   equal to each other.
-    //
-    // Plan:
-    //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-    //:   initialize function pointers having the appropriate signatures and
-    //:   return types for the two homogeneous, free equality- comparison
-    //:   operators defined in this component.  (C-8..9, 12..13)
-    //:
-    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 3 Using the table-driven technique, specify a set of distinct
-    //:   specifications for the 'gg' function.
-    //:
-    //: 4 For each row 'R1' in the table of P-3: (C-1..7)
-    //:
-    //:   1 Create a single object, using a comparator that can be disabled and
-    //:     a "scratch" allocator, and use it to verify the reflexive
-    //:     (anti-reflexive) property of equality (inequality) in the presence
-    //:     of aliasing.  (C-3..4)
-    //:
-    //:   2 For each row 'R2' in the table of P-3: (C-1..2, 5..7)
-    //:
-    //:     1 Record, in 'EXP', whether or not distinct objects created from
-    //:       'R1' and 'R2', respectively, are expected to have the same value.
-    //:
-    //:     2 For each of two configurations, 'a' and 'b': (C-1..2, 5..7)
-    //:
-    //:       1 Create three (object) allocators, 'oax', 'oay' and 'oaz'.
-    //:
-    //:       2 Create an object 'X', using 'oax', having the value 'R1'.
-    //:
-    //:       3 Create an object 'Y', using 'oax' in configuration 'a' and
-    //:         'oay' in configuration 'b', having the value 'R2', and a
-    //:         'maxLoadFactor' of 10.
-    //:
-    //:       4 Create an object 'Z', using 'oax' in configuration 'a' and
-    //:         'oaz' in configuration 'b', having the value 'R2', and a
-    //:         'maxLoadFactor' of 0.01.
-    //:
-    //:       5 Verify the commutativity property and expected return value for
-    //:         both '==' and '!=', while monitoring 'oax', 'oay' and 'oaz' to
-    //:         ensure that no object memory is ever allocated by either
-    //:         operator.  (C-1..2, 5..7)
-    //:
-    //:       6 Compare the ordering of elements in the lists accessed from
-    //:         'Y.elementListRoot()' and 'Z.elementListRoot()', which must
-    //:         always be permutations of each other, and set a test-wide flag
-    //:         to confirm that the lists have differing orders at least once.
-    //:         (C14)
-    //:
-    //: 5 Use the test allocator from P-2 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-11)
-    //
-    // Testing:
-    //*  bool operator==(const HashTable& lhs, const HashTable& rhs);
-    //*  bool operator!=(const HashTable& lhs, const HashTable& rhs);
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
-                        "\n=============================\n");
-
-    if (verbose)
-              printf("\nAssign the address of each operator to a variable.\n");
-    {
-        typedef bool (*operatorPtr)(const Obj&, const Obj&);
-
-        // Verify that the signatures and return types are standard.
-
-        operatorPtr operatorEq = bslstl::operator==;
-        operatorPtr operatorNe = bslstl::operator!=;
-
-        // quash potential compiler warnings about unused variables
-
-        ASSERT(operatorEq != operatorNe);
-    }
-
-    static const struct {
-        int         d_line;   // source line number
-        int         d_index;  // lexical order
-        const char *d_spec;   // specification string, for input to 'gg'
-    } DATA[] = {
-        //line idx  spec
-        //---- ---  --------
-        { L_,    0, "" },
-        { L_,    1, "A" },
-        { L_,    2, "AA" },
-        { L_,    3, "AB" },
-        { L_,    3, "BA" },
-        { L_,    4, "ABC" },
-        { L_,    4, "BAC" },
-        { L_,    4, "BCA" },
-        { L_,    5, "ABD" },
-        { L_,    6, "ABCDE" },
-        { L_,    6, "CEBAD" },
-        { L_,    7, "AAAAA" },
-        { L_,    8, "ABCDA" },
-        { L_,    9, "ABCDF" },
-        { L_,    9, "FDCBA" },
-        { L_,   10, "AFKPUZ" },
-        { L_,   11, "ABFGKLPQUVZ" },
-        { L_,   12, "AAABBCDEEFFFGGGHHIJKKLLLMMMNNOPQQRRRSSSTTUVWWXXXYYZ" }
-    };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-    typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
-    typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
-
-    const HASHER_TYPE     HASH  = MakeCallableEntity<HASHER>::make();
-    const COMPARATOR_TYPE EQUAL = MakeCallableEntity<COMPARATOR>::make();
-
-    // Create a variable to confirm that our tested data set has an expected
-    // (and important) property.
-    bool HAVE_TESTED_DISTINCT_PERMUTATIONS = false;
-
-    if (verbose) printf("\nCompare every value with every value.\n");
-    {
-        // Create first object
-        for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const float       MAX_LF1  = DEFAULT_MAX_LOAD_FACTOR[lfi];
-
-            const int         LINE1    = DATA[ti].d_line;
-            const int         INDEX1   = DATA[ti].d_index;
-            const char *const SPEC1    = DATA[ti].d_spec;
-
-            const size_t      LENGTH1     = strlen(SPEC1);
-            const size_t      NUM_BUCKETS = predictNumBuckets(LENGTH1,
-                                                              MAX_LF1);
-
-           if (veryVerbose) { T_ P_(LINE1) P_(INDEX1) P_(LENGTH1) P(SPEC1) }
-
-            // Ensure an object compares correctly with itself (alias test).
-            {
-                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
-                ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
-
-                Obj mX(HASH, EQUAL, NUM_BUCKETS, MAX_LF1, objAlloc);
-                const Obj& X = gg(&mX, SPEC1);
-
-                ASSERTV(LINE1, X,   X == X);
-                ASSERTV(LINE1, X, !(X != X));
-            }
-
-            for (int lfj = 0; lfj != lfi; ++lfj) {
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const float       MAX_LF2  = DEFAULT_MAX_LOAD_FACTOR[lfj];
-
-                const int         LINE2   = DATA[tj].d_line;
-                const int         INDEX2  = DATA[tj].d_index;
-                const char *const SPEC2   = DATA[tj].d_spec;
-
-                const size_t      LENGTH2      = strlen(SPEC2);
-                const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
-                                                                   MAX_LF2);
-
-                if (veryVerbose) {
-                              T_ T_ P_(LINE2) P_(INDEX2) P_(LENGTH2) P(SPEC2) }
-
-                const bool EXP = INDEX1 == INDEX2;  // expected result
-
-                for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
-
-                    const char CONFIG = cfg;  // Determines 'Y's allocator.
-
-                    // Create two distinct test allocators, 'oax' and 'oay'.
-
-                    bslma::TestAllocator oax("objectx", veryVeryVeryVerbose);
-                    bslma::TestAllocator oay("objecty", veryVeryVeryVerbose);
-
-                    // Map allocators above to objects 'X' and 'Y' below.
-
-                    bslma::TestAllocator& xa = oax;
-                    bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
-
-                    ALLOCATOR allocX = MakeAllocator<ALLOCATOR>::make(&xa);
-                    ALLOCATOR allocY = MakeAllocator<ALLOCATOR>::make(&ya);
-
-                    Obj mX(HASH, EQUAL, NUM_BUCKETS,  MAX_LF1, allocX);
-                    const Obj& X = gg(&mX, SPEC1);
-                    Obj mY(HASH, EQUAL, NUM_BUCKETS2, MAX_LF2, allocY);
-                    const Obj& Y = gg(&mY, SPEC2);
-
-                    ASSERTV(LINE1, LINE2, CONFIG, LENGTH1, X.size(),
-                            LENGTH1 == X.size());
-                    ASSERTV(LINE1, LINE2, CONFIG, MAX_LF1, X.maxLoadFactor(),
-                            MAX_LF1 == X.maxLoadFactor());
-                    ASSERTV(LINE1, LINE2, CONFIG, LENGTH2, Y.size(),
-                            LENGTH2 == Y.size());
-                    ASSERTV(LINE1, LINE2, CONFIG, MAX_LF2, Y.maxLoadFactor(),
-                            MAX_LF2 == Y.maxLoadFactor());
-
-                    if (veryVerbose) { T_ T_ P_(X) P(Y); }
-
-                    // Verify value, commutativity, and no memory allocation.
-
-                    bslma::TestAllocatorMonitor oaxm(&xa);
-                    bslma::TestAllocatorMonitor oaym(&ya);
-
-                    ASSERTV(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
-                    ASSERTV(LINE1, LINE2, CONFIG, X, Y,  EXP == (Y == X));
-
-                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, !EXP == (X != Y));
-                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, !EXP == (Y != X));
-
-                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, oaxm.isTotalSame());
-                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, oaym.isTotalSame());
-
-                    if (!HAVE_TESTED_DISTINCT_PERMUTATIONS && EXP) {
-                        // Walk the lists of both 'Y' and 'X' to see if they
-                        // they are distinct permutations.
-                        Link *yCursor = Y.elementListRoot();
-                        Link *xCursor = X.elementListRoot();
-
-                        while (yCursor) {
-                            ASSERT(xCursor); // lists should be the same length
-
-                            if (!(ImpUtil::extractValue<KEY_CONFIG>(yCursor) ==
-                                  ImpUtil::extractValue<KEY_CONFIG>(xCursor)))
-                            {
-                                HAVE_TESTED_DISTINCT_PERMUTATIONS = true;
-                                break;
-                            }
-                            yCursor = yCursor->nextLink();
-                            xCursor = xCursor->nextLink();
-                        }
-                    }
-                }
-            }
-            }
-        }
-        }
-    }
-
-    ASSERT(HAVE_TESTED_DISTINCT_PERMUTATIONS);
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
-{
-    // ------------------------------------------------------------------------
-    // BASIC ACCESSORS
-    //   Ensure each basic accessor:
-    //     - elementListRoot
-    //     - size
-    //     - allocator
-    //   properly interprets object state.
-    //
-    // Concerns:
-    //: 1 Each accessor returns the value of the correct property of the
-    //:   object.
-    //:
-    //: 2 Each accessor method is declared 'const'.
-    //:
-    //: 3 No accessor allocates any memory.
-    //:
-    //: 4 'elementListRoot' refers to the root of a list with exactly 'size()'
-    //:   elements, and a null pointer value if 'size() == 0'.
-    //:
-    //: 5 'bucketAtIndex' returns a valid bucket for all 0 <= index <
-    //:   'numBuckets'.
-    //:
-    //: 6 QoI: Assert precondition violations for 'bucketAtIndex' when
-    //:   'size <= index' are detected in SAFE builds.
-    //:
-    //: 7 For any value of key, 'bucketIndexForKey' returns a bucket number
-    //:   less than 'numBuckets'.
-    //
-    // Plan:
-    //: 1 For each set of 'SPEC' of different length:
-    //:
-    //:   1 Value construct the object with various configuration:
-    //:
-    //:     1 Use the 'gg' function to populate the object based on the SPEC.
-    //:
-    //:     2 Verify the correct allocator is installed with the
-    //:       'allocator' method.
-    //:
-    //:     3 Verify the object all attributes are as expected.
-    //:
-    //:     4 Use 'verifyListContents' to validate the list rooted at
-    //:       'elementListRoot'.
-    //:
-    //:     5 TBD: Use 'validateBucket to validate the buckets returned by
-    //:       'bucketAtIndex'.
-    //:
-    //:     6 Monitor the memory allocated from both the default and object
-    //:       allocators before and after calling the accessor; verify that
-    //:       there is no change in total memory allocation.  (C-3)
-    //:
-    //: 2 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
-    //
-    // Testing:
-    //   allocator() const;
-    //*  comparator() const;
-    //*  hasher() const;
-    //*  size() const;
-    //*  numBuckets() const;
-    //*  maxLoadFactor() const;
-    //*  rehashThreshold() const;
-    //*  elementListRoot() const;
-    //*  bucketAtIndex(SizeType index) const;
-    //*  bucketIndexForKey(const KeyType& key) const;
-    //*  countElementsInBucket(SizeType index) const;
-    // ------------------------------------------------------------------------
-
-    typedef typename KEY_CONFIG::ValueType Element;
-    typedef bslalg::HashTableImpUtil       ImpUtil;
-    typedef typename Obj::SizeType         SizeType;
-
-    const bool VALUE_TYPE_USES_ALLOCATOR =
-                                     bslma::UsesBslmaAllocator<Element>::value;
-
-    // If we use this predicate in more than one test case, add a trait to this
-    // test driver that is has a partial specialization for 'bsl::allocator<T>'
-    // to return 'true', otherwise return 'false'.
-    const bool ALLOCATOR_IS_BSL_ALLOCATOR =
-        bsl::is_same<typename bsl::allocator_traits<ALLOCATOR>::
-                                   template rebind_traits<int>::allocator_type,
-                     bsl::allocator<int> >::value;
-
-    if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
-    if (verbose) { P(ALLOCATOR_IS_BSL_ALLOCATOR); }
-
-    static const struct {
-        int         d_line;           // source line number
-        const char *d_spec;           // specification string
-        float       d_maxLoadFactor;  // max load factor
-        size_t      d_numBuckets;     // number of buckets
-        const char *d_results;        // expected results
-    } DATA[] = {
-        //line  spec                 result
-        //----  --------             ------
-        { L_,   "",       1.0f,   1,  ""       },
-        { L_,   "A",      0.9f,   2,  "A"      },
-        { L_,   "AB",     0.8f,   3,  "AB"     },
-        { L_,   "ABC",    0.7f,   5,  "ABC"    },
-        { L_,   "ABCD",   0.6f,   8,  "ABCD"   },
-        { L_,   "ABCDE",  0.5f,  13,  "ABCDE"  }
-    };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-    typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
-    typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
-
-    const HASHER_TYPE     HASH  = MakeCallableEntity<HASHER>::make();
-    const COMPARATOR_TYPE EQUAL = MakeCallableEntity<COMPARATOR>::make();
-
-    const char *ALLOC_SPEC = ObjMaker::specForBootstrapTests();
-
-    if (verbose) {
-        printf("\nCreate objects with various allocator configurations.\n");
-    }
-    {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE         = DATA[ti].d_line;
-            const char *const SPEC         = DATA[ti].d_spec;
-            const size_t      LENGTH       = strlen(DATA[ti].d_results);
-            const float       MAX_LF       = DATA[ti].d_maxLoadFactor;
-            const size_t      NUM_BUCKETS  = DATA[ti].d_numBuckets;
-
-            bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
-            const TestValues  EXP(DATA[ti].d_results, &tda);
-
-            // We can now provide a better estimate for number of buckets
-//            const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
-
-            HASHER_TYPE     hash = HASH;
-            COMPARATOR_TYPE comp = EQUAL;
-            setHasherState(bsls::Util::addressOf(hash), ti);
-            setComparatorState(bsls::Util::addressOf(comp), ti);
-
-            if (veryVerbose) { P_(LINE) P_(LENGTH) P(SPEC); }
-
-            for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
-                const char CONFIG = *cfg;  // how we specify the allocator
-
-                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
-                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
-
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                // There is no easy way to create this guard for the specific
-                // test case of the stateless 'bsltf::StdTestAllocator', nor
-                // without second guessing the allocator to use based upon the
-                // 'cfg' code.  By the time we return from 'makeAllocator' the
-                // test allocator will already have been installed, with no
-                // easy way to restore at the end of the test case.
-
-                bsltf::StdTestAllocatorConfigurationGuard bsltfAG('a' == CONFIG
-                                                                       ? &sa
-                                                                       : &da);
-
-                // ------------------------------------------------------------
-
-                if (veryVerbose) {
-                    printf("\n\tTesting bootstrap constructor.\n");
-                }
-
-                Obj       *objPtr;
-                ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
-                                                           CONFIG,
-                                                           &fa,
-                                                           &sa,
-                                                           hash,
-                                                           comp,
-                                                           NUM_BUCKETS,
-                                                           MAX_LF);
-
-                // Verify any attribute allocators are installed properly.
-
-                const bslma::TestAllocator  *oa =
-                                                extractTestAllocator(expAlloc);
-                const bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
-
-                // It is important that these allocators are found, or else the
-                // following tests will break severely, dereferencing null
-                // pointer.
-                BSLS_ASSERT_OPT(oa);
-                BSLS_ASSERT_OPT(noa);
-
-                const unsigned INTIIAL_BLOCKS = 0 == NUM_BUCKETS ? 0 : 1;
-
-                // Verify we are starting with a known, expected, number of
-                // allocations based on the number of requested buckets.
-                ASSERTV(MAX_LF, SPEC, LENGTH, CONFIG, oa->numBlocksTotal(),
-                        INTIIAL_BLOCKS == oa->numBlocksTotal());
-                ASSERTV(MAX_LF, SPEC, LENGTH, CONFIG, noa->numBlocksTotal(),
-                        0 == noa->numBlocksTotal());
-
-                Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC);
-
-                ASSERTV(MAX_LF, LENGTH, CONFIG, expAlloc == X.allocator());
-
-                // --------------------------------------------------------
-
-                // Verify basic accessors
-
-                bslma::TestAllocatorMonitor oam(oa);
-
-                ASSERTV(LINE, SPEC, CONFIG,
-                        isEqualComparator(comp, X.comparator()));
-                ASSERTV(LINE, SPEC, CONFIG,
-                        isEqualHasher(hash, X.hasher()));
-
-                ASSERTV(LINE, SPEC, CONFIG, NUM_BUCKETS, X.numBuckets(),
-                        NUM_BUCKETS <= X.numBuckets());
-                ASSERTV(LINE, SPEC, CONFIG, MAX_LF, X.maxLoadFactor(),
-                        MAX_LF == X.maxLoadFactor());
-                ASSERTV(LINE, SPEC, CONFIG, LENGTH, X.size(),
-                        LENGTH == X.size());
-
-                ASSERT(0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
-                                                           EQUAL,
-                                                           EXP,
-                                                           LENGTH));
-
-                ASSERT(oam.isTotalSame());
-
-                // --------------------------------------------------------
-
-                // Reclaim dynamically allocated object under test.
-
-                fa.deleteObject(objPtr);
-
-                // Verify no allocation from the non-object allocator.
-
-                // In build configuration 'a', the 'noa' allocator is the
-                // default allocator, otherwise 'oa' is the default allocator.
-                // If the allocator type is not 'bsl::allocator' and the
-                // elements being inserted allocate memory, the element stored
-                // in the container will be created using the default allocator
-                // but there should be only one such allocation per element.
-                // Otherwise, there should be no residual evidence of using the
-                // 'noa' allocator.
-
-                const long long EXP_NUM_BLOCKS =  VALUE_TYPE_USES_ALLOCATOR  &&
-                                                 !ALLOCATOR_IS_BSL_ALLOCATOR &&
-                                                  'a' == CONFIG
-                                               ? strlen(SPEC)
-                                               : 0;
-
-                ASSERTV(LINE, CONFIG, EXP_NUM_BLOCKS, noa->numBlocksTotal(),
-                        EXP_NUM_BLOCKS == noa->numBlocksTotal());
-
-                // Verify all memory is released on object destruction.
-
-                ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
-                        0 == da.numBlocksInUse());
-                ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
-                        0 == fa.numBlocksInUse());
-                ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
-                        0 == sa.numBlocksInUse());
-            }
-        }
-    }
-
-    // Create some fresh allocators to use validating final corners of the
-    // constructor behavior.  These are special case tests, and will not need
-    // to loop many times, or test the contents of the container, so one set of
-    // allocators will suffice to the end of the test case.
-
-    bslma::TestAllocator na("negative testing", veryVeryVeryVerbose);
-
-    // There is no easy way to create this guard for the specific
-    // test case of the stateless 'bsltf::StdTestAllocator', nor
-    // without second guessing the allocator to use based upon the
-    // 'cfg' code.  By the time we return from 'makeAllocator' the test
-    // allocator will already have been installed, with no easy way to
-    // restore at the end of the test case.
-
-    bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&na);
-    ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&na);
-
-    if (verbose) printf("\nNegative Testing.\n");
-    {
-        bsls::AssertTestHandlerGuard hG;
-
-        if (veryVerbose) printf("\t'bucketAtIndex'\n");
-        {
-            Obj mX(HASH, EQUAL, 1, 1.0f, objAlloc);  const Obj& X = mX;
-            size_t numBuckets = X.numBuckets();
-            if (0 < numBuckets) { // always true, but needed for warnings
-                ASSERT_SAFE_PASS(X.bucketAtIndex(numBuckets - 1));
-                ASSERT_SAFE_FAIL(X.bucketAtIndex(numBuckets));
-            }
-        }
-    }
-}
 
 template<class KEY_CONFIG, class COMPARATOR>
 void testVerifyListContents(const COMPARATOR& compare)
@@ -7907,239 +5327,6 @@ void testVerifyListContents(const COMPARATOR& compare)
 
     ASSERT(0 == dam.numBlocksTotalChange());
     ASSERT(0 == gam.numBlocksTotalChange());
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
-{
-    // ------------------------------------------------------------------------
-    // TESTING PRIMITIVE GENERATOR FUNCTIONS 'gg' AND 'ggg':
-    //   Having demonstrated that our primary manipulators work as expected
-    //   under normal conditions
-    //
-    // Concerns:
-    //: 1 Valid generator syntax produces expected results
-    //:
-    //: 2 Invalid syntax is detected and reported.
-    //:
-    //: 3 'verifyListContents' confirms there is a one-to-one mapping between
-    //:   the supplied list and the expected values array, or both are empty.
-    //:
-    //
-    // Plan:
-    //: 1 For each of an enumerated sequence of 'spec' values, ordered by
-    //:   increasing 'spec' length:
-    //:
-    //:   1 Use the primitive generator function 'gg' to set the state of a
-    //:     newly created object.
-    //:
-    //:   2 Verify that 'gg' returns a valid reference to the modified argument
-    //:     object.
-    //:
-    //:   3 Use the basic accessors to verify that the value of the object is
-    //:     as expected.  (C-1)
-    //:
-    //: 2 For each of an enumerated sequence of 'spec' values, ordered by
-    //:   increasing 'spec' length, use the primitive generator function 'ggg'
-    //:   to set the state of a newly created object.
-    //:
-    //:   1 Verify that 'ggg' returns the expected value corresponding to the
-    //:     location of the first invalid value of the 'spec'.  (C-2)
-    //
-    // Testing:
-    //   int ggg(HashTable *object, const char *spec, bool verbose);
-    //   HashTable& gg(HashTable *object, const char *spec);
-    //   verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
-    // ------------------------------------------------------------------------
-
-    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
-    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
-
-    typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
-    typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
-
-    const HASHER_TYPE     HASH  = MakeCallableEntity<HASHER>::make();
-    const COMPARATOR_TYPE EQUAL = MakeCallableEntity<COMPARATOR>::make();
-
-    testVerifyListContents<KEY_CONFIG>(EQUAL);
-
-    bslma::TestAllocator oa("generator allocator", veryVeryVeryVerbose);
-
-    // There is no easy way to create this guard for the specific
-    // test case of the stateless 'bsltf::StdTestAllocator', nor
-    // without second guessing the allocator to use based upon the
-    // 'cfg' code.  By the time we return from 'makeAllocator' the test
-    // allocator will already have been installed, with no easy way to
-    // restore at the end of the test case.
-
-    bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&oa);
-    ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&oa);
-
-    if (verbose) printf("\nTesting generator initial conditions.\n");
-    {
-        bslma::TestAllocator tda("bad gerenators", veryVeryVeryVerbose);
-        Obj obj(HASH, EQUAL, 0, 1.0f, objAlloc);
-
-        int failCode = ggg(&obj, "", verbose);  // success!
-        ASSERTV(&obj, failCode, -1 == failCode);
-
-        failCode = ggg(0, "", verbose);         // null OBJ address
-        ASSERTV(failCode, -2 == failCode);
-
-        failCode = ggg(&obj, 0, verbose);       // null SPEC address
-        ASSERTV(&obj, failCode, -3 == failCode);
-
-        failCode = ggg(&obj, "A", verbose);     // not enough buckets
-        ASSERTV(&obj, failCode, -4 == failCode);
-    }
-
-    if (verbose) printf("\nTesting generator on valid specs.\n");
-    {
-        static const float MAX_LOAD_FACTOR[] = {
-            1e-5,    // This is small enough to test extremely low value
-            0.125f,  // Low value used throughout the test driver
-            1.0f,    // Default and most common value
-            8.0f,    // High value used throughout the test driver
-            native_std::numeric_limits<float>::infinity()  // edge case
-        };
-        static const int MAX_LOAD_FACTOR_SIZE =
-                         sizeof MAX_LOAD_FACTOR / sizeof *MAX_LOAD_FACTOR;
-
-        if (veryVerbose) {
-            printf("\tTesting with Max Load Factor\n");
-        }
-
-        for (int lfi = 0; lfi < MAX_LOAD_FACTOR_SIZE; ++lfi) {
-            const float    MAX_LF = MAX_LOAD_FACTOR[lfi];
-
-            if (veryVerbose) {
-                T_ P(MAX_LF);
-            }
-
-            size_t oldLen = 0;
-            for (size_t ti = 0; ti != NUM_DATA ; ++ti) {
-                const int         LINE   = DATA[ti].d_line;
-                const char *const SPEC   = DATA[ti].d_spec;
-                const char *const EXP_S  = DATA[ti].d_results;
-
-                const size_t      LENGTH = strlen(EXP_S);
-
-                bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
-                const TestValues  EXP(EXP_S, &tda);
-
-                const size_t curLen = strlen(SPEC);
-
-                if (curLen != oldLen || !oldLen) {
-                    if (verbose) printf("\tof length " ZU ":\n", curLen);
-                    ASSERTV(LINE, oldLen <= curLen);  // non-decreasing
-
-                    // Let us check for a fail code reported from 'ggg' for
-                    // a SPEC string longer than can be supported without a
-                    // rehash.
-
-                    if (0 < oldLen) {
-                        // First we compute a number of buckets to request that
-                        // should be too few to support the required number of
-                        // elements.
-
-                        size_t badLen = oldLen / 2;
-                        if (0 < badLen) {
-                            --badLen;
-                        }
-
-                        Obj mBadObj(HASH, EQUAL, badLen, 1.0f, objAlloc);
-                        int failCode = ggg(&mBadObj, SPEC, verbose);
-                        ASSERTV(LINE, SPEC, LENGTH, badLen, failCode,
-                                -4 == failCode);
-                    }
-                    oldLen = curLen;
-                }
-
-                const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
-
-                Obj mX(HASH, EQUAL, NUM_BUCKETS, MAX_LF, objAlloc);
-                const Obj& X = gg(&mX, SPEC);   // original spec
-
-                if (veryVerbose) {
-                    printf("\t\tSpec = \"%s\"\n", SPEC);
-                    T_ T_ T_ P(X);
-                }
-
-                ASSERTV(LINE, LENGTH == X.size());
-                ASSERTV(LINE, MAX_LF, SPEC, EXP_S,
-                    0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
-                                                        EQUAL,
-                                                        EXP,
-                                                        LENGTH));
-            }
-        }
-    }
-
-    if (verbose) printf("\nTesting generator on invalid specs.\n");
-    {
-        static const struct {
-            int         d_line;     // source line number
-            const char *d_spec;     // specification string
-            int         d_index;    // offending character index
-        } DATA[] = {
-            //line  spec      index
-            //----  --------  -----
-            { L_,   "",       -1,     }, // control
-
-            { L_,   "A",      -1,     }, // control
-            { L_,   " ",       0,     },
-            { L_,   ".",       0,     },
-            { L_,   "E",       -1,    }, // control
-            { L_,   "a",       0,     },
-            { L_,   "z",       0,     },
-
-            { L_,   "AE",     -1,     }, // control
-            { L_,   "aE",      0,     },
-            { L_,   "Ae",      1,     },
-            { L_,   ".~",      0,     },
-            { L_,   "~!",      0,     },
-            { L_,   "  ",      0,     },
-
-            { L_,   "ABC",    -1,     }, // control
-            { L_,   " BC",     0,     },
-            { L_,   "A C",     1,     },
-            { L_,   "AB ",     2,     },
-            { L_,   "?#:",     0,     },
-            { L_,   "   ",     0,     },
-
-            { L_,   "ABCDE",  -1,     }, // control
-            { L_,   "aBCDE",   0,     },
-            { L_,   "ABcDE",   2,     },
-            { L_,   "ABCDe",   4,     },
-            { L_,   "AbCdE",   1,     }
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        size_t oldLen = 99;  // flag value longer than the longest 'SPEC'
-        for (int ti = 0; ti != NUM_DATA ; ++ti) {
-            const int         LINE   = DATA[ti].d_line;
-            const char *const SPEC   = DATA[ti].d_spec;
-            const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = strlen(SPEC);
-
-            Obj mX(HASH, EQUAL, LENGTH, 1.5f, objAlloc);
-
-            if (LENGTH != oldLen) {
-                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
-                if (99 != oldLen) {  // i.e., not first pass
-                    ASSERTV(LINE, oldLen,  LENGTH,
-                                  oldLen < LENGTH);  // non-decreasing
-                }
-                oldLen = LENGTH;
-            }
-
-            if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
-
-            int RESULT = ggg(&mX, SPEC, veryVerbose);
-
-            ASSERTV(LINE, INDEX == RESULT);
-        }
-    }
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -8809,1633 +5996,2906 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     }
 }
 
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
+{
+    // ------------------------------------------------------------------------
+    // TESTING PRIMITIVE GENERATOR FUNCTIONS 'gg' AND 'ggg':
+    //   Having demonstrated that our primary manipulators work as expected
+    //   under normal conditions
+    //
+    // Concerns:
+    //: 1 Valid generator syntax produces expected results
+    //:
+    //: 2 Invalid syntax is detected and reported.
+    //:
+    //: 3 'verifyListContents' confirms there is a one-to-one mapping between
+    //:   the supplied list and the expected values array, or both are empty.
+    //:
+    //
+    // Plan:
+    //: 1 For each of an enumerated sequence of 'spec' values, ordered by
+    //:   increasing 'spec' length:
+    //:
+    //:   1 Use the primitive generator function 'gg' to set the state of a
+    //:     newly created object.
+    //:
+    //:   2 Verify that 'gg' returns a valid reference to the modified argument
+    //:     object.
+    //:
+    //:   3 Use the basic accessors to verify that the value of the object is
+    //:     as expected.  (C-1)
+    //:
+    //: 2 For each of an enumerated sequence of 'spec' values, ordered by
+    //:   increasing 'spec' length, use the primitive generator function 'ggg'
+    //:   to set the state of a newly created object.
+    //:
+    //:   1 Verify that 'ggg' returns the expected value corresponding to the
+    //:     location of the first invalid value of the 'spec'.  (C-2)
+    //
+    // Testing:
+    //   int ggg(HashTable *object, const char *spec, bool verbose);
+    //   HashTable& gg(HashTable *object, const char *spec);
+    //   verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
+    // ------------------------------------------------------------------------
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
+    typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
+
+    const HASHER_TYPE     HASH  = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR_TYPE EQUAL = MakeCallableEntity<COMPARATOR>::make();
+
+    testVerifyListContents<KEY_CONFIG>(EQUAL);
+
+    bslma::TestAllocator oa("generator allocator", veryVeryVeryVerbose);
+
+    // There is no easy way to create this guard for the specific
+    // test case of the stateless 'bsltf::StdTestAllocator', nor
+    // without second guessing the allocator to use based upon the
+    // 'cfg' code.  By the time we return from 'makeAllocator' the test
+    // allocator will already have been installed, with no easy way to
+    // restore at the end of the test case.
+
+    bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&oa);
+    ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&oa);
+
+    if (verbose) printf("\nTesting generator initial conditions.\n");
+    {
+        bslma::TestAllocator tda("bad gerenators", veryVeryVeryVerbose);
+        Obj obj(HASH, EQUAL, 0, 1.0f, objAlloc);
+
+        int failCode = ggg(&obj, "", verbose);  // success!
+        ASSERTV(&obj, failCode, -1 == failCode);
+
+        failCode = ggg(0, "", verbose);         // null OBJ address
+        ASSERTV(failCode, -2 == failCode);
+
+        failCode = ggg(&obj, 0, verbose);       // null SPEC address
+        ASSERTV(&obj, failCode, -3 == failCode);
+
+        failCode = ggg(&obj, "A", verbose);     // not enough buckets
+        ASSERTV(&obj, failCode, -4 == failCode);
+    }
+
+    if (verbose) printf("\nTesting generator on valid specs.\n");
+    {
+        static const float MAX_LOAD_FACTOR[] = {
+            1e-5,    // This is small enough to test extremely low value
+            0.125f,  // Low value used throughout the test driver
+            1.0f,    // Default and most common value
+            8.0f,    // High value used throughout the test driver
+            native_std::numeric_limits<float>::infinity()  // edge case
+        };
+        static const int MAX_LOAD_FACTOR_SIZE =
+                         sizeof MAX_LOAD_FACTOR / sizeof *MAX_LOAD_FACTOR;
+
+        if (veryVerbose) {
+            printf("\tTesting with Max Load Factor\n");
+        }
+
+        for (int lfi = 0; lfi < MAX_LOAD_FACTOR_SIZE; ++lfi) {
+            const float    MAX_LF = MAX_LOAD_FACTOR[lfi];
+
+            if (veryVerbose) {
+                T_ P(MAX_LF);
+            }
+
+            size_t oldLen = 0;
+            for (size_t ti = 0; ti != NUM_DATA ; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const char *const SPEC   = DATA[ti].d_spec;
+                const char *const EXP_S  = DATA[ti].d_results;
+
+                const size_t      LENGTH = strlen(EXP_S);
+
+                bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
+                const TestValues  EXP(EXP_S, &tda);
+
+                const size_t curLen = strlen(SPEC);
+
+                if (curLen != oldLen || !oldLen) {
+                    if (verbose) printf("\tof length " ZU ":\n", curLen);
+                    ASSERTV(LINE, oldLen <= curLen);  // non-decreasing
+
+                    // Let us check for a fail code reported from 'ggg' for
+                    // a SPEC string longer than can be supported without a
+                    // rehash.
+
+                    if (0 < oldLen) {
+                        // First we compute a number of buckets to request that
+                        // should be too few to support the required number of
+                        // elements.
+
+                        size_t badLen = oldLen / 2;
+                        if (0 < badLen) {
+                            --badLen;
+                        }
+
+                        Obj mBadObj(HASH, EQUAL, badLen, 1.0f, objAlloc);
+                        int failCode = ggg(&mBadObj, SPEC, verbose);
+                        ASSERTV(LINE, SPEC, LENGTH, badLen, failCode,
+                                -4 == failCode);
+                    }
+                    oldLen = curLen;
+                }
+
+                const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
+
+                Obj mX(HASH, EQUAL, NUM_BUCKETS, MAX_LF, objAlloc);
+                const Obj& X = gg(&mX, SPEC);   // original spec
+
+                if (veryVerbose) {
+                    printf("\t\tSpec = \"%s\"\n", SPEC);
+                    T_ T_ T_ P(X);
+                }
+
+                ASSERTV(LINE, LENGTH == X.size());
+                ASSERTV(LINE, MAX_LF, SPEC, EXP_S,
+                    0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
+                                                        EQUAL,
+                                                        EXP,
+                                                        LENGTH));
+            }
+        }
+    }
+
+    if (verbose) printf("\nTesting generator on invalid specs.\n");
+    {
+        static const struct {
+            int         d_line;     // source line number
+            const char *d_spec;     // specification string
+            int         d_index;    // offending character index
+        } DATA[] = {
+            //line  spec      index
+            //----  --------  -----
+            { L_,   "",       -1,     }, // control
+
+            { L_,   "A",      -1,     }, // control
+            { L_,   " ",       0,     },
+            { L_,   ".",       0,     },
+            { L_,   "E",       -1,    }, // control
+            { L_,   "a",       0,     },
+            { L_,   "z",       0,     },
+
+            { L_,   "AE",     -1,     }, // control
+            { L_,   "aE",      0,     },
+            { L_,   "Ae",      1,     },
+            { L_,   ".~",      0,     },
+            { L_,   "~!",      0,     },
+            { L_,   "  ",      0,     },
+
+            { L_,   "ABC",    -1,     }, // control
+            { L_,   " BC",     0,     },
+            { L_,   "A C",     1,     },
+            { L_,   "AB ",     2,     },
+            { L_,   "?#:",     0,     },
+            { L_,   "   ",     0,     },
+
+            { L_,   "ABCDE",  -1,     }, // control
+            { L_,   "aBCDE",   0,     },
+            { L_,   "ABcDE",   2,     },
+            { L_,   "ABCDe",   4,     },
+            { L_,   "AbCdE",   1,     }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        size_t oldLen = 99;  // flag value longer than the longest 'SPEC'
+        for (int ti = 0; ti != NUM_DATA ; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const char *const SPEC   = DATA[ti].d_spec;
+            const int         INDEX  = DATA[ti].d_index;
+            const size_t      LENGTH = strlen(SPEC);
+
+            Obj mX(HASH, EQUAL, LENGTH, 1.5f, objAlloc);
+
+            if (LENGTH != oldLen) {
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
+                if (99 != oldLen) {  // i.e., not first pass
+                    ASSERTV(LINE, oldLen,  LENGTH,
+                                  oldLen < LENGTH);  // non-decreasing
+                }
+                oldLen = LENGTH;
+            }
+
+            if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
+
+            int RESULT = ggg(&mX, SPEC, veryVerbose);
+
+            ASSERTV(LINE, INDEX == RESULT);
+        }
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
+{
+    // ------------------------------------------------------------------------
+    // BASIC ACCESSORS
+    //   Ensure each basic accessor:
+    //     - elementListRoot
+    //     - size
+    //     - allocator
+    //   properly interprets object state.
+    //
+    // Concerns:
+    //: 1 Each accessor returns the value of the correct property of the
+    //:   object.
+    //:
+    //: 2 Each accessor method is declared 'const'.
+    //:
+    //: 3 No accessor allocates any memory.
+    //:
+    //: 4 'elementListRoot' refers to the root of a list with exactly 'size()'
+    //:   elements, and a null pointer value if 'size() == 0'.
+    //:
+    //: 5 'bucketAtIndex' returns a valid bucket for all 0 <= index <
+    //:   'numBuckets'.
+    //:
+    //: 6 QoI: Assert precondition violations for 'bucketAtIndex' when
+    //:   'size <= index' are detected in SAFE builds.
+    //:
+    //: 7 For any value of key, 'bucketIndexForKey' returns a bucket number
+    //:   less than 'numBuckets'.
+    //
+    // Plan:
+    //: 1 For each set of 'SPEC' of different length:
+    //:
+    //:   1 Value construct the object with various configuration:
+    //:
+    //:     1 Use the 'gg' function to populate the object based on the SPEC.
+    //:
+    //:     2 Verify the correct allocator is installed with the
+    //:       'allocator' method.
+    //:
+    //:     3 Verify the object all attributes are as expected.
+    //:
+    //:     4 Use 'verifyListContents' to validate the list rooted at
+    //:       'elementListRoot'.
+    //:
+    //:     5 TBD: Use 'validateBucket to validate the buckets returned by
+    //:       'bucketAtIndex'.
+    //:
+    //:     6 Monitor the memory allocated from both the default and object
+    //:       allocators before and after calling the accessor; verify that
+    //:       there is no change in total memory allocation.  (C-3)
+    //:
+    //: 2 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+    //
+    // Testing:
+    //   allocator() const;
+    //*  comparator() const;
+    //*  hasher() const;
+    //*  size() const;
+    //*  numBuckets() const;
+    //*  maxLoadFactor() const;
+    //*  rehashThreshold() const;
+    //*  elementListRoot() const;
+    //*  bucketAtIndex(SizeType index) const;
+    //*  bucketIndexForKey(const KeyType& key) const;
+    //*  countElementsInBucket(SizeType index) const;
+    // ------------------------------------------------------------------------
+
+    typedef typename KEY_CONFIG::ValueType Element;
+    typedef bslalg::HashTableImpUtil       ImpUtil;
+    typedef typename Obj::SizeType         SizeType;
+
+    const bool VALUE_TYPE_USES_ALLOCATOR =
+                                     bslma::UsesBslmaAllocator<Element>::value;
+
+    // If we use this predicate in more than one test case, add a trait to this
+    // test driver that is has a partial specialization for 'bsl::allocator<T>'
+    // to return 'true', otherwise return 'false'.
+    const bool ALLOCATOR_IS_BSL_ALLOCATOR =
+        bsl::is_same<typename bsl::allocator_traits<ALLOCATOR>::
+                                   template rebind_traits<int>::allocator_type,
+                     bsl::allocator<int> >::value;
+
+    if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
+    if (verbose) { P(ALLOCATOR_IS_BSL_ALLOCATOR); }
+
+    static const struct {
+        int         d_line;           // source line number
+        const char *d_spec;           // specification string
+        float       d_maxLoadFactor;  // max load factor
+        size_t      d_numBuckets;     // number of buckets
+        const char *d_results;        // expected results
+    } DATA[] = {
+        //line  spec                 result
+        //----  --------             ------
+        { L_,   "",       1.0f,   1,  ""       },
+        { L_,   "A",      0.9f,   2,  "A"      },
+        { L_,   "AB",     0.8f,   3,  "AB"     },
+        { L_,   "ABC",    0.7f,   5,  "ABC"    },
+        { L_,   "ABCD",   0.6f,   8,  "ABCD"   },
+        { L_,   "ABCDE",  0.5f,  13,  "ABCDE"  }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
+    typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
+
+    const HASHER_TYPE     HASH  = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR_TYPE EQUAL = MakeCallableEntity<COMPARATOR>::make();
+
+    const char *ALLOC_SPEC = ObjMaker::specForBootstrapTests();
+
+    if (verbose) {
+        printf("\nCreate objects with various allocator configurations.\n");
+    }
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE         = DATA[ti].d_line;
+            const char *const SPEC         = DATA[ti].d_spec;
+            const size_t      LENGTH       = strlen(DATA[ti].d_results);
+            const float       MAX_LF       = DATA[ti].d_maxLoadFactor;
+            const size_t      NUM_BUCKETS  = DATA[ti].d_numBuckets;
+
+            bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
+            const TestValues  EXP(DATA[ti].d_results, &tda);
+
+            // We can now provide a better estimate for number of buckets
+//            const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
+
+            HASHER_TYPE     hash = HASH;
+            COMPARATOR_TYPE comp = EQUAL;
+            setHasherState(bsls::Util::addressOf(hash), ti);
+            setComparatorState(bsls::Util::addressOf(comp), ti);
+
+            if (veryVerbose) { P_(LINE) P_(LENGTH) P(SPEC); }
+
+            for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
+                const char CONFIG = *cfg;  // how we specify the allocator
+
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                // There is no easy way to create this guard for the specific
+                // test case of the stateless 'bsltf::StdTestAllocator', nor
+                // without second guessing the allocator to use based upon the
+                // 'cfg' code.  By the time we return from 'makeAllocator' the
+                // test allocator will already have been installed, with no
+                // easy way to restore at the end of the test case.
+
+                bsltf::StdTestAllocatorConfigurationGuard bsltfAG('a' == CONFIG
+                                                                       ? &sa
+                                                                       : &da);
+
+                // ------------------------------------------------------------
+
+                if (veryVerbose) {
+                    printf("\n\tTesting bootstrap constructor.\n");
+                }
+
+                Obj       *objPtr;
+                ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
+                                                           CONFIG,
+                                                           &fa,
+                                                           &sa,
+                                                           hash,
+                                                           comp,
+                                                           NUM_BUCKETS,
+                                                           MAX_LF);
+
+                // Verify any attribute allocators are installed properly.
+
+                const bslma::TestAllocator  *oa =
+                                                extractTestAllocator(expAlloc);
+                const bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
+
+                // It is important that these allocators are found, or else the
+                // following tests will break severely, dereferencing null
+                // pointer.
+                BSLS_ASSERT_OPT(oa);
+                BSLS_ASSERT_OPT(noa);
+
+                const unsigned INTIIAL_BLOCKS = 0 == NUM_BUCKETS ? 0 : 1;
+
+                // Verify we are starting with a known, expected, number of
+                // allocations based on the number of requested buckets.
+                ASSERTV(MAX_LF, SPEC, LENGTH, CONFIG, oa->numBlocksTotal(),
+                        INTIIAL_BLOCKS == oa->numBlocksTotal());
+                ASSERTV(MAX_LF, SPEC, LENGTH, CONFIG, noa->numBlocksTotal(),
+                        0 == noa->numBlocksTotal());
+
+                Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC);
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, expAlloc == X.allocator());
+
+                // --------------------------------------------------------
+
+                // Verify basic accessors
+
+                bslma::TestAllocatorMonitor oam(oa);
+
+                ASSERTV(LINE, SPEC, CONFIG,
+                        isEqualComparator(comp, X.comparator()));
+                ASSERTV(LINE, SPEC, CONFIG,
+                        isEqualHasher(hash, X.hasher()));
+
+                ASSERTV(LINE, SPEC, CONFIG, NUM_BUCKETS, X.numBuckets(),
+                        NUM_BUCKETS <= X.numBuckets());
+                ASSERTV(LINE, SPEC, CONFIG, MAX_LF, X.maxLoadFactor(),
+                        MAX_LF == X.maxLoadFactor());
+                ASSERTV(LINE, SPEC, CONFIG, LENGTH, X.size(),
+                        LENGTH == X.size());
+
+                ASSERT(0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
+                                                           EQUAL,
+                                                           EXP,
+                                                           LENGTH));
+
+                ASSERT(oam.isTotalSame());
+
+                // --------------------------------------------------------
+
+                // Reclaim dynamically allocated object under test.
+
+                fa.deleteObject(objPtr);
+
+                // Verify no allocation from the non-object allocator.
+
+                // In build configuration 'a', the 'noa' allocator is the
+                // default allocator, otherwise 'oa' is the default allocator.
+                // If the allocator type is not 'bsl::allocator' and the
+                // elements being inserted allocate memory, the element stored
+                // in the container will be created using the default allocator
+                // but there should be only one such allocation per element.
+                // Otherwise, there should be no residual evidence of using the
+                // 'noa' allocator.
+
+                const long long EXP_NUM_BLOCKS =  VALUE_TYPE_USES_ALLOCATOR  &&
+                                                 !ALLOCATOR_IS_BSL_ALLOCATOR &&
+                                                  'a' == CONFIG
+                                               ? strlen(SPEC)
+                                               : 0;
+
+                ASSERTV(LINE, CONFIG, EXP_NUM_BLOCKS, noa->numBlocksTotal(),
+                        EXP_NUM_BLOCKS == noa->numBlocksTotal());
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                        0 == da.numBlocksInUse());
+                ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                        0 == fa.numBlocksInUse());
+                ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                        0 == sa.numBlocksInUse());
+            }
+        }
+    }
+
+    // Create some fresh allocators to use validating final corners of the
+    // constructor behavior.  These are special case tests, and will not need
+    // to loop many times, or test the contents of the container, so one set of
+    // allocators will suffice to the end of the test case.
+
+    bslma::TestAllocator na("negative testing", veryVeryVeryVerbose);
+
+    // There is no easy way to create this guard for the specific
+    // test case of the stateless 'bsltf::StdTestAllocator', nor
+    // without second guessing the allocator to use based upon the
+    // 'cfg' code.  By the time we return from 'makeAllocator' the test
+    // allocator will already have been installed, with no easy way to
+    // restore at the end of the test case.
+
+    bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&na);
+    ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&na);
+
+    if (verbose) printf("\nNegative Testing.\n");
+    {
+        bsls::AssertTestHandlerGuard hG;
+
+        if (veryVerbose) printf("\t'bucketAtIndex'\n");
+        {
+            Obj mX(HASH, EQUAL, 1, 1.0f, objAlloc);  const Obj& X = mX;
+            size_t numBuckets = X.numBuckets();
+            if (0 < numBuckets) { // always true, but needed for warnings
+                ASSERT_SAFE_PASS(X.bucketAtIndex(numBuckets - 1));
+                ASSERT_SAFE_FAIL(X.bucketAtIndex(numBuckets));
+            }
+        }
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
+{
+    // ---------------------------------------------------------------------
+    // TESTING EQUALITY OPERATORS:
+    // Concerns:
+    //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
+    //:   the same values.
+    //:
+    //: 2 No non-salient attributes participate.  The non-salient attributes of
+    //:   a 'HashTable' include the 'allocator', 'loadFactor', 'maxLoadFactor'
+    //:   and 'numBuckets'.
+    //:
+    //: 3 'true  == (X == X)' (i.e., identity)
+    //:
+    //: 4 'false == (X != X)' (i.e., identity)
+    //:
+    //: 5 'X == Y' if and only if 'Y == X' (i.e., commutativity)
+    //:
+    //: 6 'X != Y' if and only if 'Y != X' (i.e., commutativity)
+    //:
+    //: 7 'X != Y' if and only if '!(X == Y)'
+    //:
+    //: 8 Comparison is symmetric with respect to user-defined conversion
+    //:   (i.e., both comparison operators are free functions).
+    //:
+    //: 9 Non-modifiable objects can be compared (i.e., objects or references
+    //:   providing only non-modifiable access).
+    //:
+    //:10 'operator==' is defined in terms of
+    //:   'operator==(KEY_CONFIG::ValueType)' instead of the supplied
+    //:   comparator function (which, along with the hasher, is still used to
+    //:   establish key-equivalent groups).
+    //:
+    //:11 No memory allocation occurs as a result of comparison (e.g., the
+    //:   arguments are not passed by value).
+    //:
+    //:12 The equality operator's signature and return type are standard.
+    //:
+    //:13 The inequality operator's signature and return type are standard.
+    //:
+    //:14 Two object with the same elements in different permutation compare
+    //:   equal to each other.
+    //
+    // Plan:
+    //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
+    //:   initialize function pointers having the appropriate signatures and
+    //:   return types for the two homogeneous, free equality- comparison
+    //:   operators defined in this component.  (C-8..9, 12..13)
+    //:
+    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
+    //:   allocator (note that a ubiquitous test allocator is already installed
+    //:   as the global allocator).
+    //:
+    //: 3 Using the table-driven technique, specify a set of distinct
+    //:   specifications for the 'gg' function.
+    //:
+    //: 4 For each row 'R1' in the table of P-3: (C-1..7)
+    //:
+    //:   1 Create a single object, using a comparator that can be disabled and
+    //:     a "scratch" allocator, and use it to verify the reflexive
+    //:     (anti-reflexive) property of equality (inequality) in the presence
+    //:     of aliasing.  (C-3..4)
+    //:
+    //:   2 For each row 'R2' in the table of P-3: (C-1..2, 5..7)
+    //:
+    //:     1 Record, in 'EXP', whether or not distinct objects created from
+    //:       'R1' and 'R2', respectively, are expected to have the same value.
+    //:
+    //:     2 For each of two configurations, 'a' and 'b': (C-1..2, 5..7)
+    //:
+    //:       1 Create three (object) allocators, 'oax', 'oay' and 'oaz'.
+    //:
+    //:       2 Create an object 'X', using 'oax', having the value 'R1'.
+    //:
+    //:       3 Create an object 'Y', using 'oax' in configuration 'a' and
+    //:         'oay' in configuration 'b', having the value 'R2', and a
+    //:         'maxLoadFactor' of 10.
+    //:
+    //:       4 Create an object 'Z', using 'oax' in configuration 'a' and
+    //:         'oaz' in configuration 'b', having the value 'R2', and a
+    //:         'maxLoadFactor' of 0.01.
+    //:
+    //:       5 Verify the commutativity property and expected return value for
+    //:         both '==' and '!=', while monitoring 'oax', 'oay' and 'oaz' to
+    //:         ensure that no object memory is ever allocated by either
+    //:         operator.  (C-1..2, 5..7)
+    //:
+    //:       6 Compare the ordering of elements in the lists accessed from
+    //:         'Y.elementListRoot()' and 'Z.elementListRoot()', which must
+    //:         always be permutations of each other, and set a test-wide flag
+    //:         to confirm that the lists have differing orders at least once.
+    //:         (C14)
+    //:
+    //: 5 Use the test allocator from P-2 to verify that no memory is ever
+    //:   allocated from the default allocator.  (C-11)
+    //
+    // Testing:
+    //*  bool operator==(const HashTable& lhs, const HashTable& rhs);
+    //*  bool operator!=(const HashTable& lhs, const HashTable& rhs);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
+                        "\n=============================\n");
+
+    if (verbose)
+              printf("\nAssign the address of each operator to a variable.\n");
+    {
+        typedef bool (*operatorPtr)(const Obj&, const Obj&);
+
+        // Verify that the signatures and return types are standard.
+
+        operatorPtr operatorEq = bslstl::operator==;
+        operatorPtr operatorNe = bslstl::operator!=;
+
+        // quash potential compiler warnings about unused variables
+
+        ASSERT(operatorEq != operatorNe);
+    }
+
+    static const struct {
+        int         d_line;   // source line number
+        int         d_index;  // lexical order
+        const char *d_spec;   // specification string, for input to 'gg'
+    } DATA[] = {
+        //line idx  spec
+        //---- ---  --------
+        { L_,    0, "" },
+        { L_,    1, "A" },
+        { L_,    2, "AA" },
+        { L_,    3, "AB" },
+        { L_,    3, "BA" },
+        { L_,    4, "ABC" },
+        { L_,    4, "BAC" },
+        { L_,    4, "BCA" },
+        { L_,    5, "ABD" },
+        { L_,    6, "ABCDE" },
+        { L_,    6, "CEBAD" },
+        { L_,    7, "AAAAA" },
+        { L_,    8, "ABCDA" },
+        { L_,    9, "ABCDF" },
+        { L_,    9, "FDCBA" },
+        { L_,   10, "AFKPUZ" },
+        { L_,   11, "ABFGKLPQUVZ" },
+        { L_,   12, "AAABBCDEEFFFGGGHHIJKKLLLMMMNNOPQQRRRSSSTTUVWWXXXYYZ" }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
+    typedef typename CallableVariable<COMPARATOR>::type COMPARATOR_TYPE;
+
+    const HASHER_TYPE     HASH  = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR_TYPE EQUAL = MakeCallableEntity<COMPARATOR>::make();
+
+    // Create a variable to confirm that our tested data set has an expected
+    // (and important) property.
+    bool HAVE_TESTED_DISTINCT_PERMUTATIONS = false;
+
+    if (verbose) printf("\nCompare every value with every value.\n");
+    {
+        // Create first object
+        for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const float       MAX_LF1  = DEFAULT_MAX_LOAD_FACTOR[lfi];
+
+            const int         LINE1    = DATA[ti].d_line;
+            const int         INDEX1   = DATA[ti].d_index;
+            const char *const SPEC1    = DATA[ti].d_spec;
+
+            const size_t      LENGTH1     = strlen(SPEC1);
+            const size_t      NUM_BUCKETS = predictNumBuckets(LENGTH1,
+                                                              MAX_LF1);
+
+           if (veryVerbose) { T_ P_(LINE1) P_(INDEX1) P_(LENGTH1) P(SPEC1) }
+
+            // Ensure an object compares correctly with itself (alias test).
+            {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
+
+                Obj mX(HASH, EQUAL, NUM_BUCKETS, MAX_LF1, objAlloc);
+                const Obj& X = gg(&mX, SPEC1);
+
+                ASSERTV(LINE1, X,   X == X);
+                ASSERTV(LINE1, X, !(X != X));
+            }
+
+            for (int lfj = 0; lfj != lfi; ++lfj) {
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const float       MAX_LF2  = DEFAULT_MAX_LOAD_FACTOR[lfj];
+
+                const int         LINE2   = DATA[tj].d_line;
+                const int         INDEX2  = DATA[tj].d_index;
+                const char *const SPEC2   = DATA[tj].d_spec;
+
+                const size_t      LENGTH2      = strlen(SPEC2);
+                const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
+                                                                   MAX_LF2);
+
+                if (veryVerbose) {
+                              T_ T_ P_(LINE2) P_(INDEX2) P_(LENGTH2) P(SPEC2) }
+
+                const bool EXP = INDEX1 == INDEX2;  // expected result
+
+                for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+
+                    const char CONFIG = cfg;  // Determines 'Y's allocator.
+
+                    // Create two distinct test allocators, 'oax' and 'oay'.
+
+                    bslma::TestAllocator oax("objectx", veryVeryVeryVerbose);
+                    bslma::TestAllocator oay("objecty", veryVeryVeryVerbose);
+
+                    // Map allocators above to objects 'X' and 'Y' below.
+
+                    bslma::TestAllocator& xa = oax;
+                    bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
+
+                    ALLOCATOR allocX = MakeAllocator<ALLOCATOR>::make(&xa);
+                    ALLOCATOR allocY = MakeAllocator<ALLOCATOR>::make(&ya);
+
+                    Obj mX(HASH, EQUAL, NUM_BUCKETS,  MAX_LF1, allocX);
+                    const Obj& X = gg(&mX, SPEC1);
+                    Obj mY(HASH, EQUAL, NUM_BUCKETS2, MAX_LF2, allocY);
+                    const Obj& Y = gg(&mY, SPEC2);
+
+                    ASSERTV(LINE1, LINE2, CONFIG, LENGTH1, X.size(),
+                            LENGTH1 == X.size());
+                    ASSERTV(LINE1, LINE2, CONFIG, MAX_LF1, X.maxLoadFactor(),
+                            MAX_LF1 == X.maxLoadFactor());
+                    ASSERTV(LINE1, LINE2, CONFIG, LENGTH2, Y.size(),
+                            LENGTH2 == Y.size());
+                    ASSERTV(LINE1, LINE2, CONFIG, MAX_LF2, Y.maxLoadFactor(),
+                            MAX_LF2 == Y.maxLoadFactor());
+
+                    if (veryVerbose) { T_ T_ P_(X) P(Y); }
+
+                    // Verify value, commutativity, and no memory allocation.
+
+                    bslma::TestAllocatorMonitor oaxm(&xa);
+                    bslma::TestAllocatorMonitor oaym(&ya);
+
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y,  EXP == (Y == X));
+
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, !EXP == (X != Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, !EXP == (Y != X));
+
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, oaxm.isTotalSame());
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, oaym.isTotalSame());
+
+                    if (!HAVE_TESTED_DISTINCT_PERMUTATIONS && EXP) {
+                        // Walk the lists of both 'Y' and 'X' to see if they
+                        // they are distinct permutations.
+                        Link *yCursor = Y.elementListRoot();
+                        Link *xCursor = X.elementListRoot();
+
+                        while (yCursor) {
+                            ASSERT(xCursor); // lists should be the same length
+
+                            if (!(ImpUtil::extractValue<KEY_CONFIG>(yCursor) ==
+                                  ImpUtil::extractValue<KEY_CONFIG>(xCursor)))
+                            {
+                                HAVE_TESTED_DISTINCT_PERMUTATIONS = true;
+                                break;
+                            }
+                            yCursor = yCursor->nextLink();
+                            xCursor = xCursor->nextLink();
+                        }
+                    }
+                }
+            }
+            }
+        }
+        }
+    }
+
+    ASSERT(HAVE_TESTED_DISTINCT_PERMUTATIONS);
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
+{
+    // ------------------------------------------------------------------------
+    // TESTING COPY CONSTRUCTOR:
+    //  One additional constraint to bear in mind, while testing the copy
+    //  constructor, is that the copy does not give us any control over the
+    //  'numBuckets' allocated for the new copy.  Given our primary manipulator
+    //  is a special 'insertElement' function that does not allow us to insert
+    //  past the precomputed capacity of a HashTable, some test scenarios may
+    //  produce copies that cannot be further modified by our chosen primary
+    //  manipulator.  Therefor, we will test for a failed insertion in the case
+    //  that the number of elements in the test data exactly matches the limit
+    //  that can be allocated to the buckets without forcing a rehash, and in
+    //  that case our mutate-event will be to clear the container instead.  We
+    //  considered selectively avoiding this corner case with careful selection
+    //  of test data, but realized that simply left a predictable, untested
+    //  pattern in our test driver.  We will validate the proper behavior when
+    //  an 'insert' operation forces a rehash when testing the 'insert' methods
+    //  in a subsequent test case.
+    //
+    // Concern:
+    //: 1 The new object's value is the same as that of the original object
+    //:   (relying on the equality operator), the same 'maxLoadFactor', the
+    //:   same 'hasher' and the same 'comparator'.
+    //:
+    //: 2 All internal representations of a given value can be used to create a
+    //:   new object of equivalent value.
+    //:
+    //: 3 The value of the original object is left unaffected.
+    //:
+    //: 4 Subsequent changes in or destruction of the source object have no
+    //:   effect on the copy-constructed object.
+    //:
+    //: 5 Subsequent changes ('insert's) on the created object have no
+    //:   effect on the original.
+    //:
+    //: 6 The object has its internal memory management system hooked up
+    //:   properly so that *all* internally allocated memory draws from a
+    //:   user-supplied allocator whenever one is specified.
+    //:
+    //: 7 The function is exception neutral w.r.t. memory allocation.
+    //:
+    //: 8 QoI The new object has a 'loadFactor' <= its 'maxLoadFactor'.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with substantial and varied
+    //:   differences, ordered by increasing length, to be used in the
+    //:   following tests.
+    //:
+    //: 2 For each value in S, initialize objects w and x, copy construct y
+    //:   from x and use 'operator==' to verify that both x and y subsequently
+    //:   have the same value as w.  Let x go out of scope and again verify
+    //:   that w == y.  (C-1..4)
+    //:
+    //: 3 For each value in S initialize objects w and x, and copy construct y
+    //:   from x.  Change the state of y, by using the *primary* *manipulator*
+    //:   'insertElement' (or 'removeAll' if 'insertElement' returns a null
+    //:   pointer value).  Using the 'operator!=' verify that y differs from x
+    //:   and w.  Then apply the same operation to 'w' and verify that y still
+    //:   differs from x, and now has the same value as w. (C-5)
+    //:
+    //: 4 Perform tests performed as P-2:  (C-6)
+    //:   1 While passing a testAllocator as a parameter to the new object and
+    //:     ascertaining that the new object gets its memory from the provided
+    //:     testAllocator.
+    //:   2 Verify neither of global and default allocator is used to supply
+    //:     memory.  (C-6)
+    //:
+    //: 5 Perform tests as P-2 in the presence of exceptions during memory
+    //:   allocations using a 'bslma::TestAllocator' and varying its
+    //:   *allocation* *limit*.  (C-7)
+    //
+    // Testing:
+    //   HashTable(const HashTable& original);
+    //   HashTable(const HashTable& original, const A& allocator);
+    // ------------------------------------------------------------------------
+
+    typedef typename KEY_CONFIG::KeyType KEY;
+    typedef typename KEY_CONFIG::ValueType VALUE;
+
+    bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
+    const TestValues VALUES(&tda);
+
+    const int TYPE_ALLOC =
+         bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
+         + bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
+
+    if (verbose) printf("\nTesting parameters: TYPE_ALLOC = %d.\n",
+                        TYPE_ALLOC);
+    {
+        static const char *SPECS[] = { "",
+                                      "A",
+                                     "AA",
+                                     "AB",
+                                     "BC",
+                                    "AAA",
+                                    "ABB",
+                                    "CDE",
+                                   "AAAA",
+                                   "ABBA",
+                                   "DEAB",
+                                  "AAAAA",
+                                  "AAABC",
+                                  "ABBAC",
+                                  "EABCD",
+                                "ABCDEFG",
+                               "HFGEDCBA",
+                              "CFHEBIDGA",
+                        "BENCKHGMALJDFOI",
+                       "IDMLNEFHOPKGBCJA",
+                      "OIQGDNPMLKBACHFEJ"
+        };
+        const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+
+        for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
+        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+            const float       MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[lfi];
+            const char *const SPEC        = SPECS[ti];
+
+            const size_t      LENGTH      = strlen(SPEC);
+            const size_t      NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
+
+            if (veryVerbose) {
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
+                P(SPEC);
+            }
+
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+#if 0
+            // It is not yet clear how to handle the "stateless" std-test
+            // allocator in this one general function, as we now construct
+            // two allocator objects with different test allocators, which
+            // violates the contract that we install only the current default
+            // allocator when creating a 'stateless' object via the 'make'
+            // call.
+            //
+            // There is no easy way to create this guard for the specific
+            // test case of the stateless 'bsltf::StdTestAllocator', nor
+            // without second guessing the allocator to use based upon the
+            // 'cfg' code.  By the time we return from 'makeAllocator' the
+            // test allocator will already have been installed, with no
+            // easy way to restore at the end of the test case.
+
+            bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&oa);
+#endif
+
+            HASHER     hash = HASH;
+            COMPARATOR comp = COMPARE;
+            setHasherState(bsls::Util::addressOf(hash), ti);
+            setComparatorState(bsls::Util::addressOf(comp), ti);
+
+            const ALLOCATOR dfltAlloc = MakeAllocator<ALLOCATOR>::make(&da);
+            const ALLOCATOR objAlloc  = MakeAllocator<ALLOCATOR>::make(&oa);
+
+            // Create control object w, with space for an extra element.
+            Obj mW(hash, comp, NUM_BUCKETS + 1, MAX_LF, dfltAlloc);
+            const Obj& W = gg(&mW, SPEC);
+
+            ASSERTV(ti, LENGTH == W.size()); // same lengths
+            if (veryVerbose) { printf("\tControl Obj: "); P(W); }
+
+            Obj mX(hash, comp, NUM_BUCKETS, MAX_LF, objAlloc);
+            const Obj& X = gg(&mX, SPEC);
+
+            // Sanity check only, previous test cases established this.
+            ASSERTV(MAX_LF, SPEC, W, X,  W == X);
+
+            if (veryVerbose) { printf("\t\tDynamic Obj: "); P(X); }
+
+            {   // Testing concern 1..4 and 8
+
+                if (veryVeryVerbose) { printf("\t\t\tRegular Case :"); }
+
+                Obj *pX =
+                         new Obj(HASH, COMPARE, NUM_BUCKETS, MAX_LF, objAlloc);
+                gg(pX, SPEC);
+
+                ASSERTV(MAX_LF, SPEC, *pX, X, *pX == X);
+                ASSERTV(MAX_LF, SPEC, *pX, W, *pX == W);
+
+                const Obj Y0(*pX);
+
+                ASSERTV(MAX_LF, SPEC, *pX, Y0, *pX == Y0);
+                ASSERTV(MAX_LF, SPEC,   X, Y0,   X == Y0);
+                ASSERTV(MAX_LF, SPEC,   W, Y0,   W == Y0);
+                ASSERTV(MAX_LF, SPEC,   W,  X,   W ==  X);
+
+                const ALLOCATOR expectedAlloc =
+                    bsl::allocator_traits<ALLOCATOR>::
+                        select_on_container_copy_construction(pX->allocator());
+                ASSERTV(MAX_LF, SPEC,
+                        BSL_TF_EQ(Y0.allocator(), expectedAlloc));
+                ASSERTV(MAX_LF, SPEC, pX->maxLoadFactor(), Y0.maxLoadFactor(),
+                         pX->maxLoadFactor() == Y0.maxLoadFactor());
+                ASSERTV(MAX_LF, SPEC, Y0.loadFactor(), Y0.maxLoadFactor(),
+                        Y0.loadFactor() <= Y0.maxLoadFactor());
+                delete pX;
+                ASSERTV(MAX_LF, SPEC, W, Y0, W == Y0);
+            }
+            {   // Testing concern 5.
+
+                if (veryVeryVerbose) printf("\t\t\tInsert into created obj, "
+                                            "without test allocator:\n");
+
+                Obj Y1(W);
+
+                if (veryVeryVerbose) {
+                    printf("\t\t\t\tBefore Insert: "); P(Y1);
+                }
+
+                Link *RESULT = insertElement(&Y1, VALUES['Z' - 'A']);
+                if(0 == RESULT) {
+                    Y1.removeAll();
+                }
+
+                if (veryVeryVerbose) {
+                    printf("\t\t\t\tAfter Insert : "); P(Y1);
+                }
+
+                if (RESULT || 0 != W.size()) {
+                    const size_t EXPECTED_LENGTH = RESULT
+                                                 ? LENGTH + 1
+                                                 : 0;
+
+                    ASSERTV(MAX_LF, SPEC, Y1.size(), EXPECTED_LENGTH,
+                            Y1.size() == EXPECTED_LENGTH);
+                    ASSERTV(MAX_LF, SPEC, W, Y1, W != Y1);
+                    ASSERTV(MAX_LF, SPEC, X, Y1, X != Y1);
+                }
+
+                if (RESULT) {
+                    RESULT = insertElement(&mW, VALUES['Z' - 'A']);
+                    // Remember we reserved enough space at construction.
+                    ASSERT(0 != RESULT);
+                }
+                else {
+                    mW.removeAll();
+                }
+
+                ASSERTV(MAX_LF, SPEC, W, Y1, W == Y1);
+                if (RESULT || 0 < X.size()) {
+                    ASSERTV(MAX_LF, SPEC, X, Y1, X != Y1);
+                }
+            }
+            {   // Testing concern 5 with test allocator.
+
+                if (veryVerbose)
+                    printf("\t\t\tInsert into created obj, "
+                           "with test allocator:\n");
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                Obj Y11(X, objAlloc);
+
+                if (LENGTH == 0) {
+                    ASSERTV(MAX_LF, SPEC, oam.isTotalSame());
+                    ASSERTV(MAX_LF, SPEC, oam.isInUseSame());
+                }
+                else {
+                    //const int TYPE_ALLOCS = TYPE_ALLOC * X.size();
+                    //ASSERTV(SPEC, BB, AA, BB + 1 + TYPE_ALLOCS == AA);
+                    //ASSERTV(SPEC, B, A, B + 1 + TYPE_ALLOCS ==  A);
+                    ASSERTV(MAX_LF, SPEC, oam.isTotalUp());
+                    ASSERTV(MAX_LF, SPEC, oam.isInUseUp());
+                }
+
+                oam.reset(&oa);
+
+                Y11.removeAll();
+
+                if (veryVerbose) {
+                    printf("\t\t\t\tAfter Insert : ");
+                    P(Y11);
+                }
+
+                ASSERTV(SPEC, oam.isTotalSame());
+
+                ASSERTV(SPEC, 0 == Y11.size());
+                if (LENGTH != 0) {
+                    ASSERTV(MAX_LF, SPEC, W != Y11 || !W.size());
+                    ASSERTV(MAX_LF, SPEC, X != Y11);
+                }
+                ASSERTV(MAX_LF, SPEC, Y11.allocator() == X.allocator());
+            }
+
+            if (0 < X.size())
+            {   // Exception checking.
+                // There is nothing to test if 'X' is empty, and several test
+                // conditions would be complicated to allow for 'W == X' in
+                // this state.
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    Obj Y2(X, objAlloc);
+                    if (veryVerbose) {
+                        printf("\t\t\tException Case  :\n");
+                        printf("\t\t\t\tObj : "); P(Y2);
+                    }
+                    ASSERTV(MAX_LF, SPEC,  W, Y2, W  != Y2);
+                    ASSERTV(MAX_LF, SPEC, Y2,  X, Y2 ==  X);
+                    ASSERTV(MAX_LF, SPEC, Y2.allocator() == X.allocator());
+
+                    Link *RESULT = insertElement(&Y2, VALUES['Z' - 'A']);
+                    if(0 == RESULT) {
+                        Y2.removeAll();
+                    }
+                    ASSERTV(MAX_LF, SPEC,  W, Y2, W  == Y2);
+                    ASSERTV(MAX_LF, SPEC, Y2,  X, Y2 !=  X);
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                if (LENGTH == 0) {
+                    ASSERTV(MAX_LF, SPEC, oam.isTotalSame());
+                    ASSERTV(MAX_LF, SPEC, oam.isInUseSame());
+                }
+                else {
+                    ASSERTV(MAX_LF, SPEC, oam.isInUseSame());
+                }
+            }
+        }
+        }
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
+{
+    // ------------------------------------------------------------------------
+    // SWAP MEMBER AND FREE FUNCTIONS
+    //   Ensure that, when member and free 'swap' are implemented, we can
+    //   exchange the values of any two objects that use the same
+    //   allocator.
+    //
+    // Concerns:
+    //: 1 Both functions exchange the state of the (two) supplied objects,
+    //:   comprising their values, their functors, and their 'maxLoadFactor'
+    //:   attribute.
+    //:
+    //: 2 Both functions have standard signatures and return types.
+    //:
+    //: 3 Using either function to swap an object with itself does not
+    //:   affect the value of the object (alias-safety).
+    //:
+    //: 4 If the two objects being swapped use the same allocator, neither
+    //:   function allocates memory from any allocator and the allocator
+    //:   address held by both objects is unchanged.
+    //:
+    //: 5 If the two objects being swapped uses different allocators and
+    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
+    //:   'false_type', then both function may allocate memory and the
+    //:   allocator address held by both object is unchanged.
+    //:
+    //: 6 If the two objects being swapped uses different allocators and
+    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
+    //:   'true_type', then no memory will be allocated and the allocators will
+    //:   also be swapped.
+    //:
+    //: 7 Both functions provides the strong exception guarantee w.t.r. to
+    //:   memory allocation .
+    //:
+    //: 8 The free 'swap' function is discoverable through ADL (Argument
+    //:   Dependent Lookup).
+    //:
+    //: 9 'swap' does not invalidate any references or pointers to elements
+    //:   stored in either hash table, unless allocators are unequal and
+    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
+    //:   'false_type'.
+    //
+    // Plan:
+    //: 1 Use the addresses of the 'swap' member and free functions defined
+    //:   in this component to initialize, respectively, member-function
+    //:   and free-function pointers having the appropriate signatures and
+    //:   return types.  (C-2)
+    //:
+    //: 2 Create a 'bslma::TestAllocator' object, and install it as the
+    //:   default allocator (note that a ubiquitous test allocator is
+    //:   already installed as the global allocator).
+    //:
+    //: 3 Using the table-driven technique:
+    //:
+    //:   1 Specify a set of (unique) valid object values (one per row) in
+    //:     terms of their individual attributes, including (a) first, the
+    //:     default value, (b) boundary values corresponding to every range
+    //:     of values that each individual attribute can independently
+    //:     attain, and (c) values that should require allocation from each
+    //:     individual attribute that can independently allocate memory.
+    //:
+    //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+    //:     the expectation of memory allocation for all typical
+    //:     implementations of individual attribute types: ('Y') "Yes",
+    //:     ('N') "No", or ('?') "implementation-dependent".
+    //:
+    //: 4 For each row 'R1' in the table of P-3:  (C-1, 3..7)
+    //:
+    //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
+    //:
+    //:   2 Use the value constructor and 'oa' to create a modifiable
+    //:     'Obj', 'mW', having the value described by 'R1'; also use the
+    //:     copy constructor and a "scratch" allocator to create a 'const'
+    //:     'Obj' 'XX' from 'mW'.
+    //:
+    //:   3 Use the member and free 'swap' functions to swap the value of
+    //:     'mW' with itself; verify, after each swap, that:  (C-3..4)
+    //:
+    //:     1 The value is unchanged.  (C-3)
+    //:
+    //:     2 The allocator address held by the object is unchanged.  (C-4)
+    //:
+    //:     3 There was no additional object memory allocation.  (C-4)
+    //:
+    //:   4 For each row 'R2' in the table of P-3:  (C-1, 4)
+    //:
+    //:     1 Use the copy constructor and 'oa' to create a modifiable
+    //:       'Obj', 'mX', from 'XX' (P-4.2).
+    //:
+    //:     2 Use the value constructor and 'oa' to create a modifiable
+    //:       'Obj', 'mY', and having the value described by 'R2'; also use
+    //:       the copy constructor to create, using a "scratch" allocator,
+    //:       a 'const' 'Obj', 'YY', from 'Y'.
+    //:
+    //:     3 Use, in turn, the member and free 'swap' functions to swap
+    //:       the values of 'mX' and 'mY'; verify, after each swap, that:
+    //:       (C-1..2)
+    //:
+    //:       1 The values have been exchanged.  (C-1)
+    //:
+    //:       2 The common object allocator address held by 'mX' and 'mY'
+    //:         is unchanged in both objects.  (C-4)
+    //:
+    //:       3 There was no additional object memory allocation.  (C-4)
+    //:
+    //:     5 Use the value constructor and 'oaz' to a create a modifiable
+    //:       'Obj' 'mZ', having the value described by 'R2'; also use the copy
+    //:       constructor to create, using a "scratch" allocator, a const
+    //:       'Obj', 'ZZ', from 'Z'.
+    //:
+    //:     6 Use the member and free 'swap' functions to swap the values of
+    //:       'mX' and 'mZ' respectively (when
+    //:       AllocatorTraits::propagate_on_container_swap is an alias to
+    //:       false_type) under the presence of exception; verify, after each
+    //:       swap, that:  (C-1, 5, 7)
+    //:
+    //:       1 If exception occurred during the swap, both values are
+    //:         unchanged.  (C-7)
+    //:
+    //:       2 If no exception occurred, the values have been exchanged.
+    //:         (C-1)
+    //:
+    //:       3 The common object allocator address held by 'mX' and 'mZ' is
+    //:         unchanged in both objects.  (C-5)
+    //:
+    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is is not
+    //:         empty, and temporary memory were allocated from 'oaz' if 'mX'
+    //:         is not empty.  (C-5)
+    //:
+    //:     7 Create a new object allocator, 'oap'.
+    //:
+    //:     8 Use the value constructor and 'oap' to create a modifiable 'Obj'
+    //:       'mP', having the value described by 'R2'; also use the copy
+    //:       constructor to create, using a "scratch" allocator, a const
+    //:       'Obj', 'PP', from 'P.
+    //:
+    //:     9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
+    //:       be an alias to 'true_type' (Instead of this manual step, use an
+    //:       allocator that enables propagate_on_container_swap when
+    //:       AllocatorTraits supports it) and use the the member and free
+    //:       'swap functions to swap the values 'mX' and 'mZ' respectively;
+    //:       verify, after each swap, that: (C-1, 6)
+    //:
+    //:       1 The values have been exchanged.  (C-1)
+    //:
+    //:       2 The allocators addresses have been exchanged.  (C-6)
+    //:
+    //:       3 There was no additional object memory allocation.  (C-6)
+    //:
+    //: 5 Verify that the free 'swap' function is discoverable through ADL:
+    //:   (C-8)
+    //:
+    //:   1 Create a set of attribute values, 'A', distinct from the values
+    //:     corresponding to the default-constructed object, choosing
+    //:     values that allocate memory if possible.
+    //:
+    //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
+    //:
+    //:   3 Use the default constructor and 'oa' to create a modifiable
+    //:     'Obj' 'mX' (having default attribute values); also use the copy
+    //:     constructor and a "scratch" allocator to create a 'const' 'Obj'
+    //:     'XX' from 'mX'.
+    //:
+    //:   4 Use the value constructor and 'oa' to create a modifiable 'Obj'
+    //:     'mY' having the value described by the 'Ai' attributes; also
+    //:     use the copy constructor and a "scratch" allocator to create a
+    //:     'const' 'Obj' 'YY' from 'mY'.
+    //:
+    //:   5 Use the 'invokeAdlSwap' helper function template to swap the
+    //:     values of 'mX' and 'mY', using the free 'swap' function defined
+    //:     in this component, then verify that:  (C-8)
+    //:
+    //:     1 The values have been exchanged.  (C-1)
+    //:
+    //:     2 There was no additional object memory allocation.  (C-4)
+    //
+    // Testing:
+    //   void swap(HashTable& other);
+    //   void swap(HashTable<K, V, C, A>& a, HashTable<K, V, C, A>& b);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
+                        "\n==============================\n");
+
+    typedef MakeAllocator<ALLOCATOR> AllocMaker;
+
+    if (verbose) printf(
+                     "\nAssign the address of each function to a variable.\n");
+    {
+        typedef void (Obj::*funcPtr)(Obj&);
+        typedef void (*freeFuncPtr)(Obj&, Obj&);
+
+        // Verify that the signatures and return types are standard.
+
+        funcPtr     memberSwap = &Obj::swap;
+        freeFuncPtr freeSwap   = bslstl::swap;
+
+        (void)memberSwap;  // quash potential compiler warnings
+        (void)freeSwap;
+    }
+
+    if (verbose) printf(
+                 "\nCreate a test allocator and install it as the default.\n");
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (verbose) printf(
+       "\nUse a table of distinct object values and expected memory usage.\n");
+
+    const int NUM_DATA                     = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
+
+    for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const float       MAX_LF1 = DEFAULT_MAX_LOAD_FACTOR[lfi];
+
+        const int         LINE1   = DATA[ti].d_line;
+        const char *const SPEC1   = DATA[ti].d_spec;
+
+        const size_t      LENGTH1      = strlen(SPEC1);
+        const size_t      NUM_BUCKETS1 = predictNumBuckets(LENGTH1, MAX_LF1);
+
+        bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
+        const ALLOCATOR objAlloc     = AllocMaker::make(&oa);
+
+        Obj mW(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, objAlloc);
+        const Obj& W = gg(&mW,  SPEC1);
+        const Obj XX(W, scratchAlloc);
+
+        if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
+
+        // member 'swap'
+        {
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            mW.swap(mW);
+
+            ASSERTV(LINE1, XX, W, XX == W);
+            ASSERTV(LINE1, objAlloc == W.allocator());
+            ASSERTV(LINE1, oam.isTotalSame());
+        }
+
+        // free function 'swap'
+        {
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            swap(mW, mW);
+
+            ASSERTV(LINE1, XX, W, XX == W);
+            ASSERTV(LINE1, objAlloc == W.allocator());
+            ASSERTV(LINE1, oam.isTotalSame());
+        }
+
+        // There is a symmetry to testing, so test only the "lower triangle"
+        // of indices.  Note that we want to support the limiting case where
+        // the indices match.
+        for (int lfj = 0; lfj <= lfi; ++lfj) {
+        for (int  tj = 0;  tj <=  ti; ++ tj) {
+            const float       MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
+
+            const int         LINE2   = DATA[tj].d_line;
+            const char *const SPEC2   = DATA[tj].d_spec;
+
+            const size_t      LENGTH2      = strlen(SPEC2);
+            const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
+                                                               MAX_LF2);
+
+            Obj mX(XX, objAlloc);  const Obj& X = mX;
+
+            Obj mY(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, objAlloc);
+            const Obj& Y = gg(&mY, SPEC2);
+            const Obj YY(Y, scratchAlloc);
+
+            if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
+
+            // free function 'swap' is always well-defined
+            {
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                swap(mX, mY);
+
+                ASSERTV(LINE1, LINE2, YY, X, YY == X);
+                ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
+                ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
+                ASSERTV(LINE1, LINE2, objAlloc == Y.allocator());
+                ASSERTV(LINE1, LINE2, oam.isTotalSame());
+            }
+
+            // member 'swap' may not be defined if allocators are not the
+            // same, although guaranteed in this case.
+            {
+                ASSERT(X.allocator() == Y.allocator()); // sanity check
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                mX.swap(mY);
+
+                ASSERTV(LINE1, LINE2, XX, X, XX == X);
+                ASSERTV(LINE1, LINE2, YY, Y, YY == Y);
+                ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
+                ASSERTV(LINE1, LINE2, objAlloc == Y.allocator());
+                ASSERTV(LINE1, LINE2, oam.isTotalSame());
+            }
+
+            // We may consider restoring a test of unequal allocators if the
+            // allocator propagate_on_container_swap trait is true, but
+            // 'bsl::allocator_traits' does not properly detect this trait yet.
+        }
+        }
+    }
+    }
+
+    if (verbose) printf(
+            "\nInvoke free 'swap' function in a context where ADL is used.\n");
+    {
+        // 'A' values: Should cause memory allocation if possible.
+
+        bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
+        const ALLOCATOR objAlloc     = AllocMaker::make(&oa);
+
+        Obj mX(HASH, COMPARE, 0, 1.0f, objAlloc);  const Obj& X = mX;
+        const Obj XX(X, scratchAlloc);
+
+        Obj mY(HASH, COMPARE, 40, 0.1f, objAlloc);
+        const Obj& Y = gg(&mY, "ABC");
+        const Obj YY(Y, scratchAlloc);
+
+        if (veryVerbose) { T_ P_(X) P(Y) }
+
+        bslma::TestAllocatorMonitor oam(&oa);
+
+        // We know that the types of 'mX' and 'mY' do not overload the unary
+        // address-of 'operator&'.
+
+        bslalg::SwapUtil::swap(&mX, &mY);
+
+        ASSERTV(YY, X, YY == X);
+        ASSERTV(XX, Y, XX == Y);
+        ASSERTV(YY, X, YY.maxLoadFactor() == X.maxLoadFactor());
+        ASSERTV(XX, Y, XX.maxLoadFactor() == Y.maxLoadFactor());
+        ASSERT(oam.isTotalSame());
+
+        if (veryVerbose) { T_ P_(X) P(Y) }
+    }
+
+    if (verbose) printf("Check our implementation of undefined behavior.\n");
+    {
+        // Ideally we would negatively test for an ASSERT in SAFE mode, and
+        // test the strongly exception-safe 'swap' only in other build modes.
+        // We will test only one 'swap' of two large containers of different
+        // sizes, and having different load factors, as well as different
+        // allocators to represent a fair test of our expected implementation
+        // of the undefine behavior.
+
+        const float       MAX_LF1 = 0.125f;
+        const float       MAX_LF2 = 2.5f;
+
+        const char *const SPEC1   = DATA[NUM_DATA-1].d_spec;
+        const char *const SPEC2   = DATA[NUM_DATA-2].d_spec;
+
+        const size_t      LENGTH1      = strlen(SPEC1);
+        const size_t      NUM_BUCKETS1 = predictNumBuckets(LENGTH1, MAX_LF1);
+
+        const size_t      LENGTH2      = strlen(SPEC2);
+        const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2, MAX_LF2);
+
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+        bslma::TestAllocator oax("x_object", veryVeryVeryVerbose);
+        bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
+
+        const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
+        const ALLOCATOR oaxAlloc     = AllocMaker::make(&oax);
+        const ALLOCATOR oazAlloc     = AllocMaker::make(&oaz);
+
+        Obj mX(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, oaxAlloc);
+        const Obj& X = gg(&mX, SPEC1);
+        const Obj XX(X, scratchAlloc);
+
+        Obj mZ(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, oazAlloc);
+        const Obj& Z = gg(&mZ, SPEC2);
+        const Obj ZZ(Z, scratchAlloc);
+
+        // Sanity check
+
+        ASSERTV(XX, X, XX == X);
+        ASSERTV(ZZ, Z, ZZ == Z);
+        ASSERTV( X, Z,  X != Z);
+
+        // free function 'swap'
+        {
+            bslma::TestAllocatorMonitor oaxm(&oax);
+            bslma::TestAllocatorMonitor oazm(&oaz);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oax) {
+                bslma::ExceptionGuard<Obj> guardX(&X, L_, scratchAlloc);
+                bslma::ExceptionGuard<Obj> guardZ(&Z, L_, scratchAlloc);
+
+                swap(mX, mZ);
+
+                guardX.release();
+                guardZ.release();
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(XX, Z, XX == Z);
+            ASSERTV(ZZ, X, ZZ == X);
+            ASSERTV(oaxAlloc == X.allocator());
+            ASSERTV(oazAlloc == Z.allocator());
+
+            // Concerns about allocated memory?
+        }
+
+        if (verbose) printf("\nNegative Testing.\n");
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            // member 'swap'
+            ASSERT_PASS(mX.swap(mX));
+            ASSERT_FAIL(mZ.swap(mX));
+            ASSERT_FAIL(mX.swap(mZ));
+            ASSERT_PASS(mZ.swap(mZ));
+        }
+
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
+{
+    // ------------------------------------------------------------------------
+    // COPY-ASSIGNMENT OPERATOR:
+    //   Ensure that we can assign the value of any object of the class to any
+    //   object of the class, such that the two objects subsequently have the
+    //   same value.
+    //
+    // Concerns:
+    //: 1 The assignment operator can change the value of any modifiable target
+    //:   object to that of any source object.
+    //:
+    //: 2 If allocator propagation is not enabled for copy assignment, the
+    //:   allocator address held by the target object is unchanged.
+    //:
+    //: 3 If allocator propagation is not enabled for copy assignment, any
+    //:   memory allocation is from the target object's allocator.
+    //:
+    //: 4 The signature and return type are standard.
+    //:
+    //: 5 The reference returned is to the target object (i.e., '*this').
+    //:
+    //: 6 The value of the source object is not modified.
+    //:
+    //: 7 The allocator address held by the source object is unchanged.
+    //:
+    //: 8 QoI: Assigning a source object having the default-constructed value
+    //:   allocates no memory.
+    //:
+    //: 9 Any memory allocation is exception neutral.
+    //:
+    //:10 Assigning an object to itself behaves as expected (alias-safety).
+    //:
+    //:11 Every object releases any allocated memory at destruction.
+    //:
+    //:12 If allocator propagation is enabled for copy assignment,
+    //:   any memory allocation is from the source object's
+    //:   allocator.
+    //:
+    //:13 If allocator propagation is enabled for copy assignment, the
+    //:   allocator address held by the target object is changed to that of the
+    //:   source.
+    //:
+    //:14 If allocator propagation is enabled for copy assignment, any memory
+    //:   allocation is from the original target allocator will be released
+    //:   after copy assignment.
+    //
+    // Plan:
+    //: 1 Use the address of 'operator=' to initialize a member-function
+    //:   pointer having the appropriate signature and return type for the
+    //:   copy-assignment operator defined in this component.  (C-4)
+    //:
+    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
+    //:   allocator (note that a ubiquitous test allocator is already installed
+    //:   as the global allocator).
+    //:
+    //: 3 Using the table-driven technique:
+    //:
+    //:   1 Specify a set of (unique) valid object values.
+    //:
+    //: 4 For each row 'R1' (representing a distinct object value, 'V') in the
+    //:   table described in P-3: (C-1..2, 5..8, 11)
+    //:
+    //:   1 Use the value constructor and a "scratch" allocator to create two
+    //:     'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
+    //:
+    //:   2 Execute an inner loop that iterates over each row 'R2'
+    //:     (representing a distinct object value, 'W') in the table described
+    //:     in P-3:
+    //:
+    //:   3 For each of the iterations (P-4.2): (C-1..2, 5..8, 11)
+    //:
+    //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
+    //:
+    //:     2 Use the value constructor and 'oa' to create a modifiable 'Obj',
+    //:       'mX', having the value 'W'.
+    //:
+    //:     3 Assign 'mX' from 'Z' in the presence of injected exceptions
+    //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+    //:
+    //:     4 Verify that the address of the return value is the same as that
+    //:       of 'mX'.  (C-5)
+    //:
+    //:     5 Use the equality-comparison operator to verify that: (C-1, 6)
+    //:
+    //:       1 The target object, 'mX', now has the same value as that of 'Z'.
+    //:         (C-1)
+    //:
+    //:       2 'Z' still has the same value as that of 'ZZ'.  (C-6)
+    //:
+    //:     6 Use the 'allocator' accessor of both 'mX' and 'Z' to verify that
+    //:       the respective allocator addresses held by the target and source
+    //:       objects are unchanged.  (C-2, 7)
+    //:
+    //:     7 Use the appropriate test allocators to verify that: (C-8, 11)
+    //:
+    //:       1 For an object that (a) is initialized with a value that did NOT
+    //:         require memory allocation, and (b) is then assigned a value
+    //:         that DID require memory allocation, the target object DOES
+    //:         allocate memory from its object allocator only (irrespective of
+    //:         the specific number of allocations or the total amount of
+    //:         memory allocated); also cross check with what is expected for
+    //:         'mX' and 'Z'.
+    //:
+    //:       2 An object that is assigned a value that did NOT require memory
+    //:         allocation, does NOT allocate memory from its object allocator;
+    //:         also cross check with what is expected for 'Z'.
+    //:
+    //:       3 No additional memory is allocated by the source object.  (C-8)
+    //:
+    //:       4 All object memory is released when the object is destroyed.
+    //:         (C-11)
+    //:
+    //: 5 Repeat steps similar to those described in P-4 except that, this
+    //:   time, there is no inner loop (as in P-4.2); instead, the source
+    //:   object, 'Z', is a reference to the target object, 'mX', and both 'mX'
+    //:   and 'ZZ' are initialized to have the value 'V'.  For each row
+    //:   (representing a distinct object value, 'V') in the table described in
+    //:   P-3: (C-9)
+    //:
+    //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
+    //:
+    //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
+    //:     'mX'; also use the value constructor and a distinct "scratch"
+    //:     allocator to create a 'const' 'Obj' 'ZZ'.
+    //:
+    //:   3 Let 'Z' be a reference providing only 'const' access to 'mX'.
+    //:
+    //:   4 Assign 'mX' from 'Z' in the presence of injected exceptions (using
+    //:     the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  (C-9)
+    //:
+    //:   5 Verify that the address of the return value is the same as that of
+    //:     'mX'.
+    //:
+    //:   6 Use the equality-comparison operator to verify that the target
+    //:     object, 'mX', still has the same value as that of 'ZZ'.
+    //:
+    //:   7 Use the 'allocator' accessor of 'mX' to verify that it is still the
+    //:     object allocator.
+    //:
+    //:   8 Use the appropriate test allocators to verify that:
+    //:
+    //:     1 Any memory that is allocated is from the object allocator.
+    //:
+    //:     2 No additional (e.g., temporary) object memory is allocated when
+    //:       assigning an object value that did NOT initially require
+    //:       allocated memory.
+    //:
+    //:     3 All object memory is released when the object is destroyed.
+    //:
+    //: 6 Use the test allocator from P-2 to verify that no memory is ever
+    //:   allocated from the default allocator.  (C-3)
+    //
+    // Testing:
+    //   HashTable& operator=(const HashTable& rhs);
+    // ------------------------------------------------------------------------
+
+    typedef MakeAllocator<ALLOCATOR> AllocMaker;
+
+    const int NUM_DATA                     = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
+
+    if (verbose) printf("\nCompare each pair of similar and different"
+                        " values (u, ua, v, va) in S X A X S X A"
+                        " without perturbation.\n");
+    {
+        // Create first object
+        for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const float MAX_LF1 = DEFAULT_MAX_LOAD_FACTOR[lfi];
+
+            const int         LINE1   = DATA[ti].d_line;
+            const int         INDEX1  = DATA[ti].d_index;
+            const char *const SPEC1   = DATA[ti].d_spec;
+
+            const size_t      LENGTH1 = strlen(SPEC1);
+            const size_t NUM_BUCKETS1 = predictNumBuckets(LENGTH1, MAX_LF1);
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
+
+            Obj mZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, scratchAlloc);
+            const Obj& Z  = gg(&mZ,  SPEC1);
+            const Obj ZZ(Z, scratchAlloc);
+
+            if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
+
+            // should perform a self-assignment test here
+
+            // Create second object
+            for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const float MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
+
+                const int         LINE2   = DATA[tj].d_line;
+                const int         INDEX2  = DATA[tj].d_index;
+                const char *const SPEC2   = DATA[tj].d_spec;
+
+                const size_t      LENGTH2 = strlen(SPEC2);
+                const size_t NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
+                                                              MAX_LF2);
+
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                const ALLOCATOR objAlloc  = AllocMaker::make(&oa);
+
+                {
+                    Obj mX(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, objAlloc);
+                    const Obj& X  = gg(&mX,  SPEC2);
+
+                    if (veryVerbose) { T_ P_(LINE2) P(X) }
+
+                    ASSERTV(LINE1, LINE2, Z, X,
+                            (Z == X) == (INDEX1 == INDEX2));
+
+                    bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                        Obj *mR = &(mX = Z);
+                        ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+                        ASSERTV(LINE1, LINE2,
+                                Z.maxLoadFactor(),   X.maxLoadFactor(),
+                                Z.maxLoadFactor() == X.maxLoadFactor());
+
+                        // If we can compare the two functor objects, we should
+                        // do so, to verify stateful allocators are copied too.
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
+
+                    // Should test that allocator propagates if, and only if,
+                    // the allocator has the propagate_on_container_copy_assign
+                    // trait.  Currently we assume (and test) that allocators
+                    // never propagate.
+
+                    ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
+                    ASSERTV(LINE1, LINE2, scratchAlloc == Z.allocator());
+
+                    ASSERTV(LINE1, LINE2, sam.isInUseSame());
+
+                    ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
+                }
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE1, LINE2, oa.numBlocksInUse(),
+                        0 == oa.numBlocksInUse());
+            }
+            }
+        }
+        }
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
+{
+    // ------------------------------------------------------------------------
+    // TESTING REHASH METHODS
+    //
+    // Concerns:
+    //: 1 'rehashForNumBuckets' allocates at least the specified number of
+    //:   buckets.
+    //:
+    //: 2 'reserveForNumElements' allocates sufficient buckets so that, after
+    //:   the rehash, 'numBuckets() / maxLoadFactor()' >= the specified number
+    //:   of elements.
+    //:
+    //: 3 Neither rehash function affects the value of the object.
+    //:
+    //: 4 Neither rehash function affects the order of the inserted elements
+    //:   with the same value.
+    //:
+    //: 5 'rehashForNumBuckets' is a no-op if the requested number of buckets
+    //:   is less than the current 'numBuckets' in the object.
+    //:
+    //: 6 'reserveForNumElements' is a no-op if the requested number of
+    //:   elements can already be accommodated without exceeding the
+    //:   'maxLoadFactor' of the object.
+    //:
+    //: 7 Any memory allocation is from the object allocator.
+    //:
+    //: 8 The only memory allocation is a single allocation for the new bucket
+    //:   array; no new nodes are allocated, and the old array is reclaimed by
+    //:   the object allocator.
+    //:
+    //: 9 'rehashForNumBuckets' provides the strong exception guarantee if the
+    //:   hasher does not throw.
+    //:
+    //:10 'rehashForNumBuckets' will reset the object to an empty container,
+    //:   without leaking memory or objects, if a hasher throws.
+    //:
+    //:11 'reserveForNumElements' provides the strong exception guarantee if
+    //:   the hasher does not throw.
+    //:
+    //:12 'reserveForNumElements' will reset the object to an empty container,
+    //:   without leaking memory or objects, if a hasher throws.
+    //:
+    //
+    // Plan:
+    //: 1 TBD
+    //
+    // Testing:
+    //   rehashForNumBuckets(SizeType newNumBuckets);
+    //   reserveForNumElements(SizeType numElements);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf(
+                 "\nCreate a test allocator and install it as the default.\n");
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (verbose) printf(
+       "\nUse a table of distinct object values and expected memory usage.\n");
+
+    const size_t REHASH_SIZE[] = {
+        0,
+        1,
+        2,
+        3,
+        5,
+        8,
+        12,
+        13,
+        2099
+    };
+    const int NUM_REHASH_SIZE = sizeof REHASH_SIZE / sizeof *REHASH_SIZE;
+
+    const int NUM_DATA                     = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_spec;
+        const size_t      LENGTH = strlen(SPEC);
+
+        for (int tj = 0; tj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++tj) {
+            const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
+            const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
+
+            Obj mZ(HASH, COMPARE, NUM_BUCKETS, MAX_LF, scratchAlloc);
+            const Obj& Z = gg(&mZ,  SPEC);
+
+            for (int tk = 0; tk < NUM_REHASH_SIZE; ++tk) {
+                bslma::TestAllocator  oa("object",  veryVeryVeryVerbose);
+                ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&oa);
+
+                Obj mX(Z, objAlloc); const Obj& X = mX;
+
+                if (veryVerbose) { T_ P_(LINE) P_(Z) P(X) }
+
+                const size_t OLD_NUM_BUCKETS = X.numBuckets();
+                const size_t NEW_NUM_BUCKETS = std::max(
+                                      REHASH_SIZE[tk],
+                                      predictNumBuckets(X.size() + 1, MAX_LF));
+
+                const size_t EXP_NUM_BUCKETS =
+                      bslstl::HashTable_ImpDetails::nextPrime(NEW_NUM_BUCKETS);
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                mX.rehashForNumBuckets(REHASH_SIZE[tk]);
+
+                ASSERTV(LINE, tk, MAX_LF, X == Z);
+                ASSERTV(LINE, tk, MAX_LF, REHASH_SIZE[tk], X.numBuckets(),
+                        REHASH_SIZE[tk] <= X.numBuckets());
+
+                // If request is smaller than current number of buckets, there
+                // should be no effect, no change in buckets, and no chance to
+                // allocate memory.
+                if (REHASH_SIZE[tk] <= OLD_NUM_BUCKETS) {
+                    ASSERTV(LINE, tk, MAX_LF,
+                            OLD_NUM_BUCKETS == X.numBuckets());
+                    ASSERTV(LINE, tk, MAX_LF, oam.isTotalSame());
+                    ASSERTV(LINE, tk, MAX_LF, oam.isInUseSame());
+                }
+                // Otherwise, we have computed the new expected number of
+                // buckets, and there should be exactly one allocation for the
+                // new bucket array.
+                else {
+                    ASSERTV(LINE, tk, MAX_LF,
+                            EXP_NUM_BUCKETS,   X.numBuckets(),
+                            EXP_NUM_BUCKETS == X.numBuckets());
+
+                    ASSERTV(LINE, tk, oam.numBlocksTotalChange(),
+                            1 == oam.numBlocksTotalChange());
+
+                    // We release the old array allocation to make use of the
+                    // new, so there should be no change in the number of
+                    // allocated blocks in use.  However, in the case of
+                    // the first allocation on an empty container, we will
+                    // actually be creating the first array block.
+                    if (0 < LENGTH ) {
+                        ASSERTV(LINE, tk, oam.isInUseSame());
+                    }
+                    else {
+                        ASSERTV(LINE, tk, oam.numBlocksInUseChange(),
+                                1 == oam.numBlocksInUseChange());
+                    }
+                }
+            }
+        }
+#if defined BDE_BUILD_TARGET_EXC
+        // The following set of tests are expected, at least in some test
+        // configurations, to fail by throwing exceptions.
+        if (verbose) printf("Testing behavior at extremities.\n");
+        {
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
+
+            Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);
+            try {
+                mX.rehashForNumBuckets(std::numeric_limits<size_t>::max());
+                ASSERT(!"rehash(max size_t) should throw a 'logic_error'");
+            }
+            catch (const std::logic_error &) {
+                // This is the expected code path
+            }
+            catch (...) {
+                ASSERT(!"rehash(max size_t) threw the wrong exception type");
+            }
+        }
+//        {
+//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1e30f, scratchAlloc);
+//            const Obj& Z = gg(&mZ,  SPEC);
+//        }
+//        {
+//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1e-6f, scratchAlloc);
+//            const Obj& Z = gg(&mZ,  SPEC);
+//        }
+//        {
+//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1.0f, scratchAlloc);
+//            const Obj& Z = gg(&mZ,  SPEC);
+//        }
+//        {
+//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1.0f, scratchAlloc);
+//            const Obj& Z = gg(&mZ,  SPEC);
+//        }
+#endif
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'insert' METHODS
+    //
+    // Concerns:
+    //: 1 ...
+    //:
+    //
+    // Plan:
+    //: 1 For each value of increasing length, 'L':
+    //:
+    //
+    // Testing:
+    //   insert(const SOURCE_TYPE& obj);
+    //   insert(const ValueType& obj, const bslalg::BidirectionalLink *hint);
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        printf("\nTesting is not yet implemented.\n");
+    }
+
+
+    typedef typename KEY_CONFIG::ValueType Element;
+    typedef bslalg::HashTableImpUtil       ImpUtil;
+    typedef typename Obj::SizeType         SizeType;
+
+    const bool VALUE_TYPE_USES_ALLOCATOR =
+                                     bslma::UsesBslmaAllocator<Element>::value;
+
+    if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
+
+    const char *ALLOC_SPEC = ObjMaker::specForBootstrapTests();
+
+    const TestValues VALUES;  // contains 52 distinct increasing values
+
+
+    // Probably want to pick these up as values from some injected policy, so
+    // that we can test with stateful variants
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
+
+#if 1 // defined(THE_TEST_IS_YET_TO_COME)
+    const size_t MAX_LENGTH = 9;
+
+    for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
+    for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+        const float    MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
+        const SizeType LENGTH = ti;
+
+        if (verbose) {
+            printf("\nTesting with various allocator configurations.\n");
+        }
+
+        for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
+            const char CONFIG = *cfg;  // how we specify the allocator
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) {
+                printf("\n\tTesting bootstrap constructor.\n");
+            }
+
+            Obj                  *objPtr;
+
+            //const size_t NUM_BUCKETS = predictNumBuckets(3*LENGTH, MAX_LF);
+
+            ALLOCATOR expAllocator = ObjMaker::makeObject( &objPtr
+                                                         , CONFIG
+                                                         , &fa
+                                                         , &sa
+                                                         , HASH
+                                                         , COMPARE
+                                                         , 0
+                                                         , MAX_LF);
+
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+
+            // Verify any attribute allocators are installed properly.
+
+            ASSERTV(MAX_LF, LENGTH, CONFIG, expAllocator == X.allocator());
+
+
+            bslma::TestAllocator  *oa = extractTestAllocator(expAllocator);
+            bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
+
+            // It is important that these allocators are found, or else the
+            // following tests will break severely, dereferencing null
+            // pointer.
+            BSLS_ASSERT_OPT(oa);
+            BSLS_ASSERT_OPT(noa);
+
+            // QoI: Verify no allocation from the object/non-object allocators
+            // if no buckets are requested (as per the default constructor).
+            if (0 == LENGTH) {
+                ASSERTV(MAX_LF, LENGTH, CONFIG, oa->numBlocksTotal(),
+                        0 ==  oa->numBlocksTotal());
+            }
+            ASSERTV(MAX_LF, LENGTH, CONFIG, noa->numBlocksTotal(),
+                    0 == noa->numBlocksTotal());
+
+            // Record blocks used by the initial bucket array
+            const bsls::Types::Int64 INITIAL_OA_BLOCKS  = oa->numBlocksTotal();
+
+
+            // Verify attributes of an empty container.
+            // Note that not all of these attributes are salient to value.
+            // None of these accessors are deemed tested until their own test
+            // case, but many witnesses give us some confidence in the state.
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.size());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 < X.numBuckets());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.elementListRoot());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, MAX_LF == X.maxLoadFactor());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
+
+            const bslalg::HashTableBucket& bucket = X.bucketAtIndex(0);
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.first());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.last());
+
+            // Verify no allocation from the object/non-object allocators.
+
+            ASSERTV(MAX_LF, LENGTH, CONFIG, oa->numBlocksTotal(),
+                    INITIAL_OA_BLOCKS ==  oa->numBlocksTotal());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, noa->numBlocksTotal(),
+                    0 == noa->numBlocksTotal());
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) {
+                printf("\n\tTesting 'insert(element)'.\n");
+            }
+            if (0 < LENGTH) {
+                if (verbose) printf(
+                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG,
+                        oa->numBlocksTotal(),   oa->numBlocksInUse(),
+                        oa->numBlocksTotal() == oa->numBlocksInUse());
+
+                for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
+                    Link *RESULT = mX.insert(VALUES[tj]);
+                    ASSERT(0 != RESULT);
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                     KEY_CONFIG::extractKey(VALUES[tj]),
+                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                   VALUES[tj],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
+                }
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH - 1 == X.size());
+                if (veryVerbose) {
+                    printf("\t\t\tBEFORE: ");
+                    P(X);
+                }
+
+                bslma::TestAllocator scratch1("scratch1", veryVeryVeryVerbose);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*oa) {
+                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch1);
+
+                    // This will fail on the initial insert as we must also
+                    // create the bucket array, so there is an extra pass.
+                    // Not sure why that means the block counts get out of
+                    // synch though, is this catching a real bug?
+#if defined(HAVE_WORKED_OUT_CORRECT_MEMORY_USE_COMPUTATIONS)
+                    ASSERTV(CONFIG, LENGTH,
+                            oa->numBlocksTotal(),   oa->numBlocksInUse(),
+                            oa->numBlocksTotal() == oa->numBlocksInUse());
+#endif
+
+                    bslma::TestAllocatorMonitor tam(oa);
+                    Link *RESULT = mX.insert(VALUES[LENGTH - 1]);
+                    ASSERT(0 != RESULT);
+
+                    // These tests assume that the object allocator is used
+                    // only is stored elements also allocate memory.  This
+                    // does not allow for rehashes as the container grows.
+#if defined(HAVE_WORKED_OUT_CORRECT_MEMORY_USE_COMPUTATIONS)
+                    if (VALUE_TYPE_USES_ALLOCATOR  ||
+                                                expectPoolToAllocate(LENGTH)) {
+                        ASSERTV(CONFIG, tam.isTotalUp());
+                        ASSERTV(CONFIG, tam.isInUseUp());
+                    }
+                    else {
+                        ASSERTV(CONFIG, tam.isTotalSame());
+                        ASSERTV(CONFIG, tam.isInUseSame());
+                    }
+#endif
+
+                    // Verify no temporary memory is allocated from the object
+                    // allocator.
+                    // BROKEN TEST CONDITION
+                    // We need to think carefully about how we allow for the
+                    // allocation of the bucket-array
+
+#if defined(HAVE_WORKED_OUT_CORRECT_MEMORY_USE_COMPUTATIONS)
+                    ASSERTV(CONFIG, LENGTH,
+                            oa->numBlocksTotal(),   oa->numBlocksInUse(),
+                            oa->numBlocksTotal() == oa->numBlocksInUse());
+#endif
+
+                    ASSERTV(CONFIG, LENGTH - 1,
+                            BSL_TF_EQ(
+                                    KEY_CONFIG::extractKey(VALUES[LENGTH - 1]),
+                                    ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
+                    ASSERTV(CONFIG, LENGTH - 1,
+                            BSL_TF_EQ(
+                                   VALUES[LENGTH - 1],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
+
+                    guard.release();
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
+                        LENGTH == X.size());
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X,
+                       0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
+                                                           COMPARE,
+                                                           VALUES,
+                                                           LENGTH));
+                // check elements with equivalent keys are contiguous
+                // check expected elements are present in container, with
+                // expected number of duplicates
+                {
+                    int *foundKeys = new int[X.size()];
+                    for (SizeType j = 0;j != X.size(); ++j) {
+                        foundKeys[j] = 0;
+                    }
+
+                    SizeType i = 0;
+                    for (Link *it = X.elementListRoot();
+                         0 != it;
+                         it = it->nextLink(), ++i)
+                    {
+                        for (SizeType j = 0; j != X.size(); ++j) {
+                            if (BSL_TF_EQ(
+                                        KEY_CONFIG::extractKey(VALUES[j]),
+                                        ImpUtil::extractKey<KEY_CONFIG>(it))) {
+                                ASSERTV(MAX_LF, LENGTH, CONFIG, VALUES[j],
+                                        !foundKeys[j]);
+                                ++foundKeys[j];
+                            }
+                        }
+                    }
+                    SizeType missing = 0;
+                    for (SizeType j = 0; j != X.size(); ++j) {
+                        if (!foundKeys[j]) { ++missing; }
+                    }
+                    ASSERTV(MAX_LF, LENGTH, CONFIG, missing, 0 == missing);
+
+                    delete[] foundKeys;
+
+                    ASSERTV(MAX_LF, LENGTH, CONFIG, X.size() == i);
+                }
+            }
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
+            {
+                const bsls::Types::Int64 BB = oa->numBlocksTotal();
+
+                mX.removeAll();
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.size());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 < X.numBuckets());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.elementListRoot());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, MAX_LF == X.maxLoadFactor());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
+                ASSERTV(MAX_LF, LENGTH, CONFIG,
+                        0 == X.countElementsInBucket(0));
+
+                const bsls::Types::Int64 AA = oa->numBlocksTotal();
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, BB == AA);
+            }
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) { printf(
+                "\n\tRepeat testing 'insert(element)', with memory checks.\n");
+            }
+            if (0 < LENGTH) {
+                if (verbose) printf(
+                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
+
+                for (SizeType tj = 0; tj < LENGTH - 1; ++tj) {
+                    Link *RESULT = mX.insert(VALUES[tj]);
+                    ASSERT(0 != RESULT);
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                     KEY_CONFIG::extractKey(VALUES[tj]),
+                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                   VALUES[tj],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
+                }
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH - 1 == X.size());
+                if (veryVerbose) {
+                    printf("\t\t\tBEFORE: ");
+                    P(X);
+                }
+
+                bslma::TestAllocator scratch2("scratch2", veryVeryVeryVerbose);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*oa) {
+                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch2);
+
+                    bslma::TestAllocatorMonitor tam(oa);
+                    Link *RESULT = mX.insert(VALUES[LENGTH - 1]);
+                    ASSERT(0 != RESULT);
+
+                    // The number of buckets should not have changed, so no
+                    // reason to allocate a fresh bucket array
+//                    ASSERTV(MAX_LF, LENGTH, CONFIG,
+//                            bucketCount,   X.numBuckets(),
+//                            bucketCount == X.numBuckets());
+
+                    // These tests assume that the object allocator is used
+                    // only if stored elements also allocate memory.  This
+                    // does not allow for rehashes as the container grows.
+                    // Hence we run the same test sequence a second time after
+                    // clearing the container, so we can validate knowing that
+                    // no rehashes should be necessary, and will in fact show
+                    // up as a memory use error.  'LENGTH' was the high-water
+                    // mark of the initial run on the container before removing
+                    // all elements.
+                    if ((LENGTH < X.size() && expectPoolToAllocate(LENGTH))
+                        || VALUE_TYPE_USES_ALLOCATOR) {
+                        ASSERTV(CONFIG, LENGTH, tam.isTotalUp());
+                        ASSERTV(CONFIG, LENGTH, tam.isInUseUp());
+                    }
+                    else {
+                        ASSERTV(CONFIG, LENGTH, tam.isTotalSame());
+                        ASSERTV(CONFIG, LENGTH, tam.isInUseSame());
+                    }
+
+                    ASSERTV(MAX_LF, LENGTH, CONFIG,
+                            BSL_TF_EQ(
+                                    KEY_CONFIG::extractKey(VALUES[LENGTH - 1]),
+                                    ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
+                    ASSERTV(MAX_LF, LENGTH, CONFIG,
+                            BSL_TF_EQ(
+                                   VALUES[LENGTH - 1],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
+
+                    guard.release();
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH == X.size());
+
+                // check elements with equivalent keys are contiguous
+                // check expected elements are present in container, with
+                // expected number of duplicates
+                {
+                    int *foundKeys = new int[X.size()];
+                    for (SizeType j = 0; j != X.size(); ++j) {
+                        foundKeys[j] = 0;
+                    }
+
+                    size_t i = 0;
+                    for (Link *it = X.elementListRoot();
+                         0 != it;
+                         it = it->nextLink(), ++i)
+                    {
+                        for (SizeType j = 0; j != X.size(); ++j) {
+                            if (BSL_TF_EQ(
+                                        KEY_CONFIG::extractKey(VALUES[j]),
+                                        ImpUtil::extractKey<KEY_CONFIG>(it))) {
+                                ASSERTV(MAX_LF, LENGTH, CONFIG, VALUES[j],
+                                        !foundKeys[j]);
+                                ++foundKeys[j];
+                            }
+                        }
+                    }
+                    SizeType missing = 0;
+                    for (SizeType j = 0; j != X.size(); ++j) {
+                        if (!foundKeys[j]) { ++missing; }
+                    }
+                    ASSERTV(MAX_LF, LENGTH, CONFIG, missing, 0 == missing);
+
+                    delete[] foundKeys;
+
+                    ASSERTV(MAX_LF, LENGTH, CONFIG, X.size() == i);
+                }
+            }
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) { printf(
+                                "\n\tTesting 'insert' duplicated values.\n"); }
+            {
+                Link *ITER[MAX_LENGTH + 1];
+
+                // The first loop adds a duplicate in front of each already
+                // inserted element
+                for (SizeType tj = 0; tj < LENGTH; ++tj) {
+                    ITER[tj] = mX.insert(VALUES[tj]);
+                    ASSERT(0 != ITER[tj]);
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                   KEY_CONFIG::extractKey(VALUES[tj]),
+                                   ImpUtil::extractKey<KEY_CONFIG>(ITER[tj])));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                 VALUES[tj],
+                                 ImpUtil::extractValue<KEY_CONFIG>(ITER[tj])));
+                }
+                ITER[LENGTH] = 0;
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
+                        2 * LENGTH == X.size());
+
+                // The second loop adds another duplicate in front of each
+                // the items from the previous loop, and not in the middle of
+                // any subranges.
+                for (SizeType tj = 0; tj < LENGTH; ++tj) {
+                    Link *RESULT = mX.insert(VALUES[tj]);
+                    ASSERT(0 != RESULT);
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                     KEY_CONFIG::extractKey(VALUES[tj]),
+                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                   VALUES[tj],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            ITER[tj] == RESULT->nextLink());
+                }
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
+                        3 * LENGTH == X.size());
+            }
+
+            // ----------------------------------------------------------------
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(MAX_LF, LENGTH, CONFIG, da.numBlocksInUse(),
+                    0 == da.numBlocksInUse());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, fa.numBlocksInUse(),
+                    0 == fa.numBlocksInUse());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, sa.numBlocksInUse(),
+                    0 == sa.numBlocksInUse());
+        }
+    }
+    }
+
+    // ----------------------------------------------------------------
+
+#if defined BDE_BUILD_TARGET_EXC
+    {
+        Obj mR(HASH,
+               COMPARE,
+               0,
+               native_std::numeric_limits<float>::denorm_min());
+        try {
+            mR.insert(VALUES[0]);
+
+            P(mR.numBuckets())
+            P(mR.size());
+
+            ASSERT(false);
+        }
+        catch(const native_std::length_error& e) {
+            // This is the expected code path
+        }
+        catch(...) {
+            ASSERT(!"The wrong exception type was thrown.");
+        }
+    }
+#endif  // BDE_BUILD_TARGET_EXC
+
+#endif  //  1 // defined(THE_TEST_IS_YET_TO_COME)
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
+{
+    // ------------------------------------------------------------------------
+    // TESTING setMaxLoadFactor METHOD
+    //
+    // Concerns:
+    //: 1 ...
+    //:
+    //
+    // Plan:
+    //: 1 For each value of increasing length, 'L':
+    //:
+    //
+    // Testing:
+    //*  setMaxLoadFactor
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        printf("\nTesting 'setMaxLoadFactor'.\n");
+    }
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+    ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
+
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
+
+    if (verbose) printf("Testing exteme values.\n");
+    {
+
+        Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);  const Obj& X = mX;
+
+        mX.setMaxLoadFactor(std::numeric_limits<float>::max());
+        ASSERT(std::numeric_limits<float>::max() == X.maxLoadFactor());
+
+        mX.setMaxLoadFactor(std::numeric_limits<float>::infinity());
+        ASSERT(std::numeric_limits<float>::infinity() == X.maxLoadFactor());
+    }
+
+#if defined(BDE_BUILD_TARGET_EXC)
+    if (verbose) printf("Testing exceptional trigger values.\n");
+    {
+        Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);
+        try {
+            mX.setMaxLoadFactor(std::numeric_limits<float>::min());
+            ASSERT(!"setMaxLoadFactor(min) should throw a 'logic_error'");
+        }
+        catch (const std::logic_error &) {
+            // This is the expected code path
+        }
+        catch (...) {
+            ASSERT(!"rehash(max size_t) threw the wrong exception type");
+        }
+
+        try {
+            mX.setMaxLoadFactor(std::numeric_limits<float>::denorm_min());
+            ASSERT(!"setMaxLoadFactor(denorm) should throw a 'logic_error'");
+        }
+        catch (const std::logic_error &) {
+            // This is the expected code path
+        }
+        catch (...) {
+            ASSERT(!"rehash(max size_t) threw the wrong exception type");
+        }
+    }
+#endif
+
+    if (verbose) printf("Negative testing.\n");
+    {
+        bsls::AssertTestHandlerGuard hG;
+
+        const float FLT_TINY = std::numeric_limits<float>::denorm_min();
+        const float FLT_NAN  = std::numeric_limits<float>::quiet_NaN();
+        const float FLT_INF  = std::numeric_limits<float>::infinity();
+
+        Obj mX(HASH, COMPARE, 0, 1.0f, scratchAlloc);
+
+//        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(  FLT_TINY));
+        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(      0.5f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(      0.0f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(     -0.0f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor( -FLT_TINY));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(     -1.0f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(  -FLT_INF));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(   FLT_NAN));
+        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(   FLT_INF));
+
+#if 0
+        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(1.0f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(0.0f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(-1.0f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(
+                                     std::numeric_limits<float>::quiet_NaN()));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(
+                                     -std::numeric_limits<float>::infinity()));
+        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(
+                                      std::numeric_limits<float>::infinity()));
+#endif
+    }
+
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
+{
+    // ------------------------------------------------------------------------
+    // TESTING DEFAULT CONSTRUCTOR:
+    //   The default constructor creates an empty container having one bucket.
+    //   However, any attempt to insert is going to allocate a new bucket
+    //   array, and any attempt to use the 'insertElement' function should fail
+    //   as it protects against such use.  The state of a default constructed
+    //   HashTable is that of a value-constructed HashTable requesting zero
+    //   initial buckets, a maximum load factor of '1.0', and default values
+    //   for the functors.  This state is extensively tested as a starting
+    //   point for most other test cases.  However, the default constructor
+    //   also allows for a different type of hasher/comparator functor that
+    //   is DefaultConstructible, but is not CopyConstructible.  Such functors
+    //   produce a HashTable that, in turn, is not CopyConstructible - but may
+    //   be Swappable if the functor, in turn, are swappable.  It is important
+    //   to test all the other methods of this class work with such a type,
+    //   although we are not really adding anything new other than constructing
+    //   into this state - therefore, the default constructor should be the
+    //   last method tested, so that it can check every other method being
+    //   called for a type that is only default constructible, relying on their
+    //   otherwise validated behavior from known states.
+    //
+    // Concerns:
+    //: 1 An object created with the default constructor (with or without a
+    //:   supplied allocator) has the contractually specified default value.
+    //:
+    //: 2 If an allocator is NOT supplied to the default constructor, the
+    //:   default allocator in effect at the time of construction becomes the
+    //:   object allocator for the resulting object.
+    //:
+    //: 3 If an allocator IS supplied to the default constructor, that
+    //:   allocator becomes the object allocator for the resulting object.
+    //:
+    //: 4 Supplying a null allocator address has the same effect as not
+    //:   supplying an allocator.
+    //:
+    //: 5 Supplying an allocator to the default constructor has no effect on
+    //:   subsequent object values.
+    //:
+    //: 6 Any memory allocation is from the object allocator.
+    //:
+    //: 7 There is no temporary allocation from any allocator.
+    //:
+    //: 8 Every object releases any allocated memory at destruction.
+    //:
+    //: 9 QoI: The default constructor allocates no memory.
+    //:
+    // Plan:
+    //: 1 For each value of increasing length, 'L':
+    //:
+    //:   2 Using a loop-based approach, default-construct three distinct
+    //:     objects, in turn, but configured differently: (a) without passing
+    //:     an allocator, (b) passing a null allocator address explicitly,
+    //:     and (c) passing the address of a test allocator distinct from the
+    //:     default.  For each of these three iterations:  (C-1..14)
+    //:
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
+    //:       the current default allocator (note that a ubiquitous test
+    //:       allocator is already installed as the global allocator).
+    //:
+    //:     2 Use the default constructor to dynamically create an object
+    //:       'X', with its object allocator configured appropriately (see
+    //:       P-2); use a distinct test allocator for the object's footprint.
+    //:
+    //:     3 Use the (as yet unproven) 'allocator' to ensure that its
+    //:       object allocator is properly installed.  (C-2..4)
+    //:
+    //:     4 Use the appropriate test allocators to verify that no memory is
+    //:       allocated by the default constructor.  (C-9)
+    //:
+    //:     5 Use the individual (as yet unproven) salient attribute accessors
+    //:       to verify the default-constructed value.  (C-1)
+    //:
+    //:     6 Verify that no temporary memory is allocated from the object
+    //:       allocator.  (C-7)
+    //:
+    //:     7 Verify that all object memory is released when the object is
+    //:       destroyed.  (C-8)
+    //
+    // Testing:
+    //   HashTable(const A& allocator);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTesting with various allocator configurations.\n");
+
+    bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
+    const TestValues VALUES(&tda);  // Contains 52 distinct increasing values.
+
+    const char *ALLOC_SPEC = ObjMaker::specForDefaultTests();
+
+    for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
+        const char CONFIG = *cfg;  // how we specify the allocator
+
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+        // ----------------------------------------------------------------
+
+        if (veryVerbose) {
+            printf("\n\tTesting default constructor.\n");
+        }
+
+        Obj       *objPtr;
+        ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
+                                                   CONFIG,
+                                                   &fa,
+                                                   &sa);
+        Obj& mX = *objPtr;  const Obj& X = mX;
+
+        // Verify any attribute allocators are installed properly.
+
+        ASSERTV(CONFIG, expAlloc == X.allocator());
+
+        const bslma::TestAllocator  *oa = extractTestAllocator(expAlloc);
+        const bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
+
+        // It is important that these allocators are found, or else the
+        // following tests will break severely, dereferencing null
+        // pointer.
+
+        BSLS_ASSERT_OPT(oa);
+        BSLS_ASSERT_OPT(noa);
+
+        // Confirm the expected state.
+
+        ASSERTV(CONFIG, 0 == X.size());
+        ASSERTV(CONFIG, 1 == X.numBuckets());
+        ASSERTV(CONFIG, 0 == X.elementListRoot());
+        ASSERTV(CONFIG, 1.0f == X.maxLoadFactor());
+        ASSERTV(CONFIG, 0.0f == X.loadFactor());
+        ASSERTV(CONFIG, 0 == X.countElementsInBucket(0));
+
+        const bslalg::HashTableBucket& bucket = X.bucketAtIndex(0);
+        ASSERTV(CONFIG, 0 == bucket.first());
+        ASSERTV(CONFIG, 0 == bucket.last());
+
+//        ASSERTV(CONFIG, isEqualComparator(COMPARATOR(), X.comparator()));
+//        ASSERTV(CONFIG, isEqualHasher(HASHER(), X.hasher()));
+
+        // Add any additional fine-grained tests that might be interesting.
+
+
+        // Verify no allocation from the object/non-object allocators.
+
+        ASSERTV(CONFIG,  oa->numBlocksTotal(), 0 ==  oa->numBlocksTotal());
+        ASSERTV(CONFIG, noa->numBlocksTotal(), 0 == noa->numBlocksTotal());
+
+        // -----------------------------------------------------------------
+
+        // check all other methods of the class continue to work as expected
+        // for a default constructed object.
+
+        ASSERTV(CONFIG,   X == X);
+        ASSERTV(CONFIG, !(X != X));
+
+        // an infinite load factor suggests we should never rehash.  However,
+        // in setting the load factor we will allocate the initial bucket
+        // array.
+
+        mX.setMaxLoadFactor(std::numeric_limits<float>::infinity());
+        ASSERTV(CONFIG, X.maxLoadFactor(),
+                X.maxLoadFactor() == std::numeric_limits<float>::infinity());
+
+        size_t INITIAL_BUCKETS = X.numBuckets();
+        ASSERTV(CONFIG, 0 == X.size());
+        ASSERTV(CONFIG, 1  < INITIAL_BUCKETS);
+        ASSERTV(CONFIG, 0 == X.elementListRoot());
+        ASSERTV(CONFIG, 0.0f == X.loadFactor());
+
+        mX.insert(VALUES[0]);
+
+        ASSERTV(CONFIG, 1 == X.size());
+        ASSERTV(CONFIG, INITIAL_BUCKETS == X.numBuckets());
+        ASSERTV(CONFIG, 0 != X.elementListRoot());
+        ASSERTV(CONFIG, 0.0f < X.loadFactor());
+
+        // -----------------------------------------------------------------
+
+        // Reclaim dynamically allocated object under test.
+
+        fa.deleteObject(objPtr);
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(CONFIG, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+        ASSERTV(CONFIG, fa.numBlocksInUse(), 0 == fa.numBlocksInUse());
+        ASSERTV(CONFIG, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase15()
+{
+    // ------------------------------------------------------------------------
+    // TESTING traits and other compile-time properties
+    //
+    // Concerns:
+    //: 1 HashTable supports the expected traits
+    //:
+    //: 2 HashTable has the expected size
+    //
+    // Plan:
+    //: 1 For each value of increasing length, 'L':
+    //:
+    //
+    // Testing:
+    //*  traits
+    //*  sizeof(HashTable)
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        printf("\nTesting bsl traits.\n");
+    }
+
+    typedef typename KEY_CONFIG::KeyType   KeyType;
+    typedef typename KEY_CONFIG::ValueType ValueType;
+
+    // These traits should never be true
+
+    ASSERT(!bsl::is_trivially_copyable<             Obj>::value);
+    ASSERT(!bsl::is_trivially_default_constructible<Obj>::value);
+    ASSERT(!bslmf::IsBitwiseEqualityComparable<     Obj>::value);
+
+    // The uses-allocator trait should depend only on the  allocator type.
+
+    bool usesBslAllocator        = IsBslAllocator<ALLOCATOR>::value;
+    bool objUsesBslmaAllocator   = bslma::UsesBslmaAllocator<Obj>::value;
+
+    ASSERTV(usesBslAllocator, objUsesBslmaAllocator,
+            usesBslAllocator == objUsesBslmaAllocator);
+
+    // The stored type has no bearing on whether a node-based container is
+    // bitwise-moveable.  However, the allocator and two custom function-like
+    // types must all be bitwise-moveable for the whole container to be
+    // bitwise-moveable.
+
+    bool allocIsBitwiseMoveable = bslmf::IsBitwiseMoveable<ALLOCATOR>::value;
+    bool hashIsBitwiseMoveable  = bslmf::IsBitwiseMoveable<HASHER>::value;
+    bool compIsBitwiseMoveable  = bslmf::IsBitwiseMoveable<COMPARATOR>::value;
+    bool objIsBitwiseMoveable   = bslmf::IsBitwiseMoveable<Obj>::value;
+
+    ASSERTV(allocIsBitwiseMoveable,
+            hashIsBitwiseMoveable,
+            compIsBitwiseMoveable,
+            objIsBitwiseMoveable,
+     (allocIsBitwiseMoveable && hashIsBitwiseMoveable && compIsBitwiseMoveable)
+                                                      == objIsBitwiseMoveable);
+}
+
 //=============================================================================
-//                              TEST CASE FUNCTIONS
+//                        TEST CASE DISPATCH FUNCTIONS
 //-----------------------------------------------------------------------------
 // In order to reduce the complexity of the 'switch' statement in 'main' that
 // was getting to large for some compilers to handle, we have migrated the
 // invokation of each test case into its own function.
 //-----------------------------------------------------------------------------
-void mainTestCaseUsageExample()
-{
-        // This case number will rise as remaining tests are implemented.
-
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("USAGE EXAMPLE\n"
-                            "=============\n");
-
-        UsageExamples::main1();
-        UsageExamples::main2();
-        UsageExamples::main3();
-        UsageExamples::main4();
-
-}
-#if 0  // Planned test cases, not yet implemented
-static
-void mainTestCase23()
-{
-    // --------------------------------------------------------------------
-    // TESTING PUBLIC TYPEDEFS
-    // --------------------------------------------------------------------
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase23,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase23,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-}
-
-static
-void mainTestCase22()
-{
-    // --------------------------------------------------------------------
-    // TESTING "max" FUNCTIONS
-    // --------------------------------------------------------------------
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase22,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase22,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-}
-
-static
-void mainTestCase21()
-{
-    // --------------------------------------------------------------------
-    // TESTING 'countElementsInBucket'
-    // --------------------------------------------------------------------
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase21,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase21,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-}
-
-static
-void mainTestCase20()
-{
-    // --------------------------------------------------------------------
-    // TESTING 'findRange'
-    // --------------------------------------------------------------------
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase20,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase20,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-}
-
-static
-void mainTestCase19()
-{
-    // --------------------------------------------------------------------
-    // TESTING 'find'
-    // --------------------------------------------------------------------
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase19,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase19,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-}
-
-static
-void mainTestCase18()
-{
-    // --------------------------------------------------------------------
-    // TESTING 'insertIfMissing(const KeyType& key);
-    // --------------------------------------------------------------------
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase18,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase18,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-}
-
-static
-void mainTestCase17()
-{
-    // --------------------------------------------------------------------
-    // TESTING 'insertIfMissing(bool *, VALUE)'
-    // --------------------------------------------------------------------
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase17,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase17,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-}
-
-static
-void mainTestCase16()
-{
-    // --------------------------------------------------------------------
-    // TESTING 'insert'
-    // --------------------------------------------------------------------
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase16,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase16,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-}
-
-static
-void mainTestCase15()
-{
-    // --------------------------------------------------------------------
-    // TESTING 'setMaxLoadFactor'
-    // --------------------------------------------------------------------
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase15,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase15,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-}
-
-#endif
-
-static
-void mainTestCase15()
-{
-    // --------------------------------------------------------------------
-    // TESTING traits and other compile-time properties
-    // --------------------------------------------------------------------
-    // For this test, the standard "minimal" set of test types provides
-    // adequate coverage for the different properties dependent on the
-    // value type.  We must simply test sufficient pre-packaged configurations
-    // to cover the possibilities of the hash functor, comparator and
-    // allocator too.  As of this writing, there is no package that separately
-    // isolates bitwise copyable hasher and comparator, to test as separate
-    // dimensions.
-
-    if (verbose) printf("\nTesting basic configuration"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors without swap"
-                        "\n----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-    if (verbose) printf("\nTesting const functors"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_ConstFunctors,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
-    if (verbose) printf("\nTesting functor referencess"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctorReferences,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting function pointers"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM)
-    if (verbose) printf("\nTesting function types"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionTypes,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-    if (verbose) printf("\nTesting function references"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionReferences,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase15,
-                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase15();
-}
-
-static
-void mainTestCase14()
-{
-    // --------------------------------------------------------------------
-    // DEFAULT CONSTRUCTOR
-    // --------------------------------------------------------------------
-
-#define BSLSTL_HASHTABLE_TESTCASE14_TYPES \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
-                  bsltf::NonAssignableTestType,                  \
-                  bsltf::NonDefaultConstructibleTestType
-    // This test case will use 'operator==' on the container, so cannot
-    // support elements that do not, in turn, directly overload the operator.
-
-    if (verbose) printf("\nTesting default constructor"
-                        "\n===========================\n");
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-    if (verbose) printf("\nTesting non-copyable functors"
-                        "\n-----------------------------\n");
-    // This is the use case we are most concerned about.
-    // We probably want to test with a smattering of the following
-    // concerns as well, notably with the different allocator patterns.
-    RUN_EACH_TYPE(TestDriver_DefaultOnlyFunctors,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE14_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE14_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    // We need to limit the test coverage on IBM as the compiler cannot
-    // cope with so many template instantiations.
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-#if 0
-    // These configurations not available, as functors are not default
-    // constructible.
-
-    if (verbose) printf("\nTesting degenerate functors"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors without swap"
-                        "\n----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting 'bsltf' configuration"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-#if 0
-    // Function pointers do not give usable defaults for functors.
-
-    if (verbose) printf("\nTesting pointers for functors"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting functors taking generic arguments"
-                        "\n-----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-#if 0
-    // The stateless allocator flags issues installing the chosen allocator
-    // when it is not the default.
-
-    if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase14();
-    TestDriver_AwkwardMaplikeForDefault::testCase14();
-}
-
-static
-void mainTestCase13()
-{
-    // --------------------------------------------------------------------
-    //  TESTING 'setMaxLoadFactor'
-    // --------------------------------------------------------------------
-
-#define BSLSTL_HASHTABLE_TESTCASE13_TYPES \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
-                  bsltf::NonAssignableTestType,                  \
-                  bsltf::NonDefaultConstructibleTestType
-    // This test case will use 'operator==' on the container, so cannot
-    // support elements that do not, in turn, directly overload the operator.
-
-    if (verbose) printf("\nTesting 'setMaxLoadFactor'"
-                        "\n==========================\n");
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE13_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE13_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    // We need to limit the test coverage on IBM as the compiler cannot
-    // cope with so many template instantiations.
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase13,
-                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase13,
-                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase13,
-                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
-
-    // Remaining special cases
-    TestDriver_AwkwardMaplike::testCase13();
-}
-
-static
-void mainTestCase12()
-{
-    // --------------------------------------------------------------------
-    // TESTING 'insert'
-    // --------------------------------------------------------------------
-
-#define BSLSTL_HASHTABLE_TESTCASE12_TYPES \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
-                  bsltf::NonAssignableTestType,                  \
-                  bsltf::NonDefaultConstructibleTestType
-    // This test case will use 'operator==' on the container, so cannot
-    // support elements that do not, in turn, directly overload the operator.
-
-    if (verbose) printf("\nTesting 'insert'"
-                        "\n================\n");
-
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase12,
-                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE12_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE12_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase12,
-                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
-}
-
-static
-void mainTestCase11()
-{
-    // --------------------------------------------------------------------
-    // TESTING 'rehashFor...' FUNCTIONS
-    // --------------------------------------------------------------------
-
-#define BSLSTL_HASHTABLE_TESTCASE11_TYPES \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
-                  bsltf::NonAssignableTestType,                  \
-                  bsltf::NonDefaultConstructibleTestType
-    // This test case will use 'operator==' on the container, so cannot
-    // support elements that do not, in turn, directly overload the operator.
-
-    if (verbose) printf("\nTesting 'rehashFor...' functions"
-                        "\n================================\n");
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE11_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE11_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    // We need to limit the test coverage on IBM as the compiler cannot
-    // cope with so many template instantiations.
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors without swap"
-                        "\n----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    if (verbose) printf("\nTesting 'bsltf' configuration"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    if (verbose) printf("\nTesting pointers for functors"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    if (verbose) printf("\nTesting functors taking generic arguments"
-                        "\n-----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-#if 0
-    if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase11();
-}
-
-static
-void mainTestCase10()
-{
-    // --------------------------------------------------------------------
-    // STREAMING FUNCTIONALITY
-    // --------------------------------------------------------------------
-
-    if (verbose) printf("\nTesting Streaming Functionality"
-                        "\n===============================\n");
-
-    if (verbose) printf("There is no streaming for this component.\n");
-}
-
-static
-void mainTestCase9()
-{
-    // --------------------------------------------------------------------
-    // ASSIGNMENT OPERATOR
-    // --------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_CLANG)
-    // The Clang compiler is known to be particularly slow executing this
-    // test case, so we really cut back on the variations.  This was last
-    // evaluated with Clang 3.1, and should be re-evaluated when Clang 3.2
-    // is installed.
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n---------------------------\n");
-    TestDriver_StatefulConfiguation<TestTypes::MostEvilTestType>::
-                                                                 testCase9();
-
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase9();
-    return;
-#endif
-
-#define BSLSTL_HASHTABLE_TESTCASE9_TYPES \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
-                  bsltf::NonAssignableTestType,                  \
-                  bsltf::NonDefaultConstructibleTestType
-    // This test case will use 'operator==' on the container, so cannot
-    // support elements that do not, in turn, directly overload the operator.
-
-    if (verbose) printf("\nTesting Assignment Operator"
-                        "\n===========================\n");
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE9_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-#if defined(RUN_ALL_TESTS_IGNORE_THE_COST)
-    // We need to limit the test coverage on IBM as the compiler cannot
-    // cope with so many template instantiations.
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-#if 0
-    // degenerate functors are not CopyAssignable, and rely on the
-    // copy/swap idiom for the copy-assignment operator to function.
-
-    if (verbose) printf("\nTesting degenerate functors without swap"
-                        "\n----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
-                  bsltf::AllocTestType,
-                  bsltf::AllocBitwiseMoveableTestType);
-#endif
-
-    if (verbose) printf("\nTesting 'bsltf' configuration"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-    if (verbose) printf("\nTesting pointers for functors"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-    if (verbose) printf("\nTesting functors taking generic arguments"
-                        "\n-----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-
-    // The non-BDE allocators do not propagate the container allocator to
-    // their elements, and so will make use of the default allocator when
-    // making copies.  Therefore, we use a slightly different list of types
-    // when testing with these allocators.  This leaves unaddressed the issue
-    // of testing 'HashTable' with these allocator types, and elements that
-    // in turn allocate their own memory, using their own allocator.
-
-#undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES
-#define BSLSTL_HASHTABLE_TESTCASE9_TYPES                           \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
-                  bsltf::EnumeratedTestType::Enum,                 \
-                  bsltf::UnionTestType,                            \
-                  bsltf::SimpleTestType,                           \
-                  bsltf::BitwiseMoveableTestType,                  \
-                  bsltf::NonTypicalOverloadsTestType,              \
-                  bsltf::NonAssignableTestType,                    \
-                  bsltf::NonDefaultConstructibleTestType
-
-    // Next we have a sub-set of tests that do not yet want to support testing
-    // the allocatable types, as non-BDE allocators do not scope the object
-    // allocator to the elements, and so use the default allocator instead,
-    // which confuses the math of the test case.
-
-#if 0
-    // Revisit these tests once validated the rest.
-    // Initial problem are testing the stateless allocator while trying
-    // to separately configure a default and an object allocator.
-    // Obvious problems with allocator-propagating tests, given the driver
-    // currently expects to never propagate.
-    if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                  testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-#endif  // RUN_ALL_TESTS_IGNORE_THE_COST
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase9();
-}
-
-static
-void mainTestCase8()
-{
-    // --------------------------------------------------------------------
-    // MANIPULATOR AND FREE FUNCTION 'swap'
-    // --------------------------------------------------------------------
-
-#define BSLSTL_HASHTABLE_TESTCASE8_TYPES \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
-                  bsltf::NonAssignableTestType,                  \
-                  bsltf::NonDefaultConstructibleTestType
-    // This test case will use 'operator==' on the container, so cannot
-    // support elements that do not, in turn, directly overload the operator.
-
-    if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION 'swap'"
-                        "\n====================================\n");
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE8_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE8_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    // We need to limit the test coverage on IBM as the compiler cannot
-    // cope with so many template instantiations.
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    if (verbose) printf("\nTesting 'bsltf' configuration"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    if (verbose) printf("\nTesting pointers for functors"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    if (verbose) printf("\nTesting functors taking generic arguments"
-                        "\n-----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-#if 0
-    // Revisit these tests once validated the rest.
-    // Initial problem are testing the stateless allocator while trying
-    // to separately configure a default and an object allocator.
-    // Obvious problems with allocator-propagating tests, given the driver
-    // currently expects to never propagate.
-    if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                  testCase8,
-                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
-
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase8();
-}
-
-static
-void mainTestCase7()
-{
-    // --------------------------------------------------------------------
-    // COPY CONSTRUCTOR
-    // --------------------------------------------------------------------
-
-#define BSLSTL_HASHTABLE_TESTCASE7_TYPES \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
-                  bsltf::NonAssignableTestType,                  \
-                  bsltf::NonDefaultConstructibleTestType
-    // This test case will use 'operator==' on the container, so cannot
-    // support elements that do not, in turn, directly overload the operator.
-
-    if (verbose) printf("\nTesting Copy Constructors"
-                        "\n=========================\n");
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase7,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                  bsltf::NonAssignableTestType,
-                  bsltf::NonDefaultConstructibleTestType);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE7_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE7_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors without swap"
-                        "\n----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    if (verbose) printf("\nTesting 'bsltf' configuration"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    if (verbose) printf("\nTesting pointers for functors"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    if (verbose) printf("\nTesting functors taking generic arguments"
-                        "\n-----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-#if 0
-    // Revisit these tests once validated the rest.
-    // Initial problem are testing the stateless allocator while trying
-    // to separately configure a default and an object allocator.
-    // Obvious problems with allocator-propagating tests, given the driver
-    // currently expects to never propagate.
-    if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                  testCase7,
-                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase7();
-}
-
-static
-void mainTestCase6()
-{
-    // --------------------------------------------------------------------
-    // EQUALITY OPERATORS
-    // --------------------------------------------------------------------
-
-    if (verbose) printf("\nTesting Equality Operators"
-                        "\n==========================\n");
-
-    // Note that the 'NonEqualComparableTestType' is not appropriate here.
-
-#define BSLSTL_HASHTABLE_TESTCASE6_TYPES \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
-                  bsltf::NonAssignableTestType,                  \
-                  bsltf::NonDefaultConstructibleTestType
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE6_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE6_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors without swap"
-                        "\n----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    if (verbose) printf("\nTesting const functors"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_ConstFunctors,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM) // name mangling bug
-    if (verbose) printf("\nTesting functor referencess"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctorReferences,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting 'bsltf' configuration"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    if (verbose) printf("\nTesting pointers for functors"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM)
-    if (verbose) printf("\nTesting function types"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionTypes,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    if (verbose) printf("\nTesting function referecnes"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionReferences,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting functors taking generic arguments"
-                        "\n-----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-#if 0  // This always causes trouble
-    if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                  testCase6,
-                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase6();
-}
-
-static
-void mainTestCase5()
-{
-    // --------------------------------------------------------------------
-    // TESTING OUTPUT (<<) OPERATOR
-    // --------------------------------------------------------------------
-
-    if (verbose) printf("\nTesting Output (<<) Operator"
-                        "\n============================\n");
-
-    if (verbose)
-               printf("There is no output operator for this component.\n");
-}
-
-static
-void mainTestCase4()
-{
-    // --------------------------------------------------------------------
-    // BASIC ACCESSORS
-    // --------------------------------------------------------------------
-
-#define BSLSTL_HASHTABLE_TESTCASE4_TYPES \
-        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL
-
-    if (verbose) printf("\nTesting Basic Accessors"
-                        "\n=======================\n");
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE4_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE4_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors without swap"
-                        "\n----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    if (verbose) printf("\nTesting const functors"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_ConstFunctors,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM) // 'Obj::comparator()' does not resolve
-    if (verbose) printf("\nTesting functor referencess"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctorReferences,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting 'bsltf' configuration"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    if (verbose) printf("\nTesting pointers for functors"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM)
-    if (verbose) printf("\nTesting function types"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionTypes,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    if (verbose) printf("\nTesting function referecnes"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionReferences,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting functors taking generic arguments"
-                        "\n-----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-   if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                  testCase4,
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase4();
-}
-
-static
-void mainTestCase3()
-{
-    // --------------------------------------------------------------------
-    // GENERATOR FUNCTIONS 'gg' and 'ggg' and other test machinery
-    // --------------------------------------------------------------------
-
-#define BSLSTL_HASHTABLE_TESTCASE3_TYPES \
-        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL
-
-    if (verbose) printf("\nTesting generators and test machinery"
-                        "\n=====================================\n");
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE3_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE3_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors without swap"
-                        "\n----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    if (verbose) printf("\nTesting const functors"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_ConstFunctors,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM) // name mangling bug
-    if (verbose) printf("\nTesting functor referencess"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctorReferences,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting 'bsltf' configuration"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    if (verbose) printf("\nTesting pointers for functors"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM)
-    if (verbose) printf("\nTesting function types"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionTypes,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    if (verbose) printf("\nTesting function referecnes"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionReferences,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting functors taking generic arguments"
-                        "\n-----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                  testCase3,
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase3();
-}
-
-static
-void mainTestCase2()
-{
-    // --------------------------------------------------------------------
-    // BOOTSTRAP CONSTRUCTOR AND PRIMARY MANIPULATORS
-    //   This case is implemented as a method of a template test harness,
-    //   where the runtime concerns and test plan are documented.  The test
-    //   harness will be instantiated and run with a variety of types to
-    //   address the template parameter concerns below.  We note that the
-    //   bootstrap case has the widest variety of parameterizing concerns
-    //   to test, as latest test cases may be able to place additional
-    //   requirements on the types that they operate with, but the primary
-    //   bootstrap has to validate bringing any valid container into any
-    //   valid state for any of the later cases.
-    //
-    // Concerns:
-    //: 1 The class bootstraps with the default template arguments for the
-    //:   unordered containers as policy parameters
-    //:
-    //: 2 The class supports a wide variety of troublesome element types,
-    //:   as covered extensively in the template test facility, 'bsltf'.
-    //:
-    //: 3 STL allocators that are not (BDE) polymorphic, and that never
-    //:   propagate on any operations, just like BDE
-    //:
-    //: 4 STL allocators that are not (BDE) polymorphic, and propagate on
-    //:   all possible operations.
-    //:
-    //: 5 functors that do not const-qualify 'operator()'
-    //:
-    //: 6 stateful functors
-    //:
-    //: 7 function pointers as functors
-    //:
-    //: 8 non-default-constructible functors
-    //:
-    //: 9 functors overloading 'operator&'
-    //:
-    //:10 functors overloading 'operator,'
-    //:
-    //:11 functors that cannot be swapped ('swap' is required to support
-    //:   assignment, not bootstrap, default constructor, or most methods)
-    //:
-    //:12 functors whose argument(s) are convertible-form the key-type
-    //:
-    //:13 functors with templated function-call operators
-    //:
-    //:14 support for simple set-like policy
-    //:
-    //:15 support for basic map-like policy, where key is a sub-state of
-    //:   the element's value
-    //:
-    //:16 support for a minimal key type, with equality-comparable element
-    //:   type
-    //:
-    //:17 support for comparison functors returning an evil boolean-like
-    //:    type
-    //:
-    // Additional concerns (deferred for full allocator_traits support)
-    //:18 support for STL allocators returning smart pointers
-    //:
-    //:19 that the STL allocator functions are called if the STL allocator
-    //:   supplies them (rather than always using a default incantation in
-    //:   allocator_traits, for example).
-    //:
-    // Plan:
-    //: 1 Run the test harness in a variety of configurations that each, in
-    //:   turn, address the concerns and verify that the behavior is as
-    //:   expected.
-    //
-    // Testing:
-    //   BOOTSTRAP
-    //*  HashTable(HASHER, COMPARATOR, SizeType, float, ALLOC)
-    //   ~HashTable();
-    //   void removeAll();
-    //   insertElement  (test driver function, proxy for basic manipulator)
-    // --------------------------------------------------------------------
-
-#define BSLSTL_HASHTABLE_TESTCASE2_TYPES \
-        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL
-
-    if (verbose) printf("\nTesting Primary Manipulators"
-                        "\n============================\n");
-
-    if (verbose) printf("\nTesting basic configurations"
-                        "\n----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase2,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
-
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE2_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE2_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
-#endif
-
-    if (verbose) printf("\nTesting stateful functors"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with unique key values"
-                        "\n-------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting grouped hash with grouped key values"
-                        "\n--------------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting degenerate functors without swap"
-                        "\n----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting const functors"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_ConstFunctors,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM) // name mangling bug
-    if (verbose) printf("\nTesting functor referencess"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctorReferences,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting 'bsltf' configuration"
-                        "\n-----------------------------\n");
-    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting function pointers"
-                        "\n-------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
- && !defined(BSLS_PLATFORM_CMP_IBM)
-    if (verbose) printf("\nTesting function types"
-                        "\n----------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionTypes,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting function references"
-                        "\n---------------------------\n");
-    RUN_EACH_TYPE(TestDriver_FunctionReferences,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-#endif
-
-    if (verbose) printf("\nTesting functors taking generic arguments"
-                        "\n-----------------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting stateless STL allocators"
-                        "\n--------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    if (verbose) printf("\nTesting stateful STL allocators"
-                        "\n-------------------------------\n");
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                  testCase2,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
-
-    // Remaining special cases
-    if (verbose) printf("\nTesting degenerate map-like"
-                        "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase2();
-}
 
 static
 void mainTestCase1()
@@ -10793,6 +9253,1626 @@ void mainTestCase1()
                     (2 * (NUM_INT_VALUES - i - 1)) == X.size());
         }
     }
+}
+
+static
+void mainTestCase2()
+{
+    // --------------------------------------------------------------------
+    // BOOTSTRAP CONSTRUCTOR AND PRIMARY MANIPULATORS
+    //   This case is implemented as a method of a template test harness,
+    //   where the runtime concerns and test plan are documented.  The test
+    //   harness will be instantiated and run with a variety of types to
+    //   address the template parameter concerns below.  We note that the
+    //   bootstrap case has the widest variety of parameterizing concerns
+    //   to test, as latest test cases may be able to place additional
+    //   requirements on the types that they operate with, but the primary
+    //   bootstrap has to validate bringing any valid container into any
+    //   valid state for any of the later cases.
+    //
+    // Concerns:
+    //: 1 The class bootstraps with the default template arguments for the
+    //:   unordered containers as policy parameters
+    //:
+    //: 2 The class supports a wide variety of troublesome element types,
+    //:   as covered extensively in the template test facility, 'bsltf'.
+    //:
+    //: 3 STL allocators that are not (BDE) polymorphic, and that never
+    //:   propagate on any operations, just like BDE
+    //:
+    //: 4 STL allocators that are not (BDE) polymorphic, and propagate on
+    //:   all possible operations.
+    //:
+    //: 5 functors that do not const-qualify 'operator()'
+    //:
+    //: 6 stateful functors
+    //:
+    //: 7 function pointers as functors
+    //:
+    //: 8 non-default-constructible functors
+    //:
+    //: 9 functors overloading 'operator&'
+    //:
+    //:10 functors overloading 'operator,'
+    //:
+    //:11 functors that cannot be swapped ('swap' is required to support
+    //:   assignment, not bootstrap, default constructor, or most methods)
+    //:
+    //:12 functors whose argument(s) are convertible-form the key-type
+    //:
+    //:13 functors with templated function-call operators
+    //:
+    //:14 support for simple set-like policy
+    //:
+    //:15 support for basic map-like policy, where key is a sub-state of
+    //:   the element's value
+    //:
+    //:16 support for a minimal key type, with equality-comparable element
+    //:   type
+    //:
+    //:17 support for comparison functors returning an evil boolean-like
+    //:    type
+    //:
+    // Additional concerns (deferred for full allocator_traits support)
+    //:18 support for STL allocators returning smart pointers
+    //:
+    //:19 that the STL allocator functions are called if the STL allocator
+    //:   supplies them (rather than always using a default incantation in
+    //:   allocator_traits, for example).
+    //:
+    // Plan:
+    //: 1 Run the test harness in a variety of configurations that each, in
+    //:   turn, address the concerns and verify that the behavior is as
+    //:   expected.
+    //
+    // Testing:
+    //   BOOTSTRAP
+    //*  HashTable(HASHER, COMPARATOR, SizeType, float, ALLOC)
+    //   ~HashTable();
+    //   void removeAll();
+    //   insertElement  (test driver function, proxy for basic manipulator)
+    // --------------------------------------------------------------------
+
+#define BSLSTL_HASHTABLE_TESTCASE2_TYPES \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL
+
+    if (verbose) printf("\nTesting Primary Manipulators"
+                        "\n============================\n");
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase2,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE2_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE2_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting const functors"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConstFunctors,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM) // name mangling bug
+    if (verbose) printf("\nTesting functor referencess"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctorReferences,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting function pointers"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
+    if (verbose) printf("\nTesting function types"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionTypes,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting function references"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionReferences,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting functors taking generic arguments"
+                        "\n-----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting functors taking convertible arguments"
+                        "\n---------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase2,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase2();
+}
+
+static
+void mainTestCase3()
+{
+    // --------------------------------------------------------------------
+    // GENERATOR FUNCTIONS 'gg' and 'ggg' and other test machinery
+    // --------------------------------------------------------------------
+
+#define BSLSTL_HASHTABLE_TESTCASE3_TYPES \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL
+
+    if (verbose) printf("\nTesting generators and test machinery"
+                        "\n=====================================\n");
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE3_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE3_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting const functors"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConstFunctors,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM) // name mangling bug
+    if (verbose) printf("\nTesting functor referencess"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctorReferences,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting pointers for functors"
+                        "\n-----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
+    if (verbose) printf("\nTesting function types"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionTypes,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting function referecnes"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionReferences,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting functors taking generic arguments"
+                        "\n-----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting functors taking convertible arguments"
+                        "\n---------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
+                  testCase3,
+#if 0    // Types with BDE allocators make temporaries with the default
+         // allocator, that are not yet accounted for in the arithmetic of
+         // this test case.
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+#else
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD);
+#endif
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase3,
+                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase3();
+}
+
+static
+void mainTestCase4()
+{
+    // --------------------------------------------------------------------
+    // BASIC ACCESSORS
+    // --------------------------------------------------------------------
+
+#define BSLSTL_HASHTABLE_TESTCASE4_TYPES \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL
+
+    if (verbose) printf("\nTesting Basic Accessors"
+                        "\n=======================\n");
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE4_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE4_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting const functors"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConstFunctors,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM) // 'Obj::comparator()' does not resolve
+    if (verbose) printf("\nTesting functor referencess"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctorReferences,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting pointers for functors"
+                        "\n-----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
+    if (verbose) printf("\nTesting function types"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionTypes,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting function referecnes"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionReferences,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting functors taking generic arguments"
+                        "\n-----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting functors taking convertible arguments"
+                        "\n---------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
+                  testCase4,
+#if 0    // Types with BDE allocators make temporaries with the default
+         // allocator, that are not yet accounted for in the arithmetic of
+         // this test case.
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+#else
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD);
+#endif
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+   if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase4,
+                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase4();
+}
+
+static
+void mainTestCase5()
+{
+    // --------------------------------------------------------------------
+    // TESTING OUTPUT (<<) OPERATOR
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\nTesting Output (<<) Operator"
+                        "\n============================\n");
+
+    if (verbose)
+               printf("There is no output operator for this component.\n");
+}
+
+static
+void mainTestCase6()
+{
+    // --------------------------------------------------------------------
+    // EQUALITY OPERATORS
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\nTesting Equality Operators"
+                        "\n==========================\n");
+
+    // Note that the 'NonEqualComparableTestType' is not appropriate here.
+
+#define BSLSTL_HASHTABLE_TESTCASE6_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE6_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE6_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    if (verbose) printf("\nTesting const functors"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConstFunctors,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM) // name mangling bug
+    if (verbose) printf("\nTesting functor referencess"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctorReferences,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting pointers for functors"
+                        "\n-----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
+    if (verbose) printf("\nTesting function types"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionTypes,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    if (verbose) printf("\nTesting function referecnes"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionReferences,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting functors taking generic arguments"
+                        "\n-----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    if (verbose) printf("\nTesting functors taking convertible arguments"
+                        "\n---------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+#if 0  // This always causes trouble
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase6,
+                  BSLSTL_HASHTABLE_TESTCASE6_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase6();
+}
+
+static
+void mainTestCase7()
+{
+    // --------------------------------------------------------------------
+    // COPY CONSTRUCTOR
+    // --------------------------------------------------------------------
+
+#define BSLSTL_HASHTABLE_TESTCASE7_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
+    if (verbose) printf("\nTesting Copy Constructors"
+                        "\n=========================\n");
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase7,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                  bsltf::NonAssignableTestType,
+                  bsltf::NonDefaultConstructibleTestType);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE7_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE7_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting pointers for functors"
+                        "\n-----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting functors taking generic arguments"
+                        "\n-----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    if (verbose) printf("\nTesting functors taking convertible arguments"
+                        "\n---------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+#if 0
+    // Revisit these tests once validated the rest.
+    // Initial problem are testing the stateless allocator while trying
+    // to separately configure a default and an object allocator.
+    // Obvious problems with allocator-propagating tests, given the driver
+    // currently expects to never propagate.
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase7,
+                  BSLSTL_HASHTABLE_TESTCASE7_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase7();
+}
+
+static
+void mainTestCase8()
+{
+    // --------------------------------------------------------------------
+    // MANIPULATOR AND FREE FUNCTION 'swap'
+    // --------------------------------------------------------------------
+
+#define BSLSTL_HASHTABLE_TESTCASE8_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
+    if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION 'swap'"
+                        "\n====================================\n");
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE8_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE8_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    if (verbose) printf("\nTesting pointers for functors"
+                        "\n-----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    if (verbose) printf("\nTesting functors taking generic arguments"
+                        "\n-----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    if (verbose) printf("\nTesting functors taking convertible arguments"
+                        "\n---------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+#if 0
+    // Revisit these tests once validated the rest.
+    // Initial problem are testing the stateless allocator while trying
+    // to separately configure a default and an object allocator.
+    // Obvious problems with allocator-propagating tests, given the driver
+    // currently expects to never propagate.
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase8,
+                  BSLSTL_HASHTABLE_TESTCASE8_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase8();
+}
+
+static
+void mainTestCase9()
+{
+    // --------------------------------------------------------------------
+    // ASSIGNMENT OPERATOR
+    // --------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+    // The Clang compiler is known to be particularly slow executing this
+    // test case, so we really cut back on the variations.  This was last
+    // evaluated with Clang 3.1, and should be re-evaluated when Clang 3.2
+    // is installed.
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n---------------------------\n");
+    TestDriver_StatefulConfiguation<TestTypes::MostEvilTestType>::testCase9();
+
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase9();
+    return;
+#endif
+
+#define BSLSTL_HASHTABLE_TESTCASE9_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
+    if (verbose) printf("\nTesting Assignment Operator"
+                        "\n===========================\n");
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE9_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+#if defined(RUN_ALL_TESTS_IGNORE_THE_COST)
+    // We need to limit the test coverage on IBM as the compiler cannot
+    // cope with so many template instantiations.
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+#if 0
+    // degenerate functors are not CopyAssignable, and rely on the
+    // copy/swap idiom for the copy-assignment operator to function.
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES,
+                  bsltf::AllocTestType,
+                  bsltf::AllocBitwiseMoveableTestType);
+#endif
+
+    if (verbose) printf("\nTesting pointers for functors"
+                        "\n-----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+    if (verbose) printf("\nTesting functors taking generic arguments"
+                        "\n-----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+    if (verbose) printf("\nTesting functors taking convertible arguments"
+                        "\n---------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+
+    // The non-BDE allocators do not propagate the container allocator to
+    // their elements, and so will make use of the default allocator when
+    // making copies.  Therefore, we use a slightly different list of types
+    // when testing with these allocators.  This leaves unaddressed the issue
+    // of testing 'HashTable' with these allocator types, and elements that
+    // in turn allocate their own memory, using their own allocator.
+
+#undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES
+#define BSLSTL_HASHTABLE_TESTCASE9_TYPES                           \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
+                  bsltf::EnumeratedTestType::Enum,                 \
+                  bsltf::UnionTestType,                            \
+                  bsltf::SimpleTestType,                           \
+                  bsltf::BitwiseMoveableTestType,                  \
+                  bsltf::NonTypicalOverloadsTestType,              \
+                  bsltf::NonAssignableTestType,                    \
+                  bsltf::NonDefaultConstructibleTestType
+
+    // Next we have a sub-set of tests that do not yet want to support testing
+    // the allocatable types, as non-BDE allocators do not scope the object
+    // allocator to the elements, and so use the default allocator instead,
+    // which confuses the math of the test case.
+
+#if 0
+    // Revisit these tests once validated the rest.
+    // Initial problem are testing the stateless allocator while trying
+    // to separately configure a default and an object allocator.
+    // Obvious problems with allocator-propagating tests, given the driver
+    // currently expects to never propagate.
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase9,
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+
+#endif  // RUN_ALL_TESTS_IGNORE_THE_COST
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase9();
+}
+
+static
+void mainTestCase10()
+{
+    // --------------------------------------------------------------------
+    // STREAMING FUNCTIONALITY
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\nTesting Streaming Functionality"
+                        "\n===============================\n");
+
+    if (verbose) printf("There is no streaming for this component.\n");
+}
+
+static
+void mainTestCase11()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'rehashFor...' FUNCTIONS
+    // --------------------------------------------------------------------
+
+#define BSLSTL_HASHTABLE_TESTCASE11_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
+    if (verbose) printf("\nTesting 'rehashFor...' functions"
+                        "\n================================\n");
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE11_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE11_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    if (verbose) printf("\nTesting pointers for functors"
+                        "\n-----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    if (verbose) printf("\nTesting functors taking generic arguments"
+                        "\n-----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    if (verbose) printf("\nTesting functors taking convertible arguments"
+                        "\n---------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+#if 0
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase11();
+}
+
+static
+void mainTestCase12()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'insert'
+    // --------------------------------------------------------------------
+
+#define BSLSTL_HASHTABLE_TESTCASE12_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
+    if (verbose) printf("\nTesting 'insert'"
+                        "\n================\n");
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase12,
+                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE12_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE12_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase12,
+                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase12,
+                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
+}
+
+static
+void mainTestCase13()
+{
+    // --------------------------------------------------------------------
+    //  TESTING 'setMaxLoadFactor'
+    // --------------------------------------------------------------------
+
+#define BSLSTL_HASHTABLE_TESTCASE13_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
+    if (verbose) printf("\nTesting 'setMaxLoadFactor'"
+                        "\n==========================\n");
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase13,
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE13_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE13_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase13,
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+
+    // We need to limit the test coverage on IBM as the compiler cannot
+    // cope with so many template instantiations.
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase13,
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase13,
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase13,
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+
+    // Remaining special cases
+    TestDriver_AwkwardMaplike::testCase13();
+}
+static
+void mainTestCase14()
+{
+    // --------------------------------------------------------------------
+    // DEFAULT CONSTRUCTOR
+    // --------------------------------------------------------------------
+
+#define BSLSTL_HASHTABLE_TESTCASE14_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot
+    // support elements that do not, in turn, directly overload the operator.
+
+    if (verbose) printf("\nTesting default constructor"
+                        "\n===========================\n");
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+    if (verbose) printf("\nTesting non-copyable functors"
+                        "\n-----------------------------\n");
+    // This is the use case we are most concerned about.
+    // We probably want to test with a smattering of the following
+    // concerns as well, notably with the different allocator patterns.
+    RUN_EACH_TYPE(TestDriver_DefaultOnlyFunctors,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#  undef  BSLSTL_HASHTABLE_TESTCASE14_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE14_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#endif
+
+    if (verbose) printf("\nTesting map-like configuration"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+#if 0
+    // These configurations not available, as functors are not default
+    // constructible.
+
+    if (verbose) printf("\nTesting degenerate functors"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+#endif
+
+#if 0
+    // Function pointers do not give usable defaults for functors.
+
+    if (verbose) printf("\nTesting pointers for functors"
+                        "\n-----------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting functors taking generic arguments"
+                        "\n-----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+    if (verbose) printf("\nTesting functors taking convertible arguments"
+                        "\n---------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+    RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+#if 0
+    // The stateless allocator flags issues installing the chosen allocator
+    // when it is not the default.
+
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase14,
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase14();
+    TestDriver_AwkwardMaplikeForDefault::testCase14();
+}
+
+static
+void mainTestCase15()
+{
+    // --------------------------------------------------------------------
+    // TESTING traits and other compile-time properties
+    // --------------------------------------------------------------------
+    // For this test, the standard "minimal" set of test types provides
+    // adequate coverage for the different properties dependent on the
+    // value type.  We must simply test sufficient pre-packaged configurations
+    // to cover the possibilities of the hash functor, comparator and
+    // allocator too.  As of this writing, there is no package that separately
+    // isolates bitwise copyable hasher and comparator, to test as separate
+    // dimensions.
+
+    if (verbose) printf("\nTesting basic configuration"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting stateful functors"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with unique key values"
+                        "\n-------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting grouped hash with grouped key values"
+                        "\n--------------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting degenerate functors without swap"
+                        "\n----------------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting const functors"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_ConstFunctors,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
+    if (verbose) printf("\nTesting functor referencess"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctorReferences,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting function pointers"
+                        "\n-------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+#if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
+ && !defined(BSLS_PLATFORM_CMP_IBM)
+    if (verbose) printf("\nTesting function types"
+                        "\n----------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionTypes,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting function references"
+                        "\n---------------------------\n");
+    RUN_EACH_TYPE(TestDriver_FunctionReferences,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+#endif
+
+    if (verbose) printf("\nTesting stateless STL allocators"
+                        "\n--------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    if (verbose) printf("\nTesting stateful STL allocators"
+                        "\n-------------------------------\n");
+    RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
+                  testCase15,
+                  BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
+
+    // Remaining special cases
+    if (verbose) printf("\nTesting degenerate map-like"
+                        "\n---------------------------\n");
+    TestDriver_AwkwardMaplike::testCase15();
+}
+
+#if 0  // Planned test cases, not yet implemented
+static
+void mainTestCase15()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'setMaxLoadFactor'
+    // --------------------------------------------------------------------
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase15,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase15,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+}
+
+static
+void mainTestCase16()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'insert'
+    // --------------------------------------------------------------------
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase16,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase16,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+}
+
+static
+void mainTestCase17()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'insertIfMissing(bool *, VALUE)'
+    // --------------------------------------------------------------------
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase17,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase17,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+}
+
+static
+void mainTestCase18()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'insertIfMissing(const KeyType& key);
+    // --------------------------------------------------------------------
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase18,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase18,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+}
+
+static
+void mainTestCase19()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'find'
+    // --------------------------------------------------------------------
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase19,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase19,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+}
+
+static
+void mainTestCase20()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'findRange'
+    // --------------------------------------------------------------------
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase20,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase20,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+}
+
+static
+void mainTestCase21()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'countElementsInBucket'
+    // --------------------------------------------------------------------
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase21,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase21,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+}
+
+static
+void mainTestCase22()
+{
+    // --------------------------------------------------------------------
+    // TESTING "max" FUNCTIONS
+    // --------------------------------------------------------------------
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase22,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase22,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+}
+
+static
+void mainTestCase23()
+{
+    // --------------------------------------------------------------------
+    // TESTING PUBLIC TYPEDEFS
+    // --------------------------------------------------------------------
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase23,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase23,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+}
+
+#endif
+
+
+
+void mainTestCaseUsageExample()
+{
+        // This case number will rise as remaining tests are implemented.
+
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+        UsageExamples::main1();
+        UsageExamples::main2();
+        UsageExamples::main3();
+        UsageExamples::main4();
+
 }
 
 //=============================================================================
