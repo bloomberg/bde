@@ -9558,18 +9558,22 @@ void mainTestCase3()
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
 
+#if 0    // Types with BDE allocators make temporaries with the default
+         // allocator, that are not yet accounted for in the arithmetic of
+         // this test case.
+# define  BSLSTL_HASHTABLE_TESTCASE3_NO_ALLOCATING_TYPES   \
+          BSLSTL_HASHTABLE_TESTCASE3_TYPES
+#else
+# define  BSLSTL_HASHTABLE_TESTCASE3_NO_ALLOCATING_TYPES   \
+          BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
+          BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD
+#endif
     if (verbose) printf("\nTesting functors taking convertible arguments"
                         "\n---------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
                   testCase3,
-#if 0    // Types with BDE allocators make temporaries with the default
-         // allocator, that are not yet accounted for in the arithmetic of
-         // this test case.
-                  BSLSTL_HASHTABLE_TESTCASE3_TYPES);
-#else
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD);
-#endif
+                  BSLSTL_HASHTABLE_TESTCASE3_NO_ALLOCATING_TYPES);
+#undef BSLSTL_HASHTABLE_TESTCASE4_NO_ALLOCATING_TYPES
 
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase3,
@@ -9695,18 +9699,22 @@ void mainTestCase4()
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
 
+#if 0    // Types with BDE allocators make temporaries with the default
+         // allocator, that are not yet accounted for in the arithmetic of
+         // this test case.
+# define  BSLSTL_HASHTABLE_TESTCASE4_NO_ALLOCATING_TYPES   \
+          BSLSTL_HASHTABLE_TESTCASE4_TYPES
+#else
+# define  BSLSTL_HASHTABLE_TESTCASE4_NO_ALLOCATING_TYPES   \
+          BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
+          BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD
+#endif
     if (verbose) printf("\nTesting functors taking convertible arguments"
                         "\n---------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
                   testCase4,
-#if 0    // Types with BDE allocators make temporaries with the default
-         // allocator, that are not yet accounted for in the arithmetic of
-         // this test case.
-                  BSLSTL_HASHTABLE_TESTCASE4_TYPES);
-#else
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD);
-#endif
+                  BSLSTL_HASHTABLE_TESTCASE4_NO_ALLOCATING_TYPES);
+#undef BSLSTL_HASHTABLE_TESTCASE4_NO_ALLOCATING_TYPES
 
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase4,
