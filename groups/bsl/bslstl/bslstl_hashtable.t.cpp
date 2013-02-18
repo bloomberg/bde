@@ -9450,6 +9450,8 @@ void mainTestCase2()
                   testCase2,
                   BSLSTL_HASHTABLE_TESTCASE2_TYPES);
 
+#undef BSLSTL_HASHTABLE_TESTCASE2_TYPES
+
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
                         "\n---------------------------\n");
@@ -9573,7 +9575,7 @@ void mainTestCase3()
     RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_NO_ALLOCATING_TYPES);
-#undef BSLSTL_HASHTABLE_TESTCASE4_NO_ALLOCATING_TYPES
+#undef BSLSTL_HASHTABLE_TESTCASE3_NO_ALLOCATING_TYPES
 
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase3,
@@ -9590,6 +9592,8 @@ void mainTestCase3()
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
                   testCase3,
                   BSLSTL_HASHTABLE_TESTCASE3_TYPES);
+
+#undef BSLSTL_HASHTABLE_TESTCASE3_TYPES
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -9731,6 +9735,8 @@ void mainTestCase4()
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
                   testCase4,
                   BSLSTL_HASHTABLE_TESTCASE4_TYPES);
+
+#undef BSLSTL_HASHTABLE_TESTCASE4_TYPES
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -9882,6 +9888,8 @@ void mainTestCase6()
                   testCase6,
                   BSLSTL_HASHTABLE_TESTCASE6_TYPES);
 
+#undef BSLSTL_HASHTABLE_TESTCASE6_TYPES
+
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
                         "\n---------------------------\n");
@@ -9995,6 +10003,8 @@ void mainTestCase7()
                   testCase7,
                   BSLSTL_HASHTABLE_TESTCASE7_TYPES);
 
+#undef BSLSTL_HASHTABLE_TESTCASE7_TYPES
+
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
                         "\n---------------------------\n");
@@ -10100,6 +10110,8 @@ void mainTestCase8()
                   testCase8,
                   BSLSTL_HASHTABLE_TESTCASE8_TYPES);
 
+#undef BSLSTL_HASHTABLE_TESTCASE8_TYPES
+
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
                         "\n---------------------------\n");
@@ -10150,7 +10162,7 @@ void mainTestCase9()
 #  define BSLSTL_HASHTABLE_TESTCASE9_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
 #endif
 
-#if defined(RUN_ALL_TESTS_IGNORE_THE_COST)
+#if 1 || defined(RUN_ALL_TESTS_IGNORE_THE_COST)
     // We need to limit the test coverage on IBM as the compiler cannot
     // cope with so many template instantiations.
 
@@ -10176,7 +10188,7 @@ void mainTestCase9()
                         "\n--------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
                   testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE2_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
@@ -10209,11 +10221,28 @@ void mainTestCase9()
                   testCase9,
                   BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
+#if 0    // Types with BDE allocators make temporaries with the default
+         // allocator, that are not yet accounted for in the arithmetic of
+         // this test case.
+# define  BSLSTL_HASHTABLE_TESTCASE9_NO_ALLOCATING_TYPES   \
+          BSLSTL_HASHTABLE_TESTCASE9_TYPES
+#else
+# define  BSLSTL_HASHTABLE_TESTCASE9_NO_ALLOCATING_TYPES   \
+          BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
+                  bsltf::EnumeratedTestType::Enum,                 \
+                  bsltf::UnionTestType,                            \
+                  bsltf::SimpleTestType,                           \
+                  bsltf::BitwiseMoveableTestType,                  \
+                  bsltf::NonTypicalOverloadsTestType,              \
+                  bsltf::NonAssignableTestType,                    \
+                  bsltf::NonDefaultConstructibleTestType
+#endif
     if (verbose) printf("\nTesting functors taking convertible arguments"
                         "\n---------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
                   testCase9,
-                  BSLSTL_HASHTABLE_TESTCASE9_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE9_NO_ALLOCATING_TYPES);
+#undef BSLSTL_HASHTABLE_TESTCASE9_NO_ALLOCATING_TYPES
 
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase9,
@@ -10263,6 +10292,8 @@ void mainTestCase9()
                   BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
 #endif  // RUN_ALL_TESTS_IGNORE_THE_COST
+
+#undef BSLSTL_HASHTABLE_TESTCASE9_TYPES
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
@@ -10383,6 +10414,8 @@ void mainTestCase11()
                   testCase11,
                   BSLSTL_HASHTABLE_TESTCASE11_TYPES);
 
+#undef BSLSTL_HASHTABLE_TESTCASE11_TYPES
+
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
                         "\n---------------------------\n");
@@ -10424,6 +10457,8 @@ void mainTestCase12()
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase12,
                   BSLSTL_HASHTABLE_TESTCASE12_TYPES);
+
+#undef BSLSTL_HASHTABLE_TESTCASE12_TYPES
 }
 
 static
@@ -10472,6 +10507,8 @@ void mainTestCase13()
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                   testCase13,
                   BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+
+#undef BSLSTL_HASHTABLE_TESTCASE13_TYPES
 
     // Remaining special cases
     TestDriver_AwkwardMaplike::testCase13();
@@ -10596,6 +10633,8 @@ void mainTestCase14()
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
                   testCase14,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+
+#undef BSLSTL_HASHTABLE_TESTCASE14_TYPES
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"

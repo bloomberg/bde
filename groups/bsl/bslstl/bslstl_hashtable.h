@@ -3283,6 +3283,7 @@ HashTable(const HashTable& original)
 , d_maxLoadFactor(original.d_maxLoadFactor)
 {
     if (0 < d_size) {
+        d_parameters.nodeFactory().reserveNodes(original.d_size);
         this->copyDataStructure(original.d_anchor.listRootAddress());
     }
 }
@@ -3298,6 +3299,7 @@ HashTable(const HashTable& original, const ALLOCATOR& allocator)
 , d_maxLoadFactor(original.d_maxLoadFactor)
 {
     if (0 < d_size) {
+        d_parameters.nodeFactory().reserveNodes(original.d_size);
         this->copyDataStructure(original.d_anchor.listRootAddress());
     }
 }
