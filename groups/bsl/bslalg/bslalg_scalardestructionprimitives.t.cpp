@@ -43,6 +43,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
+//
+// TESTING APPARATUS
 // [ 2] int ggg(TYPE *scalar, const char *spec, int verboseFlag = 1)
 // [ 2] TYPE& gg(TYPE *scalar, const char *spec)
 //-----------------------------------------------------------------------------
