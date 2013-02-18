@@ -54,9 +54,12 @@ using namespace std;
 // [ 4] bool lexicographical(start1, end1, length1, start2, end2, length2);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TEST APPARATUS
 // [-1] PERFORMANCE TEST
 // [ 5] USAGE EXAMPLE
+//
+// TESTING APPARATUS
+// [ 2] int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
+// [ 2] gg(TYPE *array, const char *spec)
 
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -2367,7 +2370,8 @@ int main(int argc, char *argv[])
         //   the first invalid value of the 'spec'.
         //
         // Testing:
-        //   TEST APPARATUS
+        //   int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
+        //   gg(TYPE *array, const char *spec)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING PRIMITIVE GENERATOR FUNCTIONS"
