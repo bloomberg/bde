@@ -678,8 +678,6 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -756,13 +754,13 @@ int main(int argc, char *argv[])
         typedef TestContainer::iterator iter_type;
         typedef TestContainer::const_iterator const_iter_type;
 
-        TestContainer a = { 1, 2, 3, 4, 5 };
+        TestContainer a = {{ 1, 2, 3, 4, 5 }};
         const iter_type itBegin = a.begin();
         const const_iter_type itEnd = a.end();
-        ASSERT(a.begin() + 5 == a.end());
-        ASSERT(5 + a.begin() == a.end());
-        ASSERT(a.end() - 5 == a.begin());
-        ASSERT(5 == a.end() - a.begin());
+        ASSERT(itBegin + 5 == itEnd);
+        ASSERT(5 + itBegin == itEnd);
+        ASSERT(itEnd - 5 == itBegin);
+        ASSERT(5 == itEnd - itBegin);
 
         iter_type itLower = a.begin() + 1;
         const_iter_type itUpper = a.end() - 1;
@@ -798,7 +796,7 @@ int main(int argc, char *argv[])
         typedef TestContainer::iterator iterator;
         typedef TestContainer::const_iterator const_iterator;
 
-        TestContainer testContainer = { 13, 42 };
+        TestContainer testContainer = {{ 13, 42 }};
 
         const_iterator itBase = testContainer.begin();
         const_iterator itSecond =testContainer.begin();
@@ -854,7 +852,7 @@ int main(int argc, char *argv[])
         typedef TestContainer::iterator iterator;
         typedef TestContainer::const_iterator const_iterator;
 
-        TestContainer testData = { 0, 1, 2, 3 };
+        TestContainer testData = {{ 0, 1, 2, 3 }};
 
         if (verbose) cout << "\nConstruct basic iterator values" << endl;
         iterator it = testData.begin();
@@ -1130,7 +1128,7 @@ int main(int argc, char *argv[])
         typedef TestContainer::iterator iterator;
         typedef TestContainer::const_iterator const_iterator;
 
-        TestContainer testContainer = { 13, 42 };
+        TestContainer testContainer = {{ 13, 42 }};
 
         const iterator itBase = testContainer.begin();
         const iterator itSecond = ++testContainer.begin();
@@ -1262,7 +1260,7 @@ int main(int argc, char *argv[])
         typedef TestContainer::iterator iterator;
         typedef TestContainer::const_iterator const_iterator;
 
-        TestContainer testContainer = { 13, 42 };
+        TestContainer testContainer = {{ 13, 42 }};
 
         if (verbose) cout << "\nvalidate self-equality" << endl;
         const iterator itBegin = testContainer.begin();
@@ -1381,7 +1379,7 @@ int main(int argc, char *argv[])
         typedef TestContainer::iterator iterator;
         typedef TestContainer::const_iterator const_iterator;
 
-        TestContainer testContainer = { 13 };
+        TestContainer testContainer = {{ 13 }};
         //testContainer.push(13);
 
         const iterator itWritable = testContainer.begin();
@@ -1445,7 +1443,7 @@ int main(int argc, char *argv[])
         typedef TestContainer::iterator iterator;
         typedef TestContainer::const_iterator const_iterator;
 
-        TestContainer testContainer = { 1, 2, 3 };
+        TestContainer testContainer = {{ 1, 2, 3 }};
         iterator itBegin = testContainer.begin();
         iterator itEnd   = testContainer.end();
         ASSERT(itBegin != itEnd);
@@ -1466,8 +1464,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nRepeat the tests for const_iterators" << endl;
         const TestContainer& constContainer = testContainer;
-        const_iterator itcBegin = testContainer.begin();
-        const const_iterator itcEnd = testContainer.end();
+        const_iterator itcBegin = constContainer.begin();
+        const const_iterator itcEnd = constContainer.end();
         length = 0;
         while( itcBegin != itcEnd) {
             ++length;
@@ -1686,7 +1684,7 @@ int main(int argc, char *argv[])
         typedef TestContainer::const_iterator const_iter_type;
 
 
-        TestContainer a = { 1, 2, 3, 4, 5 };
+        TestContainer a = {{ 1, 2, 3, 4, 5 }};
         const TestContainer &A = a;
 
         //  Assert iterator_traits instantiates for these iterators
@@ -1783,7 +1781,7 @@ int main(int argc, char *argv[])
         static const int DATA[] = { 1, 2, 3, 4, 5 };
         static const int DATA_LEN = sizeof(DATA) / sizeof(DATA[0]);
 
-        my_Array<int, 5> a = { 1, 2, 3, 4, 5 };
+        my_Array<int, 5> a = {{ 1, 2, 3, 4, 5 }};
         const my_Array<int, 5> &A = a;
         ASSERT(a.begin() != a.end());
         ASSERT(A.begin() != A.end());
