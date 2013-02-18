@@ -149,6 +149,7 @@ using namespace bsl;
 // [22] CONCERN: Vector support types with overloaded new/delete
 // [23] CONCERN: Range Insert function ptr bug
 // [-1] PERFORMANCE
+// [ 4] BOOTSTRAP: reference operator[](size_type pos);
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(vector<T,A> *object, const char *spec, int vF = 1);
@@ -6847,6 +6848,7 @@ void TestDriver<TYPE,ALLOC>::testCase4()
     //   const_reference operator[](size_type pos) const;
     //   const_reference at(size_type pos) const;
     //   size_type size() const;
+    //   BOOSTRAP: reference operator[](size_type pos);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
