@@ -2,6 +2,7 @@
 
 #include <bslstl_deque.h>
 #include <bslstl_iterator.h>
+
 #include <bslstl_forwarditerator.h>
 #include <bslstl_randomaccessiterator.h>
 #include <bslstl_string.h>                 // for testing only
@@ -149,6 +150,7 @@ using namespace bsl;
 // [25] USAGE EXAMPLE 1
 // [24] CONCERN: 'std::length_error' is used properly
 // [-1] PERFORMANCE
+// [ 2] BOOTSTRAP: void push_back(const T&);
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(deque<T,A> *object, const char *spec, int vF = 1);
@@ -7272,6 +7274,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     //   deque<T,A>(const A& a = A());
     //   ~deque<T,A>();
     //   void clear();
+    //   BOOTSTRAP: void push_back(const T&);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
