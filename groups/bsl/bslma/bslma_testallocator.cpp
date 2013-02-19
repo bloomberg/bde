@@ -780,12 +780,21 @@ int TestAllocator::status() const
 // FREE OPERATORS
 void TestAllocator::print() const
 {
-    const char *name = d_name_p ? d_name_p : "";
-    std::printf("\n"
-                "==================================================\n"
-                "                TEST ALLOCATOR %s STATE\n"
-                "--------------------------------------------------\n"
-                "        Category\tBlocks\tBytes\n"
+    if (d_name_p) {
+        std::printf("\n"
+                    "==================================================\n"
+                    "                TEST ALLOCATOR %s STATE\n"
+                    "--------------------------------------------------\n",
+                    d_name_p);
+    }
+    else {
+        std::printf("\n"
+                    "==================================================\n"
+                    "                TEST ALLOCATOR STATE\n"
+                    "--------------------------------------------------\n");
+    }
+
+    std::printf("        Category\tBlocks\tBytes\n"
                 "        --------\t------\t-----\n"
                 "          IN USE\t%lld\t%lld\n"
                 "             MAX\t%lld\t%lld\n"
@@ -793,7 +802,6 @@ void TestAllocator::print() const
                 "  NUM MISMATCHES\t%lld\n"
                 "   BOUNDS ERRORS\t%lld\n"
                 "--------------------------------------------------\n",
-                name,
                 numBlocksInUse(), numBytesInUse(),
                 numBlocksMax(),   numBytesMax(),
                 numBlocksTotal(), numBytesTotal(),
