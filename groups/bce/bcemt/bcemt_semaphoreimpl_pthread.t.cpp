@@ -13,6 +13,7 @@
 
 #include <bsls_timeutil.h>
 
+#include <bsl_vector.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 
@@ -483,6 +484,32 @@ static const char* fmt(int n) {
     return buf;
 }
 
+void *createSemaphoresWorker(void *arg)
+{
+    typedef bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> semaphore_t;
+    bsl::vector<bsls::ObjectBuffer<semaphore_t> > semaphores(10);
+
+    for (int i = 0; i != 1000; ++i) {
+        // create a bunch of semaphores
+        for (int j = 0; j != semaphores.size(); ++j) {
+            new (semaphores[j].buffer()) semaphore_t(i);
+        }
+
+        // use semaphores
+        for (int j = 0; j != semaphores.size(); ++j) {
+            int result = semaphores[j].object().tryWait();
+            ASSERT((i == 0) == (result != 0)); // lock fails on initial count 0
+        }
+
+        // delete semaphores
+        for (int j = 0; j != semaphores.size(); ++j) {
+            semaphores[j].object().~semaphore_t();
+        }
+    }
+
+    return 0;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -496,7 +523,39 @@ int main(int argc, char *argv[]) {
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) {
+    switch (test) { case 0:
+    case 7: {
+        // --------------------------------------------------------------------
+        // TESTING CONCURRENT SEMAPHORE CREATION
+        //
+        // Concerns:
+        // 1. On Darwin the creation of the semaphore object is synchronized
+        //    because it's implemented via named semaphores.  Concurrent
+        //    creation of multiple semaphores should not lead to invalid
+        //    semaphore objects or deadlock.
+        //
+        // Plan:
+        // 1. In multiple threads, create a number of semaphore objects and
+        //    verify that they are valid.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing concurrent creation\n"
+                          << "===========================\n";
+
+        vector<bcemt_ThreadUtil::Handle> threads(16);
+
+        for (int i = 0; i != threads.size(); ++i) {
+            int rc = bcemt_ThreadUtil::create(&threads[i],
+                                              &createSemaphoresWorker,
+                                              NULL);
+            ASSERT(rc == 0);
+        }
+
+        for (int i = 0; i != threads.size(); ++i) {
+            bcemt_ThreadUtil::join(threads[i]);
+        }
+
+    } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING MULTIPLE POST

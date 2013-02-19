@@ -127,6 +127,11 @@ struct ConvertToEnumTestType {
     operator EnumTestType() { return ENUM_TEST_VALUE0; }
 };
 
+struct ConvertToAnyType {
+    template <typename T>
+    operator T() { return T(); }
+};
+
 }  // close unnamed namespace
 
 #define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
@@ -300,6 +305,13 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToIntTestType,  0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, ConvertToEnumTestType, 0);
         TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToEnumTestType, 0);
+
+        // can't use TYPE_ASSERT_CVQ because it adds volatile and
+        // ConvertibleToAny doesn't have a volatile operator()
+        ASSERT(! bslmf::IsEnum<ConvertToAnyType>::value);
+        ASSERT(! bslmf::IsEnum<ConvertToAnyType const>::value);
+        ASSERT(! bslmf::IsEnum<ConvertToAnyType &>::value);
+        ASSERT(! bslmf::IsEnum<ConvertToAnyType const &>::value);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -389,6 +401,13 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToIntTestType,  false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, ConvertToEnumTestType, false);
         TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToEnumTestType, false);
+
+        // can't use TYPE_ASSERT_CVQ because it adds volatile and
+        // ConvertibleToAny doesn't have a volatile operator()
+        ASSERT(! bsl::is_enum<ConvertToAnyType>::value);
+        ASSERT(! bsl::is_enum<ConvertToAnyType const>::value);
+        ASSERT(! bsl::is_enum<ConvertToAnyType &>::value);
+        ASSERT(! bsl::is_enum<ConvertToAnyType const &>::value);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

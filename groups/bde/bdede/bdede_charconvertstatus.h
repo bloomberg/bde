@@ -34,7 +34,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-//..
+// TBD
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>

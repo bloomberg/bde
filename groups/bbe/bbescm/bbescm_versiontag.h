@@ -43,10 +43,10 @@ BDES_IDENT("$Id: $")
 #include <bdescm_versiontag.h>
 #endif
 
-#define BBE_VERSION_MAJOR 2
+#define BBE_VERSION_MAJOR BDE_VERSION_MAJOR
     // BBE release major version
 
-#define BBE_VERSION_MINOR 16
+#define BBE_VERSION_MINOR BDE_VERSION_MINOR
     // BBE release major version
 
 #define BBE_VERSION BDE_MAKE_VERSION(BBE_VERSION_MAJOR, \

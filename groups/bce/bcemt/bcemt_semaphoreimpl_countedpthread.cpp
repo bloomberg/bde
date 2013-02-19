@@ -19,14 +19,6 @@ namespace BloombergLP {
          // ---------------------------------------------------------------
 
 // MANIPULATORS
-void
-bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::post(int number)
-{
-    for (int i = 0; i < number; ++i) {
-        post();
-    }
-}
-
 int bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::tryWait()
 {
     for (int i = d_resources; i > 0; i = d_resources) {
@@ -34,18 +26,8 @@ int bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::tryWait()
             return 0;
         }
     }
+
     return -1;
-}
-
-void bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::wait()
-{
-    if (--d_resources >= 0) {
-        return;
-    }
-
-    while (::sem_wait(&d_sem) != 0 && EINTR == errno) {
-        ;
-    }
 }
 
 }  // close namespace BloombergLP

@@ -6,21 +6,59 @@
 #include <bsl_climits.h>
 #include <bsl_limits.h>
 #include <bsl_iostream.h>
+
+#include <bsl_string.h>
+
 #include <bdepu_typesparser.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdesb_memoutstreambuf.h>            // for testing only
-#include <bdesb_fixedmemoutstreambuf.h>       // for testing only
-#include <bdesb_fixedmeminstreambuf.h>        // for testing only
-
 using namespace BloombergLP;
 using namespace bsl;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
+
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// The component under test implements a utility for parsing 'bdeat' compatible
+// simple types from a 'bslstl::StringRef'.  The parsing is done via overloaded
+// 'getValue' functions that are provided for fundamental types and 'bdet'
+// types.  Since the functions are independent and do not share any state we
+// will test them independently.
+//
+// We use standard table-based approach to testing where we put both input and
+// expected output in the same table row and verify that the actual result
+// matches the expected value.
+// ----------------------------------------------------------------------------
+// CLASS METHODS
+// [ 2] static int getValue(bool                *v, bslstl::StringRef s);
+// [ 3] static int getValue(char                *v, bslstl::StringRef s);
+// [ 3] static int getValue(signed char         *v, bslstl::StringRef s);
+// [ 4] static int getValue(unsigned char       *v, bslstl::StringRef s);
+// [ 5] static int getValue(short               *v, bslstl::StringRef s);
+// [ 6] static int getValue(unsigned short      *v, bslstl::StringRef s);
+// [ 7] static int getValue(int                 *v, bslstl::StringRef s);
+// [ 8] static int getValue(unsigned int        *v, bslstl::StringRef s);
+// [ 9] static int getValue(bsls::Types::Int64  *v, bslstl::StringRef s);
+// [10] static int getValue(bsls::Types::Uint64 *v, bslstl::StringRef s);
+// [11] static int getValue(float               *v, bslstl::StringRef s);
+// [12] static int getValue(double              *v, bslstl::StringRef s);
+// [13] static int getValue(bsl::string         *v, bslstl::StringRef s);
+// [14] static int getValue(bdet_Time           *v, bslstl::StringRef s);
+// [15] static int getValue(bdet_TimeTz         *v, bslstl::StringRef s);
+// [16] static int getValue(bdet_Date           *v, bslstl::StringRef s);
+// [17] static int getValue(bdet_DateTz         *v, bslstl::StringRef s);
+// [18] static int getValue(bdet_Datetime       *v, bslstl::StringRef s);
+// [19] static int getValue(bdet_DatetimeTz     *v, bslstl::StringRef s);
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [20] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -105,6 +143,8 @@ static void aSsErT(int c, const char *s, int i)
 
 enum { SUCCESS = 0, FAILURE = -1 };
 
+typedef bslstl::StringRef StringRef;
+
 typedef baejsn_ParserUtil Util;
 
 bool areBuffersEqual(const char *lhs, const char *rhs)
@@ -149,30 +189,101 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'skipSpaces'
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_DatetimeTz'"
-                               << "\n========================================"
-                               << bsl::endl;
-        {
-        }
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Decoding into a Simple 'struct' from JSON data
+///---------------------------------------------------------
+// Suppose we want to deserialize some JSON data into an object.
+//
+// First, we define a struct, 'Employee', to contain the data:
+//..
+    struct Employee {
+        bsl::string d_name;
+        bdet_Date   d_date;
+        int         d_age;
+    };
+//..
+// Then, we create an 'Employee' object:
+//..
+    Employee employee;
+//..
+// Next, we specify the string values in JSON format used to represent the
+// object data.  Note that the birth date is specified in the ISO 8601 format:
+//..
+    const char *name = "\"John Smith\"";
+    const char *date = "\"1985-06-24\"";
+    const char *age  = "21";
+//
+    bslstl::StringRef nameRef(name);
+    bslstl::StringRef dateRef(date);
+    bslstl::StringRef ageRef(age);
+//..
+// Now, we use the created string refs to populate the employee object:
+//..
+    ASSERT(0 == baejsn_ParserUtil::getValue(&employee.d_name, nameRef));
+    ASSERT(0 == baejsn_ParserUtil::getValue(&employee.d_date, dateRef));
+    ASSERT(0 == baejsn_ParserUtil::getValue(&employee.d_age, ageRef));
+//..
+// Finally, we will verify that the values are as expected:
+//..
+    ASSERT("John Smith"            == employee.d_name);
+    ASSERT(bdet_Date(1985, 06, 24) == employee.d_date);
+    ASSERT(21                      == employee.d_age);
+//..
       } break;
       case 19: {
         // --------------------------------------------------------------------
         // TESTING 'getValue' for bdet_DatetimeTz values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_DatetimeTz     *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_DatetimeTz'"
@@ -533,11 +644,10 @@ int main(int argc, char *argv[])
 
                 bdet_DatetimeTz value;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
-                const int rc = Util::getValue(&isb, &value);
+                StringRef isb(INPUT.data(), INPUT.length());
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -551,10 +661,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_Datetime values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_Datetime       *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_Datetime'"
@@ -909,11 +1041,10 @@ int main(int argc, char *argv[])
 
                 bdet_Datetime value;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
-                const int rc = Util::getValue(&isb, &value);
+                StringRef isb(INPUT.data(), INPUT.length());
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -927,10 +1058,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_DateTz values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_DateTz         *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_DateTz'"
@@ -1143,11 +1296,10 @@ int main(int argc, char *argv[])
 
                 bdet_DateTz value;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
-                const int rc = Util::getValue(&isb, &value);
+                StringRef isb(INPUT.data(), INPUT.length());
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -1161,10 +1313,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_Date values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_Date           *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_Date' types"
@@ -1263,11 +1437,10 @@ int main(int argc, char *argv[])
 
                 bdet_Date value;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
-                const int rc = Util::getValue(&isb, &value);
+                StringRef isb(INPUT.data(), INPUT.length());
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -1281,10 +1454,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_TimeTz values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_TimeTz         *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_TimeTz'"
@@ -1351,9 +1546,8 @@ int main(int argc, char *argv[])
            // ^
   {  L_, "\"23:59.9999\"",            24,     0,    0,    0,      0,  false  },
               // ^
-// TBD: No TZ should fail
-//   {  L_, "\"23:59.59.9999\"",      24,     0,    0,    0,      0,  false  },
-                         // ^
+  {  L_, "\"23:59.59.9999\"",         24,     0,    0,    0,      0,  false  },
+                     // ^
 
   {  L_, "\"25:00:00.000+00:00\"",    24,     0,    0,    0,      0,  false  },
   {  L_, "\"00:61:00.000+00:00\"",    24,     0,    0,    0,      0,  false  },
@@ -1384,11 +1578,10 @@ int main(int argc, char *argv[])
 
                 bdet_TimeTz value;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
-                const int rc = Util::getValue(&isb, &value);
+                StringRef isb(INPUT.data(), INPUT.length());
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -1402,10 +1595,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bdet_Time values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bdet_Time           *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdet_Time'"
@@ -1483,11 +1698,10 @@ int main(int argc, char *argv[])
 
                 bdet_Time value;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
-                const int rc = Util::getValue(&isb, &value);
+                StringRef isb(INPUT.data(), INPUT.length());
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -1501,10 +1715,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for string values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bsl::string         *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for string"
@@ -1542,7 +1778,6 @@ int main(int argc, char *argv[])
                 {  L_,     "\"\\U007E\"",    "~",          true  },
 
                 {  L_,     "\"AB\"",         "AB",         true   },
-                {  L_,     "    \"AB\"",     "AB",         true   },
 
                 {  L_,     "\"\\UX000\"",    ERROR_VALUE,  false  },
                 {  L_,     "\"\\U8000\"",    ERROR_VALUE,  false  },
@@ -1559,11 +1794,10 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
-                const int rc = Util::getValue(&isb, &value);
+                StringRef isb(INPUT.data(), INPUT.length());
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -1577,10 +1811,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for double values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(double              *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for double"
@@ -1588,10 +1844,6 @@ int main(int argc, char *argv[])
                                << bsl::endl;
         {
             typedef double Type;
-
-            Type posInf = bsl::numeric_limits<Type>::infinity();
-            Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
-            Type sNaN   = bsl::numeric_limits<Type>::signaling_NaN();
 
             const Type ERROR_VALUE = 99.99;
 
@@ -1663,6 +1915,22 @@ int main(int argc, char *argv[])
                 {  L_,    "1e-1",                    0.1,       true    },
                 {  L_,    "1E-1",                    0.1,       true    },
 
+                {  L_,  "-",          ERROR_VALUE,   false   },
+                {  L_,  ".5",         ERROR_VALUE,   false   },
+                {  L_,  "-.5",        ERROR_VALUE,   false   },
+                {  L_,  "e",          ERROR_VALUE,   false   },
+                {  L_,  "e1",         ERROR_VALUE,   false   },
+                {  L_,  "E",          ERROR_VALUE,   false   },
+                {  L_,  "E1",         ERROR_VALUE,   false   },
+                {  L_,  "e+",         ERROR_VALUE,   false   },
+                {  L_,  "e+1",        ERROR_VALUE,   false   },
+                {  L_,  "E+",         ERROR_VALUE,   false   },
+                {  L_,  "E+1",        ERROR_VALUE,   false   },
+                {  L_,  "e-",         ERROR_VALUE,   false   },
+                {  L_,  "e-1",        ERROR_VALUE,   false   },
+                {  L_,  "E-",         ERROR_VALUE,   false   },
+                {  L_,  "E-1",        ERROR_VALUE,   false   },
+
                 {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
                 {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
                 {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
@@ -1671,8 +1939,16 @@ int main(int argc, char *argv[])
                 {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
                 {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
 
-                {  L_,    "0x12",     ERROR_VALUE,   false   },
-                {  L_,    "0x256",    ERROR_VALUE,   false   },
+// TBD:
+//                 {  L_,    "0x12",     ERROR_VALUE,   false   },
+//                 {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "1.1}",     ERROR_VALUE,   false   },
+                {  L_,    "1.1,",     ERROR_VALUE,   false   },
+                {  L_,    "1.1]",     ERROR_VALUE,   false   },
+                {  L_,    "1.1a",     ERROR_VALUE,   false   },
+                {  L_,    "1.1 ",     ERROR_VALUE,   false   },
+                {  L_,    "1.1\n",    ERROR_VALUE,   false   },
+                {  L_,    "1.10xFF",  ERROR_VALUE,   false   },
                 {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
                 {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
@@ -1685,15 +1961,14 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf    isb(INPUT.data(), INPUT.length());
+                StringRef    isb(INPUT.data(), INPUT.length());
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                const int rc = Util::getValue(&isb, &value);
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -1709,10 +1984,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for float values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(float               *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for float"
@@ -1720,10 +2017,6 @@ int main(int argc, char *argv[])
                                << bsl::endl;
         {
             typedef float Type;
-
-            Type posInf = bsl::numeric_limits<Type>::infinity();
-            Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
-            Type sNaN   = bsl::numeric_limits<Type>::signaling_NaN();
 
             const Type ERROR_VALUE = 99.99;
 
@@ -1795,6 +2088,22 @@ int main(int argc, char *argv[])
                 {  L_,    "1e-1",                    0.1,       true    },
                 {  L_,    "1E-1",                    0.1,       true    },
 
+                {  L_,  "-",          ERROR_VALUE,   false   },
+                {  L_,  ".5",         ERROR_VALUE,   false   },
+                {  L_,  "-.5",        ERROR_VALUE,   false   },
+                {  L_,  "e",          ERROR_VALUE,   false   },
+                {  L_,  "e1",         ERROR_VALUE,   false   },
+                {  L_,  "E",          ERROR_VALUE,   false   },
+                {  L_,  "E1",         ERROR_VALUE,   false   },
+                {  L_,  "e+",         ERROR_VALUE,   false   },
+                {  L_,  "e+1",        ERROR_VALUE,   false   },
+                {  L_,  "E+",         ERROR_VALUE,   false   },
+                {  L_,  "E+1",        ERROR_VALUE,   false   },
+                {  L_,  "e-",         ERROR_VALUE,   false   },
+                {  L_,  "e-1",        ERROR_VALUE,   false   },
+                {  L_,  "E-",         ERROR_VALUE,   false   },
+                {  L_,  "E-1",        ERROR_VALUE,   false   },
+
                 {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
                 {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
                 {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
@@ -1803,8 +2112,9 @@ int main(int argc, char *argv[])
                 {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
                 {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
 
-                {  L_,    "0x12",     ERROR_VALUE,   false   },
-                {  L_,    "0x256",    ERROR_VALUE,   false   },
+// TBD:
+//                 {  L_,    "0x12",     ERROR_VALUE,   false   },
+//                 {  L_,    "0x256",    ERROR_VALUE,   false   },
                 {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
                 {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
@@ -1817,15 +2127,14 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf    isb(INPUT.data(), INPUT.length());
+                StringRef    isb(INPUT.data(), INPUT.length());
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                const int rc = Util::getValue(&isb, &value);
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -1841,10 +2150,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for Uint64 values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bsls::Types::Uint64 *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for Uint64"
@@ -1855,6 +2186,8 @@ int main(int argc, char *argv[])
             typedef Uint64 Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -1862,84 +2195,188 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input                       exp     isValid
-                // ----   -----                       ---     -------
-                {  L_,      "0",                       0,      true    },
-                {  L_,      "1",                       1,      true    },
-                {  L_,     "95",                      95,      true    },
-                {  L_,    "127",                     127,      true    },
-                {  L_,    "128",                     128,      true    },
-                {  L_,    "200",                     200,      true    },
-                {  L_,    "255",                     255,      true    },
-                {  L_,  "32767",                   32767,      true    },
-                {  L_,  "32768",                   32768,      true    },
-                {  L_,  "65534",                   65534,      true    },
-                {  L_,  "65535",                   65535,      true    },
+   // line          input                    exp     isValid
+   // ----          -----                    ---     -------
+    {  L_,           "0",                     0,      true    },
+    {  L_,           "1",                     1,      true    },
+    {  L_,          "95",                    95,      true    },
+    {  L_,         "127",                   127,      true    },
+    {  L_,         "128",                   128,      true    },
+    {  L_,         "200",                   200,      true    },
+    {  L_,         "255",                   255,      true    },
+    {  L_,         "256",                   256,      true    },
+    {  L_,       "32766",                 32766,      true    },
+    {  L_,       "32767",                 32767,      true    },
+    {  L_,       "65534",                 65534,      true    },
+    {  L_,       "65535",                 65535,      true    },
+    {  L_,     "8388607",               8388607,      true    },
+    {  L_,     "8388608",               8388608,      true    },
+    {  L_,  "2147483646",            2147483646,      true    },
+    {  L_,  "2147483647",            2147483647,      true    },
+    {  L_,  "4294967294",            4294967294LL,    true    },
+    {  L_,  "4294967295",            4294967295LL,    true    },
+    {  L_,  "9223372036854775806",   9223372036854775806LL, true },
+    {  L_,  "9223372036854775807",   9223372036854775807LL, true },
 
-                {  L_,   "8388607",              8388607,      true    },
-                {  L_,   "8388608",              8388608,      true    },
+    {  L_,           "0",                   MIN,      true    },
+    {  L_,           "1",               MIN + 1,      true    },
+    {  L_, "18446744073709551614",      MAX - 1,      true    },
+    {  L_, "18446744073709551615",          MAX,      true    },
 
-                {  L_,   "2147483646",        2147483646,      true    },
-                {  L_,   "2147483647",        2147483647,      true    },
+    {  L_,           "0.0",                   0,      true    },
+    {  L_,           "0.0000000000000",       0,      true    },
+    {  L_,           "1.0",                   1,      true    },
+    {  L_,           "1.00000000000",         1,      true    },
+    {  L_,         "95.0",                   95,      true    },
+    {  L_,         "95.0000000000",          95,      true    },
+    {  L_,        "127.00",                 127,      true    },
+    {  L_,        "128.00",                 128,      true    },
+    {  L_,        "200.00",                 200,      true    },
+    {  L_,        "255.00",                 255,      true    },
+    {  L_,        "256.00",                 256,      true    },
+    {  L_,  "9223372036854775806.0",        9223372036854775806LL, true },
+    {  L_,  "9223372036854775806.00000000", 9223372036854775806LL, true },
+    {  L_,  "9223372036854775807.0",        9223372036854775807LL, true },
+    {  L_,  "9223372036854775807.00000000", 9223372036854775807LL, true },
+    {  L_, "18446744073709551614.0",        18446744073709551614ULL, true },
+    {  L_, "18446744073709551614.00000000", 18446744073709551614ULL, true },
+    {  L_, "18446744073709551615.0",        18446744073709551615ULL, true },
+    {  L_, "18446744073709551615.00000000", 18446744073709551615ULL, true },
 
-                {  L_,   "4294967294",      4294967294LL,      true    },
-                {  L_,   "4294967295",      4294967295LL,      true    },
+    {  L_,          "1e0",                    1,      true    },
+    {  L_,          "1E0",                    1,      true    },
+    {  L_,          "1e+0",                   1,      true    },
+    {  L_,          "1E+0",                   1,      true    },
+    {  L_,          "1e-0",                   1,      true    },
+    {  L_,          "1E-0",                   1,      true    },
 
-                {  L_,   "9223372036854775806",  9223372036854775806LL, true },
-                {  L_,   "9223372036854775807",  9223372036854775807LL, true },
+    {  L_,          "1e1",                   10,      true    },
+    {  L_,          "2E1",                   20,      true    },
+    {  L_,          "3e+1",                  30,      true    },
+    {  L_,          "4E+1",                  40,      true    },
 
-                {  L_,   "9223372036854775806",  9223372036854775806LL, true },
-                {  L_,   "9223372036854775807",  9223372036854775807LL, true },
+    {  L_,          "2e2",                  200,      true    },
+    {  L_,          "3E2",                  300,      true    },
+    {  L_,          "4e+2",                 400,      true    },
+    {  L_,          "5E+2",                 500,      true    },
 
-                {  L_, "18446744073709551614", 18446744073709551614ULL, true },
-                {  L_, "18446744073709551615", 18446744073709551615ULL, true },
+    {  L_,          "0.1e1",                  1,      true    },
+    {  L_,          "0.2e2",                 20,      true    },
+    {  L_,          "0.30e2",                30,      true    },
+    {  L_,          "0.400e3",              400,      true    },
 
-                {  L_,    "1.1",                       1,      true    },
-                {  L_,    "1.5",                       1,      true    },
-                {  L_,    "1.9",                       1,      true    },
+{ L_,               "0.18446744073709551615e20", 18446744073709551615ULL,true},
+{ L_,               "1.844674407370955161500e19",18446744073709551615ULL,true},
+{ L_,              "18.44674407370955161500e18", 18446744073709551615ULL,true},
+{ L_,             "184.4674407370955161500e17",  18446744073709551615ULL,true},
+{ L_,            "1844.674407370955161500e16",   18446744073709551615ULL,true},
+{ L_,           "18446.74407370955161500e15",    18446744073709551615ULL,true},
+{ L_,          "184467.4407370955161500e14",     18446744073709551615ULL,true},
+{ L_,         "1844674.407370955161500e13",      18446744073709551615ULL,true},
+{ L_,        "18446744.07370955161500e12",       18446744073709551615ULL,true},
+{ L_,       "184467440.7370955161500e11",        18446744073709551615ULL,true},
+{ L_,      "1844674407.370955161500e10",         18446744073709551615ULL,true},
+{ L_,     "18446744073.70955161500e9",           18446744073709551615ULL,true},
+{ L_,    "184467440737.0955161500e8",            18446744073709551615ULL,true},
+{ L_,   "1844674407370.955161500e7",             18446744073709551615ULL,true},
+{ L_,  "18446744073709.55161500e6",              18446744073709551615ULL,true},
+{ L_, "184467440737095.5161500e5",               18446744073709551615ULL,true},
+{ L_, "1844674407370955.161500e4",               18446744073709551615ULL,true},
+{ L_, "18446744073709551.61500e3",               18446744073709551615ULL,true},
+{ L_, "184467440737095516.1500e2",               18446744073709551615ULL,true},
+{ L_, "1844674407370955161.500e1",               18446744073709551615ULL,true},
+{ L_, "18446744073709551615.00e0",               18446744073709551615ULL,true},
 
-                {  L_,   "100.123",                  100,      true    },
-                {  L_,   "99.5",                      99,      true    },
-                {  L_,    "0.86",                      0,      true    },
+ {  L_,  "1844674407370955161500000e-5",       18446744073709551615ULL, true },
+ {  L_,  "1844674407370955161500000.00000e-5", 18446744073709551615ULL, true },
+ {  L_,   "184467440737095516150000e-4",       18446744073709551615ULL, true },
+ {  L_,    "18446744073709551615000e-3",       18446744073709551615ULL, true },
+ {  L_,     "1844674407370955161500e-2",       18446744073709551615ULL, true },
+ {  L_,      "184467440737095516150e-1",       18446744073709551615ULL, true },
+ {  L_,       "18446744073709551615e-0",       18446744073709551615ULL, true },
 
-                {  L_,    "1e0",                       1,      true    },
-                {  L_,    "1E0",                       1,      true    },
-                {  L_,    "1e+0",                      1,      true    },
-                {  L_,    "1E+0",                      1,      true    },
-                {  L_,    "1e-0",                      1,      true    },
-                {  L_,    "1E-0",                      1,      true    },
+    {  L_,          "1.0e0",                  1,      true    },
+    {  L_,          "2.000e0",                2,      true    },
+    {  L_,          "3.0e1",                 30,      true    },
+    {  L_,          "4.5e1",                 45,      true    },
+    {  L_,          "6.00e1",                60,      true    },
+    {  L_,          "7.00e2",               700,      true    },
+    {  L_,          "8.0000e2",             800,      true    },
+    {  L_,          "9.12e2",               912,      true    },
+    {  L_,          "1.1200e2",             112,      true    },
 
-                {  L_,    "1.234e+1",                 12,      true    },
-                {  L_,    "1.987E+1",                 19,      true    },
+    {  L_,           ".5",          ERROR_VALUE,      false   },
+    {  L_,           ".123",        ERROR_VALUE,      false   },
 
-                {  L_,    "1.23e+4",                 12300,      true    },
-                {  L_,    "1.23e+10",          12300000000LL,    true    },
+    {  L_,          "1.1",          ERROR_VALUE,      false   },
+    {  L_,          "1.5",          ERROR_VALUE,      false   },
+    {  L_,          "1.9",          ERROR_VALUE,      false   },
 
-                {  L_,    "12.34e-1",                  1,      true    },
-                {  L_,    "29.87E-1",                  2,      true    },
-                {  L_,    "29.87E-10",                 0,      true    },
+    {  L_,        "100.123",        ERROR_VALUE,      false   },
+    {  L_,         "99.5",          ERROR_VALUE,      false   },
+    {  L_,          "0.86",         ERROR_VALUE,      false   },
 
-                {  L_,    "1e1",                      10,      true    },
-                {  L_,    "1E1",                      10,      true    },
-                {  L_,    "1e+1",                     10,      true    },
-                {  L_,    "1E+1",                     10,      true    },
-                {  L_,    "1e-1",                      0,      true    },
-                {  L_,    "1E-1",                      0,      true    },
+    {  L_,        "255.01",         ERROR_VALUE,      false   },
+    {  L_,        "255.99",         ERROR_VALUE,      false   },
 
-                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
-                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+    {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
+    {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
 
-                {  L_,    "0x12",     ERROR_VALUE,   false   },
-                {  L_,    "0x256",    ERROR_VALUE,   false   },
-                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
-                {  L_,    "JUNK",     ERROR_VALUE,   false   },
+    {  L_,          "1e1e1",        ERROR_VALUE,      false   },
+    {  L_,          "1e1e-1",       ERROR_VALUE,      false   },
 
-                {  L_,    "1e1e1",    ERROR_VALUE,   false   },
+    {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
+    {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
+
+    {  L_,          "1.0000000001", ERROR_VALUE,      false   },
+    {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
+    {  L_,   "18446744073709551615.01", ERROR_VALUE,  false   },
+    {  L_,   "18446744073709551615.99", ERROR_VALUE,  false   },
+    {  L_,   "18446744073709551616.01", ERROR_VALUE,  false   },
+    {  L_,   "18446744073709551616.99", ERROR_VALUE,  false   },
+
+    {  L_,        "-",              ERROR_VALUE,      false   },
+    {  L_,        ".5",             ERROR_VALUE,      false   },
+    {  L_,        "-.5",            ERROR_VALUE,      false   },
+    {  L_,        "e",              ERROR_VALUE,      false   },
+    {  L_,        "e1",             ERROR_VALUE,      false   },
+    {  L_,        "E",              ERROR_VALUE,      false   },
+    {  L_,        "E1",             ERROR_VALUE,      false   },
+    {  L_,        "e+",             ERROR_VALUE,      false   },
+    {  L_,        "e+1",            ERROR_VALUE,      false   },
+    {  L_,        "E+",             ERROR_VALUE,      false   },
+    {  L_,        "E+1",            ERROR_VALUE,      false   },
+    {  L_,        "e-",             ERROR_VALUE,      false   },
+    {  L_,        "e-1",            ERROR_VALUE,      false   },
+    {  L_,        "E-",             ERROR_VALUE,      false   },
+    {  L_,        "E-1",            ERROR_VALUE,      false   },
+
+    {  L_,        "Z34.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "3Z4.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "34Z.56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34+56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.Z6e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.5Ze1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56Z1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56eZ",       ERROR_VALUE,      false   },
+    {  L_,         "34.56e+Z",      ERROR_VALUE,      false   },
+    {  L_,         "34.56e-Z",      ERROR_VALUE,      false   },
+
+    {  L_,         "0x12",          ERROR_VALUE,      false   },
+    {  L_,         "0x256",         ERROR_VALUE,      false   },
+    {  L_,         "JUNK",          ERROR_VALUE,      false   },
+    {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1950,15 +2387,14 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), INPUT.length());
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                const int rc = Util::getValue(&isb, &value);
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -1974,10 +2410,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for Int64 values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(bsls::Types::Int64  *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for Int64"
@@ -1988,6 +2446,8 @@ int main(int argc, char *argv[])
             typedef Int64 Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -1995,97 +2455,250 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input                       exp     isValid
-                // ----   -----                       ---     -------
-                {  L_,      "0",                       0,      true    },
-                {  L_,      "1",                       1,      true    },
-                {  L_,     "95",                      95,      true    },
-                {  L_,    "127",                     127,      true    },
-                {  L_,    "128",                     128,      true    },
-                {  L_,   "-127",                    -127,      true    },
-                {  L_,   "-128",                    -128,      true    },
-                {  L_,   "-129",                    -129,      true    },
-                {  L_,    "200",                     200,      true    },
-                {  L_,    "255",                     255,      true    },
-                {  L_,  "32767",                   32767,      true    },
-                {  L_,  "32768",                   32768,      true    },
-                {  L_,  "-32767",                 -32767,      true    },
-                {  L_,  "-32768",                 -32768,      true    },
-                {  L_,  "-32769",                 -32769,      true    },
-                {  L_,  "65534",                   65534,      true    },
-                {  L_,  "65535",                   65535,      true    },
-                {  L_,  "-65534",                 -65534,      true    },
-                {  L_,  "-65535",                 -65535,      true    },
-                {  L_,  "-65536",                 -65536,      true    },
+   // line          input                    exp     isValid
+   // ----          -----                    ---     -------
+    {  L_,           "0",                     0,      true    },
+    {  L_,           "1",                     1,      true    },
+    {  L_,          "95",                    95,      true    },
+    {  L_,         "127",                   127,      true    },
+    {  L_,         "128",                   128,      true    },
+    {  L_,         "200",                   200,      true    },
+    {  L_,         "255",                   255,      true    },
+    {  L_,         "256",                   256,      true    },
+    {  L_,       "32766",                 32766,      true    },
+    {  L_,       "32767",                 32767,      true    },
+    {  L_,       "65534",                 65534,      true    },
+    {  L_,       "65535",                 65535,      true    },
+    {  L_,     "8388607",               8388607,      true    },
+    {  L_,     "8388608",               8388608,      true    },
+    {  L_,  "2147483646",            2147483646,      true    },
+    {  L_,  "2147483647",            2147483647,      true    },
+    {  L_,  "4294967294",            4294967294LL,    true    },
+    {  L_,  "4294967295",            4294967295LL,    true    },
 
-                {  L_,   "8388607",              8388607,      true    },
-                {  L_,   "8388608",              8388608,      true    },
-                {  L_,  "-8388608",             -8388608,      true    },
-                {  L_,  "-8388609",             -8388609,      true    },
+    {  L_,          "-1",                    -1,      true    },
+    {  L_,        "-128",                  -128,      true    },
+    {  L_,        "-129",                  -129,      true    },
+    {  L_,        "-255",                  -255,      true    },
+    {  L_,        "-256",                  -256,      true    },
+    {  L_,      "-32767",                -32767,      true    },
+    {  L_,      "-32768",                -32768,      true    },
+    {  L_,      "-65535",                -65535,      true    },
+    {  L_,      "-65536",                -65536,      true    },
+    {  L_, "-2147483647",           -2147483647,      true    },
+    {  L_, "-2147483648",           -2147483648LL,    true    },
+    {  L_, "-4294967294",           -4294967294LL,    true    },
+    {  L_, "-4294967295",           -4294967295LL,    true    },
 
-                {  L_,   "2147483646",        2147483646,      true    },
-                {  L_,   "2147483647",        2147483647,      true    },
-                {  L_,  "-2147483647",       -2147483647,      true    },
-                {  L_,  "-2147483648",     -2147483648LL,      true    },
+    {  L_, "-9223372036854775808",          MIN,      true    },
+    {  L_, "-9223372036854775807",      MIN + 1,      true    },
+    {  L_,  "9223372036854775806",      MAX - 1,      true    },
+    {  L_,  "9223372036854775807",          MAX,      true    },
 
-                {  L_,   "4294967294",      4294967294LL,      true    },
-                {  L_,   "4294967295",      4294967295LL,      true    },
-                {  L_,  "-4294967295",     -4294967295LL,      true    },
-                {  L_,  "-4294967296",     -4294967296LL,      true    },
+    {  L_,           "0.0",                   0,      true    },
+    {  L_,           "0.0000000000000",       0,      true    },
+    {  L_,           "1.0",                   1,      true    },
+    {  L_,           "1.00000000000",         1,      true    },
+    {  L_,         "95.0",                   95,      true    },
+    {  L_,         "95.0000000000",          95,      true    },
+    {  L_,        "127.00",                 127,      true    },
+    {  L_,        "128.00",                 128,      true    },
+    {  L_,        "200.00",                 200,      true    },
+    {  L_,        "255.00",                 255,      true    },
+    {  L_,        "256.00",                 256,      true    },
+    {  L_,  "9223372036854775806.0",        9223372036854775806LL, true },
+    {  L_,  "9223372036854775806.00000000", 9223372036854775806LL, true },
+    {  L_,  "9223372036854775807.0",        9223372036854775807LL, true },
+    {  L_,  "9223372036854775807.00000000", 9223372036854775807LL, true },
 
-                {  L_,   "4294967294",      4294967294LL,      true    },
-                {  L_,   "4294967295",      4294967295LL,      true    },
-                {  L_,  "-4294967295",     -4294967295LL,      true    },
-                {  L_,  "-4294967296",     -4294967296LL,      true    },
+    {  L_,         "-1.00",                  -1,      true    },
+    {  L_,       "-127.00",                -127,      true    },
+    {  L_,       "-127.0000000",           -127,      true    },
+    {  L_,       "-128.00",                -128,      true    },
+    {  L_,       "-129.00",                -129,      true    },
+    {  L_,       "-255.00",                -255,      true    },
+    {  L_,       "-256.00",                -256,      true    },
+    {  L_, "-9223372036854775807.0",       -9223372036854775807LL, true },
+    {  L_, "-9223372036854775807.00000000",-9223372036854775807LL, true },
+    {  L_, "-9223372036854775808.0",       -9223372036854775808LL, true },
+    {  L_, "-9223372036854775808.00000000",-9223372036854775808LL, true },
 
-                {  L_,   "9223372036854775806",  9223372036854775806LL, true },
-                {  L_,   "9223372036854775807",  9223372036854775807LL, true },
-                {  L_,  "-9223372036854775807", -9223372036854775807LL, true },
-                {  L_,  "-9223372036854775808", -9223372036854775808LL, true },
+    {  L_,          "1e0",                    1,      true    },
+    {  L_,          "1E0",                    1,      true    },
+    {  L_,          "1e+0",                   1,      true    },
+    {  L_,          "1E+0",                   1,      true    },
+    {  L_,          "1e-0",                   1,      true    },
+    {  L_,          "1E-0",                   1,      true    },
 
-                {  L_,    "1.1",                       1,      true    },
-                {  L_,    "1.5",                       1,      true    },
-                {  L_,    "1.9",                       1,      true    },
+    {  L_,          "1e1",                   10,      true    },
+    {  L_,          "2E1",                   20,      true    },
+    {  L_,          "3e+1",                  30,      true    },
+    {  L_,          "4E+1",                  40,      true    },
 
-                {  L_,   "100.123",                  100,      true    },
-                {  L_,   "99.5",                      99,      true    },
-                {  L_,    "0.86",                      0,      true    },
+    {  L_,          "2e2",                  200,      true    },
+    {  L_,          "3E2",                  300,      true    },
+    {  L_,          "4e+2",                 400,      true    },
+    {  L_,          "5E+2",                 500,      true    },
 
-                {  L_,    "1e0",                       1,      true    },
-                {  L_,    "1E0",                       1,      true    },
-                {  L_,    "1e+0",                      1,      true    },
-                {  L_,    "1E+0",                      1,      true    },
-                {  L_,    "1e-0",                      1,      true    },
-                {  L_,    "1E-0",                      1,      true    },
+    {  L_,          "0.1e1",                  1,      true    },
+    {  L_,          "0.2e2",                 20,      true    },
+    {  L_,          "0.30e2",                30,      true    },
+    {  L_,          "0.400e3",              400,      true    },
 
-                {  L_,    "1.234e+1",                 12,      true    },
-                {  L_,    "1.987E+1",                 19,      true    },
+{ L_,                  "0.9223372036854775807e19", 9223372036854775807LL,true},
+{ L_,                  "9.22337203685477580700e18",9223372036854775807LL,true},
+{ L_,                 "92.2337203685477580700e17", 9223372036854775807LL,true},
+{ L_,                "922.337203685477580700e16",  9223372036854775807LL,true},
+{ L_,               "9223.37203685477580700e15",   9223372036854775807LL,true},
+{ L_,              "92233.7203685477580700e14",    9223372036854775807LL,true},
+{ L_,             "922337.203685477580700e13",     9223372036854775807LL,true},
+{ L_,            "9223372.03685477580700e12",      9223372036854775807LL,true},
+{ L_,           "92233720.3685477580700e11",       9223372036854775807LL,true},
+{ L_,          "922337203.685477580700e10",        9223372036854775807LL,true},
+{ L_,         "9223372036.85477580700e9",          9223372036854775807LL,true},
+{ L_,        "92233720368.5477580700e8",           9223372036854775807LL,true},
+{ L_,       "922337203685.477580700e7",            9223372036854775807LL,true},
+{ L_,      "9223372036854.77580700e6",             9223372036854775807LL,true},
+{ L_,     "92233720368547.7580700e5",              9223372036854775807LL,true},
+{ L_,    "922337203685477.580700e4",               9223372036854775807LL,true},
+{ L_,   "9223372036854775.80700e3",                9223372036854775807LL,true},
+{ L_,  "92233720368547758.0700e2",                 9223372036854775807LL,true},
+{ L_, "922337203685477580.700e1",                  9223372036854775807LL,true},
+{ L_,"9223372036854775807.00e0",                   9223372036854775807LL,true},
 
-                {  L_,    "12.34e-1",                  1,      true    },
-                {  L_,    "29.87E-1",                  2,      true    },
+{L_,                 "-0.9223372036854775808e19", -9223372036854775808LL,true},
+{L_,                 "-9.22337203685477580800e18",-9223372036854775808LL,true},
+{L_,                "-92.2337203685477580800e17", -9223372036854775808LL,true},
+{L_,               "-922.337203685477580800e16",  -9223372036854775808LL,true},
+{L_,              "-9223.37203685477580800e15",   -9223372036854775808LL,true},
+{L_,             "-92233.7203685477580800e14",    -9223372036854775808LL,true},
+{L_,            "-922337.203685477580800e13",     -9223372036854775808LL,true},
+{L_,           "-9223372.03685477580800e12",      -9223372036854775808LL,true},
+{L_,          "-92233720.3685477580800e11",       -9223372036854775808LL,true},
+{L_,         "-922337203.685477580800e10",        -9223372036854775808LL,true},
+{L_,        "-9223372036.85477580800e9",          -9223372036854775808LL,true},
+{L_,       "-92233720368.5477580800e8",           -9223372036854775808LL,true},
+{L_,      "-922337203685.477580800e7",            -9223372036854775808LL,true},
+{L_,     "-9223372036854.77580800e6",             -9223372036854775808LL,true},
+{L_,    "-92233720368547.7580800e5",              -9223372036854775808LL,true},
+{L_,   "-922337203685477.580800e4",               -9223372036854775808LL,true},
+{L_,  "-9223372036854775.80800e3",                -9223372036854775808LL,true},
+{L_, "-92233720368547758.0800e2",                 -9223372036854775808LL,true},
+{L_,"-922337203685477580.800e1",                  -9223372036854775808LL,true},
+{L_, "-9223372036854775808.00e0",                 -9223372036854775808LL,true},
 
-                {  L_,    "-123.34e-1",              -12,      true    },
-                {  L_,    "-298.7E-1",               -29,      true    },
+ {  L_,  "922337203685477580700000e-5",        9223372036854775807LL, true  },
+ {  L_,  "922337203685477580700000.00000e-5",  9223372036854775807LL, true  },
+ {  L_,   "92233720368547758070000e-4",        9223372036854775807LL, true  },
+ {  L_,    "9223372036854775807000e-3",        9223372036854775807LL, true  },
+ {  L_,     "922337203685477580700e-2",        9223372036854775807LL, true  },
+ {  L_,      "92233720368547758070e-1",        9223372036854775807LL, true  },
+ {  L_,       "9223372036854775807e-0",        9223372036854775807LL, true  },
 
-                {  L_,    "1e1",                      10,      true    },
-                {  L_,    "1E1",                      10,      true    },
-                {  L_,    "1e+1",                     10,      true    },
-                {  L_,    "1E+1",                     10,      true    },
-                {  L_,    "1e-1",                      0,      true    },
-                {  L_,    "1E-1",                      0,      true    },
+ {  L_,  "-922337203685477580800000e-5",        -9223372036854775808LL, true },
+ {  L_,  "-922337203685477580800000.00000e-5",  -9223372036854775808LL, true },
+ {  L_,   "-92233720368547758080000e-4",        -9223372036854775808LL, true },
+ {  L_,    "-9223372036854775808000e-3",        -9223372036854775808LL, true },
+ {  L_,     "-922337203685477580800e-2",        -9223372036854775808LL, true },
+ {  L_,      "-92233720368547758080e-1",        -9223372036854775808LL, true },
+ {  L_,       "-9223372036854775808e-0",        -9223372036854775808LL, true },
 
-                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
-                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+    {  L_,          "1.0e0",                  1,      true    },
+    {  L_,          "2.000e0",                2,      true    },
+    {  L_,          "3.0e1",                 30,      true    },
+    {  L_,          "4.5e1",                 45,      true    },
+    {  L_,          "6.00e1",                60,      true    },
+    {  L_,          "7.00e2",               700,      true    },
+    {  L_,          "8.0000e2",             800,      true    },
+    {  L_,          "9.12e2",               912,      true    },
+    {  L_,          "1.1200e2",             112,      true    },
 
-                {  L_,    "0x12",     ERROR_VALUE,   false   },
-                {  L_,    "0x256",    ERROR_VALUE,   false   },
-                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
-                {  L_,    "JUNK",     ERROR_VALUE,   false   },
+    {  L_,           ".5",          ERROR_VALUE,      false   },
+    {  L_,           ".123",        ERROR_VALUE,      false   },
+
+    {  L_,          "1.1",          ERROR_VALUE,      false   },
+    {  L_,          "1.5",          ERROR_VALUE,      false   },
+    {  L_,          "1.9",          ERROR_VALUE,      false   },
+
+    {  L_,        "100.123",        ERROR_VALUE,      false   },
+    {  L_,         "99.5",          ERROR_VALUE,      false   },
+    {  L_,          "0.86",         ERROR_VALUE,      false   },
+
+    {  L_,        "255.01",         ERROR_VALUE,      false   },
+    {  L_,        "255.99",         ERROR_VALUE,      false   },
+
+    {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
+    {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
+
+    {  L_,          "1e1e1",        ERROR_VALUE,      false   },
+    {  L_,          "1e1e-1",       ERROR_VALUE,      false   },
+
+    {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
+    {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
+
+    {  L_,          "1.0000000001", ERROR_VALUE,      false   },
+    {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
+
+    {  L_,   "9223372036854775808", ERROR_VALUE,      false   },
+    {  L_,  "-9223372036854775809", ERROR_VALUE,      false   },
+
+    {  L_, "9223372036854775807.01", ERROR_VALUE,     false   },
+    {  L_, "9223372036854775807.99", ERROR_VALUE,     false   },
+    {  L_, "9223372036854775808.01", ERROR_VALUE,     false   },
+    {  L_, "9223372036854775808.99", ERROR_VALUE,     false   },
+
+    {  L_,"-9223372036854775808.01", ERROR_VALUE,     false   },
+    {  L_,"-9223372036854775808.99", ERROR_VALUE,     false   },
+    {  L_,"-9223372036854775809.01", ERROR_VALUE,     false   },
+    {  L_,"-9223372036854775809.99", ERROR_VALUE,     false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
+    {  L_,        "-",              ERROR_VALUE,      false   },
+    {  L_,        ".5",             ERROR_VALUE,      false   },
+    {  L_,        "-.5",            ERROR_VALUE,      false   },
+    {  L_,        "e",              ERROR_VALUE,      false   },
+    {  L_,        "e1",             ERROR_VALUE,      false   },
+    {  L_,        "E",              ERROR_VALUE,      false   },
+    {  L_,        "E1",             ERROR_VALUE,      false   },
+    {  L_,        "e+",             ERROR_VALUE,      false   },
+    {  L_,        "e+1",            ERROR_VALUE,      false   },
+    {  L_,        "E+",             ERROR_VALUE,      false   },
+    {  L_,        "E+1",            ERROR_VALUE,      false   },
+    {  L_,        "e-",             ERROR_VALUE,      false   },
+    {  L_,        "e-1",            ERROR_VALUE,      false   },
+    {  L_,        "E-",             ERROR_VALUE,      false   },
+    {  L_,        "E-1",            ERROR_VALUE,      false   },
+
+    {  L_,        "Z34.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "3Z4.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "34Z.56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34+56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.Z6e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.5Ze1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56Z1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56eZ",       ERROR_VALUE,      false   },
+    {  L_,         "34.56e+Z",      ERROR_VALUE,      false   },
+    {  L_,         "34.56e-Z",      ERROR_VALUE,      false   },
+
+    {  L_,         "0x12",          ERROR_VALUE,      false   },
+    {  L_,         "0x256",         ERROR_VALUE,      false   },
+    {  L_,         "JUNK",          ERROR_VALUE,      false   },
+    {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2096,15 +2709,14 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), INPUT.length());
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                const int rc = Util::getValue(&isb, &value);
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -2120,10 +2732,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for unsigned int values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(unsigned int        *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned int"
@@ -2134,6 +2768,8 @@ int main(int argc, char *argv[])
             typedef unsigned int Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -2141,80 +2777,175 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input                       exp     isValid
-                // ----   -----                       ---     -------
-                {  L_,      "0",                       0,      true    },
-                {  L_,      "1",                       1,      true    },
-                {  L_,     "95",                      95,      true    },
-                {  L_,    "127",                     127,      true    },
-                {  L_,    "128",                     128,      true    },
-                {  L_,    "200",                     200,      true    },
-                {  L_,    "255",                     255,      true    },
-                {  L_,  "32767",                   32767,      true    },
-                {  L_,  "32768",                   32768,      true    },
-                {  L_,  "65534",                   65534,      true    },
-                {  L_,  "65535",                   65535,      true    },
+   // line          input                    exp     isValid
+   // ----          -----                    ---     -------
+    {  L_,           "0",                     0,      true    },
+    {  L_,           "1",                     1,      true    },
+    {  L_,          "95",                    95,      true    },
+    {  L_,         "127",                   127,      true    },
+    {  L_,         "128",                   128,      true    },
+    {  L_,         "200",                   200,      true    },
+    {  L_,         "255",                   255,      true    },
+    {  L_,         "256",                   256,      true    },
+    {  L_,       "32766",                 32766,      true    },
+    {  L_,       "32767",                 32767,      true    },
+    {  L_,       "65534",                 65534,      true    },
+    {  L_,       "65535",                 65535,      true    },
+    {  L_,     "8388607",               8388607,      true    },
+    {  L_,     "8388608",               8388608,      true    },
+    {  L_,  "2147483646",            2147483646,      true    },
+    {  L_,  "2147483647",            2147483647,      true    },
 
-                {  L_,   "8388607",              8388607,      true    },
-                {  L_,   "8388608",              8388608,      true    },
+    {  L_,           "0",                   MIN,      true    },
+    {  L_,           "1",               MIN + 1,      true    },
+    {  L_,  "4294967294",               MAX - 1,      true    },
+    {  L_,  "4294967295",                   MAX,      true    },
 
-                {  L_,   "2147483646",        2147483646,      true    },
-                {  L_,   "2147483647",        2147483647,      true    },
+    {  L_,           "0.0",                   0,      true    },
+    {  L_,           "0.0000000000000",       0,      true    },
+    {  L_,           "1.0",                   1,      true    },
+    {  L_,           "1.00000000000",         1,      true    },
+    {  L_,         "95.0",                   95,      true    },
+    {  L_,         "95.0000000000",          95,      true    },
+    {  L_,        "127.00",                 127,      true    },
+    {  L_,        "128.00",                 128,      true    },
+    {  L_,        "200.00",                 200,      true    },
+    {  L_,        "255.00",                 255,      true    },
+    {  L_,        "256.00",                 256,      true    },
+    {  L_, "2147483646.0",           2147483646,      true    },
+    {  L_, "2147483646.000000000",   2147483646,      true    },
+    {  L_, "2147483647.0",           2147483647,      true    },
+    {  L_, "2147483647.000000000",   2147483647,      true    },
+    {  L_, "4294967294.0",           4294967294,      true    },
+    {  L_, "4294967294.000000000",   4294967294,      true    },
+    {  L_, "4294967295.0",           4294967295,      true    },
+    {  L_, "4294967295.000000000",   4294967295,      true    },
 
-                {  L_,   "4294967294",        4294967294,      true    },
-                {  L_,   "4294967295",        4294967295,      true    },
+    {  L_,          "1e0",                    1,      true    },
+    {  L_,          "1E0",                    1,      true    },
+    {  L_,          "1e+0",                   1,      true    },
+    {  L_,          "1E+0",                   1,      true    },
+    {  L_,          "1e-0",                   1,      true    },
+    {  L_,          "1E-0",                   1,      true    },
 
-                {  L_, "4294967294.01",       4294967294,      true    },
-                {  L_, "4294967294.99",       4294967294,      true    },
+    {  L_,          "1e1",                   10,      true    },
+    {  L_,          "2E1",                   20,      true    },
+    {  L_,          "3e+1",                  30,      true    },
+    {  L_,          "4E+1",                  40,      true    },
 
-                {  L_, "4294967295.01",       4294967295,      true    },
+    {  L_,          "2e2",                  200,      true    },
+    {  L_,          "3E2",                  300,      true    },
+    {  L_,          "4e+2",                 400,      true    },
+    {  L_,          "5E+2",                 500,      true    },
 
-                {  L_, "4294967295.99",       4294967295,      true    },
+    {  L_,          "0.1e1",                  1,      true    },
+    {  L_,          "0.2e2",                 20,      true    },
+    {  L_,          "0.30e2",                30,      true    },
+    {  L_,          "0.400e3",              400,      true    },
 
-                {  L_,    "1.1",                       1,      true    },
-                {  L_,    "1.5",                       1,      true    },
-                {  L_,    "1.9",                       1,      true    },
+    {  L_,          "0.429496729500e10", 4294967295,  true    },
+    {  L_,          "4.29496729500e9",   4294967295,  true    },
+    {  L_,         "42.9496729500e8",    4294967295,  true    },
+    {  L_,        "429.496729500e7",     4294967295,  true    },
+    {  L_,       "4294.96729500e6",      4294967295,  true    },
+    {  L_,      "42949.6729500e5",       4294967295,  true    },
+    {  L_,     "429496.729500e4",        4294967295,  true    },
+    {  L_,    "4294967.29500e3",         4294967295,  true    },
+    {  L_,   "42949672.9500e2",          4294967295,  true    },
+    {  L_,  "429496729.500e1",           4294967295,  true    },
+    {  L_, "4294967295.00e0",            4294967295,  true    },
 
-                {  L_,   "100.123",                  100,      true    },
-                {  L_,   "99.5",                      99,      true    },
-                {  L_,    "0.86",                      0,      true    },
+    {  L_,  "429496729500000e-5",        4294967295,  true    },
+    {  L_,  "429496729500000.00000e-5",  4294967295,  true    },
+    {  L_,   "42949672950000e-4",        4294967295,  true    },
+    {  L_,    "4294967295000e-3",        4294967295,  true    },
+    {  L_,     "429496729500e-2",        4294967295,  true    },
+    {  L_,      "42949672950e-1",        4294967295,  true    },
+    {  L_,       "4294967295e-0",        4294967295,  true    },
 
-                {  L_,    "1e0",                       1,      true    },
-                {  L_,    "1E0",                       1,      true    },
-                {  L_,    "1e+0",                      1,      true    },
-                {  L_,    "1E+0",                      1,      true    },
-                {  L_,    "1e-0",                      1,      true    },
-                {  L_,    "1E-0",                      1,      true    },
+    {  L_,          "1.0e0",                  1,      true    },
+    {  L_,          "2.000e0",                2,      true    },
+    {  L_,          "3.0e1",                 30,      true    },
+    {  L_,          "4.5e1",                 45,      true    },
+    {  L_,          "6.00e1",                60,      true    },
+    {  L_,          "7.00e2",               700,      true    },
+    {  L_,          "8.0000e2",             800,      true    },
+    {  L_,          "9.12e2",               912,      true    },
+    {  L_,          "1.1200e2",             112,      true    },
 
-                {  L_,    "1.234e+1",                 12,      true    },
-                {  L_,    "1.987E+1",                 19,      true    },
+    {  L_,           ".5",          ERROR_VALUE,      false   },
+    {  L_,           ".123",        ERROR_VALUE,      false   },
 
-                {  L_,    "12.34e-1",                  1,      true    },
-                {  L_,    "29.87E-1",                  2,      true    },
+    {  L_,          "1.1",          ERROR_VALUE,      false   },
+    {  L_,          "1.5",          ERROR_VALUE,      false   },
+    {  L_,          "1.9",          ERROR_VALUE,      false   },
 
-                {  L_,    "1e1",                      10,      true    },
-                {  L_,    "1E1",                      10,      true    },
-                {  L_,    "1e+1",                     10,      true    },
-                {  L_,    "1E+1",                     10,      true    },
-                {  L_,    "1e-1",                      0,      true    },
-                {  L_,    "1E-1",                      0,      true    },
+    {  L_,        "100.123",        ERROR_VALUE,      false   },
+    {  L_,         "99.5",          ERROR_VALUE,      false   },
+    {  L_,          "0.86",         ERROR_VALUE,      false   },
 
-                {  L_,    "4294967296",      ERROR_VALUE,      false   },
-                {  L_,    "4294967296.01",   ERROR_VALUE,      false   },
-                {  L_,    "4294967296.99",   ERROR_VALUE,      false   },
+    {  L_,        "255.01",         ERROR_VALUE,      false   },
+    {  L_,        "255.99",         ERROR_VALUE,      false   },
 
-                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
-                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+    {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
+    {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
 
-                {  L_,    "0x12",     ERROR_VALUE,   false   },
-                {  L_,    "0x256",    ERROR_VALUE,   false   },
-                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
-                {  L_,    "JUNK",     ERROR_VALUE,   false   },
+    {  L_,          "1e1e1",        ERROR_VALUE,      false   },
+    {  L_,          "1e1e-1",       ERROR_VALUE,      false   },
+
+    {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
+    {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
+
+    {  L_,          "1.0000000001", ERROR_VALUE,      false   },
+    {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
+
+    {  L_,      "4294967296",       ERROR_VALUE,      false   },
+    {  L_,      "4294967295.01",    ERROR_VALUE,      false   },
+    {  L_,      "4294967295.99",    ERROR_VALUE,      false   },
+    {  L_,      "4294967296.01",    ERROR_VALUE,      false   },
+    {  L_,      "4294967296.99",    ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
+    {  L_,        "-",              ERROR_VALUE,      false   },
+    {  L_,        ".5",             ERROR_VALUE,      false   },
+    {  L_,        "-.5",            ERROR_VALUE,      false   },
+    {  L_,        "e",              ERROR_VALUE,      false   },
+    {  L_,        "e1",             ERROR_VALUE,      false   },
+    {  L_,        "E",              ERROR_VALUE,      false   },
+    {  L_,        "E1",             ERROR_VALUE,      false   },
+    {  L_,        "e+",             ERROR_VALUE,      false   },
+    {  L_,        "e+1",            ERROR_VALUE,      false   },
+    {  L_,        "E+",             ERROR_VALUE,      false   },
+    {  L_,        "E+1",            ERROR_VALUE,      false   },
+    {  L_,        "e-",             ERROR_VALUE,      false   },
+    {  L_,        "e-1",            ERROR_VALUE,      false   },
+    {  L_,        "E-",             ERROR_VALUE,      false   },
+    {  L_,        "E-1",            ERROR_VALUE,      false   },
+
+    {  L_,        "Z34.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "3Z4.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "34Z.56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34+56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.Z6e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.5Ze1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56Z1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56eZ",       ERROR_VALUE,      false   },
+    {  L_,         "34.56e+Z",      ERROR_VALUE,      false   },
+    {  L_,         "34.56e-Z",      ERROR_VALUE,      false   },
+
+    {  L_,         "0x12",          ERROR_VALUE,      false   },
+    {  L_,         "0x256",         ERROR_VALUE,      false   },
+    {  L_,         "JUNK",          ERROR_VALUE,      false   },
+    {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2225,15 +2956,14 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), INPUT.length());
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                const int rc = Util::getValue(&isb, &value);
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -2249,10 +2979,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for int values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(int                 *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for int"
@@ -2262,6 +3014,8 @@ int main(int argc, char *argv[])
             typedef int Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -2269,106 +3023,224 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line      input                exp     isValid
-                // ----      -----                ---     -------
-                {  L_,         "0",                0,      true    },
-                {  L_,         "1",                1,      true    },
-                {  L_,        "95",               95,      true    },
-                {  L_,       "127",              127,      true    },
-                {  L_,       "128",              128,      true    },
-                {  L_,       "-127",            -127,      true    },
-                {  L_,       "-128",            -128,      true    },
-                {  L_,       "-129",            -129,      true    },
-                {  L_,       "200",              200,      true    },
-                {  L_,       "255",              255,      true    },
-                {  L_,     "32767",            32767,      true    },
-                {  L_,     "32768",            32768,      true    },
-                {  L_,    "-32767",           -32767,      true    },
-                {  L_,    "-32768",           -32768,      true    },
-                {  L_,    "-32769",           -32769,      true    },
-                {  L_,     "65534",            65534,      true    },
-                {  L_,     "65535",            65535,      true    },
-                {  L_,    "-65534",           -65534,      true    },
-                {  L_,    "-65535",           -65535,      true    },
-                {  L_,    "-65536",           -65536,      true    },
-                {  L_,   "8388607",          8388607,      true    },
-                {  L_,   "8388608",          8388608,      true    },
-                {  L_,  "-8388608",         -8388608,      true    },
-                {  L_,  "-8388609",         -8388609,      true    },
+   // line          input                    exp     isValid
+   // ----          -----                    ---     -------
+    {  L_,           "0",                     0,      true    },
+    {  L_,           "1",                     1,      true    },
+    {  L_,          "95",                    95,      true    },
+    {  L_,         "127",                   127,      true    },
+    {  L_,         "128",                   128,      true    },
+    {  L_,         "200",                   200,      true    },
+    {  L_,         "255",                   255,      true    },
+    {  L_,         "256",                   256,      true    },
+    {  L_,       "32766",                 32766,      true    },
+    {  L_,       "32767",                 32767,      true    },
+    {  L_,       "65534",                 65534,      true    },
+    {  L_,       "65535",                 65535,      true    },
+    {  L_,     "8388607",               8388607,      true    },
+    {  L_,     "8388608",               8388608,      true    },
 
-                {  L_,   "2147483646",    2147483646,      true    },
-                {  L_,   "2147483647",    2147483647,      true    },
-                {  L_,  "-2147483647",   -2147483647,      true    },
-                {  L_,  "-2147483648",   -2147483648,      true    },
+    {  L_,          "-1",                    -1,      true    },
+    {  L_,        "-128",                  -128,      true    },
+    {  L_,        "-129",                  -129,      true    },
+    {  L_,        "-255",                  -255,      true    },
+    {  L_,        "-256",                  -256,      true    },
+    {  L_,      "-32767",                -32767,      true    },
+    {  L_,      "-32768",                -32768,      true    },
+    {  L_,      "-65535",                -65535,      true    },
+    {  L_,      "-65536",                -65536,      true    },
 
-                {  L_, "2147483647.01",   2147483647,      true    },
+    {  L_, "-2147483648",                   MIN,      true    },
+    {  L_, "-2147483647",               MIN + 1,      true    },
+    {  L_,  "2147483646",               MAX - 1,      true    },
+    {  L_,  "2147483647",                   MAX,      true    },
 
-// TBD: fails in opt mode
-//                 {  L_, "2147483647.99",   2147483647,      true    },
+    {  L_,           "0.0",                   0,      true    },
+    {  L_,           "0.0000000000000",       0,      true    },
+    {  L_,           "1.0",                   1,      true    },
+    {  L_,           "1.00000000000",         1,      true    },
+    {  L_,         "95.0",                   95,      true    },
+    {  L_,         "95.0000000000",          95,      true    },
+    {  L_,        "127.00",                 127,      true    },
+    {  L_,        "128.00",                 128,      true    },
+    {  L_,        "200.00",                 200,      true    },
+    {  L_,        "255.00",                 255,      true    },
+    {  L_,        "256.00",                 256,      true    },
+    {  L_, "2147483646.0",           2147483646,      true    },
+    {  L_, "2147483646.000000000",   2147483646,      true    },
+    {  L_, "2147483647.0",           2147483647,      true    },
+    {  L_, "2147483647.000000000",   2147483647,      true    },
 
-                {  L_, "-2147483648.01", -2147483648,      true    },
+    {  L_,         "-1.00",                  -1,      true    },
+    {  L_,       "-127.00",                -127,      true    },
+    {  L_,       "-127.0000000",           -127,      true    },
+    {  L_,       "-128.00",                -128,      true    },
+    {  L_,       "-129.00",                -129,      true    },
+    {  L_,       "-255.00",                -255,      true    },
+    {  L_,       "-256.00",                -256,      true    },
+    {  L_,"-2147483647.0",          -2147483647,      true    },
+    {  L_,"-2147483647.000000000",  -2147483647,      true    },
+    {  L_,"-2147483648.0",          -2147483648,      true    },
+    {  L_,"-2147483648.000000000",  -2147483648,      true    },
 
-                {  L_, "-2147483648.99", -2147483648,      true    },
+    {  L_,          "1e0",                    1,      true    },
+    {  L_,          "1E0",                    1,      true    },
+    {  L_,          "1e+0",                   1,      true    },
+    {  L_,          "1E+0",                   1,      true    },
+    {  L_,          "1e-0",                   1,      true    },
+    {  L_,          "1E-0",                   1,      true    },
 
-                {  L_,    "1.1",                   1,      true    },
-                {  L_,    "1.5",                   1,      true    },
-                {  L_,    "1.9",                   1,      true    },
+    {  L_,          "1e1",                   10,      true    },
+    {  L_,          "2E1",                   20,      true    },
+    {  L_,          "3e+1",                  30,      true    },
+    {  L_,          "4E+1",                  40,      true    },
 
-                {  L_,   "100.123",             100,      true    },
-                {  L_,   "99.5",                 99,      true    },
-                {  L_,    "0.86",                 0,      true    },
+    {  L_,          "2e2",                  200,      true    },
+    {  L_,          "3E2",                  300,      true    },
+    {  L_,          "4e+2",                 400,      true    },
+    {  L_,          "5E+2",                 500,      true    },
 
-                {  L_,    "1e0",                  1,      true    },
-                {  L_,    "1E0",                  1,      true    },
-                {  L_,    "1e+0",                 1,      true    },
-                {  L_,    "1E+0",                 1,      true    },
-                {  L_,    "1e-0",                 1,      true    },
-                {  L_,    "1E-0",                 1,      true    },
+    {  L_,          "0.1e1",                  1,      true    },
+    {  L_,          "0.2e2",                 20,      true    },
+    {  L_,          "0.30e2",                30,      true    },
+    {  L_,          "0.400e3",              400,      true    },
 
-                {  L_,    "1.234e+1",            12,      true    },
-                {  L_,    "1.987E+1",            19,      true    },
+    {  L_,          "0.214748364700e10", 2147483647,  true    },
+    {  L_,          "2.14748364700e9",   2147483647,  true    },
+    {  L_,         "21.4748364700e8",    2147483647,  true    },
+    {  L_,        "214.748364700e7",     2147483647,  true    },
+    {  L_,       "2147.48364700e6",      2147483647,  true    },
+    {  L_,      "21474.8364700e5",       2147483647,  true    },
+    {  L_,     "214748.364700e4",        2147483647,  true    },
+    {  L_,    "2147483.64700e3",         2147483647,  true    },
+    {  L_,   "21474836.4700e2",          2147483647,  true    },
+    {  L_,  "214748364.700e1",           2147483647,  true    },
+    {  L_, "2147483647.00e0",            2147483647,  true    },
 
-                {  L_,    "12.34e-1",             1,      true    },
-                {  L_,    "29.87E-1",             2,      true    },
+    {  L_,         "-0.214748364800e10",-2147483648,  true    },
+    {  L_,         "-2.14748364800e9",  -2147483648,  true    },
+    {  L_,        "-21.4748364800e8",   -2147483648,  true    },
+    {  L_,       "-214.748364800e7",    -2147483648,  true    },
+    {  L_,      "-2147.48364800e6",     -2147483648,  true    },
+    {  L_,     "-21474.8364800e5",      -2147483648,  true    },
+    {  L_,    "-214748.364800e4",       -2147483648,  true    },
+    {  L_,   "-2147483.64800e3",        -2147483648,  true    },
+    {  L_,  "-21474836.4800e2",         -2147483648,  true    },
+    {  L_, "-214748364.800e1",          -2147483648,  true    },
+    {  L_,"-2147483648.00e0",           -2147483648,  true    },
 
-                {  L_,    "-123.34e-1",         -12,      true    },
-                {  L_,    "-298.7E-1",          -29,      true    },
+    {  L_,  "214748364700000e-5",        2147483647,  true    },
+    {  L_,  "214748364700000.00000e-5",  2147483647,  true    },
+    {  L_,   "21474836470000e-4",        2147483647,  true    },
+    {  L_,    "2147483647000e-3",        2147483647,  true    },
+    {  L_,     "214748364700e-2",        2147483647,  true    },
+    {  L_,      "21474836470e-1",        2147483647,  true    },
+    {  L_,       "2147483647e-0",        2147483647,  true    },
 
-                {  L_,    "1e1",                 10,      true    },
-                {  L_,    "1E1",                 10,      true    },
-                {  L_,    "1e+1",                10,      true    },
-                {  L_,    "1E+1",                10,      true    },
-                {  L_,    "1e-1",                 0,      true    },
-                {  L_,    "1E-1",                 0,      true    },
+    {  L_, "-214748364800000e-5",       -2147483648,  true    },
+    {  L_, "-214748364800000.00000e-5", -2147483648,  true    },
+    {  L_,  "-21474836480000e-4",       -2147483648,  true    },
+    {  L_,   "-2147483648000e-3",       -2147483648,  true    },
+    {  L_,    "-214748364800e-2",       -2147483648,  true    },
+    {  L_,     "-21474836480e-1",       -2147483648,  true    },
+    {  L_,      "-2147483648e-0",       -2147483648,  true    },
 
-                {  L_, "2147483648",     ERROR_VALUE,     false   },
-                {  L_, "2147483648.01",  ERROR_VALUE,     false   },
-                {  L_, "2147483648.99",  ERROR_VALUE,     false   },
+    {  L_,          "1.0e0",                  1,      true    },
+    {  L_,          "2.000e0",                2,      true    },
+    {  L_,          "3.0e1",                 30,      true    },
+    {  L_,          "4.5e1",                 45,      true    },
+    {  L_,          "6.00e1",                60,      true    },
+    {  L_,          "7.00e2",               700,      true    },
+    {  L_,          "8.0000e2",             800,      true    },
+    {  L_,          "9.12e2",               912,      true    },
+    {  L_,          "1.1200e2",             112,      true    },
 
-                {  L_, "2147483649",     ERROR_VALUE,     false   },
-                {  L_, "2147483648.01",  ERROR_VALUE,     false   },
-                {  L_, "2147483648.99",  ERROR_VALUE,     false   },
+    {  L_,           ".5",          ERROR_VALUE,      false   },
+    {  L_,           ".123",        ERROR_VALUE,      false   },
 
-                {  L_, "-2147483649",    ERROR_VALUE,     false   },
-                {  L_, "-2147483649.01", ERROR_VALUE,     false   },
-                {  L_, "-2147483649.99", ERROR_VALUE,     false   },
+    {  L_,          "1.1",          ERROR_VALUE,      false   },
+    {  L_,          "1.5",          ERROR_VALUE,      false   },
+    {  L_,          "1.9",          ERROR_VALUE,      false   },
 
-                {  L_, "-2147483650",    ERROR_VALUE,     false   },
-                {  L_, "-2147483650.01", ERROR_VALUE,     false   },
-                {  L_, "-2147483650.99", ERROR_VALUE,     false   },
+    {  L_,        "100.123",        ERROR_VALUE,      false   },
+    {  L_,         "99.5",          ERROR_VALUE,      false   },
+    {  L_,          "0.86",         ERROR_VALUE,      false   },
 
-                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
-                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+    {  L_,        "255.01",         ERROR_VALUE,      false   },
+    {  L_,        "255.99",         ERROR_VALUE,      false   },
 
-                {  L_,    "0x12",     ERROR_VALUE,   false   },
-                {  L_,    "0x256",    ERROR_VALUE,   false   },
-                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
-                {  L_,    "JUNK",     ERROR_VALUE,   false   },
+    {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
+    {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
+
+    {  L_,          "1e1e1",        ERROR_VALUE,      false   },
+    {  L_,          "1e1e-1",       ERROR_VALUE,      false   },
+
+    {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
+    {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
+
+    {  L_,          "1.0000000001", ERROR_VALUE,      false   },
+    {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
+
+    {  L_,     "2147483648",        ERROR_VALUE,      false   },
+    {  L_,     "-2147483649",       ERROR_VALUE,      false   },
+
+    {  L_,      "2147483647.01",    ERROR_VALUE,      false   },
+    {  L_,      "2147483647.99",    ERROR_VALUE,      false   },
+    {  L_,      "2147483648.01",    ERROR_VALUE,      false   },
+    {  L_,      "2147483648.99",    ERROR_VALUE,      false   },
+
+    {  L_,     "-2147483648.01",    ERROR_VALUE,      false   },
+    {  L_,     "-2147483648.99",    ERROR_VALUE,      false   },
+    {  L_,     "-2147483649.01",    ERROR_VALUE,      false   },
+    {  L_,     "-2147483649.99",    ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
+    {  L_,        "-",              ERROR_VALUE,      false   },
+    {  L_,        ".5",             ERROR_VALUE,      false   },
+    {  L_,        "-.5",            ERROR_VALUE,      false   },
+    {  L_,        "e",              ERROR_VALUE,      false   },
+    {  L_,        "e1",             ERROR_VALUE,      false   },
+    {  L_,        "E",              ERROR_VALUE,      false   },
+    {  L_,        "E1",             ERROR_VALUE,      false   },
+    {  L_,        "e+",             ERROR_VALUE,      false   },
+    {  L_,        "e+1",            ERROR_VALUE,      false   },
+    {  L_,        "E+",             ERROR_VALUE,      false   },
+    {  L_,        "E+1",            ERROR_VALUE,      false   },
+    {  L_,        "e-",             ERROR_VALUE,      false   },
+    {  L_,        "e-1",            ERROR_VALUE,      false   },
+    {  L_,        "E-",             ERROR_VALUE,      false   },
+    {  L_,        "E-1",            ERROR_VALUE,      false   },
+
+    {  L_,        "Z34.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "3Z4.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "34Z.56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34+56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.Z6e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.5Ze1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56Z1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56eZ",       ERROR_VALUE,      false   },
+    {  L_,         "34.56e+Z",      ERROR_VALUE,      false   },
+    {  L_,         "34.56e-Z",      ERROR_VALUE,      false   },
+
+    {  L_,         "0x12",          ERROR_VALUE,      false   },
+    {  L_,         "0x256",         ERROR_VALUE,      false   },
+    {  L_,         "JUNK",          ERROR_VALUE,      false   },
+    {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2379,15 +3251,14 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), INPUT.length());
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                const int rc = Util::getValue(&isb, &value);
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -2403,10 +3274,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for unsigned short values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(unsigned short      *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned short"
@@ -2417,6 +3310,8 @@ int main(int argc, char *argv[])
             typedef unsigned short Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -2424,71 +3319,168 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input               exp     isValid
-                // ----   -----               ---     -------
-                {  L_,      "0",               0,      true    },
-                {  L_,      "1",               1,      true    },
-                {  L_,     "95",              95,      true    },
-                {  L_,    "127",             127,      true    },
-                {  L_,    "128",             128,      true    },
-                {  L_,    "200",             200,      true    },
-                {  L_,    "255",             255,      true    },
-                {  L_,  "32767",           32767,      true    },
-                {  L_,  "32768",           32768,      true    },
-                {  L_,  "65534",           65534,      true    },
-                {  L_,  "65535",           65535,      true    },
+   // line          input                    exp     isValid
+   // ----          -----                    ---     -------
+    {  L_,           "0",                     0,      true    },
+    {  L_,           "1",                     1,      true    },
+    {  L_,          "95",                    95,      true    },
+    {  L_,         "127",                   127,      true    },
+    {  L_,         "128",                   128,      true    },
+    {  L_,         "200",                   200,      true    },
+    {  L_,         "255",                   255,      true    },
+    {  L_,         "256",                   256,      true    },
+    {  L_,       "32766",                 32766,      true    },
+    {  L_,       "32767",                 32767,      true    },
+    {  L_,       "65534",                 65534,      true    },
+    {  L_,       "65535",                 65535,      true    },
 
-                {  L_,  "65535.01",        65535,      true    },
-                {  L_,  "65535.99",        65535,      true    },
+    {  L_,           "0",                   MIN,      true    },
+    {  L_,           "1",               MIN + 1,      true    },
+    {  L_,       "65534",               MAX - 1,      true    },
+    {  L_,       "65535",                   MAX,      true    },
 
-                {  L_,    "1.1",               1,      true    },
-                {  L_,    "1.5",               1,      true    },
-                {  L_,    "1.9",               1,      true    },
+    {  L_,           "0.0",                   0,      true    },
+    {  L_,           "0.0000000000000",       0,      true    },
+    {  L_,           "1.0",                   1,      true    },
+    {  L_,           "1.00000000000",         1,      true    },
+    {  L_,         "95.0",                   95,      true    },
+    {  L_,         "95.0000000000",          95,      true    },
+    {  L_,        "127.00",                 127,      true    },
+    {  L_,        "128.00",                 128,      true    },
+    {  L_,        "200.00",                 200,      true    },
+    {  L_,        "255.00",                 255,      true    },
+    {  L_,        "256.00",                 256,      true    },
+    {  L_,      "32766.0",                32766,      true    },
+    {  L_,      "32766.00000000",         32766,      true    },
+    {  L_,      "32767.0",                32767,      true    },
+    {  L_,      "32767.00000000",         32767,      true    },
+    {  L_,      "65534.0",                65534,      true    },
+    {  L_,      "65534.00000000",         65534,      true    },
+    {  L_,      "65535.0",                65535,      true    },
+    {  L_,      "65535.00000000",         65535,      true    },
 
-                {  L_,   "100.123",          100,      true    },
-                {  L_,   "99.5",              99,      true    },
-                {  L_,    "0.86",              0,      true    },
+    {  L_,          "1e0",                    1,      true    },
+    {  L_,          "1E0",                    1,      true    },
+    {  L_,          "1e+0",                   1,      true    },
+    {  L_,          "1E+0",                   1,      true    },
+    {  L_,          "1e-0",                   1,      true    },
+    {  L_,          "1E-0",                   1,      true    },
 
-                {  L_,    "1e0",               1,      true    },
-                {  L_,    "1E0",               1,      true    },
-                {  L_,    "1e+0",              1,      true    },
-                {  L_,    "1E+0",              1,      true    },
-                {  L_,    "1e-0",              1,      true    },
-                {  L_,    "1E-0",              1,      true    },
+    {  L_,          "1e1",                   10,      true    },
+    {  L_,          "2E1",                   20,      true    },
+    {  L_,          "3e+1",                  30,      true    },
+    {  L_,          "4E+1",                  40,      true    },
 
-                {  L_,    "1.234e+1",         12,      true    },
-                {  L_,    "1.987E+1",         19,      true    },
+    {  L_,          "2e2",                  200,      true    },
+    {  L_,          "3E2",                  300,      true    },
+    {  L_,          "4e+2",                 400,      true    },
+    {  L_,          "5E+2",                 500,      true    },
 
-                {  L_,    "12.34e-1",          1,      true    },
-                {  L_,    "29.87E-1",          2,      true    },
+    {  L_,          "0.1e1",                  1,      true    },
+    {  L_,          "0.2e2",                 20,      true    },
+    {  L_,          "0.30e2",                30,      true    },
+    {  L_,          "0.400e3",              400,      true    },
 
-                {  L_,    "1e1",              10,      true    },
-                {  L_,    "1E1",              10,      true    },
-                {  L_,    "1e+1",             10,      true    },
-                {  L_,    "1E+1",             10,      true    },
-                {  L_,    "1e-1",              0,      true    },
-                {  L_,    "1E-1",              0,      true    },
+    {  L_,          "0.6553500e5",        65535,      true    },
+    {  L_,          "6.5535000e4",        65535,      true    },
+    {  L_,         "65.5350000e3",        65535,      true    },
+    {  L_,        "655.3500000e2",        65535,      true    },
+    {  L_,       "6553.5000000e1",        65535,      true    },
+    {  L_,      "65535.000000e0",         65535,      true    },
 
-                {  L_,   "65536",    ERROR_VALUE,      false   },
-                {  L_,   "65536.01", ERROR_VALUE,      false   },
-                {  L_,   "65536.99", ERROR_VALUE,      false   },
+    {  L_,  "6553500000e-5",              65535,      true    },
+    {  L_,  "6553500000.00000e-5",        65535,      true    },
+    {  L_,   "655350000e-4",              65535,      true    },
+    {  L_,    "65535000e-3",              65535,      true    },
+    {  L_,     "6553500e-2",              65535,      true    },
+    {  L_,      "655350e-1",              65535,      true    },
+    {  L_,       "65535e-0",              65535,      true    },
 
-                {  L_,   "65537",    ERROR_VALUE,      false   },
-                {  L_,   "65537.01", ERROR_VALUE,      false   },
-                {  L_,   "65537.99", ERROR_VALUE,      false   },
+    {  L_,          "1.0e0",                  1,      true    },
+    {  L_,          "2.000e0",                2,      true    },
+    {  L_,          "3.0e1",                 30,      true    },
+    {  L_,          "4.5e1",                 45,      true    },
+    {  L_,          "6.00e1",                60,      true    },
+    {  L_,          "7.00e2",               700,      true    },
+    {  L_,          "8.0000e2",             800,      true    },
+    {  L_,          "9.12e2",               912,      true    },
+    {  L_,          "1.1200e2",             112,      true    },
 
-                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
-                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+    {  L_,           ".5",          ERROR_VALUE,      false   },
+    {  L_,           ".123",        ERROR_VALUE,      false   },
 
-                {  L_,    "0x12",     ERROR_VALUE,   false   },
-                {  L_,    "0x256",    ERROR_VALUE,   false   },
-                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
-                {  L_,    "JUNK",     ERROR_VALUE,   false   },
+    {  L_,          "1.1",          ERROR_VALUE,      false   },
+    {  L_,          "1.5",          ERROR_VALUE,      false   },
+    {  L_,          "1.9",          ERROR_VALUE,      false   },
+
+    {  L_,        "100.123",        ERROR_VALUE,      false   },
+    {  L_,         "99.5",          ERROR_VALUE,      false   },
+    {  L_,          "0.86",         ERROR_VALUE,      false   },
+
+    {  L_,        "255.01",         ERROR_VALUE,      false   },
+    {  L_,        "255.99",         ERROR_VALUE,      false   },
+
+    {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
+    {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
+
+    {  L_,          "1e1e1",        ERROR_VALUE,      false   },
+    {  L_,          "1e1e-1",       ERROR_VALUE,      false   },
+
+    {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
+    {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
+
+    {  L_,          "1.0000000001", ERROR_VALUE,      false   },
+    {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
+
+    {  L_,      "65536",            ERROR_VALUE,      false   },
+    {  L_,      "65537",            ERROR_VALUE,      false   },
+
+    {  L_,      "65535.01",         ERROR_VALUE,      false   },
+    {  L_,      "65535.99",         ERROR_VALUE,      false   },
+    {  L_,      "65536.01",         ERROR_VALUE,      false   },
+    {  L_,      "65536.99",         ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
+    {  L_,        "-",              ERROR_VALUE,      false   },
+    {  L_,        ".5",             ERROR_VALUE,      false   },
+    {  L_,        "-.5",            ERROR_VALUE,      false   },
+    {  L_,        "e",              ERROR_VALUE,      false   },
+    {  L_,        "e1",             ERROR_VALUE,      false   },
+    {  L_,        "E",              ERROR_VALUE,      false   },
+    {  L_,        "E1",             ERROR_VALUE,      false   },
+    {  L_,        "e+",             ERROR_VALUE,      false   },
+    {  L_,        "e+1",            ERROR_VALUE,      false   },
+    {  L_,        "E+",             ERROR_VALUE,      false   },
+    {  L_,        "E+1",            ERROR_VALUE,      false   },
+    {  L_,        "e-",             ERROR_VALUE,      false   },
+    {  L_,        "e-1",            ERROR_VALUE,      false   },
+    {  L_,        "E-",             ERROR_VALUE,      false   },
+    {  L_,        "E-1",            ERROR_VALUE,      false   },
+
+    {  L_,        "Z34.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "3Z4.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "34Z.56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34+56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.Z6e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.5Ze1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56Z1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56eZ",       ERROR_VALUE,      false   },
+    {  L_,         "34.56e+Z",      ERROR_VALUE,      false   },
+    {  L_,         "34.56e-Z",      ERROR_VALUE,      false   },
+
+    {  L_,         "0x12",          ERROR_VALUE,      false   },
+    {  L_,         "0x256",         ERROR_VALUE,      false   },
+    {  L_,         "JUNK",          ERROR_VALUE,      false   },
+    {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2499,15 +3491,14 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), INPUT.length());
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                const int rc = Util::getValue(&isb, &value);
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -2523,20 +3514,43 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for short values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(short               *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for short"
                                << "\n============================"
                                << bsl::endl;
-
         {
             typedef short Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -2544,84 +3558,207 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input             exp     isValid
-                // ----   -----             ---     -------
-                {  L_,      "0",             0,      true    },
-                {  L_,      "1",             1,      true    },
-                {  L_,     "95",            95,      true    },
-                {  L_,    "127",           127,      true    },
-                {  L_,    "128",           128,      true    },
-                {  L_,   "-127",          -127,      true    },
-                {  L_,   "-128",          -128,      true    },
-                {  L_,   "-129",          -129,      true    },
-                {  L_,    "200",           200,      true    },
-                {  L_,    "255",           255,      true    },
-                {  L_,  "32766",         32766,      true    },
-                {  L_,  "32767",         32767,      true    },
-                {  L_, "-32767",        -32767,      true    },
-                {  L_, "-32768",        -32768,      true    },
+   // line          input                    exp     isValid
+   // ----          -----                    ---     -------
+    {  L_,           "0",                     0,      true    },
+    {  L_,           "1",                     1,      true    },
+    {  L_,          "95",                    95,      true    },
+    {  L_,         "127",                   127,      true    },
+    {  L_,         "128",                   128,      true    },
+    {  L_,         "200",                   200,      true    },
+    {  L_,         "255",                   255,      true    },
+    {  L_,         "256",                   256,      true    },
 
-                {  L_,    "1.1",             1,      true    },
-                {  L_,    "1.5",             1,      true    },
-                {  L_,    "1.9",             1,      true    },
+    {  L_,          "-1",                    -1,      true    },
+    {  L_,        "-128",                  -128,      true    },
+    {  L_,        "-129",                  -129,      true    },
+    {  L_,        "-255",                  -255,      true    },
+    {  L_,        "-256",                  -256,      true    },
 
-                {  L_,   "100.123",        100,      true    },
-                {  L_,   "99.5",            99,      true    },
-                {  L_,    "0.86",            0,      true    },
+    {  L_,      "-32768",                   MIN,      true    },
+    {  L_,      "-32767",               MIN + 1,      true    },
+    {  L_,       "32766",               MAX - 1,      true    },
+    {  L_,       "32767",                   MAX,      true    },
 
-                {  L_,  "32767.01",      32767,      true    },
+    {  L_,           "0.0",                   0,      true    },
+    {  L_,           "0.0000000000000",       0,      true    },
+    {  L_,           "1.0",                   1,      true    },
+    {  L_,           "1.00000000000",         1,      true    },
+    {  L_,         "95.0",                   95,      true    },
+    {  L_,         "95.0000000000",          95,      true    },
+    {  L_,        "127.00",                 127,      true    },
+    {  L_,        "128.00",                 128,      true    },
+    {  L_,        "200.00",                 200,      true    },
+    {  L_,        "255.00",                 255,      true    },
+    {  L_,        "256.00",                 256,      true    },
+    {  L_,      "32766.0",                32766,      true    },
+    {  L_,      "32766.00000000",         32766,      true    },
+    {  L_,      "32767.0",                32767,      true    },
+    {  L_,      "32767.00000000",         32767,      true    },
 
-// TBD: fails in opt mode
-//                 {  L_,  "32767.99",      32767,      true    },
+    {  L_,         "-1.00",                  -1,      true    },
+    {  L_,       "-127.00",                -127,      true    },
+    {  L_,       "-127.0000000",           -127,      true    },
+    {  L_,       "-128.00",                -128,      true    },
+    {  L_,       "-129.00",                -129,      true    },
+    {  L_,       "-255.00",                -255,      true    },
+    {  L_,       "-256.00",                -256,      true    },
+    {  L_,     "-32767.0",               -32767,      true    },
+    {  L_,     "-32767.00000000",        -32767,      true    },
+    {  L_,     "-32768.0",               -32768,      true    },
+    {  L_,     "-32768.00000000",        -32768,      true    },
 
-                {  L_, "-32768.01",     -32768,      true    },
-                {  L_, "-32768.99",     -32768,      true    },
+    {  L_,          "1e0",                    1,      true    },
+    {  L_,          "1E0",                    1,      true    },
+    {  L_,          "1e+0",                   1,      true    },
+    {  L_,          "1E+0",                   1,      true    },
+    {  L_,          "1e-0",                   1,      true    },
+    {  L_,          "1E-0",                   1,      true    },
 
-                {  L_,    "1e0",             1,      true    },
-                {  L_,    "1E0",             1,      true    },
-                {  L_,    "1e+0",            1,      true    },
-                {  L_,    "1E+0",            1,      true    },
-                {  L_,    "1e-0",            1,      true    },
-                {  L_,    "1E-0",            1,      true    },
+    {  L_,          "1e1",                   10,      true    },
+    {  L_,          "2E1",                   20,      true    },
+    {  L_,          "3e+1",                  30,      true    },
+    {  L_,          "4E+1",                  40,      true    },
 
-                {  L_,    "1.234e+1",       12,      true    },
-                {  L_,    "1.987E+1",       19,      true    },
+    {  L_,          "2e2",                  200,      true    },
+    {  L_,          "3E2",                  300,      true    },
+    {  L_,          "4e+2",                 400,      true    },
+    {  L_,          "5E+2",                 500,      true    },
 
-                {  L_,    "12.34e-1",        1,      true    },
-                {  L_,    "29.87E-1",        2,      true    },
+    {  L_,          "0.1e1",                  1,      true    },
+    {  L_,          "0.2e2",                 20,      true    },
+    {  L_,          "0.30e2",                30,      true    },
+    {  L_,          "0.400e3",              400,      true    },
 
-                {  L_,    "-123.34e-1",    -12,      true    },
-                {  L_,    "-298.7E-1",     -29,      true    },
+    {  L_,          "0.3276700e5",        32767,      true    },
+    {  L_,          "3.2767000e4",        32767,      true    },
+    {  L_,         "32.7670000e3",        32767,      true    },
+    {  L_,        "327.6700000e2",        32767,      true    },
+    {  L_,       "3276.7000000e1",        32767,      true    },
+    {  L_,       "32767.000000e0",        32767,      true    },
 
-                {  L_,    "1e1",            10,      true    },
-                {  L_,    "1E1",            10,      true    },
-                {  L_,    "1e+1",           10,      true    },
-                {  L_,    "1E+1",           10,      true    },
-                {  L_,    "1e-1",            0,      true    },
-                {  L_,    "1E-1",            0,      true    },
+    {  L_,         "-0.3276800e5",       -32768,      true    },
+    {  L_,         "-3.2768000e4",       -32768,      true    },
+    {  L_,        "-32.7680000e3",       -32768,      true    },
+    {  L_,       "-327.6800000e2",       -32768,      true    },
+    {  L_,      "-3276.8000000e1",       -32768,      true    },
+    {  L_,      "-32768.000000e0",       -32768,      true    },
 
-                {  L_,   "32768",     ERROR_VALUE,   false   },
-                {  L_,   "32768.01",  ERROR_VALUE,   false   },
-                {  L_,   "65535",     ERROR_VALUE,   false   },
-                {  L_,   "65535.01",  ERROR_VALUE,   false   },
+    {  L_,  "3276700000e-5",              32767,      true    },
+    {  L_,  "3276700000.00000e-5",        32767,      true    },
+    {  L_,   "327670000e-4",              32767,      true    },
+    {  L_,    "32767000e-3",              32767,      true    },
+    {  L_,     "3276700e-2",              32767,      true    },
+    {  L_,      "327670e-1",              32767,      true    },
+    {  L_,       "32767e-0",              32767,      true    },
 
-                {  L_,  "-32769",     ERROR_VALUE,   false   },
-                {  L_,  "-32769.01",  ERROR_VALUE,   false   },
-                {  L_,  "-32769.99",  ERROR_VALUE,   false   },
-                {  L_,  "-65535",     ERROR_VALUE,   false   },
+    {  L_,  "-3276800000e-5",            -32768,      true    },
+    {  L_,  "-3276800000.000000e-5",     -32768,      true    },
+    {  L_,   "-327680000e-4",            -32768,      true    },
+    {  L_,    "-32768000e-3",            -32768,      true    },
+    {  L_,     "-3276800e-2",            -32768,      true    },
+    {  L_,      "-327680e-1",            -32768,      true    },
+    {  L_,       "-32768e-0",            -32768,      true    },
 
-                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
-                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+    {  L_,          "1.0e0",                  1,      true    },
+    {  L_,          "2.000e0",                2,      true    },
+    {  L_,          "3.0e1",                 30,      true    },
+    {  L_,          "4.5e1",                 45,      true    },
+    {  L_,          "6.00e1",                60,      true    },
+    {  L_,          "7.00e2",               700,      true    },
+    {  L_,          "8.0000e2",             800,      true    },
+    {  L_,          "9.12e2",               912,      true    },
+    {  L_,          "1.1200e2",             112,      true    },
 
-                {  L_,    "0x12",     ERROR_VALUE,   false   },
-                {  L_,    "0x256",    ERROR_VALUE,   false   },
-                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
-                {  L_,    "JUNK",     ERROR_VALUE,   false   },
+    {  L_,           ".5",          ERROR_VALUE,      false   },
+    {  L_,           ".123",        ERROR_VALUE,      false   },
+
+    {  L_,          "1.1",          ERROR_VALUE,      false   },
+    {  L_,          "1.5",          ERROR_VALUE,      false   },
+    {  L_,          "1.9",          ERROR_VALUE,      false   },
+
+    {  L_,        "100.123",        ERROR_VALUE,      false   },
+    {  L_,         "99.5",          ERROR_VALUE,      false   },
+    {  L_,          "0.86",         ERROR_VALUE,      false   },
+
+    {  L_,        "255.01",         ERROR_VALUE,      false   },
+    {  L_,        "255.99",         ERROR_VALUE,      false   },
+
+    {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
+    {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
+
+    {  L_,          "1e1e1",        ERROR_VALUE,      false   },
+    {  L_,          "1e1e-1",       ERROR_VALUE,      false   },
+
+    {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
+    {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
+
+    {  L_,          "1.0000000001", ERROR_VALUE,      false   },
+    {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
+
+    {  L_,      "32768",            ERROR_VALUE,      false   },
+    {  L_,      "65535",            ERROR_VALUE,      false   },
+
+    {  L_,     "-32769",            ERROR_VALUE,      false   },
+    {  L_,     "-65535",            ERROR_VALUE,      false   },
+
+    {  L_,      "32767.01",         ERROR_VALUE,      false   },
+    {  L_,      "32767.99",         ERROR_VALUE,      false   },
+    {  L_,      "32768.01",         ERROR_VALUE,      false   },
+    {  L_,      "65535.01",         ERROR_VALUE,      false   },
+
+    {  L_,     "-32768.01",         ERROR_VALUE,      false   },
+    {  L_,     "-32768.99",         ERROR_VALUE,      false   },
+    {  L_,     "-32769.01",         ERROR_VALUE,      false   },
+    {  L_,     "-32769.99",         ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
+    {  L_,        "-",              ERROR_VALUE,      false   },
+    {  L_,        ".5",             ERROR_VALUE,      false   },
+    {  L_,        "-.5",            ERROR_VALUE,      false   },
+    {  L_,        "e",              ERROR_VALUE,      false   },
+    {  L_,        "e1",             ERROR_VALUE,      false   },
+    {  L_,        "E",              ERROR_VALUE,      false   },
+    {  L_,        "E1",             ERROR_VALUE,      false   },
+    {  L_,        "e+",             ERROR_VALUE,      false   },
+    {  L_,        "e+1",            ERROR_VALUE,      false   },
+    {  L_,        "E+",             ERROR_VALUE,      false   },
+    {  L_,        "E+1",            ERROR_VALUE,      false   },
+    {  L_,        "e-",             ERROR_VALUE,      false   },
+    {  L_,        "e-1",            ERROR_VALUE,      false   },
+    {  L_,        "E-",             ERROR_VALUE,      false   },
+    {  L_,        "E-1",            ERROR_VALUE,      false   },
+
+    {  L_,        "Z34.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "3Z4.56e1",       ERROR_VALUE,      false   },
+    {  L_,        "34Z.56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34+56e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.Z6e1",       ERROR_VALUE,      false   },
+    {  L_,         "34.5Ze1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56Z1",       ERROR_VALUE,      false   },
+    {  L_,         "34.56eZ",       ERROR_VALUE,      false   },
+    {  L_,         "34.56e+Z",      ERROR_VALUE,      false   },
+    {  L_,         "34.56e-Z",      ERROR_VALUE,      false   },
+
+    {  L_,         "0x12",          ERROR_VALUE,      false   },
+    {  L_,         "0x256",         ERROR_VALUE,      false   },
+    {  L_,         "JUNK",          ERROR_VALUE,      false   },
+    {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2629,18 +3766,17 @@ int main(int argc, char *argv[])
                 const int    LINE     = DATA[i].d_line;
                 const string INPUT    = DATA[i].d_input_p;
                 const Type   EXP      = DATA[i].d_exp;
-                const bool   IS_VALID = DATA[i].d_isValid;
+                const int    IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), INPUT.length());
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                const int rc = Util::getValue(&isb, &value);
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -2656,10 +3792,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for unsigned char values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(unsigned char       *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned char"
@@ -2669,6 +3827,8 @@ int main(int argc, char *argv[])
             typedef unsigned char Type;
 
             const Type ERROR_VALUE = 99;
+            const Type MAX         = bsl::numeric_limits<Type>::max();
+            const Type MIN         = bsl::numeric_limits<Type>::min();
 
             static const struct {
                 int         d_line;    // line number
@@ -2676,69 +3836,140 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input             exp     isValid
-                // ----   -----             ---     -------
-                {  L_,      "0",             0,      true    },
-                {  L_,      "1",             1,      true    },
-                {  L_,     "95",            95,      true    },
-                {  L_,    "127",           127,      true    },
-                {  L_,    "128",           128,      true    },
-                {  L_,    "200",           200,      true    },
-                {  L_,    "255",           255,      true    },
+   // line          input                    exp     isValid
+   // ----          -----                    ---     -------
+    {  L_,           "1",                     1,      true    },
+    {  L_,          "95",                    95,      true    },
+    {  L_,         "127",                   127,      true    },
+    {  L_,         "128",                   128,      true    },
+    {  L_,         "200",                   200,      true    },
 
-                {  L_,    "1.1",             1,      true    },
-                {  L_,    "1.5",             1,      true    },
-                {  L_,    "1.9",             1,      true    },
+    {  L_,           "0",                   MIN,      true    },
+    {  L_,           "1",               MIN + 1,      true    },
+    {  L_,         "254",               MAX - 1,      true    },
+    {  L_,         "255",                   MAX,      true    },
 
-                {  L_,    "100.123",       100,      true    },
-                {  L_,    "99.5",           99,      true    },
-                {  L_,    "0.86",            0,      true    },
+    {  L_,           "0.0",                   0,      true    },
+    {  L_,           "0.0000000000000",       0,      true    },
+    {  L_,           "1.0",                   1,      true    },
+    {  L_,           "1.00000000000",         1,      true    },
+    {  L_,         "95.0",                   95,      true    },
+    {  L_,         "95.0000000000",          95,      true    },
+    {  L_,        "127.00",                 127,      true    },
+    {  L_,        "128.00",                 128,      true    },
+    {  L_,        "200.00",                 200,      true    },
+    {  L_,        "255.00",                 255,      true    },
 
-                {  L_,  "255.01",          255,      true    },
+    {  L_,          "1e0",                    1,      true    },
+    {  L_,          "1E0",                    1,      true    },
+    {  L_,          "1e+0",                   1,      true    },
+    {  L_,          "1E+0",                   1,      true    },
+    {  L_,          "1e-0",                   1,      true    },
+    {  L_,          "1E-0",                   1,      true    },
 
-// TBD: fails in opt mode
-//                 {  L_,  "255.99",          255,      true    },
+    {  L_,          "1e1",                   10,      true    },
+    {  L_,          "2E1",                   20,      true    },
+    {  L_,          "3e+1",                  30,      true    },
+    {  L_,          "4E+1",                  40,      true    },
+    {  L_,          "2e2",                  200,      true    },
 
-                {  L_,    "1e0",             1,      true    },
-                {  L_,    "1E0",             1,      true    },
-                {  L_,    "1e+0",            1,      true    },
-                {  L_,    "1E+0",            1,      true    },
-                {  L_,    "1e-0",            1,      true    },
-                {  L_,    "1E-0",            1,      true    },
+    {  L_,          "0.1e1",                  1,      true    },
+    {  L_,          "0.2e2",                 20,      true    },
+    {  L_,          "0.30e2",                30,      true    },
 
-                {  L_,    "1e1",            10,      true    },
-                {  L_,    "1E1",            10,      true    },
-                {  L_,    "1e+1",           10,      true    },
-                {  L_,    "1E+1",           10,      true    },
+    {  L_,          "0.25500e3",            255,      true    },
+    {  L_,          "2.55000e2",            255,      true    },
+    {  L_,          "25.5000e1",            255,      true    },
+    {  L_,          "255.000e0",            255,      true    },
 
-                {  L_,    "1.234e+1",       12,      true    },
-                {  L_,    "1.987E+1",       19,      true    },
+    {  L_,  "25500000e-5",                  255,      true    },
+    {  L_,  "25500000.0000000e-5",          255,      true    },
+    {  L_,   "2550000e-4",                  255,      true    },
+    {  L_,    "255000e-3",                  255,      true    },
+    {  L_,     "25500e-2",                  255,      true    },
+    {  L_,      "2550e-1",                  255,      true    },
+    {  L_,       "255e-0",                  255,      true    },
 
-                {  L_,    "12.34e-1",        1,      true    },
-                {  L_,    "29.87E-1",        2,      true    },
+    {  L_,          "1.0e0",                  1,      true    },
+    {  L_,          "2.000e0",                2,      true    },
+    {  L_,          "3.0e1",                 30,      true    },
+    {  L_,          "4.5e1",                 45,      true    },
+    {  L_,          "6.00e1",                60,      true    },
 
-                {  L_,    "1e-1",            0,      true    },
-                {  L_,    "1E-1",            0,      true    },
+    {  L_,           ".5",          ERROR_VALUE,      false   },
+    {  L_,           ".123",        ERROR_VALUE,      false   },
 
-                {  L_,    "256",      ERROR_VALUE,   false   },
-                {  L_,    "256.01",   ERROR_VALUE,   false   },
-                {  L_,    "256.99",   ERROR_VALUE,   false   },
-                {  L_,    "32766",    ERROR_VALUE,   false   },
-                {  L_,    "32766.01", ERROR_VALUE,   false   },
-                {  L_,    "32766.99", ERROR_VALUE,   false   },
+    {  L_,          "1.1",          ERROR_VALUE,      false   },
+    {  L_,          "1.5",          ERROR_VALUE,      false   },
+    {  L_,          "1.9",          ERROR_VALUE,      false   },
 
-                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
-                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
-                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
-                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+    {  L_,        "100.123",        ERROR_VALUE,      false   },
+    {  L_,         "99.5",          ERROR_VALUE,      false   },
+    {  L_,          "0.86",         ERROR_VALUE,      false   },
 
-                {  L_,    "0x12",     ERROR_VALUE,   false   },
-                {  L_,    "0x256",    ERROR_VALUE,   false   },
-                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
-                {  L_,    "JUNK",     ERROR_VALUE,   false   },
+    {  L_,        "255.01",         ERROR_VALUE,      false   },
+    {  L_,        "255.99",         ERROR_VALUE,      false   },
+
+    {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
+    {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
+
+    {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
+    {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
+
+    {  L_,          "1.0000000001", ERROR_VALUE,      false   },
+    {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
+
+    {  L_,        "256",            ERROR_VALUE,      false   },
+
+    {  L_,        "255.01",         ERROR_VALUE,      false   },
+    {  L_,        "255.99",         ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
+    {  L_,        "-",              ERROR_VALUE,      false   },
+    {  L_,        ".5",             ERROR_VALUE,      false   },
+    {  L_,        "-.5",            ERROR_VALUE,      false   },
+    {  L_,        "e",              ERROR_VALUE,      false   },
+    {  L_,        "e1",             ERROR_VALUE,      false   },
+    {  L_,        "E",              ERROR_VALUE,      false   },
+    {  L_,        "E1",             ERROR_VALUE,      false   },
+    {  L_,        "e+",             ERROR_VALUE,      false   },
+    {  L_,        "e+1",            ERROR_VALUE,      false   },
+    {  L_,        "E+",             ERROR_VALUE,      false   },
+    {  L_,        "E+1",            ERROR_VALUE,      false   },
+    {  L_,        "e-",             ERROR_VALUE,      false   },
+    {  L_,        "e-1",            ERROR_VALUE,      false   },
+    {  L_,        "E-",             ERROR_VALUE,      false   },
+    {  L_,        "E-1",            ERROR_VALUE,      false   },
+
+    {  L_,         "Z4.56e1",       ERROR_VALUE,      false   },
+    {  L_,         "3Z.56e1",       ERROR_VALUE,      false   },
+    {  L_,          "3+56e1",       ERROR_VALUE,      false   },
+    {  L_,          "3.Z6e1",       ERROR_VALUE,      false   },
+    {  L_,          "3.5Ze1",       ERROR_VALUE,      false   },
+    {  L_,          "3.56Z1",       ERROR_VALUE,      false   },
+    {  L_,          "3.56eZ",       ERROR_VALUE,      false   },
+    {  L_,          "3.56e+Z",      ERROR_VALUE,      false   },
+    {  L_,          "3.56e-Z",      ERROR_VALUE,      false   },
+
+    {  L_,         "0x12",          ERROR_VALUE,      false   },
+    {  L_,         "0x256",         ERROR_VALUE,      false   },
+    {  L_,         "JUNK",          ERROR_VALUE,      false   },
+    {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2749,15 +3980,14 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), INPUT.length());
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                const int rc = Util::getValue(&isb, &value);
+                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc,           0 == rc);
-                    LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
@@ -2773,10 +4003,32 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for signed char values
         //
         // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
         //
         // Testing:
+        //   static int getValue(char                *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for signed char"
@@ -2784,43 +4036,154 @@ int main(int argc, char *argv[])
                                << bsl::endl;
 
         {
-            const char ERROR_CHAR = 'X';
+            const char ERROR_VALUE = 'X';
+            const char MAX         = bsl::numeric_limits<signed char>::max();
+            const char MIN         = bsl::numeric_limits<signed char>::min();
 
             static const struct {
-                int         d_line;    // line number
-                const char *d_input_p; // input on the stream
-                char        d_exp;     // exp char value
-                bool        d_isValid; // isValid flag
+                int          d_line;    // line number
+                const char  *d_input_p; // input on the stream
+                signed char  d_exp;     // exp char value
+                bool         d_isValid; // isValid flag
             } DATA[] = {
-                // line    input        exp            isValid
-                // ----    -----        ---            -------
-                {  L_,     "\"0\"",     '0',            true  },
-                {  L_,     "\"1\"",     '1',            true  },
-                {  L_,     "\"A\"",     'A',            true  },
-                {  L_,     "\"z\"",     'z',            true  },
+   // line          input                    exp     isValid
+   // ----          -----                    ---     -------
+    {  L_,           "0",                  '\0',      true    },
+    {  L_,          "32",                   ' ',      true    },
+    {  L_,          "49",                   '1',      true    },
+    {  L_,          "65",                   'A',      true    },
+    {  L_,         "126",                   '~',      true    },
 
-                {  L_,     "\"\\\"\"",  '\"',           true  },
-                {  L_,     "\"\\\\\"",  '\\',           true  },
-                {  L_,     "\"\\b\"",   '\b',           true  },
-                {  L_,     "\"\\f\"",   '\f',           true  },
-                {  L_,     "\"\\n\"",   '\n',           true  },
-                {  L_,     "\"\\r\"",   '\r',           true  },
-                {  L_,     "\"\\t\"",   '\t',           true  },
+    {  L_,        "-128",                  MIN,       true    },
+    {  L_,        "-127",               MIN + 1,      true    },
+    {  L_,         "126",               MAX - 1,      true    },
+    {  L_,         "127",                   MAX,      true    },
 
-                {  L_,     "\"\\u0020\"",   ' ',        true  },
-                {  L_,     "\"\\u002E\"",   '.',        true  },
-                {  L_,     "\"\\u0041\"",   'A',        true  },
+    {  L_,           "9",                  '\t',      true    },
+    {  L_,          "10",                  '\n',      true    },
+    {  L_,          "13",                  '\r',      true    },
+    {  L_,          "34",                  '\"',      true    },
+    {  L_,          "92",                  '\\',      true    },
 
-                {  L_,     "\"\\U006d\"",   'm',        true  },
-                {  L_,     "\"\\U007E\"",   '~',        true  },
+    {  L_,           "0.0",                '\0',      true    },
+    {  L_,           "0.0000000000000",    '\0',      true    },
+    {  L_,          "32.0",                 ' ',      true    },
+    {  L_,          "32.00000000000",       ' ',      true    },
+    {  L_,         "95.0",                  '_',      true    },
+    {  L_,         "95.0000000000",         '_',      true    },
+    {  L_,        "126.00",                 '~',      true    },
 
-                {  L_,     "\"AB\"",        ERROR_CHAR, false },
+    {  L_,          "0e0",                 '\0',      true    },
+    {  L_,          "0E0",                 '\0',      true    },
+    {  L_,          "0e+0",                '\0',      true    },
+    {  L_,          "0E+0",                '\0',      true    },
+    {  L_,          "0e-0",                '\0',      true    },
+    {  L_,          "0E-0",                '\0',      true    },
 
-                {  L_,     "\"\\UX000\"",   ERROR_CHAR, false  },
-                {  L_,     "\"\\U8000\"",   ERROR_CHAR, false  },
-                {  L_,     "\"\\U7G00\"",   ERROR_CHAR, false  },
-                {  L_,     "\"\\U0080\"",   ERROR_CHAR, false  },
-                {  L_,     "\"\\U007G\"",   ERROR_CHAR, false  },
+    {  L_,          "1e1",                 '\n',      true    },
+    {  L_,          "1E1",                 '\n',      true    },
+    {  L_,          "1e+1",                '\n',      true    },
+    {  L_,          "1E+1",                '\n',      true    },
+
+    {  L_,          "0.9e1",               '\t',      true    },
+    {  L_,          "0.7e2",                'F',      true    },
+    {  L_,          "0.70e2",               'F',      true    },
+    {  L_,          "0.100e3",              'd',      true    },
+
+    {  L_,          "0.12600e3",            '~',      true    },
+    {  L_,          "1.260e2",              '~',      true    },
+    {  L_,          "12.60e1",              '~',      true    },
+    {  L_,          "126.0e0",              '~',      true    },
+
+    {  L_,  "12600000e-5",                  '~',      true    },
+    {  L_,  "12600000.00000e-5",            '~',      true    },
+    {  L_,   "1260000e-4",                  '~',      true    },
+    {  L_,    "126000e-3",                  '~',      true    },
+    {  L_,     "12600e-2",                  '~',      true    },
+    {  L_,      "1260e-1",                  '~',      true    },
+    {  L_,       "126e-0",                  '~',      true    },
+
+    {  L_,          "9.0e0",               '\t',      true    },
+    {  L_,          "9.000e0",             '\t',      true    },
+    {  L_,          "3.3e1",                '!',      true    },
+    {  L_,          "6.5e1",                'A',      true    },
+    {  L_,          "6.50e1",               'A',      true    },
+
+    {  L_,           ".5",          ERROR_VALUE,      false   },
+    {  L_,           ".123",        ERROR_VALUE,      false   },
+
+    {  L_,          "1.1",          ERROR_VALUE,      false   },
+    {  L_,          "1.5",          ERROR_VALUE,      false   },
+    {  L_,          "1.9",          ERROR_VALUE,      false   },
+
+    {  L_,        "100.123",        ERROR_VALUE,      false   },
+    {  L_,         "99.5",          ERROR_VALUE,      false   },
+    {  L_,          "0.86",         ERROR_VALUE,      false   },
+
+    {  L_,        "127.01",         ERROR_VALUE,      false   },
+    {  L_,        "127.99",         ERROR_VALUE,      false   },
+
+    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+
+    {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
+    {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
+
+    {  L_,          "1e1e1",        ERROR_VALUE,      false   },
+    {  L_,          "1e1e-1",       ERROR_VALUE,      false   },
+
+    {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
+    {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+
+    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
+    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+
+    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
+    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+
+    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
+    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
+
+    {  L_,          "1.0000000001", ERROR_VALUE,      false   },
+    {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
+
+    {  L_,        "128",            ERROR_VALUE,      false   },
+    {  L_,       "-129",            ERROR_VALUE,      false   },
+
+    {  L_,      "127.01",           ERROR_VALUE,      false   },
+    {  L_,      "127.99",           ERROR_VALUE,      false   },
+    {  L_,      "128.01",           ERROR_VALUE,      false   },
+    {  L_,      "128.01",           ERROR_VALUE,      false   },
+
+    {  L_,     "-128.01",           ERROR_VALUE,      false   },
+    {  L_,     "-128.99",           ERROR_VALUE,      false   },
+    {  L_,     "-129.01",           ERROR_VALUE,      false   },
+    {  L_,     "-129.99",           ERROR_VALUE,      false   },
+
+    {  L_,        "-",              ERROR_VALUE,      false   },
+    {  L_,        ".5",             ERROR_VALUE,      false   },
+    {  L_,        "-.5",            ERROR_VALUE,      false   },
+
+    {  L_,       "Z2.7e1",          ERROR_VALUE,      false   },
+    {  L_,       "1Z.7e1",          ERROR_VALUE,      false   },
+    {  L_,       "12+7e1",          ERROR_VALUE,      false   },
+    {  L_,       "12.Ze1",          ERROR_VALUE,      false   },
+    {  L_,       "12.7Z1",          ERROR_VALUE,      false   },
+    {  L_,       "12.7eZ",          ERROR_VALUE,      false   },
+    {  L_,       "12.7e+Z",         ERROR_VALUE,      false   },
+    {  L_,       "12.7e-Z",         ERROR_VALUE,      false   },
+
+    {  L_,       "0x12",            ERROR_VALUE,      false   },
+    {  L_,       "0x256",           ERROR_VALUE,      false   },
+    {  L_,       "JUNK",            ERROR_VALUE,      false   },
+    {  L_,       "DEADBEEF",        ERROR_VALUE,      false   },
+
+    {  L_,       "\"\"",            ERROR_VALUE,      false   },
+    {  L_,       "\"AB\"",          ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2830,19 +4193,17 @@ int main(int argc, char *argv[])
                 const char           C        = DATA[i].d_exp;
                 const signed char    SC       = (signed char) DATA[i].d_exp;
                 const bool           IS_VALID = DATA[i].d_isValid;
-                      char           c        = ERROR_CHAR;
-                      signed char    sc       = ERROR_CHAR;
+                      char           c        = ERROR_VALUE;
+                      signed char    sc       = ERROR_VALUE;
 
                 if (veryVerbose) { P(INPUT) P(C) }
 
                 // char values
                 {
-                    bdesb_FixedMemInStreamBuf isb(INPUT.data(),
-                                                  INPUT.length());
-                    const int rc = Util::getValue(&isb, &c);
+                    StringRef isb(INPUT.data(), INPUT.length());
+                    const int rc = Util::getValue(&c, isb);
                     if (IS_VALID) {
-                        LOOP2_ASSERT(LINE, rc,           0 == rc);
-                        LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                        LOOP2_ASSERT(LINE, rc, 0 == rc);
                     }
                     else {
                         LOOP2_ASSERT(LINE, rc, rc);
@@ -2852,12 +4213,10 @@ int main(int argc, char *argv[])
 
                 // signed char values
                 {
-                    bdesb_FixedMemInStreamBuf isb(INPUT.data(),
-                                                  INPUT.length());
-                    const int rc = Util::getValue(&isb, &sc);
+                    StringRef isb(INPUT.data(), INPUT.length());
+                    const int rc = Util::getValue(&sc, isb);
                     if (IS_VALID) {
-                        LOOP2_ASSERT(LINE, rc,           0 == rc);
-                        LOOP2_ASSERT(LINE, isb.length(), 0 == isb.length());
+                        LOOP2_ASSERT(LINE, rc, 0 == rc);
                     }
                     else {
                         LOOP2_ASSERT(LINE, rc, rc);
@@ -2872,10 +4231,20 @@ int main(int argc, char *argv[])
         // TESTING 'getValue' for bool values
         //
         // Concerns:
+        //: 1 "true" is decoded into 'true' and "false" is decoded into
+        //:   'false'.
+        //:
+        //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
+        //: 1 Use a brute force approach to test both cases.  Confirm that the
+        //:   return value is 0.
+        //:
+        //: 2 Try to decode an errorneous value and verify that the return
+        //:   value is non-zero.
         //
         // Testing:
+        //   static int getValue(bool                *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for bool"
@@ -2884,35 +4253,33 @@ int main(int argc, char *argv[])
         {
             typedef bool Type;
 
-            const Type XA1 = true;  Type XA2; const string EA = "true";
-            const Type XB1 = false; Type XB2; const string EB = "false";
-                  Type XC1 = true;  Type XC2 = false;
-            const string EC = "error";
+            const Type   XA1 = true;    Type XA2; const string EA = "true";
+            const Type   XB1 = false;   Type XB2; const string EB = "false";
+                  Type   XC1 = true;    Type XC2 = false;
+            const string  EC = "error";
 
             {
-                bdesb_FixedMemInStreamBuf isb(EA.data(), EA.length());
-                ASSERT(SUCCESS == Util::getValue(&isb, &XA2));
-                ASSERT(0       == isb.length());
+                StringRef isb(EA.data(), EA.length());
+                ASSERT(SUCCESS == Util::getValue(&XA2, isb));
                 ASSERT(XA1     == XA2);
             }
 
             {
-                bdesb_FixedMemInStreamBuf isb(EB.data(), EB.length());
-                ASSERT(SUCCESS == Util::getValue(&isb, &XB2));
-                ASSERT(0       == isb.length());
+                StringRef isb(EB.data(), EB.length());
+                ASSERT(SUCCESS == Util::getValue(&XB2, isb));
                 ASSERT(XB1     == XB2);
             }
 
             {
-                bdesb_FixedMemInStreamBuf isb(EC.data(), EC.length());
-                ASSERT(FAILURE == Util::getValue(&isb, &XC1));
-                ASSERT(true == XC1);
+                StringRef isb(EC.data(), EC.length());
+                ASSERT(SUCCESS != Util::getValue(&XC1, isb));
+                ASSERT(true    == XC1);
             }
 
             {
-                bdesb_FixedMemInStreamBuf isb(EC.data(), EC.length());
-                ASSERT(FAILURE == Util::getValue(&isb, &XC2));
-                ASSERT(false == XC2);
+                StringRef isb(EC.data(), EC.length());
+                ASSERT(SUCCESS != Util::getValue(&XC2, isb));
+                ASSERT(false   == XC2);
             }
         }
       } break;
@@ -2948,8 +4315,8 @@ int main(int argc, char *argv[])
             { L_,    "-3.125e38",   true,   -3.125e38 },
 
             { L_,         "-1.0",   true,        -1.0 },
+            { L_,         "-0.0",   true,         0.0 },
 
-            { L_,         "-0.0",   true,        -0.0 },
             { L_,            "0",   true,         0.0 },
             { L_,          "0.0",   true,         0.0 },
             { L_,          "1.0",   true,         1.0 },
@@ -2963,14 +4330,10 @@ int main(int argc, char *argv[])
             { L_,         "-1.5",   true,        -1.5 },
             { L_,     "-1.25e-3",   true,    -1.25e-3 },
             { L_,     "9.25e+10",   true,     9.25e10 },
-            { L_,           ".1",   true,         0.1 },
 
             { L_,           "+1",  false,         0.0 },
             { L_,          "--1",  false,         0.0 },
-
-// TBD:
-//             { L_,           "1.",  false,         0.0 },
-
+            { L_,           "1.",  false,         0.0 },
             { L_,        "1e+-1",  false,         0.0 }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2981,10 +4344,10 @@ int main(int argc, char *argv[])
             const bool        FLAG   = DATA[ti].d_validFlag;
             const double      EXP    = DATA[ti].d_result;
 
-            bsl::istringstream iss(STRING);
+            bslstl::StringRef iss(STRING);
 
             double result;
-            const int rc = Util::getValue(iss.rdbuf(), &result);
+            const int rc = Util::getValue(&result, iss);
             if (FLAG) {
                 ASSERTV(LINE, rc,               0 == rc);
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -3011,3 +4374,12 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------
