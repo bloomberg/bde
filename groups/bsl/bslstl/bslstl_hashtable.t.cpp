@@ -96,6 +96,9 @@
 # define BSLSTL_HASHTABLE_MINIMALTEST_TYPES  TestTypes::MostEvilTestType
 #endif
 
+#if 0 // Define this macro to minimize cost of the most time consuming testcase
+# define BSLSTL_HASHTABLE_TRIM_TEST_CASE9_COMPLEXITY
+#endif
 
 using namespace BloombergLP;
 using bslstl::CallableVariable;
@@ -188,8 +191,8 @@ using bslstl::CallableVariable;
 // CREATORS
 //*[  ] HashTable(const ALLOCATOR& allocator = ALLOCATOR());
 // [ 2] HashTable(const HASHER&, const COMPARATOR&, SizeType, const ALLOCATOR&)
-//*[ 7] HashTable(const HashTable& original);
-//*[ 7] HashTable(const HashTable& original, const ALLOCATOR& allocator);
+// [ 7] HashTable(const HashTable& original);
+// [ 7] HashTable(const HashTable& original, const ALLOCATOR& allocator);
 // [ 2] ~HashTable();
 //
 // MANIPULATORS
@@ -204,7 +207,7 @@ using bslstl::CallableVariable;
 //*[11] rehashForNumBuckets(SizeType newNumBuckets);
 //*[11] reserveForNumElements(SizeType numElements);
 //*[13] setMaxLoadFactor(float loadFactor);
-//*[ 8] swap(HashTable& other);
+// [ 8] swap(HashTable& other);
 //
 //      ACCESSORS
 // [ 4] allocator() const;
@@ -225,11 +228,11 @@ using bslstl::CallableVariable;
 // [ 4] bucketIndexForKey(const KeyType& key) const;
 // [ 4] countElementsInBucket(SizeType index) const;
 //
-//*[ 6] bool operator==(const HashTable& lhs, const HashTable& rhs);
-//*[ 6] bool operator!=(const HashTable& lhs, const HashTable& rhs);
+// [ 6] bool operator==(const HashTable& lhs, const HashTable& rhs);
+// [ 6] bool operator!=(const HashTable& lhs, const HashTable& rhs);
 //
 //// specialized algorithms:
-//*[ 8] void swap(HashTable& a, HashTable& b);
+// [ 8] void swap(HashTable& a, HashTable& b);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -1773,11 +1776,18 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
 static
 const float DEFAULT_MAX_LOAD_FACTOR[] = {
-     0.125f,
-//     0.618f,
-     1.0f,
-//     1.618f,
-     8.0f,
+#if defined(BSLSTL_HASHTABLE_TEST_EXTREME_CASES)
+    // Note that using tiny values for 'maxLoadFactor' can consume a huge
+    // amount of memory for no real purpose, and greatly slows down the
+    // running of the test case.  These test cases are disabled by default
+    // as a practical matter, but can be run manually by defining the macro
+    // 'BSLSTL_HASHTABLE_TEST_EXTREME_CASES' when building the test driver.
+            1e-5,    // This is small enough to test extremely low value
+#endif
+            0.125f,  // Low value used throughout the test driver
+            1.0f,    // Default and most common value
+            8.0f,    // High value used throughout the test driver
+            native_std::numeric_limits<float>::infinity()  // edge case
 };
 static const int DEFAULT_MAX_LOAD_FACTOR_SIZE =
               sizeof DEFAULT_MAX_LOAD_FACTOR / sizeof *DEFAULT_MAX_LOAD_FACTOR;
@@ -4440,12 +4450,14 @@ struct BsltfConfig {
         // computations happen while the first result is still held as a
         // reference.  Unfortunately, we have no such guarantee on simultaneous
         // evaluations in the HashTable facility itself, so we cycle through a
-        // cache of 16 results, as no reference should be so long lived that we
-        // see 16 live references.
-        static int results_cache[16] = {};
+        // cache of 46 results, as no reference should be so long lived that we
+        // see 64 live references.  Note that an early version of this test
+        // driver demonstrated that we could have at least 16 live references,
+        // before the limit was raised to 64.
+        static int results_cache[64] = {};
         static int index = -1;
 
-        if (16 == ++index) {
+        if (64 == ++index) {
             index = 0;
         }
 
@@ -4749,7 +4761,7 @@ struct TestDriver_FunctionPointers
     // type arguments for the hash type and key-comparison type.  Note that
     // this corresponds to testing a stateful functor, with the awkward case
     // that the default value for the callable types is known to produce
-    // undefinded behavior (null pointer values for the function pointers).
+    // undefined behavior (null pointer values for the function pointers).
 };
 
 #if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
@@ -6091,22 +6103,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
     {
-        static const float MAX_LOAD_FACTOR[] = {
-            1e-5,    // This is small enough to test extremely low value
-            0.125f,  // Low value used throughout the test driver
-            1.0f,    // Default and most common value
-            8.0f,    // High value used throughout the test driver
-            native_std::numeric_limits<float>::infinity()  // edge case
-        };
-        static const int MAX_LOAD_FACTOR_SIZE =
-                         sizeof MAX_LOAD_FACTOR / sizeof *MAX_LOAD_FACTOR;
-
         if (veryVerbose) {
             printf("\tTesting with Max Load Factor\n");
         }
 
-        for (int lfi = 0; lfi < MAX_LOAD_FACTOR_SIZE; ++lfi) {
-            const float    MAX_LF = MAX_LOAD_FACTOR[lfi];
+        for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
+            const float MAX_LF  = DEFAULT_MAX_LOAD_FACTOR[lfi];
 
             if (veryVerbose) {
                 T_ P(MAX_LF);
@@ -6342,24 +6344,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
         printf("\nCreate objects with various allocator configurations.\n");
     }
     {
-        static const float MAX_LOAD_FACTOR[] = {
-#if defined(BSLSTL_HASHTABLE_TEST_EXTREME_CASES)
-            1e-5,    // This is small enough to test extremely low value
-#endif
-            0.125f,  // Low value used throughout the test driver
-            1.0f,    // Default and most common value
-            8.0f,    // High value used throughout the test driver
-            native_std::numeric_limits<float>::infinity()  // edge case
-        };
-        static const int MAX_LOAD_FACTOR_SIZE =
-                         sizeof MAX_LOAD_FACTOR / sizeof *MAX_LOAD_FACTOR;
-
         if (veryVerbose) {
             printf("\tTesting with Max Load Factor\n");
         }
 
-        for (int lfi = 0; lfi < MAX_LOAD_FACTOR_SIZE; ++lfi) {
-            const float    MAX_LF = MAX_LOAD_FACTOR[lfi];
+        for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
+            const float MAX_LF  = DEFAULT_MAX_LOAD_FACTOR[lfi];
 
             if (veryVerbose) {
                 T_ P(MAX_LF);
@@ -6730,12 +6720,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
     //:   allocated from the default allocator.  (C-11)
     //
     // Testing:
-    //*  bool operator==(const HashTable& lhs, const HashTable& rhs);
-    //*  bool operator!=(const HashTable& lhs, const HashTable& rhs);
+    //   bool operator==(const HashTable& lhs, const HashTable& rhs);
+    //   bool operator!=(const HashTable& lhs, const HashTable& rhs);
     // ------------------------------------------------------------------------
-
-    if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
-                        "\n=============================\n");
 
     if (verbose)
               printf("\nAssign the address of each operator to a variable.\n");
@@ -6776,7 +6763,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
         { L_,    9, "FDCBA" },
         { L_,   10, "AFKPUZ" },
         { L_,   11, "ABFGKLPQUVZ" },
-        { L_,   12, "AAABBCDEEFFFGGGHHIJKKLLLMMMNNOPQQRRRSSSTTUVWWXXXYYZ" }
+        { L_,   12, "AAABBCDEEFFFGGGHHIJKKLLLMMMNNOPQQRRRSSSTTUVWWXXXYYZ" },
+        { L_,   12, "ABCDEFGHIJKLMNOPQRSTUVWXYZABEFGHKLMNQRSTWXYXRSLMGFA" }
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6789,6 +6777,16 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
     // Create a variable to confirm that our tested data set has an expected
     // (and important) property.
     bool HAVE_TESTED_DISTINCT_PERMUTATIONS = false;
+
+    // It would be interesting to make this variable static, so that different
+    // test cases start off at different indexes, increasing the variety of the
+    // test space.  Unfortunately, each instantiation of this test function
+    // would obtain its own static variable, side-stepping the intent.  The
+    // alternative would be to make this a global variable, which might then
+    // be recycled for this purpose among multiple test cases.  Something to
+    // consider for the future.
+
+    size_t innerLoadFactorIndex = 0;
 
     if (verbose) printf("\nCompare every value with every value.\n");
     {
@@ -6805,7 +6803,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
             const size_t      NUM_BUCKETS = predictNumBuckets(LENGTH1,
                                                               MAX_LF1);
 
-           if (veryVerbose) { T_ P_(LINE1) P_(INDEX1) P_(LENGTH1) P(SPEC1) }
+           if (veryVerbose) {
+               T_ P_(LINE1) P_(MAX_LF1) P_(INDEX1) P_(LENGTH1) P(SPEC1);
+           }
 
             // Ensure an object compares correctly with itself (alias test).
             {
@@ -6816,24 +6816,25 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                 Obj mX(HASH, EQUAL, NUM_BUCKETS, MAX_LF1, objAlloc);
                 const Obj& X = gg(&mX, SPEC1);
 
-                ASSERTV(LINE1, X,   X == X);
-                ASSERTV(LINE1, X, !(X != X));
+                ASSERTV(LINE1, MAX_LF1, SPEC1, X,   X == X);
+                ASSERTV(LINE1, MAX_LF1, SPEC1, X, !(X != X));
             }
 
-            for (int lfj = 0; lfj != lfi; ++lfj) {
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const float       MAX_LF2  = DEFAULT_MAX_LOAD_FACTOR[lfj];
-
+            for (int tj = 0; tj <= ti; ++tj) {
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec;
 
                 const size_t      LENGTH2      = strlen(SPEC2);
+                const float       MAX_LF2  = DEFAULT_MAX_LOAD_FACTOR[
+                        ++innerLoadFactorIndex % DEFAULT_MAX_LOAD_FACTOR_SIZE];
+
                 const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
                                                                    MAX_LF2);
 
                 if (veryVerbose) {
-                              T_ T_ P_(LINE2) P_(INDEX2) P_(LENGTH2) P(SPEC2) }
+                   T_ T_ P_(LINE2) P_(MAX_LF2) P_(INDEX2) P_(LENGTH2) P(SPEC2);
+                }
 
                 const bool EXP = INDEX1 == INDEX2;  // expected result
 
@@ -6904,7 +6905,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                         }
                     }
                 }
-            }
             }
         }
         }
@@ -7852,6 +7852,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
     const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
     const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
+    // Repeatedly running the strong exception safety test can be expensive,
+    // so we toggle a boolean variable to alternate tests in the cycle.  This
+    // retains a fairly exhaustive coverage, while significant improving test
+    // timings.
+
+    bool testForStrongExceptionSafety = false;
+
     if (verbose) printf("\nCompare each pair of similar and different"
                         " values (u, ua, v, va) in S X A X S X A"
                         " without perturbation.\n");
@@ -7907,26 +7914,40 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
 
                     bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+                    testForStrongExceptionSafety =
+                                                 !testForStrongExceptionSafety;
+                    if (testForStrongExceptionSafety) {
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                            if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
+                            Obj *mR = &(mX = Z);
+                            ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                            ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+                            ASSERTV(LINE1, LINE2,
+                                    Z.maxLoadFactor(),   X.maxLoadFactor(),
+                                    Z.maxLoadFactor() == X.maxLoadFactor());
+
+                        // If we can compare the two functor objects, we should
+                        // do so, to verify stateful allocators are copied too.
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    }
+                    else {
                         Obj *mR = &(mX = Z);
                         ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
                         ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
                         ASSERTV(LINE1, LINE2,
                                 Z.maxLoadFactor(),   X.maxLoadFactor(),
                                 Z.maxLoadFactor() == X.maxLoadFactor());
-
-                        // If we can compare the two functor objects, we should
-                        // do so, to verify stateful allocators are copied too.
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    }
 
                     ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
 
                     // Should test that allocator propagates if, and only if,
                     // the allocator has the propagate_on_container_copy_assign
                     // trait.  Currently we assume (and test) that allocators
-                    // never propagate.
+                    // never propagate, as our implementation of allocator
+                    // traits for C++03 containers does not deduce or support
+                    // any of the propagation traits.
 
                     ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
                     ASSERTV(LINE1, LINE2, scratchAlloc == Z.allocator());
@@ -8962,7 +8983,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase15()
     ASSERT(!bsl::is_trivially_default_constructible<Obj>::value);
     ASSERT(!bslmf::IsBitwiseEqualityComparable<     Obj>::value);
 
-    // The uses-allocator trait should depend only on the  allocator type.
+    // The uses-allocator trait should depend only on the allocator type.
 
     bool usesBslAllocator        = IsBslAllocator<ALLOCATOR>::value;
     bool objUsesBslmaAllocator   = bslma::UsesBslmaAllocator<Obj>::value;
@@ -9877,11 +9898,11 @@ static
 void mainTestCase6()
 {
     // --------------------------------------------------------------------
-    // EQUALITY OPERATORS
+    // EQUALITY-COMPARISON OPERATORS
     // --------------------------------------------------------------------
 
-    if (verbose) printf("\nTesting Equality Operators"
-                        "\n==========================\n");
+    if (verbose) printf("\nTesting Equality-comparison Operators"
+                        "\n=====================================\n");
 
     // Note that the 'NonEqualComparableTestType' is not appropriate here.
 
@@ -10278,12 +10299,14 @@ void mainTestCase9()
                   testCase9,
                   BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
-#if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
+#if defined(BSLSTL_HASHTABLE_TRIM_TEST_CASE9_COMPLEXITY)
+#  undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE9_TYPES TestTypes::MostEvilTestType
+#elif !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
 #  undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES
 #  define BSLSTL_HASHTABLE_TESTCASE9_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
 #endif
 
-#if 1 || defined(RUN_ALL_TESTS_IGNORE_THE_COST)
     // We need to limit the test coverage on IBM as the compiler cannot
     // cope with so many template instantiations.
 
@@ -10348,10 +10371,12 @@ void mainTestCase9()
 # define  BSLSTL_HASHTABLE_TESTCASE9_NO_ALLOCATING_TYPES   \
           BSLSTL_HASHTABLE_TESTCASE9_TYPES
 #else
-# define  BSLSTL_HASHTABLE_TESTCASE9_NO_ALLOCATING_TYPES   \
-          BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
-          bsltf::NonAssignableTestType,                    \
-          bsltf::NonDefaultConstructibleTestType
+# if !defined(BSLSTL_HASHTABLE_TRIM_TEST_CASE9_COMPLEXITY)
+#   define  BSLSTL_HASHTABLE_TESTCASE9_NO_ALLOCATING_TYPES   \
+            BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
+            bsltf::NonAssignableTestType,                    \
+            bsltf::NonDefaultConstructibleTestType
+# endif
 #endif
     if (verbose) printf("\nTesting functors taking convertible arguments"
                         "\n---------------------------------------------\n");
@@ -10374,16 +10399,18 @@ void mainTestCase9()
     // of testing 'HashTable' with these allocator types, and elements that
     // in turn allocate their own memory, using their own allocator.
 
-#undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES
-#define BSLSTL_HASHTABLE_TESTCASE9_TYPES                           \
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
-                  bsltf::EnumeratedTestType::Enum,                 \
-                  bsltf::UnionTestType,                            \
-                  bsltf::SimpleTestType,                           \
-                  bsltf::BitwiseMoveableTestType,                  \
-                  bsltf::NonTypicalOverloadsTestType,              \
-                  bsltf::NonAssignableTestType,                    \
-                  bsltf::NonDefaultConstructibleTestType
+#if !defined(BSLSTL_HASHTABLE_TRIM_TEST_CASE9_COMPLEXITY)
+# undef  BSLSTL_HASHTABLE_TESTCASE9_TYPES
+# define BSLSTL_HASHTABLE_TESTCASE9_TYPES                 \
+         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE, \
+         bsltf::EnumeratedTestType::Enum,                 \
+         bsltf::UnionTestType,                            \
+         bsltf::SimpleTestType,                           \
+         bsltf::BitwiseMoveableTestType,                  \
+         bsltf::NonTypicalOverloadsTestType,              \
+         bsltf::NonAssignableTestType,                    \
+         bsltf::NonDefaultConstructibleTestType
+#endif
 
     // Next we have a sub-set of tests that do not yet want to support testing
     // the allocatable types, as non-BDE allocators do not scope the object
@@ -10408,8 +10435,6 @@ void mainTestCase9()
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
                   testCase9,
                   BSLSTL_HASHTABLE_TESTCASE9_TYPES);
-
-#endif  // RUN_ALL_TESTS_IGNORE_THE_COST
 
 #undef BSLSTL_HASHTABLE_TESTCASE9_TYPES
 
