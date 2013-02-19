@@ -68,12 +68,18 @@ void *bcema_ProtectableSequentialAllocator::allocateWithoutLock(size_type size)
 
     size_type allocSize = (0 == d_size ? BLK_SIZE : d_size) - HEADER;
 
-    while (allocSize < size && allocSize <= d_geometricGrowthLimit) {
+    // We must take care to avoid comparing 'allocSize' (unsigned) to
+    // 'd_geometricGrowthLimit' (signed) if 'd_geometricGrowthLimit' is
+    // negative.
+
+    while (allocSize < size &&
+           d_geometricGrowthLimit >= 0 &&
+           allocSize <= d_geometricGrowthLimit) {
         allocSize += allocSize + HEADER;  // Double allocation while still
                                           // accounting for the header size.
     }
 
-    if (allocSize > d_geometricGrowthLimit) {
+    if (d_geometricGrowthLimit < 0 || allocSize > d_geometricGrowthLimit) {
 
         // If the allocation's size is greater than the max buffer size, but
         // still not enough to satisfy the request, allocate the requested

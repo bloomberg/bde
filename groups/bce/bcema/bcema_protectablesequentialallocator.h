@@ -358,7 +358,8 @@ class bcema_ProtectableSequentialAllocator : public bslma_ManagedAllocator {
         // the maximum amount possible without growing the allocator's
         // internal buffer.  The behavior is undefined unless the call to this
         // allocator that provided the 'address' was performed with the
-        // 'originalNumBytes' and 'originalNumBytes < maxNumBytes'.
+        // 'originalNumBytes' and either 'originalNumBytes < maxNumBytes' or
+        // 'maxNumBytes == 0'.
 
     virtual void release();
         // Unprotect and deallocate all memory managed by this object without

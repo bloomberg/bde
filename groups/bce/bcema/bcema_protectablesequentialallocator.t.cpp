@@ -79,6 +79,10 @@ static void aSsErT(int c, const char *s, int i) {
     if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
               << J << "\n"; aSsErT(1, #X, __LINE__); } }
 
+#define LOOP3_ASSERT(I,J,K,X) { \
+    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
+              << J << "\t" << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+
 //=============================================================================
 //                      SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -633,13 +637,18 @@ int main(int argc, char *argv[])
             const int EXPECTED = (((LIMIT + PG_SIZE - 1)/ PG_SIZE) * PG_SIZE);
             for (int i = 0; i < MAX_ALLOCS; ++i) {
                 void *ptr = a.allocate(1);
-                ASSERT(EXPECTED == testDispenser.lastAllocateNumBytes());
+                LOOP3_ASSERT(i,
+                             EXPECTED,
+                             testDispenser.lastAllocateNumBytes(),
+                             EXPECTED == testDispenser.lastAllocateNumBytes());
                 a.expand(ptr, 1);
             }
 
             const int EXPECTED2 = (((3*LIMIT + PG_SIZE - 1)/PG_SIZE)*PG_SIZE);
             a.allocate(3 * LIMIT);
-            ASSERT(EXPECTED2 == testDispenser.lastAllocateNumBytes());
+            LOOP2_ASSERT(EXPECTED2,
+                         testDispenser.lastAllocateNumBytes(),
+                         EXPECTED2 == testDispenser.lastAllocateNumBytes());
         }
       } break;
       case 11: {
