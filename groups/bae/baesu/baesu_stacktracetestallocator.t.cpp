@@ -985,8 +985,9 @@ int main(int argc, char *argv[])
         }
 
         {
-            baesu_StackTraceTestAllocator ta("Test Allocator");
-            ta.setFailureHandler(&Obj::failureHandlerNoop);
+            Obj ta;
+            ta.setName("Test Allocator");
+            ta.setFailureHandler(&Obj::failNoop);
             bslma::DefaultAllocatorGuard guard(&ta);
 
             bsl::string captain = getCaptain("shipscrew.txt");
@@ -1036,7 +1037,7 @@ int main(int argc, char *argv[])
         //
         // Note the following:
         //: o If we hadn't called
-        //:   'setFailureHandler(&Obj::failureHandlerNoop)', the above report
+        //:   'setFailureHandler(&Obj::failNoop)', the above report
         //:   would have been followed by a core dump.  Since 'isNoAbort' was
         //:   set, 'ta's destructor instead frees all leaked memory after
         //:   giving the report and returns.
@@ -1112,17 +1113,18 @@ int main(int argc, char *argv[])
 
         expectedDefaultAllocations = -1;    // turn off default alloc checking
 
+        bslma::TestAllocator sta;
         bsl::stringstream ss;
 
         {
-            Obj ta((const char *) 0, &ss);
+            Obj ta;
+            ta.setOstream(&ss);
             (void) ta.allocate(100);
             ta.reportBlocksInUse();
             ASSERT(npos != ss.str().find(
                                  "block(s) in allocator '<unnamed>' in use."));
             ta.release();
         }
-        ss.str("");
 
 #if defined(BSLS_ASSERT_IS_ACTIVE) && !defined(BSLS_PLATFORM_OS_WINDOWS)
         bsls::Assert::setFailureHandler(my_assertHandlerLongJmp);
@@ -1132,7 +1134,7 @@ int main(int argc, char *argv[])
             caught = true;
         }
         else {
-            Obj ta(&ss, 1);
+            Obj ta(1);
 
             ASSERT(0 && "Didn't catch too few num recorded frames");
         }
@@ -1143,14 +1145,12 @@ int main(int argc, char *argv[])
             caught = true;
         }
         else {
-            Obj ta("alpha", &ss, 1);
+            Obj ta(1, &sta);
 
             ASSERT(0 && "Didn't catch too few num recorded frames");
         }
         ASSERT(caught);
 #endif
-
-        ASSERT(ss.str().empty());
       }  break;
       case 19: {
         //---------------------------------------------------------------------
@@ -1194,7 +1194,8 @@ int main(int argc, char *argv[])
         for (int depth = 6; depth < 20; ++depth) {
             const int RECORDED_FRAMES = depth - 4;
 
-            Obj ta(&ss, RECORDED_FRAMES);
+            Obj ta(RECORDED_FRAMES);
+            ta.setOstream(&ss);
 
             recurserAllocator = &ta;
             recurseDepth = depth;
@@ -1263,7 +1264,9 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ssTa;
         bsl::stringstream ss(&ssTa);
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sta) {
-            Obj ta("alpha", &ss, 8, true, &sta);;
+            Obj ta(8, &sta);
+            ta.setName("alpha");
+            ta.setOstream(&ss);
 
             void *p = ta.allocate(100);
 
@@ -1502,7 +1505,10 @@ int main(int argc, char *argv[])
             bsl::stringstream ss;
 
             {
-                Obj ta("alpha", &ss, 8, DEMANGLE_CONFIG);
+                Obj ta(8);
+                ta.setName("alpha");
+                ta.setOstream(&ss);
+                ta.setDemanglingPreferredFlag(DEMANGLE_CONFIG);
 
                 (void) ta.allocate(100);
 
@@ -1582,7 +1588,9 @@ int main(int argc, char *argv[])
 
         const unsigned char fillChars[] = { 0, 1, 0xff };
         const unsigned char *end = fillChars + sizeof(fillChars);
-        baesu_StackTraceTestAllocator ta("alpha", &ss);
+        Obj ta;
+        ta.setName("alpha");
+        ta.setOstream(&ss);
 
         if (verbose) Q(Coninuous Underruns);
         {
@@ -1622,7 +1630,7 @@ int main(int argc, char *argv[])
                             ASSERT(my_failureHandlerFlag);
                         }
 
-                        ta.setFailureHandler(&Obj::failureHandlerAbort);
+                        ta.setFailureHandler(&Obj::failAbort);
 
                         LOOP_ASSERT(ss.str(), npos != ss.str().find(
                                                 "Error: corrupted block at "));
@@ -1681,7 +1689,7 @@ int main(int argc, char *argv[])
                             ASSERT(my_failureHandlerFlag);
                         }
 
-                        ta.setFailureHandler(&Obj::failureHandlerAbort);
+                        ta.setFailureHandler(&Obj::failAbort);
 
                         LOOP_ASSERT(ss.str(), npos != ss.str().find(
                                                 "Error: corrupted block at "));
@@ -1763,10 +1771,13 @@ int main(int argc, char *argv[])
         expectedDefaultAllocations = -1;    // turn off default alloc checking
 
         bsl::stringstream oss;
-        Obj ta("alpha", &oss);
+        Obj ta;
+        ta.setName("alpha");
+        ta.setOstream(&oss);
 
         bsl::stringstream oss2;
-        Obj ta2(&oss2);
+        Obj ta2;
+        ta2.setOstream(&oss2);
 
         for (int i = 0; i < ABORT_LIMIT; ++i) {
             const bool ABORT = i;
@@ -1784,7 +1795,9 @@ int main(int argc, char *argv[])
 
                 char buffer[4 * 1000];
                 bslma::BufferAllocator ba(buffer, sizeof(buffer));
-                Obj tba("beta", &oss, 8, true, &ba);
+                Obj tba(8, &ba);
+                tba.setName("beta");
+                tba.setOstream(&oss);
 
                 unsigned tbaBlocks;
                 if (setjmp(my_setJmpBuf)) {
@@ -1813,7 +1826,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                tba.setFailureHandler(Obj::failureHandlerAbort);
+                tba.setFailureHandler(Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 // Make sure nothing was freed before the failure handler
@@ -1860,7 +1873,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failureHandlerAbort);
+                ta.setFailureHandler(Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 // Make sure nothing was freed before the failure handler
@@ -1911,7 +1924,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failureHandlerAbort);
+                ta.setFailureHandler(Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 ASSERT(taBlocks  == ta.numBlocksInUse());
@@ -1954,7 +1967,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failureHandlerAbort);
+                ta.setFailureHandler(Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
@@ -1997,7 +2010,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failureHandlerAbort);
+                ta.setFailureHandler(Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
@@ -2039,7 +2052,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failureHandlerAbort);
+                ta.setFailureHandler(Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 ASSERT(ta.numBlocksInUse() == numBlocks);
@@ -2083,7 +2096,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failureHandlerAbort);
+                ta.setFailureHandler(Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 ASSERT(ta.numBlocksInUse() == numBlocks);
@@ -2127,7 +2140,7 @@ int main(int argc, char *argv[])
                         ASSERT(my_failureHandlerFlag);
                     }
 
-                    ta.setFailureHandler(Obj::failureHandlerAbort);
+                    ta.setFailureHandler(Obj::failAbort);
                     memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                     ASSERT(ta.numBlocksInUse() == numBlocks);
@@ -2208,12 +2221,9 @@ int main(int argc, char *argv[])
 
             for (int numAllocs = 0; numAllocs <= 100; ++numAllocs) {
                 bslma::TestAllocator sta("sta");
-                baesu_StackTraceTestAllocator *pta =
-                                 new (sta) baesu_StackTraceTestAllocator("ta",
-                                                                         &ss,
-                                                                         8,
-                                                                         true,
-                                                                         &sta);
+                Obj *pta = new (sta) Obj(8, &sta);
+                pta->setName("ta");
+                pta->setOstream(&ss);
 
                 for (int i = 0; i < numAllocs; ++i) {
                     (void) pta->allocate(100);
@@ -2239,12 +2249,9 @@ int main(int argc, char *argv[])
 
             for (int numAllocs = 0; numAllocs <= 100; ++numAllocs) {
                 bslma_TestAllocator sta("sta");
-                baesu_StackTraceTestAllocator *pta =
-                                 new (sta) baesu_StackTraceTestAllocator("ta",
-                                                                         &ss,
-                                                                         8,
-                                                                         true,
-                                                                         &sta);
+                Obj *pta = new (sta) Obj(8, &sta);
+                pta->setName("ta");
+                pta->setOstream(&ss);
 
                 for (int i = 0; i < numAllocs; ++i) {
                     (void) pta->allocate(100);
@@ -2252,7 +2259,7 @@ int main(int argc, char *argv[])
                 ASSERT(numAllocs == (int) pta->numBlocksInUse());
 
                 ASSERT(ss.str().empty());
-                pta->setFailureHandler(&Obj::failureHandlerNoop);
+                pta->setFailureHandler(&Obj::failNoop);
                 sta.deleteObject(pta);
 
                 // Verify report was written, if expected
@@ -2285,12 +2292,9 @@ int main(int argc, char *argv[])
 
             for (int numAllocs = 1; numAllocs <= 100; ++numAllocs) {
                 bslma_TestAllocator sta("sta");
-                baesu_StackTraceTestAllocator *pta =
-                                 new (sta) baesu_StackTraceTestAllocator("ta",
-                                                                         &ss,
-                                                                         8,
-                                                                         true,
-                                                                         &sta);
+                Obj *pta = new(sta) Obj(8, &sta);
+                pta->setName("ta");
+                pta->setOstream(&ss);
 
                 for (int i = 0; i < numAllocs; ++i) {
                     (void) pta->allocate(100);
@@ -2301,7 +2305,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(ss.str().empty());
                 if (setjmp(my_setJmpBuf)) {
-                    pta->setFailureHandler(Obj::failureHandlerAbort);
+                    pta->setFailureHandler(Obj::failAbort);
                     memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                     // Make sure a report was written.
@@ -2392,12 +2396,9 @@ int main(int argc, char *argv[])
 
         bsl::stringstream ss(&touchy);
 
-        baesu_StackTraceTestAllocator *pta =
-                           new (touchy) baesu_StackTraceTestAllocator("ta",
-                                                                      &ss,
-                                                                      8,
-                                                                      true,
-                                                                      &touchy);
+        Obj *pta = new (touchy) Obj(8, &touchy);
+        pta->setName("ta");
+        pta->setOstream(&ss);
 
         Util::Handle handles[TC::Functor::NUM_THREADS];
         int rc = 0;
@@ -2506,11 +2507,9 @@ int main(int argc, char *argv[])
 
         QV(Named Allocator);
         {
-            baesu_StackTraceTestAllocator ta("ta",
-                                             &ss,
-                                             8,
-                                             true,
-                                             &sta);
+            Obj ta(8, &sta);
+            ta.setOstream(&ss);
+            ta.setName("ta");
 
             enum { NUM_BLOCKS = 100 };
 
@@ -2545,10 +2544,9 @@ int main(int argc, char *argv[])
 
         QV(Unnamed Allocator);
         {
-            baesu_StackTraceTestAllocator ta(&ss,
-                                             8,
-                                             true,
-                                             &sta);
+            Obj ta(8, &sta);
+            ta.setOstream(&ss);
+            ta.setName("ta");
 
             enum { NUM_BLOCKS = 100 };
 
@@ -2672,23 +2670,25 @@ int main(int argc, char *argv[])
                                             // monitoring
         bsl::ostringstream taOss;
         {
-            Obj ta("my_allocator", &taOss);
+            Obj ta;
+            ta.setName("my_allocator");
+            ta.setOstream(&taOss);
 
             enum {
-                MAX_ALLOC_LENGTH     = 100,
+                MAX_ALLOC_LENGTH   = 100,
 
                 // The following 3 numbers should all be relatively prime
 
                 BLOCK_ARRAY_LENGTH = 10,
-                ALLOC_INC            = 3,
-                FREE_INC             = 7
+                ALLOC_INC          = 3,
+                FREE_INC           = 7
             };
 
-            ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
-            ta.setFailureHandler(&Obj::failureHandlerNoop);
-            ASSERT(ta.failureHandler() == &Obj::failureHandlerNoop);
-            ta.setFailureHandler(Obj::failureHandlerAbort);
-            ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
+            ASSERT(ta.failureHandler() == &Obj::failAbort);
+            ta.setFailureHandler(&Obj::failNoop);
+            ASSERT(ta.failureHandler() == &Obj::failNoop);
+            ta.setFailureHandler(Obj::failAbort);
+            ASSERT(ta.failureHandler() == &Obj::failAbort);
 
             bsl::ostringstream oss;
             ta.reportBlocksInUse(&oss);
@@ -2880,7 +2880,8 @@ int main(int argc, char *argv[])
             const bool CLEAN_DESTROY   = i %  2;
             const bool FAILURE_LONGJMP = i >= 2;
 
-            for (char c = 'a'; c <= 'j' ; ++c) {
+            bool done = false;
+            for (char c = 'a'; !done; ++c) {
                 if (veryVerbose) {
                     P_(CLEAN_DESTROY);    P_(FAILURE_LONGJMP);    P(c);
                 }
@@ -2898,60 +2899,30 @@ int main(int argc, char *argv[])
                     pta = new (ota) Obj();
                   } break;
                   case 'b': {
-                    pta = new (ota) Obj(&oss);
+                    pta = new (ota) Obj(10);
                   } break;
                   case 'c': {
-                    pta = new (ota) Obj(&oss,
-                                        10);
+                    pta = new (ota) Obj(&ota);
+                    otaPassed = true;
                   } break;
                   case 'd': {
-                    pta = new (ota) Obj(&oss,
-                                        10,
-                                        false);
-                  } break;
-                  case 'e': {
-                    pta = new (ota) Obj(&oss,
-                                        10,
-                                        false,
-                                        &ota);
+                    pta = new (ota) Obj(10, &ota);
                     otaPassed = true;
-                  } break;
-                  case 'f': {
-                    pta = new (ota) Obj("my_allocator");
-                  } break;
-                  case 'g': {
-                    pta = new (ota) Obj("my_allocator",
-                                        &oss);
-                  } break;
-                  case 'h': {
-                    pta = new (ota) Obj("my_allocator",
-                                        &oss,
-                                        10);
-                  } break;
-                  case 'i': {
-                    pta = new (ota) Obj("my_allocator",
-                                        &oss,
-                                        10,
-                                        false);
-                  } break;
-                  case 'j': {
-                    pta = new (ota) Obj("my_allocator",
-                                        &oss,
-                                        10,
-                                        false,
-                                        &ota);
-                    otaPassed = true;
+                    done = true;
                   } break;
                 }
 
                 ASSERT(0 != pta);
-                Obj& ta = *pta;
+                Obj& ta = *pta;        const Obj& TA = ta;
 
-                ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
-                ta.setFailureHandler(&Obj::failureHandlerNoop);
-                ASSERT(ta.failureHandler() == &Obj::failureHandlerNoop);
-                ta.setFailureHandler(Obj::failureHandlerAbort);
-                ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
+                ta.setName("my_allocator");
+                ta.setOstream(&oss);
+
+                ASSERT(TA.failureHandler() == &Obj::failAbort);
+                ta.setFailureHandler(&Obj::failNoop);
+                ASSERT(TA.failureHandler() == &Obj::failNoop);
+                ta.setFailureHandler(Obj::failAbort);
+                ASSERT(TA.failureHandler() == &Obj::failAbort);
 
                 // No blocks are allocated.  Verify 'release' has no effect.
 
@@ -2962,10 +2933,10 @@ int main(int argc, char *argv[])
                 ASSERT(otaNumBlocks == ota.numBlocksInUse());
 
                 void *block = ta.allocate(100);
-                ASSERT(1 == ta.numBlocksInUse());
+                ASSERT(1 == TA.numBlocksInUse());
                 ASSERT(!otaPassed || otaNumBlocks + 1 == ota.numBlocksInUse());
                 ta.deallocate(block);
-                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(0 == TA.numBlocksInUse());
                 ASSERT(otaNumBlocks == ota.numBlocksInUse());
 
                 // Verify release works for 1 block allocated.
@@ -2981,11 +2952,11 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < 100; ++j) {
                     (void) ta.allocate(4 + j);
                 }
-                ASSERT(100 == ta.numBlocksInUse());
+                ASSERT(100 == TA.numBlocksInUse());
                 LOOP2_ASSERT(otaNumBlocks, ota.numBlocksInUse(),
                      !otaPassed || otaNumBlocks + 100 <= ota.numBlocksInUse());
                 ta.release();
-                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(0 == TA.numBlocksInUse());
                 ASSERT(otaNumBlocks == ota.numBlocksInUse());
 
                 block = ta.allocate(200);
@@ -3003,7 +2974,7 @@ int main(int argc, char *argv[])
 
                 if (setjmp(my_setJmpBuf)) {
                     LOOP_ASSERT(c, !CLEAN_DESTROY && FAILURE_LONGJMP);
-                    ta.setFailureHandler(Obj::failureHandlerAbort);
+                    ta.setFailureHandler(Obj::failAbort);
 
                     ASSERT(1 == ta.numBlocksInUse());
                 }
@@ -3026,17 +2997,14 @@ int main(int argc, char *argv[])
                 }
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
-                const bool OSS_REPORT = 'a' != c && 'f' != c && !CLEAN_DESTROY;
-
                 const bsl::string& report = oss.str();
-                expectedDefaultAllocations += OSS_REPORT;
+                expectedDefaultAllocations += !CLEAN_DESTROY;
 
-                ASSERT(report.empty() == !OSS_REPORT);
-                if (OSS_REPORT) {
+                ASSERT(report.empty() == CLEAN_DESTROY);
+                if (!CLEAN_DESTROY) {
                     ASSERT(npos != report.find("1 block(s) in use"));
                     ASSERT(npos != report.find("Error: memory leaked"));
-                    ASSERT((c >= 'f') ==
-                                        (npos != report.find("my_allocator")));
+                    ASSERT(npos != report.find("my_allocator"));
                     if (CAN_FIND_SYMBOLS) {
                         ASSERT(npos != report.find("main"));
                         ASSERT(npos != report.find("allocate"));
@@ -3055,52 +3023,48 @@ int main(int argc, char *argv[])
 
         if (verbose) Q("2: Prove if no ostream is given, output goes to cout");
         {
-#           define ASSERT_STDERR(exp)                                         \
-                if (!(exp)) {                                                 \
-                    cerr << "Error " << __FILE__ << "(" << __LINE__ << "): "  \
-                                       << #exp << "    (failed)" << endl;     \
-                    if (0 <= testStatus && testStatus <= 100) ++testStatus;   \
-                }
-
             bsl::stringstream oss(&ota);
-            cout.rdbuf(oss.rdbuf());
+            cerr.rdbuf(oss.rdbuf());
 
-            for (int i = 0; i < 2; ++i) {
-                const bool NAME = i;
+            for (int i = 0; i < 4; ++i) {
+                const bool hasNumRecrodedFrames = i % 2;
+                const bool isWoof               = i / 2;
 
                 oss.str("");
-                ASSERT_STDERR(oss.str().empty());
+                ASSERT(oss.str().empty());
 
-                if (NAME) {
-                    Obj ta("my_allocator");
+                if (hasNumRecrodedFrames) {
+                    Obj ta(14);
 
-                    ta.setFailureHandler(&Obj::failureHandlerNoop);
+                    if (isWoof) ta.setName("woof");
+
+                    ta.setFailureHandler(&Obj::failNoop);
                     ta.allocate(100);
                 }
                 else {
                     Obj ta;
 
-                    ta.setFailureHandler(&Obj::failureHandlerNoop);
+                    if (isWoof) ta.setName("woof");
+
+                    ta.setFailureHandler(&Obj::failNoop);
                     ta.allocate(100);
                 }
 
                 const bsl::string& report = oss.str();
                 ++expectedDefaultAllocations;
 
-                ASSERT_STDERR(!report.empty());
-                ASSERT_STDERR(npos != report.find("Error: memory leaked"));
-                ASSERT_STDERR(npos != report.find("1 block(s) in use"));
-                ASSERT_STDERR((npos != report.find("my_allocator")) == NAME);
+                ASSERT(!report.empty());
+                ASSERT(npos != report.find("Error: memory leaked"));
+                ASSERT(npos != report.find("1 block(s) in use"));
+                ASSERT((npos != report.find("woof")) == isWoof);
                 if (CAN_FIND_SYMBOLS) {
-                    ASSERT_STDERR(npos != report.find("BloombergLP"));
-                    ASSERT_STDERR(npos != report.find(
+                    ASSERT(npos != report.find("BloombergLP"));
+                    ASSERT(npos != report.find(
                                              "baesu_StackTraceTestAllocator"));
-                    ASSERT_STDERR(npos != report.find("allocate"));
-                    ASSERT_STDERR(npos != report.find("main"));
+                    ASSERT(npos != report.find("allocate"));
+                    ASSERT(npos != report.find("main"));
                 }
             }
-
-#           undef ASSERT_STDERR
         }
       }  break;
       case 1: {
@@ -3144,9 +3108,10 @@ int main(int argc, char *argv[])
             bsl::stringstream out(&otherTa);
 
             {
-                baesu_StackTraceTestAllocator ta("TestAlloc1",
-                                                 (veryVerbose ? &cout : &out),
-                                                 maxDepths[d]);
+                Obj ta(maxDepths[d]);
+                ta.setName("TestAlloc1");
+                ta.setOstream(veryVerbose ? &cout : &out);
+
                 leakTwiceAllocator = &ta;
                 leakTwiceCount = 0;
 
@@ -3155,7 +3120,7 @@ int main(int argc, char *argv[])
                 ASSERT(!leakTwiceCount);
 
                 if (!veryVerbose) {
-                    ta.setFailureHandler(&Obj::failureHandlerNoop);
+                    ta.setFailureHandler(&Obj::failNoop);
                 }
             }
 

@@ -63,6 +63,9 @@ BDES_IDENT("$Id: $")
 // expensive but doesn't happen during allocation or deallocation and is put
 // off until a memory leak report is being generated.
 //
+// Note that the overhead increases and efficiency decreases as the
+// 'numRecordedFrames' argument to the constructor is increased.
+//
 ///FailureHandler
 ///--------------
 // An object of type 'baesu_StackTraceTestAllocator' always has a failuer
@@ -78,10 +81,14 @@ BDES_IDENT("$Id: $")
 //..
 // The stack trace test allocator is prepared for the failure handler to
 // return, throw (provided the client will catch the exception) or longjmp
-// without undefined behavior, except that if it throws or longjmps when a
-// memory leak is detected during destruction, the memory will remain leaked.
-// If the failure handler returns, the destructor will release the leaked
-// memory before returning.
+// without undefined behavior.
+//
+// If a memory is found to be outstanding during destruction, that is
+// considered a memory leak and a report is written.  After the report, the
+// failure handler is called, and if the failure handler returns, the leaked
+// memory is then released.  This means that if the failure handler throws or
+// longjmps in this case, the leaked memory will not be freed, and there will
+// be no way to release it afterward since the allocator will no longer exist.
 //
 ///Usage
 ///-----
@@ -325,44 +332,36 @@ BDES_IDENT("$Id: $")
 //:   couple of AIX quirks are visible -- identifiers have a '.' prepended, and
 //:   the constructor name got converted to '__ct'.
 
-#ifndef INCLUDED_BCESCM_VERSION
-#include <bcescm_version.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BCEMT_MUTEX
 #include <bcemt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
-#include <bslma_managedallocator.h>
+#ifndef INCLUDED_BDEMA_MANAGEDALLOCATOR
+#include <bdema_managedallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
-#include <bslmf_assert.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSL_HASH_SET
-#include <bsl_hash_set.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSTREAM
-#include <bsl_iostream.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
 
-                        // =========================
-                        // class bcema_TestAllocator
-                        // =========================
+                      // ===================================
+                      // class baesu_StackTraceTestAllocator
+                      // ===================================
 
 class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
     // This class defines a concrete "test" allocator mechanism that implements
-    // the 'bslma::ManagedAllocator' protocol, and provides instrumentation to
-    // track the set of all blocks allocted by this allocator that have yet to
+    // the 'bdema_ManagedAllocator' protocol, and provides instrumentation to
+    // track the set of all blocks allocated by this allocator that have yet to
     // be freed.  At any time it can produce a report about such blocks,
     // listing for each place that any unfreed blocks were allocated
     //: o the number of unfreed blocks allocated at that place
@@ -377,63 +376,65 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
     // singleton, which in turn calls the C Standard Library functions 'malloc'
     // and 'free' as needed.  Clients may, however, override this allocator by
     // supplying (at construction) any other allocator implementing the
-    // 'Allocator' protocol.
+    // 'bslam::Allocator' protocol.
 
   public:
     // PUBLIC TYPES
     typedef void (*FailureHandler)();
-        // Type of function called by this object to handle failures.  This
-        // allocator is guaranteed to cope, without undefined behavior,
-        // properly if the failure handler returns, throws, or longjmp's.
+        // Type of function called by this object to handle failures.  The
+        // failure handler is allowed to return, throw an exception, abort,
+        // or 'longjmp'.
 
   private:
     // PRIVATE TYPES
     enum AllocatorMagic { STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
 
-    struct BlockHeader;                         // information stored in each
-                                                // block
+    struct BlockHeader;                            // information stored in
+                                                   // each block
 
     // DATA
-    AllocatorMagic            d_magic;          // magic # to identify type of
-                                                // memory allocator
+    AllocatorMagic            d_magic;             // magic # to identify type
+                                                   // of memory allocator
 
-    volatile int              d_numBlocksInUse; // number of allocated blocks
-                                                // currently unfreed
+    volatile int              d_numBlocksInUse;    // number of allocated
+                                                   // blocks currently unfreed
 
-    BlockHeader              *d_blocks;         // list of allocated, unfreed
-                                                // blocks
+    BlockHeader              *d_blocks;            // list of allocated,
+                                                   // unfreed blocks
 
-    mutable bcemt_Mutex       d_mutex;          // mutex used to synchronize
-                                                // access to this object
+    mutable bcemt_Mutex       d_mutex;             // mutex used to synchronize
+                                                   // access to this object
 
-    const char               *d_name;           // name of this allocator
-                                                // (held, not owned)
+    const char               *d_name;              // name of this allocator
 
-    volatile FailureHandler   d_failureHandler; // function we are to call to
-                                                // abort.
+    volatile FailureHandler   d_failureHandler;    // function we are to call
+                                                   // on errors.  The default
+                                                   // handler will call
+                                                   // 'abort'.
 
     const int                 d_maxRecordedFrames; // max number of stack trace
                                                    // frames to store in each
-                                                   // block.  May be larger
-                                                   // than the number of frames
-                                                   // requested to the c'tor
-                                                   // due to ignored frames.
+                                                   // block; may be larger than
+                                                   // the number of frames
+                                                   // requested to the ctor due
+                                                   // to ignored frames
 
-    const int                 d_traceBufferLength; // length of area for
-                                                   // storing stack traces.
-                                                   // May be larger than
+    const int                 d_traceBufferLength; // length, in pointers, of
+                                                   // area for storing stack
+                                                   // traces; may be larger
+                                                   // than
                                                    // 'd_maxRecordedFrames' due
                                                    // to alignment
-                                                   // considerations.
+                                                   // considerations
 
-    bsl::ostream             *d_ostream;        // stream to which reports are
-                                                // to be written.  Held, not
-                                                // owned.
+    bsl::ostream             *d_ostream;           // stream to which
+                                                   // diagnostics are to be
+                                                   // written; held, not owned
 
-    bool                      d_demangleFlag;   // if 'true' demangling of
-                                                // symbol names is attempted
+    bool                      d_demangleFlag;      // if 'true', demangling of
+                                                   // symbol names is attempted
 
-    bslma::Allocator         *d_allocator_p;    // held, not owned
+    bslma::Allocator         *d_allocator_p;       // held, not owned
 
   private:
     // NOT IMPLEMENTED
@@ -443,21 +444,20 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
 
   private:
     // PRIVATE ACCESSORS
-    int preDeallocateCheckBlockHeader(
-                                     const BlockHeader *blockHdr) const;
-        // Perform sanity checks on block header, reporting any irregularities
-        // to '*d_ostream' Return 0 if no irregularities are found, and a
-        // non-zero value otherwise.
+    int checkBlockHeader(const BlockHeader *blockHdr) const;
+        // Return 0 if the block specified by 'blockHdr' was allocated with
+        // this allocator, is not corrupted, and has not yet been freed; report
+        // diagnostics to '*d_ostream' and return a non-zero value otherwise.
 
   public:
     // CLASS METHODS
-    static void failureHandlerAbort();
+    static void failAbort();
         // Calls 'bsl::abort()', 'd_failureHanlder' is initialized to this
         // value by all constructors.  Note that in ALL failure situations,
         // errors or warnings will be written to the 'ostream' associated with
         // this object prior to the failure handler call.
 
-    static void failureHandlerNoop();
+    static void failNoop();
         // Does nothing.  'setFailureHandler' may be called with this function,
         // in which case this allocator object, when a faliure occurs, will
         // recover rather than abort.  Note that in ALL failure situations,
@@ -466,37 +466,24 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
 
     // CREATORS
     explicit
-    baesu_StackTraceTestAllocator(
-                         bsl::ostream    *ostream                 = &bsl::cout,
-                         int              numRecordedFrames       = 12,
-                         bool             demanglingPreferredFlag = true,
-                         bslma_Allocator *basicAllocator          = 0);
+    baesu_StackTraceTestAllocator(bslma_Allocator *basicAllocator = 0);
     explicit
-    baesu_StackTraceTestAllocator(
-                         const char      *name,
-                         bsl::ostream    *ostream                 = &bsl::cout,
-                         int              numRecordedFrames       = 12,
-                         bool             demanglingPreferredFlag = true,
-                         bslma_Allocator *basicAllocator          = 0);
-        // Create a test allocator.  Optionally specify 'name' as the name of
-        // the allocator, to be used in reports and error messages.  Optionally
-        // specify 'ostream', the stream to which error messages are to be
-        // reported.  If 'ostream' is not specified, 'bsl::cout' is used.
-        // Optionally specify 'numRecordedFrames', the number of stack trace
-        // frame pointers to be saved for every allocation.  Specifying a
-        // larger value of 'numRecordedFrames' means that stack traces, when
-        // given, will be more complete, but will also mean that both more cpu
-        // time and more memory per allocation will be consumed.  Optionally
-        // specify 'demanglingPreferredFlag' to indicate whether demangling is
-        // desired.  'demanglingPreferredFlag' signals a preference only, on
-        // some platforms demangling is not implemented or not optional, and on
-        // those platforms the flag is ignored.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the 'bslma::MallocFreeAllocator' singleton is used, since the client
-        // may be trying to avoid using the default allocator.  The behavior is
-        // undefined unless 'name', 'ostream', and 'basicAllocator' remain
-        // valid for the lifetime of the object, and unless
-        // 'numRecordedFrames >= 2'.
+    baesu_StackTraceTestAllocator(int              numRecordedFrames,
+                                  bslma_Allocator *basicAllocator = 0);
+        // Create a test allocator.  Optionally specify 'numRecordedFrames',
+        // the number of stack trace frame pointers to be saved for every
+        // allocation.  Specifying a larger value of 'numRecordedFrames' means
+        // that stack traces, when given, will be more complete, but will also
+        // mean that both more CPU time and more memory per allocation will be
+        // consumed.  If 'numRecordedFrames' is not specified, a value of '12'
+        // will be assumed.  Optionally specify 'basicAllocator', the allocator
+        // from which memory will be provided.  If 'basicAllocator' is 0, the
+        // 'MallocFreeAllocator' singleton is used.  Associate 'bsl::cerr' with
+        // this object for error diagnostic output, which may be changed by
+        // calling the 'setOstream' manipulator.  Set the
+        // 'demanglingPreferringFlag' attribute to 'true', which may be changed
+        // using the 'setDemanglingPreferredFlag' manipulator.  The behavior is
+        // undefined if 'numRecordedFrames < 2'.
 
     virtual ~baesu_StackTraceTestAllocator();
         // Destroy this allocator.  Report any memory leaks to the 'ostream'
@@ -529,6 +516,14 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
     virtual void release();
         // Deallocate all memory held by this allocator.
 
+    void setDemanglingPreferredFlag(bool value);
+        // Set the 'demanglingPreferredFlag' attribute, which is used to
+        // determine whether demangling of symbols is to be attempted when
+        // generating diagnostics, to the specified 'value'.  The default value
+        // of the flag is 'true'.  However the flag is ingored on some
+        // platforms; demangling never happens on some platforms and always
+        // happens on others.
+
     void setFailureHandler(FailureHandler func);
         // Set the failure handler associated with this allocator object to the
         // specified 'func'.  Upon construction, the function
@@ -536,8 +531,19 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
         // Note that 'func' will be called by this object's destructor if
         // memory is leaked, so it is important that it not throw.  Note that
         // in ALL failure situations, errors or warnings will be written to the
-        // 'ostream' associated with this object prior to the failulre handler
-        // call.
+        // 'ostream' associated with this object prior to the call to the
+        // failure handler.
+
+    void setName(const char * name);
+        // Set the name of this allocator to the specified 'name'.  If
+        // 'setName' is never called, the name of the allocator is "<unnamed>".
+        // Note that the lifetime of 'name' must exceed the lifetime of this
+        // object.
+
+    void setOstream(bsl::ostream *ostream);
+        // Set the stream to which diagnostics will be written to the specified
+        // 'ostream'.  If 'setOstream' is never called, diagnositcs will be
+        // written to 'bsl::cerr'.
 
     // ACCESSORS
     FailureHandler failureHandler() const;
@@ -545,15 +551,32 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
         // this allocator object's handling of failure.
 
     bsl::size_t numBlocksInUse() const;
-        // Return the number of blocks that have been allocated and are not yet
-        // freed.  Note that this is not guaranteed to execute in constant
-        // time.
+        // Return the number of blocks currently allocated from this object.
 
     void reportBlocksInUse(bsl::ostream *ostream = 0) const;
-        // Write a report to the output stream associated with this test
-        // allocator, reporting the unique call-stacks for each block that has
-        // been allocated and has not yet been freed.
+        // Write a report to the specified 'ostream', reporting the unique
+        // call-stacks for each block that has been allocated and has not yet
+        // been freed.  If 'ostream' is not specified, the value of 'ostream'
+        // passed to the last call to 'setOstream' will be used.  If
+        // 'setOstream' was never called, 'bsl::cerr' will be used.
 };
+
+                      // -----------------------------------
+                      // class baesu_StackTraceTestAllocator
+                      // -----------------------------------
+
+inline
+baesu_StackTraceTestAllocator::FailureHandler
+baesu_StackTraceTestAllocator::failureHandler() const
+{
+    return d_failureHandler;
+}
+
+inline
+bsl::size_t baesu_StackTraceTestAllocator::numBlocksInUse() const
+{
+    return d_numBlocksInUse;
+}
 
 }  // close namespace BloombergLP
 

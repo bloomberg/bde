@@ -1,22 +1,29 @@
 // baesu_stacktracetestallocator.cpp                                  -*-C++-*-
 #include <baesu_stacktracetestallocator.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(baesu_stacktracetestallocator_cpp,"$Id$ $CSID$")
 
 #include <baesu_stackaddressutil.h>
+#include <baesu_stacktrace.h>
 #include <baesu_stacktraceutil.h>
 
 #include <bcemt_lockguard.h>
 
+#include <bslma_allocator.h>
 #include <bslma_mallocfreeallocator.h>
+#include <bslmf_assert.h>
 #include <bsls_alignmentutil.h>
+#include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
 #include <bsl_map.h>
+#include <bsl_new.h>
 #include <bsl_vector.h>
 #include <bsl_utility.h>
 
@@ -32,23 +39,26 @@ enum {
         // This constant allows us to adjust for this and not display that
         // frame as it is of no interest to the user.
 
-    MAX_ALIGNMENT = BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+    MAX_ALIGNMENT = BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT,
+
+    DEFAULT_NUM_RECORDED_FRAMES = 12
 };
 
+BSLMF_ASSERT(0 == MAX_ALIGNMENT % sizeof(void *));
+
 typedef BloombergLP::bsls::Types::UintPtr UintPtr;
-typedef BloombergLP::bslma::Allocator::size_type size_type;
 
 template <int A, int B>
 struct Max {
-    // Calculate, at compile time, the maximum of two ints
+    // Calculate, at compile time, the maximum of two 'int' values.
 
     enum { VALUE = A > B ? A : B };
 };
 
 }  // close unnamed namespace
 
-// Magic number.  I wanted to make this into an enum, but I also want it to be
-// the size of a pointer, and AIX does not support 64 bit enums.
+// Magic number.  This must be a const variable, since AIX does not support 64
+// bit enums.
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
 static
@@ -58,26 +68,22 @@ static
 const UintPtr HIGH_ONES = 0;
 #endif
 
-static const UintPtr UNFREED_BLOCK_MAGIC = 1222222221 + HIGH_ONES;
-static const UintPtr FREED_BLOCK_MAGIC   = 1999999991 + HIGH_ONES;
+static const UintPtr ALLOCATED_BLOCK_MAGIC   = 1222222221 + HIGH_ONES;
+static const UintPtr DEALLOCATED_BLOCK_MAGIC = 1999999991 + HIGH_ONES;
 
                             // ----------------
                             // static functions
                             // ----------------
 
 static
-int getTraceBufferLength(int  specifiedMaxRecordedFrames)
-    // Specify 'specifiedMaxRecordedFrames', the value passed to the
-    // 'baesu_StackTraceTestAllocator' constructor, and a pointer to
-    // 'd_traceBufferLength'.  Assign a value to 'maxRecordedFrames', the
-    //  trace buffer, which may have to
-    // be padded for alignment purposes.  Return the necessary number of frames
-    // to saves, which may be greater than 'specifiedMaxRecordedFrames' due to
-    // ignored frames.
+int getTraceBufferLength(int specifiedMaxRecordedFrames)
+    // Return the size, in pointers, of buffer space that must be reserved for
+    // each block for storing frame pointers, given a specified
+    // 'specifiedMaxRecordedFrames'.  The specify value may need to be
+    // adjusted upward to include room for ignored frames, and for the buffer
+    // size in bytes being a multiple of 'MAX_ALIGNMENT'.
 {
     enum { PTRS_PER_MAX = MAX_ALIGNMENT / sizeof(void *) };
-
-    BSLMF_ASSERT(0 == MAX_ALIGNMENT % sizeof(void *));
 
     int ret = ((specifiedMaxRecordedFrames + IGNORE_FRAMES + PTRS_PER_MAX - 1)
                                                 / PTRS_PER_MAX) * PTRS_PER_MAX;
@@ -90,13 +96,13 @@ int getTraceBufferLength(int  specifiedMaxRecordedFrames)
 
 namespace BloombergLP {
 
-                 // ==========================================
-                 // baesu_StackTraceTestAllocator::BlockHeader
-                 // ==========================================
+                // ================================================
+                // class baesu_StackTraceTestAllocator::BlockHeader
+                // ================================================
 
 struct baesu_StackTraceTestAllocator::BlockHeader {
     // A record of this type is stored in each block, after the stack pointers
-    // and immediate before the user area of memory in the block.  These
+    // and immediately before the user area of memory in the block.  These
     // 'BlockHeader' objects form a doubly linked list consisting of all blocks
     // which are unfreed.
     //
@@ -115,21 +121,21 @@ struct baesu_StackTraceTestAllocator::BlockHeader {
                                                   // field of the previous
                                                   // object, or the head ptr of
                                                   // the linked list if there
-                                                  // is no previous object.
+                                                  // is no previous object
 
-    baesu_StackTraceTestAllocator *d_allocator_p; // creator of block
+    baesu_StackTraceTestAllocator *d_allocator_p; // allocator of block
 
-    UintPtr                        d_magic;       // Magic number -- has
+    UintPtr                        d_magic;       // magic number -- has
                                                   // different values for
-                                                  // an unfreed block, a freed
-                                                  // block, or the head node.
+                                                  // an allocated block vs a
+                                                  // freed block
 
     // CREATOR
     BlockHeader(BlockHeader                   *next,
                 BlockHeader                  **prevNext,
                 baesu_StackTraceTestAllocator *stackTraceTestAllocator,
                 UintPtr                        magic);
-        // Create a block hear, populating the fields with the specified
+        // Create a block here, populating the fields with the specified
         // 'next', 'prevNext', 'stackTraceTestAllocator', and 'magic'
         // arguments.
 };
@@ -147,23 +153,25 @@ baesu_StackTraceTestAllocator::BlockHeader::BlockHeader(
 , d_allocator_p(stackTraceTestAllocator)
 , d_magic(magic)
 {
+    BSLMF_ASSERT(0 == sizeof(BlockHeader) % MAX_ALIGNMENT);
     BSLMF_ASSERT(sizeof(BlockHeader) == 4 * sizeof(void *));
 }
 
-                        // -----------------------------
-                        // baesu_StackTraceTestAllocator
-                        // -----------------------------
+                // ------------------------------------------------
+                // class baesu_StackTraceTestAllocator::BlockHeader
+                // ------------------------------------------------
 
 // PRIVATE ACCESSORS
-int baesu_StackTraceTestAllocator::preDeallocateCheckBlockHeader(
-                                         const BlockHeader *blockHdr) const
+int baesu_StackTraceTestAllocator::checkBlockHeader(
+                                             const BlockHeader *blockHdr) const
 {
     int rc = 0;
 
-    if (UNFREED_BLOCK_MAGIC != blockHdr->d_magic) {
-        if (FREED_BLOCK_MAGIC == blockHdr->d_magic) {
-            // Note: this write may allocate the freed block, trashing
-            // '*blockHdr'.
+    if (ALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
+        if (DEALLOCATED_BLOCK_MAGIC == blockHdr->d_magic) {
+            // Note: if '*d_ostream' is a stringstream based on this allocator,
+            // this write may allocate the freed block, trashing '*blockHdr',
+            // not much we can do about that.
 
             *d_ostream << "Error: block at " << &blockHdr[1]
                        << " freed second time by allocator '" << d_name
@@ -195,9 +203,10 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckBlockHeader(
         rc = -1;
     }
 
-    if (0 == d_blocks || 0 == *blockHdr->d_prevNext_p) {
+    if (0 == d_blocks || 0 == blockHdr->d_prevNext_p ||
+                                                0 == *blockHdr->d_prevNext_p) {
         *d_ostream << "Error: block at " << &blockHdr[1]
-                   << " corrupted: null list ptr(s)\n";
+                   << " corrupted: unexpected null list ptr(s) encountered\n";
 
         return -1;                                                    // RETURN
     }
@@ -206,9 +215,9 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckBlockHeader(
 
     const BlockHeader *next = blockHdr->d_next_p;
     if (next) {
-        if (UNFREED_BLOCK_MAGIC != next->d_magic) {
-            if (FREED_BLOCK_MAGIC == next->d_magic) {
-                *d_ostream << "Error: freed object on unfreed block list"
+        if (ALLOCATED_BLOCK_MAGIC != next->d_magic) {
+            if (DEALLOCATED_BLOCK_MAGIC == next->d_magic) {
+                *d_ostream << "Error: freed object on allocted block list"
                            << " of allocator '" << d_name << "' at "
                            << next << bsl::endl;
             }
@@ -226,65 +235,53 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckBlockHeader(
 }
 
 // CLASS METHODS
-void baesu_StackTraceTestAllocator::failureHandlerAbort()
+void baesu_StackTraceTestAllocator::failAbort()
 {
     bsl::abort();
 }
 
-void baesu_StackTraceTestAllocator::failureHandlerNoop()
+void baesu_StackTraceTestAllocator::failNoop()
 {
-    ;  // do nothing
+    // do nothing
 }
 
 // CREATORS
 baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
-                                     bsl::ostream     *ostream,
-                                     int               numRecordedFrames,
-                                     bool              demanglingPreferredFlag,
-                                     bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_magic(STACK_TRACE_TEST_ALLOCATOR_MAGIC)
 , d_numBlocksInUse(0)
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(&failureHandlerAbort)
-, d_maxRecordedFrames(numRecordedFrames + IGNORE_FRAMES)
-, d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
-, d_ostream(ostream)
-, d_demangleFlag(demanglingPreferredFlag)
+, d_failureHandler(&failAbort)
+, d_maxRecordedFrames(DEFAULT_NUM_RECORDED_FRAMES + IGNORE_FRAMES)
+, d_traceBufferLength(getTraceBufferLength(DEFAULT_NUM_RECORDED_FRAMES))
+, d_ostream(&bsl::cerr)
+, d_demangleFlag(true)
 , d_allocator_p(basicAllocator ? basicAllocator
                                : &bslma::MallocFreeAllocator::singleton())
 {
-    BSLMF_ASSERT(0 == sizeof(BlockHeader) % MAX_ALIGNMENT);
-
-    BSLS_ASSERT(numRecordedFrames >= 2);
-
-    BSLS_ASSERT(d_maxRecordedFrames >= numRecordedFrames);
-    BSLS_ASSERT(d_traceBufferLength >= d_maxRecordedFrames);
+    BSLS_ASSERT_SAFE(d_maxRecordedFrames >= DEFAULT_NUM_RECORDED_FRAMES);
+    BSLS_ASSERT_SAFE(d_traceBufferLength >= d_maxRecordedFrames);
 }
 
 baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
-                                     const char       *name,
-                                     bsl::ostream     *ostream,
-                                     int               numRecordedFrames,
-                                     bool              demanglingPreferredFlag,
-                                     bslma::Allocator *basicAllocator)
+                                           int               numRecordedFrames,
+                                           bslma::Allocator *basicAllocator)
 : d_magic(STACK_TRACE_TEST_ALLOCATOR_MAGIC)
 , d_numBlocksInUse(0)
 , d_blocks(0)
 , d_mutex()
-, d_name(name ? name : "<unnamed>")
-, d_failureHandler(&failureHandlerAbort)
+, d_name("<unnamed>")
+, d_failureHandler(&failAbort)
 , d_maxRecordedFrames(numRecordedFrames + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
-, d_ostream(ostream)
-, d_demangleFlag(demanglingPreferredFlag)
+, d_ostream(&bsl::cerr)
+, d_demangleFlag(true)
 , d_allocator_p(basicAllocator ? basicAllocator
                                : &bslma::MallocFreeAllocator::singleton())
 {
-    BSLMF_ASSERT(0 == sizeof(BlockHeader) % MAX_ALIGNMENT);
-
-    BSLS_ASSERT(numRecordedFrames >= 2);
+    BSLS_ASSERT_OPT(numRecordedFrames >= 2);
 
     BSLS_ASSERT(d_maxRecordedFrames >= numRecordedFrames);
     BSLS_ASSERT(d_traceBufferLength >= d_maxRecordedFrames);
@@ -313,9 +310,9 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
     // The underlying allocator might align the block differently depending on
-    // the size passed.  The alignment must be large enough to accomodate the
+    // the size passed.  The alignment must be large enough to accommodate the
     // stack addresses (type 'void *') in the buffer, it must be large enough
-    // to accomodate the 'BlockHeader's alignment requirements, and it must be
+    // to accommodate the 'BlockHeader's alignment requirements, and it must be
     // large enough to accomodate whatever the alignment requirements of
     // whatever the client intends to store in their portion of the block.  We
     // can infer the requirements of our pointers and block header at compile
@@ -333,7 +330,7 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
                         FIXED_ALIGN,
                         bsls::AlignmentUtil::calculateAlignmentFromSize(size));
     const int lowBits = align - 1;
-    BSLS_ASSERT(0 == (align & lowBits));    // verify 'align' is power of 2
+    BSLS_ASSERT_SAFE(0 == (align & lowBits));   // verify 'align' is power of 2
     size = (size + lowBits) & ~lowBits;     // round 'size' up to multiple of
                                             // 'align'
 
@@ -345,15 +342,14 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
     new (blockHdr) BlockHeader(d_blocks,
                                &d_blocks,
                                this,
-                               UNFREED_BLOCK_MAGIC);
+                               ALLOCATED_BLOCK_MAGIC);
     if (d_blocks) {
         d_blocks->d_prevNext_p = &blockHdr->d_next_p;
     }
     d_blocks = blockHdr;
 
     bsl::fill(framesBegin, framesBegin + d_maxRecordedFrames, (void *) 0);
-    AddressUtil::getStackAddresses(framesBegin,
-                                   d_maxRecordedFrames);
+    AddressUtil::getStackAddresses(framesBegin, d_maxRecordedFrames);
 
     void *ret = blockHdr + 1;
 
@@ -385,7 +381,7 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
-    if (preDeallocateCheckBlockHeader(blockHdr)) {
+    if (checkBlockHeader(blockHdr)) {
         guard.release()->unlock();
         (*d_failureHandler)();
 
@@ -396,7 +392,7 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
         blockHdr->d_next_p->d_prevNext_p = blockHdr->d_prevNext_p;
     }
     *blockHdr->d_prevNext_p = blockHdr->d_next_p;
-    blockHdr->d_magic = FREED_BLOCK_MAGIC;
+    blockHdr->d_magic = DEALLOCATED_BLOCK_MAGIC;
 
     d_allocator_p->deallocate((void **) blockHdr - d_traceBufferLength);
 
@@ -410,7 +406,7 @@ void baesu_StackTraceTestAllocator::release()
 
     for (BlockHeader *blockHdr = d_blocks;
                                      blockHdr; blockHdr = blockHdr->d_next_p) {
-        if (preDeallocateCheckBlockHeader(blockHdr)) {
+        if (checkBlockHeader(blockHdr)) {
             guard.release()->unlock();
             (*d_failureHandler)();
 
@@ -434,31 +430,39 @@ void baesu_StackTraceTestAllocator::release()
     d_numBlocksInUse = 0;
 }
 
+void baesu_StackTraceTestAllocator::setDemanglingPreferredFlag(bool value)
+{
+    d_demangleFlag = value;
+}
+
 void baesu_StackTraceTestAllocator::setFailureHandler(FailureHandler func)
 {
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-
     BSLS_ASSERT(0 != func);
+
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
     d_failureHandler = func;
 }
 
+void baesu_StackTraceTestAllocator::setName(const char *name)
+{
+    BSLS_ASSERT(0 != name);
+
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+
+    d_name = name;
+}
+
+void baesu_StackTraceTestAllocator::setOstream(bsl::ostream *ostream)
+{
+    BSLS_ASSERT(0 != ostream);
+
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+
+    d_ostream = ostream;
+}
+
 // ACCESSORS
-baesu_StackTraceTestAllocator::FailureHandler
-baesu_StackTraceTestAllocator::failureHandler() const
-{
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-
-    return d_failureHandler;
-}
-
-bsl::size_t baesu_StackTraceTestAllocator::numBlocksInUse() const
-{
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-
-    return d_numBlocksInUse;
-}
-
 void baesu_StackTraceTestAllocator::reportBlocksInUse(
                                                    bsl::ostream *ostream) const
 {
@@ -484,18 +488,18 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     int numBlocksInUse = 0;
     for (BlockHeader *blockHdr = d_blocks; blockHdr;
                                                blockHdr = blockHdr->d_next_p) {
-        if (!blockHdr || UNFREED_BLOCK_MAGIC != blockHdr->d_magic) {
-            if (blockHdr && FREED_BLOCK_MAGIC != blockHdr->d_magic) {
+        if (!blockHdr || ALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
+            if (blockHdr && DEALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
                 *ostream << "baesu_StackTraceTestAllocator: freed block at "
-                         << (blockHdr + 1) << " in alloced list\n";
+                         << (blockHdr + 1) << " in allocated list\n";
             }
             else {
                 *ostream << "baesu_StackTraceTestAllocator: memory corruption"
                          << " detected, possible buffer underrun\n";
 
-                // We don't want to go on traversing
-                // the list because we don't even know that 'blockHdr' points
-                // at a 'blockHdr', so we can't trust 'blockHdr->d_next_p'.
+                // We don't want to go on traversing the list because we don't
+                // even know that 'blockHdr' points at a 'blockHdr', so we
+                // can't trust 'blockHdr->d_next_p'.
 
                 break;
             }
