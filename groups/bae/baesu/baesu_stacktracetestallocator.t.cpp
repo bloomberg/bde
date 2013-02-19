@@ -2010,6 +2010,8 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
+                ASSERT((unsigned) ta.numBlocksInUse() == taBlocks);
+
                 ta.setFailureHandler(Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
