@@ -21,8 +21,11 @@ using namespace bsl;
 //                              --------
 // The component under test implements a mechanism.
 //
+// This class provides a value constructor capable of creating an object
+// having any parameters.
+//
 // Primary Manipulators:
-//: o 'setRateAndCapacity'
+//: o Value constructor
 //
 // Basic Accessors:
 // o 'rate'
@@ -30,9 +33,6 @@ using namespace bsl;
 // o 'lastUpdateTime'
 // o 'unitsInBucket'
 // o 'unitsReserved'
-//
-// This class also provides a value constructor capable of creating an object
-// having any parameters.
 //
 // Global Concerns:
 //: o ACCESSOR methods are declared 'const'.
@@ -43,37 +43,36 @@ using namespace bsl;
 //: o ACCESSOR methods are 'const' thread-safe.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [18] static bdet_TimeInterval calculateTimeWindow(capacity, drainRate);
-// [17] static bsls_Types::Uint64 calculateCapacity(drainRate, timeWindow);
-// [15] calculateDrainTime(numOfUnits, drainRate, ceilFlag);
+// [17] static bdet_TimeInterval calculateTimeWindow(capacity, drainRate);
+// [16] static bsls_Types::Uint64 calculateCapacity(drainRate, timeWindow);
+// [14] calculateDrainTime(numOfUnits, drainRate, ceilFlag);
 //
 // CREATORS
-// [ 3] btes_LeakyBucket();
-// [ 4] btes_LeakyBucket(drainRate, window, currentTime);
+// [ 3] btes_LeakyBucket(drainRate, window, currentTime);
 //
 // MANIPULATORS
-// [ 3] void setRateAndCapacity(newRate, newCapacity);
-// [ 6] void submit(bsls_Types::Uint64 numOfUnits);
-// [ 6] void reserve(bsls_Types::Uint64 numOfUnits);
-// [ 8] void updateState(const bdet_TimeInterval& currentTime);
-// [ 9] bool wouldOverflow(currentTime);
-// [11] void submitReserved(bsls_Types::Unit64 numOfUnits);
-// [11] void cancelReserved(bsls_Types::Unit64 numOfUnits);
-// [13] void resetStatistics();
-// [14] void reset(const bdet_TimeInterval& currentTime);
+// [ 6] void setRateAndCapacity(newRate, newCapacity);
+// [ 5] void submit(bsls_Types::Uint64 numOfUnits);
+// [ 5] void reserve(bsls_Types::Uint64 numOfUnits);
+// [ 7] void updateState(const bdet_TimeInterval& currentTime);
+// [ 8] bool wouldOverflow(currentTime);
+// [10] void submitReserved(bsls_Types::Unit64 numOfUnits);
+// [10] void cancelReserved(bsls_Types::Unit64 numOfUnits);
+// [12] void resetStatistics();
+// [13] void reset(const bdet_TimeInterval& currentTime);
 // [15] bdet_TimeInterval calculateTimeToSubmit(currentTime);
 //
 // ACCESSORS
-// [ 5] bsls_Types::Uint64 drainRate() const;
-// [ 5] bsls_Types::Uint64 capacity() const;
-// [ 5] bsls_Types::Uint64 unitsInBucket() const;
-// [ 5] bsls_Types::Uint64 unitsReserved() const;
-// [ 5] bdet_TimeInterval lastUpdateTime() const;
-// [12] void btes_LeakyBucket::getStatistics(smtUnits, unusedUnits) const;
+// [ 4] bsls_Types::Uint64 drainRate() const;
+// [ 4] bsls_Types::Uint64 capacity() const;
+// [ 4] bsls_Types::Uint64 unitsInBucket() const;
+// [ 4] bsls_Types::Uint64 unitsReserved() const;
+// [ 4] bdet_TimeInterval lastUpdateTime() const;
+// [11] void btes_LeakyBucket::getStatistics(smtUnits, unusedUnits) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [20] USAGE EXAMPLE
-// [ 5] All accessor methods are declared 'const'.
+// [19] USAGE EXAMPLE
+// [ 4] All accessor methods are declared 'const'.
 // [ *] All creator/manipulator ptr./ref. parameters are 'const'.
 //=============================================================================
 
@@ -444,7 +443,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 20: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -521,7 +520,7 @@ int main(int argc, char *argv[])
 // using busy-waiting to better optimize for multi-threaded applications.
 //..
       } break;
-      case 19: {
+      case 18: {
         // ----------------------------------------------------------------
         // FUNCTIONALITY
         //   Ensure that 'btes_LeaktBucket' can keep the specified load
@@ -599,7 +598,7 @@ int main(int argc, char *argv[])
             const Uint64 DATA_SIZE    = DATA[ti].d_dataSize;
             const Ti     EXP_DURATION = DATA[ti].d_expectedDuration;
 
-            Obj x;
+            Obj x(1, 1, Ti(0));
             Ti actualDuration = testLB<Obj>(x,
                                             RATE,
                                             CAPACITY,
@@ -624,7 +623,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 18: {
+      case 17: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'calculateTimeWindow'
         //   Ensure that the class method calculates the equivalent time
@@ -728,7 +727,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(Obj::calculateTimeWindow(1, ULLONG_MAX));
         }
       } break;
-      case 17: {
+      case 16: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'calculateCapacity'
         //   Ensure that the class method calculates the equivalent capacity of
@@ -821,7 +820,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(Obj::calculateCapacity(1000, Ti(-1)));
         }
       } break;
-      case 16: {
+      case 15: {
         // ----------------------------------------------------------------
         // 'calculateTimeToSubmit'
         //   Ensure that 'calculateTimeToSubmit' calculates wait interval,
@@ -951,7 +950,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 15: {
+      case 14: {
         // --------------------------------------------------------------------
         // 'calculateTimeToSubmit', CLASS METHOD 'calculateDrainTime'
         //   Ensure that the 'calculateTimeToSubmit' manipulator calculates the
@@ -1115,7 +1114,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, false == x.wouldOverflow(t));
         }
       } break;
-      case 14: {
+      case 13: {
         // ----------------------------------------------------------------
         // CLASS METHOD 'reset'
         //   Ensure that the 'reset' manipulator resets object to its initial
@@ -1233,7 +1232,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // 'resetStatistics'
         //   Ensure that the 'resetStatistics' manipulator resets the object
@@ -1314,39 +1313,33 @@ int main(int argc, char *argv[])
         ASSERT(UPD_TIME == x.lastUpdateTime());
         ASSERT(UNITS    == x.unitsInBucket());
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // 'getStatistics'
         //   Ensure, that the 'getStatistics' method correctly calculate
         //   numbers of used and unused units.
         //
         // Concerns:
-        //: 1 'getStatistics' returns 0 for a new object, created by default
+        //: 1 'getStatistics' returns 0 for a new object, created by value
         //:   CTOR.
         //:
-        //: 2 'getStatistics' returns 0 for a new object, created by value
-        //:   CTOR.
-        //:
-        //: 3 'getStatistics' returns correct numbers of used and unused units
+        //: 2 'getStatistics' returns correct numbers of used and unused units
         //:   after a sequence of 'submit' and 'updateState' calls.
         //:
-        //: 4 Specifying invalid parameters for 'getStatistics' causes certain
+        //: 3 Specifying invalid parameters for 'getStatistics' causes certain
         //:   behavior in special build configuration.
         //:
-        //: 5 Statistics is calculated for interval between
+        //: 4 Statistics is calculated for interval between
         //:   'statisticsCollectionStartTime' and 'lastUpdateTime'.
         //:
-        //: 6 Statistics is calculated correctly, if time specified to
+        //: 5 Statistics is calculated correctly, if time specified to
         //:   'updateState' precedes 'statisticsCollectionStartTime'.
         //
         // Plan:
-        //: 1 Construct the object using the default constructor and verify
-        //:   the values returned by the 'getStatistics' method.
-        //:
-        //: 2 Construct the object using the value constructor and verify the
+        //: 1 Construct the object using the value constructor and verify the
         //:   values returned by the 'getStatistics' method.
         //:
-        //: 4 Using table-driven technique:
+        //: 2 Using table-driven technique:
         //:
         //:   1 Define the set of values, containing the 'rate' parameter,
         //:     number of units to submit at each iteration, interval between
@@ -1354,7 +1347,7 @@ int main(int argc, char *argv[])
         //:     'updateState' invocations and expected numbers of used and
         //:     unused units after the foregoing operations.
         //:
-        //: 5 For each row of the table described in P-3
+        //: 3 For each row of the table described in P-2
         //:
         //:   1 Create an object with the specified parameters.
         //:
@@ -1364,18 +1357,18 @@ int main(int argc, char *argv[])
         //:   3 Invoke the 'getStatistics' method and verify the returned
         //:     numbers of used and unused units.
         //:
-        //: 6 Create an object, submit some units, invoke the 'updateState'
+        //: 4 Create an object, submit some units, invoke the 'updateState'
         //:   manipulator several times and verify the values returned by the
         //:   'getStatistics' method between the 'updateState' invocations.
         //:
-        //: 7 Create an object specifying lastUpdateTime 'T1', submit some
+        //: 5 Create an object specifying lastUpdateTime 'T1', submit some
         //:   units, invoke the 'updateState' manipulator specifying
         //:   lastUpdateTime 'T2', that is before 'T1' and verify the values
         //:   returned by 'getStatistics'.  Invoke 'updateState' again,
         //:   specifying lastUpdateTime 'T3', that is after 'T2', verify the
         //:   values, returned by 'getStatistics'.
         //:
-        //: 8 Verify that, in appropriate build modes, defensive checks
+        //: 6 Verify that, in appropriate build modes, defensive checks
         //:   are triggered for invalid parameters.
         //
         // Testing:
@@ -1409,19 +1402,6 @@ int main(int argc, char *argv[])
         // C-1
         if (verbose) cout
                          << endl
-                         << "Testing: statistics after default construction"
-                         << endl;
-        {
-            Obj x;
-
-            x.getStatistics(&usedUnits, &unusedUnits);
-            ASSERT(0 == usedUnits);
-            ASSERT(0 == unusedUnits);
-        }
-
-        // C-2
-        if (verbose) cout
-                         << endl
                          << "Testing: statistics after construction "
                          "using value ctor"
                          << endl;
@@ -1433,7 +1413,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == unusedUnits);
         }
 
-        // C-4
+        // C-2
         if (verbose) cout << endl
                           << "Testing: statistics calculation"
                           << endl;
@@ -1492,19 +1472,19 @@ int main(int argc, char *argv[])
             }
         }
 
-        // C-4
+        // C-3
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
             bsls_AssertFailureHandlerGuard hG(
                 bsls_AssertTest::failTestDriver);
-            Obj x;
+            Obj x(1, 1, Ti(0));
 
             ASSERT_SAFE_FAIL(x.getStatistics(0,&unusedUnits));
             ASSERT_SAFE_FAIL(x.getStatistics(&usedUnits,0));
             ASSERT_SAFE_FAIL(x.getStatistics(0,0));
         }
 
-        // C-5
+        // C-4
         if (verbose) cout << endl
                           << "Testing statistics collection interval"
                           << endl;
@@ -1533,7 +1513,7 @@ int main(int argc, char *argv[])
             ASSERT(5000 == unusedUnits);
         }
 
-        // C-6
+        // C-5
         if (verbose) cout << endl
                           << "Testing statistics collection, "
                          "time goes backwards"
@@ -1555,7 +1535,7 @@ int main(int argc, char *argv[])
             ASSERT(2500 == unusedUnits);
         }
       } break;
-      case 11: {
+      case 10: {
         // ----------------------------------------------------------------
         // 'cancelReserved', 'submitReserved'
         //   Ensure that 'cancelReserved', 'submitReserved' manipulators
@@ -1691,7 +1671,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(z.submitReserved(1000));
         }
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // 'wouldOverflow', 'submit', 'reserve' call sequence
         //   Ensure that 'wouldOverflow', 'submit', 'reserve' manipulators
@@ -1797,7 +1777,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // 'wouldOverflow'
         //   Ensure that manipulator returns the correct result based on the
@@ -1953,7 +1933,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // 'updateState'
         //   Ensure that manipulator correctly updates the state of object
@@ -2158,7 +2138,7 @@ int main(int argc, char *argv[])
             ASSERT(500 == x.unitsReserved());
         }
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // 'setRateAndCapacity'
         //   Ensure that 'rate' and 'capacity' attributes may be set without
@@ -2180,26 +2160,29 @@ int main(int argc, char *argv[])
         //:
         //:   1 Define the set of object attributes, including boundary
         //:     values, corresponding to every range of values that each
-        //:     individual attribute can independently attain.  (C-1)
+        //:     individual attribute can independently attain.
         //:
         //: 2 For each row in the table, defined in P-1:
         //:
-        //:   1 Create an object using the value ctor, having the parameters
-        //:     specified in 'RATE1' and 'CAPACITY1' columns.
+        //:   1 Create an object using the value ctor, having a drain rate of 1
+        //:     and capacity of 1.  Use 'setRateAndCapacity' to set the drain
+        //:     rate and capacity to the values of 'RATE1' and 'CAPACITY1'
+        //:     columns.  Verify that the drain rate and capacity have been
+        //:     correctly updated.  (C-1)
+        //
+        //:   2 Create another object using the value ctor, having the
+        //:     parameters specified in 'RATE1' and 'CAPACITY1' columns.
         //:
-        //:   2 Invoke 'submit' and 'reserve' methods to alter the state of
+        //:   3 Invoke 'submit' and 'reserve' methods to alter the state of
         //:     object.
         //:
-        //:   3 Invoke the 'setRateAndCapacity' manipulator with the arguments
-        //:     specified in 'RATE2' and 'CAPACITY2' columns.
+        //:   4 Invoke the 'setRateAndCapacity' manipulator with the arguments
+        //:     specified in 'RATE2' and 'CAPACITY2' columns.  Verify that the
+        //:     drain rate and capacity have been correctly updated.  (C-2)
         //:
-        //:   4 Compare the values, returned by the 'rate' and 'capacity'
-        //:     accessors with the values, specified at 'setRateAndCapacity'
-        //:     invocation.
-        //:
-        //:   5 Verify, that the values of 'unitsInBucket' and 'unitsReserved'
-        //:     attributes were not altered during the 'setRateAndCapacity'
-        //:     invocation.  (C-2)
+        //:   5 Verify that the values of 'unitsInBucket' and 'unitsReserved'
+        //:     attributes were not altered by the previous
+        //:     'setRateAndCapacity' invocation.  (C-2)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid attribute values, but not triggered for
@@ -2256,27 +2239,36 @@ int main(int argc, char *argv[])
             const Uint64 RATE2           = DATA[ti].d_rate2;
             const Uint64 CAPACITY2       = DATA[ti].d_capacity2;
 
-            Obj x(RATE1,CAPACITY1,CREATION_TIME);
-            x.submit(UNITS_SUBMITTED);
-            x.reserve(UNITS_RESERVED);
+            {
+                Obj x(1, 1, CREATION_TIME);
+                x.setRateAndCapacity(RATE1,CAPACITY1);
 
-            x.setRateAndCapacity(RATE2,CAPACITY2);
+                LOOP_ASSERT(LINE, RATE1           == x.drainRate());
+                LOOP_ASSERT(LINE, CAPACITY1       == x.capacity());
+                LOOP_ASSERT(LINE, CREATION_TIME   == x.lastUpdateTime());
+            }
 
-            LOOP_ASSERT(LINE, RATE2           == x.drainRate());
-            LOOP_ASSERT(LINE, CAPACITY2       == x.capacity());
-            LOOP_ASSERT(LINE, CREATION_TIME   == x.lastUpdateTime());
+            {
+                Obj x(RATE1,CAPACITY1,CREATION_TIME);
+                x.submit(UNITS_SUBMITTED);
+                x.reserve(UNITS_RESERVED);
 
-            // C-2
-            LOOP_ASSERT(LINE, UNITS_SUBMITTED == x.unitsInBucket());
-            LOOP_ASSERT(LINE, UNITS_RESERVED  == x.unitsReserved());
+                x.setRateAndCapacity(RATE2,CAPACITY2);
+
+                LOOP_ASSERT(LINE, RATE2           == x.drainRate());
+                LOOP_ASSERT(LINE, CAPACITY2       == x.capacity());
+                LOOP_ASSERT(LINE, CREATION_TIME   == x.lastUpdateTime());
+
+                LOOP_ASSERT(LINE, UNITS_SUBMITTED == x.unitsInBucket());
+                LOOP_ASSERT(LINE, UNITS_RESERVED  == x.unitsReserved());
+            }
         }
 
-        // C-3
         if (verbose) cout << endl << "Negative Testing" <<endl;
         {
             bsls_AssertFailureHandlerGuard hG(
                 bsls_AssertTest::failTestDriver);
-            Obj x;
+            Obj x(1, 1, Ti(0));
 
             ASSERT_SAFE_FAIL(x.setRateAndCapacity(0, 1));
             ASSERT_SAFE_FAIL(x.setRateAndCapacity(1, 0));
@@ -2285,9 +2277,9 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(x.setRateAndCapacity(1, 1));
         }
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
-        // 'submit', 'reserve', 'unitsInBucket' & 'unitsReserved'
+        // 'submit', 'reserve'
         //   Ensure that 'unitsInBucket' and 'unitsReserved' attributes can be
         //   altered and accessed correctly.
         //
@@ -2354,17 +2346,13 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void submit(bsls_Types::Uint64 numOfUnits);
-        //   bsls_Types::Uint64 unitsInBucket() const;
         //   void reserve(bsls_Types::Uint64 numOfUnits);
-        //   bsls_Types::Uint64 unitsReserved() const;
         // --------------------------------------------------------------------
 
         if (verbose)
-        cout << endl
-             << "TESTING: 'submit', 'unitsInBucket' 'reserve', 'unitsReserved'"
-             << endl
-             << "============================================================="
-             << endl;
+            cout << endl
+                 << "TESTING: 'submit', 'reserve'" << endl
+                 << "============================" << endl;
 
         const Ti     CREATION_TIME(0);
         const Uint64 CAPACITY(1);
@@ -2488,7 +2476,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(y2.reserve(10));
         }
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
         //   Ensure that each basic accessor properly interprets object state.
@@ -2500,8 +2488,7 @@ int main(int argc, char *argv[])
         //: 2 Each accessor method is declared 'const'
         //
         // Plan:
-        //: 1 Create a 'btes_LeakyBucket' object, using default
-        //:   constructor.
+        //: 1 Create a 'btes_LeakyBucket' object, using value constructor.
         //:
         //: 2 Call the accessors using 'const' reference.  Compare the
         //:   values of the object attributes, returned by accessors with
@@ -2534,7 +2521,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BASIC ACCESSORS"
                           << endl << "===============" << endl;
 
-        Obj        x;
+        Obj        x(1, 1, Ti(0));
         const Obj& X = x; // C-2
         Uint64     usedUnits;
         Uint64     unusedUnits;
@@ -2593,9 +2580,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == unusedUnits);
         }
       } break;
-      case 4: {
+      case 3: {
         //---------------------------------------------------------------------
-        // VALUE CTOR.
+        // VALUE CTOR
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
@@ -2692,117 +2679,6 @@ int main(int argc, char *argv[])
 
             ASSERT_SAFE_PASS(Obj x(1, 1000, Ti(0)));
             ASSERT_SAFE_PASS(Obj x(1,    1, Ti(0)));
-        }
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // DEFAULT CTOR, PRIMARY MANIPULATORS
-        //
-        // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
-        //:
-        //: 3 Any argument of 'setRateAndCapacity' may be 'const'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Construct the object using the default constructor and compare
-        //:   the values returned by accessors with the contractually
-        //:   specified values.  (C-1)
-        //:
-        //: 2 Using the loop-based approach:
-        //:
-        //:   1 Create the set of object attribute values.
-        //:
-        //: 3 For each row in the table, defined in P-2
-        //:
-        //:   1 Change the object attributes by invoking the
-        //:     'setRateAndCapacity' manipulator.  (C-2)
-        //:
-        //:   2 Call the 'rate' and 'capacity' accessors using 'const'
-        //:     reference to the object and passing 'const' arguments.  (C-3)
-        //:
-        //:   3 Compare the values, returned by accessors with the values,
-        //:     specified at 'setRateAndCapacity' invocation.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
-        //
-        // Testing:
-        //   btes_LeakyBucket();
-        //   void setRateAndCapacity(newRate, newCapacity);
-        // ----------------------------------------------------------------
-
-        if (verbose) cout << endl << "DEFAULT CTOR, PRIMARY MANIPULATORS"
-                          << endl << "=================================="
-                          << endl;
-
-        // C-1
-        if(verbose) cout << endl << "Testing default constructor" << endl;
-        {
-            Obj x;
-            ASSERT(1     == x.drainRate());
-            ASSERT(1     == x.capacity());
-            ASSERT(Ti(0) == x.lastUpdateTime());
-            ASSERT(0     == x.unitsInBucket());
-            ASSERT(1     == x.capacity());
-            ASSERT(Ti(0) == x.statisticsCollectionStartTime());
-        }
-
-        if(verbose) cout << endl << "Testing primary manipulators" << endl;
-        {
-            const Uint64 BIG_VAL = 0xFFFFFFFFULL * 16;
-
-            // C-2
-            struct {
-                int    d_line;
-                Uint64 d_drainRate;
-                Uint64 d_capacity;
-            } DATA[] = {
-
-                // LINE     RATE       CAPACITY
-                // ---- -----------   ----------
-                  { L_,       1000,            1 },
-                  { L_,       1000,          100 },
-                  { L_,       1000,      BIG_VAL },
-                  { L_,          1,   ULLONG_MAX },
-                  { L_, ULLONG_MAX,            1 },
-                  { L_,          1,   ULLONG_MAX }
-            };
-            const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
-
-            Obj x;
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-
-                // C-3
-                const Uint64 LINE         = DATA[ti].d_line;
-                const Uint64 RATE         = DATA[ti].d_drainRate;
-                const Uint64 CAPACITY     = DATA[ti].d_capacity;
-
-                x.setRateAndCapacity(RATE, CAPACITY);
-
-                LOOP_ASSERT(LINE, RATE          == x.drainRate());
-                LOOP_ASSERT(LINE, CAPACITY      == x.capacity());
-                LOOP_ASSERT(LINE, 0             == x.unitsInBucket());
-            }
-        }
-
-        // C-4
-        if (verbose) cout << endl << "Negative Testing" << endl;
-        {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
-
-            Obj x;
-            ASSERT_SAFE_FAIL(x.setRateAndCapacity(0, 1000));
-            ASSERT_SAFE_FAIL(x.setRateAndCapacity(1, 0));
-            ASSERT_SAFE_PASS(x.setRateAndCapacity(1, 1000));
-            ASSERT_SAFE_PASS(x.setRateAndCapacity(1, 1));
         }
       } break;
       case 2: {
@@ -3012,7 +2888,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent cases
         //
         // Plan:
-        //: 1 Create an object, using the default ctor.
+        //: 1 Create an object, using the value ctor.
         //:
         //: 2 Invoke the 'setRateAndCapacity' manipulator.
         //:
@@ -3037,14 +2913,17 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        Obj x;
+        Obj x(1, 1, Ti(0));
         Ti  currentTime(1);
+        ASSERT(1 == x.drainRate());
+        ASSERT(1 == x.capacity());
+        ASSERT(0 == x.lastUpdateTime());
 
         x.setRateAndCapacity(1000, 1000);
         x.reset(currentTime);
 
-        ASSERT(1000  == x.drainRate());
-        ASSERT(1000  == x.capacity());
+        ASSERT(1000 == x.drainRate());
+        ASSERT(1000 == x.capacity());
 
         x.submit(500);
         x.reserve(250);
