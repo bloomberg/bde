@@ -1750,7 +1750,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == a.lastAllocatedNumBytes());
             ASSERT(0 == a.lastAllocatedAddress());
             ASSERT(0 == a.lastDeallocatedNumBytes());
-            ASSERT(addr1 == a.lastDeallocatedAddress());
+            ASSERT(0 == a.lastDeallocatedAddress());
             ASSERT(4 == a.numAllocations());
             ASSERT(4 == a.numDeallocations());
         }
