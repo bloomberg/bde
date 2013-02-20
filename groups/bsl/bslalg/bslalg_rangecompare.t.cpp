@@ -1899,8 +1899,8 @@ bool operator!=(const TestPairType& lhs, const TestPairType& rhs)
 
 bool operator<(const TestPairType& lhs, const TestPairType& rhs)
 {
-    return lhs.first < rhs.first ||
-           lhs.first == rhs.first && lhs.second < rhs.second;
+    return (lhs.first < rhs.first) ||
+           (lhs.first == rhs.first && lhs.second < rhs.second);
 }
 
 bool operator>(const TestPairType& lhs, const TestPairType& rhs)
