@@ -587,13 +587,13 @@ int main(int argc, char *argv[])
             if (verbose) {
                 printf("Illustrating the reason for the cast in the"
                        " enumeration (on AIX 64-bit mode):\n");
-                printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
+                printf("\tBSLMA_SIZE_IS_SIGNED = %ld\n", BSLMA_SIZE_IS_SIGNED);
                 printf("\tMAX_NUM_BYTES = %ld\n", (bsize)MAX_NUM_BYTES);
                 printf("\tMAX_ELEMENTS1 = %ld\n", (bsize)MAX_ELEMENTS1);
                 printf("\tMAX_ELEMENTS2 = %ld\n", (bsize)MAX_ELEMENTS2);
 
                 printf("Printing the same values as unsigned:\n");
-                printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
+                printf("\tBSLMA_SIZE_IS_SIGNED = %ld\n", BSLMA_SIZE_IS_SIGNED);
                 printf("\tMAX_NUM_BYTES = %lu\n", (bsize)MAX_NUM_BYTES);
                 printf("\tMAX_ELEMENTS1 = %lu\n", (bsize)MAX_ELEMENTS1);
                 printf("\tMAX_ELEMENTS2 = %lu\n", (bsize)MAX_ELEMENTS2);
