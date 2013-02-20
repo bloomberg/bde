@@ -45,7 +45,6 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //
 // CREATORS
-// [ 2] btes_RateLimiter();
 // [ 2] btes_RateLimiter(sR, sRW, pR, pRW, currentTime);
 //
 // MANIPULATORS
@@ -140,6 +139,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -160,34 +162,47 @@ typedef unsigned int        uint;
 ///Example 1: Controlling Network Traffic Generation
 ///-------------------------------------------------
 // Suppose that we want to send data over a network interface with the load
-// spike limitation shown in Figure 2:
+// spike limitations explained below:
 //
-//: o Sustained rate should be 1024 bytes/s ('R1').
+//: o The long term average rate of resource usage (i.e., the sustained rate)
+//:   should not exceed 1024 bytes/s ('Rs').
 //:
-//: o Any area above the sustained rate 'R1' (e.g., 'A1' or 'A2 + B') should
-//:   contain no more than 512 bytes.
+//: o The period over which to monitor the long term average rate (i.e., the
+//:   sustained-rate time-window) should be 0.5s ('Wp').
 //:
-//: o Peak rate should be 2048 bytes/s ('R2').
+//: o The peak resource usage (i.e., the peak rate) should not exceed 2048
+//:   bytes/s ('Rp').
 //:
-//: o Any area above the peak rate 'R2' (e.g., 'B') should contain no more than
-//:   128 bytes.
+//: o The period over which to monitor the peak resource usage should be
+//:   0.0625s (Wp).
+//
+// This is shown in Figure 2 below.
 //..
 // Fig. 2:
 //
 //     ^ Rate (Units per second)
 //     |                             _____         .
 //     |                            /  B  \        .
-// 2048|---------------------------/-------\--------R2 (Maximum peak rate)
+// 2048|---------------------------/-------\--------Rp (Maximum peak rate)
 //     |           __             /         \      .
 //     |          /  \           /    A2     \     .
 //     |         / A1 \         /             \    .
-// 1024|--------/------\ ------/---------------\----R1 (Maximum sustained rate)
+// 1024|--------/------\ ------/---------------\----Rs (Maximum sustained rate)
 //     |   __  /        \     /                 \__.
 //     |__/  \/          \___/                     .
 //     |                                           .
 //      --------------------------------------------->
 //                                         T (seconds)
 //..
+// Notice that we can understand the limitations imposed by the rate-limiter
+// graphically as the maximum area above the respective lines, 'Rp' and 'Rs',
+// that the usage curve to allowed to achieve.  In the example above:
+//
+//  o The area above the sustained rate 'Rs' (e.g., 'A1' or 'A2+B') should
+//    contain no more than 512 bytes.
+//
+//  o The area above the peak rate 'Rp' should contain no more than 128 bytes.
+//
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified amount of data over that network:
 //..
@@ -404,10 +419,10 @@ int main(int argc, char *argv[])
             Obj y(100, Ti(10), 1000, Ti(1), Ti(0));
             y.submit(100);
             y.reserve(100);
-            ASSERT_SAFE_PASS(y.submitReserved(100));
-            ASSERT_SAFE_FAIL(y.submitReserved(1));
+            ASSERT_PASS(y.cancelReserved(100));
+            ASSERT_FAIL(y.cancelReserved(1));
             y.reserve(100);
-            ASSERT_SAFE_FAIL(y.submitReserved(101));
+            ASSERT_FAIL(y.cancelReserved(101));
         }
       } break;
       case 11: {
@@ -559,20 +574,17 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'getStatistics'
         //
         // Concerns:
-        //: 1 'getStatistics' returns 0 for a new object, created by default
+        //: 1 'getStatistics' returns 0 for a new object, created by value
         //:   CTOR.
         //:
-        //: 2 'getStatistics' returns 0 for a new object, created by value
-        //:   CTOR.
-        //:
-        //: 3 'getStatistics' returns correct numbers of used and unused units
+        //: 2 'getStatistics' returns correct numbers of used and unused units
         //:   (the calculation is base upon the sustained rate sustained rate
         //:   after a sequence of 'submit' and 'updateState' calls.
         //:
-        //: 4 Specifying invalid parameters for 'getStatistics()' causes
+        //: 3 Specifying invalid parameters for 'getStatistics()' causes
         //:   certain behavior in special build configuration.
         //:
-        //: 5 Statistics is calculated for interval between
+        //: 4 Statistics is calculated for interval between
         //:   'statisticsCollectionStartTime' and 'lastUpdateTime'
         //
         // Testing:
@@ -588,18 +600,6 @@ int main(int argc, char *argv[])
 
         // C-1
         if (verbose) cout << endl
-                          << "Testing: statistics after default construction"
-                          << endl;
-        {
-            Obj x;
-
-            x.getStatistics(&usedUnits, &unusedUnits);
-            ASSERT(0 == usedUnits);
-            ASSERT(0 == unusedUnits);
-        }
-
-        // C-2
-        if (verbose) cout << endl
                           << "Testing: statistics after value construction"
                           << endl;
         {
@@ -610,7 +610,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == unusedUnits);
         }
 
-        // C-3
+        // C-2
         if (verbose) cout << endl
                           << "Testing: statistics calculation"
                           << endl;
@@ -666,18 +666,18 @@ int main(int argc, char *argv[])
             }
         }
 
-        // C-4
+        // C-3
         if (verbose) cout << endl << "Negative testing" << endl;
         {
             bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
-            Obj x;
+            Obj x(1, Ti(10), 1, Ti(10), Ti(0));
 
             ASSERT_SAFE_FAIL(x.getStatistics(0,&unusedUnits));
             ASSERT_SAFE_FAIL(x.getStatistics(&usedUnits,0));
             ASSERT_SAFE_FAIL(x.getStatistics(0,0));
         }
 
-        // C-5
+        // C-4
         if (verbose) cout << endl
                           << "Testing statistics collection interval"
                           << endl;
@@ -919,7 +919,7 @@ int main(int argc, char *argv[])
         };
 
         const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
-        Obj x;
+        Obj x(1, Ti(10), 1, Ti(10), Ti(0));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
 
@@ -952,14 +952,14 @@ int main(int argc, char *argv[])
                 bsls_AssertTest::failTestDriver);
 
             // Zero rate or zero window.
-            ASSERT_SAFE_FAIL(x.setRateLimits(0, Ti(15), 10, Ti(10)));
-            ASSERT_SAFE_FAIL(x.setRateLimits(1, Ti( 0), 10, Ti(10)));
-            ASSERT_SAFE_FAIL(x.setRateLimits(1, Ti(15),  0, Ti(10)));
-            ASSERT_SAFE_FAIL(x.setRateLimits(1, Ti(15), 10, Ti( 0)));
+            ASSERT_FAIL(x.setRateLimits(0, Ti(15), 10, Ti(10)));
+            ASSERT_FAIL(x.setRateLimits(1, Ti( 0), 10, Ti(10)));
+            ASSERT_FAIL(x.setRateLimits(1, Ti(15),  0, Ti(10)));
+            ASSERT_FAIL(x.setRateLimits(1, Ti(15), 10, Ti( 0)));
 
             // Negative window.
-            ASSERT_SAFE_FAIL(x.setRateLimits(1, Ti(-15), 10, Ti(10)));
-            ASSERT_SAFE_FAIL(x.setRateLimits(1, Ti(15), 10, Ti(-10)));
+            ASSERT_FAIL(x.setRateLimits(1, Ti(-15), 10, Ti(10)));
+            ASSERT_FAIL(x.setRateLimits(1, Ti(15), 10, Ti(-10)));
         }
       } break;
       case 5: {
@@ -1100,9 +1100,9 @@ int main(int argc, char *argv[])
             Obj y3(100, Ti(10), 1000, Ti(1), Ti(0));
             y3.submit(1);
             y3.reserve(1);
-            ASSERT_SAFE_FAIL(y3.submitReserved(ULLONG_MAX));
+            ASSERT_FAIL(y3.submitReserved(ULLONG_MAX));
 
-            ASSERT_SAFE_FAIL(y3.submitReserved(ULLONG_MAX/2+1));
+            ASSERT_FAIL(y3.submitReserved(ULLONG_MAX/2+1));
         }
 
       } break;
@@ -1189,8 +1189,8 @@ int main(int argc, char *argv[])
 
                 x.submit(UNITS);
 
-                const bool LB_RESULT = peakLB.wouldOverflow(1,curTime) ||
-                                               sustLB.wouldOverflow(1,curTime);
+                const bool LB_RESULT = peakLB.wouldOverflow(curTime) ||
+                                                 sustLB.wouldOverflow(curTime);
 
                 LOOP_ASSERT(LINE,
                             LB_RESULT == x.wouldExceedBandwidth(curTime));
@@ -1294,7 +1294,7 @@ int main(int argc, char *argv[])
         //: 2 Each accessor method is declared 'const'.
         //
         // Plan:
-        //: 1 Create an object using the default constructor.  Verify that each
+        //: 1 Create an object using the value constructor.  Verify that each
         //:   basic accessor, invoked on a reference providing non-modifiable
         //:   access to the object, returns the expected value.  (C-2)
         //:
@@ -1317,7 +1317,7 @@ int main(int argc, char *argv[])
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        Obj mX; const Obj& X = mX;
+        Obj mX(1, Ti(10), 10, Ti(1), Ti(0)); const Obj& X = mX;
 
         ASSERT(10     == X.peakRateLimit());
         ASSERT(Ti(1)  == X.peakRateWindow());
@@ -1347,72 +1347,53 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT CTOR AND VALUE CTOR
+        // VALUE CTOR
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The default constructor create an object having the correct
-        //:   value.
-        //:
-        //: 2 The value constructor can create an object having any value that
+        //: 1 The value constructor can create an object having any value that
         //:   does not violate the constructor's documented preconditions.
         //:
-        //: 3 The capacity of a underlying leaky bucket is set to the
+        //: 2 The capacity of a underlying leaky bucket is set to the
         //:   rounded-down product of 'sustainedRateWindow' and
         //:   'sustainedRateLimit'.  As a result, the 'sustainedRateLimit'
         //:   retrieved from an object's accessor may be one less than the
         //:   original specified value.
         //:
-        //: 4 If less than one unit is transmitted during the specified
+        //: 3 If less than one unit is transmitted during the specified
         //:   'sustainedRateWindow' at 'sustainedRateLimit' then
         //:   'sustainRateWindow' will be set to the time period during which 1
         //:   unit is transmitted.
         //:
-        //: 5 The capacity of a underlying leaky bucket is set to the
+        //: 4 The capacity of a underlying leaky bucket is set to the
         //:   rounded-down product of 'peakRateWindow' and 'peakRateLimit'.  As
         //:   a result, the 'peakRateLimit' retrieved from an object's accessor
         //:   may be one less than the original specified value.
         //:
-        //: 6 If less than one unit is transmitted during the specified
+        //: 5 If less than one unit is transmitted during the specified
         //:   'peakRateWindow' at 'peakRateLimit' then 'sustainRateWindow' will
         //:   be set to the time period during which 1 unit is transmitted.
         //:
-        //: 7 QoI: Assert preconditions violations are detected when enabled.
+        //: 6 QoI: Assert preconditions violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create an object using the default constructor and verify its
-        //:   value.  (C-1)
-        //:
         //: 2 Use a table driven test, for a set of varied possible attributes,
         //:   to invoke the value constructor and verify the values of the
-        //:   resulting objects.  (C-2..6)
+        //:   resulting objects.  (C-1..5)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid attribute values, but not triggered for
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-7)
+        //:   (C-6)
         //
         // Testing:
-        //   btes_RateLimiter();
         //   btes_RateLimiter(sR, sRW, pR, pRW, currentTime);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "DEFAULT CTOR AND VALUE CTOR" << endl
-                          << "===========================" << endl;
-
-        // Testing default constructor.
-        Obj x;
-
-        ASSERT(10     == x.peakRateLimit());
-        ASSERT(Ti(1)  == x.peakRateWindow());
-        ASSERT(1      == x.sustainedRateLimit());
-        ASSERT(Ti(10) == x.sustainedRateWindow());
-        ASSERT(Ti(0)  == x.lastUpdateTime());
-        ASSERT(Ti(0)  == x.statisticsCollectionStartTime()); // C-10
-        ASSERT(0      == x.unitsReserved());
-
+                          << "VALUE CTOR" << endl
+                          << "==========" << endl;
 
         // Testing value constructor.
         {
@@ -1557,7 +1538,15 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        Obj x;
+        Obj x(1, Ti(10), 1, Ti(10), Ti(0));
+        ASSERT(1      == x.sustainedRateLimit());
+        ASSERT(Ti(10) == x.sustainedRateWindow());
+        ASSERT(1      == x.peakRateLimit());
+        ASSERT(Ti(10) == x.peakRateWindow());
+        ASSERT(Ti(0)  == x.lastUpdateTime());
+        ASSERT(Ti(0)  == x.statisticsCollectionStartTime()); // C-10
+        ASSERT(0      == x.unitsReserved());
+
         Ti  currentTime(1);
 
         x.setRateLimits(1000, Ti(1), 10000, Ti(0.1));

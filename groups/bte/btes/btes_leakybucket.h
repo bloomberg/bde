@@ -322,6 +322,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSL_CLIMITS
+#include <bsl_climits.h>
+#endif
+
 namespace BloombergLP {
 
                         //=======================
@@ -427,8 +431,9 @@ class btes_LeakyBucket {
         // moving-total of submitted units, as the rounded-down ratio between
         // the specified 'capacity' and the specified 'drainRate'.  If the
         // rounded ratio is 0, return a time interval of 1 nanosecond.  The
-        // behavior is undefined unless 'capacity / drainRate' can be
-        // represented with 64-bit signed integral type.
+        // behavior is undefined unless 'drainRate > 0' and
+        // 'capacity / drainRate' can be represented with 64-bit signed
+        // integral type.
 
     static bsls_Types::Uint64 calculateCapacity(
                                           bsls_Types::Uint64       drainRate,

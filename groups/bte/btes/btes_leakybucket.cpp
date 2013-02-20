@@ -1,7 +1,6 @@
 // btes_leakybucket.cpp                                               -*-C++-*-
 #include <btes_leakybucket.h>
 
-#include <bsl_climits.h>
 #include <bsl_c_math.h>
 
 namespace BloombergLP {
@@ -28,8 +27,8 @@ bsls_Types::Uint64 calculateNumberOfUnitsToDrain(
 {
     const bsls_Types::Uint64 NANOUNITS_PER_UNIT = 1000000000;
 
-    BSLS_ASSERT((bsls_Types::Uint64)timeInterval.seconds() <=
-                ULLONG_MAX/drainRate);
+    BSLS_ASSERT(static_cast<bsls_Types::Uint64>(timeInterval.seconds()) <=
+                                                       ULLONG_MAX / drainRate);
     BSLS_ASSERT(0 != fractionalUnitDrainedInNanoUnits);
     BSLS_ASSERT(*fractionalUnitDrainedInNanoUnits < NANOUNITS_PER_UNIT);
 
@@ -89,6 +88,8 @@ bdet_TimeInterval btes_LeakyBucket::calculateTimeWindow(
                                                   bsls_Types::Uint64 drainRate,
                                                   bsls_Types::Uint64 capacity)
 {
+
+    BSLS_ASSERT(drainRate > 0);
     BSLS_ASSERT(drainRate > 1 || capacity <= LLONG_MAX);
 
     bdet_TimeInterval window = btes_LeakyBucket::calculateDrainTime(capacity,

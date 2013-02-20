@@ -8,41 +8,19 @@ namespace BloombergLP {
                         //-----------------------
 
 // CREATORS
-btes_RateLimiter::btes_RateLimiter()
-{
-    setRateLimits(1, bdet_TimeInterval(10), 10, bdet_TimeInterval(1));
-    reset(bdet_TimeInterval(0));
-}
-
 btes_RateLimiter::btes_RateLimiter(
                                   bsls_Types::Uint64       sustainedRateLimit,
                                   const bdet_TimeInterval& sustainedRateWindow,
                                   bsls_Types::Uint64       peakRateLimit,
                                   const bdet_TimeInterval& peakRateWindow,
                                   const bdet_TimeInterval& currentTime)
+: d_peakRateBucket(1, 1, currentTime)
+, d_sustainedRateBucket(1, 1, currentTime)
 {
-    BSLS_ASSERT_SAFE(sustainedRateLimit > 0);
-    BSLS_ASSERT_SAFE(peakRateLimit      > 0);
-
-    BSLS_ASSERT_SAFE(sustainedRateWindow > bdet_TimeInterval(0));
-    BSLS_ASSERT_SAFE(peakRateWindow      > bdet_TimeInterval(0));
-
-    BSLS_ASSERT_SAFE( peakRateLimit  == 1 ||
-          peakRateWindow <= btes_LeakyBucket::calculateDrainTime(ULLONG_MAX,
-                                                                 peakRateLimit,
-                                                                 true));
-
-    BSLS_ASSERT_SAFE( sustainedRateLimit == 1 ||
-     peakRateWindow <= btes_LeakyBucket::calculateDrainTime(ULLONG_MAX,
-                                                            sustainedRateLimit,
-                                                            true));
-
     setRateLimits(sustainedRateLimit,
                   sustainedRateWindow,
                   peakRateLimit,
                   peakRateWindow);
-
-    reset(currentTime);
 }
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
@@ -78,18 +56,18 @@ void btes_RateLimiter::setRateLimits(
                                bsls_Types::Uint64       peakRateLimit,
                                const bdet_TimeInterval& peakRateWindow)
 {
-    BSLS_ASSERT_SAFE(sustainedRateLimit > 0);
-    BSLS_ASSERT_SAFE(peakRateLimit      > 0);
+    BSLS_ASSERT(sustainedRateLimit > 0);
+    BSLS_ASSERT(peakRateLimit      > 0);
 
-    BSLS_ASSERT_SAFE(sustainedRateWindow > bdet_TimeInterval(0));
-    BSLS_ASSERT_SAFE(peakRateWindow      > bdet_TimeInterval(0));
+    BSLS_ASSERT(sustainedRateWindow > bdet_TimeInterval(0));
+    BSLS_ASSERT(peakRateWindow      > bdet_TimeInterval(0));
 
-    BSLS_ASSERT_SAFE(peakRateLimit  == 1 ||
+    BSLS_ASSERT(peakRateLimit  == 1 ||
         peakRateWindow <= btes_LeakyBucket::calculateDrainTime(ULLONG_MAX,
                                                                peakRateLimit,
                                                                true));
 
-    BSLS_ASSERT_SAFE(sustainedRateLimit  == 1 ||
+    BSLS_ASSERT(sustainedRateLimit  == 1 ||
         sustainedRateWindow <= btes_LeakyBucket::calculateDrainTime(
                                                             ULLONG_MAX,
                                                             sustainedRateLimit,

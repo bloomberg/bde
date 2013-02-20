@@ -1,4 +1,4 @@
-//btes_leakybucket.t.cpp                                              -*-C++-*-
+// btes_leakybucket.t.cpp                                             -*-C++-*-
 
 #include <btes_leakybucket.h>
 
@@ -321,8 +321,13 @@ static void aSsErT(int c, const char *s, int i)
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_OPT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_OPT_FAIL(expr)
+#define ASSERT_OPT_PASS(expr) BSLS_ASSERTTEST_ASSERT_OPT_PASS(expr)
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -485,11 +490,11 @@ int main(int argc, char *argv[])
 // Notice that, for the sake of brevity, we elide the loading of 'buffer' with
 // the data to be sent.
 //
-// Now, we send the chunks of data using a loop.  For each iteration, we
-// checked whether submitting another byte would cause the leaky bucket
-// to overflow.  If not, we send an additional chunk of data and submit the
-// number of bytes sent to the leaky bucket.  Note that 'submit' is invoked
-// only after the data has been sent.
+// Now, we send the chunks of data using a loop.  For each iteration, we check
+// whether submitting another byte would cause the leaky bucket to overflow.
+// If not, we send an additional chunk of data and submit the number of bytes
+// sent to the leaky bucket.  Note that 'submit' is invoked only after the data
+// has been sent.
 //..
   char *data = buffer;
   while (dataSent < totalSize) {
@@ -712,19 +717,16 @@ int main(int argc, char *argv[])
         // C-4
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
-            // Rate or capacity is zero.
-
-            ASSERT_SAFE_FAIL(Obj::calculateTimeWindow(0,    0));
-            ASSERT_SAFE_FAIL(Obj::calculateTimeWindow(0,    1000));
-            ASSERT_SAFE_FAIL(Obj::calculateTimeWindow(1000, 0));
+            // Rate is 0.
+            ASSERT_FAIL(Obj::calculateTimeWindow(0,    0));
+            ASSERT_FAIL(Obj::calculateTimeWindow(0,    1000));
 
             // The resulting time interval can not be represented by
             // bdet_TimeInterval.
 
-            ASSERT_SAFE_FAIL(Obj::calculateTimeWindow(1, ULLONG_MAX));
+            ASSERT_FAIL(Obj::calculateTimeWindow(1, ULLONG_MAX));
         }
       } break;
       case 16: {
@@ -814,10 +816,8 @@ int main(int argc, char *argv[])
         {
             bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
-            ASSERT_SAFE_FAIL(Obj::calculateCapacity(0,    Ti( 1)));
-            ASSERT_SAFE_FAIL(Obj::calculateCapacity(1000, Ti( 0)));
-            ASSERT_SAFE_FAIL(Obj::calculateCapacity(0,    Ti( 0)));
-            ASSERT_SAFE_FAIL(Obj::calculateCapacity(1000, Ti(-1)));
+            ASSERT_FAIL(Obj::calculateCapacity(ULLONG_MAX, Ti(2)));
+            ASSERT_FAIL(Obj::calculateCapacity(1000, Ti(-1)));
         }
       } break;
       case 15: {
@@ -1870,37 +1870,36 @@ int main(int argc, char *argv[])
                 Uint64 d_unitsToSubmit;
                 Uint64 d_unitsToReserve;
                 Ti     d_creationTime;
-                Uint64 d_checkUnits;
                 Ti     d_checkTime;
                 bool   d_checkResult;
                 Uint64 d_expectedUnits;
                 Ti     d_expectedUpdate;
             } DATA[] = {
 
-// LINE RATE  CAP   SUBMIT RSRV TCREATE   CHK_U  TCHECK   CHK_RES EXP_U EXP_UPD
-// ---- ----- ----- ------ ---- -------  ------ --------  ------- ----- -------
-   {L_, 1000, 1000,    0,   0,  Ti(0),    42,  Ti(  0),  false,    0, Ti(  0)},
-   {L_, 1000, 1000, 1000, 500,  Ti(0),    42,  Ti(  0),   true, 1000, Ti(  0)},
+// LINE RATE  CAP   SUBMIT RSRV TCREATE  TCHECK   CHK_RES EXP_U EXP_UPD
+// ---- ----- ----- ------ ---- -------  ------   ------- ----- -------
+   {L_, 1000, 1000,    0,   0,  Ti(0),   Ti(  0),  false,    0, Ti(  0)},
+   {L_, 1000, 1000, 1000, 500,  Ti(0),   Ti(  0),   true, 1000, Ti(  0)},
    // C-4
-   {L_, 1000, 1000, 1000, 500,  Ti(0),     1,  Ti(  0),   true, 1000, Ti(  0)},
-   {L_, 1000, 1000,    0,   0,  Ti(0),   500,  Ti(  0),  false,    0, Ti(  0)},
-   {L_, 1000, 1000,  500, 250,  Ti(0),   500,  Ti(  1),  false,    0, Ti(  1)},
-   {L_, 1000, 1000, 1000, 500,  Ti(0),   500,  Ti(  1),  false,    0, Ti(  1)},
-   {L_,  500, 1000,  500, 250,  Ti(0),   300,  Ti(0.5),  false,  250, Ti(0.5)},
+   {L_, 1000, 1000, 1000, 500,  Ti(0),   Ti(  0),   true, 1000, Ti(  0)},
+   {L_, 1000, 1000,    0,   0,  Ti(0),   Ti(  0),  false,    0, Ti(  0)},
+   {L_, 1000, 1000,  500, 250,  Ti(0),   Ti(  1),  false,    0, Ti(  1)},
+   {L_, 1000, 1000, 1000, 500,  Ti(0),   Ti(  1),  false,    0, Ti(  1)},
+   {L_,  500, 1000,  500, 250,  Ti(0),   Ti(0.5),  false,  250, Ti(0.5)},
    // C-5
-   {L_, 1000, 1000, 1000, 500,  Ti(5),   500,  Ti(0.5),   true, 1000, Ti(0.5)},
+   {L_, 1000, 1000, 1000, 500,  Ti(5),   Ti(0.5),   true, 1000, Ti(0.5)},
    // C-7
-   {L_, 1000, 1000, MAX_U,    0, Ti(0), 500,  Ti(0.25), true, EU_C6, Ti(0.25)},
-   {L_, 1000, 1000,  U_C7, U_C7, Ti(0), 1000, Ti(   1), true, EU_C7, Ti(   1)},
+   {L_, 1000, 1000, MAX_U,    0, Ti(0),  Ti(0.25), true, EU_C6, Ti(0.25)},
+   {L_, 1000, 1000,  U_C7, U_C7, Ti(0),  Ti(   1), true, EU_C7, Ti(   1)},
 
    // Testing operation at high rate
-   {L_, MAX_R, 1000, MAX_U - 500, 500, Ti(0), 1000, Ti( 0, 1),
+   {L_, MAX_R, 1000, MAX_U - 500, 500, Ti(0), Ti(0, 1),
     true, MAX_U - 500 - U_NS, Ti( 0,1)},
-   {L_, MAX_R, 1000, MAX_U - 500,   500, Ti(0), MAX_U, Ti( 0, 1),
+   {L_, MAX_R, 1000, MAX_U - 500,   500, Ti(0), Ti(0, 1),
     true, MAX_U - 500 - U_NS, Ti( 0,1)},
-   {L_, MAX_R, 1000, MAX_U - 500, 500, Ti(0), U_MS, Ti(0.001),
+   {L_, MAX_R, 1000, MAX_U - 500, 500, Ti(0), Ti(0.001),
     true, MAX_U - 500 - U_MS, Ti(0.001)},
-   {L_, MAX_R, 1000, MAX_U - 500, 500, Ti(0), 500, MAX_T,
+   {L_, MAX_R, 1000, MAX_U - 500, 500, Ti(0), MAX_T,
     false,  0, MAX_T}
             };
 
@@ -1914,7 +1913,6 @@ int main(int argc, char *argv[])
                 const Uint64 CAPACITY         = DATA[ti].d_capacity;
                 const Ti     CREATION_TIME    = DATA[ti].d_creationTime;
                 const bool   RESULT           = DATA[ti].d_checkResult;
-                const Uint64 CHECK_UNITS      = DATA[ti].d_checkUnits;
                 const Ti     CHECK_TIME       = DATA[ti].d_checkTime;
                 const Uint64 EXPECTED_UNITS   = DATA[ti].d_expectedUnits;
                 const Ti     EXPECTED_UPDATE  = DATA[ti].d_expectedUpdate;
@@ -2674,11 +2672,11 @@ int main(int argc, char *argv[])
         {
             bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
-            ASSERT_SAFE_FAIL(Obj x(0, 1000, Ti(0)));
-            ASSERT_SAFE_FAIL(Obj x(1,    0, Ti(0)));
+            ASSERT_OPT_FAIL(Obj x(0, 1000, Ti(0)));
+            ASSERT_OPT_FAIL(Obj x(1,    0, Ti(0)));
 
-            ASSERT_SAFE_PASS(Obj x(1, 1000, Ti(0)));
-            ASSERT_SAFE_PASS(Obj x(1,    1, Ti(0)));
+            ASSERT_OPT_PASS(Obj x(1, 1000, Ti(0)));
+            ASSERT_OPT_PASS(Obj x(1,    1, Ti(0)));
         }
       } break;
       case 2: {
