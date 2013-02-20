@@ -732,8 +732,8 @@ void my_CountedHandleRep<INSTANCE>::deleteObject(
 template <class INSTANCE>
 inline
 my_CountedHandleRep<INSTANCE>:: my_CountedHandleRep(INSTANCE *instance)
-: d_instance_p(instance)
-, d_count(1)
+: d_count(1)
+, d_instance_p(instance)
 {
 }
 //..
