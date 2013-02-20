@@ -457,7 +457,7 @@ void my_Array<TYPE>::reallocate(TYPE             **array,
     // memory allocated for the new array is deallocated when an exception
     // occurs.
 {
-    ASSERT(0 < size);
+    ASSERT(0 != size);
     ASSERT(1 <= newSize);
     ASSERT(0 <= length);
     ASSERT(length <= *size);    // sanity check
