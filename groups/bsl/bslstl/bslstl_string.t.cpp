@@ -10188,7 +10188,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
                     if (veryVerbose) {
                         printf("\t\tFor rhs objects of length %d:\t",
-                               vLen);
+                               (int)vLen);
                         P(V_SPEC);
                     }
 
