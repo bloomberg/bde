@@ -727,11 +727,11 @@ void TestConfigurationMacros();
       public:
         // CREATORS
         List() : d_head_p(0) { }
-        List(const List& original) { /* ... */ }
+        List(const List& /* original */) { /* ... */ }
         ~List() { /* ... */ }
 
         // MANIPULATORS
-        List& operator=(const List& rhs) { /* ... */ return *this; }
+        List& operator=(const List& /* rhs */) { /* ... */ return *this; }
 
         //| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
         //v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v

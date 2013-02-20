@@ -1239,8 +1239,10 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     #define BSLS_ASSERT_SAFE(X) BSLS_ASSERT_ASSERT(X)
+    #define BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(param) param
 #else
     #define BSLS_ASSERT_SAFE(X)
+    #define BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(param)
 #endif
 
                         // ===========
@@ -1263,8 +1265,10 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BSLS_ASSERT(X) BSLS_ASSERT_ASSERT(X)
+    #define BSLS_USED_ONLY_IN_BSLS_ASSERT(param) param
 #else
     #define BSLS_ASSERT(X)
+    #define BSLS_USED_ONLY_IN_BSLS_ASSERT(param)
 #endif
 
                         // ===============
@@ -1281,8 +1285,10 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
     #define BSLS_ASSERT_OPT(X) BSLS_ASSERT_ASSERT(X)
+    #define BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(param) param
 #else
     #define BSLS_ASSERT_OPT(X)
+    #define BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(param)
 #endif
 
 #ifdef BSLS_ASSERT_NORETURN

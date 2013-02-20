@@ -128,7 +128,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //-----------------------------------------------------------------------------
 bool assertFailed = false;
 
-void testAssertionFailedHandler(const char *text, const char *file, int line)
+void testAssertionFailedHandler(const char * /* text */,
+                                const char * /* file */,
+                                int          /* line */)
     // A handler that sets the global flag 'assertFailed' when an assertion
     // fails.  Due to its simplicity, it isn't tested in test case 3.
 {

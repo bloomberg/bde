@@ -201,21 +201,21 @@ void TestAllocator::deallocate(void *address)
 //=============================================================================
 //           Additional Functionality Needed to Complete Usage Test Case
 //-----------------------------------------------------------------------------
-int subroutine1(char *inOut, bslma::Allocator *allocator)
+int subroutine1(char * /* inOut */, bslma::Allocator * /*allocator */)
 {
     return 0;
 }
 
-int subroutine2(char *inOut, bslma::Allocator *allocator)
+int subroutine2(char * /* inOut */, bslma::Allocator * /*allocator */)
 {
     return 0;
 }
 
-int subroutine3(char *inOut, bslma::Allocator *allocator) {
+int subroutine3(char * /* inOut */, bslma::Allocator * /* allocator */) {
     return 0;
 }
 
-double finalSubroutine(const char *result) {
+double finalSubroutine(const char * /* result */) {
     return 1.0;
 }
 
