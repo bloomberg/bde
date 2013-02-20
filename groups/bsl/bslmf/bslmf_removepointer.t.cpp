@@ -92,7 +92,7 @@ void testFuncPtrType(TYPE)
 #endif
 }
 
-void funcWithDefaultArg(int arg)
+void funcWithDefaultArg(int /* arg */)
 {
 }
 

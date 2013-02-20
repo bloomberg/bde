@@ -711,18 +711,21 @@ class DummyAllocator {
     // MANIPULATORS
     // DummyAllocator& operator=(const DummyAllocator& rhs) = default;
 
-    pointer allocate(size_type numElements, const void *hint = 0) { return 0; }
+    pointer allocate(size_type    /* numElements */,
+                     const void * /* hint */ = 0) {
+        return 0;
+    }
 
-    void deallocate(pointer address, size_type numElements = 1) {}
+    void deallocate(pointer /* address */, size_type /* numElements */ = 1) {}
 
-    void construct(pointer address, const TYPE& value) {}
+    void construct(pointer /* address */, const TYPE& /* value */) {}
 
-    void destroy(pointer address) {}
+    void destroy(pointer /* address */) {}
 
     // ACCESSORS
-    pointer address(reference object) const { return 0; }
+    pointer address(reference /* object */) const { return 0; }
 
-    const_pointer address(const_reference object) const { return 0; }
+    const_pointer address(const_reference /* object */) const { return 0; }
 
     size_type max_size() const { return 0; }
 };

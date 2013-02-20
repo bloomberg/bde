@@ -164,7 +164,7 @@ void bar()
     count2++;
 }
 
-void testCase1(int argc, bool assert)
+void testCase1(int argc, bool /* assert */)
 {
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
@@ -265,6 +265,9 @@ void init(volatile int *arrayA, volatile int *arrayB)
         __dcbf((const void *)(arrayA++));
         __dcbf((const void *)(arrayB++));
     }
+#else
+    (void)arrayA;
+    (void)arrayB;
 #endif
 }
 
@@ -391,6 +394,10 @@ void testCase3(int argc, bool assert)
     }
 
 #endif
+
+#else
+
+    (void)assert;
 
 #endif
 

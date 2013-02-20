@@ -191,7 +191,7 @@ class NonBslmaAllocator
         return pointer(d_mechanism->allocate(n * sizeof(T)));
     }
 
-    void deallocate(pointer p, size_type n = 1)
+    void deallocate(pointer p, size_type /* n */ = 1)
         { d_mechanism->deallocate(p); }
 
     void construct(T *p, const T& val) { ::new ((void*)p) T(val); }
@@ -261,7 +261,7 @@ class BslmaAllocator
         return pointer(d_mechanism->allocate(n * sizeof(T)));
     }
 
-    void deallocate(pointer p, size_type n = 1)
+    void deallocate(pointer p, size_type /* n */ = 1)
         { d_mechanism->deallocate(p); }
 
     void construct(T *p, const T& val)
@@ -369,7 +369,7 @@ class FunkyAllocator
         return pointer((T*) d_mechanism->allocate(n * sizeof(T)), 0);
     }
 
-    void deallocate(pointer p, size_type n = 1)
+    void deallocate(pointer p, size_type /* n */ = 1)
         { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
 
     void construct(T *p, const T& val)

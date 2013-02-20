@@ -208,7 +208,7 @@ bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
 namespace {
 
 template <int TESTSIZE>
-void testCase2(int verbose, int veryVerbose, int veryVeryVerbose)
+void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
 {
     if (verbose) cout << "\tCheck bitset<" << TESTSIZE << ">" << endl;
 
@@ -240,7 +240,7 @@ void testCase2(int verbose, int veryVerbose, int veryVeryVerbose)
 }
 
 template <int TESTSIZE>
-void testCase3(int verbose, int veryVerbose, int veryVeryVerbose)
+void testCase3(int verbose, int veryVerbose, int /* veryVeryVerbose */)
 {
     static const struct {
         unsigned int  d_lineNum;  // source line number
