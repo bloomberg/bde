@@ -2,6 +2,7 @@
 
 #include <bslstl_deque.h>
 #include <bslstl_iterator.h>
+
 #include <bslstl_forwarditerator.h>
 #include <bslstl_randomaccessiterator.h>
 #include <bslstl_string.h>                 // for testing only
@@ -104,21 +105,21 @@ using namespace bsl;
 // [16] reverse_iterator rbegin();
 // [16] reverse_iterator rend();
 // [14] void resize(size_type n);
-// [14] void resize(size_type n, const T& val);
+// [14] void resize(size_type n, T val);
 // [14] void reserve(size_type n);
 // [ 2] void clear();
 // [15] reference front();
 // [15] reference back();
 // [17] void push_front(const T&);
 // [17] void push_back(const T&);
-// [19] void pop_front();
-// [19] void pop_back();
+// [21] void pop_front();
+// [21] void pop_back();
 // [18] iterator insert(const_iterator pos, const T& val);
-// [18] iterator insert(const_iterator pos, size_type n, const T& val);
-// [18] template <class InputIter>
-//        void insert(const_iterator pos, InputIter first, InputIter last);
-// [19] iterator erase(const_iterator pos);
-// [19] iterator erase(const_iterator first, const_iterator last);
+// [18] void insert(const_iterator pos, size_type n, const T& val);
+// [20] template <class InputIter>
+//        void insert(const_iterator p, InputIter f, InputIter l);
+// [21] iterator erase(const_iterator pos);
+// [21] iterator erase(const_iterator first, const_iterator last);
 // [20] void swap(deque<T,A>&);
 //
 // ACCESSORS:
@@ -130,23 +131,26 @@ using namespace bsl;
 // [14] size_type max_size() const;
 // [14] size_type capacity() const;
 // [14] bool empty() const;
-// [16] const_iterator begin();
-// [16] const_iterator end();
-// [16] const_reverse_iterator rbegin();
-// [16] const_reverse_iterator rend();
+// [16] const_iterator begin() const;
+// [16] const_iterator end() const;
+// [16] const_reverse_iterator rbegin() const;
+// [16] const_reverse_iterator rend() const;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const deque<T,A>&, const deque<T,A>&);
 // [ 6] bool operator!=(const deque<T,A>&, const deque<T,A>&);
-// [21] bool operator<(const deque<T,A>&, const deque<T,A>&);
-// [21] bool operator>(const deque<T,A>&, const deque<T,A>&);
-// [21] bool operator<=(const deque<T,A>&, const deque<T,A>&);
-// [21] bool operator>=(const deque<T,A>&, const deque<T,A>&);
+// [23] bool operator<(const deque<T,A>&, const deque<T,A>&);
+// [23] bool operator>(const deque<T,A>&, const deque<T,A>&);
+// [23] bool operator<=(const deque<T,A>&, const deque<T,A>&);
+// [23] bool operator>=(const deque<T,A>&, const deque<T,A>&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
-// [18] USAGE EXAMPLE
-// [22] CONCERN: 'std::length_error' is used properly
+// [26] USAGE EXAMPLE 2
+// [25] USAGE EXAMPLE 1
+// [24] CONCERN: 'std::length_error' is used properly
+// [-1] PERFORMANCE
+// [ 2] BOOTSTRAP: void push_back(const T&);
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(deque<T,A> *object, const char *spec, int vF = 1);
@@ -1396,16 +1400,16 @@ struct TestDriver {
     static void testCaseM1();
         // Performance test.
 
-    static void testCase22();
+    static void testCase24();
         // Test proper use of 'std::length_error'.
 
-    static void testCase21();
+    static void testCase23();
         // Test comparison free operators.
 
-    static void testCase20();
+    static void testCase22();
         // Test 'swap' member.
 
-    static void testCase19();
+    static void testCase21();
         // Test 'erase', 'pop_back' and 'pop_front'.
 
     static void testCase18();
@@ -1640,6 +1644,9 @@ void TestDriver<TYPE,ALLOC>::testCaseM1Range(const CONTAINER&)
     //     I2) The 'insert' operation at the front.
     //     I3) The 'insert' operation everywhere.
     //     E1) The 'erase' operation.
+    //
+    // Testing:
+    //   PERFORMANCE
     // --------------------------------------------------------------------
 
     bsls::Stopwatch t;
@@ -1817,6 +1824,9 @@ void TestDriver<TYPE,ALLOC>::testCaseM1()
     //     I2) The 'insert' operation in its various forms, at the back
     //     I3) The 'insert' operation in its various forms.
     //     E1) The 'erase' operation in its various forms.
+    //
+    // Testing:
+    //   PERFORMANCE
     // --------------------------------------------------------------------
 
     bsls::Stopwatch t;
@@ -2268,7 +2278,7 @@ void TestDriver<TYPE,ALLOC>::testCaseM1()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::testCase22()
+void TestDriver<TYPE,ALLOC>::testCase24()
 {
     // --------------------------------------------------------------------
     // TESTING 'std::length_error'
@@ -2297,7 +2307,7 @@ void TestDriver<TYPE,ALLOC>::testCase22()
     //   size that is guaranteed to result in a value exceeding 'max_size()'.
     //
     // Testing:
-    //   Proper use of 'std::length_error'
+    //   CONCERN: 'std::length_error' is used properly
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -2750,7 +2760,7 @@ void TestDriver<TYPE,ALLOC>::testCase22()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::testCase21()
+void TestDriver<TYPE,ALLOC>::testCase23()
 {
     // --------------------------------------------------------------------
     // TESTING COMPARISON FREE OPERATORS
@@ -2867,7 +2877,7 @@ void TestDriver<TYPE,ALLOC>::testCase21()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::testCase20()
+void TestDriver<TYPE,ALLOC>::testCase22()
 {
     // --------------------------------------------------------------------
     // TESTING SWAP
@@ -2894,7 +2904,7 @@ void TestDriver<TYPE,ALLOC>::testCase20()
     //   Verify that memory was returned to allocator.
     //
     // Testing:
-    //   swap(deque<T,A>& lhs, deque<T,A>& rhs);
+    //   swap(deque<T,A>&);
     // ------------------------------------------------------------------------
 
         if (verbose) printf("\nSWAP TEST"
@@ -2949,7 +2959,7 @@ void TestDriver<TYPE,ALLOC>::testCase20()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::testCase19()
+void TestDriver<TYPE,ALLOC>::testCase21()
 {
     // --------------------------------------------------------------------
     // TESTING ERASE
@@ -2981,8 +2991,8 @@ void TestDriver<TYPE,ALLOC>::testCase19()
     //      - 0 otherwise.
     //
     // Testing:
-    //   void pop_back();
     //   void pop_front();
+    //   void pop_back();
     //   iterator erase(const_iterator pos);
     //   iterator erase(const_iterator first, const_iterator last);
     // -----------------------------------------------------------------------
@@ -3498,8 +3508,6 @@ void TestDriver<TYPE,ALLOC>::testCase18()
     // Testing:
     //   iterator insert(const_iterator pos, const T& value);
     //   void insert(const_iterator pos, size_type n, const T& value);
-    //   void push_back(T&& value);
-    //   void insert(const_iterator pos, size_type n, T&& value);
     // -----------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -3864,8 +3872,9 @@ void TestDriver<TYPE,ALLOC>::testCase18Range(const CONTAINER&)
     //   reallocations are for the new elements plus one if the deque
     //   undergoes a reallocation (capacity changes).
     //
+    // Testing:
     //   template <class InputIter>
-    //    void insert(const_iterator pos, InputIter first, InputIter last);
+    //     void insert(const_iterator p, InputIter f, InputIter l);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -4124,8 +4133,8 @@ void TestDriver<TYPE,ALLOC>::testCase17()
     //   internal state of the deque.
     //
     // Testing:
-    //   void push_back(T&& value);
-    //   void push_front(T&& value);
+    //   void push_front(const T&);
+    //   void push_back(const T&);
     // -----------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -4425,10 +4434,10 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     //   iterator end();
     //   reverse_iterator rbegin();
     //   reverse_iterator rend();
-    //   const_iterator begin();
-    //   const_iterator end();
-    //   const_reverse_iterator rbegin();
-    //   const_reverse_iterator rend();
+    //   const_iterator begin() const;
+    //   const_iterator end() const;
+    //   const_reverse_iterator rbegin() const;
+    //   const_reverse_iterator rend() const;
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -4559,12 +4568,12 @@ void TestDriver<TYPE,ALLOC>::testCase15()
     //   'std::out_of_range' when accessing the past-the-end element.
     //
     // Testing:
-    //   T& operator[](size_type position);
-    //   T& at(size_type n);
-    //   T& front();
-    //   T& back();
-    //   const T& front() const;
-    //   const T& back() const;
+    //   reference operator[](size_type pos);
+    //   reference at(size_type pos);
+    //   reference front();
+    //   reference back();
+    //   const_reference front() const;
+    //   const_reference back() const;
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -4677,8 +4686,9 @@ void TestDriver<TYPE,ALLOC>::testCase14()
     //   each test in the standard 'bdema' exception-testing macro block.
     //
     // Testing:
-    //   void bsl::deque<T>::reserve(size_type n);
-    //   void resize(size_type n, T val = T());
+    //   void resize(size_type n);
+    //   void resize(size_type n, T val);
+    //   void reserve(size_type n);
     //   size_type max_size() const;
     //   size_type capacity() const;
     //   bool empty() const;
@@ -4956,7 +4966,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
     //   completely in test case 17.
     //
     // Testing:
-    //   assign(size_type n, const T& value);
+    //   void assign(size_type numElements, const T& val);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -5113,7 +5123,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
     //
     // Testing:
     //   template <class InputIter>
-    //     assign(InputIter first, InputIter last, const A& a = A());
+    //     void assign(InputIter first, InputIter last);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -5304,9 +5314,9 @@ void TestDriver<TYPE,ALLOC>::testCase12()
     //   expected, and that no allocation was performed.
     //
     // Testing:
-    //   bsl::deque(size_type n, const A& a = A());
-    //   bsl::deque(size_type n, const T& value, const A& a = A());
-    //   bsl::deque(deque<T,A>&& original);
+    //   deque<T,A>(size_type n, const A& a = A());
+    //   deque<T,A>(size_type n, const T& val, const A& a = A());
+    //   deque(deque<T,A>&& original);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -5651,8 +5661,8 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
     //      - element value at each index position { 0 .. length - 1 }.
     //
     // Testing:
-    //   template <class InputIter>
-    //     bsl::deque(InputIter first, InputIter last, const A& a = A());
+    //   template<class InputIter>
+    //     deque<T,A>(InputIter first, InputIter last, const A& a = A());
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -5804,9 +5814,6 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     //   We first verify that the 'bsl::deque' class has the traits, and
     //   that allocator
     //
-    // Testing:
-    //   TRAITS
-    //
     // TBD When a new deque object Y is created from an old deque object
     //      X, then the standard states that Y should get its allocator by
     //      copying X's allocator (23.1, Point 8).  The STLport deque
@@ -5814,6 +5821,10 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     //      based allocators.  To verify this behavior for non
     //      bslma::Allocator, should test, copy constructor using one
     //      and verify standard is followed.
+    //
+    // Testing:
+    //   TRAITS
+    //   ALLOCATOR-RELATED CONCERNS
     // --------------------------------------------------------------------
 
     if (verbose) printf("\nALLOCATOR TEST"
@@ -5905,7 +5916,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
     //          With allocator, not moveable
     //
     // Testing:
-    //   deque<T,A>& operator=(const deque<T,A>& rhs);
+    //   operator=(deque<T,A>&);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -6197,7 +6208,7 @@ void TestDriver<TYPE,ALLOC>::testCase8()
     //   returned by 'g' differs in size from that returned by 'gg'.
     //
     // Testing:
-    //   bsl::deque g(const char *spec);
+    //   deque<T,A> g(const char *spec);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -6300,7 +6311,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
     //   'bslma::TestAllocator' and varying its *allocation* *limit*.
     //
     // Testing:
-    //   deque<T,A>(const deque<T,A>& original);
+    //   deque<T,A>(const deque<T,A>& orig, const A& = A());
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -6538,8 +6549,8 @@ void TestDriver<TYPE,ALLOC>::testCase6()
     //   trait or not.
     //
     // Testing:
-    //   operator==(const deque<T,A>&, const deque<T,A>&);
-    //   operator!=(const deque<T,A>&, const deque<T,A>&);
+    //   bool operator==(const deque<T,A>&, const deque<T,A>&);
+    //   bool operator!=(const deque<T,A>&, const deque<T,A>&);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator1(veryVeryVerbose);
@@ -7020,8 +7031,8 @@ void TestDriver<TYPE,ALLOC>::testCase3()
     //   parser only; the primary manipulators are already assumed to work.
     //
     // Testing:
-    //   deque<T,A>& gg(deque<T,A> *object, const char *spec);
     //   int ggg(deque<T,A> *object, const char *spec, int vF = 1);
+    //   deque<T,A>& gg(deque<T,A> *object, const char *spec);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -7262,8 +7273,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     // Testing:
     //   deque<T,A>(const A& a = A());
     //   ~deque<T,A>();
-    //   void push_back(const T&);
     //   void clear();
+    //   BOOTSTRAP: void push_back(const T&);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -7666,7 +7677,7 @@ void TestDriver<TYPE,ALLOC>::testCase1()
     // 11) Assign x4 = x4 (aliasing).               { x1: x2: x3:AB x4:AB }
     //
     // Testing:
-    //   This "test" *exercises* basic functionality.
+    //   BREATHING TEST
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -7918,6 +7929,9 @@ int main(int argc, char *argv[])
         // Concern:
         //   Demonstrate properties of deque with an abstract demonstration
         //   showing numerous properties of the container.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
         if (verbose) printf("\ndeque Usage Example\n"
@@ -8123,6 +8137,9 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //   Demonstrate a context in which a 'deque' might be useful.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUsage Example 1\n"
@@ -8189,13 +8206,13 @@ int main(int argc, char *argv[])
         // TESTING EXCEPTIONS
         //
         // Testing:
-        //   CONCERN: bsl::length_error is used properly
+        //   CONCERN: 'std::length_error' is used properly
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting use of 'bsl::length_error'"
+        if (verbose) printf("\nTesting use of 'std::length_error'"
                             "\n==================================\n");
 
-        TestDriver<T>::testCase22();
+        TestDriver<T>::testCase24();
 
       } break;
       case 23: {
@@ -8203,17 +8220,20 @@ int main(int argc, char *argv[])
         // TESTING COMPARISON FREE OPERATORS
         //
         // Testing:
-        //   bool operator<(const deque<T,A>& lhs, const deque<T,A>& rhs);
+        //   bool operator<(const deque<T,A>&, const deque<T,A>&);
+        //   bool operator>(const deque<T,A>&, const deque<T,A>&);
+        //   bool operator<=(const deque<T,A>&, const deque<T,A>&);
+        //   bool operator>=(const deque<T,A>&, const deque<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting comparison free operators"
                             "\n=================================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
-        TestDriver<char>::testCase21();
+        TestDriver<char>::testCase23();
 
         if (verbose) printf("\n... with 'TestType'.\n");
-        TestDriver<T>::testCase21();
+        TestDriver<T>::testCase23();
 
       } break;
       case 22: {
@@ -8221,16 +8241,13 @@ int main(int argc, char *argv[])
         // TESTING SWAP
         //
         // Testing:
-        //   void swap(bsl::deque&);
-        //   void swap(deque<T,A>&  lhs, deque<T,A>&  rhs);
-        //   void swap(deque<T,A>&& lhs, deque<T,A>&  rhs);
-        //   void swap(deque<T,A>&  lhs, deque<T,A>&& rhs);
+        //   void swap(deque<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'swap'"
                             "\n==============\n");
 
-        TestDriver<T>::testCase20();
+        TestDriver<T>::testCase22();
 
       } break;
       case 21: {
@@ -8238,35 +8255,35 @@ int main(int argc, char *argv[])
         // TESTING ERASE
         //
         // Testing:
-        //   iterator erase(const_iterator position);
-        //   iterator erase(const_iterator first, const_iterator last);
         //   void pop_back();
         //   void pop_front();
+        //   iterator erase(const_iterator pos);
+        //   iterator erase(const_iterator first, const_iterator last);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'erase' and 'pop_back'"
                             "\n==============================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
-        TestDriver<char>::testCase19();
+        TestDriver<char>::testCase21();
 
         if (verbose) printf("\n... with 'TestType'.\n");
-        TestDriver<T>::testCase19();
+        TestDriver<T>::testCase21();
 
         if (verbose) printf("\n... with 'SmallTestTypeNoAlloc'.\n");
-        TestDriver<S>::testCase19();
+        TestDriver<S>::testCase21();
 
         if (verbose) printf("\n... with 'MediumTestTypeNoAlloc'.\n");
-        TestDriver<M>::testCase19();
+        TestDriver<M>::testCase21();
 
         if (verbose) printf("\n... with 'LargeTestTypeNoAlloc'.\n");
-        TestDriver<L>::testCase19();
+        TestDriver<L>::testCase21();
 
         if (verbose) printf("\n... with 'BitwiseMoveableTestType'.\n");
-        TestDriver<BMT>::testCase19();
+        TestDriver<BMT>::testCase21();
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
-        TestDriver<BCT>::testCase19();
+        TestDriver<BCT>::testCase21();
 
       } break;
       case 20: {
@@ -8275,7 +8292,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   template <class InputIter>
-        //    void insert(const_iterator pos, InputIter first, InputIter last);
+        //     void insert(const_iterator p, InputIter f, InputIter l);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Range Array Insertion"
@@ -8303,7 +8320,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   template <class InputIter>
-        //    void insert(const_iterator pos, InputIter first, InputIter last);
+        //     void insert(const_iterator p, InputIter f, InputIter l);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Range List Insertion"
@@ -8330,7 +8347,7 @@ int main(int argc, char *argv[])
         // TESTING RANGE INSERTION
         //
         // Testing:
-        //   iterator insert(const_iterator position, const T& value);
+        //   iterator insert(const_iterator pos, const T& val);
         //   void insert(const_iterator pos, size_type n, const T& val);
         // --------------------------------------------------------------------
 
@@ -8354,8 +8371,8 @@ int main(int argc, char *argv[])
         // TESTING INSERTION
         //
         // Testing:
-        //   void push_back(const T& value);
-        //   void push_front(const T& value);
+        //   void push_front(const T&);
+        //   void push_back(const T&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Value Insertion"
@@ -8413,12 +8430,12 @@ int main(int argc, char *argv[])
         // TESTING ELEMENT ACCESS
         //
         // Testing:
-        //   T& operator[](size_type position);
-        //   T& at(size_type n);
-        //   T& front();
-        //   T& back();
-        //   const T& front() const;
-        //   const T& back() const;
+        //   reference operator[](size_type pos);
+        //   reference at(size_type pos);
+        //   reference front();
+        //   reference back();
+        //   const_reference front() const;
+        //   const_reference back() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Element Access"
@@ -8436,8 +8453,9 @@ int main(int argc, char *argv[])
         // TESTING CAPACITY
         //
         // Testing:
-        //   void reserve(size_type n);
+        //   void resize(size_type n);
         //   void resize(size_type n, T val);
+        //   void reserve(size_type n);
         //   size_type max_size() const;
         //   size_type capacity() const;
         //   bool empty() const;
@@ -8455,9 +8473,9 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT
         //
         // Testing:
-        //   void assign(size_t n, const T& val);
-        //   template<class InputIter>
+        //   template <class InputIter>
         //     void assign(InputIter first, InputIter last);
+        //   void assign(size_type numElements, const T& val);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Initial-Length Assignment"
@@ -8516,7 +8534,8 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCTORS
         //
         // Testing:
-        //   deque<T,A>(size_type n, const T& val = T(), const A& a = A());
+        //   deque<T,A>(size_type n, const A& a = A());
+        //   deque<T,A>(size_type n, const T& val, const A& a = A());
         //   template<class InputIter>
         //     deque<T,A>(InputIter first, InputIter last, const A& a = A());
         //   deque(deque<T,A>&& original);
@@ -8578,6 +8597,8 @@ int main(int argc, char *argv[])
         // TESTING ALLOCATOR-RELATED CONCERNS
         //
         // Testing:
+        //   TRAITS
+        //   ALLOCATOR-RELATED CONCERNS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Allocator concerns"
@@ -8608,7 +8629,7 @@ int main(int argc, char *argv[])
         //   See that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Obj& operator=(const Obj& rhs);
+        //   operator=(deque<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Assignment Operator"
@@ -8634,7 +8655,7 @@ int main(int argc, char *argv[])
         //   that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Obj g(const char *spec);
+        //   deque<T,A> g(const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Function g"
@@ -8672,8 +8693,7 @@ int main(int argc, char *argv[])
         //   that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   bsl::deque(const bsl::deque& original);
-        //   bsl::deque(const bsl::deque& original, alloc);
+        //   deque<T,A>(const deque<T,A>& orig, const A& = A());
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Copy Constructors"
@@ -8717,7 +8737,8 @@ int main(int argc, char *argv[])
         //   plan.
         //
         // Testing:
-        //   operator==(const Obj&, const Obj&);
+        //   bool operator==(const deque<T,A>&, const deque<T,A>&);
+        //   bool operator!=(const deque<T,A>&, const deque<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Equality Operators"
@@ -8756,8 +8777,10 @@ int main(int argc, char *argv[])
         //   for a list of concerns and a test plan.
         //
         // Testing:
-        //   int size() const;
-        //   const int& operator[](int index) const;
+        //   reference operator[](size_type pos);
+        //   const_reference operator[](size_type pos) const;
+        //   reference at(size_type pos);
+        //   const_reference at(size_type pos) const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Basic Accessors"
@@ -8793,8 +8816,8 @@ int main(int argc, char *argv[])
         //   function for a list of concerns and a test plan.
         //
         // Testing:
-        //   void ggg(Obj *object, const char *spec);
-        //   Obj& gg(Obj *object, const char *spec, );
+        //   int ggg(deque<T,A> *object, const char *spec, int vF = 1);
+        //   deque<T,A>& gg(deque<T,A> *object, const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Functions"
@@ -8834,7 +8857,8 @@ int main(int argc, char *argv[])
         //   plan.
         //
         // Testing:
-        //   void push_back(T const& v);
+        //   deque<T,A>(const A& a = A());
+        //   ~deque<T,A>();
         //   void clear();
         // --------------------------------------------------------------------
 
@@ -8876,7 +8900,7 @@ int main(int argc, char *argv[])
         //   work as expected in normal operation.
         //
         // Testing:
-        //   This "test" *exercises* basic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
@@ -8979,6 +9003,7 @@ int main(int argc, char *argv[])
         //   loops they run in have various lengths.
         //
         // Testing:
+        //   PERFORMANCE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPERFORMANCE TEST"

@@ -47,13 +47,19 @@ using namespace std;
 // overloads, we wrap the range pointers into an iterator type that is *not*
 // convertible to the pointer.
 //-----------------------------------------------------------------------------
+// [ 3] bool equal(start1, end1, start2);
+// [ 3] bool equal(start1, end1, start2, end2);
 // [ 3] bool equal(start1, end1, length1, start2, end2, length2);
+// [ 4] bool lexicographical(start1, end1, start2, end2);
 // [ 4] bool lexicographical(start1, end1, length1, start2, end2, length2);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TEST APPARATUS
 // [-1] PERFORMANCE TEST
 // [ 5] USAGE EXAMPLE
+//
+// TESTING APPARATUS
+// [ 2] int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
+// [ 2] gg(TYPE *array, const char *spec)
 
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -2150,8 +2156,8 @@ int main(int argc, char *argv[])
         //   CharEquivalentNonBitwiseWithOpEqual.
         //
         // Testing:
-        //  bool lexicographical(start1, end1, start2, end2);
-        //  bool lexicographical(start1, end1, length1, start2, end2, length2);
+        //   bool lexicographical(start1, end1, start2, end2);
+        //   bool lexicographical(start1, end1, length1, start2, end2, length2);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'lexicographical'"
@@ -2364,8 +2370,8 @@ int main(int argc, char *argv[])
         //   the first invalid value of the 'spec'.
         //
         // Testing:
-        //   int ggg(TYPE *array, const char *spec, int verboseFlag = 1);
-        //   TYPE& gg(TYPE *array, const char *spec);
+        //   int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
+        //   gg(TYPE *array, const char *spec)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING PRIMITIVE GENERATOR FUNCTIONS"
@@ -2395,7 +2401,7 @@ int main(int argc, char *argv[])
         //   Exercise basic usage of this component.
         //
         // Testing:
-        //   This test exercises basic usage but *tests* nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
@@ -2497,6 +2503,7 @@ int main(int argc, char *argv[])
         //   can be used.  Display the resulting times.
         //
         // Testing:
+        //   PERFORMANCE TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPERFORMANCE TEST"

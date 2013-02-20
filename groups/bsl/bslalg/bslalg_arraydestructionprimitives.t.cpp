@@ -42,6 +42,12 @@ using namespace BloombergLP;
 // [ 2] void destroy(T *dstB, T *dstE);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
+// 
+// TESTING APPARATUS:
+// [ 2] int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
+// [ 2] TYPE& gg(TYPE *array, const char *spec)
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -697,6 +703,9 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Usage Example"
@@ -740,7 +749,9 @@ int main(int argc, char *argv[])
         //:    they are destroyed as expected.  (C-1)
         //
         // Testing:
-        //   void destroy(T *b, T *e, *a);
+        //   void destroy(T *dstB, T *dstE);
+        //   int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
+        //   TYPE& gg(TYPE *array, const char *spec)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'destroy'\n");
@@ -791,7 +802,7 @@ int main(int argc, char *argv[])
         //     them.  Make sure all memory is deallocated.  (C-1)
         //
         // Testing:
-        //   This test exercises the component but tests nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
