@@ -29,28 +29,30 @@ BDES_IDENT("$Id: $")
 // peak-rate; similarly, the sustained-rate time-window indicates a sliding
 // time period over which the average consumption rate shall not exceed the
 // sustained rate.  'unit' is a generic unit of measurement (e.g., bytes,
-// number of messages, packets, liters, clock cycles, etc.).
+// megabytes, number of messages, packets, liters, clock cycles, etc.).
 //
-///Moving-Totals
-///-------------
-// The configured limits of a rate limiter are enforced by using two
-// moving-totals of consumed units, one for the peak rate and another for the
-// sustained rate.  The moving-total for the peak rate has the capacity that
-// matches the number of units consumed at the peak rate over the peak-rate
-// time-window; similarly, the moving-total for the sustained rate has the
-// capacity that matches the number of units consumed at the sustained rate
-// over the sustained-rate time-window.  Units are constantly being drained
-// from the moving totals for the peak rate and the sustained rate at their
-// respective rates.  When units are consumed, they are added to both of the
-// moving-totals.  The configured limits are exceeded when either of the
-// moving-totals contains more units than its capacity (overflows).  Note that
-// the moving-totals are approximated using 'btes_LeakyBucket' objects.
+///Internal Model
+///--------------
+// Internally, a rate limiter (currently) models resource usage using two
+// corresponding 'btes_LeakyBucket' objects, one for limiting peak resource
+// usage and one for limiting sustained resource usage.  Each leaky bucket
+// provides an approximation for a moving total, where the configured peak or
+// sustained rate time-window corresponds to the period of the moving total,
+// and that time-window multiplied by the corresponding rate indicates the sum
+// (i.e., the capacity of the leaky bucket) which the moving total may not
+// exceed.  As the units are submitted to a rate limiter, they are added to
+// both the peak and sustained rate moving-totals, and then removed over time
+// at the corresponding configured rate.
 //
 // Figure 1 illustrates the behavior of a rate limiter during a typical usage
 // scenario using moving-totals:
 //..
-// Fig. 1:  Peak rate      = 2 units/s, Peak-rate time-window      = 2 s
-//          Sustained rate = 1 units/s, Sustained-rate time-window = 7 s
+// Fig. 1:
+//
+//  Rp (peak rate)                  = 2 units/s
+//  Wp (peak-rate time-window)      = 2 s
+//  Rs (sustained rate)             = 1 units/s
+//  Ws (sustained-rate time-window) = 7 s
 //
 //       Submit 5                                       Submit 7
 //
@@ -128,20 +130,28 @@ BDES_IDENT("$Id: $")
 //
 ///Monitoring Resource Usage
 ///-------------------------
-// Units can either be submitted or reserved.  Submitting units (using the
-// 'submit' method) indicates the consumption of those units and are added to
-// the moving-totals.
+// A 'btes_LeakyBucket' provides methods to both submit units and reserve units
+// for future submission.  Submitting a unit indicates that it has been
+// consumed by the entity being modeled, and it is added to the moving-totals
+// tracking both peak and sustained resource usage.
 //
-// Units may be reserved using the 'reserve' method.  Reserved units may be
-// later submitted using the 'submitReserved' method or canceled using the
-// 'cancelReserved' method.  Reserved units permanently reside in the two
-// moving-total of consumed units, resulting the reduction in the effective
-// capacities of the moving-totals, until the reserved units are canceled or
-// submitted.  Reserving units effectively shortens the time-window during
-// which the average sustained and peak rate are enforced.  Therefore, the time
-// interval between reserving units and submitting or canceling them should be
-// kept as short as possible.  For a practical example of using reserved units,
-// please see 'btes_reservationguard'.
+// Reserving a unit guarantees that available capacity will be reserved so that
+// unit can be submitted in the future without exceeding the configured limits.
+// Reserved units may be later submitted using the 'submitReserved' method or
+// canceled using the 'cancelReserved' method.  Reserved units permanently
+// reside in the two moving-totals of consumed units, resulting in the
+// reduction in the effective capacities of the moving-totals, until the
+// reserved units are canceled or submitted.  Reserving units effectively
+// shortens the time-window during which the average sustained and peak rate
+// are enforced.  Therefore, the time interval between reserving units and
+// submitting or canceling them should be kept as short as possible.  For a
+// practical example of using reserved units, please see
+// 'btes_reservationguard'.
+//
+// The recommended usage of a rate limiter is to first check whether 1 unit can
+// be added without exceeding the rate limiter's configured limits, and if so,
+// consume the desired amount of the resource.  Afterwards, submit the amount
+// of consumed resource to the rate limiter.
 //
 // Whether submitting more units would exceed the configured limits can be
 // determined using the 'wouldExceedBandwidth' method.  The estimated amount of
@@ -168,34 +178,47 @@ BDES_IDENT("$Id: $")
 ///Example 1: Controlling Network Traffic Generation
 ///-------------------------------------------------
 // Suppose that we want to send data over a network interface with the load
-// spike limitation shown in Figure 2:
+// spike limitations explained below:
 //
-//: o Sustained rate should be 1024 bytes/s ('R1').
+//: o The long term average rate of resource usage (i.e., the sustained rate)
+//:   should not exceed 1024 bytes/s ('Rs').
 //:
-//: o Any area above the sustained rate 'R1' (e.g., 'A1' or 'A2 + B') should
-//:   contain no more than 512 bytes.
+//: o The period over which to monitor the long term average rate (i.e., the
+//:   sustained-rate time-window) should be 0.5s ('Wp').
 //:
-//: o Peak rate should be 2048 bytes/s ('R2').
+//: o The peak resource usage (i.e., the peak rate) should not exceed 2048
+//:   bytes/s ('Rp').
 //:
-//: o Any area above the peak rate 'R2' (e.g., 'B') should contain no more than
-//:   128 bytes.
+//: o The period over which to monitor the peak resource usage should be
+//:   0.0625s (Wp).
+//
+// This is shown in Figure 2 below.
 //..
 // Fig. 2:
 //
 //     ^ Rate (Units per second)
 //     |                             _____         .
 //     |                            /  B  \        .
-// 2048|---------------------------/-------\--------R2 (Maximum peak rate)
+// 2048|---------------------------/-------\--------Rp (Maximum peak rate)
 //     |           __             /         \      .
 //     |          /  \           /    A2     \     .
 //     |         / A1 \         /             \    .
-// 1024|--------/------\ ------/---------------\----R1 (Maximum sustained rate)
+// 1024|--------/------\ ------/---------------\----Rs (Maximum sustained rate)
 //     |   __  /        \     /                 \__.
 //     |__/  \/          \___/                     .
 //     |                                           .
 //      --------------------------------------------->
 //                                         T (seconds)
 //..
+// Notice that we can understand the limitations imposed by the rate-limiter
+// graphically as the maximum area above the respective lines, 'Rp' and 'Rs',
+// that the usage curve to allowed to achieve.  In the example above:
+//
+//  o The area above the sustained rate 'Rs' (e.g., 'A1' or 'A2+B') should
+//    contain no more than 512 bytes.
+//
+//  o The area above the peak rate 'Rp' should contain no more than 128 bytes.
+//
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified amount of data over that network:
 //..
@@ -285,6 +308,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_c_limits.h>
+#endif
+
 namespace BloombergLP {
 
                         //=======================
@@ -341,11 +368,6 @@ class btes_RateLimiter {
 
   public:
     // CREATORS
-    btes_RateLimiter();
-        // Create a btes_RateLimiter object having a peak rate of 10 units/s, a
-        // peak-rate time-window of 1 s, a sustained rate of 1 unit/s, and a
-        // sustained rate window of 10 s, and 0 as the reference time interval.
-
     btes_RateLimiter(bsls_Types::Uint64       sustainedRateLimit,
                      const bdet_TimeInterval& sustainedRateWindow,
                      bsls_Types::Uint64       peakRateLimit,
@@ -468,7 +490,7 @@ class btes_RateLimiter {
         // Return the number of reserved units for this rate limiter.
 
     bdet_TimeInterval lastUpdateTime() const;
-        // Return the time interval when this rate limiter was last updated.
+        // Return the time when this rate limiter was last updated.
 
     void getStatistics(bsls_Types::Uint64* submittedUnits,
                        bsls_Types::Uint64* unusedUnits) const;
@@ -538,7 +560,7 @@ void btes_RateLimiter::reserve(bsls_Types::Uint64 numUnits)
 inline
 void btes_RateLimiter::submitReserved(bsls_Types::Uint64 numUnits)
 {
-    BSLS_ASSERT_SAFE(numUnits <= unitsReserved());
+    BSLS_ASSERT(numUnits <= unitsReserved());
 
     // There is no need to check whether 'numUnits' causes overflow because the
     // reserved units was already checked by the 'reserve' method.
@@ -550,7 +572,7 @@ void btes_RateLimiter::submitReserved(bsls_Types::Uint64 numUnits)
 inline
 void btes_RateLimiter::cancelReserved(bsls_Types::Uint64 numUnits)
 {
-    BSLS_ASSERT_SAFE(numUnits <= unitsReserved());
+    BSLS_ASSERT(numUnits <= unitsReserved());
 
     d_peakRateBucket.cancelReserved(numUnits);
     d_sustainedRateBucket.cancelReserved(numUnits);
@@ -560,8 +582,8 @@ inline
 bool btes_RateLimiter::wouldExceedBandwidth(
                                           const bdet_TimeInterval& currentTime)
 {
-    return (d_peakRateBucket.wouldOverflow(1,currentTime) ||
-                           d_sustainedRateBucket.wouldOverflow(1,currentTime));
+    return (d_peakRateBucket.wouldOverflow(currentTime) ||
+                             d_sustainedRateBucket.wouldOverflow(currentTime));
 }
 
 inline

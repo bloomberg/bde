@@ -17,20 +17,18 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Mikhail Kunitskiy (mkunitskiy1)
 //
 //@DESCRIPTION: This component provides generic proctor to automatically
-// reserve and release units indicating resource consumption in an external
-// rate controlling object.  The rate controlling object can be of any type
-// (e.g., 'btes_RateLimiter' or 'btes_LeakyBucket') that provides the following
-// methods:
+// reserve and release units from a rate controlling object.  The rate
+// controlling object can be of any type (typically either a 'btes_RateLimiter'
+// or 'btes_LeakyBucket') that provides the following methods:
 //..
 //  void reserve(bsls_Types::Uint64 numOfUnits);
 //  void submitReserved(bsls_Types::Uint64 numOfUnits);
 //  void cancelReserved(bsls_Types::Uint64 numOfUnits);
 //..
 // Use 'btes_ReservationGuard' to ensure that reserved units will be correctly
-// returned to a rate controlling object in a programming scope.
-//
-// Note that 'btes_ReservationGuard' does not assume ownership of the rate
-// controlling object.
+// returned to a rate controlling object in a programming scope.  Note that
+// 'btes_ReservationGuard' does not assume ownership of the rate controlling
+// object.
 //
 ///Usage
 ///-----

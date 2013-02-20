@@ -20,38 +20,41 @@ BDES_IDENT("$Id: $")
 // implements a leaky bucket algorithm that allows clients to monitor whether a
 // resource is being consumed at a particular rate.
 //
-// The name of this mechanism, leaky bucket, derives from an analogy of a
-// bucket with a hole.  The maximum rate at which water will drain out the
-// bucket depends size of the hole, and not from the rate at which water is
-// poured into the bucket.  If more water is being poured into the bucket than
-// being drained, the bucket will eventually overflow.  If a rate of resource
-// consumption is analgous to the rate of water being poured in to a bucket,
-// and water stop being poured whenever the bucket is about to overflow, the
-// average rate of resource consumption can be limited to the water drain rate.
+// The name of this mechanism, leaky bucket, derives from an analogy of pouring
+// water into a bucket with a hole at the bottom.  The maximum rate at which
+// water will drain out the bucket depends on the size of the hole, and not on
+// the rate at which water is poured into the bucket.  If more water is being
+// poured into the bucket than being drained, the bucket will eventually
+// overflow.  If the person pouring water into a leaky bucket ensures the
+// bucket doesn't overflow, then the average rate they pour water will, over
+// time, be limited by the rate at which water flows out of the bucket.  By
+// analogy, a leaky bucket provides a means to limit the rate of consumption of
+// some resource (water poured into the bucket) to a configured rate (the size
+// of the hole in the bucket).
 //
 // The behavior of a leaky bucket is determined by two properties: the capacity
 // and the drain rate.  The drain rate, measured in 'units/s', is the rate at
-// which the resource is consumed (drained).  The capacity, measured in
-// 'units', is the maximum amount of the resource that the leaky bucket can
-// hold before it overflows.  'unit' is a generic unit of measurement (e.g.,
-// bytes, number of messages, packets, liters, clock cycles, etc.).  Note that
-// the drain rate determines average rate of resource consumption, while the
-// capacity restricts the time period over which the average actual rate of
-// resource assumption approaches the drain rate.
+// which the resource is drained.  The capacity, measured in 'units', is the
+// maximum amount of the resource that the leaky bucket can hold before it
+// overflows.  'unit' is a generic unit of measurement (e.g., bytes, number of
+// messages, packets, liters, clock cycles, etc.).  Note that the drain rate
+// determines average rate of resource consumption, while the capacity
+// restricts the time period over which the average actual rate of resource
+// consumption approaches the drain rate.
 //
 ///Adding Units
 ///------------
 // Units can be added to a leaky bucket by either submitting them or reserving
 // them.  Submitted units are removed from a leaky bucket at the drain rate,
-// while reserved units stays unaffected in a leaky bucket until they are later
-// either cancelled (removed from the leaky bucket) or submitted.
+// while reserved units remain unchanged until they are later either cancelled
+// (removed from the leaky bucket) or submitted.
 //
 ///Submitting Units
 /// - - - - - - - -
 // Units can be submitted to a leaky bucket by invoking the 'submit' method,
 // and should be added only after the resource had been consumed.
 //
-// Figure 1 illustrate a typical workflow for when submitting units to a leaky
+// Figure 1 illustrates a typical workflow for submitting units to a leaky
 // bucket.
 //..
 // Fig. 1:  Capacity = 5 units, Rate = 1 unit / second
@@ -72,17 +75,18 @@ BDES_IDENT("$Id: $")
 // Suppose that we have an empty leaky bucket with a capacity of 'c = 5 units'
 // and a drain rate of 'd = 1 units/s'.  At 't0', we submit 5 units to the
 // leaky bucket, bringing the total number of units held up to 5.  At 't0 +
-// 4s', 4 units had been drained from the leaky bucket, bringing the number of
-// units held down to 1.  Finally, at 't0 + 10s', all units had been drained
+// 4s', 4 units have been drained from the leaky bucket, bringing the number of
+// units held down to 1.  Finally, at 't0 + 10s', all units have been drained
 // from the leaky bucket, making it empty.
 //
-// Unlike a real-life water bucket, units submitted to a leaky bucket doesn't
-// spillover after it has overflown, these units are still contained in the
-// leaky bucket.
+// Unlike a real-life water bucket, units submitted to a leaky bucket don't
+// spillover after its capacity has been exceeded, instead the leaky bucket may
+// hold a number of units beyond its capacity, as examined in Figure 2 below.,
+// these units are still contained in the leaky bucket.
 //
-// Figure 2 illustrates what happens if, in Figure 1, we had submitted 6 units
-// instead of 2 units at 't0 + 4s', which would have caused the leaky bucket to
-// overflow.
+// Figure 2 illustrates what happens if a leaky bucket exceeeds its capacity.
+// This scenario is the same as that in Figure 1, but at time 't0 + 4s', we
+// submit 6 units instead of 2.
 //..
 // Fig. 2: Capacity = 5 units, Rate = 1 unit / second
 //
@@ -101,29 +105,28 @@ BDES_IDENT("$Id: $")
 //..
 // At 't0 + 4s', when the number of units held by the leaky bucket is 1, we
 // submit 6 more units.  This brings the number of units held to 7, which
-// exceeds the capacity of the leaky bucket, causing the leaky bucket to go
-// into the state of being overflown.  At 't0 + 10s', 6 units had been drained
-// from the leaky bucket bring the number of units held down to 1.
+// exceeds the capacity of the leaky bucket.  At 't0 + 10s', 6 units had been
+// drained from the leaky bucket bring the number of units held down to 1.
 //
 ///Reserving Units
 ///- - - - - - - -
 // Units can be reserved for a leaky bucket using the 'reserve' method, and
 // they may be later canceled using the 'cancelReserved' method or submitted
 // using the 'submitReserved' method.  Unlike submitted units, reserved units
-// does *not* drain from the leaky bucket; like submitted units, reserved units
+// do *not* drain from the leaky bucket; like submitted units, reserved units
 // count toward the total number of units for the purposes of determining
-// whether a leaky bucket has overflown.  Reserving units effectively decreases
-// the capacity of a leaky bucket.  Therefore, the time interval between
-// reserving units and submitting or canceling them should be kept as short as
-// possible.  For a practical example of using reserved units, please see
-// 'btes_reservationguard'.
+// whether a leaky bucket has exceeded its capacity.  Reserving units
+// effectively decreases the capacity of a leaky bucket.  Therefore, the time
+// interval between reserving units and submitting or canceling the reservation
+// should be kept as short as possible.  For a practical example of using
+// reserved units, please see 'btes_reservationguard'.
 //
 // Figure 3 illustrate an example of how reserving units works in a leaky
 // bucket.
 //..
 // Fig. 3: Capacity = 5 units, Rate = 1 unit / second
 //
-//    Reserve 3                 Submit 3                  Cancel 1
+//    Reserve 4                 Submit 3                  Cancel 1
 //                            from reserve              from reserve
 //
 //    7|     |     7|     |     7|     |     7|     |     7|     |
@@ -139,7 +142,7 @@ BDES_IDENT("$Id: $")
 //..
 // Suppose that we have an empty leaky bucket with a capacity of 'c = 5 units'
 // and a drain rate of 'd = 1 units/s'.  At 't0' we reserve 4 units.  At 't0 +
-// 5s', we observe that none the reserved units are drained from the leaky
+// 5s', we observe that none of the reserved units are drained from the leaky
 // bucket.  At 't0 + 6s', we submit 3 of the previously reserved units, which
 // brings the number of reserved units down to 1 and the number of units held
 // up to 3.  At 't0 + 9s', we observe that all but the remaining reserved unit
@@ -158,26 +161,25 @@ BDES_IDENT("$Id: $")
 // A leaky bucket can be queried whether submitting a 1 more unit would cause
 // it to overflow via the 'wouldOverflow' method.  This method facilitates the
 // recommended usage of a leak bucket: check whether 1 more unit can be added
-// without causing a leaky bucket to overflow, and if so, consume the desired
-// amount of the resource (can be more than 1).  Compared to the alternative --
-// checking whether the desired amount of the resource can be added without
-// causing a leaky bucket to overflow before consuming that same amount of
-// resource -- the recommended usage may cause a spike in the rate of actual
-// consumption at the very beginning (which is often desirable) and is able to
-// sustain a long term average consumption rate that is closer to the drain
-// rate.
+// without causing the leaky bucket to overflow, and if so, consume the desired
+// amount of the resource (which may be more than 1).  Compared to the
+// alternative -- checking whether the desired amount can be submitted without
+// overflow -- this recommended usage may allow a limited spike in the rate of
+// actual consumption when the leaky bucket is empty (which is often
+// acceptable) but is able to sustain a long term average that is actually
+// closer to the drain rate.
 //
 ///Modeling a Network Connection
 ///-----------------------------
-// One of the intended use cases of leaky bucket is limiting the rate at which
-// data is written on a network.  In this use case, the drain rate of the
-// bucket corresponds to the *ideal* maximum transmission rate that the client
-// wishes to *enforce* on their outgoing connection.  Clients may choose to
-// provide a value related to the physical limitations of their network or any
-// other arbitrary limit.  The function of a leaky bucket's capacity is to
-// limit the time period in which the average actual transimission rate may
-// exceed the configured drain rate of the leaky bucket (see 'Approximations'
-// section and 'Sliding Time-Window' section).
+// The primary use case of leaky bucket is limiting the rate at which data is
+// written on a network.  In this use case, the drain rate of the bucket
+// corresponds to the *ideal* maximum transmission rate that the client wishes
+// to enforce on their outgoing connection.  Clients may choose to provide a
+// value related to the physical limitations of their network or any other
+// arbitrary limit.  The function of a leaky bucket's capacity is to limit the
+// time period over which the average actual transimission rate may exceed the
+// configured drain rate of the leaky bucket (see 'Approximations' section and
+// 'Sliding Time-Window' section).
 //
 ///Approximations
 ///--------------
@@ -186,7 +188,7 @@ BDES_IDENT("$Id: $")
 // model:
 //
 //: 1 Units are submitted instantaneously to the leaky bucket, whereas the
-//:   consumption of a resource occurs over time at an rate depending on the
+//:   consumption of a resource occurs over time at a rate that depends on the
 //:   nature and speed of the resource.
 //:
 //: 2 Leaky bucket simulates the consumption of a resource with a specified
@@ -200,11 +202,12 @@ BDES_IDENT("$Id: $")
 //
 ///Sliding Time-Window
 ///-------------------
-// A sliding time-window can be approximated for a leaky bucket.  The sliding
-// time-window is the time period in which the average consumption rate is
-// guaranteed to be less than the drain rate.  This time period can be
-// calculated using the leaky bucket's capacity and drain rate, which can be
-// conveniently performed using the 'calculateTimeWindow' class method.
+// One of the properties of the resource pattern created by using a lleaky
+// bucket is an approximation of a sliding time window over which the average
+// consumption rate is guaranteed to be less than the drain rate.  This time
+// period can be calculated using the leaky bucket's capacity and drain rate,
+// which can be conveniently performed using the 'calculateTimeWindow' class
+// method.
 //
 ///Time Synchronization
 ///--------------------
@@ -272,16 +275,16 @@ BDES_IDENT("$Id: $")
 // Notice that, for the sake of brevity, we elide the loading of 'buffer' with
 // the data to be sent.
 //
-// Now, we send the chunks of data using a loop.  For each iteration, we
-// checked whether submitting another byte would cause the leaky bucket
-// to overflow.  If not, we send an additional chunk of data and submit the
-// number of bytes sent to the leaky bucket.  Note that 'submit' is invoked
-// only after the data has been sent.
+// Now, we send the chunks of data using a loop.  For each iteration, we check
+// whether submitting another byte would cause the leaky bucket to overflow.
+// If not, we send an additional chunk of data and submit the number of bytes
+// sent to the leaky bucket.  Note that 'submit' is invoked only after the data
+// has been sent.
 //..
 //  char *data = buffer;
 //  while (dataSent < totalSize) {
 //      now = bdetu_SystemTime::now();
-//      if (!bucket.wouldOverflow(1, now)) {
+//      if (!bucket.wouldOverflow(now)) {
 //          if (true == sendData(data, chunkSize)) {
 //              data += chunkSize;
 //              bucket.submit(chunkSize);
@@ -319,6 +322,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSL_CLIMITS
+#include <bsl_climits.h>
+#endif
+
 namespace BloombergLP {
 
                         //=======================
@@ -340,22 +347,22 @@ class btes_LeakyBucket {
     // submitted using the 'submitReserved' method.
     //
     // Adding units to a leaky bucket will cause it to overflow if after the
-    // units are add, the total number of units in the leaky bucket (including
-    // both submitted and reserved units) exceeds its capacity.  A leaky bucket
-    // can be queried whether adding a specified number of units would cause it
-    // to overflow via the 'wouldOverflow' method.  If submitting units to a
-    // leaky bucket will cause it to overflow, the estimated amount of time to
-    // wait before 1 more units can be submitted without causing the leaky
-    // bucket to overflow can be determined using the 'calculateTimeToSubmit'
-    // method.
+    // units are added, the total number of units in the leaky bucket
+    // (including both submitted and reserved units) exceeds its capacity.  A
+    // leaky bucket can be queried whether adding a specified number of units
+    // would cause it to overflow via the 'wouldOverflow' method.  If
+    // submitting units to a leaky bucket will cause it to overflow, the
+    // estimated amount of time to wait before 1 more units can be submitted
+    // without causing the leaky bucket to overflow can be determined using the
+    // 'calculateTimeToSubmit' method.
     //
     // The state of a leaky bucket must be updated manually using the
     // 'updateState' method supplying the current time interval.  The time
     // intervals supplied should all refer to the same time origin.
     //
     // A leaky bucket keeps some statistics, including the number of submitted
-    // units, that can be accessed using the 'getStatistics' and reset using
-    // the 'resetStatistics' method.
+    // units, that can be accessed using the 'getStatistics' method and reset
+    // using the 'resetStatistics' method.
     //
     // The class invariants are:
     //: o 'capacity() > 0'
@@ -378,7 +385,7 @@ class btes_LeakyBucket {
     bsls_Types::Uint64 d_unitsInBucket;        // number of units currently in
                                                // the bucket
 
-    bsls_Types::Uint64 d_fractionalUnitDrainednNanoUnits;
+    bsls_Types::Uint64 d_fractionalUnitDrainedInNanoUnits;
                                                // fractional number of units
                                                // that is carried from the
                                                // last drain operation
@@ -424,8 +431,9 @@ class btes_LeakyBucket {
         // moving-total of submitted units, as the rounded-down ratio between
         // the specified 'capacity' and the specified 'drainRate'.  If the
         // rounded ratio is 0, return a time interval of 1 nanosecond.  The
-        // behavior is undefined unless 'capacity / drainRate' can be
-        // represented with 64-bit signed integral type.
+        // behavior is undefined unless 'drainRate > 0' and
+        // 'capacity / drainRate' can be represented with 64-bit signed
+        // integral type.
 
     static bsls_Types::Uint64 calculateCapacity(
                                           bsls_Types::Uint64       drainRate,
@@ -437,10 +445,6 @@ class btes_LeakyBucket {
         // 64-bit unsigned integral type.
 
     // CREATORS
-    btes_LeakyBucket();
-        // Create an empty leaky bucket having a drain rate of 1 unit per
-        // second, a capacity of 1 unit, and an initial 'lastUpdateTime' of 0.
-
     btes_LeakyBucket(bsls_Types::Uint64       drainRate,
                      bsls_Types::Uint64       capacity,
                      const bdet_TimeInterval& currentTime);
@@ -458,14 +462,49 @@ class btes_LeakyBucket {
 #endif
 
     // MANIPULATORS
-    void updateState(const bdet_TimeInterval& currentTime);
-        // Set the 'lastUpdateTime' of this leaky bucket to the specified
-        // 'currentTime'.  If 'currentTime' is after 'lastUpdateTime', then
-        // update the 'unitsInBucket' of this leaky bucket by subtracting from
-        // it the number of units drained from 'lastUpdateTime' to
-        // 'currentTime'.  If 'currentTime' is before the
-        // 'statisticsCollectionStartTime' of this leaky bucket, set
-        // 'statisticsCollectionStartTime' to 'currentTime'.
+    bdet_TimeInterval calculateTimeToSubmit(
+                                         const bdet_TimeInterval& currentTime);
+        // If 1 more unit can be submitted to this leaky bucket without causing
+        // it to overflow, then return a time interval of 0 if .  Otherwise,
+        // first update the state of this this leaky bucket to the specified
+        // 'currentTime'.  Then, Return the estimated time interval that should
+        // pass from 'currentTime' until 1 more unit can be submitted to this
+        // leaky bucket without causing it to overflow.  The number of
+        // nanoseconds in the returned time interval is rounded up.  Note that
+        // a time interval of 0 can still be return after the state of this
+        // leaky bucket has been updated to 'currentTime'.  Also note that
+        // after waiting for the returned time interval, clients should
+        // typically check again using this method, because additional units
+        // may have been submitted in the interim.
+
+    void reserve(bsls_Types::Uint64 numUnits);
+        // Reserve the specified 'numUnits' for future use by this leaky
+        // bucket.  The behavior is undefined unless 'unitsReserved() +
+        // unitsInBucket() + numOfUnits' can be represented by a 64-bit
+        // unsigned integral type.  Note that after this operation, this bucket
+        // may overflow.  Also note that the time interval between the
+        // invocations of 'reserve' and 'submitReserved' or 'cancelReserved'
+        // should be kept as short as possible; otherwise, the precision of the
+        // time interval calculated by 'calculateTimeToSubmit' may be
+        // negatively affected.
+
+    void cancelReserved(bsls_Types::Uint64 numUnits);
+        // Cancel the specified 'numUnits' that were previously reserved.  This
+        // method reduces the number of reserved units by 'numUnits'.  The
+        // behavior is undefined unless 'numUnits <= unitsReserved()'.
+
+    void submitReserved(bsls_Types::Uint64 numUnits);
+        // Submit the specified 'numUnits' that were previously reserved.  This
+        // method reduces the number of reserved units by 'numUnits' and
+        // submits 'numUnits' to this leaky bucket.  The behavior is undefined
+        // unless 'numUnits <= unitsReserved()'.
+
+    void reset(const bdet_TimeInterval& currentTime);
+        // Reset the the following statistic counters for this leaky bucket to
+        // 0: 'unitsInBucket', 'unitsReserved', 'submittedUnits', and
+        // 'unusedUnits'.  Set the 'lastUpdateTime' and the
+        // 'statisticCollectionStartTime' to the 'currentTime' of this leaky
+        // bucket.
 
     void resetStatistics();
         // Reset the statics collected for this leaky bucket by setting the
@@ -486,67 +525,29 @@ class btes_LeakyBucket {
         // can be represented by a 64-bit unsigned integral type.  Note that
         // after this operation, this leaky bucket may overflow.
 
-    void reserve(bsls_Types::Uint64 numUnits);
-        // Reserve the specified 'numUnits' for future use by this leaky
-        // bucket.  The behavior is undefined unless 'unitsReserved() +
-        // unitsInBucket() + numOfUnits' can be represented by a 64-bit
-        // unsigned integral type.  Note that after this operation, this bucket
-        // may overflow.  Also note that the time interval between the
-        // invocations of 'reserve' and 'submitReserved' or 'cancelReserved'
-        // should be kept as short as possible; otherwise, the precision of the
-        // time interval calculated by 'calculateTimeToSubmit' may be
-        // negatively affected.
-
-    void cancelReserved(bsls_Types::Uint64 numUnits);
-        // Cancel the specified 'numUnits' that were previously reserved.  The
-        // behavior is undefined unless 'numUnits <= unitsReserved()'.
-
-    void submitReserved(bsls_Types::Uint64 numUnits);
-        // Submit the specified 'numUnits' that were previously reserved.  The
-        // behavior is undefined unless 'numUnits <= unitsReserved()'.
+    void updateState(const bdet_TimeInterval& currentTime);
+        // Set the 'lastUpdateTime' of this leaky bucket to the specified
+        // 'currentTime'.  If 'currentTime' is after 'lastUpdateTime', then
+        // update the 'unitsInBucket' of this leaky bucket by subtracting from
+        // it the number of units drained from 'lastUpdateTime' to
+        // 'currentTime'.  If 'currentTime' is before the
+        // 'statisticsCollectionStartTime' of this leaky bucket, set
+        // 'statisticsCollectionStartTime' to 'currentTime'.
 
     bool wouldOverflow(const bdet_TimeInterval& currentTime);
         // Update the state of this this leaky bucket to the specified
-        // 'currentTime'.  Return 'true' if adding 1 more unit to this leaky
+        // 'currentTime', and return 'true' if adding 1 more unit to this leaky
         // bucket would cause the total number of units held by this leaky
         // bucket to exceed its capacity, and 'false' otherwise.  Note that
-        // this method counts both submitted units and reserved units toward to
+        // this method counts both submitted units and reserved units toward
         // the total number of units held by this leaky bucket .
 
-    bdet_TimeInterval calculateTimeToSubmit(
-                                         const bdet_TimeInterval& currentTime);
-        // Update the state of this this leaky bucket to the specified
-        // 'currentTime'.  Return the estimated time interval that should pass
-        // from 'currentTime' until 1 more unit can be submitted to this leaky
-        // bucket without causing it to overflow.  The number of nanoseconds in
-        // the returned time interval is rounded up.  Note that a time interval
-        // of 0 is returned if 1 or more units can be submitted at
-        // 'currentTime'.  Also note that after waiting for the returned time
-        // interval, clients should typically check again using this method,
-        // because additional units may have been submitted in the interim.
-
-    void reset(const bdet_TimeInterval& currentTime);
-        // Reset the the following statistic counters for this leaky bucket to
-        // 0: 'unitsInBucket', 'unitsReserved', 'submittedUnits', and
-        // 'unusedUnits'.  Set the 'lastUpdateTime' and the
-        // 'statisticCollectionStartTime' to the 'currentTime' of this leaky
-        // bucket.
-
     // ACCESSORS
-    bsls_Types::Uint64 drainRate() const;
-        // Return the drain rate of this leaky bucket.
-
     bsls_Types::Uint64 capacity() const;
         // Return the capacity of this leaky bucket.
 
-    bsls_Types::Uint64 unitsInBucket() const;
-        // Return the number of submitted units in this leaky bucket.
-
-    bsls_Types::Uint64 unitsReserved() const;
-        // Return the number of reserved units in this leaky bucket.
-
-    bdet_TimeInterval lastUpdateTime() const;
-        // Return the time interval when this leaky bucket was last updated.
+    bsls_Types::Uint64 drainRate() const;
+        // Return the drain rate of this leaky bucket.
 
     void getStatistics(bsls_Types::Uint64* submittedUnits,
                        bsls_Types::Uint64* unusedUnits) const;
@@ -558,9 +559,18 @@ class btes_LeakyBucket {
         // could have been consumed and the number of units actually submitted
         // for the time period.
 
+    bdet_TimeInterval lastUpdateTime() const;
+        // Return the time interval when this leaky bucket was last updated.
+
     bdet_TimeInterval statisticsCollectionStartTime() const;
         // Return the time interval when the collection of the statistics (as
         // returned by 'getStatistics') started.
+
+    bsls_Types::Uint64 unitsInBucket() const;
+        // Return the number of submitted units in this leaky bucket.
+
+    bsls_Types::Uint64 unitsReserved() const;
+        // Return the number of reserved units in this leaky bucket.
 };
 
 // ============================================================================
@@ -583,12 +593,42 @@ btes_LeakyBucket::~btes_LeakyBucket()
 
 // MANIPULATORS
 inline
-void btes_LeakyBucket::resetStatistics()
+void btes_LeakyBucket::reserve(bsls_Types::Uint64 numUnits)
 {
-    d_statisticsCollectionStartTime  = d_lastUpdateTime;
-    d_statSubmittedUnits             = 0;
-    d_statSubmittedUnitsAtLastUpdate = 0;
+    // Check whether adding 'numUnits' causes an unsigned 64-bit integral type
+    // to overflow.
+
+    BSLS_ASSERT_SAFE(numUnits <= ULLONG_MAX - d_unitsReserved);
+
+    BSLS_ASSERT_SAFE(
+                 d_unitsInBucket <= ULLONG_MAX - d_unitsReserved - numUnits);
+
+    d_unitsReserved += numUnits;
 }
+
+inline
+void btes_LeakyBucket::cancelReserved(bsls_Types::Uint64 numUnits)
+{
+    BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
+
+    if (numUnits > d_unitsReserved) {
+        d_unitsReserved = 0;
+    }
+    else {
+        d_unitsReserved -= numUnits;
+    }
+}
+
+inline
+void btes_LeakyBucket::submitReserved(bsls_Types::Uint64 numUnits)
+{
+    BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
+
+    d_unitsReserved -= numUnits;
+
+    submit(numUnits);
+}
+
 
 inline
 void btes_LeakyBucket::reset(const bdet_TimeInterval& currentTime)
@@ -597,6 +637,14 @@ void btes_LeakyBucket::reset(const bdet_TimeInterval& currentTime)
     d_unitsInBucket  = 0;
     d_unitsReserved  = 0;
     resetStatistics();
+}
+
+inline
+void btes_LeakyBucket::resetStatistics()
+{
+    d_statisticsCollectionStartTime  = d_lastUpdateTime;
+    d_statSubmittedUnits             = 0;
+    d_statSubmittedUnitsAtLastUpdate = 0;
 }
 
 inline
@@ -614,50 +662,7 @@ void btes_LeakyBucket::submit(bsls_Types::Uint64 numUnits)
     d_statSubmittedUnits += numUnits;
 }
 
-inline
-void btes_LeakyBucket::reserve(bsls_Types::Uint64 numUnits)
-{
-    // Check whether adding 'numUnits' causes an unsigned 64-bit integral type
-    // to overflow.
-
-    BSLS_ASSERT_SAFE(numUnits <= ULLONG_MAX - d_unitsReserved);
-
-    BSLS_ASSERT_SAFE(
-                 d_unitsInBucket <= ULLONG_MAX - d_unitsReserved - numUnits);
-
-    d_unitsReserved += numUnits;
-}
-
-inline
-void btes_LeakyBucket::submitReserved(bsls_Types::Uint64 numUnits)
-{
-    BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
-
-    d_unitsReserved -= numUnits;
-
-    submit(numUnits);
-}
-
-inline
-void btes_LeakyBucket::cancelReserved(bsls_Types::Uint64 numUnits)
-{
-    BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
-
-    if (numUnits > d_unitsReserved) {
-        d_unitsReserved = 0;
-    }
-    else {
-        d_unitsReserved -= numUnits;
-    }
-}
-
 // ACCESSORS
-inline
-bsls_Types::Uint64 btes_LeakyBucket::drainRate() const
-{
-    return d_drainRate;
-}
-
 inline
 bsls_Types::Uint64 btes_LeakyBucket::capacity() const
 {
@@ -665,15 +670,9 @@ bsls_Types::Uint64 btes_LeakyBucket::capacity() const
 }
 
 inline
-bsls_Types::Uint64 btes_LeakyBucket::unitsInBucket() const
+bsls_Types::Uint64 btes_LeakyBucket::drainRate() const
 {
-    return d_unitsInBucket;
-}
-
-inline
-bsls_Types::Uint64 btes_LeakyBucket::unitsReserved() const
-{
-    return d_unitsReserved;
+    return d_drainRate;
 }
 
 inline
@@ -686,6 +685,18 @@ inline
 bdet_TimeInterval btes_LeakyBucket::statisticsCollectionStartTime() const
 {
     return d_statisticsCollectionStartTime;
+}
+
+inline
+bsls_Types::Uint64 btes_LeakyBucket::unitsInBucket() const
+{
+    return d_unitsInBucket;
+}
+
+inline
+bsls_Types::Uint64 btes_LeakyBucket::unitsReserved() const
+{
+    return d_unitsReserved;
 }
 
 }  // close enterprise namespace
