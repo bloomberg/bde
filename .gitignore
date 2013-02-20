@@ -26,4 +26,5 @@ include/
 !groups/bsl/bsl+apache/test/include/
 lib/
 build/
+coverage/
 TAGS

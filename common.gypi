@@ -273,43 +273,77 @@
         'configurations': {
             # (as needed) define cflags_c, cflags_cc, cflags_objc, cflags_objcc
             #  (in addition to cflags) for flags specific to C or C++, not both
-            'Release': { 'defines':   [ 'BDE_BUILD_TARGET_OPT',
-                                        'NDEBUG', ], # no-op <assert.h>
-                         'cflags':    [ '<@(cflags_abi)',
-                                        '<@(cflags_base)',
-                                        '<@(cflags_opt)',
-                                        '<@(cflags_diags)', ],
-                         'cflags_c':  [ '<@(cflags_c_extra)', ],
-                         'cflags_cc': [ '<@(cflags_cc_exc)',
-                                        '<@(cflags_cc_extra)', ],
-                         'ldflags':   [ '<@(ldflags_abi)',
-                                        '<@(ldflags_base)',
-                                        '<@(ldflags_extra)', ],
-                         'msvs_settings': {
-                           'VCCLCompilerTool': {
-                             'Optimization': '2',
-                             'PreprocessorDefinitions': ['NDEBUG'],
-                           },
-                         },
-                       },
-            'Debug':   { 'defines':   [ 'BDE_BUILD_TARGET_DBG', ],
-                         'cflags':    [ '<@(cflags_abi)',
-                                        '<@(cflags_base)',
-                                        '<@(cflags_diags)', ],
-                         'cflags_c':  [ '<@(cflags_c_debug)',
-                                        '<@(cflags_c_extra)', ],
-                         'cflags_cc': [ '<@(cflags_cc_exc)',
-                                        '<@(cflags_cc_debug)',
-                                        '<@(cflags_cc_extra)', ],
-                         'ldflags':   [ '<@(ldflags_abi)',
-                                        '<@(ldflags_base)',
-                                        '<@(ldflags_extra)', ],
-                         'msvs_settings': {
-                           'VCCLCompilerTool': {
-                             'Optimization': '0',
-                           },
-                         },
-                       },
+            'Release':  { 'defines':   [ 'BDE_BUILD_TARGET_OPT',
+                                         'NDEBUG', ], # no-op <assert.h>
+                          'cflags':    [ '<@(cflags_abi)',
+                                         '<@(cflags_base)',
+                                         '<@(cflags_opt)',
+                                         '<@(cflags_diags)', ],
+                          'cflags_c':  [ '<@(cflags_c_extra)', ],
+                          'cflags_cc': [ '<@(cflags_cc_exc)',
+                                         '<@(cflags_cc_extra)', ],
+                          'ldflags':   [ '<@(ldflags_abi)',
+                                         '<@(ldflags_base)',
+                                         '<@(ldflags_extra)', ],
+                          'msvs_settings': {
+                            'VCCLCompilerTool': {
+                              'Optimization': '2',
+                              'PreprocessorDefinitions': ['NDEBUG'],
+                            },
+                          },
+                        },
+            'Debug':    { 'defines':   [ 'BDE_BUILD_TARGET_DBG', ],
+                          'cflags':    [ '<@(cflags_abi)',
+                                         '<@(cflags_base)',
+                                         '<@(cflags_diags)', ],
+                          'cflags_c':  [ '<@(cflags_c_debug)',
+                                         '<@(cflags_c_extra)', ],
+                          'cflags_cc': [ '<@(cflags_cc_exc)',
+                                         '<@(cflags_cc_debug)',
+                                         '<@(cflags_cc_extra)', ],
+                          'ldflags':   [ '<@(ldflags_abi)',
+                                         '<@(ldflags_base)',
+                                         '<@(ldflags_extra)', ],
+                          'msvs_settings': {
+                            'VCCLCompilerTool': {
+                              'Optimization': '0',
+                            },
+                          },
+                        },
+            'Profile':  { 'defines':   [ 'BDE_BUILD_TARGET_DBG', ],
+                          'conditions': [
+                            [ 'compiler_tag == "gcc"',
+                              {
+                                'cflags':    [ '<@(cflags_abi)',
+                                               '<@(cflags_base)',
+                                               '<@(cflags_diags)',
+                                               '--coverage', ],
+                                'ldflags':   [ '<@(ldflags_abi)',
+                                               '<@(ldflags_base)',
+                                               '<@(ldflags_extra)',
+                                               '--coverage', ],
+                              },
+                              {
+                                'cflags':    [ '<@(cflags_abi)',
+                                               '<@(cflags_base)',
+                                               '<@(cflags_diags)', ],
+                                'ldflags':   [ '<@(ldflags_abi)',
+                                               '<@(ldflags_base)',
+                                               '<@(ldflags_extra)', ],
+                              },
+                            ],
+                          ],
+                          'cflags_c':  [ '<@(cflags_c_debug)',
+                                         '<@(cflags_c_extra)', ],
+                          'cflags_cc': [ '<@(cflags_cc_exc)',
+                                         '<@(cflags_cc_debug)',
+                                         '<@(cflags_cc_extra)', ],
+                          'msvs_settings': {
+                            'VCCLCompilerTool': {
+                              'Optimization': '0',
+                            },
+                          },
+                        },
         },
 
         'conditions': [
@@ -328,6 +362,13 @@
                         },
                     },
                     'Debug': {
+                        'xcode_settings': {
+                          'GCC_OPTIMIZATION_LEVEL': '0',
+                          'GCC_GENERATE_DEBUGGING_SYMBOLS': 'YES',
+                          'STRIP_INSTALLED_PRODUCT': 'NO',
+                        },
+                    },
+                    'Profile': {
                         'xcode_settings': {
                           'GCC_OPTIMIZATION_LEVEL': '0',
                           'GCC_GENERATE_DEBUGGING_SYMBOLS': 'YES',
@@ -362,10 +403,18 @@
                       'cflags_base!': [ '/MT', ],  # thread aware (not optional)
                       'cflags_base':  [ '/MDd', ], # thread aware (not optional)
                     },
+                    'Profile': {
+                      'cflags_base!': [ '/MT', ],  # thread aware (not optional)
+                      'cflags_base':  [ '/MDd', ], # thread aware (not optional)
+                    },
                   },
                 }, { # library == "static_library"
                   'configurations': {
                     'Debug': {
+                      'cflags_base!': [ '/MT', ],  # thread aware (not optional)
+                      'cflags_base':  [ '/MTd', ], # thread aware (not optional)
+                    },
+                    'Profile': {
                       'cflags_base!': [ '/MT', ],  # thread aware (not optional)
                       'cflags_base':  [ '/MTd', ], # thread aware (not optional)
                     },
@@ -376,6 +425,7 @@
             [ 'linker_tag == "msvs"', {
               'configurations': {
                 'Debug': { 'ldflags_base': [ '/debug', ], },
+                'Profile': { 'ldflags_base': [ '/debug', ], },
               },
             }],
         ],
