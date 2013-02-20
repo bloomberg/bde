@@ -81,7 +81,7 @@ BDES_IDENT("$Id: $")
 //  while (bytesSent < totalSize) {
 //
 //      now = bdetu_SystemTime::now();
-//      if (!bucket.wouldOverflow(CHUNK_SIZE,now)) {
+//      if (!bucket.wouldOverflow(now)) {
 //..
 // Now, if the leaky bucket would not overflow, we create a
 // 'btes_ReservationGuard' object to reserve the amount of data to be sent:

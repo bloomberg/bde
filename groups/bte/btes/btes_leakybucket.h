@@ -465,15 +465,15 @@ class btes_LeakyBucket {
     bdet_TimeInterval calculateTimeToSubmit(
                                          const bdet_TimeInterval& currentTime);
         // If 1 more unit can be submitted to this leaky bucket without causing
-        // it to overflow, then return a time interval of 0 if .  Otherwise,
-        // first update the state of this this leaky bucket to the specified
-        // 'currentTime'.  Then, Return the estimated time interval that should
-        // pass from 'currentTime' until 1 more unit can be submitted to this
-        // leaky bucket without causing it to overflow.  The number of
-        // nanoseconds in the returned time interval is rounded up.  Note that
-        // a time interval of 0 can still be return after the state of this
-        // leaky bucket has been updated to 'currentTime'.  Also note that
-        // after waiting for the returned time interval, clients should
+        // it to overflow, then return a time interval of 0 immediately.
+        // Otherwise, first update the state of this this leaky bucket to the
+        // specified 'currentTime'.  Then, Return the estimated time interval
+        // that should pass from 'currentTime' until 1 more unit can be
+        // submitted to this leaky bucket without causing it to overflow.  The
+        // number of nanoseconds in the returned time interval is rounded up.
+        // Note that a time interval of 0 can still be return after the state
+        // of this leaky bucket has been updated to 'currentTime'.  Also note
+        // that after waiting for the returned time interval, clients should
         // typically check again using this method, because additional units
         // may have been submitted in the interim.
 

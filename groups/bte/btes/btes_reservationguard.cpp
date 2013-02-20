@@ -1,6 +1,8 @@
 // btes_reservationguard.cpp                                          -*-C++-*-
 #include <btes_reservationguard.h>
 
+#include <btes_leakybucket.h>  // for testing only
+
 //-----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012

@@ -36,13 +36,13 @@ BDES_IDENT("$Id: $")
 // Internally, a rate limiter (currently) models resource usage using two
 // corresponding 'btes_LeakyBucket' objects, one for limiting peak resource
 // usage and one for limiting sustained resource usage.  Each leaky bucket
-// provides an approximation for a moving total, where the configured peak or
-// sustained rate time-window corresponds to the period of the moving total,
-// and that time-window multiplied by the corresponding rate indicates the sum
-// (i.e., the capacity of the leaky bucket) which the moving total may not
-// exceed.  As the units are submitted to a rate limiter, they are added to
-// both the peak and sustained rate moving-totals, and then removed over time
-// at the corresponding configured rate.
+// provides an approximation for a moving total, where the configured time
+// window corresponds to the period of the moving total, and that time window
+// multiplied by the corresponding rate indicates the sum that the moving total
+// may not exceed (i.e., the capacity of the leaky bucket).  As the units are
+// submitted to a rate limiter, they are added to both the peak and sustained
+// rate moving-totals, and then removed over time at the corresponding
+// configured rate.
 //
 // Figure 1 illustrates the behavior of a rate limiter during a typical usage
 // scenario using moving-totals:
@@ -215,9 +215,10 @@ BDES_IDENT("$Id: $")
 // that the usage curve to allowed to achieve.  In the example above:
 //
 //  o The area above the sustained rate 'Rs' (e.g., 'A1' or 'A2+B') should
-//    contain no more than 512 bytes.
+//    contain no more than 512 bytes (Rs * Ws).
 //
-//  o The area above the peak rate 'Rp' should contain no more than 128 bytes.
+//  o The area above the peak rate 'Rp' should contain no more than 128 bytes
+//    (Rp * Wp).
 //
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified amount of data over that network:

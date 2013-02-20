@@ -145,13 +145,19 @@ btes_LeakyBucket::btes_LeakyBucket(bsls_Types::Uint64       drainRate,
     // Calculate the maximum interval between updates that would not cause the
     // number of units drained to overflow an unsigned 64-bit integral type.
 
-    if (drainRate > 1) {
+    if (drainRate == 1) {
+
+        // 'd_maxUpdateInterval' is a signed 64-bit integral type that can't
+        // represent 'ULLONG_MAX' number of seconds, so we set
+        // 'd_maxUpdateInterval' to the maximum representable value when
+        // 'drainRate' is 1.
+
+        d_maxUpdateInterval = bdet_TimeInterval(LLONG_MAX, 999999999);
+    }
+    else {
         d_maxUpdateInterval = btes_LeakyBucket::calculateDrainTime(ULLONG_MAX,
                                                                    drainRate,
                                                                    false);
-    }
-    else {
-        d_maxUpdateInterval = bdet_TimeInterval(LLONG_MAX, 999999999);
     }
 }
 
