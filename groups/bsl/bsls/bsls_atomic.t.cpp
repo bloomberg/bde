@@ -1155,7 +1155,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tRunning the test loop for "
                               << iterations << " iterations" << endl;
 
-        if (verbose) cout << "\tTesting sequencial consistency" << endl;
+        if (verbose) cout << "\tTesting sequential consistency" << endl;
 
         if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
         testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt>(iterations);
