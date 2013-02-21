@@ -210,15 +210,9 @@ int AtomicOperations_X64_ALL_GCC::
                    int compareValue,
                    int swapValue)
 {
-    asm volatile (
-        "       lock cmpxchgl %[val], %[obj]    \n\t"
-
-                : [cmp] "+a" (compareValue)
-                : [val] "r"  (swapValue),
-                  [obj] "m"  (*atomicInt)
-                : "memory", "cc");
-
-    return compareValue;
+    return __sync_val_compare_and_swap(&atomicInt->d_value,
+                                       compareValue,
+                                       swapValue);
 }
 
 inline
@@ -309,15 +303,9 @@ Types::Int64 AtomicOperations_X64_ALL_GCC::
                      Types::Int64 compareValue,
                      Types::Int64 swapValue)
 {
-    asm volatile (
-        "       lock cmpxchgq %[val], %[obj]    \n\t"
-
-                : [cmp] "+a" (compareValue),
-                  [obj] "+m" (*atomicInt)
-                : [val] "r"  (swapValue)
-                : "memory", "cc");
-
-    return compareValue;
+    return __sync_val_compare_and_swap(&atomicInt->d_value,
+                                       compareValue,
+                                       swapValue);
 }
 
 inline

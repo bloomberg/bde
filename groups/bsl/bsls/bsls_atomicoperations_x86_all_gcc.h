@@ -217,15 +217,9 @@ int AtomicOperations_X86_ALL_GCC::
                    int compareValue,
                    int swapValue)
 {
-    asm volatile (
-        "       lock cmpxchgl %[val], %[obj]    \n\t"
-
-                : [cmp] "+a" (compareValue)
-                : [val] "r"  (swapValue),
-                  [obj] "m"  (*atomicInt)
-                : "memory", "cc");
-
-    return compareValue;
+    return __sync_val_compare_and_swap(&atomicInt->d_value,
+                                       compareValue,
+                                       swapValue);
 }
 
 inline
