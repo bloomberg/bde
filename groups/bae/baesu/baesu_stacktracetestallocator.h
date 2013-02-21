@@ -92,12 +92,13 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Suppose we want a 'struct' that will keep track of a ship's crew.  Upon
-// creation, it will parse a text file whose name is passed to the constructor
-// containing the names and ranks of the crew members of the ship, and the
-// members names will be public data members of the class.
+// In this example, we will define a class 'ShipsCrew' that does something,
+// but leaks memory, and then we will demonstrate the use of the stack trace
+// test allocator to locate the leak.
 //
-// First, we define the class:
+// First, we define 'ShipsCrew', a class that will read the names of a ship's
+// crew from a file at construction, and make the results available through
+// accessors:
 //..
 //  struct ShipsCrew {
 //      // This struct will, at construction, read and parse a file describing
@@ -105,8 +106,8 @@ BDES_IDENT("$Id: $")
 //
 //    private:
 //      // PRIVATE TYPES
-//      struct Less {
-//          // Functor to compare two 'const char *'s
+//      struct CharStrLess {
+//          // Functor to compare two 'const char *'s in alphabetical order.
 //
 //          bool operator()(const char *a, const char *b) const
 //          {
@@ -114,120 +115,159 @@ BDES_IDENT("$Id: $")
 //          }
 //      };
 //
-//      typedef bsl::set<const char *, Less> NameSet;
+//      typedef bsl::set<const char *, CharStrLess> NameSet;
 //
-//    public:
-//      // PUBLIC DATA
+//      // DATA
 //      const char       *d_captain;
 //      const char       *d_firstMate;
 //      const char       *d_cook;
 //      NameSet           d_sailors;
+//      bslma::Allocator *d_allocator_p;
 //
 //    private:
 //      // PRIVATE MANIPULATORS
 //      void addSailor(const bsl::string& name);
-//          // Add the specified 'name' to the set of sailor's names.  Check
-//          // for redundancy.
+//          // Add the specified 'name' to the set of sailor's names.
+//          // Redundant names are ignored.
 //
 //      const char *copy(const bsl::string& str);
 //          // Allocate memory for a copy of the specified 'str' as a char
 //          // array, copy the contents of 'str' into it, and return a pointer
-//          // to the array.
+//          // to the new copy.
+//
+//      void free(const char **str);
+//          // If '0 != str', deallocate '*str' using the allocator associated
+//          // with this object and set '*str' to 0, otherwise do nothing.  The
+//          // behavior is undefined if '0 == str'.
 //
 //      void setCaptain(const bsl::string& name);
-//          // Set the name of the ship's captain to the specified 'name', but
-//          // only if the captain's name was not already set.
+//          // Set the name of the ship's captain to the specified 'name'.
 //
 //      void setCook(const bsl::string& name);
-//          // Set the name of the ship's cook to the specified 'name', but
-//          // only if the captain's name was not already set.
+//          // Set the name of the ship's cook to the specified 'name'.
 //
 //      void setFirstMate(const bsl::string& name);
-//          // Set the name of the ship's first mate to the specified 'name',
-//          // but only if the captain's name was not already set.
+//          // Set the name of the ship's first mate to the specified 'name'.
 //
 //    public:
 //      // CREATORS
 //      explicit
-//      ShipsCrew(const char *crewFileName);
+//      ShipsCrew(const char        *crewFileName,
+//                bslma::Allocator *basicAllocator = 0);
 //          // Read the names of the ship's crew in from the file with the
 //          // specified name 'crewFileName'.
 //
 //      ~ShipsCrew();
 //          // Destroy this object and free memory.
-//  };
 //
-//  // PRIVATE MANIPULATORS
+//      // ACCESSORS
+//      const char *captain();
+//          // Return the captain's name.
+//
+//      const char *cook();
+//          // Return the cook's name.
+//
+//      const char *firstMate();
+//          // Return the first mate's name.
+//
+//      const char *firstSailor();
+//          // Return the name of the sailor whose name is alphabetically the
+//          // first in the list.
+//
+//      const char *nextSailor(const char *currentSailor);
+//          // Return the next sailor alphabetically after the specified
+//          // 'currentSailor', or 0 if 'currentSailor' is the last in the list
+//          // or not found.  The behavior is undefined if
+//          // '0 == currentSailor'.
+//  };
+//..
+// Then, we implement the private manipulators of the class:
+//..
+// PRIVATE MANIPULATORS
 //  void ShipsCrew::addSailor(const bsl::string& name)
 //  {
-//      BSLS_ASSERT(! d_sailors.count(name.c_str()));
-//
-//      d_sailors.insert(copy(name));
+//      if (!d_sailors.count(name.c_str())) {
+//          d_sailors.insert(copy(name));
+//      }
 //  }
 //
 //  const char *ShipsCrew::copy(const bsl::string& str)
 //  {
-//      return BloombergLP::bdeu_String::copy(str,
-//                                         bslma::Default::defaultAllocator());
+//      char *result = (char *) d_allocator_p->allocate(str.length() + 1);
+//      bsl::strcpy(result, str.c_str());
+//      return result;
+//  }
+//
+//  void ShipsCrew::free(const char **str)
+//  {
+//      assert(str);
+//
+//      if (*str) {
+//          d_allocator_p->deallocate(const_cast<char *>(*str));
+//          *str = 0;
+//      }
 //  }
 //
 //  void ShipsCrew::setCaptain(const bsl::string& name)
 //  {
-//      BSLS_ASSERT(! d_captain);
+//      free(&d_captain);
 //
 //      d_captain = copy(name);
 //  }
 //
 //  void ShipsCrew::setCook(const bsl::string& name)
 //  {
-//      BSLS_ASSERT(! d_cook);
+//      free(&d_cook);
 //
-//      d_cook = copy(name);   // This was line 231 when this test case was
-//                             // written
+//      d_cook = copy(name);
 //  }
 //
 //  void ShipsCrew::setFirstMate(const bsl::string& name)
 //  {
-//      BSLS_ASSERT(! d_firstMate);
+//      free(&d_firstMate);
 //
 //      d_firstMate = copy(name);
 //  }
-//
+//..
+// Next, we implement the creators:
+//..
 //  // CREATORS
-//  ShipsCrew::ShipsCrew(const char *crewFileName)
+//  ShipsCrew::ShipsCrew(const char       *crewFileName,
+//                       bslma::Allocator *basicAllocator)
 //  : d_captain(0)
 //  , d_firstMate(0)
 //  , d_cook(0)
-//  , d_sailors()
+//  , d_sailors(    bslma::Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
-//      typedef BloombergLP::bdeu_String String;
-//
 //      bsl::ifstream input(crewFileName);
 //      BSLS_ASSERT(!input.eof() && !input.bad());
 //
+//      bsl::string line(d_allocator_p);
+//
 //      while (!input.bad() && !input.eof()) {
-//          bsl::string line;
 //          bsl::getline(input, line);
 //
 //          bsl::size_t colon = line.find(':');
 //          if (bsl::string::npos != colon) {
-//              bsl::string field = line.substr(0, colon);
-//              bsl::string name  = line.substr(colon + 1);
+//              const bsl::string& field = line.substr(0, colon);
+//              const bsl::string& name  = line.substr(colon + 1);
 //
-//              if (0 == String::lowerCaseCmp(field, "captain")) {
+//              if      (0 == bdeu_String::lowerCaseCmp(field, "captain")) {
 //                  setCaptain(name);
 //              }
-//              else if (0 == String::lowerCaseCmp(field, "first mate")) {
+//              else if (0 == bdeu_String::lowerCaseCmp(field, "first mate")) {
 //                  setFirstMate(name);
 //              }
-//              else if (0 == String::lowerCaseCmp(field, "cook")) {
+//              else if (0 == bdeu_String::lowerCaseCmp(field, "cook")) {
 //                  setCook(name);
 //              }
-//              else if (0 == String::lowerCaseCmp(field, "sailor")) {
+//              else if (0 == bdeu_String::lowerCaseCmp(field, "sailor")) {
 //                  addSailor(name);
 //              }
 //              else {
-//                  cerr << "Unrecognized field '" << field << "'\n";
+//                  cerr << "Unrecognized field '" << field << "' in line '" <<
+//                                                               line << "'\n";
 //              }
 //          }
 //          else if (!line.empty()) {
@@ -238,10 +278,8 @@ BDES_IDENT("$Id: $")
 //
 //  ShipsCrew::~ShipsCrew()
 //  {
-//      bslma::Allocator *da = bslma::Default::defaultAllocator();
-//
-//      da->deallocate(const_cast<char *>(d_captain));
-//      da->deallocate(const_cast<char *>(d_firstMate));
+//      free(&d_captain);
+//      free(&d_firstMate);
 //
 //      // Note that deallocating the strings will invalidate 'd_sailors' --
 //      // any manipulation of 'd_sailors' other than destruction after this
@@ -249,88 +287,180 @@ BDES_IDENT("$Id: $")
 //
 //      const NameSet::iterator end = d_sailors.end();
 //      for (NameSet::iterator it = d_sailors.begin(); end != it; ++it) {
-//          da->deallocate(const_cast<char *>(*it));
+//          d_allocator_p->deallocate(const_cast<char *>(*it));
 //      }
 //  }
 //..
-// Then, we define the free function 'getCaptain' which will create and load
-// a 'ShipsCrew' object and return the captain's name:
+// Then, we implment the public accessors:
 //..
-//  bsl::string getCaptain(const char *fileName)
+// ACCESSORS
+//  const char *ShipsCrew::captain()
 //  {
-//      ShipsCrew crew(fileName);
-//
-//      return crew.d_captain ? crew.d_captain : "";
-//  }
-//..
-// Next, we install a stack trace test allocator as the default allocator.  We
-// set the failure handler to 'failureHandlerNoop' to prevent it from aborting
-// if it finds any memory leaks:
-//..
-//  {
-//      baesu_StackTraceTestAllocator ta("Test Allocator");
-//      ta.setFailureHandler(&Obj::failureHandlerNoop);
-//      bslma::DefaultAllocatorGuard guard(&ta);
-//..
-// Then, we call our 'getCaptain' function to find the captain's name:
-//..
-//     bsl::string captain = getCaptain("shipscrew.txt");
-//
-//      cout << "The captain is: " << captain << bsl::endl;
-//..
-// Now, we close the block, destroying 'ta', the stack trace test allocator,
-// which causes it to report memory leakss to 'cout', and we read the report of
-// memory leaks written to 'cout' when 'ta' was destroyed:
-//..
+//      return d_captain ? d_captain : "";
 //  }
 //
-// ====================================================================
-// Error: memory leaked:
-// 1 segment(s) in allocator 'Test Allocator' in use.
-// Segment(s) allocated from 1 trace(s).
-// --------------------------------------------------------------------
-// Allocation trace 1, 1 segment(s) in use.
-// Stack trace at allocation time:
-// (0): BloombergLP::baesu_StackTraceTestAllocator::.allocate(long)+
-//      0x2fc at 0x100007b64 source:baesu_stacktracetestallocator.cpp:
-//      335 in baesu_stacktracetestallocator.t.d
-// (1): BloombergLP::bdeu_String::.copy(const char*,int,BloombergLP::
-//      bslma::Allocator*)+0xbc at 0x10001893c source:bdeu_string.cpp:
-//      96 in baesu_stacktracetestallocator.t.d
-// (2): ShipsCrew::.copy(const bsl::basic_string<char,std::char_traits<
-//      char>,bsl::allocator<char> >&)+0x8c at 0x1000232c4 source:
-//      baesu_stacktracetestallocator.t.cpp:610 in
-//      baesu_stacktracetestallocator.t.d
-// (3): ShipsCrew::.setCook(const bsl::basic_string<char,std::
-//      char_traits<char>,bsl::allocator<char> >&)+0x54 at 0x1000233e4
-//      source:baesu_stacktracetestallocator.t.cpp:232 in
-//      baesu_stacktracetestallocator.t.d
-// (4): ShipsCrew::.__ct(const char*)+0x430 at 0x1000214c8
-//      source:baesu_stacktracetestallocator.t.cpp:272 in
-//      baesu_stacktracetestallocator.t.d
-// (5): .getCaptain(const char*)+0x44 at 0x100020704 source:
-//      baesu_stacktracetestallocator.t.cpp:306 in
-//      baesu_stacktracetestallocator.t.d
-// (6): .main+0x278 at 0x100000ab0 source:
-//      baesu_stacktracetestallocator.t.cpp:727 in
-//      baesu_stacktracetestallocator.t.d
-// (7): .__start+0x74 at 0x1000002fc source:crt0_64.s in
-//      baesu_stacktracetestallocator.t.d
-//..
-// Finally, we see that the leaked memory was in the 'setCook' method line 232
-// (line numbers are generally the line after the subroutine call in question
-// -- the call to 'copy' was on line 231).  The destructor neglected to
-// deallocate the cook's name.
+//  const char *ShipsCrew::cook()
+//  {
+//      return d_cook ? d_cook : "";
+//  }
 //
-// Note the following:
-//: o 'ta's destructor freed all the leaked memory, because
-//:   'setFailureHandler(&Obj::failureHandlerNoop)' had been called.  If the
-//:   default value, '&Obj::failureHandlerAbort', had been left in place, the
-//:   destructor would have core dumped before freeing the leaked memory.
-//: o Output will vary by platform.  Not all platforms support line number
-//:   information and demangling.  This report was generated on AIX, and a
-//:   couple of AIX quirks are visible -- identifiers have a '.' prepended, and
-//:   the constructor name got converted to '__ct'.
+//  const char *ShipsCrew::firstMate()
+//  {
+//      return d_firstMate ? d_firstMate : "";
+//  }
+//
+//  const char *ShipsCrew::firstSailor()
+//  {
+//      NameSet::iterator it = d_sailors.begin();
+//      return d_sailors.end() == it ? 0 : *it;
+//  }
+//
+//  const char *ShipsCrew::nextSailor(const char *currentSailor)
+//  {
+//      assert(currentSailor);
+//      NameSet::iterator it = d_sailors.find(currentSailor);
+//      if (d_sailors.end() != it) {
+//          ++it;
+//      }
+//      return d_sailors.end() == it ? 0 : *it;
+//  }
+//..
+//..
+// Next, in 'main', we create our file './shipscrew.txt' describing the crew of
+// the ship.  Note that the order of crew members is not important:
+//..
+//      {
+//          bsl::ofstream outFile("shipscrew.txt");
+//
+//          outFile << "sailor:Mitch Sandler\n"
+//                  << "sailor:Ben Lampert\n"
+//                  << "cook:Bob Jones\n"
+//                  << "captain:Steve Miller\n"
+//                  << "sailor:Daniel Smith\n"
+//                  << "first mate:Sally Chandler\n"
+//                  << "sailor:Joe Owens\n";
+//      }
+//..
+// Then, we set up a test case to test our 'ShipsCrew' class.  We do not use
+// the stack trace test allocator yet, we just use a 'bslma::TestAllocator' to
+// get memory usage statistics and determine whether any leakage occurred.
+//..
+//      {
+//          bslma::TestAllocator ta("Bslma Test Allocator");
+//          bslma::TestAllocatorMonitor tam(&ta);
+//
+//          {
+//              ShipsCrew crew("shipscrew.txt", &ta);
+//              assert(tam.isInUseUp());
+//              assert(tam.isTotalUp());
+//
+//              if (verbose) {
+//                  cout << "Captain: "  << crew.captain() <<
+//                      "\nFirst Mate: " << crew.firstMate() <<
+//                      "\nCook: "       << crew.cook() << endl;
+//                  for (const char *sailor = crew.firstSailor(); sailor;
+//                                          sailor = crew.nextSailor(sailor)) {
+//                      cout << "Sailor: " << sailor << endl;
+//                  }
+//              }
+//          }
+//
+//          int bytesLeaked = ta.numBytesInUse();
+//          if (bytesLeaked > 0) {
+//              cout << bytesLeaked << " bytes of memory were leaked!\n";
+//          }
+//      }
+//..
+// The program generates the following output in non-verbose mode, telling us
+// that one segment of 10 bytes was leaked:
+//..
+//  10 bytes of memory were leaked!
+//  MEMORY_LEAK from Bslma Test Allocator:
+//  Number of blocks in use = 1
+//  Number of bytes in use = 10
+//..
+// Next, we would like to use stack trace test allocator to tell us WHERE the
+// memory leak is, but we have a problem: our test case not only uses
+// 'bslma::TestAllocator', but it calls the 'numBytesInUse' accessor, which is
+// not available from stack trace test allocator.  We are also using
+// 'bslma::TestAllocatorMonitor', which will only work with
+// 'bslma::TestAllocator'.  So if we were to just substitute the stack trace
+// test allocator for the bslma test allocator, it would break our test case in
+// several ways.  To instrument our test with a minimal change to the code, we
+// create a stack test test allocator and feed that allocator to the
+// constructor to bslma test allocator.  The rest of our example will now work
+// without modification.  (Note that it is important to call
+// 'ta.setNoAbort(true)' when we use this method, otherwise the bslma test
+// allocator will bomb out before the destructor for 'stta' is able to generate
+// its report).
+//..
+//      {
+//          baesu_StackTraceTestAllocator stta;
+//          stta.setName("stta");
+//          stta.setFailureHandler(&stta.failNoop);
+//
+//          bslma::TestAllocator ta("Bslma Test Allocator", &stta);
+//          ta.setNoAbort(true);
+//
+//          // the rest of the test case after this is totally unchanged
+//
+//          bslma::TestAllocatorMonitor tam(&ta);
+//
+//          {
+//              ShipsCrew crew("shipscrew.txt", &ta);
+//              assert(tam.isInUseUp());
+//              assert(tam.isTotalUp());
+//
+//              if (verbose) {
+//                  cout << "Captain: "  << crew.captain() <<
+//                      "\nFirst Mate: " << crew.firstMate() <<
+//                      "\nCook: "       << crew.cook() << endl;
+//                  for (const char *sailor = crew.firstSailor(); sailor;
+//                                          sailor = crew.nextSailor(sailor)) {
+//                      cout << "Sailor: " << sailor << endl;
+//                  }
+//              }
+//          }
+//
+//          int bytesLeaked = ta.numBytesInUse();
+//          if (bytesLeaked > 0) {
+//              cout << bytesLeaked << " bytes of memory were leaked!\n";
+//          }
+//      }
+//..
+// Now, this generates the following report:
+//..
+//  10 bytes of memory were leaked!
+//  MEMORY_LEAK from Bslma Test Allocator:
+//    Number of blocks in use = 1
+//     Number of bytes in use = 10
+//  ===========================================================================
+//  Error: memory leaked:
+//  1 block(s) in allocator 'stta' in use.
+//  Block(s) allocated from 1 trace(s).
+//  ---------------------------------------------------------------------------
+//  Allocation trace 1, 1 block(s) in use.
+//  Stack trace at allocation time:
+//  (0): BloombergLP::baesu_StackTraceTestAllocator::allocate(int)+0x17d at 0x8
+//  05e741 in baesu_stacktracetestallocator.t.dbg_exc_mt
+//  (1): BloombergLP::bslma::TestAllocator::allocate(int)+0x12c at 0x8077398 in
+//   baesu_stacktracetestallocator.t.dbg_exc_mt
+//  (2): ShipsCrew::copy(bsl::basic_string<char, std::char_traits<char>, bsl::a
+//  llocator<char> > const&)+0x31 at 0x804c3db in baesu_stacktracetestallocator
+//  .t.dbg_exc_mt
+//  (3): ShipsCrew::setCook(bsl::basic_string<char, std::char_traits<char>, bsl
+//  ::allocator<char> > const&)+0x2d at 0x804c4c1 in baesu_stacktracetestalloca
+//  tor.t.dbg_exc_mt
+//  (4): ShipsCrew::ShipsCrew(char const*, BloombergLP::bslma::Allocator*)+0x23
+//  4 at 0x804c738 in baesu_stacktracetestallocator.t.dbg_exc_mt
+//  (5): main+0x53c at 0x804d55e in baesu_stacktracetestallocator.t.dbg_exc_mt
+//  (6): __libc_start_main+0xdc at 0x182e9c in /lib/libc.so.6
+//  (7): --unknown-- at 0x804c1d1 in baesu_stacktracetestallocator.t.dbg_exc_mt
+//..
+// Finally, Inspection shows that frame (3) of the stack trace from the
+// allocation of the leaked segment was from 'ShipsCrew::setCook'.  Inspection
+// of the code shows that we neglected to free 'd_cook' in the destructor and
+// we can now easily fix our leak.
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
