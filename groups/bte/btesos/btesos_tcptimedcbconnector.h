@@ -111,7 +111,7 @@ BDES_IDENT("$Id: $")
 //                    bteso_TimerEventManager                      *manager,
 //                    int                                    maxConnections,
 //                    int                                       numMessages,
-//                    bslma_Allocator *basicAllocator = 0);
+//                    bslma::Allocator *basicAllocator = 0);
 //
 //      ~my_EchoClient();
 //
@@ -127,7 +127,7 @@ BDES_IDENT("$Id: $")
 //          bteso_TimerEventManager                      *manager,
 //          int                                           numConnections,
 //          int                                           numMessages,
-//          bslma_Allocator                              *basicAllocator)
+//          bslma::Allocator                             *basicAllocator)
 //  : d_allocator(factory, manager, basicAllocator)
 //  , d_connectTimeout(120, 0)
 //  , d_readTimeout(20.0)
@@ -460,16 +460,16 @@ BDES_IDENT("$Id: $")
 #include <bdema_pool.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -531,7 +531,7 @@ class btesos_TcpTimedCbConnector : public btesc_TimedCbChannelAllocator {
 
     void             *d_timerId;         // registration id from socket event
                                          // manager
-    bslma_Allocator  *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
   private:
     // Private (implementation) methods
 
@@ -588,7 +588,7 @@ class btesos_TcpTimedCbConnector : public btesc_TimedCbChannelAllocator {
     btesos_TcpTimedCbConnector(
             bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
             bteso_TimerEventManager                      *manager,
-            bslma_Allocator                              *basicAllocator = 0);
+            bslma::Allocator                             *basicAllocator = 0);
         // Create a timed callback connector that uses the specified 'factory'
         // (to create stream sockets) and the specified 'manager' (to monitor
         // for incoming connections).  Optionally specify a 'basicAllocator'
@@ -601,7 +601,7 @@ class btesos_TcpTimedCbConnector : public btesc_TimedCbChannelAllocator {
             bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
             bteso_TimerEventManager                      *manager,
             int                                           numChannels,
-            bslma_Allocator                              *basicAllocator = 0);
+            bslma::Allocator                             *basicAllocator = 0);
         // Create a timed cb connector, with enough internal capacity to
         // allocate up to the specified 'numChannels' without reallocation,
         // that uses the specified 'factory' to create stream sockets, and the

@@ -122,16 +122,16 @@ BDES_IDENT("$Id: $")
 #include <bcema_pooledbufferchain.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -152,9 +152,9 @@ struct btemt_MessageImpl {
     union {
         // Union of the data items required to represent each message type.
 
-        char                                d_arena[sizeof(Handle)];
-        void                               *d_opaque;
-        bsls_AlignmentUtil::MaxAlignedType  d_dummy;
+        char                                 d_arena[sizeof(Handle)];
+        void                                *d_opaque;
+        bsls::AlignmentUtil::MaxAlignedType  d_dummy;
     } d_data;
 
     int                       d_dataLength;
@@ -188,7 +188,7 @@ class btemt_BlobMsg {
 
     btemt_BlobMsg(bcema_Blob                *blob,
                   int                        channelId,
-                  bslma_Allocator           *basicAllocator = 0);
+                  bslma::Allocator          *basicAllocator = 0);
         // Create a data message containing the specified 'blob' and associated
         // with the channel having the specified 'channelId'.  This message
         // will assume ownership of 'blob' and will destroy it when
@@ -220,7 +220,7 @@ class btemt_BlobMsg {
         // 'channelId'.
 
     void setData(bcema_Blob                *blob,
-                 bslma_Allocator           *basicAllocator = 0);
+                 bslma::Allocator          *basicAllocator = 0);
         // Set the data segment for this data message to the specified 'blob'
         // and assume ownership of 'blob', and release from management by this
         // message any data segment currently managed by this message, if any.
@@ -392,7 +392,7 @@ class btemt_DataMsg {
     btemt_DataMsg(bcema_PooledBufferChain                *chain,
                   bcema_Deleter<bcema_PooledBufferChain> *deleter,
                   int                                     channelId,
-                  bslma_Allocator                        *basicAllocator = 0);
+                  bslma::Allocator                       *basicAllocator = 0);
         // Create a data message containing the specified 'chain' of bytes and
         // associated with the channel having the specified 'channelId'.  This
         // message will assume ownership of 'chain' and will destroy it using
@@ -404,7 +404,7 @@ class btemt_DataMsg {
     btemt_DataMsg(const bcema_SharedPtr<bcema_PooledBufferChain>&
                                                              dataPtr,
                   int                                        channelId,
-                  bslma_Allocator                           *basicAllocator = 0
+                  bslma::Allocator                          *basicAllocator = 0
                  );
         // Create a data message sharing management of the specified 'dataPtr'
         // and associated with the channel having the specified 'channelId'.
@@ -428,7 +428,7 @@ class btemt_DataMsg {
 
     void setData(bcema_PooledBufferChain                *chain,
                  bcema_Deleter<bcema_PooledBufferChain> *deleter,
-                 bslma_Allocator                        *basicAllocator = 0);
+                 bslma::Allocator                       *basicAllocator = 0);
         // Set the data segment for this data message to the specified 'chain'
         // whose lifetime is managed by the specified 'deleter', and release
         // from management by this message any data segment currently managed
@@ -693,13 +693,13 @@ class btemt_UserMsg {
     void setCountedData(
                    bcema_PooledBufferChain                *chain,
                    bcema_Deleter<bcema_PooledBufferChain> *deleter,
-                   bslma_Allocator                        *basicAllocator = 0);
+                   bslma::Allocator                       *basicAllocator = 0);
         // DEPRECATED  Use 'setManagedData' instead.
 
     void setManagedData(
                    bcema_PooledBufferChain                *chain,
                    bcema_Deleter<bcema_PooledBufferChain> *deleter,
-                   bslma_Allocator                        *basicAllocator = 0);
+                   bslma::Allocator                       *basicAllocator = 0);
         // Store the specified 'chain' pointer value allocated from the
         // specified 'factory' into this user message, release from management
         // any data currently managed by this message, and start managing
@@ -891,9 +891,9 @@ struct btemt_MessageUtil {
                            const bcema_Blob&               blob,
                            int                             numBytes,
                            bcema_PooledBufferChainFactory *factory,
-                           bslma_Allocator                *spAllocator);
+                           bslma::Allocator               *spAllocator);
         // Assign the specified initial 'numBytes' of the specified 'blob'
-        // to the specified 'dataMsg', using the specified 'factory' to 
+        // to the specified 'dataMsg', using the specified 'factory' to
         // allocate buffers in the pooled buffer chain and using the specified
         // 'spAllocator' to allocate the shared pointers.
 };
@@ -932,7 +932,7 @@ btemt_BlobMsg::~btemt_BlobMsg()
 // MANIPULATORS
 inline
 void btemt_BlobMsg::setData(bcema_Blob                *blob,
-                            bslma_Allocator           *basicAllocator)
+                            bslma::Allocator          *basicAllocator)
 {
     Handle *h = (Handle *)(void *)d_impl.d_data.d_arena;
     h->load(blob, basicAllocator);
@@ -1098,7 +1098,7 @@ btemt_DataMsg::btemt_DataMsg(
         bcema_PooledBufferChain                *chain,
         bcema_Deleter<bcema_PooledBufferChain> *deleter,
         int                                     channelId,
-        bslma_Allocator                        *basicAllocator)
+        bslma::Allocator                       *basicAllocator)
 {
     new (d_impl.d_data.d_arena) Handle(chain, deleter, basicAllocator);
     d_impl.d_channelId = channelId;
@@ -1108,7 +1108,7 @@ inline
 btemt_DataMsg::btemt_DataMsg(
         const bcema_SharedPtr<bcema_PooledBufferChain>&  dataPtr,
         int                                              channelId,
-        bslma_Allocator                                 *)
+        bslma::Allocator                                *)
 {
     new (d_impl.d_data.d_arena) Handle(dataPtr);
     d_impl.d_channelId = channelId;
@@ -1132,7 +1132,7 @@ inline
 void btemt_DataMsg::setData(
         bcema_PooledBufferChain                *chain,
         bcema_Deleter<bcema_PooledBufferChain> *deleter,
-        bslma_Allocator                        *basicAllocator)
+        bslma::Allocator                       *basicAllocator)
 {
     Handle *h = (Handle *)(void *)d_impl.d_data.d_arena;
     h->load(chain, deleter, basicAllocator);
@@ -1345,7 +1345,7 @@ inline
 void btemt_UserMsg::
          setCountedData(bcema_PooledBufferChain                *chain,
                         bcema_Deleter<bcema_PooledBufferChain> *deleter,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 {
     setManagedData(chain, deleter, basicAllocator);
 }

@@ -16,7 +16,7 @@ BDES_IDENT_RCSID(btemt_queryrouter_cpp,"$Id$ $CSID$")
 #include <bdem_list.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bteso_ipv4address.h>
 
@@ -65,8 +65,8 @@ btemt_QueryRouter::btemt_QueryRouter(
     const bdef_Function<void (*)(btemt_Message::MessageType, int,
                                  int, const bteso_IPv4Address&, void *)>&
         eventFunctor,
-    bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+    bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_channelAllocatorId(0)
 , d_channelAllocators(bsl::less<int>(), d_allocator_p)
 , d_factory(config.maxOutgoingMessageSize(), d_allocator_p)
@@ -131,7 +131,7 @@ void btemt_QueryRouter::dataCb(int                  *consumed,
                         // MANIPULATORS
                         // ============
 int btemt_QueryRouter::query(const btemt_Query& query,
-                             bsls_PlatformUtil::Int64 queryId,
+                             bsls::Types::Int64 queryId,
                              int processorId)
 {
     int channelId = getChannelId(processorId);

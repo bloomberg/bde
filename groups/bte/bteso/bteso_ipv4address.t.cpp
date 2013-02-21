@@ -2,7 +2,6 @@
 
 #include <bteso_ipv4address.h>
 
-#include <bsls_platformutil.h>           // for testing only
 #include <bdex_instreamfunctions.h>      // for testing only
 #include <bdex_outstreamfunctions.h>     // for testing only
 #include <bdex_testinstream.h>           // for testing only
@@ -21,11 +20,8 @@
 #include <netinet/in.h>
 #endif
 
-#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
-#include <strstrea.h>
-#else
 #include <bsl_strstream.h>
-#endif
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 

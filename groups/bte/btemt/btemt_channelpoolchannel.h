@@ -51,8 +51,8 @@ BDES_IDENT("$Id: $")
 #include <bdeut_variant.h>
 #endif
 
-#ifndef INCLUDED_BSL_LIST
-#include <bsl_list.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
@@ -63,8 +63,8 @@ BDES_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_LIST
+#include <bsl_list.h>
 #endif
 
 namespace BloombergLP {
@@ -161,7 +161,7 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
 
     bteso_IPv4Address     d_localAddress;         // cached local address
 
-    bslma_Allocator      *d_allocator_p;          // allocator (held, not
+    bslma::Allocator     *d_allocator_p;          // allocator (held, not
                                                   // owned)
 
   private:
@@ -215,7 +215,7 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                   bcema_PooledBufferChainFactory *bufferChainFactory,
                   bcema_PooledBlobBufferFactory  *blobBufferFactory,
                   bcema_PoolAllocator            *spAllocator,
-                  bslma_Allocator                *allocator,
+                  bslma::Allocator               *allocator,
                   bool                            useBlobForDataReads = false);
 
         // Create a 'btemt_AsyncChannel' concrete implementation reading from
@@ -243,7 +243,7 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                         btemt_ChannelPool              *channelPool,
                         bcema_PooledBufferChainFactory *bufferChainFactory,
                         bcema_PoolAllocator            *spAllocator,
-                        bslma_Allocator                *allocator,
+                        bslma::Allocator               *allocator,
                         bcema_PooledBlobBufferFactory  *blobBufferFactory = 0);
         // Create a 'btemt_AsyncChannel' concrete implementation reading from
         // and writing to the channel referenced by the specified 'channelId'
@@ -264,7 +264,7 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                        btemt_ChannelPool              *channelPool,
                        bcema_PooledBlobBufferFactory  *blobBufferFactory,
                        bcema_PoolAllocator            *spAllocator,
-                       bslma_Allocator                *allocator,
+                       bslma::Allocator               *allocator,
                        bcema_PooledBufferChainFactory *bufferChainFactory = 0);
         // Create a 'btemt_AsyncChannel' concrete implementation reading from
         // and writing to the channel referenced by the specified 'channelId'

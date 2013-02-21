@@ -151,7 +151,7 @@ BDES_IDENT("$Id: $")
 //      // CREATORS
 //      my_CommandMediator(bteso_TcpTimerEventManager *manager,
 //                         bdef_Function<void (*)()>   command,
-//                         bslma_Allocator            *basicAllocator = 0);
+//                         bslma::Allocator           *basicAllocator = 0);
 //          // Create a mediator attached to the specified 'manager' and
 //          // the specified 'command', which will be invoked from 'manager''s
 //          // 'dispatch' method.  Optionally specify a 'basicAllocator' used
@@ -182,7 +182,7 @@ BDES_IDENT("$Id: $")
 //  inline
 //  my_CommandMediator::my_CommandMediator(bteso_TcpTimerEventManager *manager,
 //                                         bdef_Function<void (*)()>   command,
-//                                         bslma_Allocator     *basicAllocator)
+//                                         bslma::Allocator    *basicAllocator)
 //  : d_manager_p(manager)
 //  , d_byte(0xAF)
 //  , d_command(command)
@@ -254,8 +254,8 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -293,7 +293,7 @@ class bteso_TcpTimerEventManager : public bteso_TimerEventManager
     int                 d_isManagedFlag;
                                         // indicates whether or not the event
                                         // manager is managed.
-    bslma_Allocator    *d_allocator_p;  // allocator used to supply memory
+    bslma::Allocator   *d_allocator_p;  // allocator used to supply memory
     bteso_TimeMetrics   d_metrics;      // workload counter
 
   private:
@@ -302,14 +302,14 @@ class bteso_TcpTimerEventManager : public bteso_TimerEventManager
 
   public:
     // CREATORS
-    bteso_TcpTimerEventManager(bslma_Allocator *basicAllocator = 0);
+    bteso_TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
         // Create an event manager with timer support optimized for frequent
         // registrations ('BTESO_NO_HINT').  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    bteso_TcpTimerEventManager(Hint             infrequentRegistrationHint,
-                               bslma_Allocator *basicAllocator = 0);
+    bteso_TcpTimerEventManager(Hint              infrequentRegistrationHint,
+                               bslma::Allocator *basicAllocator = 0);
         // Create an event manager with timer support optimized for the
         // registration frequency as hinted by 'infrequentRegistrationHint'.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -317,7 +317,7 @@ class bteso_TcpTimerEventManager : public bteso_TimerEventManager
         // used.
 
     bteso_TcpTimerEventManager(bteso_EventManager *manager,
-                               bslma_Allocator    *basicAllocator = 0);
+                               bslma::Allocator   *basicAllocator = 0);
         // Create a timer event manager that uses the specified 'manager' for
         // monitoring socket events.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently

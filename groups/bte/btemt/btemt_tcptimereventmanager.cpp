@@ -73,7 +73,7 @@ class btemt_TcpTimerEventManager_Request {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(btemt_TcpTimerEventManager_Request,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     enum OpCode {
         NO_OP,                         // no operation
@@ -120,7 +120,7 @@ class btemt_TcpTimerEventManager_Request {
                       const bteso_SocketHandle::Handle&    handle,
                       bteso_EventType::Type                event,
                       const bteso_EventManager::Callback&  callback,
-                      bslma_Allocator                     *basicAllocator = 0);
+                      bslma::Allocator                    *basicAllocator = 0);
         // Create a 'REGISTER_SOCKET_EVENT' request containing the specified
         // socket 'handle', the specified 'event' and the specified
         // 'callback'.  Optionally specify a 'basicAllocator' used to supply
@@ -130,7 +130,7 @@ class btemt_TcpTimerEventManager_Request {
     btemt_TcpTimerEventManager_Request(
                       const bdet_TimeInterval&             timeout,
                       const bteso_EventManager::Callback&  callback,
-                      bslma_Allocator                     *basicAllocator = 0);
+                      bslma::Allocator                    *basicAllocator = 0);
         // Create a 'REGISTER_TIMER' request containing the specified 'timeout'
         // and the specified 'callback'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -139,14 +139,14 @@ class btemt_TcpTimerEventManager_Request {
     btemt_TcpTimerEventManager_Request(
                                  const void               *timerId,
                                  const bdet_TimeInterval&  timeout,
-                                 bslma_Allocator          *basicAllocator = 0);
+                                 bslma::Allocator         *basicAllocator = 0);
         // Create a 'RESCHEDULE_TIMER' request containing the specified
         // 'timerId' and the specified 'timeOut'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    btemt_TcpTimerEventManager_Request(void            *timerId,
-                                       bslma_Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager_Request(void             *timerId,
+                                       bslma::Allocator *basicAllocator = 0);
         // Create a 'DEREGISTER_TIMER' request containing the specified
         // 'timerId'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -154,7 +154,7 @@ class btemt_TcpTimerEventManager_Request {
 
     btemt_TcpTimerEventManager_Request(
                         const bteso_SocketHandle::Handle&  handle,
-                        bslma_Allocator                   *basicAllocator = 0);
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a 'DEREGISTER_SOCKET' request containing the specified
         // 'handle'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -163,7 +163,7 @@ class btemt_TcpTimerEventManager_Request {
     btemt_TcpTimerEventManager_Request(
                                bteso_SocketHandle::Handle  handle,
                                bteso_EventType::Type       event,
-                               bslma_Allocator            *basicAllocator = 0);
+                               bslma::Allocator           *basicAllocator = 0);
         // Create a 'DEREGISTER_SOCKET_EVENT' request containing the specified
         // 'handle' and the specified 'event'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -174,7 +174,7 @@ class btemt_TcpTimerEventManager_Request {
                                bteso_EventType::Type       event,
                                bcemt_Condition            *condition,
                                bcemt_Mutex                *mutex,
-                               bslma_Allocator            *basicAllocator = 0);
+                               bslma::Allocator           *basicAllocator = 0);
         // Create an 'IS_REGISTERED' request containing the specified 'handle'
         // and the specified 'event'; the specified 'condition' is signaled
         // when the request is processed and the specified 'mutex' is used to
@@ -187,7 +187,7 @@ class btemt_TcpTimerEventManager_Request {
                         const bteso_SocketHandle::Handle&  handle,
                         bcemt_Condition                   *condition,
                         bcemt_Mutex                       *mutex,
-                        bslma_Allocator                   *basicAllocator = 0);
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a 'NUM_SOCKET_EVENTS' request containing the specified
         // 'handle' the specified 'condition' is signaled when the request is
         // processed and the specified 'mutex' is used to synchronize access to
@@ -195,18 +195,18 @@ class btemt_TcpTimerEventManager_Request {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    btemt_TcpTimerEventManager_Request(OpCode           code,
-                                       bslma_Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager_Request(OpCode            code,
+                                       bslma::Allocator *basicAllocator = 0);
         // Create a request having the specified 'code'.  The behavior is
         // undefined unless 'code' is 'DEREGISTER_ALL_SOCKET_EVENTS',
         // 'DEREGISTER_ALL_TIMERS' or 'NO_OP'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    btemt_TcpTimerEventManager_Request(OpCode           code,
-                                       bcemt_Condition *condition,
-                                       bcemt_Mutex     *mutex,
-                                       bslma_Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager_Request(OpCode            code,
+                                       bcemt_Condition  *condition,
+                                       bcemt_Mutex      *mutex,
+                                       bslma::Allocator *basicAllocator = 0);
         // Create a request with the specified 'code'; the request will be
         // processed according to the value of 'code'.  The behavior is
         // undefined if 'code' has a value that requires some fields other
@@ -218,7 +218,7 @@ class btemt_TcpTimerEventManager_Request {
 
     btemt_TcpTimerEventManager_Request(
                       const bteso_EventManager::Callback&  callback,
-                      bslma_Allocator                     *basicAllocator = 0);
+                      bslma::Allocator                    *basicAllocator = 0);
         // Create an 'EXECUTE' request for the specified 'functor.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -293,7 +293,7 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
                            const bteso_SocketHandle::Handle&    handle,
                            bteso_EventType::Type                event,
                            const bteso_EventManager::Callback&  callback,
-                           bslma_Allocator                     *basicAllocator)
+                           bslma::Allocator                    *basicAllocator)
 : d_opCode(REGISTER_SOCKET_EVENT)
 , d_mutex_p(0)
 , d_condition_p(0)
@@ -309,7 +309,7 @@ inline
 btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
                            const bdet_TimeInterval&             timeout,
                            const bteso_EventManager::Callback&  callback,
-                           bslma_Allocator                     *basicAllocator)
+                           bslma::Allocator                    *basicAllocator)
 : d_opCode(REGISTER_TIMER)
 , d_mutex_p(0)
 , d_condition_p(0)
@@ -324,7 +324,7 @@ inline
 btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
                                       const void               *timerId,
                                       const bdet_TimeInterval&  timeout,
-                                      bslma_Allocator          *basicAllocator)
+                                      bslma::Allocator         *basicAllocator)
 : d_opCode(RESCHEDULE_TIMER)
 , d_mutex_p(0)
 , d_condition_p(0)
@@ -337,8 +337,8 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
 
 inline
 btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
-                                               void            *timerId,
-                                               bslma_Allocator *basicAllocator)
+                                              void             *timerId,
+                                              bslma::Allocator *basicAllocator)
 : d_opCode(DEREGISTER_TIMER)
 , d_mutex_p(0)
 , d_condition_p(0)
@@ -351,7 +351,7 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
 inline
 btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
                              const bteso_SocketHandle::Handle&  handle,
-                             bslma_Allocator                   *basicAllocator)
+                             bslma::Allocator                  *basicAllocator)
 : d_opCode(DEREGISTER_SOCKET)
 , d_mutex_p(0)
 , d_condition_p(0)
@@ -367,7 +367,7 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
                              const bteso_SocketHandle::Handle&  handle,
                              bcemt_Condition                   *condition,
                              bcemt_Mutex                       *mutex,
-                             bslma_Allocator                   *basicAllocator)
+                             bslma::Allocator                  *basicAllocator)
 : d_opCode(NUM_SOCKET_EVENTS)
 , d_mutex_p(mutex)
 , d_condition_p(condition)
@@ -382,7 +382,7 @@ inline
 btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
                                     bteso_SocketHandle::Handle  handle,
                                     bteso_EventType::Type       event,
-                                    bslma_Allocator            *basicAllocator)
+                                    bslma::Allocator           *basicAllocator)
 : d_opCode(DEREGISTER_SOCKET_EVENT)
 , d_mutex_p(0)
 , d_condition_p(0)
@@ -400,7 +400,7 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
                                     bteso_EventType::Type       event,
                                     bcemt_Condition            *condition,
                                     bcemt_Mutex                *mutex,
-                                    bslma_Allocator            *basicAllocator)
+                                    bslma::Allocator           *basicAllocator)
 : d_opCode(IS_REGISTERED)
 , d_mutex_p(mutex)
 , d_condition_p(condition)
@@ -414,8 +414,8 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
 
 inline
 btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
-                                               OpCode           code,
-                                               bslma_Allocator *basicAllocator)
+                                              OpCode            code,
+                                              bslma::Allocator *basicAllocator)
 : d_opCode(code)
 , d_mutex_p(0)
 , d_condition_p(0)
@@ -431,10 +431,10 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
 
 inline
 btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
-                                               OpCode           code,
-                                               bcemt_Condition *condition,
-                                               bcemt_Mutex     *mutex,
-                                               bslma_Allocator *basicAllocator)
+                                              OpCode            code,
+                                              bcemt_Condition  *condition,
+                                              bcemt_Mutex      *mutex,
+                                              bslma::Allocator *basicAllocator)
 : d_opCode(code)
 , d_mutex_p(mutex)
 , d_condition_p(condition)
@@ -448,7 +448,7 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
 inline
 btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
                            const bteso_EventManager::Callback&  callback,
-                           bslma_Allocator                     *basicAllocator)
+                           bslma::Allocator                    *basicAllocator)
 : d_opCode(EXECUTE)
 , d_mutex_p(0)
 , d_condition_p(0)
@@ -770,7 +770,7 @@ void btemt_TcpTimerEventManager::controlCb()
             } break;
             case btemt_TcpTimerEventManager_Request::DEREGISTER_TIMER: {
                 BSLS_ASSERT(0 != req->timerId());
-                d_timerQueue.remove((int)(bsls_Types::IntPtr)req->timerId());
+                d_timerQueue.remove((int)(bsls::Types::IntPtr)req->timerId());
             } break;
             case btemt_TcpTimerEventManager_Request::DEREGISTER_ALL_TIMERS: {
                 d_timerQueue.removeAll();
@@ -818,8 +818,8 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
         = new (*d_allocator_p)
                         bsl::vector<bdef_Function<void (*)()> >(d_allocator_p);
     requestsPtr->reserve(4);
-    bslma_AutoRawDeleter< bsl::vector<bdef_Function<void (*)()> >
-                        , bslma_Allocator>
+    bslma::AutoRawDeleter< bsl::vector<bdef_Function<void (*)()> >
+                        , bslma::Allocator>
                                     autoDelete(&requestsPtr, d_allocator_p, 1);
 
     // Set the state to BTEMT_ENABLED before dispatching any events
@@ -899,7 +899,7 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
 
 // CREATORS
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
-                                          bslma_Allocator *threadSafeAllocator)
+                                         bslma::Allocator *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
@@ -912,14 +912,14 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(true)
 , d_numTotalSocketEvents(0)
-, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+, d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
 }
 
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
                                         bool               collectTimeMetrics,
-                                        bslma_Allocator   *threadSafeAllocator)
+                                        bslma::Allocator  *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
@@ -932,7 +932,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
-, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+, d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
 }
@@ -940,7 +940,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
                                         bool               collectTimeMetrics,
                                         bool               poolTimerMemory,
-                                        bslma_Allocator   *threadSafeAllocator)
+                                        bslma::Allocator  *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
@@ -953,14 +953,14 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
-, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+, d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
 }
 
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
                                         Hint,
-                                        bslma_Allocator   *threadSafeAllocator)
+                                        bslma::Allocator  *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
@@ -973,7 +973,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(true)
 , d_numTotalSocketEvents(0)
-, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+, d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
 }
@@ -981,7 +981,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
                                         Hint,
                                         bool               collectTimeMetrics,
-                                        bslma_Allocator   *threadSafeAllocator)
+                                        bslma::Allocator  *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
@@ -994,7 +994,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
-, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+, d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
 }
@@ -1003,7 +1003,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
                                         Hint,
                                         bool               collectTimeMetrics,
                                         bool               poolTimerMemory,
-                                        bslma_Allocator   *threadSafeAllocator)
+                                        bslma::Allocator  *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
@@ -1016,14 +1016,14 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
-, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+, d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
 }
 
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
                                        bteso_EventManager *rawEventManager,
-                                       bslma_Allocator    *threadSafeAllocator)
+                                       bslma::Allocator   *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
                                                            threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
@@ -1038,7 +1038,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(false)
 , d_numTotalSocketEvents(0)
-, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+, d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     BSLS_ASSERT(rawEventManager);
 
@@ -1361,7 +1361,7 @@ int btemt_TcpTimerEventManager::rescheduleTimer(
 {
     if (bcemt_ThreadUtil::isEqual(
                     bcemt_ThreadUtil::self(), d_dispatcher)) {
-        return d_timerQueue.update((int)(bsls_Types::IntPtr)id, timeout);
+        return d_timerQueue.update((int)(bsls::Types::IntPtr)id, timeout);
                                                                       // RETURN
     }
 
@@ -1375,7 +1375,7 @@ int btemt_TcpTimerEventManager::rescheduleTimer(
             // synchronize the following operation.
 
             int isNewTop = 0;
-            rc           = d_timerQueue.update((int)(bsls_Types::IntPtr)id,
+            rc           = d_timerQueue.update((int)(bsls::Types::IntPtr)id,
                                                timeout,
                                                &isNewTop);
             if (!rc && isNewTop) {
@@ -1391,7 +1391,7 @@ int btemt_TcpTimerEventManager::rescheduleTimer(
                 if (0 > d_controlChannel_p->clientWrite()) {
                     d_requestQueue.popBack();
                     d_requestPool.deleteObjectRaw(req);
-                    d_timerQueue.remove((int)(bsls_Types::IntPtr)id);
+                    d_timerQueue.remove((int)(bsls::Types::IntPtr)id);
                     BSLS_ASSERT("Failed to reschedule timer" && 0);
                 }
             }
@@ -1400,7 +1400,7 @@ int btemt_TcpTimerEventManager::rescheduleTimer(
             // Processing thread is disabled -- register directly
             // since the timer queue is thread-safe.
 
-            rc = d_timerQueue.update((int)(bsls_Types::IntPtr)id, timeout);
+            rc = d_timerQueue.update((int)(bsls::Types::IntPtr)id, timeout);
           } break;
         }
     }
@@ -1595,7 +1595,7 @@ void btemt_TcpTimerEventManager::deregisterTimer(const void *id)
     // We can just remove it.  If its at the top, dispatcher will
     // pick a new top on the next iteration.
 
-    d_timerQueue.remove((int)(bsls_Types::IntPtr)id);
+    d_timerQueue.remove((int)(bsls::Types::IntPtr)id);
 }
 
 void btemt_TcpTimerEventManager::deregisterAllTimers()

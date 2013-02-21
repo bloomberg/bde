@@ -12,12 +12,8 @@
 
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_iostream.h>
-
-#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
-#include <strstrea.h>
-#else
 #include <bsl_strstream.h>
-#endif
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -113,7 +109,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
