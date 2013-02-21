@@ -316,6 +316,7 @@ int main(int argc, char *argv[])
 //..
         }
 
+#if 0
         if (verbose) cout << "\nTesting Usage Example 4"
                           << "\n=======================" << endl;
         {
@@ -340,7 +341,7 @@ int main(int argc, char *argv[])
       ASSERT(1 == i7.hours());
 //..
         }
-
+#endif
     } break;
     case 12: {
       // --------------------------------------------------------------------
@@ -1298,6 +1299,7 @@ int main(int argc, char *argv[])
             ASSERT( user_p2 == bdetu_SystemTime::currentSystemTimeCallback() );
         }
 
+#if 0
         if (verbose) cout << "\nTesting 'setLocalTimeOffsetCallback' "
                              "and 'currentLocalTimeOffsetCallback'"
                              "\n====================================="
@@ -1337,6 +1339,7 @@ int main(int argc, char *argv[])
             ASSERT(user_p2
                         == bdetu_SystemTime::currentLocalTimeOffsetCallback());
         }
+#endif
 
       } break;
       case 1: {
@@ -1424,6 +1427,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#if 0
         if (verbose) cout << "\nTesting 'loadLocalTimeOffsetDefault' METHOD"
                           << "\n==========================================="
                           << endl;
@@ -1434,6 +1438,7 @@ int main(int argc, char *argv[])
                               = bdetu_SystemTime::loadLocalTimeOffsetDefault();
             ASSERT(i1 == i2);
         }
+#endif
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -1452,6 +1457,7 @@ int main(int argc, char *argv[])
                                                                   " seconds\n";
         }
       } break;
+#if 0
       case -2: {
         // --------------------------------------------------------------------
         // PERFORMANCE 'localTimeOffset'
@@ -1614,6 +1620,7 @@ int main(int argc, char *argv[])
             P_(systemTime) P_(userTime) P(wallTime);
         }
       } break;
+#endif
 #endif
       default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
