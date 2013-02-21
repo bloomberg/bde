@@ -154,7 +154,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_PooledArray(bslma_Allocator *basicAllocator = 0);
+//      my_PooledArray(bslma::Allocator *basicAllocator = 0);
 //          // Create a pooled array that stores the parameterized values
 //          // "out-of-place".  Optionally specify a 'basicAllocator' used to
 //          // supply memory.  If 'basicAllocator' is 0, the currently
@@ -219,7 +219,7 @@ BDES_IDENT("$Id: $")
 //
 //  // CREATORS
 //  template <class T>
-//  my_PooledArray<T>::my_PooledArray(bslma_Allocator *basicAllocator)
+//  my_PooledArray<T>::my_PooledArray(bslma::Allocator *basicAllocator)
 //  : d_array_p(basicAllocator)
 //  , d_pool(sizeof(T), basicAllocator)
 //  {
@@ -261,16 +261,20 @@ BDES_IDENT("$Id: $")
 #include <bces_atomicutil.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DELETERHELPER
-#include <bslma_deleterhelper.h>
-#endif
-
 #ifndef INCLUDED_BDEMA_INFREQUENTDELETEBLOCKLIST
 #include <bdema_infrequentdeleteblocklist.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DELETERHELPER
+#include <bslma_deleterhelper.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
+#include <bsls_alignmentutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -279,10 +283,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_BLOCKGROWTH
 #include <bsls_blockgrowth.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
-#include <bsls_alignmentutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -515,7 +515,7 @@ void *operator new(bsl::size_t size, BloombergLP::bcema_Pool& pool);
     // internally, requiring the allocator to be passed in as a constructor
     // argument:
     //..
-    //  my_Type *newMyType(bcema_Pool *pool, bslma_Allocator *basicAllocator)
+    //  my_Type *newMyType(bcema_Pool *pool, bslma::Allocator *basicAllocator)
     //  {
     //      return new (*pool) my_Type(..., basicAllocator);
     //  }
@@ -600,7 +600,7 @@ inline
 void *operator new(bsl::size_t size, BloombergLP::bcema_Pool& pool)
 {
     using namespace BloombergLP;
-    typedef BloombergLP::bsls_AlignmentUtil Util;
+    typedef BloombergLP::bsls::AlignmentUtil Util;
 
     BSLS_ASSERT_SAFE(static_cast<int>(size) <= pool.blockSize()
                   && Util::calculateAlignmentFromSize(size)

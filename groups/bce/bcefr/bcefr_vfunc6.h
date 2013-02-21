@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $")
 //   class ConcreteDerivedClass : public bcefr_Vfunc6 <A1, A2, A3, A4, A5, A6>
 //   {
 //     public:
-//       ConcreteDerivedClass(bslma_Allocator *basicAllocator)
+//       ConcreteDerivedClass(bslma::Allocator *basicAllocator)
 //       : bcefr_Vfunc6(basicAllocator) { }
 //
 //       virtual void execute(const A1& argument1,
@@ -134,7 +134,7 @@ BDES_IDENT("$Id: $")
 //   typedef ConcreteDerivedClass<int, int, int,
 //                                int, int, int> DerivedObj;
 //   typedef bcefr_Vfunc6<int, int, int, int, int, int> Obj;
-//   bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+//   bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 //
 //   Obj *x = new(*myAllocator) DerivedObj(myAllocator);
 //   {
@@ -161,8 +161,8 @@ BDES_IDENT("$Id: $")
 #include <bces_atomicutil.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -184,7 +184,8 @@ class bcefr_Vfunc6 {
     // and limit an object instantiation to the heap.
 
     bces_AtomicUtil::Int d_count;    // dumb data (number of active references)
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) memory allocator
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) memory
+                                     // allocator
 
   private:
     bcefr_Vfunc6(const bcefr_Vfunc6&);                  // not implemented
@@ -206,7 +207,7 @@ class bcefr_Vfunc6 {
         // specified 'object' holds a valid memory allocator.
 
     // CREATORS
-    bcefr_Vfunc6(bslma_Allocator *basicAllocator);
+    bcefr_Vfunc6(bslma::Allocator *basicAllocator);
         // Create the base portion of a functor object, with the initial
         // reference count set to 0.  Return the specified 'basicAllocator' to
         // deallocate memory when 'destroyObject' is invoked.
@@ -250,7 +251,7 @@ void bcefr_Vfunc6<A1, A2, A3, A4, A5, A6>::deleteObject(
 // CREATORS
 template <class A1, class A2, class A3, class A4, class A5, class A6>
 inline bcefr_Vfunc6<A1, A2, A3, A4, A5, A6>::bcefr_Vfunc6(
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : d_allocator_p(basicAllocator)
 {
     bces_AtomicUtil::initInt(&d_count,0);

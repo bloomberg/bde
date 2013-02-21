@@ -40,7 +40,7 @@ BDES_IDENT("$Id: $")
 // implementation of 'bcema_Factory', say, 'my_DefaultFactory', the
 // implementation of which is assumed:
 //..
-//  void f(bcema_Factory<my_Obj> *factory, bslma_Allocator *basicAllocator)
+//  void f(bcema_Factory<my_Obj> *factory, bslma::Allocator *basicAllocator)
 //  {
 //      my_Obj *object = factory->createObject();
 //..

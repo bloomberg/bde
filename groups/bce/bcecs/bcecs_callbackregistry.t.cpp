@@ -44,7 +44,7 @@ using namespace bdef_PlaceHolders;
 //-----------------------------------------------------------------------------
 // 'bcecs_callbackregistry' public interface
 // CREATORS
-// [ 2] bcecs_CallbackRegistry(bslma_Allocator *basicAllocator = 0);
+// [ 2] bcecs_CallbackRegistry(bslma::Allocator *basicAllocator = 0);
 // [ 2] ~bcecs_CallbackRegistry();
 //
 // MANIPULATORS
@@ -616,7 +616,7 @@ int main(int argc, char *argv[]) {
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma_TestAllocator' object where applicable.
+        //   objects with a 'bslma::TestAllocator' object where applicable.
         //   Additionally, replace all calls to 'assert' in the usage example
         //   with calls to 'ASSERT'.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
@@ -1563,7 +1563,7 @@ int main(int argc, char *argv[]) {
         //   from every notify thread at least once.
         //
         // Testing:
-        //   bcecs_CallbackRegistry(bslma_Allocator *basicAllocator = 0);
+        //   bcecs_CallbackRegistry(bslma::Allocator *basicAllocator = 0);
         //   ~bcecs_CallbackRegistry();
         //   int registerCallback(const CATEGORY&    category,
         //                        const CALLBACK_ID& id,

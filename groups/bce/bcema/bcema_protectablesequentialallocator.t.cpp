@@ -110,7 +110,7 @@ static void aSsErT(int c, const char *s, int i) {
         try {
 
 #define END_BDEMA_EXCEPTION_TEST                                          \
-        } catch (bslma_TestAllocatorException& e) {                       \
+        } catch (bslma::TestAllocatorException& e) {                      \
             if (veryVerbose && bdemaExceptionLimit || veryVeryVerbose) {  \
                 --bdemaExceptionLimit;                                    \
                 cout << "(*** " << bdemaExceptionCounter << ')';          \
@@ -257,7 +257,7 @@ extern "C" void *workerThread(void *arg) {
     const int *allocSizes = args->d_sizes;
     const int  numAllocs  = args->d_numSizes;
 
-    bsl::vector<char *> blocks(bslma_Default::allocator(0));
+    bsl::vector<char *> blocks(bslma::Default::allocator(0));
     blocks.resize(numAllocs);
 
     g_barrier.wait();
@@ -422,15 +422,14 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-    int ACTUAL_PG_SIZE =
-        bdema_NativeProtectableBlockDispenser::pageSize();
+    int ACTUAL_PG_SIZE = bdema_NativeProtectableBlockDispenser::pageSize();
     int PG_SIZE        = TestDisp::BDEMA_DEFAULT_PAGE_SIZE;
     int HEADER_SIZE    = bdema_ProtectableBlockList::blockHeaderSize();
 
     bdema_TestProtectableBlockDispenser testDispenser(PG_SIZE,
                                                       veryVeryVerbose);
-    bcema_TestAllocator         talloc;
-    bslma_DefaultAllocatorGuard guard(&talloc);
+    bcema_TestAllocator          talloc;
+    bslma::DefaultAllocatorGuard guard(&talloc);
     switch (test) { case 0:
       case 15: {
         // --------------------------------------------------------------------
@@ -594,7 +593,7 @@ int main(int argc, char *argv[])
         //      void *allocate(int x);
         //      bcema_ProtectableSequentialAllocator(
         //                         size_type,
-        //                         bsls_Alignment::Strategy,
+        //                         bsls::Alignment::Strategy,
         //                         bdema_ProtectableBlockDispenser *);
         // -------------------------------------------------------------------
         if (verbose) {
@@ -628,7 +627,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {P(LIMIT);}
-            Obj a(bsls_Alignment::BSLS_NATURAL, LIMIT, &testDispenser);
+            Obj a(bsls::Alignment::BSLS_NATURAL, LIMIT, &testDispenser);
 
             const int EXPECTED = (((LIMIT + PG_SIZE - 1)/ PG_SIZE) * PG_SIZE);
             for (int i = 0; i < MAX_ALLOCS; ++i) {
@@ -664,7 +663,7 @@ int main(int argc, char *argv[])
         //      void *allocate(int x);
         //      bcema_ProtectableSequentialAllocator(
         //                         size_type,
-        //                         bsls_Alignment::Strategy,
+        //                         bsls::Alignment::Strategy,
         //                         bdema_ProtectableBlockDispenser *);
         // -------------------------------------------------------------------
         if (verbose) {
@@ -694,7 +693,7 @@ int main(int argc, char *argv[])
             const int LIMIT = (0 == LIMITS[i]) ? INT_MAX : LIMITS[i];
 
             if (veryVerbose) { P(LIMIT_PARAM); }
-            Obj a(bsls_Alignment::BSLS_NATURAL, -LIMIT_PARAM, &testDispenser);
+            Obj a(bsls::Alignment::BSLS_NATURAL, -LIMIT_PARAM, &testDispenser);
 
             int size      = 0;
             int nextAlloc = PG_SIZE;
@@ -731,7 +730,7 @@ int main(int argc, char *argv[])
                 continue;
             }
             if (veryVerbose) {P(LIMIT);}
-            Obj a(bsls_Alignment::BSLS_NATURAL, -LIMIT, &testDispenser);
+            Obj a(bsls::Alignment::BSLS_NATURAL, -LIMIT, &testDispenser);
 
             // Expected allocation is the the allocated amount + block header
             // size rounded to the nearest page size.
@@ -825,7 +824,7 @@ int main(int argc, char *argv[])
         }
 
         const int BHS = HEADER_SIZE;
-        const int ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        const int ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
         struct {
             int d_firstAlloc;
             int d_secondAlloc;
@@ -922,7 +921,7 @@ int main(int argc, char *argv[])
 
             // We need to determine if we expanded in such a way that a new
             // allocation will actually return more memory
-            const int ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+            const int ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
             bool expand = (expectedLastByte + ALIGN + PG_SIZE - 1) / PG_SIZE >
                            (expectedLastByte + PG_SIZE - 1) / PG_SIZE;
 
@@ -933,7 +932,7 @@ int main(int argc, char *argv[])
                 newActualAlloc =  (expand) ? DATA[i].d_actualAlloc * 2 :
                                              DATA[i].d_actualAlloc;
             }
-            a.allocate(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+            a.allocate(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
             LOOP_ASSERT(i, newActualAlloc == testDispenser.numBytesInUse());
         }
 
@@ -1181,7 +1180,7 @@ int main(int argc, char *argv[])
 
         }
         {
-            const int ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+            const int ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
             struct {
                     int d_firstAlloc;
                     int d_secondAlloc;

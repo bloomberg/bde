@@ -38,6 +38,10 @@ BDES_IDENT("$Id: $")
 #include <bces_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifdef BCES_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.

@@ -128,7 +128,7 @@ class TestResourcePool : public bcecs_ResourcePool<int> {
                                                     // pointers
     bdef_Function<void (*)()> d_resCb;              // resource ready cb
     mutable bcemt_Mutex       d_lock;               // lock
-    bslma_Allocator          *d_allocator_p;        // (held)
+    bslma::Allocator         *d_allocator_p;        // (held)
 
   private:
     // not implemented
@@ -141,7 +141,7 @@ class TestResourcePool : public bcecs_ResourcePool<int> {
 
   public:
     // CREATORS
-    explicit TestResourcePool(bslma_Allocator *basicAllocator = 0);
+    explicit TestResourcePool(bslma::Allocator *basicAllocator = 0);
         // Create a new 'TestResourcePool'.
 
     virtual ~TestResourcePool();
@@ -205,11 +205,11 @@ void TestResourcePool::reInsertInt(int *ret, TestResourcePool *pool)
 }
 
 // CREATORS
-TestResourcePool::TestResourcePool(bslma_Allocator* basicAllocator)
+TestResourcePool::TestResourcePool(bslma::Allocator * basicAllocator)
 : d_valid(true)
 , d_allocated(0)
 , d_maxResources(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

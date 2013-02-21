@@ -25,10 +25,10 @@ namespace BloombergLP {
 // MANIPULATORS
 bcema_SharedPtr<char>
 bcema_SharedPtrUtil::createInplaceUninitializedBuffer(
-                                               bsl::size_t      bufferSize,
-                                               bslma_Allocator *basicAllocator)
+                                              bsl::size_t       bufferSize,
+                                              bslma::Allocator *basicAllocator)
 {
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
                                                        // allocator is optional
 
     // We have alignment concerns here: there are no alignment issues with
@@ -39,10 +39,10 @@ bcema_SharedPtrUtil::createInplaceUninitializedBuffer(
     // in the simplest way by always maximally aligning the returned pointer.
 
     typedef
-        bcema_SharedPtrInplaceRep<bsls_AlignmentUtil::MaxAlignedType> Rep;
+        bcema_SharedPtrInplaceRep<bsls::AlignmentUtil::MaxAlignedType> Rep;
 
     enum{
-        ALIGNMENT_MASK = ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+        ALIGNMENT_MASK = ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
     };
 
     bsl::size_t repSize = (sizeof(Rep) + bufferSize - 1) & ALIGNMENT_MASK;

@@ -54,7 +54,7 @@ BDES_IDENT("$Id: $")
 //..
 // To create a shared pointer (using the same object pool):
 //..
-//  bslma_Allocator *allocator = bslma_Default::allocator();
+//  bslma::Allocator *allocator = bslma::Default::allocator();
 //  bcema_SharedPtr<bsl::string> sharedPtr(pool.getObject(), &pool, allocator);
 //..
 // Note that an allocator is a *required* argument to the 'bcema_SharedPtr'
@@ -68,7 +68,7 @@ BDES_IDENT("$Id: $")
 // addition to the underlying object 'TYPE'.  Objects of these types may be
 // provided at construction.  The namespace 'bcec_ObjectPoolFunctors' provides
 // several commonly used implementations.  The creator will be invoked as:
-// 'void(*)(void*, bslma_Allocator*)'.  The resetter will be invoked as:
+// 'void(*)(void*, bslma::Allocator*)'.  The resetter will be invoked as:
 // 'void(*)(TYPE*);.  The creator functor is called to construct a new object
 // of the parameterized 'TYPE' when the pool must be expanded (and thus it
 // typically invokes placement 'new' and passes its allocator argument to
@@ -90,7 +90,7 @@ BDES_IDENT("$Id: $")
 // functor to call that method.  The 'CREATOR' functor defaults to an object
 // that invokes the default constructor with placement new, passing the
 // allocator argument if the type traits of the object indicate it uses an
-// allocator (see 'bdealg_typetraits').  If a custom creator functor or a
+// allocator (see 'bslalg_typetraits').  If a custom creator functor or a
 // custom 'CREATOR' type is specified, it is the user's responsibility to
 // ensure that it correctly passes its allocator argument to the constructor
 // of 'TYPE' if 'TYPE' takes an allocator.
@@ -138,15 +138,15 @@ BDES_IDENT("$Id: $")
 //    class my_DatabaseConnection
 //        // This class simulates a database connection.
 //    {
-//      bslma_Allocator *d_allocator_p; // held
-//      int              d_connectionId;
+//      bslma::Allocator *d_allocator_p; // held
+//      int               d_connectionId;
 //      public:
 //        BSLALG_DECLARE_NESTED_TRAITS(my_DatabaseConnection,
-//                                     bslalg_TypeTraitUsesBslmaAllocator);
+//                                     bslalg::TypeTraitUsesBslmaAllocator);
 //
-//        my_DatabaseConnection(int connectionId = 0,
-//                              bslma_Allocator *basicAllocator = 0)
-//          : d_allocator_p(bslma_Default::allocator(basicAllocator))
+//        my_DatabaseConnection(int               connectionId   = 0,
+//                              bslma::Allocator *basicAllocator = 0)
+//          : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //          , d_connectionId(connectionId)
 //        {
 //            bcemt_ThreadUtil::microSleep(CONNECTION_OPEN_TIME);
@@ -203,10 +203,10 @@ BDES_IDENT("$Id: $")
 //     void queryHandler1(Query *query)
 //         // Handle the specified 'query' without using an objectpool.
 //     {
-//         bsls_PlatformUtil::Int64 t1 = bdes_TimeUtil::getTimer();
+//         bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
 //         my_DatabaseConnection connection;
 //         connection.executeQuery(query);
-//         bsls_PlatformUtil::Int64 t2 = bdes_TimeUtil::getTimer();
+//         bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
 //
 //         totalResponseTime1 += t2 - t1;
 //
@@ -226,15 +226,15 @@ BDES_IDENT("$Id: $")
 // this functor to create an object in a memory location supplied by the
 // allocator specified at construction and owned by the pool.
 // By default, the creator invokes the default constructor of the underlying
-// type, passing the pool's allocator if the type uses the bslma_Allocator
-// protocol to supply memory (as specified by the "Uses Bdema Allocator"
-// trait, see bdealg_typetraits).  If this behavior is not sufficient, we
+// type, passing the pool's allocator if the type uses the bslma::Allocator
+// protocol to supply memory (as specified by the "Uses Bslma Allocator"
+// trait, see 'bslalg_typetraits').  If this behavior is not sufficient, we
 // can supply our own functor for type creation.
 //
 ///Creating an object pool that constructs default objects
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // When the default constructor of our type is sufficient, whether or not
-// that type uses bslma_Allocator, we can simply use the default behavior
+// that type uses 'bslma::Allocator', we can simply use the default behavior
 // of 'bcec_ObjectPool':
 //..
 //    bcec_ObjectPool<my_DatabaseConnection> pool;
@@ -246,9 +246,9 @@ BDES_IDENT("$Id: $")
 // placement new appropriately.  When using a custom creator functor, it is
 // the responsibility of client code to pass the pool's allocator (supplied as
 // the second argument to the functor) to the new object if it uses
-// bslma_Allocator.
+// bslma::Allocator.
 //..
-//    void createConnection(void *arena, bslma_Allocator *alloc, int id)
+//    void createConnection(void *arena, bslma::Allocator *alloc, int id)
 //    {
 //       new (arena) my_DatabaseConnection(id, alloc);
 //    }
@@ -285,10 +285,10 @@ BDES_IDENT("$Id: $")
 //    void queryHandler2(Query *query)
 //        // Process the specified 'query'.
 //    {
-//        bsls_PlatformUtil::Int64 t1 = bdes_TimeUtil::getTimer();
+//        bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
 //        my_DatabaseConnection *connection = connectionPool->getObject();
 //        connection->executeQuery(query);
-//        bsls_PlatformUtil::Int64 t2 = bdes_TimeUtil::getTimer();
+//        bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
 //
 //        totalResponseTime2 += t2 - t1;
 //
@@ -383,7 +383,7 @@ struct bcec_ObjectPoolFunctors {
     // 'bcec_ObjectPool'.
 
     // PUBLIC TYPES
-    typedef bdef_Function<void(*)(void*, bslma_Allocator*)> DefaultCreator;
+    typedef bdef_Function<void(*)(void*, bslma::Allocator*)> DefaultCreator;
         // The default 'CREATOR' parameter type for the 'bcec_ObjectPool' class
         // template.
 
@@ -507,7 +507,7 @@ class bcec_ObjectPool_CreatorProxy {
     // the parameterized 'OTHERTYPE' is ignored.
 
     // DATA
-    bsls_ObjectBuffer<TYPE> d_object;
+    bsls::ObjectBuffer<TYPE> d_object;
 
     // NOT IMPLEMENTED
     bcec_ObjectPool_CreatorProxy& operator=(
@@ -517,18 +517,18 @@ class bcec_ObjectPool_CreatorProxy {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_ObjectPool_CreatorProxy,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    bcec_ObjectPool_CreatorProxy (bslma_Allocator *basicAllocator);
+    bcec_ObjectPool_CreatorProxy (bslma::Allocator *basicAllocator);
        // Create a new proxy and a new object of the parameterized 'TYPE'.
        // If 'TYPE' declares the "Uses Allocator" trait, 'basicAllocator' is
        // supplied to its default constructor; otherwise 'basicAllocator'
        // is ignored.
 
-    bcec_ObjectPool_CreatorProxy(const TYPE&      other,
-                                 bslma_Allocator *basicAllocator);
+    bcec_ObjectPool_CreatorProxy(const TYPE&       other,
+                                 bslma::Allocator *basicAllocator);
        // Create a new proxy and a new object constructed from the specified
        // 'other' object.  If 'TYPE' declares the "Uses Allocator" trait,
        // 'basicAllocator' is supplied to its copy constructor; otherwise
@@ -566,24 +566,24 @@ class bcec_ObjectPool_CreatorProxy<bcec_ObjectPoolFunctors::DefaultCreator,
 
   private:
     // PRIVATE CLASS METHODS
-    static void defaultConstruct(void *arena, bslma_Allocator *allocator);
-      // Invoke 'bslalg_ScalarPrimitives::defaultConstruct(arena, allocator).
+    static void defaultConstruct(void *arena, bslma::Allocator *allocator);
+      // Invoke 'bslalg::ScalarPrimitives::defaultConstruct(arena, allocator).
       // This method is necessary to select the correct overload for OTHERTYPE.
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_ObjectPool_CreatorProxy,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    bcec_ObjectPool_CreatorProxy(bslma_Allocator *basicAllocator);
+    bcec_ObjectPool_CreatorProxy(bslma::Allocator *basicAllocator);
        // Create a new proxy for a function object which invokes the default
        // constructor of OTHERTYPE.  Use 'basicAllocator' to supply memory.
 
     bcec_ObjectPool_CreatorProxy(
                const bcec_ObjectPoolFunctors::DefaultCreator&  rhs,
-               bslma_Allocator                                *basicAllocator);
+               bslma::Allocator                               *basicAllocator);
        // Create a proxy for a newly created function object constructed from
        // the specified 'rhs' creator.  Use a 'basicAllocator' to supply
        // memory.
@@ -626,7 +626,7 @@ class bcec_ObjectPool : public bcema_Factory<TYPE> {
             ObjectNode           *d_next_p;
             bces_AtomicUtil::Int  d_refCount;
         } d_inUse;
-        typename bsls_AlignmentFromType<TYPE>::Type d_dummy;
+        typename bsls::AlignmentFromType<TYPE>::Type d_dummy;
                                      // padding provider for proper alignment
                                      // of 'TYPE' objects
     };
@@ -640,7 +640,7 @@ class bcec_ObjectPool : public bcema_Factory<TYPE> {
             BlockNode *d_next_p;
             int        d_numObjects; // number of objects in this block
         } d_inUse;
-        typename bsls_AlignmentFromType<ObjectNode>::Type d_dummy;
+        typename bsls::AlignmentFromType<ObjectNode>::Type d_dummy;
                                      // padding provider for proper alignment
                                      // of 'ObjectNode'
     };
@@ -746,7 +746,7 @@ class bcec_ObjectPool : public bcema_Factory<TYPE> {
                            d_objectCreator;        // functor for object
                                                    // creation
 
-    bslalg_ConstructorProxy<RESETTER>
+    bslalg::ConstructorProxy<RESETTER>
                            d_objectResetter;       // functor to reset object
 
     int                    d_numReplenishObjects;  // pool growth behavior
@@ -763,13 +763,13 @@ class bcec_ObjectPool : public bcema_Factory<TYPE> {
     bdema_InfrequentDeleteBlockList
                            d_blockAllocator;       // memory block supplier
 
-    bslma_Allocator       *d_allocator_p;          // held, not owned
+    bslma::Allocator      *d_allocator_p;          // held, not owned
 
     bcemt_Mutex            d_mutex;                // pool replenishment
                                                    // serializer
 
     // NOT IMPLEMENTED
-    bcec_ObjectPool(const MyType&, bslma_Allocator * = 0);
+    bcec_ObjectPool(const MyType&, bslma::Allocator * = 0);
     bcec_ObjectPool& operator=(const MyType&);
 
     // FRIENDS
@@ -792,12 +792,12 @@ class bcec_ObjectPool : public bcema_Factory<TYPE> {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_ObjectPool,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    bcec_ObjectPool(int              growBy = -1,
-                    bslma_Allocator *basicAllocator = 0);
+    bcec_ObjectPool(int               growBy = -1,
+                    bslma::Allocator *basicAllocator = 0);
         // Create an object pool that invokes the default constructor of the
         // the parameterized 'TYPE' to construct objects.  When the pool is
         // depleted, it will increase its capacity according to the optionally
@@ -813,12 +813,12 @@ class bcec_ObjectPool : public bcema_Factory<TYPE> {
         // behavior is undefined unless '0 != growBy'.
 
     explicit
-    bcec_ObjectPool(const CREATOR&   objectCreator,
-                    int              growBy,
-                    bslma_Allocator *basicAllocator = 0);
+    bcec_ObjectPool(const CREATOR&    objectCreator,
+                    int               growBy,
+                    bslma::Allocator *basicAllocator = 0);
     explicit
-    bcec_ObjectPool(const CREATOR&   objectCreator,
-                    bslma_Allocator *basicAllocator = 0);
+    bcec_ObjectPool(const CREATOR&    objectCreator,
+                    bslma::Allocator *basicAllocator = 0);
         // Create an object pool that uses the specified 'objectCreator'
         // (encapsulating the construction of objects) to create objects.
         // The client must ensure that 'objectCreator(buf, alloc)' creates an
@@ -835,10 +835,10 @@ class bcec_ObjectPool : public bcema_Factory<TYPE> {
         // 0, the currently installed default allocator is used.  The
         // behavior is undefined unless '0 != growBy'.
 
-    bcec_ObjectPool(const CREATOR&   objectCreator,
-                    const RESETTER&  objectResetter,
-                    int              growBy = -1,
-                    bslma_Allocator *basicAllocator = 0);
+    bcec_ObjectPool(const CREATOR&    objectCreator,
+                    const RESETTER&   objectResetter,
+                    int               growBy = -1,
+                    bslma::Allocator *basicAllocator = 0);
         // Create an object pool that uses the specified 'objectCreator'
         // (encapsulating the construction of objects) to create objects.
         // The client must ensure that 'objectCreator(buf, alloc)' creates an
@@ -859,11 +859,11 @@ class bcec_ObjectPool : public bcema_Factory<TYPE> {
     explicit
     bcec_ObjectPool(const bdef_Function<ANYPROTO>&   objectCreator,
                     int                              growBy,
-                    bslma_Allocator                 *basicAllocator = 0);
+                    bslma::Allocator                *basicAllocator = 0);
     template <class ANYPROTO>
     explicit
     bcec_ObjectPool(const bdef_Function<ANYPROTO>&   objectCreator,
-                    bslma_Allocator                 *basicAllocator = 0);
+                    bslma::Allocator                *basicAllocator = 0);
         // *DEPRECATED*  Use a creator of the parameterized 'CREATOR' type.
 
     virtual ~bcec_ObjectPool();
@@ -1009,31 +1009,31 @@ void bcec_ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
 // CREATORS
 template <class TYPE, class CREATOR, class RESETTER>
 bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
-        int              growBy,
-        bslma_Allocator *basicAllocator)
+        int               growBy,
+        bslma::Allocator *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_numReplenishObjects(growBy)
 , d_blockList(0)
 , d_blockAllocator(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 != d_numReplenishObjects);
 }
 
 template <class TYPE, class CREATOR, class RESETTER>
 bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
-        const CREATOR&   objectCreator,
-        int              growBy,
-        bslma_Allocator *basicAllocator)
+        const CREATOR&    objectCreator,
+        int               growBy,
+        bslma::Allocator *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_numReplenishObjects(growBy)
 , d_blockList(0)
 , d_blockAllocator(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 != d_numReplenishObjects);
 }
@@ -1041,15 +1041,15 @@ bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
-        const CREATOR&   objectCreator,
-        bslma_Allocator *basicAllocator)
+        const CREATOR&    objectCreator,
+        bslma::Allocator *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_numReplenishObjects(-1)
 , d_blockList(0)
 , d_blockAllocator(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 != d_numReplenishObjects);
 }
@@ -1057,8 +1057,8 @@ bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 template <class ANYPROTO>
 bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
-        const bdef_Function<ANYPROTO>& objectCreator,
-        bslma_Allocator               *basicAllocator)
+        const bdef_Function<ANYPROTO>&  objectCreator,
+        bslma::Allocator               *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(bcec_ObjectPool_CreatorConverter<CREATOR,
                                                    bdef_Function<ANYPROTO> >(
@@ -1068,7 +1068,7 @@ bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
 , d_numReplenishObjects(-1)
 , d_blockList(0)
 , d_blockAllocator(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 != d_numReplenishObjects);
 }
@@ -1076,9 +1076,9 @@ bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 template <class ANYPROTO>
 bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
-        const bdef_Function<ANYPROTO>& objectCreator,
-        int                            growBy,
-        bslma_Allocator               *basicAllocator)
+        const bdef_Function<ANYPROTO>&  objectCreator,
+        int                             growBy,
+        bslma::Allocator               *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(bcec_ObjectPool_CreatorConverter<CREATOR,
                                                    bdef_Function<ANYPROTO> >(
@@ -1088,24 +1088,24 @@ bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
 , d_numReplenishObjects(growBy)
 , d_blockList(0)
 , d_blockAllocator(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 != d_numReplenishObjects);
 }
 
 template <class TYPE, class CREATOR, class RESETTER>
 bcec_ObjectPool<TYPE, CREATOR, RESETTER>::bcec_ObjectPool(
-        const CREATOR&   objectCreator,
-        const RESETTER&  objectResetter,
-        int              growBy,
-        bslma_Allocator *basicAllocator)
+        const CREATOR&    objectCreator,
+        const RESETTER&   objectResetter,
+        int               growBy,
+        bslma::Allocator *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(objectResetter, basicAllocator)
 , d_numReplenishObjects(growBy)
 , d_blockList(0)
 , d_blockAllocator(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 != d_numReplenishObjects);
 }
@@ -1352,30 +1352,30 @@ template <class OTHERTYPE>
 inline
 void bcec_ObjectPool_CreatorProxy<bcec_ObjectPoolFunctors::DefaultCreator,
                                   OTHERTYPE>::defaultConstruct(
-                                                  void            *arena,
-                                                  bslma_Allocator *allocator)
+                                                  void             *arena,
+                                                  bslma::Allocator *allocator)
 {
-    bslalg_ScalarPrimitives::defaultConstruct((OTHERTYPE*)arena, allocator);
+    bslalg::ScalarPrimitives::defaultConstruct((OTHERTYPE*)arena, allocator);
 }
 
 // CREATORS
 template <class TYPE, class OTHERTYPE>
 inline
 bcec_ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
-            bcec_ObjectPool_CreatorProxy(bslma_Allocator *basicAllocator)
+            bcec_ObjectPool_CreatorProxy(bslma::Allocator *basicAllocator)
 {
-    bslalg_ScalarPrimitives::defaultConstruct(&d_object.object(),
-                                              basicAllocator);
+    bslalg::ScalarPrimitives::defaultConstruct(&d_object.object(),
+                                               basicAllocator);
 }
 
 template <class TYPE, class OTHERTYPE>
 inline
 bcec_ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
-            bcec_ObjectPool_CreatorProxy(const TYPE& rhs,
-                                               bslma_Allocator *basicAllocator)
+            bcec_ObjectPool_CreatorProxy(const TYPE&       rhs,
+                                         bslma::Allocator *basicAllocator)
 {
-    bslalg_ScalarPrimitives::copyConstruct(&d_object.object(), rhs,
-                                           basicAllocator);
+    bslalg::ScalarPrimitives::copyConstruct(&d_object.object(), rhs,
+                                            basicAllocator);
 }
 
 template <class TYPE, class OTHERTYPE>
@@ -1383,14 +1383,14 @@ inline
 bcec_ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
                                          ~bcec_ObjectPool_CreatorProxy()
 {
-    bslalg_ScalarDestructionPrimitives::destroy(&d_object.object());
+    bslalg::ScalarDestructionPrimitives::destroy(&d_object.object());
 }
 
 template <class OTHERTYPE>
 inline
 bcec_ObjectPool_CreatorProxy<bcec_ObjectPoolFunctors::DefaultCreator,
                              OTHERTYPE>::bcec_ObjectPool_CreatorProxy(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_object(&MyType::defaultConstruct, basicAllocator)
 {
 }
@@ -1400,7 +1400,7 @@ inline
 bcec_ObjectPool_CreatorProxy<bcec_ObjectPoolFunctors::DefaultCreator,
                              OTHERTYPE>::bcec_ObjectPool_CreatorProxy(
                            const bcec_ObjectPoolFunctors::DefaultCreator& rhs,
-                           bslma_Allocator *basicAllocator)
+                           bslma::Allocator *basicAllocator)
 : d_object(rhs, basicAllocator)
 {
 }

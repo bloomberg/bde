@@ -46,8 +46,8 @@ BDES_IDENT("$Id: $")
 // The 'bcec_SkipList' ordered associative container is parameterized on two
 // types, 'KEY' and 'DATA'.  Each type must have a public copy constructor,
 // and it is important to declare the "Uses Bdema Allocator" trait if the
-// type accepts a 'bslma_Allocator' in its constructor (see
-// 'bdealg_typetraits').  In addition, operators '=', '<', and '==' must be
+// type accepts a 'bslma::Allocator' in its constructor (see
+// 'bslalg_typetraits').  In addition, operators '=', '<', and '==' must be
 // defined for the type 'KEY'; for correct behavior, operator '<' must define
 // a Strict Weak Ordering on 'KEY' values.
 //
@@ -208,7 +208,7 @@ BDES_IDENT("$Id: $")
 //
 //  public:
 //    // CREATORS
-//    SimpleScheduler(bslma_Allocator *basicAllocator = 0)
+//    SimpleScheduler(bslma::Allocator *basicAllocator = 0)
 //    : d_list(basicAllocator)
 //    , d_doneFlag(false)
 //    {
@@ -341,6 +341,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -359,10 +363,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -508,9 +508,9 @@ struct bcec_SkipList_PoolUtil {
        // 'poolManager'.  The behavior is undefined if 'address' was not
        // allocated from 'poolManager'.
 
-    static PoolManager *createPoolManager(int             *objectSizes,
-                                          int              numLevels,
-                                          bslma_Allocator *basicAllocator);
+    static PoolManager *createPoolManager(int              *objectSizes,
+                                          int               numLevels,
+                                          bslma::Allocator *basicAllocator);
        // Create a new pooled node allocator which manages nodes up to
        // the specified 'numLevels' as described by the specified
        // 'objectSizes'.  For i in [0, numLevels), a node at level i will
@@ -519,8 +519,8 @@ struct bcec_SkipList_PoolUtil {
        // new allocator.  Note that the behavior is undefined if
        // 'basicAllocator' is 0.
 
-    static void deletePoolManager(bslma_Allocator *basicAllocator,
-                                  PoolManager     *poolManager);
+    static void deletePoolManager(bslma::Allocator *basicAllocator,
+                                  PoolManager      *poolManager);
        // Destroy the specified 'poolManager' which was allocated from the
        // specified 'basicAllocator'.  The behavior is undefined if
        // 'poolManager' was not allocated from 'basicAllocator'.
@@ -542,16 +542,16 @@ class bcec_SkipList_NodeCreationHelper {
     typedef bcec_SkipList_Node<KEY, DATA> Node;
 
     // DATA
-    Node            *d_node_p;        // the node, or 0 if no managed node
-    PoolManager     *d_poolManager_p; // the pool from which node was allocated
-    bool             d_keyFlag;       // 'true' if the key was constructed
-    bslma_Allocator *d_allocator_p;   // held
+    Node             *d_node_p;        // the node, or 0 if no managed node
+    PoolManager      *d_poolManager_p; // pool from which node was allocated
+    bool              d_keyFlag;       // 'true' if the key was constructed
+    bslma::Allocator *d_allocator_p;   // held
 
   public:
     // CREATORS
-    bcec_SkipList_NodeCreationHelper(PoolManager     *poolManager,
-                                     Node            *node,
-                                     bslma_Allocator *basicAllocator = 0);
+    bcec_SkipList_NodeCreationHelper(PoolManager      *poolManager,
+                                     Node             *node,
+                                     bslma::Allocator *basicAllocator = 0);
       // Create a new scoped guard object to assist in exception-safe
       // initialization of the specified 'node', which was allocated from the
       // specified 'poolManager'.  Use the specified 'basicAllocator' to
@@ -755,7 +755,7 @@ class bcec_SkipList {
 
     PoolManager                               *d_poolManager_p; // owned
 
-    bslma_Allocator                           *d_allocator_p; // held
+    bslma::Allocator                          *d_allocator_p; // held
 
     // PRIVATE MANIPULATORS
     void addNode(bool *newFrontFlag, Node *newNode);
@@ -951,7 +951,7 @@ class bcec_SkipList {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_SkipList,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
     static int level(const Pair *reference);
@@ -959,13 +959,13 @@ class bcec_SkipList {
       // This method is provided for testing.
 
     // CREATORS
-    explicit bcec_SkipList(bslma_Allocator *basicAllocator = 0);
+    explicit bcec_SkipList(bslma::Allocator *basicAllocator = 0);
       // Create a new Skip List.  Optionally specify a 'basicAllocator' used to
       // supply memory.  If 'basicAllocator' is 0, the currently installed
       // default allocator is used.
 
     bcec_SkipList(const bcec_SkipList&  original,
-                  bslma_Allocator      *basicAllocator = 0);
+                  bslma::Allocator     *basicAllocator = 0);
       // Create a new Skip List initialized to the value of the specified
       // 'original' list.  Optionally specify a 'basicAllocator' used to
       // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -1585,13 +1585,13 @@ int bcec_SkipList_Node<KEY, DATA>::decrementRefCount()
 template<class KEY, class DATA>
 inline
 bcec_SkipList_NodeCreationHelper<KEY, DATA>::bcec_SkipList_NodeCreationHelper(
-                                               PoolManager     *poolManager,
-                                               Node            *node,
-                                               bslma_Allocator *basicAllocator)
+                                              PoolManager      *poolManager,
+                                              Node             *node,
+                                              bslma::Allocator *basicAllocator)
 : d_node_p(node)
 , d_poolManager_p(poolManager)
 , d_keyFlag(false)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -1615,14 +1615,14 @@ void bcec_SkipList_NodeCreationHelper<KEY, DATA>::construct(const KEY&  key,
 {
     BSLS_ASSERT_SAFE(d_node_p);
 
-    bslalg_ScalarPrimitives::copyConstruct(&d_node_p->d_key,
-                                           key,
-                                           d_allocator_p);
+    bslalg::ScalarPrimitives::copyConstruct(&d_node_p->d_key,
+                                            key,
+                                            d_allocator_p);
     d_keyFlag = true;
 
-    bslalg_ScalarPrimitives::copyConstruct(&d_node_p->d_data,
-                                           data,
-                                           d_allocator_p);
+    bslalg::ScalarPrimitives::copyConstruct(&d_node_p->d_data,
+                                            data,
+                                            d_allocator_p);
 
     d_node_p = 0;
 }
@@ -1749,8 +1749,8 @@ void bcec_SkipList<KEY, DATA>::initialize()
     for (int i = 0; i < BCEC_MAX_NUM_LEVELS; ++i) {
         int nodeSize = static_cast<int>(
                            offsetofPtrs + (i + 1)*sizeof(typename Node::Ptrs));
-        nodeSize = (nodeSize + bsls_AlignmentFromType<Node>::VALUE - 1) &
-                                    ~(bsls_AlignmentFromType<Node>::VALUE - 1);
+        nodeSize = (nodeSize + bsls::AlignmentFromType<Node>::VALUE - 1) &
+                                   ~(bsls::AlignmentFromType<Node>::VALUE - 1);
         nodeSizes[i] = nodeSize;
     }
 
@@ -2228,22 +2228,22 @@ int bcec_SkipList<KEY, DATA>::level(const Pair *reference)
 
 // CREATORS
 template<class KEY, class DATA>
-bcec_SkipList<KEY, DATA>::bcec_SkipList(bslma_Allocator *basicAllocator)
+bcec_SkipList<KEY, DATA>::bcec_SkipList(bslma::Allocator *basicAllocator)
 : d_listLevel(0)
 , d_length(0)
 , d_poolManager_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     initialize();
 }
 
 template<class KEY, class DATA>
 bcec_SkipList<KEY, DATA>::bcec_SkipList(const bcec_SkipList&  original,
-                                        bslma_Allocator      *basicAllocator)
+                                        bslma::Allocator     *basicAllocator)
 : d_listLevel(0)
 , d_length(0)
 , d_poolManager_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     initialize();
     *this = original;

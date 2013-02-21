@@ -226,7 +226,7 @@ void bcema_Blob::slowSetLength(int length)
 }
 
 // CREATORS
-bcema_Blob::bcema_Blob(bslma_Allocator *basicAllocator)
+bcema_Blob::bcema_Blob(bslma::Allocator *basicAllocator)
 : d_buffers(basicAllocator)
 , d_totalSize(0)
 , d_dataLength(0)
@@ -238,7 +238,7 @@ bcema_Blob::bcema_Blob(bslma_Allocator *basicAllocator)
 }
 
 bcema_Blob::bcema_Blob(bcema_BlobBufferFactory *factory,
-                       bslma_Allocator         *basicAllocator)
+                       bslma::Allocator        *basicAllocator)
 : d_buffers(basicAllocator)
 , d_totalSize(0)
 , d_dataLength(0)
@@ -252,7 +252,7 @@ bcema_Blob::bcema_Blob(bcema_BlobBufferFactory *factory,
 bcema_Blob::bcema_Blob(const bcema_BlobBuffer  *buffers,
                        int                      numBuffers,
                        bcema_BlobBufferFactory *factory,
-                       bslma_Allocator         *basicAllocator)
+                       bslma::Allocator        *basicAllocator)
 : d_buffers(buffers, buffers + numBuffers, basicAllocator)
 , d_totalSize(0)
 , d_dataLength(0)
@@ -270,7 +270,7 @@ bcema_Blob::bcema_Blob(const bcema_BlobBuffer  *buffers,
 
 bcema_Blob::bcema_Blob(const bcema_Blob&        original,
                        bcema_BlobBufferFactory *factory,
-                       bslma_Allocator         *basicAllocator)
+                       bslma::Allocator        *basicAllocator)
 : d_buffers(original.d_buffers, basicAllocator)
 , d_totalSize(original.d_totalSize)
 , d_dataLength(original.d_dataLength)
@@ -282,7 +282,7 @@ bcema_Blob::bcema_Blob(const bcema_Blob&        original,
 }
 
 bcema_Blob::bcema_Blob(const bcema_Blob&  original,
-                       bslma_Allocator   *basicAllocator)
+                       bslma::Allocator  *basicAllocator)
 : d_buffers(original.d_buffers, basicAllocator)
 , d_totalSize(original.d_totalSize)
 , d_dataLength(original.d_dataLength)
@@ -329,7 +329,7 @@ void bcema_Blob::appendDataBuffer(const bcema_BlobBuffer& buffer)
     if (d_totalSize == d_dataLength) {
         // Fast path.  At the start, we had 0 or more buffers in the blob and
         // they were all full.
-    
+
         BSLS_ASSERT_SAFE(d_dataIndex == (int) d_buffers.size() - 1 ||
                                   (0 == d_dataIndex && 0 == d_buffers.size()));
 

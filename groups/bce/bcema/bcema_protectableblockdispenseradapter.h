@@ -116,7 +116,7 @@ BDES_IDENT("$Id: $")
 //      int objectSize() const;
 //          // Return the fixed allocation size of this pool.  This value is
 //          // equal to the 'objectSize' supplied at construction rounded up
-//          // to the next multiple of 'bsls_Alignment::MAX_ALIGNMENT' (in
+//          // to the next multiple of 'bsls::Alignment::MAX_ALIGNMENT' (in
 //          // order to ensure aligned allocations).
 //  };
 //
@@ -159,7 +159,7 @@ BDES_IDENT("$Id: $")
 //                                 int                              objectSize,
 //                                 bdema_ProtectableBlockDispenser *dispenser)
 //
-//  : d_objectSize(roundUp(objectSize, bsls_Alignment::MAX_ALIGNMENT))
+//  : d_objectSize(roundUp(objectSize, bsls::Alignment::MAX_ALIGNMENT))
 //  , d_numPooledObjects(0)
 //  , d_freeList_p(0)
 //  , d_blockList(dispenser)
@@ -228,7 +228,7 @@ BDES_IDENT("$Id: $")
 //      // that manages memory of the smallest size that satisfies the
 //      // requested size.  The 'ThreadEnabledProtectableMultipool' is
 //      // optionally supplied both a 'bdema_ProtectableBlockDispenser' and a
-//      // 'bslma_Allocator' at construction.  The protectable block dispenser
+//      // 'bslma::Allocator' at construction.  The protectable block dispenser
 //      // provides protectable memory that is dispensed to clients of this
 //      // multipool on calls to the 'allocate' operation; the allocator is
 //      // used to provide (non-protectable) memory for internal use (the
@@ -239,8 +239,8 @@ BDES_IDENT("$Id: $")
 //      union Header {
 //          // Stores the pool number of this item.
 //
-//          int                            d_pool;   // pool index
-//          bsls_Alignment::MaxAlignedType d_dummy;  // force alignment
+//          int                             d_pool;   // pool index
+//          bsls::Alignment::MaxAlignedType d_dummy;  // force alignment
 //      };
 //
 //      // DATA
@@ -259,7 +259,7 @@ BDES_IDENT("$Id: $")
 //                                               // corresponding to
 //                                               // 'd_poolSizes'
 //
-//      bslma_Allocator          *d_allocator_p; // allocate 'd_pools_p' array
+//      bslma::Allocator         *d_allocator_p; // allocate 'd_pools_p' array
 //                                               // and 'd_poolSizes'
 //
 //      // NOT IMPLEMENTED
@@ -280,12 +280,12 @@ BDES_IDENT("$Id: $")
 //      ThreadEnabledProtectableMultipool(
 //                        int                              numMemoryPools,
 //                        int                             *poolSizes,
-//                        bslma_Allocator                 *basicAllocator = 0);
+//                        bslma::Allocator                *basicAllocator = 0);
 //      ThreadEnabledProtectableMultipool(
 //                        int                              numMemoryPools,
 //                        int                             *poolSizes,
 //                        bdema_ProtectableBlockDispenser *dispenser,
-//                        bslma_Allocator                 *basicAllocator = 0);
+//                        bslma::Allocator                *basicAllocator = 0);
 //          // Create a multipool having the specified 'numMemoryPools'
 //          // dispensing fixed size blocks of the specified 'poolSizes'.
 //          // Optionally specify a 'dispenser' used to supply protectable
@@ -297,7 +297,7 @@ BDES_IDENT("$Id: $")
 //          // default allocator is used.  The 'i'th pool, for 'i' in
 //          // '[ 0 .. numMemoryPools - 1 ]' manages blocks of size
 //          // 'poolSizes[i]' rounded up to the nearest multiple of
-//          // 'bsls_Alignment::MAX_ALIGNMENT'.  The behavior is undefined
+//          // 'bsls::Alignment::MAX_ALIGNMENT'.  The behavior is undefined
 //          // unless '1 <= numMemoryPools', and 'poolSizes' has
 //          // 'numMemoryPools' elements, none of which is 0.  Note that the
 //          // indicated 'basicAllocator' is used to supply memory for
@@ -354,11 +354,11 @@ BDES_IDENT("$Id: $")
 //      d_pools_p = (ThreadEnabledProtectablePool *)
 //                   d_allocator_p->allocate(d_numPools * sizeof(*d_pools_p));
 //
-//      bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+//      bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
 //                                                  d_pools_p, d_allocator_p);
 //
-//      int size = bsls_Alignment::MAX_ALIGNMENT;
-//      bslma_AutoDestructor<ThreadEnabledProtectablePool>
+//      int size = bsls::Alignment::MAX_ALIGNMENT;
+//      bslma::AutoDestructor<ThreadEnabledProtectablePool>
 //                                                     autoDtor(d_pools_p, 0);
 //      for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
 //          new (d_pools_p + i) ThreadEnabledProtectablePool(
@@ -373,12 +373,12 @@ BDES_IDENT("$Id: $")
 //  ThreadEnabledProtectableMultipool::ThreadEnabledProtectableMultipool(
 //                        int                              numMemoryPools,
 //                        int                             *poolSizes,
-//                        bslma_Allocator                 *basicAllocator)
+//                        bslma::Allocator                *basicAllocator)
 //  : d_dispenser(&d_mutex, 0)
 //  , d_pools_p(0)
 //  , d_poolSizes(basicAllocator)
 //  , d_numPools(numMemoryPools)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      init(poolSizes);
 //  }
@@ -387,12 +387,12 @@ BDES_IDENT("$Id: $")
 //                        int                              numMemoryPools,
 //                        int                             *poolSizes,
 //                        bdema_ProtectableBlockDispenser *dispenser,
-//                        bslma_Allocator                 *basicAllocator)
+//                        bslma::Allocator                *basicAllocator)
 //  : d_dispenser(&d_mutex, dispenser)
 //  , d_pools_p(0)
 //  , d_poolSizes(basicAllocator)
 //  , d_numPools(numMemoryPools)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      init(poolSizes);
 //  }

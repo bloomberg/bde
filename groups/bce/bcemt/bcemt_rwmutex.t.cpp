@@ -11,6 +11,8 @@
 #include <bdef_bind.h>
 #include <bdetu_systemtime.h>
 
+#include <bsls_types.h>
+
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -203,7 +205,7 @@ struct PingPongWriter
       }
       bdetu_SystemTime::loadSystemTimeDefault(&stop);
 
-      bsls_PlatformUtil::Int64 elapsed = (stop - start).totalMicroseconds();
+      bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
          MICROSECS_PER_SEC * SCORE_SCALE;
 
@@ -258,7 +260,7 @@ struct PingPongReader
       }
       bdetu_SystemTime::loadSystemTimeDefault(&stop);
 
-      bsls_PlatformUtil::Int64 elapsed = (stop - start).totalMicroseconds();
+      bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
          MICROSECS_PER_SEC * SCORE_SCALE;
 
@@ -302,7 +304,7 @@ struct ContentionWriter
       }
       bdetu_SystemTime::loadSystemTimeDefault(&stop);
 
-      bsls_PlatformUtil::Int64 elapsed = (stop - start).totalMicroseconds();
+      bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
          MICROSECS_PER_SEC * SCORE_SCALE;
 
@@ -350,7 +352,7 @@ struct ContentionReader
       }
       bdetu_SystemTime::loadSystemTimeDefault(&stop);
 
-      bsls_PlatformUtil::Int64 elapsed = (stop - start).totalMicroseconds();
+      bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
          MICROSECS_PER_SEC * SCORE_SCALE;
 
@@ -393,7 +395,7 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
          }
       }
 
-      bsls_PlatformUtil::Int64 elapsed = (stop - start).totalMicroseconds();
+      bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       score = ((double)numCycles / elapsed) * MICROSECS_PER_SEC * SCORE_SCALE;
 
       cout << "Lock \"" << lockName << "\": individual-overhead score="

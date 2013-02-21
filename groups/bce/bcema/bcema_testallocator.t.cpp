@@ -142,14 +142,14 @@ class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
     int d_size;       // physical size of the 'd_array_p' array (elements)
     int d_length;     // logical length of the 'd_array_p' array (elements)
-    bslma_Allocator *d_allocator_p; // holds (but does not own) allocator
+    bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
 
   private:
     void increaseSize(); // Increase the capacity by at least one element.
 
   public:
     // CREATORS
-    my_ShortArray(bslma_Allocator *basicAllocator = 0);
+    my_ShortArray(bslma::Allocator *basicAllocator = 0);
         // Create an empty array.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, global
         // operators 'new' and 'delete' are used.
@@ -167,7 +167,7 @@ enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_shortarray.cpp
 
-my_ShortArray::my_ShortArray(bslma_Allocator *basicAllocator)
+my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator)
@@ -206,7 +206,7 @@ inline void my_ShortArray::append(int value)
 
 inline static
 void reallocate(short **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified 'newSize'
     // using the specified 'basicAllocator', or, if 'basicAllocator' is 0,
     // global operators 'new' and 'delete'.  The specified 'length' number of
@@ -801,7 +801,7 @@ int main(int argc, char *argv[]) {
                     void *p = mX.allocate(SIZE);
                     mX.deallocate(p);
                 }
-                catch (bslma_TestAllocatorException& e) {
+                catch (bslma::TestAllocatorException& e) {
                     int numBytes = e.numBytes();
                     if (veryVerbose) { cout << "Caught: "; P(numBytes); }
                     LOOP2_ASSERT(ti, ai, LIMIT[ti] == ai);
@@ -1000,7 +1000,7 @@ int main(int argc, char *argv[]) {
             if (verbose) cout << "\t[deallocate pointer + sizeof(size_type)]"
                               << endl;
             if (veryVerbose) cout << LINE << endl;
-            a.deallocate((bslma_Allocator::size_type *)p + 1);
+            a.deallocate((bslma::Allocator::size_type *)p + 1);
             if (veryVerbose) cout << LINE << endl;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(3 == a.numBytesInUse());
@@ -1010,7 +1010,7 @@ int main(int argc, char *argv[]) {
             if (verbose) cout << "\t[deallocate pointer - sizeof(size_type)]"
                               << endl;
             if (veryVerbose) cout << LINE << endl;
-            a.deallocate((bslma_Allocator::size_type *)p - 1);
+            a.deallocate((bslma::Allocator::size_type *)p - 1);
             if (veryVerbose) cout << LINE << endl;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(3 == a.numBytesInUse());

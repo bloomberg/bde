@@ -51,12 +51,14 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 
 // TBD see above
 // typedef bsls_Int64 bdes_Int64;
-    // Provide a namespace for the implementations of platform-neutral 64-bit
-    // integers.
 
 }  // close namespace BloombergLP
 

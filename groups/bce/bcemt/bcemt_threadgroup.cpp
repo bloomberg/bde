@@ -65,7 +65,7 @@ void bindJoin(bcemt_ThreadUtil::Handle handle)
 
 // CREATORS
 
-bcemt_ThreadGroup::bcemt_ThreadGroup(bslma_Allocator *basicAllocator)
+bcemt_ThreadGroup::bcemt_ThreadGroup(bslma::Allocator *basicAllocator)
 : d_numThreads(0)
 , d_threads(basicAllocator)
 {
@@ -88,7 +88,7 @@ int bcemt_ThreadGroup::addThread(const bdef_Function<void(*)()>& functor,
                                                   attributes.detachedState()) {
         bcemt_ThreadAttributes newAttributes(attributes);
         newAttributes.setDetachedState(
-                                 bcemt_ThreadAttributes::BCEMT_CREATE_JOINABLE);
+                                bcemt_ThreadAttributes::BCEMT_CREATE_JOINABLE);
         rc = bcemt_ThreadUtil::create(&handle, newAttributes, functor);
     }
     else {

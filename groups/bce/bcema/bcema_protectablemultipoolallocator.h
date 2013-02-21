@@ -18,7 +18,7 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: [!DEPRECATED!] This component provides an allocator,
 // 'bcema_ProtectableMultipoolAllocator', that implements the
-// 'bslma_ManagedAllocator' protocol and provides a partially thread-enabled
+// 'bdema_ManagedAllocator' protocol and provides a partially thread-enabled
 // protectable memory manager for a set of memory pools, each dispensing
 // fixed-sized blocks of memory of a different size, and providing modifiers to
 // change the access protection of that managed memory.  A multipool
@@ -46,13 +46,13 @@ BDES_IDENT("$Id: $")
 //                     |                unprotect
 //                     V
 //         ,----------------------.
-//        ( bslma_ManagedAllocator )
+//        ( bdema_ManagedAllocator )
 //         `----------------------'
 //                     |        release
 //                     V
-//            ,----------------.
-//           (  bslma_Allocator )
-//            `----------------'
+//            ,-----------------.
+//           (  bslma::Allocator )
+//            `-----------------'
 //                             allocate
 //                             deallocate
 //..
@@ -72,11 +72,11 @@ BDES_IDENT("$Id: $")
 // The 'numMemoryPools' parameter supplied at construction specifies the
 // number of pools.  Each pool dispenses memory blocks of a different fixed
 // size.  The 'i'th pool, for 'i' in  '[ 0 .. numMemoryPools - 1 ]', manages
-// blocks of size 'bsls_Alignment::MAX_ALIGNMENT * 2 ^ i'.  Thus the smallest
-// pooled block size is always 'bsls_Alignment::MAX_ALIGNMENT'; each
+// blocks of size 'bsls::Alignment::MAX_ALIGNMENT * 2 ^ i'.  Thus the smallest
+// pooled block size is always 'bsls::Alignment::MAX_ALIGNMENT'; each
 // subsequent pool doubles the size of the blocks managed up to a maximum
 // pooled block size of
-// 'bsls_Alignment::MAX_ALIGNMENT * 2 ^ (numMemoryPools - 1)'.  Any allocation
+// 'bsls::Alignment::MAX_ALIGNMENT * 2 ^ (numMemoryPools - 1)'.  Any allocation
 // request larger than this maximum size will not be pooled, but will instead
 // be handled directly by a call to the underlying allocator (indicated at
 // construction).  The allocated memory will still be managed by the
@@ -94,7 +94,7 @@ BDES_IDENT("$Id: $")
 //..
 //     #include <bsls_alignmentutil.h>
 //
-//      const int MIN_SIZE = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+//      const int MIN_SIZE = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 //
 //      struct Small {
 //          char x[MIN_SIZE];
@@ -172,8 +172,8 @@ BDES_IDENT("$Id: $")
 #include <bcema_protectablemultipool.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
-#include <bslma_managedallocator.h>
+#ifndef INCLUDED_BDEMA_MANAGEDALLOCATOR
+#include <bdema_managedallocator.h>
 #endif
 
 namespace BloombergLP {
@@ -184,7 +184,7 @@ class bdema_ProtectableBlockDispenser;
                 // class bcema_ProtectableMultipoolAllocator
                 // =========================================
 
-class bcema_ProtectableMultipoolAllocator : public bslma_ManagedAllocator {
+class bcema_ProtectableMultipoolAllocator : public bdema_ManagedAllocator {
     // [!DEPRECATED!] This class implements a "partially" thread-enabled
     // mechanism for managing memory using a set of memory pools of
     // geometrically increasing (fixed) allocation size.  The 'allocate' and
@@ -231,7 +231,7 @@ class bcema_ProtectableMultipoolAllocator : public bslma_ManagedAllocator {
         // protectable blocks of memory.  If 'blockDispenser' is 0, the
         // 'bdema_NativeProtectableBlockDispenser::singleton' is used.  The
         // 'i'th pool, for 'i' in '[ 0 .. numMemoryPools - 1 ]', manages blocks
-        // of size 'bsls_Alignment::MAX_ALIGNMENT * 2 ^ i'.  Memory requests
+        // of size 'bsls::Alignment::MAX_ALIGNMENT * 2 ^ i'.  Memory requests
         // larger than the maximum pooled block size are managed directly by
         // the underlying allocator.  The behavior is undefined unless
         // '1 <= numMemoryPools'.  Note that, in order to indicate specific
@@ -306,7 +306,7 @@ class bcema_ProtectableMultipoolAllocator : public bslma_ManagedAllocator {
         // Return the maximum size of an object that will be pooled by this
         // multipool.  This value is defined to be:
         //..
-        //    bsls_Alignment::MAX_ALIGNMENT * 2 ^ (numPools() - 1)
+        //    bsls::Alignment::MAX_ALIGNMENT * 2 ^ (numPools() - 1)
         //..
 };
 

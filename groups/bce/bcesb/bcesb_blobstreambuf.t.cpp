@@ -103,9 +103,9 @@ static void aSsErT(int c, const char *s, int i)
 
 class testBlobBufferFactory : public bcema_BlobBufferFactory
 {
-    bslma_Allocator *d_allocator_p;
-    bsl::size_t      d_currentBufferSize;
-    bool             d_growFlag;
+    bslma::Allocator *d_allocator_p;
+    bsl::size_t       d_currentBufferSize;
+    bool              d_growFlag;
 
     private:
     // not implemented
@@ -114,8 +114,8 @@ class testBlobBufferFactory : public bcema_BlobBufferFactory
 
     public:
     // CREATORS
-    explicit testBlobBufferFactory(bslma_Allocator *allocator,
-                                   bsl::size_t      currentBufferSize = 4);
+    explicit testBlobBufferFactory(bslma::Allocator *allocator,
+                                   bsl::size_t       currentBufferSize = 4);
     ~testBlobBufferFactory();
 
     // MANIPULATORS
@@ -127,8 +127,8 @@ class testBlobBufferFactory : public bcema_BlobBufferFactory
     bool growFlag() const;
 };
 
-testBlobBufferFactory::testBlobBufferFactory(bslma_Allocator *allocator,
-                                             bsl::size_t      currentBufSize)
+testBlobBufferFactory::testBlobBufferFactory(bslma::Allocator *allocator,
+                                             bsl::size_t       currentBufSize)
 : d_allocator_p(allocator)
 , d_currentBufferSize(currentBufSize)
 , d_growFlag(true)
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
                  << "==================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
                 int d_line;          // source line number
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
                  << "=======================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
                 int d_line;          // source line number
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
                  << "========================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         if (verbose) cout << "\nTesting bcesb_OutBlobStreamBuf." << endl;
         {
             enum {
@@ -644,7 +644,7 @@ int main(int argc, char *argv[])
                  << "========================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
                 int d_line;          // source line number
@@ -724,7 +724,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         if (verbose) cout << "\nTesting bcesb_InBlobStreamBuf." << endl;
         {

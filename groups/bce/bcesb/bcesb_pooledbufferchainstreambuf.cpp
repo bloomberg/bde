@@ -348,9 +348,9 @@ void bcesb_PooledBufferChainStreamBuf::reset(
 bcesb_PooledBufferChainStreamBufFactory::
                                        bcesb_PooledBufferChainStreamBufFactory(
     bcema_PooledBufferChainFactory *factory,
-    bslma_Allocator                *basicAllocator)
+    bslma::Allocator               *basicAllocator)
 : d_factory_p(factory)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 
 }

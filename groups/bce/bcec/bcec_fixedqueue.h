@@ -51,7 +51,7 @@ BDES_IDENT("$Id: $")
 // addresses allocated to the client may be stored in 'bcec_FixedQueue'.
 //
 // If 'TYPE' is a non-pointer type, it must supply a copy constructor.  Also,
-// if the copy constructor accepts a 'bslma_Allocator*', 'TYPE' must declare
+// if the copy constructor accepts a 'bslma::Allocator *', 'TYPE' must declare
 // the Uses Allocator trait (see 'bslalg_TypeTraits') so that the allocator of
 // the queue is properly propagated.
 //
@@ -202,8 +202,16 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
 #include <bslma_deallocatorproctor.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DESTRUCTORPROCTOR
@@ -218,10 +226,6 @@ BDES_IDENT("$Id: $")
 #include <bslma_rawdeleterproctor.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
 #endif
@@ -232,10 +236,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -338,9 +338,9 @@ class bcec_FixedQueue_IndexQueue {
 
   public:
     // CREATORS
-    bcec_FixedQueue_IndexQueue(int              capacity,
-                               int              range,
-                               bslma_Allocator *basicAllocator = 0);
+    bcec_FixedQueue_IndexQueue(int               capacity,
+                               int               range,
+                               bslma::Allocator *basicAllocator = 0);
         // Create an index queue with the specified 'capacity' for indices in
         // the range from 0 up to but not including 'range'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -423,21 +423,21 @@ class bcec_FixedQueue {
     typedef bcec_FixedQueue_IndexQueue IndexQ;
 
     // DATA
-    IndexQ           d_queue;
+    IndexQ            d_queue;
 
-    const char       d_semaPad[IndexQ::BCEC_PAD];  // keep 'd_queue' separate
-                                                   // from semaphores' cache
-                                                   // line (performance only)
+    const char        d_semaPad[IndexQ::BCEC_PAD];  // keep 'd_queue' separate
+                                                    // from semaphores' cache
+                                                    // line (performance only)
 
-    bcemt_Semaphore  d_semaWaitingPushers;
-    bces_AtomicInt   d_numWaitingPushers;
-    bcemt_Semaphore  d_semaWaitingPoppers;
-    bces_AtomicInt   d_numWaitingPoppers;
+    bcemt_Semaphore   d_semaWaitingPushers;
+    bces_AtomicInt    d_numWaitingPushers;
+    bcemt_Semaphore   d_semaWaitingPoppers;
+    bces_AtomicInt    d_numWaitingPoppers;
 
-    bcema_FixedPool  d_pool;
+    bcema_FixedPool   d_pool;
 
-    const int        d_size;
-    bslma_Allocator *d_allocator_p;
+    const int         d_size;
+    bslma::Allocator *d_allocator_p;
 
   private:
     // NOT IMPLEMENTED
@@ -456,11 +456,11 @@ class bcec_FixedQueue {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_FixedQueue,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    bcec_FixedQueue(int size, bslma_Allocator *basicAllocator = 0);
+    bcec_FixedQueue(int size, bslma::Allocator *basicAllocator = 0);
         // Create a queue having the specified 'size'.  Use the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator is used.  The behavior
@@ -601,15 +601,15 @@ int bcec_FixedQueue_IndexQueue::length() const
 
 // CREATORS
 template <typename TYPE>
-bcec_FixedQueue<TYPE>::bcec_FixedQueue(int              size,
-                                       bslma_Allocator *basicAllocator)
+bcec_FixedQueue<TYPE>::bcec_FixedQueue(int               size,
+                                       bslma::Allocator *basicAllocator)
 : d_queue(size, size, basicAllocator)
 , d_semaPad()
 , d_numWaitingPushers(0)
 , d_numWaitingPoppers(0)
 , d_pool(sizeof(TYPE), size, basicAllocator)
 , d_size(size)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT_OPT(0 < size);
     BSLS_ASSERT_OPT(0x1FFFFFF >= size);
@@ -701,7 +701,7 @@ TYPE bcec_FixedQueue<TYPE>::popFront()
                                                d_pool.addressFromIndex(index));
     BSLS_ASSERT(resultPtr);
 
-    bslma_RawDeleterProctor<TYPE, bcema_FixedPool> deleterProctor(resultPtr,
+    bslma::RawDeleterProctor<TYPE, bcema_FixedPool> deleterProctor(resultPtr,
                                                                   &d_pool);
 
     // We need to create a temporary and manually release the original object
@@ -789,7 +789,7 @@ int bcec_FixedQueue<TYPE>::tryPopFront(TYPE *buffer)
     BSLS_ASSERT(s);
 
     {
-        bslma_RawDeleterGuard<TYPE, bcema_FixedPool> deleterGuard(s, &d_pool);
+        bslma::RawDeleterGuard<TYPE, bcema_FixedPool> deleterGuard(s, &d_pool);
         *buffer = *s;  // may throw - deleterGuard protects us
 
         // memory released to the pool here, before waking pushers
@@ -811,10 +811,10 @@ int bcec_FixedQueue<TYPE>::tryPushBack(const TYPE& object)
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(s == 0)) {
         return -1;
     }
-    bslma_DeallocatorProctor<bcema_FixedPool> deallocatorProctor(s, &d_pool);
+    bslma::DeallocatorProctor<bcema_FixedPool> deallocatorProctor(s, &d_pool);
 
-    bslalg_ScalarPrimitives::copyConstruct(s, object, d_allocator_p);
-    bslma_DestructorProctor<TYPE> destructorProctor(s);
+    bslalg::ScalarPrimitives::copyConstruct(s, object, d_allocator_p);
+    bslma::DestructorProctor<TYPE> destructorProctor(s);
 
     const int index = d_pool.indexFromAddress(s);
     const int ret = d_queue.tryPushBack(index);

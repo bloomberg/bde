@@ -3,6 +3,7 @@
 #include <bcemt_once.h>
 #include <bcemt_barrier.h>
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -128,7 +129,7 @@ static int veryVeryVerbose = 0;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64     Int64;
 
 typedef bcemt_ThreadUtil       TU;
 typedef bcemt_ThreadAttributes TA;
@@ -217,11 +218,11 @@ void *enterLeaveTest(void *ptr)
             TU::sleep(sleepInterval);
         }
 
-        testRec->d_endTime = bsls_TimeUtil::getTimer();
+        testRec->d_endTime = bsls::TimeUtil::getTimer();
         testRec->d_once_p->leave(&context);
     }
     else {
-        testRec->d_endTime = bsls_TimeUtil::getTimer();
+        testRec->d_endTime = bsls::TimeUtil::getTimer();
     }
 
     testRec->d_foundWinner = *testRec->d_winner_p;  // Record the winner
@@ -254,13 +255,13 @@ void *enterCancelTest(void *ptr)
             TU::sleep(sleepInterval);
         }
 
-        testRec->d_endTime = bsls_TimeUtil::getTimer();
+        testRec->d_endTime = bsls::TimeUtil::getTimer();
         if (testRec->d_winner_p[0] == -1) {
             // First winner cancels
             testRec->d_winner_p[0] = testRec->d_id;
             testRec->d_foundWinner = testRec->d_winner_p[1];
             testRec->d_once_p->cancel(&context);
-            testRec->d_endTime = bsls_TimeUtil::getTimer();
+            testRec->d_endTime = bsls::TimeUtil::getTimer();
             testRec->d_threadRan = true;
             return ptr;
         }
@@ -272,7 +273,7 @@ void *enterCancelTest(void *ptr)
         }
     }
     else {
-        testRec->d_endTime = bsls_TimeUtil::getTimer();
+        testRec->d_endTime = bsls::TimeUtil::getTimer();
     }
 
     testRec->d_foundWinner = testRec->d_winner_p[1];  // Record the winner
@@ -311,11 +312,11 @@ void *guardTest(void *ptr)
                 TU::sleep(sleepInterval);
             }
 
-            testRec->d_endTime = bsls_TimeUtil::getTimer();
+            testRec->d_endTime = bsls::TimeUtil::getTimer();
         }
         else {
             ASSERT(! onceGuard.isInProgress());
-            testRec->d_endTime = bsls_TimeUtil::getTimer();
+            testRec->d_endTime = bsls::TimeUtil::getTimer();
         }
     }
 
@@ -352,14 +353,14 @@ void *guardCancelTest(void *ptr)
                 TU::sleep(sleepInterval);
             }
 
-            testRec->d_endTime = bsls_TimeUtil::getTimer();
+            testRec->d_endTime = bsls::TimeUtil::getTimer();
             if (testRec->d_winner_p[0] == -1) {
                 // First winner cancels
                 testRec->d_winner_p[0] = testRec->d_id;
                 testRec->d_foundWinner = testRec->d_winner_p[1];
                 onceGuard.cancel();
                 ASSERT(! onceGuard.isInProgress());
-                testRec->d_endTime = bsls_TimeUtil::getTimer();
+                testRec->d_endTime = bsls::TimeUtil::getTimer();
                 testRec->d_threadRan = true;
                 return ptr;
             }
@@ -371,7 +372,7 @@ void *guardCancelTest(void *ptr)
         }
         else {
             ASSERT(! onceGuard.isInProgress());
-            testRec->d_endTime = bsls_TimeUtil::getTimer();
+            testRec->d_endTime = bsls::TimeUtil::getTimer();
         }
     }
 
@@ -408,7 +409,7 @@ void *macroTest(void *ptr)
         }
     }
 
-    testRec->d_endTime = bsls_TimeUtil::getTimer();
+    testRec->d_endTime = bsls::TimeUtil::getTimer();
 
     testRec->d_foundWinner = *testRec->d_winner_p;  // Record the winner
     testRec->d_threadRan = true;
@@ -444,7 +445,7 @@ void *macroCancelTest(void *ptr)
             testRec->d_winner_p[0] = testRec->d_id;
             testRec->d_foundWinner = testRec->d_winner_p[1];
             BCEMT_ONCE_CANCEL();
-            testRec->d_endTime = bsls_TimeUtil::getTimer();
+            testRec->d_endTime = bsls::TimeUtil::getTimer();
             testRec->d_threadRan = true;
             return ptr;
         }
@@ -456,7 +457,7 @@ void *macroCancelTest(void *ptr)
     }
 
     testRec->d_foundWinner = testRec->d_winner_p[1];  // Record the winner
-    testRec->d_endTime = bsls_TimeUtil::getTimer();
+    testRec->d_endTime = bsls::TimeUtil::getTimer();
 
     testRec->d_threadRan = true;
 
@@ -810,7 +811,7 @@ int main(int argc, char *argv[])
         Int64 startTime;
         for (int i = 0; i < numThreads; ++i) {
             if (i == numThreads - 1) {
-                startTime = bsls_TimeUtil::getTimer();
+                startTime = bsls::TimeUtil::getTimer();
             }
             LOOP2_ASSERT(i, numThreads,
                          0 == TU::create(&threads[i], attr,
@@ -922,7 +923,7 @@ int main(int argc, char *argv[])
         Int64 startTime;
         for (int i = 0; i < numThreads; ++i) {
             if (i == numThreads - 1) {
-                startTime = bsls_TimeUtil::getTimer();
+                startTime = bsls::TimeUtil::getTimer();
             }
             LOOP2_ASSERT(i, numThreads,
                          0 == TU::create(&threads[i], attr,
@@ -964,7 +965,7 @@ int main(int argc, char *argv[])
         // Start all threads again
         for (int i = 0; i < numThreads; ++i) {
             if (i == numThreads - 1) {
-                startTime = bsls_TimeUtil::getTimer();
+                startTime = bsls::TimeUtil::getTimer();
             }
             LOOP2_ASSERT(i, numThreads,
                          0 == TU::create(&threads[i], attr,
@@ -1224,7 +1225,7 @@ int main(int argc, char *argv[])
             Int64 startTime;
             for (int i = 0; i < numThreads; ++i) {
                 if (i == numThreads - 1) {
-                    startTime = bsls_TimeUtil::getTimer();
+                    startTime = bsls::TimeUtil::getTimer();
                 }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
@@ -1345,7 +1346,7 @@ int main(int argc, char *argv[])
             Int64 startTime;
             for (int i = 0; i < numThreads; ++i) {
                 if (i == numThreads - 1) {
-                    startTime = bsls_TimeUtil::getTimer();
+                    startTime = bsls::TimeUtil::getTimer();
                 }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
@@ -1388,7 +1389,7 @@ int main(int argc, char *argv[])
             // Start all threads again
             for (int i = 0; i < numThreads; ++i) {
                 if (i == numThreads - 1) {
-                    startTime = bsls_TimeUtil::getTimer();
+                    startTime = bsls::TimeUtil::getTimer();
                 }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
@@ -1444,7 +1445,7 @@ int main(int argc, char *argv[])
             Int64 startTime;
             for (int i = 0; i < numThreads; ++i) {
                 if (i == numThreads - 1) {
-                    startTime = bsls_TimeUtil::getTimer();
+                    startTime = bsls::TimeUtil::getTimer();
                 }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
@@ -1510,7 +1511,7 @@ int main(int argc, char *argv[])
             // Start all threads again
             for (int i = 0; i < numThreads; ++i) {
                 if (i == numThreads - 1) {
-                    startTime = bsls_TimeUtil::getTimer();
+                    startTime = bsls::TimeUtil::getTimer();
                 }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
@@ -1626,7 +1627,7 @@ int main(int argc, char *argv[])
             Int64 startTime;
             for (int i = 0; i < numThreads; ++i) {
                 if (i == numThreads - 1) {
-                    startTime = bsls_TimeUtil::getTimer();
+                    startTime = bsls::TimeUtil::getTimer();
                 }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
@@ -1810,7 +1811,7 @@ int main(int argc, char *argv[])
                 Int64 startTime;
                 for (int i = 0; i < numThreads; ++i) {
                     if (i == numThreads - 1) {
-                        startTime = bsls_TimeUtil::getTimer();
+                        startTime = bsls::TimeUtil::getTimer();
                     }
                     LOOP2_ASSERT(i, numThreads,
                                  0 == TU::create(&threads[i], attr,
@@ -1876,7 +1877,7 @@ int main(int argc, char *argv[])
                 // Start all threads again
                 for (int i = 0; i < numThreads; ++i) {
                     if (i == numThreads - 1) {
-                        startTime = bsls_TimeUtil::getTimer();
+                        startTime = bsls::TimeUtil::getTimer();
                     }
                     LOOP2_ASSERT(i, numThreads,
                                  0 == TU::create(&threads[i], attr,
@@ -1952,7 +1953,7 @@ int main(int argc, char *argv[])
                 Int64 startTime;
                 for (int i = 0; i < numThreads; ++i) {
                     if (i == numThreads - 1) {
-                        startTime = bsls_TimeUtil::getTimer();
+                        startTime = bsls::TimeUtil::getTimer();
                     }
                     LOOP2_ASSERT(i, numThreads,
                                  0 == TU::create(&threads[i], attr,
@@ -2065,7 +2066,7 @@ int main(int argc, char *argv[])
                 // Start all threads again
                 for (int i = 0; i < numThreads; ++i) {
                     if (i == numThreads - 1) {
-                        startTime = bsls_TimeUtil::getTimer();
+                        startTime = bsls::TimeUtil::getTimer();
                     }
                     LOOP2_ASSERT(i, numThreads,
                                  0 == TU::create(&threads[i], attr,

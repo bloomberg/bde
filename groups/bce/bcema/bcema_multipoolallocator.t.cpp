@@ -108,14 +108,14 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef bcema_MultipoolAllocator Obj;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 // Warning: keep this in sync with bdema_Multipool.h!
 struct Header {
     // Stores pool number of this item.
     union {
-        int                                d_pool;   // pool for this item
-        bsls_AlignmentUtil::MaxAlignedType d_dummy;  // force maximum alignment
+        int                                 d_pool;   // pool for this item
+        bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. alignment
     } d_header;
 };
 
@@ -242,10 +242,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(my_Node,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        explicit my_Node(bslma_Allocator *basicAllocator = 0);
+        explicit my_Node(bslma::Allocator *basicAllocator = 0);
             // Create a node not connected to any other nodes.  Optionally
             // specify a 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default allocator
@@ -255,7 +255,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     };
 
     // CREATORS
-    my_Node::my_Node(bslma_Allocator *basicAllocator)
+    my_Node::my_Node(bslma::Allocator *basicAllocator)
     : d_edges(basicAllocator)
     {
     }
@@ -274,10 +274,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(my_Graph,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        explicit my_Graph(bslma_Allocator *basicAllocator = 0);
+        explicit my_Graph(bslma::Allocator *basicAllocator = 0);
             // Create an empty graph.  Optionally specify a 'basicAllocator'
             // used to supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
@@ -285,7 +285,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         // ...
     };
 
-    my_Graph::my_Graph(bslma_Allocator *basicAllocator)
+    my_Graph::my_Graph(bslma::Allocator *basicAllocator)
     : d_edges(basicAllocator)
     , d_nodes(basicAllocator)
     {
@@ -304,10 +304,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(my_NamedGraphContainer,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        explicit my_NamedGraphContainer(bslma_Allocator *basicAllocator = 0);
+        explicit my_NamedGraphContainer(bslma::Allocator *basicAllocator = 0);
             // Create an empty named graph container.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
@@ -317,7 +317,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
     // CREATORS
     my_NamedGraphContainer::my_NamedGraphContainer(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
     : d_graphMap(basicAllocator)
     {
     }
@@ -352,10 +352,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // the 'bcema_MultipoolAllocator' under the these scenario by comparing the
 // following 3 different allocator uses:
 //
-//: 1 Using the 'bslma_NewDeleteAllocator directly.
+//: 1 Using the 'bslma::NewDeleteAllocator directly.
 //:
 //: 2 Using a 'bcema_MultipoolAllocator as a direct substitute of the
-//:   'bslma_NewDeleteAllocator'.
+//:   'bslma::NewDeleteAllocator'.
 //:
 //: 3 Exploiting the managed aspect of 'bslma_MultipoolAllocator' by avoiding
 //:   invocation of the destructor of the data structure; whereas, the
@@ -405,7 +405,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 //..
       public:
         // CREATORS
-        my_TestDataStructure(bslma_Allocator *basicAllocator = 0);
+        my_TestDataStructure(bslma::Allocator *basicAllocator = 0);
 
         // MANIPULATORS
         void pop();
@@ -414,7 +414,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     };
 
     // CREATORS
-    my_TestDataStructure::my_TestDataStructure(bslma_Allocator *basicAllocator)
+    my_TestDataStructure::my_TestDataStructure(
+                                              bslma::Allocator *basicAllocator)
     : d_list1(basicAllocator)
     , d_list2(basicAllocator)
     , d_list3(basicAllocator)
@@ -486,7 +487,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // measures the effect of construction and destruction of entire lists of
 // nodes.
 //
-// The 'test' method will also accept an 'bslma_Allocator *', which will be
+// The 'test' method will also accept an 'bslma::Allocator *', which will be
 // used as the allocator used to construct the test mechanism and its internal
 // lists:
 //..
@@ -494,8 +495,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
       public:
         // CLASS METHODS
-        static void test(int              testLengthFactor,
-                         bslma_Allocator *basicAllocator)
+        static void test(int               testLengthFactor,
+                         bslma::Allocator *basicAllocator)
         {
             int n          = 1;
             int iterations = 1;
@@ -505,7 +506,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             }
 
             for (int i = 0; i <= testLengthFactor; ++i) {
-                bsls_Stopwatch timer;
+                bsls::Stopwatch timer;
                 timer.start();
 
                 for (int j = 0; j < iterations; ++j) {
@@ -542,7 +543,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // at once, eliminating the need to run the destructor of the test mechanism:
 //..
         static void testManaged(int                     testLengthFactor,
-                                bslma_ManagedAllocator *managedAllocator)
+                                bdema_ManagedAllocator *managedAllocator)
         {
             int n          = 1;
             int iterations = 1;
@@ -552,7 +553,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             }
 
             for (int i = 0; i <= testLengthFactor; ++i) {
-                bsls_Stopwatch timer;
+                bsls::Stopwatch timer;
                 timer.start();
 
                 for (int j = 0; j < iterations; ++j) {
@@ -614,13 +615,13 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 //          }
 //      }
 //
-//      bsls_BlockGrowth::Strategy strategy = growth == 'g'
-//                                          ? bsls_BlockGrowth::BSLS_GEOMETRIC
-//                                          : bsls_BlockGrowth::BSLS_CONSTANT;
+//      bsls::BlockGrowth::Strategy strategy = growth == 'g'
+//                                          ? bsls::BlockGrowth::BSLS_GEOMETRIC
+//                                          : bsls::BlockGrowth::BSLS_CONSTANT;
 //
 //      printf("\nNew Delete Allocator:\n\n");
 //      {
-//          bslma_Allocator *nda = bslma_NewDeleteAllocator::allocator(0);
+//          bslma::Allocator *nda = bslma::NewDeleteAllocator::allocator(0);
 //          my_TestUtil::test(testLengthFactor, nda);
 //      }
 //
@@ -688,7 +689,7 @@ class my_DoubleStack {
     double *d_stack_p; // dynamically allocated array (d_size elements)
     int d_size;        // physical capacity of this stack (in elements)
     int d_length;      // logical index of next available stack element
-    bslma_Allocator *d_allocator_p; // holds (but does not own) object
+    bslma::Allocator *d_allocator_p; // holds (but does not own) object
 
     friend class my_DoubleStackIter;
 
@@ -697,9 +698,9 @@ class my_DoubleStack {
 
   public:
     // CREATORS
-    my_DoubleStack(bslma_Allocator *basicAllocator = 0);
+    my_DoubleStack(bslma::Allocator *basicAllocator = 0);
     my_DoubleStack(const my_DoubleStack& other,
-                   bslma_Allocator *basicAllocator = 0);
+                   bslma::Allocator *basicAllocator = 0);
     ~my_DoubleStack();
 
     // MANIPULATORS
@@ -716,7 +717,7 @@ enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 
 // ...
 
-my_DoubleStack::my_DoubleStack(bslma_Allocator *basicAllocator)
+my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator)
@@ -748,7 +749,7 @@ void my_DoubleStack::push(double value)
 
 static
 void reallocate(double **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified
     // 'newSize' using the specified 'basicAllocator'.  The specified
     // 'length' number of leading elements are preserved.  Since the
@@ -818,8 +819,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
 
     switch (test) { case 0:
       case 7: {
@@ -909,8 +910,8 @@ int main(int argc, char *argv[])
         const int RES_DATA[] = { 0, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
         const int NUM_RES_DATA = sizeof RES_DATA / sizeof *RES_DATA;
 
-        bslma_TestAllocator multiPoolAllocatorTA(veryVeryVerbose);
-        bslma_TestAllocator multiPoolTA(veryVeryVerbose);
+        bslma::TestAllocator multiPoolAllocatorTA(veryVeryVerbose);
+        bslma::TestAllocator multiPoolTA(veryVeryVerbose);
 
         for (int j = 0; j < NUM_RES_DATA; ++j) {
             bcema_MultipoolAllocator sa(&multiPoolAllocatorTA);
@@ -957,7 +958,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bcema_MultipoolAllocator sa(16, &ta);  // TBD
 
         int lastNumBytesInUse = ta.numBytesInUse();
@@ -988,14 +989,14 @@ int main(int argc, char *argv[])
         //   Compare allocation between a multipool and a multipool allocator.
         //
         // Testing:
-        //   bcema_MultipoolAllocator(bslma_Allocator *ba = 0);
-        //   bcema_MultipoolAllocator(int numPools, bslma_Allocator *ba = 0);
-        //   bcema_MultipoolAllocator(Strategy gs, bslma_Allocator *ba = 0);
-        //   bcema_MultipoolAllocator(int n,Strategy gs,bslma_Allocator*ba=0);
+        //   bcema_MultipoolAllocator(bslma::Allocator *ba = 0);
+        //   bcema_MultipoolAllocator(int numPools, bslma::Allocator *ba = 0);
+        //   bcema_MultipoolAllocator(Strategy gs, bslma::Allocator *ba = 0);
+        //   bcema_MultipoolAllocator(int n,Strategy gs,Allocator *ba=0);
         //   bcema_MultipoolAllocator(int n,const Strat *gsa,Allocator*ba=0);
-        //   bcema_MultipoolAllocator(int n,int mbpc,bslma_Allocator *ba=0);
-        //   bcema_MultipoolAllocator(int n,const int *mbpc,Allocator*ba=0);
-        //   bcema_MultipoolAllocator(int n,Strat gs,int mbpc,Allocator*ba=0);
+        //   bcema_MultipoolAllocator(int n,int mbpc,bslma::Allocator *ba=0);
+        //   bcema_MultipoolAllocator(int n,const int *mbpc,Allocator *ba=0);
+        //   bcema_MultipoolAllocator(int n,Strat gs,int mbpc,Allocator *ba=0);
         //   bcema_MultipoolAllocator(int n,const S *gsa,int mbpc,Alloc *ba=0);
         //   bcema_MultipoolAllocator(int n,Strat gs,const int *ma,Alloc*ba=0);
         //   bcema_MultipoolAllocator(int n,const S *gsa,const int *ma,A*ba=0);
@@ -1020,9 +1021,11 @@ int main(int argc, char *argv[])
         const int ODATA[]   = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
         const int NUM_ODATA = sizeof ODATA / sizeof *ODATA;
 
-        typedef bsls_BlockGrowth::Strategy St;
-        const bsls_BlockGrowth::Strategy GEO= bsls_BlockGrowth::BSLS_GEOMETRIC;
-        const bsls_BlockGrowth::Strategy CON= bsls_BlockGrowth::BSLS_CONSTANT;
+        typedef bsls::BlockGrowth::Strategy St;
+        const bsls::BlockGrowth::Strategy GEO =
+                                             bsls::BlockGrowth::BSLS_GEOMETRIC;
+        const bsls::BlockGrowth::Strategy CON =
+                                             bsls::BlockGrowth::BSLS_CONSTANT;
 
         // Strategy Data
         const St SDATA[][5]  = { {GEO, GEO, GEO, GEO, GEO},
@@ -1045,10 +1048,10 @@ int main(int argc, char *argv[])
         for (int si = 0; si < NUM_SDATA; ++si) {
             for (int mi = 0; mi < NUM_MDATA; ++mi) {
 
-                bslma_TestAllocator pta("pool test allocator",
-                                        veryVeryVerbose);
-                bslma_TestAllocator mpta("multipool test allocator",
+                bslma::TestAllocator pta("pool test allocator",
                                          veryVeryVerbose);
+                bslma::TestAllocator mpta("multipool test allocator",
+                                          veryVeryVerbose);
 
                 // Create the multipool allocator
                 bcema_Multipool pool(NUM_POOLS, SDATA[si], MDATA[mi], &pta);
@@ -1127,14 +1130,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(bslma_Allocator *ba = 0)" << endl;
+            cout << "bcema_Multipool(bslma::Allocator *ba = 0)" << endl;
         }
 
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             bcema_Multipool pool(&pta);
             Obj mp(&mpta);
@@ -1210,14 +1213,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(int numPools, bslma_Allocator *ba = 0)"
+            cout << "bcema_Multipool(int numPools, bslma::Allocator *ba = 0)"
                  << endl;
         }
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Create the multipool
             bcema_Multipool pool(NUM_POOLS, &pta);
@@ -1294,14 +1297,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(Strategy gs, bslma_Allocator *ba = 0)"
+            cout << "bcema_Multipool(Strategy gs, bslma::Allocator *ba = 0)"
                  << endl;
         }
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Create the multipool
             bcema_Multipool pool(CON, &pta);
@@ -1354,14 +1357,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(int n, Strategy gs, bslma_Allocator "
+            cout << "bcema_Multipool(int n, Strategy gs, bslma::Allocator"
                     "*ba = 0)" << endl;
         }
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             bcema_Multipool pool(NUM_POOLS, CON, &pta);
             Obj mp(NUM_POOLS, CON, &mpta);
@@ -1417,10 +1420,10 @@ int main(int argc, char *argv[])
                     "*ba = 0)" << endl;
         }
         for (int si = 0; si < NUM_SDATA; ++si) {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Create the multipool
             bcema_Multipool pool(NUM_POOLS, SDATA[si], &pta);
@@ -1497,12 +1500,12 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(int n, int mbpc, bslma_Allocator *ba= 0)"
+            cout << "bcema_Multipool(int n, int mbpc, bslma::Allocator *ba= 0)"
                  << endl;
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(int n, const int *mbpc, bslma_Allocator "
+            cout << "bcema_Multipool(int n, const int *mbpc, bslma::Allocator"
                     "*ba = 0)" << endl;
         }
 
@@ -1511,10 +1514,10 @@ int main(int argc, char *argv[])
                     "*ba = 0)" << endl;
         }
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             bcema_Multipool pool(NUM_POOLS, CON, TEST_MAX_CHUNK_SIZE, &pta);
             Obj mp(NUM_POOLS, CON, TEST_MAX_CHUNK_SIZE, &mpta);
@@ -1571,10 +1574,10 @@ int main(int argc, char *argv[])
                  << endl;
         }
         for (int si = 0; si < NUM_SDATA; ++si) {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             bcema_Multipool pool(NUM_POOLS, SDATA[si], TEST_MAX_CHUNK_SIZE,
                                  &pta);
@@ -1656,10 +1659,10 @@ int main(int argc, char *argv[])
         }
         for (int mi = 0; mi < NUM_MDATA; ++mi) {
 
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             bcema_Multipool pool(NUM_POOLS, CON, MDATA[mi], &pta);
             Obj mp(NUM_POOLS, CON, MDATA[mi], &mpta);
@@ -1731,7 +1734,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a test object using the constructor: 1) without
         //   exceptions and 2) in the presence of exceptions during memory
-        //   allocations using a 'bslma_TestAllocator' and varying its
+        //   allocations using a 'bslma::TestAllocator' and varying its
         //   *allocation* *limit*.  When the object goes out of scope, verify
         //   that the destructor properly deallocates all memory that had been
         //   allocated to it.
@@ -1744,7 +1747,7 @@ int main(int argc, char *argv[])
         //   via the destructor and Purify.
         //
         // Testing:
-        //   bdema_Multipool(int numPools, bslma_Allocator *ba = 0);
+        //   bdema_Multipool(int numPools, bslma::Allocator *ba = 0);
         //   ~bdema_Multipool();
         // --------------------------------------------------------------------
 
@@ -1914,8 +1917,8 @@ int main(int argc, char *argv[])
         const int DATA[] = { 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator multiPoolAllocatorTA(veryVeryVerbose);
-        bslma_TestAllocator multiPoolTA(veryVeryVerbose);
+        bslma::TestAllocator multiPoolAllocatorTA(veryVeryVerbose);
+        bslma::TestAllocator multiPoolTA(veryVeryVerbose);
 
         bcema_MultipoolAllocator sa(16, &multiPoolAllocatorTA);  // TBD
         bcema_Multipool sp(16, &multiPoolTA);  // TBD
@@ -1971,13 +1974,13 @@ int main(int argc, char *argv[])
             }
         }
 
-        bsls_BlockGrowth::Strategy strategy = growth == 'g'
-                                            ? bsls_BlockGrowth::BSLS_GEOMETRIC
-                                            : bsls_BlockGrowth::BSLS_CONSTANT;
+        bsls::BlockGrowth::Strategy strategy = growth == 'g'
+                                            ? bsls::BlockGrowth::BSLS_GEOMETRIC
+                                            : bsls::BlockGrowth::BSLS_CONSTANT;
 
         printf("\nNew Delete Allocator:\n\n");
         {
-            bslma_Allocator *nda = bslma_NewDeleteAllocator::allocator(0);
+            bslma::Allocator *nda = bslma::NewDeleteAllocator::allocator(0);
             my_TestUtil::test(testLengthFactor, nda);
         }
 

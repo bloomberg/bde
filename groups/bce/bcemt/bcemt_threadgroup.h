@@ -55,7 +55,7 @@ BDES_IDENT("$Id: $")
 //..
 // The second executes the main body of the test:
 //..
-//  bslma_TestAllocator ta;
+//  bslma::TestAllocator ta;
 //  {
 //      const int NUM_ITERATIONS = 10000;
 //      const int NUM_THREADS    = 8;
@@ -73,7 +73,7 @@ BDES_IDENT("$Id: $")
 //      tg.joinAll();
 //      ASSERT(NUM_ITERATIONS * NUM_THREADS == value);
 //  }
-//  ASSERT(0 <  ta.numAllocation());
+//  ASSERT(0 <  ta.numAllocations());
 //  ASSERT(0 == ta.numBytesInUse());
 //..
 
@@ -101,6 +101,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
 #endif
@@ -108,11 +112,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 
 namespace BloombergLP {
 
@@ -142,11 +141,11 @@ class bcemt_ThreadGroup {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcemt_ThreadGroup,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    bcemt_ThreadGroup(bslma_Allocator *basicAllocator = 0);
+    bcemt_ThreadGroup(bslma::Allocator *basicAllocator = 0);
         // Create an empty thread group.  Optionally specify
         // 'basicAllocator' will be used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator

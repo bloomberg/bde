@@ -28,8 +28,8 @@ struct Header {
     // Stores the pool number of this item.
 
     union {
-        int                                d_pool;   // pool for this item
-        bsls_AlignmentUtil::MaxAlignedType d_dummy;  // force maximum alignment
+        int                                 d_pool;   // pool for this item
+        bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. alignment
     } d_header;
 };
 

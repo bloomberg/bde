@@ -2,8 +2,6 @@
 
 #include <bcem_fieldselector.h>
 
-#include <bdema_defaultallocatorguard.h>
-
 #include <bdex_testinstream.h>           // for testing only
 #include <bdex_testinstreamexception.h>  // for testing only
 #include <bdex_testoutstream.h>          // for testing only
@@ -103,7 +101,7 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef bcem_FieldSelector  Obj;
 
-typedef bslma_TestAllocator TestAllocator;
+typedef bslma::TestAllocator TestAllocator;
 
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
@@ -158,7 +156,7 @@ int main(int argc, char *argv[])
     // CONCERN: In no case does memory come from the global allocator.
 
     TestAllocator globalAllocator(veryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 2: {

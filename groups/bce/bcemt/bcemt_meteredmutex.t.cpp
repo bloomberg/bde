@@ -5,8 +5,8 @@
 #include <bcemt_thread.h>      // for testing only
 #include <bcemt_barrier.h>     // for testing only
 
-#include <bsls_platformutil.h>
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 
@@ -37,9 +37,9 @@ using namespace bsl;  // automatically added by script
 // [ 2] void unlock();
 //
 // ACCESSORS
-// [ 3] bsls_PlatformUtil::Int64 holdTime() const;
-// [ 4] bsls_PlatformUtil::Int64 lastResetTime() const;
-// [ 3] bsls_PlatformUtil::Int64 waitTime() const;
+// [ 3] bsls::Types::Int64 holdTime() const;
+// [ 4] bsls::Types::Int64 lastResetTime() const;
+// [ 3] bsls::Types::Int64 waitTime() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
@@ -94,7 +94,7 @@ static int verbose;
 static int veryVerbose;
 // static int veryVeryVerbose;  // not used
 typedef bcemt_MeteredMutex Obj;
-const bsls_PlatformUtil::Int64 NANOSECONDS_IN_ONE_MICRO_SECOND = 1000LL;
+const bsls::Types::Int64 NANOSECONDS_IN_ONE_MICRO_SECOND = 1000LL;
 bcemt_Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
 
 //=============================================================================
@@ -136,7 +136,7 @@ extern "C" {
   void *strategy1(void *arg)
     {
         barrier5.wait();
-        int remainder = (int)(bsls_PlatformUtil::IntPtr)arg % 2;
+        int remainder = (int)(bsls::Types::IntPtr)arg % 2;
         if (remainder == 1) {
             oddMutex.lock();
             ++oddCount;
@@ -157,7 +157,7 @@ extern "C" {
     void *strategy2(void *arg)
     {
         barrier5.wait();
-        int remainder = (int)(bsls_PlatformUtil::IntPtr)arg % 2;
+        int remainder = (int)(bsls::Types::IntPtr)arg % 2;
         if (remainder == 1) {
             globalMutex.lock();
             ++oddCount;
@@ -184,7 +184,7 @@ Obj mutex4;
 extern "C" {
   void *resetTest(void *arg)
     {
-        bsls_PlatformUtil::Int64 previous, current;
+        bsls::Types::Int64 previous, current;
 
         barrier4.wait();
 
@@ -243,7 +243,7 @@ Obj mutex2;
 extern "C" {
     void *mutexTest(void *arg)
     {
-        int remainder = (int)(bsls_PlatformUtil::IntPtr)arg % 2;
+        int remainder = (int)(bsls::Types::IntPtr)arg % 2;
         if (remainder == 1) {
             mutex2.lock();
         }
@@ -300,11 +300,11 @@ int main(int argc, char *argv[])
                           << "=====================" << endl;
 
         executeInParallel(NUM_THREADS5, strategy1);
-        bsls_PlatformUtil::Int64 waitTimeForStrategy1 = oddMutex.waitTime()
+        bsls::Types::Int64 waitTimeForStrategy1 = oddMutex.waitTime()
                                                       + evenMutex.waitTime();
 
         executeInParallel(NUM_THREADS5, strategy2);
-        bsls_PlatformUtil::Int64 waitTimeForStrategy2 =
+        bsls::Types::Int64 waitTimeForStrategy2 =
                                  globalMutex.waitTime();
 
         if (veryVerbose) {
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
         // Tactics:
         //
         // Testing:
-        //   bsls_PlatformUtil::Int64 lastResetTime() const;
+        //   bsls::Types::Int64 lastResetTime() const;
         //   void resetMetrics();
         // --------------------------------------------------------------------
 
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
                           << "=======================================" << endl;
 
         // TBD:
-        // Since 'bsls_TimeUtil::getTimer' is not monotonic on hp, this test
+        // Since 'bsls::TimeUtil::getTimer' is not monotonic on hp, this test
         // case will not work on hp.
         // executeInParallel(NUM_THREADS4, resetTest);
 
@@ -367,8 +367,8 @@ int main(int argc, char *argv[])
         // Tactics:
         //
         // Testing:
-        //   bsls_PlatformUtil::Int64 holdTime() const;
-        //   bsls_PlatformUtil::Int64 waitTime() const;
+        //   bsls::Types::Int64 holdTime() const;
+        //   bsls::Types::Int64 waitTime() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -380,12 +380,11 @@ int main(int argc, char *argv[])
         // we have 'NUM_THREADS3' threads, each of which holds the lock for
         // 'SLEEP_TIME3' time in one iteration of loop (and we have
         // 'NUM_ACQUIRE3' iterations in the loop).
-        bsls_PlatformUtil::Int64 holdTime =  NUM_ACQUIRE
-                                          *  NUM_THREADS3
-                                          *  SLEEP_TIME3
-                                          *  NANOSECONDS_IN_ONE_MICRO_SECOND;
-        ASSERT(mutex3.holdTime() >= (bsls_PlatformUtil::Int64)(
-                                                         holdTime * 50.0/100));
+        bsls::Types::Int64 holdTime =  NUM_ACQUIRE
+                                       *  NUM_THREADS3
+                                       *  SLEEP_TIME3
+                                       *  NANOSECONDS_IN_ONE_MICRO_SECOND;
+        ASSERT(mutex3.holdTime() >= (bsls::Types::Int64)(holdTime * 50.0/100));
                                                          // error margin = 50%
         // In an iteration, after the barrier, the first thread to acquire the
         //  lock waits for no time, the second thread to acquire the lock waits
@@ -396,12 +395,12 @@ int main(int argc, char *argv[])
         // =  ((NUM_THREADS3-1)*NUM_THREADS3)/2.0 * SLEEP_TIME3.
         // We have NUM_ACQUIRE such iteration.
 
-        bsls_PlatformUtil::Int64 waitTime =
-              (bsls_PlatformUtil::Int64) (NUM_ACQUIRE
-                                        * ((NUM_THREADS3-1) * NUM_THREADS3)/2.0
-                                        * SLEEP_TIME3
-                                        * NANOSECONDS_IN_ONE_MICRO_SECOND
-                                        * 50.0/100);      // error margin = 50%
+        bsls::Types::Int64 waitTime =
+              (bsls::Types::Int64) (NUM_ACQUIRE
+                                    * ((NUM_THREADS3-1) * NUM_THREADS3)/2.0
+                                    * SLEEP_TIME3
+                                    * NANOSECONDS_IN_ONE_MICRO_SECOND
+                                    * 50.0/100);      // error margin = 50%
         ASSERT(mutex3.waitTime() > waitTime);
         if (veryVerbose) {
             P(mutex3.holdTime()) ;
@@ -484,9 +483,9 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bsls_PlatformUtil::Int64 t1 = bsls_TimeUtil::getTimer();
+        bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
         Obj mutex;
-        bsls_PlatformUtil::Int64 t2 = bsls_TimeUtil::getTimer();
+        bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
         ASSERT(mutex.waitTime() == 0);
         ASSERT(mutex.holdTime() == 0);
         ASSERT(t2 >= mutex.lastResetTime());
@@ -505,7 +504,7 @@ int main(int argc, char *argv[])
         mutex.lock();
         bcemt_ThreadUtil::microSleep(SLEEP_TIME);
         mutex.unlock();
-        ASSERT(mutex.holdTime() >= (bsls_PlatformUtil::Int64)(
+        ASSERT(mutex.holdTime() >= (bsls::Types::Int64)(
                                             SLEEP_TIME * 1000 * ERROR_MARGIN));
         // 'holdTime()' reports in nanoseconds
         if (veryVerbose) {
@@ -513,9 +512,9 @@ int main(int argc, char *argv[])
             P(mutex.waitTime());
         }
 
-        bsls_PlatformUtil::Int64 t3 = bsls_TimeUtil::getTimer();
+        bsls::Types::Int64 t3 = bsls::TimeUtil::getTimer();
         mutex.resetMetrics();
-        bsls_PlatformUtil::Int64 t4 = bsls_TimeUtil::getTimer();
+        bsls::Types::Int64 t4 = bsls::TimeUtil::getTimer();
         ASSERT(mutex.waitTime() == 0);
         ASSERT(mutex.holdTime() == 0);
         ASSERT(t4 >= mutex.lastResetTime());
@@ -529,7 +528,7 @@ int main(int argc, char *argv[])
         ASSERT(mutex.tryLock() == 0);
         bcemt_ThreadUtil::microSleep(SLEEP_TIME);
         mutex.unlock();
-        ASSERT(mutex.holdTime() >= (bsls_PlatformUtil::Int64)(
+        ASSERT(mutex.holdTime() >= (bsls::Types::Int64)(
                                            SLEEP_TIME * 1000  * ERROR_MARGIN));
         // 'holdTime()' reports in nanoseconds
         if (veryVerbose) {

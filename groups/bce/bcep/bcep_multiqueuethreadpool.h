@@ -76,8 +76,8 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_SearchProfile(const char      *word,
-//                       bslma_Allocator *basicAllocator = 0);
+//      my_SearchProfile(const char       *word,
+//                       bslma::Allocator *basicAllocator = 0);
 //          // Create a 'my_SearchProfile' with the specified 'word'.
 //          // Optionally specify a 'basicAllocator' used to supply memory.
 //          // If 'basicAllocator' is 0, the default memory allocator is used.
@@ -108,8 +108,8 @@ BDES_IDENT("$Id: $")
 //..
 //  // CONSTRUCTORS
 //  my_SearchProfile::my_SearchProfile(
-//          const char      *word,
-//          bslma_Allocator *basicAllocator)
+//          const char       *word,
+//          bslma::Allocator *basicAllocator)
 //  : d_word(basicAllocator)
 //  , d_fileSet(bsl::less<bsl::string>(), basicAllocator)
 //  {
@@ -195,7 +195,7 @@ BDES_IDENT("$Id: $")
 //  void fastSearch(const bsl::vector<bsl::string>&  wordList,
 //                  const bsl::vector<bsl::string>&  fileList,
 //                  bsl::set<bsl::string>&           resultSet,
-//                  bslma_Allocator                 *basicAllocator = 0)
+//                  bslma::Allocator                *basicAllocator = 0)
 //  {
 //      // Return the set of files, specified by 'fileList', containing
 //      // every word in the specified 'wordList', in the specified
@@ -238,8 +238,8 @@ BDES_IDENT("$Id: $")
 //      for (ListType::const_iterator it = wordList.begin();
 //           it != wordList.end(); ++it)
 //      {
-//          bslma_Allocator *allocator =
-//                                    bslma_Default::allocator(basicAllocator);
+//          bslma::Allocator *allocator =
+//                                   bslma::Default::allocator(basicAllocator);
 //
 //          const bsl::string& word = *it;
 //          int                id = pool.createQueue();
@@ -248,7 +248,7 @@ BDES_IDENT("$Id: $")
 //                                               my_SearchProfile(word.c_str(),
 //                                                                allocator);
 //
-//          bslma_RawDeleterProctor<my_SearchProfile, bslma_Allocator>
+//          bslma::RawDeleterProctor<my_SearchProfile, bslma::Allocator>
 //                                                 deleter(profile, allocator);
 //
 //          profileRegistry[word] = bsl::make_pair(id, profile);
@@ -291,7 +291,8 @@ BDES_IDENT("$Id: $")
 //                                resultSet.begin(), resultSet.end(),
 //                                bsl::inserter(tmpSet, tmpSet.begin()));
 //          resultSet = tmpSet;
-//          bslma_Default::allocator(basicAllocator)->deleteObjectRaw(profile);
+//          bslma::Default::allocator(basicAllocator)->deleteObjectRaw(
+//                                                                    profile);
 //      }
 //  }
 //..
@@ -324,16 +325,16 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
 #endif
 
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -386,7 +387,7 @@ class bcep_MultiQueueThreadPool_Queue {
                                     const bcep_MultiQueueThreadPool_Queue&);
 
     // CREATORS
-    bcep_MultiQueueThreadPool_Queue(bslma_Allocator *basicAllocator = 0);
+    bcep_MultiQueueThreadPool_Queue(bslma::Allocator *basicAllocator = 0);
         // Create a 'bcep_MultiQueueThreadPool_Queue' with an initial capacity
         // of 0.  Optionally specify a 'basicAllocator' used to supply memory
         // If 'basicAllocator' is 0, the default memory allocator is used.
@@ -470,11 +471,11 @@ class bcep_MultiQueueThreadPool_QueueContext {
   public:
 
     BSLALG_DECLARE_NESTED_TRAITS(bcep_MultiQueueThreadPool_QueueContext,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     bcep_MultiQueueThreadPool_QueueContext(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Construct a queue context object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the default memory allocator is used.
@@ -515,9 +516,9 @@ class bcep_MultiQueueThreadPool {
     };
 
   private:
-    bslma_Allocator *d_allocator_p;        // memory allocator (held)
-    bcep_ThreadPool *d_threadPool_p;       // threads for queue processing
-    bool             d_threadPoolIsOwned;  // 'true' if thread pool is owned
+    bslma::Allocator *d_allocator_p;        // memory allocator (held)
+    bcep_ThreadPool  *d_threadPool_p;       // threads for queue processing
+    bool              d_threadPoolIsOwned;  // 'true' if thread pool is owned
 
     bcec_ObjectPool<bcep_MultiQueueThreadPool_QueueContext,
                     bcec_ObjectPoolFunctors::DefaultCreator,
@@ -573,14 +574,14 @@ class bcep_MultiQueueThreadPool {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcep_MultiQueueThreadPool,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bcep_MultiQueueThreadPool(const bcemt_Attribute& threadAttributes,
-                              int                    minThreads,
-                              int                    maxThreads,
-                              int                    maxIdleTime,
-                              bslma_Allocator       *basicAllocator = 0);
+    bcep_MultiQueueThreadPool(const bcemt_Attribute&  threadAttributes,
+                              int                     minThreads,
+                              int                     maxThreads,
+                              int                     maxIdleTime,
+                              bslma::Allocator       *basicAllocator = 0);
         // Construct a 'bcep_MultiQueueThreadPool' with the specified
         // 'threadAttributes', 'minThread' minimum number of threads,
         // 'maxThreads' maximum number of threads, 'maxIdleTime' maximum
@@ -590,8 +591,8 @@ class bcep_MultiQueueThreadPool {
         // created without any queues.  Although queues may be created, 'start'
         // must be called before enqueuing jobs.
 
-    bcep_MultiQueueThreadPool(bcep_ThreadPool *threadPool,
-                              bslma_Allocator *basicAllocator = 0);
+    bcep_MultiQueueThreadPool(bcep_ThreadPool  *threadPool,
+                              bslma::Allocator *basicAllocator = 0);
         // Construct a 'bcep_MultiQueueThreadPool' with the specified
         // 'threadPool'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the default memory allocator is

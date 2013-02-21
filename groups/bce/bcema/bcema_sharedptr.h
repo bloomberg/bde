@@ -92,7 +92,7 @@ BDES_IDENT("$Id: $")
 // pointer constructor, resulting in an out-of-place representation for the
 // shared object:
 //..
-//  bslma_NewDeleteAllocator nda;
+//  bslma::NewDeleteAllocator nda;
 //  int *value = new (nda) int(10);
 //  bcema_SharedPtr<int> outOfPlaceSharedPtr(value, &nda);
 //..
@@ -215,7 +215,7 @@ BDES_IDENT("$Id: $")
 //
 // For example, consider the following snippet of code:
 //..
-//  bslma_Allocator *allocator1, *allocator2;
+//  bslma::Allocator *allocator1, *allocator2;
 //  // ...
 //  bcema_SharedPtr<bsl::string> ptr;
 //  ptr.createInplace(allocator1, bsl::string("my string"), allocator2);
@@ -268,7 +268,7 @@ BDES_IDENT("$Id: $")
 //     // . . .
 //
 //     // MANIPULATORS
-//     my_Type *createObject(bslma_Allocator *basicAllocator = 0);
+//     my_Type *createObject(bslma::Allocator *basicAllocator = 0);
 //         // Create a 'my_Type' object.  Optionally specify a
 //         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //         // 0, the currently installed default allocator is used.
@@ -277,7 +277,7 @@ BDES_IDENT("$Id: $")
 //         // Delete the specified 'object'.
 //  };
 //
-//  class my_Allocator : public bslma_Allocator { /* ... */ };
+//  class my_Allocator : public bslma::Allocator { /* ... */ };
 //..
 // Note that 'deleteObject' is provided by all 'bslma' allocators and by any
 // object that implements the 'bcema_Deleter' protocol.  Thus, any of these
@@ -309,12 +309,12 @@ BDES_IDENT("$Id: $")
 // The following are examples of constructing shared pointers with
 // function-like deleters:
 //..
-//  my_Type *getObject(bslma_Allocator *basicAllocator = 0);
+//  my_Type *getObject(bslma::Allocator *basicAllocator = 0);
 //
-//  my_Type *myPtr3 = getObject(bslma_Allocator *basicAllocator = 0);
+//  my_Type *myPtr3 = getObject(bslma::Allocator *basicAllocator = 0);
 //  bcema_SharedPtr<my_Type> mySharedPtr3(myPtr3, &deleteObject, 0);
 //
-//  my_Type *myPtr4 = getObject(bslma_Allocator *basicAllocator = 0);
+//  my_Type *myPtr4 = getObject(bslma::Allocator *basicAllocator = 0);
 //  FunctionLikeDeleterObject deleter;
 //  bcema_SharedPtr<my_Type> mySharedPtr4(myPtr4, deleter, &sa);
 //..
@@ -327,14 +327,14 @@ BDES_IDENT("$Id: $")
 // be non-modifiable.  (For the example above, note that 'operator()' is
 // intentionally *not* defined 'const'.)
 //
-// Also note that the third argument (of type 'bslma_Allocator *') to the
+// Also note that the third argument (of type 'bslma::Allocator *') to the
 // constructor of 'myOtherSharedPtr' is not optional as is otherwise the norm
 // in this constructor form; you must always pass it, even if you want to use
 // the default allocator (in which case you should pass 0, as above).  This is
 // because making the allocator parameter optional results in the
 // compiler having to make a decision between
-// 'bcema_SharedPtr(TYPE *ptr, DELETER deleter, bslma_Allocator *allocator)'
-// and 'bcema_SharedPtr(TYPE *ptr, bslma_Allocator *allocator)' and may select
+// 'bcema_SharedPtr(TYPE *ptr, DELETER deleter, bslma::Allocator *allocator)'
+// and 'bcema_SharedPtr(TYPE *ptr, bslma::Allocator *allocator)' and may select
 // the function that the user does not expect.
 //
 ///Aliasing
@@ -412,7 +412,7 @@ BDES_IDENT("$Id: $")
 // does allow a conversion to an "unspecified bool type" (which is *not*
 // 'bool') so as to retain the "comparison to 0" idiom:
 //..
-//  bslma_NewDeleteAllocator nda;
+//  bslma::NewDeleteAllocator nda;
 //  bcema_SharedPtr<int> sp1(new (nda) int(), &nda);
 //  if (sp1) {   // OK
 //      // . . .
@@ -495,7 +495,7 @@ BDES_IDENT("$Id: $")
 // to type 'A' ('bcema_SharedPtr<A>') to a shared pointer to type 'B'
 // ('bcema_SharedPtr<B>'):
 //..
-//  bslma_NewDeleteAllocator nda;
+//  bslma::NewDeleteAllocator nda;
 //  bcema_SharedPtr<A> sp1(new (nda) A(), &nda);
 //  bcema_SharedPtr<B> sp2 = bcema_SharedPtrUtil::dynamicCast<B>(sp1);
 //  bcema_SharedPtr<B> sp3;
@@ -559,11 +559,11 @@ BDES_IDENT("$Id: $")
 // in 'bcema_SharedPtrUtil' for use in place of 'bsl::less' in 'bsl::map' and
 // other standard associative containers.
 //
-// Finally, this component supports allocators following the 'bslma_Allocator'
+// Finally, this component supports allocators following the 'bslma::Allocator'
 // protocol and not the C++ Standard Allocators (section 20.1.2).
 //
 // CAVEAT: This implementation follows the BDE conventions on passing 0 as a
-// 'bslma_Allocator *' argument.  A user who wishes to remain compliant with
+// 'bslma::Allocator *' argument.  A user who wishes to remain compliant with
 // future C++ Standard specifications should not rely on this default allocator
 // behavior.  To remain compliant with the standard 'std::shared_ptr', future
 // versions of this component may use the '::operator delete' to destroy the
@@ -586,13 +586,13 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      MyUser(bslma_Allocator *alloc = 0) : d_name(alloc), d_id(0) {}
-//      MyUser(const bsl::string& name, int id, bslma_Allocator *alloc = 0)
+//      MyUser(bslma::Allocator *alloc = 0) : d_name(alloc), d_id(0) {}
+//      MyUser(const bsl::string& name, int id, bslma::Allocator *alloc = 0)
 //      : d_name(name, alloc)
 //      , d_id(id)
 //      {
 //      }
-//      MyUser(const MyUser& original, bslma_Allocator *alloc = 0)
+//      MyUser(const MyUser& original, bslma::Allocator *alloc = 0)
 //      : d_name(original.d_name, alloc)
 //      , d_id(original.d_id)
 //      {
@@ -613,11 +613,11 @@ BDES_IDENT("$Id: $")
 // allocated using the same allocator.  Also note that if 'allocator' is 0, the
 // currently-installed default allocator is used.
 //..
-//  bcema_SharedPtr<MyUser> createUser(bsl::string      name,
-//                                     int              id,
-//                                     bslma_Allocator *allocator = 0)
+//  bcema_SharedPtr<MyUser> createUser(bsl::string       name,
+//                                     int               id,
+//                                     bslma::Allocator *allocator = 0)
 //  {
-//      allocator = bslma_Default::allocator(allocator);
+//      allocator = bslma::Default::allocator(allocator);
 //      MyUser *user = new (*allocator) MyUser(name, id, allocator);
 //      return bcema_SharedPtr<MyUser>(user, allocator);
 //  }
@@ -629,9 +629,9 @@ BDES_IDENT("$Id: $")
 // Allocator Model" above).  Also note that if 'allocator' is 0, the
 // currently-installed default allocator is used.
 //..
-//  bcema_SharedPtr<MyUser> createUser2(bsl::string      name,
-//                                      int              id,
-//                                      bslma_Allocator *allocator = 0)
+//  bcema_SharedPtr<MyUser> createUser2(bsl::string       name,
+//                                      int               id,
+//                                      bslma::Allocator *allocator = 0)
 //  {
 //      bcema_SharedPtr<MyUser> user;
 //      user.createInplace(allocator, name, id, allocator);
@@ -675,7 +675,7 @@ BDES_IDENT("$Id: $")
 //                             const MyTransactionInfo& transaction);
 //    public:
 //      // CLASS METHODS
-//      static MyUser *systemUser(bslma_Allocator *basicAllocator = 0);
+//      static MyUser *systemUser(bslma::Allocator *basicAllocator = 0);
 //
 //      // MANIPULATORS
 //      int enqueueSystemTransaction(const MyTransactionInfo& transaction);
@@ -688,7 +688,7 @@ BDES_IDENT("$Id: $")
 // The 'systemUser' class method returns the same 'MyUser' object and should
 // not be destroyed by its users:
 //..
-//  MyUser *MyTransactionManager::systemUser(bslma_Allocator *basicAllocator)
+//  MyUser *MyTransactionManager::systemUser(bslma::Allocator *basicAllocator)
 //  {
 //      static MyUser *systemUserSingleton;
 //      if (!systemUserSingleton) {
@@ -871,10 +871,10 @@ BDES_IDENT("$Id: $")
 //      typedef bsl::map<int, bcema_SharedPtr<my_Session> > HandleMap;
 //
 //      // DATA
-//      bcemt_Mutex      d_mutex;
-//      HandleMap        d_handles;
-//      int              d_nextSessionId;
-//      bslma_Allocator *d_allocator_p;
+//      bcemt_Mutex       d_mutex;
+//      HandleMap         d_handles;
+//      int               d_nextSessionId;
+//      bslma::Allocator *d_allocator_p;
 //
 //..
 // It is useful to have a designated name for the 'bcema_SharedPtr' to
@@ -887,7 +887,7 @@ BDES_IDENT("$Id: $")
 // We need only a default constructor:
 //..
 //      // CREATORS
-//      my_SessionManager(bslma_Allocator *allocator = 0);
+//      my_SessionManager(bslma::Allocator *allocator = 0);
 //..
 // The 3 methods that follow construct a new session object and return a
 // 'bcema_SharedPtr' to it.  Callers can transfer the pointer, but they cannot
@@ -915,7 +915,7 @@ BDES_IDENT("$Id: $")
 //      // CREATORS
 //      my_Session(const bsl::string&  sessionName,
 //                 int                 handleId,
-//                 bslma_Allocator    *basicAllocator = 0);
+//                 bslma::Allocator   *basicAllocator = 0);
 //
 //      // ACCESSORS
 //      int handleId() const;
@@ -926,7 +926,7 @@ BDES_IDENT("$Id: $")
 //  inline
 //  my_Session::my_Session(const bsl::string&  sessionName,
 //                         int                 handleId,
-//                         bslma_Allocator    *basicAllocator)
+//                         bslma::Allocator   *basicAllocator)
 //  : d_sessionName(sessionName, basicAllocator)
 //  , d_handleId(handleId)
 //  {
@@ -949,9 +949,9 @@ BDES_IDENT("$Id: $")
 // the interface for 'my_Session' is not known:
 //..
 //  inline
-//  my_SessionManager::my_SessionManager(bslma_Allocator *allocator)
+//  my_SessionManager::my_SessionManager(bslma::Allocator *allocator)
 //  : d_nextSessionId(1)
-//  , d_allocator_p(bslma_Default::allocator(allocator))
+//  , d_allocator_p(bslma::Default::allocator(allocator))
 //  {
 //  }
 //
@@ -1002,10 +1002,10 @@ BDES_IDENT("$Id: $")
 //      typedef bsl::map<int, bcema_SharedPtr<void> > HandleMap;
 //
 //      // DATA
-//      bcemt_Mutex      d_mutex;
-//      HandleMap        d_handles;
-//      int              d_nextSessionId;
-//      bslma_Allocator *d_allocator_p;
+//      bcemt_Mutex       d_mutex;
+//      HandleMap         d_handles;
+//      int               d_nextSessionId;
+//      bslma::Allocator *d_allocator_p;
 //..
 // It is useful to have a name for the 'void' 'bcema_SharedPtr' handle.
 //..
@@ -1014,7 +1014,7 @@ BDES_IDENT("$Id: $")
 //      typedef bcema_SharedPtr<void> my_Handle;
 //
 //      // CREATORS
-//      my_SessionManager(bslma_Allocator *allocator = 0);
+//      my_SessionManager(bslma::Allocator *allocator = 0);
 //
 //      // MANIPULATORS
 //      my_Handle openSession(const bsl::string& sessionName);
@@ -1028,9 +1028,9 @@ BDES_IDENT("$Id: $")
 //..
 //  // CREATORS
 //  inline
-//  my_SessionManager::my_SessionManager(bslma_Allocator *allocator)
+//  my_SessionManager::my_SessionManager(bslma::Allocator *allocator)
 //  : d_nextSessionId(1)
-//  , d_allocator_p(bslma_Default::allocator(allocator))
+//  , d_allocator_p(bslma::Default::allocator(allocator))
 //  {
 //  }
 //
@@ -1254,8 +1254,8 @@ class bcema_SharedPtr {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bcema_SharedPtr,
-                                  bslalg_TypeTraitHasPointerSemantics,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitHasPointerSemantics,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     bcema_SharedPtr();
@@ -1263,7 +1263,7 @@ class bcema_SharedPtr {
         // representation, that does not refer to any object and has no
         // deleter.
 
-    explicit bcema_SharedPtr(TYPE *ptr, bslma_Allocator *basicAllocator = 0);
+    explicit bcema_SharedPtr(TYPE *ptr, bslma::Allocator *basicAllocator = 0);
         // Create a shared pointer that refers to and manages the modifiable
         // object of parameterized 'TYPE' at the specified 'ptr' address.
         // Optionally specify an 'basicAllocator' to allocate and deallocate
@@ -1279,8 +1279,8 @@ class bcema_SharedPtr {
         // is not specified.
 
     template <class BCE_OTHER_TYPE>
-    explicit bcema_SharedPtr(BCE_OTHER_TYPE  *ptr,
-                             bslma_Allocator *basicAllocator = 0);
+    explicit bcema_SharedPtr(BCE_OTHER_TYPE   *ptr,
+                             bslma::Allocator *basicAllocator = 0);
         // Create a shared pointer that refers to and manages the modifiable
         // object of parameterized 'BCE_OTHER_TYPE' at the specified 'ptr'
         // address and refers to '(TYPE *)ptr'.  Optionally specify an
@@ -1300,7 +1300,7 @@ class bcema_SharedPtr {
 
     template <class BCE_OTHER_TYPE>
     bcema_SharedPtr(bdema_ManagedPtr<BCE_OTHER_TYPE>  managedPtr,
-                    bslma_Allocator                  *basicAllocator = 0);
+                    bslma::Allocator                 *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object (if any) previously managed by the specified
         // 'managedPtr' to the parameterized 'BCE_OTHER_TYPE', and that refers
@@ -1317,7 +1317,7 @@ class bcema_SharedPtr {
     template <class BCE_OTHER_TYPE>
     explicit bcema_SharedPtr(
                            bsl::auto_ptr<BCE_OTHER_TYPE>&  autoPtr,
-                           bslma_Allocator                *basicAllocator = 0);
+                           bslma::Allocator               *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'autoPtr' to
         // the parameterized 'BCE_OTHER_TYPE', and that refers to
@@ -1331,9 +1331,9 @@ class bcema_SharedPtr {
         // error.
 
     template <class BCE_OTHER_TYPE, class DELETER>
-    bcema_SharedPtr(BCE_OTHER_TYPE  *ptr,
-                    const DELETER&   deleter,
-                    bslma_Allocator *basicAllocator);
+    bcema_SharedPtr(BCE_OTHER_TYPE   *ptr,
+                    const DELETER&    deleter,
+                    bslma::Allocator *basicAllocator);
         // Create a shared pointer that manages a modifiable object of
         // parameterized 'BCE_OTHER_TYPE' and refers to '(TYPE *)ptr', using
         // the specified 'deleter' to delete the shared object when all
@@ -1357,8 +1357,8 @@ class bcema_SharedPtr {
         // Also note that 'basicAllocator' is not optional in this constructor
         // form.  The reason is to avoid hiding the two-argument constructor:
         //..
-        //  bcema_SharedPtr(BCE_OTHER_TYPE  *ptr,
-        //                  bslma_Allocator *basicAllocator = 0)
+        //  bcema_SharedPtr(BCE_OTHER_TYPE   *ptr,
+        //                  bslma::Allocator *basicAllocator = 0)
         //..
         // defined above.  Allowing the third argument to this constructor to
         // be optional would cause it to be the best match for a constructor
@@ -1465,7 +1465,7 @@ class bcema_SharedPtr {
         // DEPRECATED: Use 'reset' instead.
 
     template <class BCE_OTHER_TYPE>
-    void load(BCE_OTHER_TYPE *ptr, bslma_Allocator *basicAllocator = 0);
+    void load(BCE_OTHER_TYPE *ptr, bslma::Allocator *basicAllocator = 0);
         // Modify this shared pointer to manage the modifiable object of the
         // parameterized 'BCE_OTHER_TYPE' at the specified 'ptr' address and
         // refer to '(TYPE *)ptr'.  If this shared pointer is already managing
@@ -1487,9 +1487,9 @@ class bcema_SharedPtr {
         // delete' if an allocator is not specified.
 
     template <class BCE_OTHER_TYPE, class DELETER>
-    void load(BCE_OTHER_TYPE  *ptr,
-              const DELETER&   deleter,
-              bslma_Allocator *basicAllocator);
+    void load(BCE_OTHER_TYPE   *ptr,
+              const DELETER&    deleter,
+              bslma::Allocator *basicAllocator);
         // Modify this shared pointer to manage the modifiable object of the
         // parameterized 'BCE_OTHER_TYPE' at the specified 'ptr' address and to
         // refer to '(TYPE *)ptr', using the specified 'deleter' to delete the
@@ -1545,7 +1545,7 @@ class bcema_SharedPtr {
         //  *this = bcema_SharedPtr<TYPE>(source, object);
         //..
 
-    void createInplace(bslma_Allocator *basicAllocator = 0);
+    void createInplace(bslma::Allocator *basicAllocator = 0);
         // Create "in-place" in a large enough contiguous memory region both an
         // internal representation for this shared pointer and a
         // default-constructed instance of 'TYPE', and make this shared pointer
@@ -1563,57 +1563,57 @@ class bcema_SharedPtr {
         // 'createInplace' below.
 
     template <class A1>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1);
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1);
     template <class A1, class A2>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2);
     template <class A1, class A2, class A3>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3);
     template <class A1, class A2, class A3, class A4>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4);
     template <class A1, class A2, class A3, class A4, class A5>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5);
     template <class A1, class A2, class A3, class A4, class A5, class A6>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7,
                        const A8& a8);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7,
                        const A8& a8, const A9& a9);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7,
                        const A8& a8, const A9& a9, const A10& a10);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7,
                        const A8& a8, const A9& a9, const A10& a10,
                        const A11& a11);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7,
                        const A8& a8, const A9& a9, const A10& a10,
@@ -1621,7 +1621,7 @@ class bcema_SharedPtr {
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7,
                        const A8& a8, const A9& a9, const A10& a10,
@@ -1629,7 +1629,7 @@ class bcema_SharedPtr {
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13, class A14>
-    void createInplace(bslma_Allocator *basicAllocator, const A1& a1,
+    void createInplace(bslma::Allocator *basicAllocator, const A1& a1,
                        const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7,
                        const A8& a8, const A9& a9, const A10& a10,
@@ -1781,7 +1781,7 @@ class bcema_SharedPtr {
         // until all references to 'ptr' have been released.  Also note that if
         // 'ptr' is 0, then this shared pointer will be reset to the empty
         // state and 'deleter' is ignored.  The behavior of this method is the
-        // same as 'load(ptr, deleter, (bslma_Allocator *)0)'.
+        // same as 'load(ptr, deleter, (bslma::Allocator *)0)'.
 
     template <class BCE_OTHER_TYPE>
     void reset(const bcema_SharedPtr<BCE_OTHER_TYPE>& source, TYPE *ptr);
@@ -1982,8 +1982,8 @@ struct bcema_SharedPtrUtil {
 
     static
     bcema_SharedPtr<char>
-    createInplaceUninitializedBuffer(bsl::size_t      bufferSize,
-                                     bslma_Allocator *basicAllocator = 0);
+    createInplaceUninitializedBuffer(bsl::size_t       bufferSize,
+                                     bslma::Allocator *basicAllocator = 0);
         // Return a shared pointer with an in-place representation to a
         // newly-created uninitialized buffer of the specified 'bufferSize' (in
         // bytes).  Optionally specify a 'basicAllocator' used to supply
@@ -2026,21 +2026,22 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr()
 
 template <class TYPE>
 inline
-bcema_SharedPtr<TYPE>::bcema_SharedPtr(TYPE            *ptr,
-                                       bslma_Allocator *basicAllocator)
+bcema_SharedPtr<TYPE>::bcema_SharedPtr(TYPE             *ptr,
+                                       bslma::Allocator *basicAllocator)
 {
     d_ptr_p = ptr;
-    d_rep_p = bcema_SharedPtrOutofplaceRep<TYPE, bslma_Allocator*>::
+    d_rep_p = bcema_SharedPtrOutofplaceRep<TYPE, bslma::Allocator *>::
                         makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 }
 
 template <class TYPE>
 template <class BCE_OTHER_TYPE>
-bcema_SharedPtr<TYPE>::bcema_SharedPtr(BCE_OTHER_TYPE  *ptr,
-                                       bslma_Allocator *basicAllocator)
+bcema_SharedPtr<TYPE>::bcema_SharedPtr(BCE_OTHER_TYPE   *ptr,
+                                       bslma::Allocator *basicAllocator)
 {
     d_ptr_p = ptr;
-    d_rep_p = bcema_SharedPtrOutofplaceRep<BCE_OTHER_TYPE, bslma_Allocator*>::
+    d_rep_p = bcema_SharedPtrOutofplaceRep<BCE_OTHER_TYPE,
+                                           bslma::Allocator *>::
                         makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 }
 
@@ -2048,7 +2049,7 @@ template <class TYPE>
 template <class BCE_OTHER_TYPE>
 bcema_SharedPtr<TYPE>::bcema_SharedPtr(
                               bdema_ManagedPtr<BCE_OTHER_TYPE>  managedPtr,
-                              bslma_Allocator                  *basicAllocator)
+                              bslma::Allocator                 *basicAllocator)
 : d_ptr_p(managedPtr.ptr())
 , d_rep_p(0)
 {
@@ -2063,7 +2064,7 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(
                                          managedPtr.release().second.factory();
         }
         else {
-            basicAllocator = bslma_Default::allocator(basicAllocator);
+            basicAllocator = bslma::Default::allocator(basicAllocator);
             Rep *rep = new(*basicAllocator) Rep(basicAllocator);
             (*rep->ptr()) = managedPtr;
             d_rep_p = rep;
@@ -2075,14 +2076,14 @@ template <class TYPE>
 template <class BCE_OTHER_TYPE>
 bcema_SharedPtr<TYPE>::bcema_SharedPtr(
                                 bsl::auto_ptr<BCE_OTHER_TYPE>&  autoPtr,
-                                bslma_Allocator                *basicAllocator)
+                                bslma::Allocator               *basicAllocator)
 : d_ptr_p(autoPtr.get())
 , d_rep_p(0)
 {
     typedef bcema_SharedPtrInplaceRep<bsl::auto_ptr<BCE_OTHER_TYPE> > Rep;
 
     if (d_ptr_p) {
-        basicAllocator = bslma_Default::allocator(basicAllocator);
+        basicAllocator = bslma::Default::allocator(basicAllocator);
         Rep *rep = new (*basicAllocator) Rep(basicAllocator);
         (*rep->ptr()) = autoPtr;
         d_rep_p = rep;
@@ -2091,9 +2092,9 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(
 
 template <class TYPE>
 template <class BCE_OTHER_TYPE, class DELETER>
-bcema_SharedPtr<TYPE>::bcema_SharedPtr(BCE_OTHER_TYPE  *ptr,
-                                       const DELETER&   deleter,
-                                       bslma_Allocator *basicAllocator)
+bcema_SharedPtr<TYPE>::bcema_SharedPtr(BCE_OTHER_TYPE   *ptr,
+                                       const DELETER&    deleter,
+                                       bslma::Allocator *basicAllocator)
 : d_ptr_p(ptr)
 , d_rep_p(0)
 {
@@ -2222,17 +2223,17 @@ void bcema_SharedPtr<TYPE>::clear()
 
 template <class TYPE>
 template <class BCE_OTHER_TYPE>
-void bcema_SharedPtr<TYPE>::load(BCE_OTHER_TYPE  *ptr,
-                                 bslma_Allocator *basicAllocator)
+void bcema_SharedPtr<TYPE>::load(BCE_OTHER_TYPE   *ptr,
+                                 bslma::Allocator *basicAllocator)
 {
     SelfType(ptr, basicAllocator).swap(*this);
 }
 
 template <class TYPE>
 template <class BCE_OTHER_TYPE, class DELETER>
-void bcema_SharedPtr<TYPE>::load(BCE_OTHER_TYPE  *ptr,
-                                 const DELETER&   deleter,
-                                 bslma_Allocator *basicAllocator)
+void bcema_SharedPtr<TYPE>::load(BCE_OTHER_TYPE   *ptr,
+                                 const DELETER&    deleter,
+                                 bslma::Allocator *basicAllocator)
 {
     SelfType(ptr, deleter, basicAllocator).swap(*this);
 }
@@ -2252,91 +2253,91 @@ void bcema_SharedPtr<TYPE>::loadAlias(
 }
 
 template <class TYPE>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator);
     SelfType(rep->ptr(), rep).swap(*this);
 }
 
 template <class TYPE>
 template <class A1>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator, a1);
     SelfType(rep->ptr(), rep).swap(*this);
 }
 
 template <class TYPE>
 template <class A1, class A2>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator, a1, a2);
     SelfType(rep->ptr(), rep).swap(*this);
 }
 
 template <class TYPE>
 template <class A1, class A2, class A3>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator, a1, a2, a3);
     SelfType(rep->ptr(), rep).swap(*this);
 }
 
 template <class TYPE>
 template <class A1, class A2, class A3, class A4>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator, a1, a2, a3, a4);
     SelfType(rep->ptr(), rep).swap(*this);
 }
 
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator, a1, a2, a3, a4, a5);
     SelfType(rep->ptr(), rep).swap(*this);
 }
 
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5,
-                                          const A6&        a6)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5,
+                                          const A6&         a6)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
                                          a1,
                                          a2,
@@ -2350,17 +2351,17 @@ void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5,
-                                          const A6&        a6,
-                                          const A7&        a7)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5,
+                                          const A6&         a6,
+                                          const A7&         a7)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
                                          a1,
                                          a2,
@@ -2375,18 +2376,18 @@ void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5,
-                                          const A6&        a6,
-                                          const A7&        a7,
-                                          const A8&        a8)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5,
+                                          const A6&         a6,
+                                          const A7&         a7,
+                                          const A8&         a8)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
                                          a1,
                                          a2,
@@ -2402,19 +2403,19 @@ void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5,
-                                          const A6&        a6,
-                                          const A7&        a7,
-                                          const A8&        a8,
-                                          const A9&        a9)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5,
+                                          const A6&         a6,
+                                          const A7&         a7,
+                                          const A8&         a8,
+                                          const A9&         a9)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
                                          a1,
                                          a2,
@@ -2431,20 +2432,20 @@ void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5,
-                                          const A6&        a6,
-                                          const A7&        a7,
-                                          const A8&        a8,
-                                          const A9&        a9,
-                                          const A10&       a10)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5,
+                                          const A6&         a6,
+                                          const A7&         a7,
+                                          const A8&         a8,
+                                          const A9&         a9,
+                                          const A10&        a10)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
                                          a1,
                                          a2,
@@ -2462,21 +2463,21 @@ void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5,
-                                          const A6&        a6,
-                                          const A7&        a7,
-                                          const A8&        a8,
-                                          const A9&        a9,
-                                          const A10&       a10,
-                                          const A11&       a11)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5,
+                                          const A6&         a6,
+                                          const A7&         a7,
+                                          const A8&         a8,
+                                          const A9&         a9,
+                                          const A10&        a10,
+                                          const A11&        a11)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
                                          a1,
                                          a2,
@@ -2495,22 +2496,22 @@ void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11, class A12>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5,
-                                          const A6&        a6,
-                                          const A7&        a7,
-                                          const A8&        a8,
-                                          const A9&        a9,
-                                          const A10&       a10,
-                                          const A11&       a11,
-                                          const A12&       a12)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5,
+                                          const A6&         a6,
+                                          const A7&         a7,
+                                          const A8&         a8,
+                                          const A9&         a9,
+                                          const A10&        a10,
+                                          const A11&        a11,
+                                          const A12&        a12)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
                                          a1,
                                          a2,
@@ -2531,23 +2532,23 @@ template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5,
-                                          const A6&        a6,
-                                          const A7&        a7,
-                                          const A8&        a8,
-                                          const A9&        a9,
-                                          const A10&       a10,
-                                          const A11&       a11,
-                                          const A12&       a12,
-                                          const A13&       a13)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5,
+                                          const A6&         a6,
+                                          const A7&         a7,
+                                          const A8&         a8,
+                                          const A9&         a9,
+                                          const A10&        a10,
+                                          const A11&        a11,
+                                          const A12&        a12,
+                                          const A13&        a13)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
                                          a1,
                                          a2,
@@ -2569,24 +2570,24 @@ template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13, class A14>
-void bcema_SharedPtr<TYPE>::createInplace(bslma_Allocator *basicAllocator,
-                                          const A1&        a1,
-                                          const A2&        a2,
-                                          const A3&        a3,
-                                          const A4&        a4,
-                                          const A5&        a5,
-                                          const A6&        a6,
-                                          const A7&        a7,
-                                          const A8&        a8,
-                                          const A9&        a9,
-                                          const A10&       a10,
-                                          const A11&       a11,
-                                          const A12&       a12,
-                                          const A13&       a13,
-                                          const A14&       a14)
+void bcema_SharedPtr<TYPE>::createInplace(bslma::Allocator *basicAllocator,
+                                          const A1&         a1,
+                                          const A2&         a2,
+                                          const A3&         a3,
+                                          const A4&         a4,
+                                          const A5&         a5,
+                                          const A6&         a6,
+                                          const A7&         a7,
+                                          const A8&         a8,
+                                          const A9&         a9,
+                                          const A10&        a10,
+                                          const A11&        a11,
+                                          const A12&        a12,
+                                          const A13&        a13,
+                                          const A14&        a14)
 {
     typedef bcema_SharedPtrInplaceRep<TYPE> Rep;
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
                                          a1,
                                          a2,

@@ -129,11 +129,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator defaultAllocator(veryVeryVerbose);
-    bslma_Default::setDefaultAllocatorRaw(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator(veryVeryVerbose);
+    bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
-    bslma_TestAllocator globalAllocator(veryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator(veryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
