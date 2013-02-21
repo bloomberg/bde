@@ -1008,7 +1008,6 @@ int main(int argc, char *argv[])
         const Uint64 M     = 1000000;
 
         const Ti MNS_T(0, 999999999);
-        const Ti MNS2_T = Ti(MNS_T).addNanoseconds(999999999);
 
         // Numbers of units to be consumed during different intervals
         // at maximum rate.
@@ -1387,7 +1386,6 @@ int main(int argc, char *argv[])
         const Uint64 G     = 1000000000;
 
         const Ti MNS_T(0, 999999999);
-        const Ti MNS2_T = Ti(MNS_T).addNanoseconds(999999999);
 
         // Numbers of units to be consumed during different intervals
         // at maximum rate.
