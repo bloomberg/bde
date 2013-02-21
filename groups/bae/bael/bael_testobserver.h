@@ -140,12 +140,12 @@ BDES_IDENT("$Id: $")
 #include <bdem_list.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
@@ -198,8 +198,8 @@ class bael_TestObserver : public bael_Observer {
         // created since this process has begun.
 
     // CREATORS
-    bael_TestObserver(bsl::ostream&    stream,
-                      bslma_Allocator *basicAllocator = 0);
+    bael_TestObserver(bsl::ostream&     stream,
+                      bslma::Allocator *basicAllocator = 0);
         // Create a test observer having a unique integer identifier, whose
         // 'publish' method will send it's output (if any) to the specified
         // 'stream'.  Optionally specify a 'basicAllocator' used to supply
@@ -265,8 +265,8 @@ int bael_TestObserver::numInstances()
 
 // CREATORS
 inline
-bael_TestObserver::bael_TestObserver(bsl::ostream&    stream,
-                                     bslma_Allocator *basicAllocator)
+bael_TestObserver::bael_TestObserver(bsl::ostream&     stream,
+                                     bslma::Allocator *basicAllocator)
 : d_stream(stream)
 , d_record(basicAllocator)
 , d_context(basicAllocator)

@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bael_fixedsizerecordbuffer_cpp,"$Id$ $CSID$")
 
+#include <bsls_alignmentutil.h>
+
 #if 0
 #include <bael_severity.h>
 #include <bcemt_barrier.h>
@@ -26,7 +28,7 @@ void bael_FixedSizeRecordBuffer::popBack()
         (d_deque.back())->numAllocatedBytes();
 
     d_currentTotalSize -=
-        bsls_PlatformUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
+           bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
 
     d_deque.pop_back();
 }
@@ -39,7 +41,7 @@ void bael_FixedSizeRecordBuffer::popFront()
         (d_deque.front())->numAllocatedBytes();
 
     d_currentTotalSize -=
-        bsls_PlatformUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
+           bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
 
     d_deque.pop_front();
 }
@@ -51,7 +53,7 @@ int bael_FixedSizeRecordBuffer::pushBack(
 
 
     int size = handle->numAllocatedBytes() +
-            bsls_PlatformUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
+           bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
 
     if (size + d_allocator.numBytesTotal() > d_maxTotalSize) {
         // impossible to accommodate this record
@@ -72,12 +74,11 @@ int bael_FixedSizeRecordBuffer::pushBack(
         d_currentTotalSize += size;
     }
 
-
     while(d_currentTotalSize + d_allocator.numBytesTotal() > d_maxTotalSize) {
         d_currentTotalSize -=
             (d_deque.front())->numAllocatedBytes();
         d_currentTotalSize -=
-            bsls_PlatformUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
+           bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
         d_deque.pop_front();
     }
     return returnValue;
@@ -90,7 +91,7 @@ int bael_FixedSizeRecordBuffer::pushFront(
 
 
     int size = handle->numAllocatedBytes() +
-            bsls_PlatformUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
+           bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
     if (size + d_allocator.numBytesTotal() > d_maxTotalSize) {
         // impossible to accommodate this record
         return -1;
@@ -110,12 +111,11 @@ int bael_FixedSizeRecordBuffer::pushFront(
         d_currentTotalSize += size;
     }
 
-
     while(d_currentTotalSize + d_allocator.numBytesTotal() > d_maxTotalSize) {
         d_currentTotalSize -=
             (d_deque.back())->numAllocatedBytes();
         d_currentTotalSize -=
-            bsls_PlatformUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
+           bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(bael_Record));
         d_deque.pop_back();
     }
     return returnValue;

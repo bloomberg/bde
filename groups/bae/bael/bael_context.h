@@ -206,16 +206,16 @@ BDES_IDENT("$Id: $")
 #include <bael_transmission.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -295,7 +295,7 @@ class bael_Context {
         // DEPRECATED: replaced by 'maxSupportedBdexVersion'.
 
     // CREATORS
-    bael_Context(bslma_Allocator *basicAllocator = 0);
+    bael_Context(bslma::Allocator *basicAllocator = 0);
         // Create a context object with all attributes having default values.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -304,7 +304,7 @@ class bael_Context {
     bael_Context(bael_Transmission::Cause  transmissionCause,
                  int                       recordIndex,
                  int                       sequenceLength,
-                 bslma_Allocator          *basicAllocator = 0);
+                 bslma::Allocator         *basicAllocator = 0);
         // Create a context object indicating the specified
         // 'transmissionCause', 'recordIndex', and 'sequenceLength' values.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -313,7 +313,7 @@ class bael_Context {
         // are incompatible.
 
     bael_Context(const bael_Context&  original,
-                 bslma_Allocator     *basicAllocator = 0);
+                 bslma::Allocator    *basicAllocator = 0);
         // Create a context object having the value of the specified 'original'
         // context object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -441,7 +441,7 @@ int bael_Context::maxSupportedVersion()
 
 // CREATORS
 inline
-bael_Context::bael_Context(bslma_Allocator *basicAllocator)
+bael_Context::bael_Context(bslma::Allocator *basicAllocator)
 : d_transmissionCause(bael_Transmission::BAEL_PASSTHROUGH)
 , d_recordIndex(0)
 , d_sequenceLength(1)
@@ -453,7 +453,7 @@ inline
 bael_Context::bael_Context(bael_Transmission::Cause  transmissionCause,
                            int                       recordIndex,
                            int                       sequenceLength,
-                           bslma_Allocator          *basicAllocator)
+                           bslma::Allocator         *basicAllocator)
 : d_transmissionCause(transmissionCause)
 , d_recordIndex(recordIndex)
 , d_sequenceLength(sequenceLength)
@@ -463,7 +463,7 @@ bael_Context::bael_Context(bael_Transmission::Cause  transmissionCause,
 
 inline
 bael_Context::bael_Context(const bael_Context&  original,
-                           bslma_Allocator     *basicAllocator)
+                           bslma::Allocator    *basicAllocator)
 : d_transmissionCause(original.d_transmissionCause)
 , d_recordIndex(original.d_recordIndex)
 , d_sequenceLength(original.d_sequenceLength)

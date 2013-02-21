@@ -6,9 +6,10 @@
 
 #include <bcemt_barrier.h>
 
-#include <bslma_default.h>
-#include <bsls_platformutil.h>
 #include <bdetu_datetime.h>
+
+#include <bslma_default.h>
+#include <bsls_types.h>
 
 #include <bsl_c_stdio.h>
 
@@ -213,7 +214,7 @@ bael_Record *buildRecord(bdet_Datetime time,
                          const char *category,
                          int severity,
                          const char *msg,
-                         bslma_Allocator *alloc)
+                         bslma::Allocator *alloc)
 {
     bael_Record *r = new (*alloc) bael_Record(alloc);
 
@@ -241,13 +242,13 @@ enum {
     NUM_THREADS    = 4
 };
 
-bslma_Allocator *basicAllocator = bslma_Default::defaultAllocator();
+bslma::Allocator *basicAllocator = bslma::Default::defaultAllocator();
 bael_FixedSizeRecordBuffer recordBuffer(MAX_TOTAL_SIZE, basicAllocator);
 
 extern "C" {
 void *workerThread15(void *arg)
 {
-    int id = (int)(bsls_PlatformUtil::IntPtr)arg; // thread id
+    int id = (int)(bsls::Types::IntPtr)arg; // thread id
     for(int i = 0; i < NUM_ITERATIONS; ++i){
         bael_Record *record =
                        new (*basicAllocator) bael_Record(basicAllocator);
@@ -307,7 +308,7 @@ enum {
 
 bcemt_Barrier barrier(2);
 
-bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+bslma::Allocator *alloc = bslma::Default::defaultAllocator();
 bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
 extern "C" {
@@ -364,7 +365,7 @@ enum {
 };
 int state = VALID;
 
-bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+bslma::Allocator *alloc = bslma::Default::defaultAllocator();
 bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
 extern "C" {
@@ -395,7 +396,7 @@ enum {
     NUM_ITERATIONS = 1000
 };
 
-bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+bslma::Allocator *alloc = bslma::Default::defaultAllocator();
 bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
 extern "C" {
@@ -541,7 +542,7 @@ int main(int argc, char *argv[])
             NUM_ITERATIONS = 10000     // number of records pushed
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;
@@ -635,7 +636,7 @@ int main(int argc, char *argv[])
                 MAX_TOTAL_SIZE = 32 * K
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;
@@ -813,7 +814,7 @@ int main(int argc, char *argv[])
                 MAX_TOTAL_SIZE = 32 * K
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;
@@ -953,7 +954,7 @@ int main(int argc, char *argv[])
                 MAX_TOTAL_SIZE = 32 * K
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;
@@ -1253,7 +1254,7 @@ int main(int argc, char *argv[])
                 MAX_TOTAL_SIZE = 32 * K
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;
@@ -1345,7 +1346,7 @@ int main(int argc, char *argv[])
                 MAX_TOTAL_SIZE = 32 * K
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;
@@ -1447,7 +1448,7 @@ int main(int argc, char *argv[])
                 MAX_TOTAL_SIZE = 32 * K
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;
@@ -1589,7 +1590,7 @@ int main(int argc, char *argv[])
                 MAX_TOTAL_SIZE = 32 * K
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;
@@ -1740,7 +1741,7 @@ int main(int argc, char *argv[])
                 MAX_TOTAL_SIZE = 32 * K
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;
@@ -1914,7 +1915,7 @@ int main(int argc, char *argv[])
                 MAX_TOTAL_SIZE = 32 * K
         };
 
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bael_FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
         bdet_Datetime now;

@@ -4,7 +4,6 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baesu_stacktraceframe_cpp,"$Id$ $CSID$")
 
-#include <bsls_platformutil.h>
 #include <bslim_printer.h>
 
 namespace BloombergLP {

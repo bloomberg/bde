@@ -651,7 +651,7 @@ struct baejsn_Encoder_DynamicTypeDispatcher {
 
     // MANIPULATORS
     template <typename TYPE>
-    int operator()(const TYPE&, bslmf_Nil);
+    int operator()(const TYPE&, bslmf::Nil);
     template <typename TYPE, typename ANY_CATEGORY>
     int operator()(const TYPE& value, ANY_CATEGORY category);
         // Encode the specified 'value' of the specified 'bdeat' 'category' in
@@ -1110,7 +1110,7 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
 // MANIPULATORS
 template <typename TYPE>
 inline
-int baejsn_Encoder_DynamicTypeDispatcher::operator()(const TYPE&, bslmf_Nil)
+int baejsn_Encoder_DynamicTypeDispatcher::operator()(const TYPE&, bslmf::Nil)
 {
     BSLS_ASSERT_OPT(!"Should be unreachable!");
 

@@ -120,7 +120,7 @@ BDES_IDENT("$Id: baem_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //         int returnCode = 0;
 //
 //         d_requestSize.update(messageSize.size());
-//         bsls_Stopwatch stopwatch;
+//         bsls::Stopwatch stopwatch;
 //         stopwatch.start();
 //
 //         // Process 'data' ('returnCode' may change).

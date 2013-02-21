@@ -52,7 +52,7 @@ BDES_IDENT("$Id: $")
 //      [unsigned] short                    DEFAULT, DEC
 //      [unsigned] int                      DEFAULT, DEC
 //      [unsigned] long                     DEFAULT, DEC
-//      bsls_PlatformUtil::[Uint64|Int64]   DEFAULT, DEC
+//      bsls::Types::[Uint64|Int64]         DEFAULT, DEC
 //      float                               DEFAULT
 //      double                              DEFAULT
 //      bsl::string                         DEFAULT, TEXT, BASE64, HEX
@@ -83,7 +83,7 @@ BDES_IDENT("$Id: $")
 //      [unsigned] short                    DEC
 //      [unsigned] int                      DEC
 //      [unsigned] long                     DEC
-//      bsls_PlatformUtil::[Uint64|Int64]   DEC
+//      bsls::Types::[Uint64|Int64]         DEC
 //      bsl::string                         TEXT
 //      bsl::vector<char>                   BASE64
 //
@@ -203,6 +203,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BDES_FLOAT
@@ -421,10 +425,10 @@ struct baexml_TypesPrintUtil_Imp {
                                    const baexml_EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
-                               bsl::ostream&                    stream,
-                               const bsls_PlatformUtil::Int64&  object,
-                               const baexml_EncoderOptions     *encoderOptions,
-                               bdeat_TypeCategory::Simple);
+                                   bsl::ostream&                stream,
+                                   const bsls::Types::Int64&    object,
+                                   const baexml_EncoderOptions *encoderOptions,
+                                   bdeat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const unsigned char&         object,
@@ -446,10 +450,10 @@ struct baexml_TypesPrintUtil_Imp {
                                    const baexml_EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
-                              bsl::ostream&                     stream,
-                              const bsls_PlatformUtil::Uint64&  object,
-                              const baexml_EncoderOptions      *encoderOptions,
-                              bdeat_TypeCategory::Simple);
+                                   bsl::ostream&                stream,
+                                   const bsls::Types::Uint64&   object,
+                                   const baexml_EncoderOptions *encoderOptions,
+                                   bdeat_TypeCategory::Simple);
 
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
@@ -518,10 +522,10 @@ struct baexml_TypesPrintUtil_Imp {
                                    const baexml_EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
-                               bsl::ostream&                    stream,
-                               const bsls_PlatformUtil::Int64&  object,
-                               const baexml_EncoderOptions     *encoderOptions,
-                               bdeat_TypeCategory::Simple);
+                                   bsl::ostream&                stream,
+                                   const bsls::Types::Int64&    object,
+                                   const baexml_EncoderOptions *encoderOptions,
+                                   bdeat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const unsigned char&         object,
@@ -543,10 +547,10 @@ struct baexml_TypesPrintUtil_Imp {
                                    const baexml_EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
-                              bsl::ostream&                     stream,
-                              const bsls_PlatformUtil::Uint64&  object,
-                              const baexml_EncoderOptions      *encoderOptions,
-                              bdeat_TypeCategory::Simple);
+                                   bsl::ostream&                stream,
+                                   const bsls::Types::Uint64&   object,
+                                   const baexml_EncoderOptions *encoderOptions,
+                                   bdeat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const float&                 object,
@@ -752,7 +756,7 @@ struct baexml_TypesPrintUtil_Imp_printBase64Proxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -788,7 +792,7 @@ struct baexml_TypesPrintUtil_Imp_printDecimalProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -824,7 +828,7 @@ struct baexml_TypesPrintUtil_Imp_printDefaultProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -860,7 +864,7 @@ struct baexml_TypesPrintUtil_Imp_printHexProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -896,7 +900,7 @@ struct baexml_TypesPrintUtil_Imp_printListProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -932,7 +936,7 @@ struct baexml_TypesPrintUtil_Imp_printTextProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -1259,10 +1263,10 @@ bsl::ostream& baexml_TypesPrintUtil_Imp::printDecimal(
 
 inline
 bsl::ostream& baexml_TypesPrintUtil_Imp::printDecimal(
-                               bsl::ostream&                    stream,
-                               const bsls_PlatformUtil::Int64&  object,
-                               const baexml_EncoderOptions     *,
-                               bdeat_TypeCategory::Simple)
+                                         bsl::ostream&                stream,
+                                         const bsls::Types::Int64&    object,
+                                         const baexml_EncoderOptions *,
+                                         bdeat_TypeCategory::Simple)
 {
     return stream << object;
 }
@@ -1310,10 +1314,10 @@ bsl::ostream& baexml_TypesPrintUtil_Imp::printDecimal(
 
 inline
 bsl::ostream& baexml_TypesPrintUtil_Imp::printDecimal(
-                              bsl::ostream&                     stream,
-                              const bsls_PlatformUtil::Uint64&  object,
-                              const baexml_EncoderOptions      *,
-                              bdeat_TypeCategory::Simple)
+                                         bsl::ostream&                stream,
+                                         const bsls::Types::Uint64&   object,
+                                         const baexml_EncoderOptions *,
+                                         bdeat_TypeCategory::Simple)
 {
     return stream << object;
 }
@@ -1445,10 +1449,10 @@ bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
 
 inline
 bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
-                               bsl::ostream&                    stream,
-                               const bsls_PlatformUtil::Int64&  object,
-                               const baexml_EncoderOptions     *encoderOptions,
-                               bdeat_TypeCategory::Simple)
+                                   bsl::ostream&                stream,
+                                   const bsls::Types::Int64&    object,
+                                   const baexml_EncoderOptions *encoderOptions,
+                                   bdeat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
@@ -1510,10 +1514,10 @@ bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
 
 inline
 bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
-                              bsl::ostream&                     stream,
-                              const bsls_PlatformUtil::Uint64&  object,
-                              const baexml_EncoderOptions      *encoderOptions,
-                              bdeat_TypeCategory::Simple)
+                                   bsl::ostream&                stream,
+                                   const bsls::Types::Uint64&   object,
+                                   const baexml_EncoderOptions *encoderOptions,
+                                   bdeat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,

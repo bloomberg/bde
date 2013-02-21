@@ -27,10 +27,10 @@
 
 #include <bdetu_unset.h>                     // for testing only
 
-#include <bsls_platformutil.h>               // for testing only
-
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bsls_types.h>
 
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -141,7 +141,7 @@ typedef bdem_ElemType            EType;
 typedef bdem_FieldSpec           FieldSpec;
 typedef bdem_FieldDefAttributes  FieldAttr;
 typedef bdem_RecordDef           Record;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64       Int64;
 typedef bdem_SchemaAggregateUtil SAU;
 
 const char TESTNAMESPACE[] = "http://bloomberg.com/schemas/test";
@@ -163,8 +163,7 @@ const int             N02 = bdetu_Unset<int>::unsetValue();
 
 const Int64           A03 = -100;
 const Int64           B03 = -200;
-const Int64           N03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const Int64           N03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
 const float           A04 = -1.5;
 const float           B04 = -2.5;
@@ -2111,7 +2110,7 @@ void testData(const Data DATA[], int NUM_DATA,
 int doTest(bcem_Aggregate   *aggregate,
            const char       *xmlData,
            const char       *xmlSchema,
-           bslma_Allocator  *allocator,
+           bslma::Allocator *allocator,
            int               flags)
 
 {
@@ -2197,7 +2196,7 @@ int doTest(bcem_Aggregate   *aggregate,
 int doTest2(bcem_Aggregate                      *aggregate,
             const char                          *xmlData,
             const bcema_SharedPtr<bdem_Schema>&  bdemSchema,
-            bslma_Allocator                     *allocator,
+            bslma::Allocator                    *allocator,
             int                                  flags)
 
 {
@@ -2251,7 +2250,7 @@ int doTest2(bcem_Aggregate                      *aggregate,
 
 bcema_SharedPtr<bdem_Schema> buildBdemSchema(
                 const char         *xmlSchema,
-                bslma_Allocator    *allocator,
+                bslma::Allocator   *allocator,
                 int                 flags)
 {
     bdesb_FixedMemInStreamBuf xmlSchemaStream(xmlSchema,
@@ -2304,19 +2303,19 @@ bcema_SharedPtr<bdem_Schema> buildBdemSchema(
 //   with/without parameter DiagnosticStream,
 //   with baexml_Reader and with baexml_ValidatingReader,
 //   with/without parameter DecoderOptions,
-//   with/without bslma_Allocator.
+//   with/without bslma::Allocator.
 //   Ensure the results for all calls are identical
 // --------------------------------------------------------------------
 int doAllTests(bcem_Aggregate   *aggregate,
                const char       *xmlData,
                const char       *xmlSchema,
-               bslma_Allocator  *allocator)
+               bslma::Allocator *allocator)
 {
     // Don't let 'allocator' change after start of this function.
-    allocator = bslma_Default::allocator(allocator);
+    allocator = bslma::Default::allocator(allocator);
 
-    bslma_TestAllocator da(veryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&da);
+    bslma::TestAllocator da(veryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&da);
 
     int rc = 0;
     rc = doTest(aggregate, xmlData, xmlSchema, allocator, 0);
@@ -3376,7 +3375,7 @@ int main(int argc, char *argv[])
 
         using namespace TestCase2;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         bsl::ostream * verboseStream = 0;
 
@@ -3426,7 +3425,7 @@ int main(int argc, char *argv[])
         //   with/without parameter DiagnosticStream,
         //   with baexml_Reader and with baexml_ValidatingReader,
         //   with/without parameter DecoderOptions,
-        //   with/without bslma_Allocator
+        //   with/without bslma::Allocator
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl

@@ -51,7 +51,7 @@ BDES_IDENT_PRAGMA_ONCE
 //..
 //  class MyChoiceType {
 //    union {
-//      bsls_ObjectBuffer<MySequenceType> d_mySequence;  // selection 0
+//      bsls::ObjectBuffer<MySequenceType> d_mySequence;  // selection 0
 //      // ...
 //    };
 //    // ...

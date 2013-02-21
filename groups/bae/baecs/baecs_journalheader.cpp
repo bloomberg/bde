@@ -5,8 +5,8 @@
 #include <bdetu_epoch.h>
 #include <bdetu_systemtime.h>
 #include <bdet_timeinterval.h>
-#include <bsls_platformutil.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 const char LOG_CATEGORY[] = "BAECS.JOURNALHEADER";
 
@@ -15,7 +15,7 @@ namespace BloombergLP {
 namespace {
 
 inline
-bsls_PlatformUtil::Int64 nowAsInt64GMT()
+bsls::Types::Int64 nowAsInt64GMT()
 {
     bdet_TimeInterval now;
     bdetu_SystemTime::loadSystemTimeDefault(&now);
@@ -23,7 +23,7 @@ bsls_PlatformUtil::Int64 nowAsInt64GMT()
 }
 
 inline
-bdet_Datetime int64ToDatetime(bsls_PlatformUtil::Int64 ns)
+bdet_Datetime int64ToDatetime(bsls::Types::Int64 ns)
 {
     bdet_Datetime result = bdetu_Epoch::epoch();
     result.addMilliseconds(ns / 1000000);
@@ -114,7 +114,7 @@ void baecs_JournalHeader::commitCurrentTransaction()
 int baecs_JournalHeader::recoverTransaction(bool offset)
 {
     BSLS_ASSERT(d_persistent_p);
-    bsls_PlatformUtil::Int64 tid[OnDisk::BAECS_NUM_STATES];
+    bsls::Types::Int64 tid[OnDisk::BAECS_NUM_STATES];
 
     if (d_persistent_p->d_state[0].d_committedTransactionId.getValue(tid+0)) {
         return 1;

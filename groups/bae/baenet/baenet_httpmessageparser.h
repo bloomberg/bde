@@ -34,16 +34,16 @@ BDES_IDENT("$Id: $")
 //  class EntityWriter : public baenet_HttpEntityProcessor {
 //
 //      // PRIVATE DATA MEMBERS
-//      const char      *d_fileName;
-//      bsl::ofstream    d_outputFile;
-//      bslma_Allocator *d_allocator_p;
+//      const char       *d_fileName;
+//      bsl::ofstream     d_outputFile;
+//      bslma::Allocator *d_allocator_p;
 //
 //    public:
 //      // CREATORS
-//      explicit EntityWriter(const char      *fileName,
-//                            bslma_Allocator *basicAllocator = 0)
+//      explicit EntityWriter(const char       *fileName,
+//                            bslma::Allocator *basicAllocator = 0)
 //      : d_fileName(fileName)
-//      , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
 //      }
 //
@@ -120,12 +120,12 @@ BDES_IDENT("$Id: $")
 #include <bcema_sharedptr.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 
@@ -177,7 +177,7 @@ class baenet_HttpMessageParser {
     baenet_HttpMessageParser(
                             baenet_HttpEntityProcessor    *entityProcessor,
                             baenet_HttpMessageType::Value  messageType,
-                            bslma_Allocator               *basicAllocator = 0);
+                            bslma::Allocator              *basicAllocator = 0);
         // Create an HTTP parser that uses the specified 'entityProcessor',
         // 'messageType', and 'basicAllocator'.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.
@@ -186,7 +186,7 @@ class baenet_HttpMessageParser {
                 baenet_HttpEntityProcessor    *entityProcessor,
                 baenet_HttpMessageType::Value  messageType,
                 bcema_BlobBufferFactory       *blobBufferFactory,
-                bslma_Allocator               *basicAllocator = 0);
+                bslma::Allocator              *basicAllocator = 0);
         // Create an HTTP parser for the specified 'messageType' that calls
         // the specified 'entityProcessor' as portions of the entity are
         // processed.  Allocate blob buffers using the specified

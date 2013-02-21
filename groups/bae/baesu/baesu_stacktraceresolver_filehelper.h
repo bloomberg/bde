@@ -28,7 +28,7 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 //..
-//  bslma_TestAllocator ta;
+//  bslma::TestAllocator ta;
 //
 //  char fileNameBuffer[100];
 //  sprintf(fileNameBuffer,
@@ -127,12 +127,12 @@ BDES_IDENT("$Id: $")
 #include <bdesu_fileutil.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {
@@ -155,8 +155,8 @@ class baesu_StackTraceResolver_FileHelper {
     typedef FileUtil::FileDescriptor FdType;    // shorthand for file
                                                 // descriptor
     typedef FileUtil::Offset         Offset;
-    typedef bsls_Types::UintPtr      UintPtr;
-    typedef bsls_Types::IntPtr       IntPtr;
+    typedef bsls::Types::UintPtr     UintPtr;
+    typedef bsls::Types::IntPtr      IntPtr;
 
     // DATA
     FdType d_fd;  // file descriptor
@@ -179,10 +179,10 @@ class baesu_StackTraceResolver_FileHelper {
         // Close the file indicated at construction and destroy this object.
 
     // ACCESSORS
-    char *loadString(Offset           offset,
-                     char            *scratchBuf,
-                     int              scratchBufLength,
-                     bslma_Allocator *basicAllocator) const;
+    char *loadString(Offset            offset,
+                     char             *scratchBuf,
+                     int               scratchBufLength,
+                     bslma::Allocator *basicAllocator) const;
         // Load into memory newly allocated from the specified 'basicAllocator'
         // a zero-terminated string from the specified absolute file 'offset',
         // using the specified 'scratchBuf' of specified length

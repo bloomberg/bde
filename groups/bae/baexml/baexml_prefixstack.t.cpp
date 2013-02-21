@@ -27,7 +27,7 @@ using namespace BloombergLP;
 //   'popPrefix'.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [01] baexml_NamespaceRegistry(bslma_Allocator* allocator = 0);
+// [01] baexml_NamespaceRegistry(bslma::Allocator *allocator = 0);
 // [01] ~baexml_NamespaceRegistry();
 //
 // MANIPULATORS
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTESTING USAGE EXAMPLE"
                                << "\n=====================" << bsl::endl;
 
-        bslma_Allocator *allocator = 0;
+        bslma::Allocator *allocator = 0;
         baexml_NamespaceRegistry namespaceRegistry(allocator);
         baexml_PrefixStack z(&namespaceRegistry,allocator);
 
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
         const bsl::string P2 = "pref2";
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
 
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P, N));
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P1, N1));
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P1, N1));
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P, N));
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P1, N1));
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
         // invoke 'pushPrefix(P, N)' when neither P nor N exists in the
         // registry
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
 
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
         // invoke 'pushPrefix(P, N)' when both P and N exist in the
         // registry and P is associated with N
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P, N));
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P, N));
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P1, N1));
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P1, N1));
@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
         // invoke 'pushPrefix(P, N)' when P exist in the registry but
         // is associated with N1
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P, N1));
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
         // invoke 'pushPrefix(P, N)' when N exist in the registry but
         // N does not exist
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           baexml_PrefixStack z(&x,&ta);
           ASSERT(0 == z.pushPrefix(P1, N));
@@ -427,14 +427,14 @@ int main(int argc, char *argv[])
         const bsl::string N2 = "http://google.com/xml2";
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
 
           ASSERT(0 == x.lookupOrRegister(N));
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           ASSERT(0 == x.lookupOrRegister(N));
 
@@ -442,7 +442,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           ASSERT(0 == x.lookupOrRegister(N));
           ASSERT(0 == x.lookupOrRegister(N));
@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           ASSERT(0 == x.lookupOrRegister(N1));
 
@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           ASSERT(0 == x.lookupOrRegister(N1));
           ASSERT(1 == x.lookupOrRegister(N2));
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           ASSERT(0 == x.lookupOrRegister(N));
           ASSERT(1 == x.lookupOrRegister(N2));
@@ -477,7 +477,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           baexml_NamespaceRegistry x(&ta);
           ASSERT(0 == x.lookupOrRegister(N1));
           ASSERT(1 == x.lookupOrRegister(N));
@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
         const bsl::string  P2 = "pref2";
         const bsl::string  P3 = "pref3";
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         baexml_NamespaceRegistry x(&ta);
         baexml_PrefixStack  y(&x, &ta);
 

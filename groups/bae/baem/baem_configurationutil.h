@@ -186,7 +186,7 @@ BDES_IDENT("$Id: $")
 //  int main(int argc, char *argv[])
 //  {
 //      // ...
-//      bslma_Allocator *allocator = bslma_Default::allocator(0);
+//      bslma::Allocator *allocator = bslma::Default::allocator(0);
 //      baem_DefaultMetricsManagerScopedGuard managerGuard;
 //..
 // Now we create a user data key for our threshold information:

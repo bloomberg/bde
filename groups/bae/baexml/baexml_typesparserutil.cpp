@@ -379,10 +379,11 @@ int baexml_TypesParserUtil_Imp::parseDecimal(int        *result,
 }
 
 int
-baexml_TypesParserUtil_Imp::parseDecimal(bsls_PlatformUtil::Int64 *result,
-                                         const char               *input,
-                                         int                       inputLength,
-                                         bdeat_TypeCategory::Simple sc)
+baexml_TypesParserUtil_Imp::parseDecimal(
+                                       bsls::Types::Int64         *result,
+                                       const char                 *input,
+                                       int                         inputLength,
+                                       bdeat_TypeCategory::Simple  sc)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -394,7 +395,7 @@ baexml_TypesParserUtil_Imp::parseDecimal(bsls_PlatformUtil::Int64 *result,
     }
 
     // Parse remaining portion as unsigned
-    bsls_PlatformUtil::Uint64 temp = 0;
+    bsls::Types::Uint64 temp = 0;
     int rc = parseDecimal(&temp, input, inputLength, sc);
     if (rc != 0) {
         return rc;
@@ -436,9 +437,9 @@ int baexml_TypesParserUtil_Imp::parseDecimal(unsigned int *result,
 }
 
 int baexml_TypesParserUtil_Imp::parseDecimal(
-    bsls_PlatformUtil::Uint64 *result,
-    const char                *input,
-    int                        inputLength,
+    bsls::Types::Uint64        *result,
+    const char                 *input,
+    int                         inputLength,
     bdeat_TypeCategory::Simple)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
@@ -447,7 +448,7 @@ int baexml_TypesParserUtil_Imp::parseDecimal(
         return BAEXML_FAILURE;
     }
 
-    bsls_PlatformUtil::Uint64 val = 0;
+    bsls::Types::Uint64 val = 0;
 
     for (; 0 < inputLength; --inputLength) {
         int c = *input++;

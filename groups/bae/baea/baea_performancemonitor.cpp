@@ -130,7 +130,7 @@ int currentProcessPid()
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
 template <>
-class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
+class baea_PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
     // Provide a specialization of the 'Collector' class template for the Linux
     // platform.  SunOS, AIX, and Linux all support the /proc filesystem, from
     // which we extract the performance measures for the monitored pid.  On
@@ -140,7 +140,7 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
 
     // Note that the Linux implementation is stateless.  However, the
     // 'Collector' template requires a constructor accepting a single
-    // 'bslma_Allocator' argument.
+    // 'bslma::Allocator' argument.
 
     // PRIVATE TYPES
 
@@ -224,7 +224,7 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
 
   public:
     // CREATORS
-    Collector(bslma_Allocator *basicAllocator = 0);
+    Collector(bslma::Allocator *basicAllocator = 0);
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -244,7 +244,7 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
         // non-zero value otherwise.
 };
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::readProcStat(
+int baea_PerformanceMonitor::Collector<bsls::Platform::OsLinux>::readProcStat(
                                                          ProcStatistics *stats,
                                                          int             pid)
 {
@@ -288,12 +288,12 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::readProcStat(
     return 0;
 }
 
-baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::Collector(
-                                                             bslma_Allocator *)
+baea_PerformanceMonitor::Collector<bsls::Platform::OsLinux>::Collector(
+                                                            bslma::Allocator *)
 {
 }
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
+int baea_PerformanceMonitor::Collector<bsls::Platform::OsLinux>::initialize(
                               baea_PerformanceMonitor::Statistics *stats,
                               int                                  pid,
                               const bsl::string&                   description)
@@ -314,7 +314,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
         return -1;                                                    // RETURN
     }
 
-    static bsls_Types::Int64 bootTime = -1;
+    static bsls::Types::Int64 bootTime = -1;
     if (bootTime < 0) {
         bsl::string line;
 
@@ -344,7 +344,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
     }
 
     int jiffiesPerSec = sysconf(_SC_CLK_TCK);
-    bsls_Types::Int64 procStartTime =
+    bsls::Types::Int64 procStartTime =
                               bootTime + procStats.d_starttime / jiffiesPerSec;
                                                       // seconds since 1970 UTC
 
@@ -359,7 +359,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
     return 0;
 }
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
+int baea_PerformanceMonitor::Collector<bsls::Platform::OsLinux>::collect(
                                     baea_PerformanceMonitor::Statistics *stats)
 {
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
@@ -465,7 +465,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
 #elif defined(BSLS_PLATFORM_OS_FREEBSD)
 
 template <>
-class baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd> {
+class baea_PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd> {
     // Provide a specialization of the 'Collector' class template for the Linux
     // platform.  SunOS, AIX, and Linux all support the /proc filesystem, from
     // which we extract the performance measures for the monitored pid.  On
@@ -475,7 +475,7 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd> {
 
     // Note that the FreeBSD implementation is stateless.  However, the
     // 'Collector' template requires a constructor accepting a single
-    // 'bslma_Allocator' argument.
+    // 'bslma::Allocator' argument.
 
     // PRIVATE TYPES
 
@@ -529,7 +529,7 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd> {
 
   public:
     // CREATORS
-    Collector(bslma_Allocator *basicAllocator = 0);
+    Collector(bslma::Allocator *basicAllocator = 0);
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -549,7 +549,8 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd> {
         // non-zero value otherwise.
 };
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::readProcStat(
+int
+baea_PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::readProcStat(
                                                          ProcStatistics *stats,
                                                          int             pid)
 {
@@ -590,12 +591,12 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::readProcStat(
     return 0;
 }
 
-baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::Collector(
-                                                             bslma_Allocator *)
+baea_PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::Collector(
+                                                            bslma::Allocator *)
 {
 }
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::initialize(
+int baea_PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::initialize(
                               baea_PerformanceMonitor::Statistics *stats,
                               int                                  pid,
                               const bsl::string&                   description)
@@ -631,7 +632,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::initialize(
 
 }
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::collect(
+int baea_PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::collect(
                                     baea_PerformanceMonitor::Statistics *stats)
 {
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
@@ -716,13 +717,13 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::collect(
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
 template <>
-class baea_PerformanceMonitor::Collector<bsls_Platform::OsDarwin> {
+class baea_PerformanceMonitor::Collector<bsls::Platform::OsDarwin> {
     // Provide a specialization of the 'Collector' class template for the
     // Darwin platform.
 
   public:
     // CREATORS
-    Collector(bslma_Allocator *basicAllocator = 0)
+    Collector(bslma::Allocator *basicAllocator = 0)
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -752,7 +753,7 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsDarwin> {
 #elif defined(BSLS_PLATFORM_OS_UNIX)
 
 template <>
-class baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix> {
+class baea_PerformanceMonitor::Collector<bsls::Platform::OsUnix> {
     // Provide a specialization of the 'Collector' class template for
     // UNIX-based platforms.  SunOS, AIX, and Linux all support the /proc
     // filesystem, from which we extract the performance measures for the
@@ -760,11 +761,11 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix> {
 
     // Note that the UNIX-based implementation is stateless.  However, the
     // 'Collector' template requires a constructor accepting a single
-    // 'bslma_Allocator' argument.
+    // 'bslma::Allocator' argument.
 
   public:
     // CREATORS
-    Collector(bslma_Allocator *basicAllocator = 0);
+    Collector(bslma::Allocator *basicAllocator = 0);
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -784,12 +785,12 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix> {
         // non-zero value otherwise.
 };
 
-baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::Collector(
-                                                             bslma_Allocator *)
+baea_PerformanceMonitor::Collector<bsls::Platform::OsUnix>::Collector(
+                                                            bslma::Allocator *)
 {
 }
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::initialize(
+int baea_PerformanceMonitor::Collector<bsls::Platform::OsUnix>::initialize(
                               baea_PerformanceMonitor::Statistics *stats,
                               int                                  pid,
                               const bsl::string&                   description)
@@ -851,7 +852,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::initialize(
     return 0;
 }
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
+int baea_PerformanceMonitor::Collector<bsls::Platform::OsUnix>::collect(
                                     baea_PerformanceMonitor::Statistics *stats)
 {
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
@@ -1084,7 +1085,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
 template <>
-struct baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows> {
+struct baea_PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
     // Provide a specialization of the 'Collector' class template for
     // Windows-based platforms.  These platforms expose performance statistics
     // through the Performance Data Helper (PDH) API.
@@ -1139,7 +1140,7 @@ struct baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows> {
 
   public:
     // CREATORS
-    Collector(bslma_Allocator *basicAllocator = 0);
+    Collector(bslma::Allocator *basicAllocator = 0);
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -1163,7 +1164,7 @@ struct baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows> {
 };
 
 bsl::string
-baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::findModuleName(
+baea_PerformanceMonitor::Collector<bsls::Platform::OsWindows>::findModuleName(
                                                                        int pid)
 {
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
@@ -1195,7 +1196,7 @@ baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::findModuleName(
 }
 
 int
-baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::
+baea_PerformanceMonitor::Collector<bsls::Platform::OsWindows>::
 findInstanceIndexFromPid(PDH_HQUERY         query,
                          const bsl::string& moduleName,
                          int                pid)
@@ -1263,7 +1264,7 @@ findInstanceIndexFromPid(PDH_HQUERY         query,
 }
 
 int
-baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::rebindCounters(
+baea_PerformanceMonitor::Collector<bsls::Platform::OsWindows>::rebindCounters(
                                       bsl::vector<PDH_HCOUNTER> *counters,
                                       PDH_HQUERY                 query,
                                       const char                *name,
@@ -1321,8 +1322,8 @@ baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::rebindCounters(
     return 0;
 }
 
-baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::Collector(
-                                               bslma_Allocator *basicAllocator)
+baea_PerformanceMonitor::Collector<bsls::Platform::OsWindows>::Collector(
+                                              bslma::Allocator *basicAllocator)
 : d_instanceQuery(0)
 , d_measureQuery(0)
 , d_instanceIndex(bsl::numeric_limits<int>::max())
@@ -1343,13 +1344,13 @@ baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::Collector(
     }
 }
 
-baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::~Collector()
+baea_PerformanceMonitor::Collector<bsls::Platform::OsWindows>::~Collector()
 {
     PdhCloseQuery(d_measureQuery);
     PdhCloseQuery(d_instanceQuery);
 }
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::initialize(
+int baea_PerformanceMonitor::Collector<bsls::Platform::OsWindows>::initialize(
                               baea_PerformanceMonitor::Statistics *stats,
                               int                                  pid,
                               const bsl::string&                   description)
@@ -1389,7 +1390,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::initialize(
     return 0;
 }
 
-int baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::collect(
+int baea_PerformanceMonitor::Collector<bsls::Platform::OsWindows>::collect(
                                     baea_PerformanceMonitor::Statistics *stats)
 {
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
@@ -1525,7 +1526,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::collect(
 
 // CREATORS
 baea_PerformanceMonitor::Statistics::Statistics(
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_pid(0)
 , d_description(basicAllocator)
 , d_startTimeUtc()
@@ -1635,26 +1636,26 @@ void baea_PerformanceMonitor::Statistics::reset()
 }
 
 baea_PerformanceMonitor::baea_PerformanceMonitor(
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_pidMap(basicAllocator)
 , d_interval(0)
 , d_scheduler_p(0)
 , d_clock(bcep_TimerEventScheduler::Handle(INVALID_TIMER_HANDLE))
 , d_mapGuard()
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 baea_PerformanceMonitor::baea_PerformanceMonitor(
         bcep_TimerEventScheduler *scheduler,
         double                    interval,
-        bslma_Allocator          *basicAllocator)
+        bslma::Allocator         *basicAllocator)
 : d_pidMap(basicAllocator)
 , d_interval(interval)
 , d_scheduler_p(scheduler)
 , d_clock(bcep_TimerEventScheduler::Handle(INVALID_TIMER_HANDLE))
 , d_mapGuard()
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (interval > 0.0) {
         BSLS_ASSERT(d_scheduler_p);

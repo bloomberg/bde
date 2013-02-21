@@ -99,7 +99,7 @@ typedef bdesu_FileUtil                      FileUtil;
 typedef FileUtil::FileDescriptor            FdType;    // shorthand for file
                                                        // descriptor
 typedef baesu_StackTraceResolver_FileHelper Obj;
-typedef bsls_Types::Int64                   Int64;
+typedef bsls::Types::Int64                  Int64;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -165,8 +165,8 @@ int main(int argc, char *argv[])
     ASSERT(FileUtil::exists(tmpDirName) && FileUtil::isDirectory(tmpDirName));
 #endif
 
-    bslma_TestAllocator ta;
-    bslma_DefaultAllocatorGuard guard(&ta);
+    bslma::TestAllocator ta;
+    bslma::DefaultAllocatorGuard guard(&ta);
 
     switch(test) { case 0:
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
                          "=================================================\n";
 
 //..
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
 
     char fileNameBuffer[100];
     sprintf(fileNameBuffer,
@@ -434,7 +434,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\tloadString" << endl;
             {
@@ -520,11 +521,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'readBytes'" << endl;
 
         static const struct {
-            int                  d_line;
-            bsls_Types::UintPtr  d_numBytes;
-            FileUtil::Offset     d_offset;
-            int                  d_eofFlag;  // reading pass EOF
-            const char          *d_result;
+            int                   d_line;
+            bsls::Types::UintPtr  d_numBytes;
+            FileUtil::Offset      d_offset;
+            int                   d_eofFlag;  // reading pass EOF
+            const char           *d_result;
         } DATA[] = {
             //LINE  SIZE         OFFSET  FLAG   EXPECTED
             //----  ----         ------  ----   --------
@@ -543,12 +544,12 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int                 LINE      = DATA[ti].d_line;
-            const bsls_Types::UintPtr SIZE      = DATA[ti].d_numBytes;
-            const FileUtil::Offset    OFFSET    = DATA[ti].d_offset;
-            const char                EOF_FLAG  = (char) DATA[ti].d_eofFlag;
-            const char *const         EXP_RES   = DATA[ti].d_result;
-            const bsls_Types::UintPtr EXP_RC    = strlen(EXP_RES);
+            const int                  LINE      = DATA[ti].d_line;
+            const bsls::Types::UintPtr SIZE      = DATA[ti].d_numBytes;
+            const FileUtil::Offset     OFFSET    = DATA[ti].d_offset;
+            const char                 EOF_FLAG  = (char) DATA[ti].d_eofFlag;
+            const char *const          EXP_RES   = DATA[ti].d_result;
+            const bsls::Types::UintPtr EXP_RC    = strlen(EXP_RES);
 
             const char FILL_CHAR = '@';
             char       buf[100];
@@ -556,7 +557,7 @@ int main(int argc, char *argv[])
 
             const Obj X(fileNameBuffer);
 
-            const bsls_Types::UintPtr RC = X.readBytes(buf, SIZE, OFFSET);
+            const bsls::Types::UintPtr RC = X.readBytes(buf, SIZE, OFFSET);
             LOOP_ASSERT(LINE, EXP_RC == RC);
 
             if ('N' == EOF_FLAG) {
@@ -573,7 +574,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\treadBytes" << endl;
             {
@@ -652,7 +654,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int                  d_line;
-            bsls_Types::UintPtr  d_numBytes;
+            bsls::Types::UintPtr d_numBytes;
             FileUtil::Offset     d_offset;
             int                  d_eofFlag;  // reading pass EOF
             const char          *d_result;
@@ -674,11 +676,11 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int                 LINE     = DATA[ti].d_line;
-            const bsls_Types::UintPtr SIZE     = DATA[ti].d_numBytes;
-            const FileUtil::Offset    OFFSET   = DATA[ti].d_offset;
-            const char                EOF_FLAG = (char) DATA[ti].d_eofFlag;
-            const char *const         EXP_RES  = DATA[ti].d_result;
+            const int                  LINE     = DATA[ti].d_line;
+            const bsls::Types::UintPtr SIZE     = DATA[ti].d_numBytes;
+            const FileUtil::Offset     OFFSET   = DATA[ti].d_offset;
+            const char                 EOF_FLAG = (char) DATA[ti].d_eofFlag;
+            const char *const          EXP_RES  = DATA[ti].d_result;
 
             const char FILL_CHAR = '@';
             char       buf[100];
@@ -699,7 +701,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\treadExact" << endl;
             {
@@ -765,7 +768,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\tconstructor" << endl;
             {

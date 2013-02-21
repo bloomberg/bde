@@ -200,12 +200,12 @@ BDES_IDENT("$Id: $")
 #include <baetzo_loader.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -242,7 +242,7 @@ class baetzo_DataFileLoader : public baetzo_Loader {
         // a complete set of time-zone data.
 
     // CREATORS
-    explicit baetzo_DataFileLoader(bslma_Allocator *basicAllocator = 0);
+    explicit baetzo_DataFileLoader(bslma::Allocator *basicAllocator = 0);
         // Create an unconfigured data-file loader.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.

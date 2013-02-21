@@ -185,8 +185,8 @@ BDES_IDENT("$Id: $")
 //                case 14: // int
 //                  return lhs.value().the<int>() < rhs.value().the<int>();
 //                case 2: // int64
-//                  return lhs.value().the<bsls_PlatformUtil::Int64>() <
-//                         rhs.value().the<bsls_PlatformUtil::Int64>();
+//                  return lhs.value().the<bsls::Types::Int64>() <
+//                         rhs.value().the<bsls::Types::Int64>();
 //               case 3: // string
 //                  return lhs.value().the<bsl::string>() <
 //                         rhs.value().the<bsl::string>();
@@ -201,7 +201,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      AttributeSet(bslma_Allocator *basicAllocator = 0);
+//      AttributeSet(bslma::Allocator *basicAllocator = 0);
 //          // Create an attribute set.
 //
 //      virtual ~AttributeSet();
@@ -233,7 +233,7 @@ BDES_IDENT("$Id: $")
 // methods:
 //..
 //  inline
-//  AttributeSet::AttributeSet(bslma_Allocator *basicAllocator)
+//  AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
 //  : d_set(AttributeComparator(), basicAllocator)
 //  {
 //  }

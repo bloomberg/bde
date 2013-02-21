@@ -449,9 +449,9 @@ BDES_IDENT("$Id: $")
 // In this next example, we use 'BAEM_METRICS_IF_CATEGORY_ENABLED' to
 // conditionally disable a (relatively) expensive operation involved in
 // computing a metric value.  The 'processEvent2' function, defined below, uses
-// a 'bsls_Stopwatch' to record the elapsed system, user, and wall times,
+// a 'bsls::Stopwatch' to record the elapsed system, user, and wall times,
 // associated with processing the event.  The system calls used (via
-// 'bsls_Stopwatch') to record the elapsed time may be relatively expensive,
+// 'bsls::Stopwatch') to record the elapsed time may be relatively expensive,
 // so we use 'BAEM_METRICS_IF_CATEGORY_ENABLED' to ensure we perform those
 // operations only if metrics collection is enabled.  Finally, we use
 // 'BAEM_METRICS_UPDATE3' to update the three metrics, which is (slightly) more
@@ -464,7 +464,7 @@ BDES_IDENT("$Id: $")
 //  {
 //      int returnCode = 0;
 //
-//      bsls_Stopwatch stopwatch;
+//      bsls::Stopwatch stopwatch;
 //      BAEM_METRICS_IF_CATEGORY_ENABLED("processEvent2") {
 //         stopwatch.start(true);
 //      }

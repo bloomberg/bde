@@ -8,7 +8,6 @@
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bslma_sequentialallocator.h>
 
 #include <bdeut_nullablevalue.h>
 
@@ -70,24 +69,24 @@ using bsl::endl;
 // [ 3] int enumFromInt(int value);
 // [ 3] int enumFromString(const char *stringValue, int stringLength);
 // [ 7] void makeValue();
-// [ 2] void loadSimple(char               *value);
-// [ 2] void loadSimple(unsigned char      *value);
-// [ 2] void loadSimple(short              *value);
-// [ 2] void loadSimple(int                *value);
-// [ 2] void loadSimple(bsls_Types::Int64  *value);
-// [ 2] void loadSimple(unsigned short     *value);
-// [ 2] void loadSimple(unsigned int       *value);
-// [ 2] void loadSimple(bsls_Types::Uint64 *value);
-// [ 2] void loadSimple(float              *value);
-// [ 2] void loadSimple(double             *value);
-// [ 2] void loadSimple(bsl::string        *value);
-// [ 2] void loadSimple(bdet_Datetime      *value);
-// [ 2] void loadSimple(bdet_Date          *value);
-// [ 2] void loadSimple(bdet_Time          *value);
-// [ 2] void loadSimple(bool               *value);
-// [ 2] void loadSimple(bdet_DatetimeTz    *value);
-// [ 2] void loadSimple(bdet_DateTz        *value);
-// [ 2] void loadSimple(bdet_TimeTz        *value);
+// [ 2] void loadSimple(char                *value);
+// [ 2] void loadSimple(unsigned char       *value);
+// [ 2] void loadSimple(short               *value);
+// [ 2] void loadSimple(int                 *value);
+// [ 2] void loadSimple(bsls::Types::Int64  *value);
+// [ 2] void loadSimple(unsigned short      *value);
+// [ 2] void loadSimple(unsigned int        *value);
+// [ 2] void loadSimple(bsls::Types::Uint64 *value);
+// [ 2] void loadSimple(float               *value);
+// [ 2] void loadSimple(double              *value);
+// [ 2] void loadSimple(bsl::string         *value);
+// [ 2] void loadSimple(bdet_Datetime       *value);
+// [ 2] void loadSimple(bdet_Date           *value);
+// [ 2] void loadSimple(bdet_Time           *value);
+// [ 2] void loadSimple(bool                *value);
+// [ 2] void loadSimple(bdet_DatetimeTz     *value);
+// [ 2] void loadSimple(bdet_DateTz         *value);
+// [ 2] void loadSimple(bdet_TimeTz         *value);
 // [ 5] loadChoice(int, void *, const SInfo *, const char *, Accessor);
 // [ 5] loadChoice(int, void *, const SInfo *, AccssrNExtrctr, Chooser);
 // [ 6] loadSequence(int, void *, const AInfo *, const char *, ElmtAccssr);
@@ -513,7 +512,8 @@ int Simple::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case ATTRIBUTE_ID_STATUS: {
-        return manipulator(&d_status, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS]);
+        return manipulator(&d_status,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS]);
       } break;
       default:
         return NOT_FOUND;
@@ -575,7 +575,8 @@ int Simple::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case ATTRIBUTE_ID_STATUS: {
-        return accessor(d_status, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS]);
+        return accessor(d_status,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS]);
       } break;
       default:
         return NOT_FOUND;
@@ -2741,24 +2742,24 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int manipulateSimple(MANIPULATOR& manipulator);
-        //   void loadSimple(char               *value);
-        //   void loadSimple(unsigned char      *value);
-        //   void loadSimple(short              *value);
-        //   void loadSimple(int                *value);
-        //   void loadSimple(bsls_Types::Int64  *value);
-        //   void loadSimple(unsigned short     *value);
-        //   void loadSimple(unsigned int       *value);
-        //   void loadSimple(bsls_Types::Uint64 *value);
-        //   void loadSimple(float              *value);
-        //   void loadSimple(double             *value);
-        //   void loadSimple(bsl::string        *value);
-        //   void loadSimple(bdet_Datetime      *value);
-        //   void loadSimple(bdet_Date          *value);
-        //   void loadSimple(bdet_Time          *value);
-        //   void loadSimple(bool               *value);
-        //   void loadSimple(bdet_DatetimeTz    *value);
-        //   void loadSimple(bdet_DateTz        *value);
-        //   void loadSimple(bdet_TimeTz        *value);
+        //   void loadSimple(char                *value);
+        //   void loadSimple(unsigned char       *value);
+        //   void loadSimple(short               *value);
+        //   void loadSimple(int                 *value);
+        //   void loadSimple(bsls::Types::Int64  *value);
+        //   void loadSimple(unsigned short      *value);
+        //   void loadSimple(unsigned int        *value);
+        //   void loadSimple(bsls::Types::Uint64 *value);
+        //   void loadSimple(float               *value);
+        //   void loadSimple(double              *value);
+        //   void loadSimple(bsl::string         *value);
+        //   void loadSimple(bdet_Datetime       *value);
+        //   void loadSimple(bdet_Date           *value);
+        //   void loadSimple(bdet_Time           *value);
+        //   void loadSimple(bool                *value);
+        //   void loadSimple(bdet_DatetimeTz     *value);
+        //   void loadSimple(bdet_DateTz         *value);
+        //   void loadSimple(bdet_TimeTz         *value);
         //   int accessSimple(ACCESSOR& accessor) const;
         //   int bdeat_typeCategoryAccessSimple(const ObjProxy&, ACCESSOR& a);
         //   int bdeat_typeCategoryManipulateSimple(ObjProxy *, MANIPULATOR&);
@@ -2772,7 +2773,7 @@ int main(int argc, char *argv[])
         executeSimpleCategoryTest<unsigned char>("uchar");
         executeSimpleCategoryTest<short>("short");
         executeSimpleCategoryTest<int>("int");
-        executeSimpleCategoryTest<bsls_Types::Uint64>("uint64");
+        executeSimpleCategoryTest<bsls::Types::Uint64>("uint64");
         executeSimpleCategoryTest<float>("float");
         executeSimpleCategoryTest<double>("double");
         executeSimpleCategoryTest<bsl::string>("string");

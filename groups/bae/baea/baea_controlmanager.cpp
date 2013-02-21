@@ -48,8 +48,8 @@ const char LOG_CATEGORY[] = "BAEA.CONTROLMANAGER";
 
 // CREATORS
 
-baea_ControlManager::baea_ControlManager(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+baea_ControlManager::baea_ControlManager(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_registry(&isLessThanCaseless, basicAllocator)
 {
 }
@@ -160,7 +160,7 @@ void baea_ControlManager::printUsage(
 // CREATORS
 
 baea_ControlManager_Entry::baea_ControlManager_Entry(
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_callback(basicAllocator)
 , d_arguments(basicAllocator)
 , d_description(basicAllocator)
@@ -173,7 +173,7 @@ baea_ControlManager_Entry::baea_ControlManager_Entry(
         const baea_ControlManager::ControlHandler&  callback,
         const bsl::string&                          arguments,
         const bsl::string&                          description,
-        bslma_Allocator                            *basicAllocator)
+        bslma::Allocator                           *basicAllocator)
 : d_callback(callback, basicAllocator)
 , d_arguments(arguments, basicAllocator)
 , d_description(description, basicAllocator)
@@ -181,7 +181,7 @@ baea_ControlManager_Entry::baea_ControlManager_Entry(
 
 baea_ControlManager_Entry::baea_ControlManager_Entry(
         const baea_ControlManager_Entry&  rhs,
-        bslma_Allocator                 *basicAllocator)
+        bslma::Allocator                 *basicAllocator)
 : d_callback(rhs.d_callback, basicAllocator)
 , d_arguments(rhs.d_arguments, basicAllocator)
 , d_description(rhs.d_description, basicAllocator)

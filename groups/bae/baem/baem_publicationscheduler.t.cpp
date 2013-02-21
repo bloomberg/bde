@@ -61,7 +61,7 @@ using bsl::flush;
 // CREATORS
 // [ 3] baem_PublicationScheduler(baem_MetricsManager *,
 //                                bcep_TimerEventScheduler *,
-//                                bslma_Allocator *);
+//                                bslma::Allocator *);
 // [ 3] ~baem_PublicationScheduler();
 // MANIPULATORS
 // [10] void scheduleCategory(const bdeut_StringRef&   ,
@@ -241,7 +241,7 @@ enum {
         try {
 
 #define END_BAEM_EXCEPTION_TEST                                           \
-        } catch (bslma_TestAllocatorException& e) {                       \
+        } catch (bslma::TestAllocatorException& e) {                      \
             Schedule schedule(Z);                                         \
             bdet_TimeInterval interval;                                   \
             ASSERT(0  == timer.numClocks());                              \
@@ -411,7 +411,7 @@ class TestPublisher : public baem_Publisher {
   public:
 
     // CREATORS
-    TestPublisher(bslma_Allocator *allocator);
+    TestPublisher(bslma::Allocator *allocator);
         // Create a test publisher with 0 'invocations()' and the default
         // constructed 'lastSample()' using the specified 'allocator' to
         // supply memory.
@@ -518,7 +518,7 @@ bool TestPublisher::InvocationIdLess::operator()(
 
 // CREATORS
 inline
-TestPublisher::TestPublisher(bslma_Allocator *allocator)
+TestPublisher::TestPublisher(bslma::Allocator *allocator)
 : d_numInvocations(0)
 , d_invocations(allocator)
 , d_timeStamp()
@@ -792,7 +792,7 @@ class ConcurrencyTest {
     bcemt_Barrier                d_barrier;
     baem_PublicationScheduler   *d_scheduler_p;
     bcep_TimerEventScheduler    *d_eventScheduler_p;
-    bslma_Allocator             *d_allocator_p;
+    bslma::Allocator            *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -805,7 +805,7 @@ class ConcurrencyTest {
     ConcurrencyTest(int                        numThreads,
                     baem_PublicationScheduler *scheduler,
                     bcep_TimerEventScheduler  *eventScheduler,
-                    bslma_Allocator           *basicAllocator)
+                    bslma::Allocator          *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_scheduler_p(scheduler)
@@ -1257,9 +1257,9 @@ int main(int argc, char *argv[])
                                       bael_Severity::BAEL_OFF,
                                       bael_Severity::BAEL_OFF);
 
-    bslma_TestAllocator testAlloc; bslma_TestAllocator *Z = &testAlloc;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 13: {
@@ -1289,7 +1289,7 @@ int main(int argc, char *argv[])
 // collectors for three different metric categories, "A", "B", and "C", that
 // we will use to generate metric values for publication.
 //..
-    bslma_Allocator          *allocator = bslma_Default::allocator(0);
+    bslma::Allocator         *allocator = bslma::Default::allocator(0);
     bcep_TimerEventScheduler  timer(allocator);
     baem_MetricsManager       manager(allocator);
 
@@ -1381,7 +1381,7 @@ int main(int argc, char *argv[])
                                   << "================" << endl;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bcema_TestAllocator testAllocator;
 
@@ -1439,7 +1439,7 @@ int main(int argc, char *argv[])
         };
 
         const int NUM_SPECS = sizeof TEST_SPECS / sizeof *TEST_SPECS;
-        bslma_TestAllocator  testAllocator;
+        bslma::TestAllocator testAllocator;
         baem_MetricsManager  manager(Z);
         baem_MetricRegistry& registry = manager.metricRegistry();
         bcep_TimerEventScheduler timer(Z);
@@ -2426,7 +2426,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   baem_PublicationScheduler(baem_MetricsManager *,
         //                             bcep_TimerEventScheduler *,
-        //                             bslma_Allocator *);
+        //                             bslma::Allocator *);
         //   ~baem_PublicationScheduler();
         //   baem_MetricsManager *manager();
         //   void scheduleCategory(const Category *, const bdet_TimeInterval&);

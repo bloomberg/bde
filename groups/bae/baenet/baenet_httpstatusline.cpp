@@ -167,7 +167,7 @@ const bdeat_AttributeInfo *baenet_HttpStatusLine::lookupAttributeInfo(int id)
 
 // CREATORS
 
-baenet_HttpStatusLine::baenet_HttpStatusLine(bslma_Allocator *basicAllocator)
+baenet_HttpStatusLine::baenet_HttpStatusLine(bslma::Allocator *basicAllocator)
 : d_reasonPhrase(basicAllocator)
 , d_majorVersion(DEFAULT_INITIALIZER_MAJOR_VERSION)
 , d_minorVersion(DEFAULT_INITIALIZER_MINOR_VERSION)
@@ -177,7 +177,7 @@ baenet_HttpStatusLine::baenet_HttpStatusLine(bslma_Allocator *basicAllocator)
 
 baenet_HttpStatusLine::baenet_HttpStatusLine(
                                   const baenet_HttpStatusLine&  original,
-                                  bslma_Allocator              *basicAllocator)
+                                  bslma::Allocator             *basicAllocator)
 : d_reasonPhrase(original.d_reasonPhrase, basicAllocator)
 , d_majorVersion(original.d_majorVersion)
 , d_minorVersion(original.d_minorVersion)

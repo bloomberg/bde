@@ -28931,14 +28931,14 @@ class Address {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Address(bslma_Allocator *basicAllocator = 0);
+    explicit Address(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Address(const Address& original,
-            bslma_Allocator *basicAllocator = 0);
+    Address(const Address&    original,
+            bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -29263,7 +29263,7 @@ int Address::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Address::Address(bslma_Allocator *basicAllocator)
+Address::Address(bslma::Allocator *basicAllocator)
 : d_street(basicAllocator)
 , d_city(basicAllocator)
 , d_state(basicAllocator)
@@ -29272,8 +29272,8 @@ Address::Address(bslma_Allocator *basicAllocator)
 
 inline
 Address::Address(
-        const Address& original,
-        bslma_Allocator *basicAllocator)
+        const Address&    original,
+        bslma::Allocator *basicAllocator)
 : d_street(original.d_street, basicAllocator)
 , d_city(original.d_city, basicAllocator)
 , d_state(original.d_state, basicAllocator)
@@ -29583,14 +29583,14 @@ class Employee {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Employee(bslma_Allocator *basicAllocator = 0);
+    explicit Employee(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Employee(const Employee& original,
-             bslma_Allocator *basicAllocator = 0);
+    Employee(const Employee&   original,
+             bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -29917,7 +29917,7 @@ int Employee::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Employee::Employee(bslma_Allocator *basicAllocator)
+Employee::Employee(bslma::Allocator *basicAllocator)
 : d_name(basicAllocator)
 , d_homeAddress(basicAllocator)
 , d_age()
@@ -29926,8 +29926,8 @@ Employee::Employee(bslma_Allocator *basicAllocator)
 
 inline
 Employee::Employee(
-        const Employee& original,
-        bslma_Allocator *basicAllocator)
+        const Employee&   original,
+        bslma::Allocator *basicAllocator)
 : d_name(original.d_name, basicAllocator)
 , d_homeAddress(original.d_homeAddress, basicAllocator)
 , d_age(original.d_age)

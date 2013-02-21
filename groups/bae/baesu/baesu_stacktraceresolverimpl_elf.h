@@ -85,7 +85,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
     // methods in this class are private.
 
     // TYPES
-    typedef bsls_Types::UintPtr UintPtr;    // 32 bit unsigned on 32 bit, 64
+    typedef bsls::Types::UintPtr UintPtr;   // 32 bit unsigned on 32 bit, 64
                                             // bit unsigned on 64 bit, usually
                                             // used for absolute offsets into a
                                             // file
