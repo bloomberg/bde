@@ -296,6 +296,10 @@ BDES_IDENT("$Id: $")
 #include <bdem_elemtype.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -314,10 +318,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -417,7 +417,7 @@ class bdem_ChoiceArrayItem {
     char& theModifiableChar();
     short& theModifiableShort();
     int& theModifiableInt();
-    bsls_Types::Int64& theModifiableInt64();
+    bsls::Types::Int64& theModifiableInt64();
     float& theModifiableFloat();
     double& theModifiableDouble();
     bsl::string& theModifiableString();
@@ -431,7 +431,7 @@ class bdem_ChoiceArrayItem {
     bsl::vector<char>& theModifiableCharArray();
     bsl::vector<short>& theModifiableShortArray();
     bsl::vector<int>& theModifiableIntArray();
-    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array();
+    bsl::vector<bsls::Types::Int64>& theModifiableInt64Array();
     bsl::vector<float>& theModifiableFloatArray();
     bsl::vector<double>& theModifiableDoubleArray();
     bsl::vector<bsl::string>& theModifiableStringArray();
@@ -511,7 +511,7 @@ class bdem_ChoiceArrayItem {
     const char& theChar() const;
     const short& theShort() const;
     const int& theInt() const;
-    const bsls_Types::Int64& theInt64() const;
+    const bsls::Types::Int64& theInt64() const;
     const float& theFloat() const;
     const double& theDouble() const;
     const bsl::string& theString() const;
@@ -525,7 +525,7 @@ class bdem_ChoiceArrayItem {
     const bsl::vector<char>& theCharArray() const;
     const bsl::vector<short>& theShortArray() const;
     const bsl::vector<int>& theIntArray() const;
-    const bsl::vector<bsls_Types::Int64>& theInt64Array() const;
+    const bsl::vector<bsls::Types::Int64>& theInt64Array() const;
     const bsl::vector<float>& theFloatArray() const;
     const bsl::vector<double>& theDoubleArray() const;
     const bsl::vector<bsl::string>& theStringArray() const;
@@ -660,10 +660,10 @@ int& bdem_ChoiceArrayItem::theModifiableInt()
 }
 
 inline
-bsls_Types::Int64& bdem_ChoiceArrayItem::theModifiableInt64()
+bsls::Types::Int64& bdem_ChoiceArrayItem::theModifiableInt64()
 {
     d_header.clearNullnessBit();
-    return *static_cast<bsls_Types::Int64 *>(d_header.selectionPointer());
+    return *static_cast<bsls::Types::Int64 *>(d_header.selectionPointer());
 }
 
 inline
@@ -758,10 +758,11 @@ bsl::vector<int>& bdem_ChoiceArrayItem::theModifiableIntArray()
 }
 
 inline
-bsl::vector<bsls_Types::Int64>& bdem_ChoiceArrayItem::theModifiableInt64Array()
+bsl::vector<bsls::Types::Int64>&
+bdem_ChoiceArrayItem::theModifiableInt64Array()
 {
     d_header.clearNullnessBit();
-    return *static_cast<bsl::vector<bsls_Types::Int64> *>(
+    return *static_cast<bsl::vector<bsls::Types::Int64> *>(
                                                   d_header.selectionPointer());
 }
 
@@ -943,9 +944,9 @@ const int& bdem_ChoiceArrayItem::theInt() const
 }
 
 inline
-const bsls_Types::Int64& bdem_ChoiceArrayItem::theInt64() const
+const bsls::Types::Int64& bdem_ChoiceArrayItem::theInt64() const
 {
-    return *static_cast<const bsls_Types::Int64 *>(
+    return *static_cast<const bsls::Types::Int64 *>(
                                                   d_header.selectionPointer());
 }
 
@@ -1031,10 +1032,10 @@ const bsl::vector<int>& bdem_ChoiceArrayItem::theIntArray() const
 }
 
 inline
-const bsl::vector<bsls_Types::Int64>&
+const bsl::vector<bsls::Types::Int64>&
 bdem_ChoiceArrayItem::theInt64Array() const
 {
-    return *static_cast<const bsl::vector<bsls_Types::Int64> *>(
+    return *static_cast<const bsl::vector<bsls::Types::Int64> *>(
                                                   d_header.selectionPointer());
 }
 

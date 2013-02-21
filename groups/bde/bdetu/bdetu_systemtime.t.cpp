@@ -125,8 +125,8 @@ static int inOrder(const bdet_DatetimeInterval& lhs,
     // Return 1, 0, -1 accordingly as lhs <, ==, > rhs.
     // As a mnemonic, they return 1 if lhs,rhs are in correct order.
 {
-    bsls_PlatformUtil::Int64 dtm = lhs.totalMilliseconds();
-    bsls_PlatformUtil::Int64  tm = rhs.totalMilliseconds();
+    bsls::Types::Int64 dtm = lhs.totalMilliseconds();
+    bsls::Types::Int64  tm = rhs.totalMilliseconds();
     return dtm > tm ? -1 : dtm != tm;
 }
 
@@ -968,20 +968,20 @@ int main(int argc, char *argv[])
             };
 
             static const struct DtiTi {
-                bdet_DatetimeInterval    dti;       // sample DatetimeInterval
-                bdet_TimeInterval        ti;        // sample TimeInterval
-                bsls_PlatformUtil::Int64 diff;      // ti - dti in milliseconds
-                int                      inorder;   // predicted value
+                bdet_DatetimeInterval dti;      // sample DatetimeInterval
+                bdet_TimeInterval     ti;       // sample TimeInterval
+                bsls::Types::Int64    diff;     // ti - dti in milliseconds
+                int                   inorder;  // predicted value
             } dtDiff []= {
 //--------------^
 {bdet_DatetimeInterval(),                   bdet_TimeInterval(0, 0),  0,  0},
 {bdet_DatetimeInterval(0, 0, 0, 0, 1),      bdet_TimeInterval(0, 0), -1, -1},
 {bdet_DatetimeInterval(), bdet_TimeInterval(0, NANOSEC_PER_MILLISEC),  1, 1},
 {bdet_DatetimeInterval( 25000),
-     bdet_TimeInterval( 25000 * (bsls_PlatformUtil::Int64)SEC_PER_DAY,
+     bdet_TimeInterval( 25000 * (bsls::Types::Int64)SEC_PER_DAY,
                                               NANOSEC_PER_MILLISEC),  1,  1},
 {bdet_DatetimeInterval(-25000),
-     bdet_TimeInterval(-25000 * (bsls_PlatformUtil::Int64)SEC_PER_DAY,
+     bdet_TimeInterval(-25000 * (bsls::Types::Int64)SEC_PER_DAY,
                                              -NANOSEC_PER_MILLISEC), -1, -1},
 {bdet_DatetimeInterval(10000),
          bdet_TimeInterval(10000 * SEC_PER_DAY, NANOSEC_PER_MILLISEC), 1, 1},

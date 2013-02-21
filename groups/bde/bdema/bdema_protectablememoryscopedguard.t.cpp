@@ -199,8 +199,8 @@ int main(int argc, char *argv[])
 
     TestDisp testDispenser(TestDisp::BDEMA_DEFAULT_PAGE_SIZE, veryVeryVerbose);
 
-    bslma_TestAllocator         talloc;
-    bslma_DefaultAllocatorGuard guard(&talloc);
+    bslma::TestAllocator         talloc;
+    bslma::DefaultAllocatorGuard guard(&talloc);
 
     switch (test) { case 0:
       case 4: {

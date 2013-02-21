@@ -3,8 +3,8 @@
 #include <bdema_testprotectableblockdispenser.h>
 #include <bslma_testallocatorexception.h>
 
-#include <bsls_platform.h>      // BDES_PLATFORM__ defines
-#include <bsls_platformutil.h>  // BDES_PLATFORMUTIL__ defines
+#include <bsls_platform.h>      // 'BSLS_PLATFORM_*' defines
+
 #include <bsls_objectbuffer.h>
 
 #include <bsl_cstdio.h>               // printf()
@@ -246,7 +246,7 @@ typedef bdema_ProtectableBlockDispenser     BlkDisp;
         try {
 
 #define END_BDEMA_EXCEPTION_TEST                                          \
-        } catch (bslma_TestAllocatorException& e) {                       \
+        } catch (bslma::TestAllocatorException& e) {                      \
             if (veryVerbose && bdemaExceptionLimit || veryVeryVerbose) {  \
                 --bdemaExceptionLimit;                                    \
                 cout << "(*** " << bdemaExceptionCounter << ')';          \
@@ -536,7 +536,7 @@ int main(int argc, char *argv[])
                     BlkDesc blk = mX.allocate(SIZE);
                     mX.deallocate(blk);
                 }
-                catch (bslma_TestAllocatorException& e) {
+                catch (bslma::TestAllocatorException& e) {
                     int numBytes = e.numBytes();
                     if (veryVerbose) { cout << "Caught: "; P(numBytes); }
                     LOOP2_ASSERT(ti, ai, LIMIT[ti] == ai);
@@ -1166,7 +1166,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nCreate an allocator in a buffer" << endl;
 
         const int X = Obj::BDEMA_DEFAULT_PAGE_SIZE;
-        bsls_ObjectBuffer<Obj> arena;
+        bsls::ObjectBuffer<Obj> arena;
 
         memset(&arena, 0xA5, sizeof arena);
         Obj *p = new(&arena) Obj(X);

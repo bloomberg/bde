@@ -33,7 +33,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_IsEnum
-#define bdemf_IsEnum   bslmf_IsEnum
+#define bdemf_IsEnum   bslmf::IsEnum
     // Implement a meta function which computes -- at compile time -- whether
     // 'TYPE' is an enumeration type.
 

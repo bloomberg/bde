@@ -2325,7 +2325,7 @@ int main(int argc, char *argv[])
         //   separately.
         //
         // Plan:
-        //   Using 'bdes_stopwatch', the run time of the 'update' method will
+        //   Using 'bsls_stopwatch', the run time of the 'update' method will
         //   be tallied over 1 million iterations.  This value will be computed
         //   10 times and averaged.  After, it will be printed out for sanity
         //   check against the run time of the 'openssl' implementation.
@@ -2345,7 +2345,7 @@ int main(int argc, char *argv[])
 
         double total_bde = 0;
         {
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
 
             for (int i = 0; i < NUMAVERAGE; i++) {
                 timer.reset();

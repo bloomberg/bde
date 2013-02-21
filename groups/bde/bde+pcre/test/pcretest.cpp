@@ -635,7 +635,7 @@ pcre_free = new_free;
 pcre_stack_malloc = stack_malloc;
 pcre_stack_free = stack_free;
 #else
-bslma_Allocator *allocator = bslma_Default::defaultAllocator();
+bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 #endif
 
 /* Heading line, then prompt for first regex if stdin */

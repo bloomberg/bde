@@ -5,10 +5,11 @@
 BDES_IDENT_RCSID(bdema_chararray_cpp,"$Id$ $CSID$")
 
 
-#include <bslma_bufferallocator.h>           // for testing only
+#include <bdema_bufferedsequentialallocator.h>   // for testing only
+
 #include <bslma_default.h>
-#include <bslma_testallocator.h>             // for testing only
-#include <bslma_testallocatorexception.h>    // for testing only
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
 #include <bsls_assert.h>
 
@@ -48,11 +49,11 @@ static int calculateSufficientSize(int minLength, int size)
     return size;
 }
 
-static void reallocate(char            **array,
-                       int              *size,
-                       int               newSize,
-                       int               length,
-                       bslma_Allocator  *basicAllocator)
+static void reallocate(char             **array,
+                       int               *size,
+                       int                newSize,
+                       int                length,
+                       bslma::Allocator  *basicAllocator)
     // Reallocate memory in the specified 'array' and update the specified
     // size to the specified 'newSize' using the specified 'basicAllocator'.
     // The specified 'length' number of leading elements are preserved.  If
@@ -125,20 +126,20 @@ void bdema_CharArray::reserveCapacityImp(int numElements)
 }
 
 // CREATORS
-bdema_CharArray::bdema_CharArray(bslma_Allocator *basicAllocator)
+bdema_CharArray::bdema_CharArray(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(d_allocator_p);
 
     d_array_p = (char *) d_allocator_p->allocate(d_size * sizeof *d_array_p);
 }
 
-bdema_CharArray::bdema_CharArray(int              initialLength,
-                                 bslma_Allocator *basicAllocator)
+bdema_CharArray::bdema_CharArray(int               initialLength,
+                                 bslma::Allocator *basicAllocator)
 : d_length(initialLength)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 <= d_length);
     BSLS_ASSERT(d_allocator_p);
@@ -151,11 +152,11 @@ bdema_CharArray::bdema_CharArray(int              initialLength,
     initializeWithDefaultValue(d_array_p, d_length);
 }
 
-bdema_CharArray::bdema_CharArray(int              initialLength,
-                                 char             initialValue,
-                                 bslma_Allocator *basicAllocator)
+bdema_CharArray::bdema_CharArray(int               initialLength,
+                                 char              initialValue,
+                                 bslma::Allocator *basicAllocator)
 : d_length(initialLength)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 <= d_length);
     BSLS_ASSERT(d_allocator_p);
@@ -168,11 +169,11 @@ bdema_CharArray::bdema_CharArray(int              initialLength,
     initializeWithValue(d_array_p, initialValue, d_length);
 }
 
-bdema_CharArray::bdema_CharArray(const InitialCapacity& numElements,
-                                 bslma_Allocator       *basicAllocator)
+bdema_CharArray::bdema_CharArray(const InitialCapacity&  numElements,
+                                 bslma::Allocator       *basicAllocator)
 : d_size(numElements.d_i <= 0 ? INITIAL_SIZE : numElements.d_i)
 , d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(1 <= d_size);
     BSLS_ASSERT(d_length <= d_size);
@@ -182,11 +183,11 @@ bdema_CharArray::bdema_CharArray(const InitialCapacity& numElements,
     d_array_p = (char *) d_allocator_p->allocate(d_size * sizeof *d_array_p);
 }
 
-bdema_CharArray::bdema_CharArray(const InitialCapacity& numElements,
-                                 Hint                   sizingHint,
-                                 bslma_Allocator       *basicAllocator)
+bdema_CharArray::bdema_CharArray(const InitialCapacity&  numElements,
+                                 Hint                    sizingHint,
+                                 bslma::Allocator       *basicAllocator)
 : d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 <= numElements.d_i);
     BSLS_ASSERT(d_allocator_p);
@@ -205,11 +206,11 @@ bdema_CharArray::bdema_CharArray(const InitialCapacity& numElements,
     d_array_p = (char *) d_allocator_p->allocate(d_size * sizeof *d_array_p);
 }
 
-bdema_CharArray::bdema_CharArray(const char      *srcArray,
-                                 int              numElements,
-                                 bslma_Allocator *basicAllocator)
+bdema_CharArray::bdema_CharArray(const char       *srcArray,
+                                 int               numElements,
+                                 bslma::Allocator *basicAllocator)
 : d_length(numElements)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(srcArray);
     BSLS_ASSERT(0 <= numElements);
@@ -222,9 +223,9 @@ bdema_CharArray::bdema_CharArray(const char      *srcArray,
 }
 
 bdema_CharArray::bdema_CharArray(const bdema_CharArray&  original,
-                                 bslma_Allocator        *basicAllocator)
+                                 bslma::Allocator       *basicAllocator)
 : d_length(original.d_length)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(d_allocator_p);
 

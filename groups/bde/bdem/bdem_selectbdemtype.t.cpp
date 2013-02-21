@@ -166,7 +166,7 @@ namespace BloombergLP {
 ///Usage
 ///-----
 // The following snippets of code illustrate basic usage of this component.
-// Note that the 'bslmf_IsSame' meta-function is employed only for the
+// Note that the 'bslmf::IsSame' meta-function is employed only for the
 // purposes of illustration:
 //..
     class Class {};
@@ -203,29 +203,29 @@ int main(int argc, char *argv[])
 //  // 'bool' -> 'bool'
     ASSERT(bdem_ElemType::BDEM_BOOL == (int)bdem_SelectBdemType<bool>::VALUE);
     typedef bdem_SelectBdemType<bool>::Type boolProxyType;
-    ASSERT(1 == (bslmf_IsSame<bool, boolProxyType>::VALUE));
+    ASSERT(1 == (bslmf::IsSame<bool, boolProxyType>::VALUE));
 //
 //  // 'unsigned' -> 'int'
     ASSERT(bdem_ElemType::BDEM_INT ==
                                     (int)bdem_SelectBdemType<unsigned>::VALUE);
     typedef bdem_SelectBdemType<unsigned>::Type unsignedProxyType;
-    ASSERT(1 == (bslmf_IsSame<int, unsignedProxyType>::VALUE));
+    ASSERT(1 == (bslmf::IsSame<int, unsignedProxyType>::VALUE));
 //
 //  // 'Enum' -> 'int'
     ASSERT(bdem_ElemType::BDEM_INT == (int)bdem_SelectBdemType<Enum>::VALUE);
     typedef bdem_SelectBdemType<Enum>::Type enumProxyType;
-    ASSERT(1 == (bslmf_IsSame<int, enumProxyType>::VALUE));
+    ASSERT(1 == (bslmf::IsSame<int, enumProxyType>::VALUE));
 //
 //  // 'bsl::vector<Enum>' -> 'bsl::vector<int>'
     ASSERT(bdem_ElemType::BDEM_INT_ARRAY ==
                           (int)bdem_SelectBdemType<bsl::vector<Enum> >::VALUE);
     typedef bdem_SelectBdemType<bsl::vector<Enum> >::Type enumVectorProxyType;
-    ASSERT(1 == (bslmf_IsSame<bsl::vector<int>, enumVectorProxyType>::VALUE));
+    ASSERT(1 == (bslmf::IsSame<bsl::vector<int>, enumVectorProxyType>::VALUE));
 //
 //  // 'Class' -> 'bdem_List'
     ASSERT(bdem_ElemType::BDEM_LIST == (int)bdem_SelectBdemType<Class>::VALUE);
     typedef bdem_SelectBdemType<Class>::Type classProxyType;
-    ASSERT(1 == (bslmf_IsSame<bdem_List, classProxyType>::VALUE));
+    ASSERT(1 == (bslmf::IsSame<bdem_List, classProxyType>::VALUE));
 //..
 
       } break;
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_BOOL;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHAR;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHAR;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHAR;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_SHORT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_SHORT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_SHORT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -347,29 +347,29 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef bsls_Types::Int64 TT;
-            typedef bsls_Types::Int64 PT;
+            typedef bsls::Types::Int64 TT;
+            typedef bsls::Types::Int64 PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef bsls_Types::Uint64 TT;
-            typedef bsls_Types::Int64  PT;
+            typedef bsls::Types::Uint64 TT;
+            typedef bsls::Types::Int64  PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_FLOAT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DOUBLE;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_STRING;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -413,7 +413,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATE;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATETIME;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_TIME;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -446,7 +446,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHAR_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -457,7 +457,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHAR_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHAR_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -479,7 +479,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_SHORT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -490,7 +490,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_SHORT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_SHORT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -512,7 +512,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -523,29 +523,29 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef bsl::vector<bsls_Types::Int64> TT;
-            typedef bsl::vector<bsls_Types::Int64> PT;
+            typedef bsl::vector<bsls::Types::Int64> TT;
+            typedef bsl::vector<bsls::Types::Int64> PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef bsl::vector<bsls_Types::Uint64> TT;
-            typedef bsl::vector<bsls_Types::Int64>  PT;
+            typedef bsl::vector<bsls::Types::Uint64> TT;
+            typedef bsl::vector<bsls::Types::Int64>  PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_FLOAT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -567,7 +567,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DOUBLE_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_STRING_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -589,7 +589,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATE_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -600,7 +600,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATETIME_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -611,7 +611,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_TIME_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_LIST;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -633,7 +633,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_TABLE;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -644,7 +644,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -655,7 +655,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -666,7 +666,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHAR_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -677,7 +677,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHAR_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -688,7 +688,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHAR_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -699,7 +699,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_SHORT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -710,7 +710,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_SHORT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -721,7 +721,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_SHORT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -732,7 +732,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -743,29 +743,29 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef MyArray<bsls_Types::Int64>     TT;
-            typedef bsl::vector<bsls_Types::Int64> PT;
+            typedef MyArray<bsls::Types::Int64>     TT;
+            typedef bsl::vector<bsls::Types::Int64> PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef MyArray<bsls_Types::Uint64>    TT;
-            typedef bsl::vector<bsls_Types::Int64> PT;
+            typedef MyArray<bsls::Types::Uint64>    TT;
+            typedef bsl::vector<bsls::Types::Int64> PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -776,7 +776,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_FLOAT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -787,7 +787,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DOUBLE_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -798,7 +798,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_STRING_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -809,7 +809,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATE_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -820,7 +820,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATETIME_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -831,7 +831,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_TIME_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -842,7 +842,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_TABLE;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -853,7 +853,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -864,18 +864,18 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef MyArray<const bsls_Types::Int64> TT;
-            typedef bsl::vector<bsls_Types::Int64>   PT;
+            typedef MyArray<const bsls::Types::Int64> TT;
+            typedef bsl::vector<bsls::Types::Int64>   PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -886,7 +886,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATETIMETZ;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -897,7 +897,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATETZ;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -908,7 +908,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_TIMETZ;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -919,7 +919,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_BOOL_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -930,7 +930,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_BOOL_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -941,7 +941,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATETIMETZ_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -952,7 +952,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATETIMETZ_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -963,7 +963,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATETZ_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -974,7 +974,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_DATETZ_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -985,7 +985,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_TIMETZ_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -996,7 +996,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_TIMETZ_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1007,7 +1007,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHOICE;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1018,7 +1018,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHOICE_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1029,7 +1029,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_ROW;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1040,7 +1040,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_TABLE;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1051,7 +1051,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1062,7 +1062,7 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_CHOICE_ARRAY;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1074,18 +1074,18 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(bdem_SelectBdemType<TT>::VALUE,
                         ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef MyCustomizedType<bsls_Types::Int64> TT;
-            typedef bsls_Types::Int64                   PT;
+            typedef MyCustomizedType<bsls::Types::Int64> TT;
+            typedef bsls::Types::Int64                   PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1096,18 +1096,18 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef MyCustomizedType<const bsls_Types::Int64> TT;
-            typedef bsls_Types::Int64                         PT;
+            typedef MyCustomizedType<const bsls::Types::Int64> TT;
+            typedef bsls::Types::Int64                         PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1118,18 +1118,18 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef MyNullableValue<bsls_Types::Int64> TT;
-            typedef bsls_Types::Int64                  PT;
+            typedef MyNullableValue<bsls::Types::Int64> TT;
+            typedef bsls::Types::Int64                  PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
@@ -1140,18 +1140,18 @@ int main(int argc, char *argv[])
             const int ET = bdem_ElemType::BDEM_INT;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
         {
-            typedef MyNullableValue<const bsls_Types::Int64> TT;
-            typedef bsls_Types::Int64                        PT;
+            typedef MyNullableValue<const bsls::Types::Int64> TT;
+            typedef bsls::Types::Int64                        PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
             ASSERT(ET == bdem_SelectBdemType<TT>::VALUE);
-            ASSERT( 1 == (bslmf_IsSame<PT,
+            ASSERT( 1 == (bslmf::IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 

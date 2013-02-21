@@ -40,7 +40,7 @@ namespace BloombergLP {
                             // bdealg_TypeTraitNil
                             //====================
 
-typedef bslalg_TypeTraitNil bdealg_TypeTraitNil;
+typedef bslalg::TypeTraitNil bdealg_TypeTraitNil;
     // The nil trait.  Types with no other traits have the nil trait.
 
 }  // close namespace BloombergLP

@@ -5,6 +5,7 @@
 BDES_IDENT_RCSID(bdex_bytestreamimputil_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 
@@ -16,128 +17,120 @@ namespace BloombergLP {
 
                         // *** putting arrays of integral values ***
 
-void bdex_ByteStreamImpUtil::putArrayInt64(
-                                        char                           *buffer,
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             count)
+void bdex_ByteStreamImpUtil::putArrayInt64(char                     *buffer,
+                                           const bsls::Types::Int64 *array,
+                                           int                       count)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt64(buffer, *array);
         buffer += 8;
     }
 }
 
-void bdex_ByteStreamImpUtil::putArrayInt64(
-                                       char                            *buffer,
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count)
+void bdex_ByteStreamImpUtil::putArrayInt64(char                      *buffer,
+                                           const bsls::Types::Uint64 *array,
+                                           int                        count)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt64(buffer, *array);
         buffer += 8;
     }
 }
 
-void bdex_ByteStreamImpUtil::putArrayInt56(
-                                        char                           *buffer,
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             count)
+void bdex_ByteStreamImpUtil::putArrayInt56(char                     *buffer,
+                                           const bsls::Types::Int64 *array,
+                                           int                       count)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt56(buffer, *array);
         buffer += 7;
     }
 }
 
-void bdex_ByteStreamImpUtil::putArrayInt56(
-                                       char                            *buffer,
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count)
+void bdex_ByteStreamImpUtil::putArrayInt56(char                      *buffer,
+                                           const bsls::Types::Uint64 *array,
+                                           int                        count)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt56(buffer, *array);
         buffer += 7;
     }
 }
 
-void bdex_ByteStreamImpUtil::putArrayInt48(
-                                        char                           *buffer,
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             count)
+void bdex_ByteStreamImpUtil::putArrayInt48(char                     *buffer,
+                                           const bsls::Types::Int64 *array,
+                                           int                       count)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt48(buffer, *array);
         buffer += 6;
     }
 }
 
-void bdex_ByteStreamImpUtil::putArrayInt48(
-                                       char                            *buffer,
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count)
+void bdex_ByteStreamImpUtil::putArrayInt48(char                      *buffer,
+                                           const bsls::Types::Uint64 *array,
+                                           int                        count)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt48(buffer, *array);
         buffer += 6;
     }
 }
 
-void bdex_ByteStreamImpUtil::putArrayInt40(
-                                        char                           *buffer,
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             count)
+void bdex_ByteStreamImpUtil::putArrayInt40(char                     *buffer,
+                                           const bsls::Types::Int64 *array,
+                                           int                       count)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt40(buffer, *array);
         buffer += 5;
     }
 }
 
-void bdex_ByteStreamImpUtil::putArrayInt40(
-                                       char                            *buffer,
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count)
+void bdex_ByteStreamImpUtil::putArrayInt40(char                      *buffer,
+                                           const bsls::Types::Uint64 *array,
+                                           int                        count)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt40(buffer, *array);
         buffer += 5;
@@ -221,7 +214,7 @@ void bdex_ByteStreamImpUtil::putArrayInt16(char        *buffer,
 
         const T *value = (const T *)array;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
         buffer[0] = value->d_bytes[1];
         buffer[1] = value->d_bytes[0];
 #else
@@ -266,120 +259,120 @@ void bdex_ByteStreamImpUtil::putArrayFloat32(char        *buffer,
 
                         // *** getting arrays of integral values ***
 
-void bdex_ByteStreamImpUtil::getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                           const char               *buffer,
-                                           int                       count)
+void bdex_ByteStreamImpUtil::getArrayInt64(bsls::Types::Int64 *array,
+                                           const char         *buffer,
+                                           int                 count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt64(array, buffer);
         buffer += 8;
     }
 }
 
-void bdex_ByteStreamImpUtil::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                            const char                *buffer,
-                                            int                        count)
+void bdex_ByteStreamImpUtil::getArrayUint64(bsls::Types::Uint64 *array,
+                                            const char          *buffer,
+                                            int                  count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint64(array, buffer);
         buffer += 8;
     }
 }
 
-void bdex_ByteStreamImpUtil::getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                           const char               *buffer,
-                                           int                       count)
+void bdex_ByteStreamImpUtil::getArrayInt56(bsls::Types::Int64 *array,
+                                           const char         *buffer,
+                                           int                 count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt56(array, buffer);
         buffer += 7;
     }
 }
 
-void bdex_ByteStreamImpUtil::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                            const char                *buffer,
-                                            int                        count)
+void bdex_ByteStreamImpUtil::getArrayUint56(bsls::Types::Uint64 *array,
+                                            const char          *buffer,
+                                            int                  count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint56(array, buffer);
         buffer += 7;
     }
 }
 
-void bdex_ByteStreamImpUtil::getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                           const char               *buffer,
-                                           int                       count)
+void bdex_ByteStreamImpUtil::getArrayInt48(bsls::Types::Int64 *array,
+                                           const char         *buffer,
+                                           int                 count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt48(array, buffer);
         buffer += 6;
     }
 }
 
-void bdex_ByteStreamImpUtil::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                            const char                *buffer,
-                                            int                        count)
+void bdex_ByteStreamImpUtil::getArrayUint48(bsls::Types::Uint64 *array,
+                                            const char          *buffer,
+                                            int                  count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint48(array, buffer);
         buffer += 6;
     }
 }
 
-void bdex_ByteStreamImpUtil::getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                           const char               *buffer,
-                                           int                       count)
+void bdex_ByteStreamImpUtil::getArrayInt40(bsls::Types::Int64 *array,
+                                           const char         *buffer,
+                                           int                 count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt40(array, buffer);
         buffer += 5;
     }
 }
 
-void bdex_ByteStreamImpUtil::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                            const char                *buffer,
-                                            int                        count)
+void bdex_ByteStreamImpUtil::getArrayUint40(bsls::Types::Uint64 *array,
+                                            const char          *buffer,
+                                            int                  count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= count);
 
-    const bsls_PlatformUtil::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint40(array, buffer);
         buffer += 5;

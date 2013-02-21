@@ -10,7 +10,7 @@
 #include <bdex_testinstreamexception.h>  // for testing only
 #include <bdex_testoutstream.h>          // for testing only
 
-#include <bsls_platformutil.h>           // for testing only
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
@@ -29,7 +29,7 @@ using namespace bsl;  // automatically added by script
 //
 // ----------------------------------------------------------------------------
 // PRIVATE CREATORS
-// [ *] bdet_DatetimeInterval(bsls_PlatformUtil::Int64 milliseconds)
+// [ *] bdet_DatetimeInterval(bsls::Types::Int64 milliseconds)
 // CREATORS
 // [ 2] bdet_DatetimeInterval()
 // [11] bdet_DatetimeInterval(int days, int hrs, int mins, int secs, int msecs)
@@ -132,10 +132,10 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdet_DatetimeInterval    Obj;
-typedef bdex_TestInStream        In;
-typedef bdex_TestOutStream       Out;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bdet_DatetimeInterval Obj;
+typedef bdex_TestInStream     In;
+typedef bdex_TestOutStream    Out;
+typedef bsls::Types::Int64    Int64;
 
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -907,7 +907,7 @@ int main(int argc, char *argv[])
             ASSERT(in);                                 ASSERT(!in.isEmpty());
 
             Obj t(VA);  const Obj& T = t;               ASSERT(X != T);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION); 
+            bdex_InStreamFunctions::streamIn(in, t, VERSION);
             ASSERT(X == T);
             ASSERT(in);                                 ASSERT(in.isEmpty());
         }

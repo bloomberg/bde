@@ -37,12 +37,10 @@ BDES_IDENT("$Id: $")
 //      Type                Subtype               Version
 //      -----------------   -------------------   -------------------
 //      *__OS_UNIX          *__OS_AIX             *__OS_VER_MAJOR
-//                          *__OS_DGUX            *__OS_VER_MINOR
-//                          *__OS_HPUX
+//                          *__OS_HPUX            *__OS_VER_MINOR
 //                          *__OS_LINUX
 //                          *__OS_SOLARIS
 //                          *__OS_SUNOS
-//                          *__OS_CYGWIN
 //
 //      *__OS_WINDOWS       *__OS_WIN9X
 //                          *__OS_WINNT
@@ -70,8 +68,6 @@ BDES_IDENT("$Id: $")
 //      Vendor                    Version
 //      -----------------   -------------------
 //      *__CMP_AIX          *__CMP_VER_MAJOR
-//      *__CMP_EDG
-//      *__CMP_EPC
 //      *__CMP_GNU
 //      *__CMP_HP
 //      *__CMP_MSVC
@@ -129,16 +125,184 @@ BDES_IDENT("$Id: $")
 #endif
 
 
-// Check using legacy macros only if 'BDE_OMIT_INTERNAL_DEPRECATED' is not 
+// Check using legacy macros only if 'BDE_OMIT_INTERNAL_DEPRECATED' is not
 // defined.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-    // No symbols or macros are defined here (see 'bsls_platform' component).
-    // No aliases or macros for the 'bdes_Platform' types or 'BDES_PLATFORM_*'
-    // macros are defined here, instead they are defined in 'bsls_platform' so
-    // that clients that rely on these via transitive includes may still have
-    // those aliases or macros defined.
+#ifdef BSLS_PLATFORM_OS_UNIX
+#ifndef BDES_PLATFORM_OS_UNIX
+#define BDES_PLATFORM_OS_UNIX        BSLS_PLATFORM_OS_UNIX
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifndef BDES_PLATFORM_OS_WINDOWS
+#define BDES_PLATFORM_OS_WINDOWS     BSLS_PLATFORM_OS_WINDOWS
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_VER_MAJOR
+#ifndef BDES_PLATFORM_OS_VER_MAJOR
+#define BDES_PLATFORM_OS_VER_MAJOR   BSLS_PLATFORM_OS_VER_MAJOR
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_VER_MINOR
+#ifndef BDES_PLATFORM_OS_VER_MINOR
+#define BDES_PLATFORM_OS_VER_MINOR   BSLS_PLATFORM_OS_VER_MINOR
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_AIX
+#ifndef BDES_PLATFORM_OS_AIX
+#define BDES_PLATFORM_OS_AIX         BSLS_PLATFORM_OS_AIX
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_HPUX
+#ifndef BDES_PLATFORM_OS_HPUX
+#define BDES_PLATFORM_OS_HPUX        BSLS_PLATFORM_OS_HPUX
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_LINUX
+#ifndef BDES_PLATFORM_OS_LINUX
+#define BDES_PLATFORM_OS_LINUX       BSLS_PLATFORM_OS_LINUX
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+#ifndef BDES_PLATFORM_OS_SOLARIS
+#define BDES_PLATFORM_OS_SOLARIS     BSLS_PLATFORM_OS_SOLARIS
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_SUNOS
+#ifndef BDES_PLATFORM_OS_SUNOS
+#define BDES_PLATFORM_OS_SUNOS       BSLS_PLATFORM_OS_SUNOS
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WIN2K
+#ifndef BDES_PLATFORM_OS_WIN2K
+#define BDES_PLATFORM_OS_WIN2K       BSLS_PLATFORM_OS_WIN2K
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WIN9X
+#ifndef BDES_PLATFORM_OS_WIN9X
+#define BDES_PLATFORM_OS_WIN9X       BSLS_PLATFORM_OS_WIN9X
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINNT
+#ifndef BDES_PLATFORM_OS_WINNT
+#define BDES_PLATFORM_OS_WINNT       BSLS_PLATFORM_OS_WINNT
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINXP
+#ifndef BDES_PLATFORM_OS_WINXP
+#define BDES_PLATFORM_OS_WINXP       BSLS_PLATFORM_OS_WINXP
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_IBM
+#ifndef BDES_PLATFORM_CMP_AIX
+#define BDES_PLATFORM_CMP_AIX        BSLS_PLATFORM_CMP_IBM
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#ifndef BDES_PLATFORM_CMP_GNU
+#define BDES_PLATFORM_CMP_GNU        BSLS_PLATFORM_CMP_GNU
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_HP
+#ifndef BDES_PLATFORM_CMP_HP
+#define BDES_PLATFORM_CMP_HP         BSLS_PLATFORM_CMP_HP
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#ifndef BDES_PLATFORM_CMP_MSVC
+#define BDES_PLATFORM_CMP_MSVC       BSLS_PLATFORM_CMP_MSVC
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_SUN
+#ifndef BDES_PLATFORM_CMP_SUN
+#define BDES_PLATFORM_CMP_SUN        BSLS_PLATFORM_CMP_SUN
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_VER_MAJOR
+#ifndef BDES_PLATFORM_CPU_VER_MAJOR
+#define BDES_PLATFORM_CPU_VER_MAJOR  BSLS_PLATFORM_CPU_VER_MAJOR
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_VER_MINOR
+#ifndef BDES_PLATFORM_CPU_VER_MINOR
+#define BDES_PLATFORM_CPU_VER_MINOR  BSLS_PLATFORM_CPU_VER_MINOR
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_88000
+#ifndef BDES_PLATFORM_CPU_88000
+#define BDES_PLATFORM_CPU_88000      BSLS_PLATFORM_CPU_88000
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_ALPHA
+#ifndef BDES_PLATFORM_CPU_ALPHA
+#define BDES_PLATFORM_CPU_ALPHA      BSLS_PLATFORM_CPU_ALPHA
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_HPPA
+#ifndef BDES_PLATFORM_CPU_HPPA
+#define BDES_PLATFORM_CPU_HPPA       BSLS_PLATFORM_CPU_HPPA
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_IA64
+#ifndef BDES_PLATFORM_CPU_IA64
+#define BDES_PLATFORM_CPU_IA64       BSLS_PLATFORM_CPU_IA64
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_MIPS
+#ifndef BDES_PLATFORM_CPU_MIPS
+#define BDES_PLATFORM_CPU_MIPS       BSLS_PLATFORM_CPU_MIPS
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_POWERPC
+#ifndef BDES_PLATFORM_CPU_POWERPC
+#define BDES_PLATFORM_CPU_POWERPC    BSLS_PLATFORM_CPU_POWERPC
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_SPARC
+#ifndef BDES_PLATFORM_CPU_SPARC
+#define BDES_PLATFORM_CPU_SPARC      BSLS_PLATFORM_CPU_SPARC
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_X86
+#ifndef BDES_PLATFORM_CPU_X86
+#define BDES_PLATFORM_CPU_X86        BSLS_PLATFORM_CPU_X86
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_X86_64
+#ifndef BDES_PLATFORM_CPU_X86_64
+#define BDES_PLATFORM_CPU_X86_64     BSLS_PLATFORM_CPU_X86_64
+#endif
+#endif
 
                                  // ==========
                                  // Validation
@@ -154,9 +318,7 @@ BDES_IDENT("$Id: $")
 
 // Exactly one CMP type.
 #if BDES_PLATFORM_CMP_AIX \
-  + BDES_PLATFORM_CMP_EPC \
   + BDES_PLATFORM_CMP_GNU \
-  + BDES_PLATFORM_CMP_EDG \
   + BDES_PLATFORM_CMP_HP \
   + BDES_PLATFORM_CMP_MSVC \
   + BDES_PLATFORM_CMP_SUN != 1
@@ -174,12 +336,10 @@ BDES_IDENT("$Id: $")
 // At most one OS subtype.
 #define BDES_PLATFORM_OS_SUBTYPE_COUNT \
     BDES_PLATFORM_OS_AIX \
-  + BDES_PLATFORM_OS_DGUX \
   + BDES_PLATFORM_OS_HPUX \
   + BDES_PLATFORM_OS_LINUX \
   + BDES_PLATFORM_OS_SOLARIS \
   + BDES_PLATFORM_OS_SUNOS \
-  + BDES_PLATFORM_OS_CYGWIN \
   + BDES_PLATFORM_OS_WIN9X \
   + BDES_PLATFORM_OS_WINNT \
   + BDES_PLATFORM_OS_WIN2K \

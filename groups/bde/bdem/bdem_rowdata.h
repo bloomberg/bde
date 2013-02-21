@@ -125,16 +125,16 @@ BDES_IDENT("$Id: $")
 #include <bdeu_bitstringutil.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -187,7 +187,7 @@ class bdem_RowData {
                                                     // to construct rows and
                                                     // their elements
 
-    bslma_Allocator      *d_allocator_p;            // memory allocator (held,
+    bslma::Allocator     *d_allocator_p;            // memory allocator (held,
                                                     // not owned)
 
     // FRIENDS
@@ -275,7 +275,7 @@ class bdem_RowData {
 
     // CREATORS
     bdem_RowData(bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create an empty row data object using the specified memory
         // 'allocationStrategy'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -283,7 +283,7 @@ class bdem_RowData {
 
     bdem_RowData(const bdem_RowLayout                     *rowLayout,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a row data object having the sequence of element types that
         // is the same as that of the specified 'rowLayout', with each element
         // set to null and having its respective unset value (see
@@ -297,7 +297,7 @@ class bdem_RowData {
     bdem_RowData(const bdem_RowLayout                     *rowLayout,
                  const bdem_RowData&                       other,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a row data object having the sequence of element types that
         // is the same as that of the specified 'rowLayout', with each element
         // set to the value of the corresponding element in the specified
@@ -315,7 +315,7 @@ class bdem_RowData {
                  int                                       startIndex,
                  int                                       numElements,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a row data object having the sequence of element types that
         // is the same as that of the specified 'rowLayout', with elements set
         // to the values of the specified 'numElements' beginning at the

@@ -8,8 +8,6 @@
 #include <bdex_testinstreamexception.h>  // for testing only
 #include <bdex_testoutstream.h>          // for testing only
 
-#include <bsls_platformutil.h>           // for testing only
-
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 

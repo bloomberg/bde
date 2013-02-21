@@ -4466,7 +4466,7 @@ EXPORT pcre *
 pcre_compile(const char *pattern, int options, const char **errorptr,
   int *erroroffset, const unsigned char *tables
 #ifndef NO_BDEPCRE
-                                               , bslma_Allocator *allocator)
+                                               , bslma::Allocator *allocator)
 #else
                                                )
 #endif
@@ -5977,7 +5977,7 @@ match(REGISTER const uschar *eptr, REGISTER const uschar *ecode,
   int offset_top, match_data *md, unsigned long int ims, eptrblock *eptrb,
   int flags
 #ifndef NO_BDEPCRE
-           , bslma_Allocator *allocator)
+           , bslma::Allocator *allocator)
 #else
            )
 #endif
@@ -9060,7 +9060,7 @@ pcre_exec(const pcre *argument_re, const pcre_extra *extra_data,
   const char *subject, int length, int start_offset, int options, int *offsets,
   int offsetcount
 #ifndef NO_BDEPCRE
-                 , bslma_Allocator *allocator)
+                 , bslma::Allocator *allocator)
 #else
                  )
 #endif

@@ -94,7 +94,7 @@ bdex_TestOutStreamFormatter::putVersion(int version)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putInt64(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStreamFormatter::putInt64(bsls::Types::Int64 value)
 {
     bdex_FieldCode::Type code;
     if (d_makeNextInvalid) {
@@ -110,7 +110,7 @@ bdex_TestOutStreamFormatter::putInt64(bsls_PlatformUtil::Int64 value)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putUint64(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStreamFormatter::putUint64(bsls::Types::Int64 value)
 {
     bdex_FieldCode::Type code;
     if (d_makeNextInvalid) {
@@ -126,7 +126,7 @@ bdex_TestOutStreamFormatter::putUint64(bsls_PlatformUtil::Int64 value)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putInt56(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStreamFormatter::putInt56(bsls::Types::Int64 value)
 {
     bdex_FieldCode::Type code;
     if (d_makeNextInvalid) {
@@ -142,7 +142,7 @@ bdex_TestOutStreamFormatter::putInt56(bsls_PlatformUtil::Int64 value)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putUint56(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStreamFormatter::putUint56(bsls::Types::Int64 value)
 {
     bdex_FieldCode::Type code;
     if (d_makeNextInvalid) {
@@ -158,7 +158,7 @@ bdex_TestOutStreamFormatter::putUint56(bsls_PlatformUtil::Int64 value)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putInt48(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStreamFormatter::putInt48(bsls::Types::Int64 value)
 {
     bdex_FieldCode::Type code;
     if (d_makeNextInvalid) {
@@ -174,7 +174,7 @@ bdex_TestOutStreamFormatter::putInt48(bsls_PlatformUtil::Int64 value)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putUint48(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStreamFormatter::putUint48(bsls::Types::Int64 value)
 {
     bdex_FieldCode::Type code;
     if (d_makeNextInvalid) {
@@ -190,7 +190,7 @@ bdex_TestOutStreamFormatter::putUint48(bsls_PlatformUtil::Int64 value)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putInt40(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStreamFormatter::putInt40(bsls::Types::Int64 value)
 {
     bdex_FieldCode::Type code;
     if (d_makeNextInvalid) {
@@ -206,7 +206,7 @@ bdex_TestOutStreamFormatter::putInt40(bsls_PlatformUtil::Int64 value)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putUint40(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStreamFormatter::putUint40(bsls::Types::Int64 value)
 {
     bdex_FieldCode::Type code;
     if (d_makeNextInvalid) {
@@ -382,9 +382,8 @@ bdex_TestOutStreamFormatter::putFloat32(float value)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayInt64(
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             count)
+bdex_TestOutStreamFormatter::putArrayInt64(const bsls::Types::Int64 *array,
+                                           int                       count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -399,16 +398,16 @@ bdex_TestOutStreamFormatter::putArrayInt64(
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayInt64(array, count);
+    }
 
     return *this;
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayUint64(
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count)
+bdex_TestOutStreamFormatter::putArrayUint64(const bsls::Types::Uint64 *array,
+                                            int                        count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -423,15 +422,16 @@ bdex_TestOutStreamFormatter::putArrayUint64(
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayUint64(array, count);
+    }
+
     return *this;
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayInt56(
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             count)
+bdex_TestOutStreamFormatter::putArrayInt56(const bsls::Types::Int64 *array,
+                                           int                       count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -446,16 +446,16 @@ bdex_TestOutStreamFormatter::putArrayInt56(
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayInt56(array, count);
+    }
 
     return *this;
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayUint56(
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count)
+bdex_TestOutStreamFormatter::putArrayUint56(const bsls::Types::Uint64 *array,
+                                            int                        count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -470,15 +470,16 @@ bdex_TestOutStreamFormatter::putArrayUint56(
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayUint56(array, count);
+    }
+
     return *this;
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayInt48(
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             count)
+bdex_TestOutStreamFormatter::putArrayInt48(const bsls::Types::Int64 *array,
+                                           int                       count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -493,16 +494,16 @@ bdex_TestOutStreamFormatter::putArrayInt48(
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayInt48(array, count);
+    }
 
     return *this;
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayUint48(
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count)
+bdex_TestOutStreamFormatter::putArrayUint48(const bsls::Types::Uint64 *array,
+                                            int                        count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -517,15 +518,16 @@ bdex_TestOutStreamFormatter::putArrayUint48(
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayUint48(array, count);
+    }
+
     return *this;
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayInt40(
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             count)
+bdex_TestOutStreamFormatter::putArrayInt40(const bsls::Types::Int64 *array,
+                                           int                       count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -540,16 +542,16 @@ bdex_TestOutStreamFormatter::putArrayInt40(
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayInt40(array, count);
+    }
 
     return *this;
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayUint40(
-                                      const bsls_PlatformUtil::Uint64 *array,
-                                      int                              count)
+bdex_TestOutStreamFormatter::putArrayUint40(const bsls::Types::Uint64 *array,
+                                            int                        count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -564,8 +566,10 @@ bdex_TestOutStreamFormatter::putArrayUint40(
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayUint40(array, count);
+    }
+
     return *this;
 }
 
@@ -585,8 +589,9 @@ bdex_TestOutStreamFormatter::putArrayInt32(const int *array, int count)
     }
      d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayInt32(array, count);
+    }
 
     return *this;
 }
@@ -608,10 +613,11 @@ bdex_TestOutStreamFormatter::putArrayUint32(const unsigned int *array,
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayUint32(array, count);
+    }
 
-        return *this;
+    return *this;
 }
 
 bdex_TestOutStreamFormatter&
@@ -630,8 +636,9 @@ bdex_TestOutStreamFormatter::putArrayInt24(const int *array, int count)
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayInt24(array, count);
+    }
 
     return *this;
 }
@@ -653,10 +660,11 @@ bdex_TestOutStreamFormatter::putArrayUint24(const unsigned int *array,
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayUint24(array, count);
+    }
 
-        return *this;
+    return *this;
 }
 
 bdex_TestOutStreamFormatter&
@@ -675,8 +683,9 @@ bdex_TestOutStreamFormatter::putArrayInt16(const short *array, int count)
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayInt16(array, count);
+    }
 
     return *this;
 }
@@ -698,8 +707,9 @@ bdex_TestOutStreamFormatter::putArrayUint16(const unsigned short *array,
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayUint16(array, count);
+    }
 
     return *this;
 }
@@ -720,8 +730,9 @@ bdex_TestOutStreamFormatter::putArrayInt8(const char *array, int count)
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayInt8(array, count);
+    }
 
     return *this;
 }
@@ -742,8 +753,9 @@ bdex_TestOutStreamFormatter::putArrayInt8(const signed char *array, int count)
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayInt8(array, count);
+    }
 
     return *this;
 }
@@ -764,8 +776,9 @@ bdex_TestOutStreamFormatter::putArrayUint8(const char *array, int count)
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayUint8(array, count);
+    }
 
     return *this;
 }
@@ -787,8 +800,9 @@ bdex_TestOutStreamFormatter::putArrayUint8(const unsigned char *array,
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayUint8(array, count);
+    }
 
     return *this;
 }
@@ -809,8 +823,9 @@ bdex_TestOutStreamFormatter::putArrayFloat64(const double *array, int count)
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayFloat64(array, count);
+    }
 
     return *this;
 }
@@ -831,8 +846,9 @@ bdex_TestOutStreamFormatter::putArrayFloat32(const float *array, int count)
     }
     d_imp.putInt8(code);
     d_imp.putInt32(count);
-    if (0 < count)
+    if (0 < count) {
         d_imp.putArrayFloat32(array, count);
+    }
 
     return *this;
 }

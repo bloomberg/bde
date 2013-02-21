@@ -220,8 +220,8 @@ namespace bdex_VersionFunctions {
         // 'bdex_VersionFunctions_DoesNotHaveVersion' to choose the correct
         // function.
 
-        typedef typename bslmf_If<bslmf_IsFundamental<TYPE>::VALUE
-                               || bslmf_IsEnum<TYPE>::VALUE,
+        typedef typename bslmf::If<bslmf::IsFundamental<TYPE>::VALUE
+                               || bslmf::IsEnum<TYPE>::VALUE,
                                   bdex_VersionFunctions_DoesNotHaveVersion,
                                   bdex_VersionFunctions_HasVersion>::Type
                                                                      dummyType;

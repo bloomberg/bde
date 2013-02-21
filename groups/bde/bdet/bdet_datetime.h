@@ -415,10 +415,10 @@ class bdet_Datetime {
         // affected.  The behavior is undefined unless
         // '0 <= millisecond <= 999'.
 
-    void addTime(bsls_Types::Int64 hours,
-                 bsls_Types::Int64 minutes      = 0,
-                 bsls_Types::Int64 seconds      = 0,
-                 bsls_Types::Int64 milliseconds = 0);
+    void addTime(bsls::Types::Int64 hours,
+                 bsls::Types::Int64 minutes      = 0,
+                 bsls::Types::Int64 seconds      = 0,
+                 bsls::Types::Int64 milliseconds = 0);
         // Add the specified number of 'hours', and the optionally specified
         // number of 'minutes', 'seconds', and 'milliseconds', to the value of
         // this object, adjusting the "date" part of the value accordingly
@@ -437,7 +437,7 @@ class bdet_Datetime {
         // 'bdet_Datetime' object.  Note that the "time" part of this datetime
         // value is unaffected.
 
-    void addHours(bsls_Types::Int64 hours);
+    void addHours(bsls::Types::Int64 hours);
         // Add the specified number of 'hours' to the value of this object,
         // adjusting the "date" part of the value accordingly.  'hours' may be
         // positive, 0, or negative.  The behavior is undefined unless the
@@ -446,7 +446,7 @@ class bdet_Datetime {
         // "24:00:00.000", it will be set to "00:00:00.000" before performing
         // the addition.
 
-    void addMinutes(bsls_Types::Int64 minutes);
+    void addMinutes(bsls::Types::Int64 minutes);
         // Add the specified number of 'minutes' to the value of this object,
         // adjusting the "date" part of the value accordingly.  'minutes' may
         // be positive, 0, or negative.  The behavior is undefined unless the
@@ -455,7 +455,7 @@ class bdet_Datetime {
         // "24:00:00.000", it will be set to "00:00:00.000" before performing
         // the addition.
 
-    void addSeconds(bsls_Types::Int64 seconds);
+    void addSeconds(bsls::Types::Int64 seconds);
         // Add the specified number of 'seconds' to the value of this object,
         // adjusting the "date" part of the value accordingly.  'seconds' may
         // be positive, 0, or negative.  The behavior is undefined unless the
@@ -464,7 +464,7 @@ class bdet_Datetime {
         // "24:00:00.000", it will be set to "00:00:00.000" before performing
         // the addition.
 
-    void addMilliseconds(bsls_Types::Int64 milliseconds);
+    void addMilliseconds(bsls::Types::Int64 milliseconds);
         // Add the specified number of 'milliseconds' to the value of this
         // object, adjusting the "date" part of the value accordingly.
         // 'milliseconds' may be positive, 0, or negative.  The behavior
@@ -543,10 +543,10 @@ class bdet_Datetime {
         // Efficiently write the value of this object to the specified 'result'
         // buffer of at least the specified 'numBytes'.  Return the number of
         // characters (not including the null character) that would have been
-        // written if the limit due to 'numBytes' were not imposed.  'result' is
-        // null-terminated unless 'numBytes' is 0.  The behavior is undefined
-        // unless '0 <= numBytes' and 'result' refers to at least 'numBytes'
-        // contiguous bytes.
+        // written if the limit due to 'numBytes' were not imposed.  'result'
+        // is null-terminated unless 'numBytes' is 0.  The behavior is
+        // undefined unless '0 <= numBytes' and 'result' refers to at least
+        // 'numBytes' contiguous bytes.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -854,10 +854,10 @@ void bdet_Datetime::setMillisecond(int millisecond)
 }
 
 inline
-void bdet_Datetime::addTime(bsls_Types::Int64 hours,
-                            bsls_Types::Int64 minutes,
-                            bsls_Types::Int64 seconds,
-                            bsls_Types::Int64 milliseconds)
+void bdet_Datetime::addTime(bsls::Types::Int64 hours,
+                            bsls::Types::Int64 minutes,
+                            bsls::Types::Int64 seconds,
+                            bsls::Types::Int64 milliseconds)
 {
     const bdet_DatetimeInterval interval(0,
                                          hours,
@@ -874,9 +874,9 @@ void bdet_Datetime::addDays(int days)
 }
 
 inline
-void bdet_Datetime::addHours(bsls_Types::Int64 hours)
+void bdet_Datetime::addHours(bsls::Types::Int64 hours)
 {
-    const bsls_Types::Int64 totalMsec = hours * BDET_MILLISECONDS_PER_HOUR;
+    const bsls::Types::Int64 totalMsec = hours * BDET_MILLISECONDS_PER_HOUR;
 
     const int normMsec  = (int)(totalMsec % BDET_MILLISECONDS_PER_DAY);
     const int wholeDays = (int)(totalMsec / BDET_MILLISECONDS_PER_DAY);
@@ -885,9 +885,10 @@ void bdet_Datetime::addHours(bsls_Types::Int64 hours)
 }
 
 inline
-void bdet_Datetime::addMinutes(bsls_Types::Int64 minutes)
+void bdet_Datetime::addMinutes(bsls::Types::Int64 minutes)
 {
-    const bsls_Types::Int64 totalMsec = minutes * BDET_MILLISECONDS_PER_MINUTE;
+    const bsls::Types::Int64 totalMsec =
+                                        minutes * BDET_MILLISECONDS_PER_MINUTE;
 
     const int normMsec  = static_cast<int>(
                                         totalMsec % BDET_MILLISECONDS_PER_DAY);
@@ -898,9 +899,10 @@ void bdet_Datetime::addMinutes(bsls_Types::Int64 minutes)
 }
 
 inline
-void bdet_Datetime::addSeconds(bsls_Types::Int64 seconds)
+void bdet_Datetime::addSeconds(bsls::Types::Int64 seconds)
 {
-    const bsls_Types::Int64 totalMsec = seconds * BDET_MILLISECONDS_PER_SECOND;
+    const bsls::Types::Int64 totalMsec =
+                                        seconds * BDET_MILLISECONDS_PER_SECOND;
 
     const int normMsec  = static_cast<int>(
                                         totalMsec % BDET_MILLISECONDS_PER_DAY);
@@ -911,7 +913,7 @@ void bdet_Datetime::addSeconds(bsls_Types::Int64 seconds)
 }
 
 inline
-void bdet_Datetime::addMilliseconds(bsls_Types::Int64 milliseconds)
+void bdet_Datetime::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
     const int normMsec  = static_cast<int>(
                                      milliseconds % BDET_MILLISECONDS_PER_DAY);

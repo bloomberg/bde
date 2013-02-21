@@ -190,8 +190,8 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_testinstream.h
 
-typedef bsls_PlatformUtil::Int64  Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 /* TBD
 class my_TestInStream {
     int   d_cursor;      // index for the next byte to be extracted

@@ -5117,7 +5117,7 @@ int main(int argc, char**argv)
 
         enum { CAPACITY = 1 << 20 };
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         unsigned short *utf16S = (unsigned short *)
                                 ta.allocate(CAPACITY * sizeof(unsigned short));
         wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
@@ -5304,7 +5304,7 @@ int main(int argc, char**argv)
                                                                  == contBytes);
         ASSERT(0 == errorBytes);
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         unsigned short *utf16S = (unsigned short *)
                                 ta.allocate(CAPACITY * sizeof(unsigned short));
         wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
@@ -10277,7 +10277,7 @@ int runPlainTextPerformanceTest(void)
 
     const int       iterLimit    = 1000;
 
-    bsls_Stopwatch s;
+    bsls::Stopwatch s;
 
     s.start();
 

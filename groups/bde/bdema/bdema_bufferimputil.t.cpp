@@ -107,7 +107,7 @@ typedef bdema_BufferImpUtil Obj;
 // actually get aligned on 4-byte boundary.  To fix this, create a static
 // buffer instead.
 enum { BUFFER_SIZE = 256 };
-static bsls_AlignedBuffer<BUFFER_SIZE> bufferStorage;
+static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -142,7 +142,7 @@ static bsls_AlignedBuffer<BUFFER_SIZE> bufferStorage;
 
       public:
         // CREATORS
-        my_SequentialPool(bslma_Allocator *basicAllocator = 0);
+        my_SequentialPool(bslma::Allocator *basicAllocator = 0);
             // Create a memory pool that dispenses user-specified-sized blocks
             // of memory.  Optionally specify 'basicAllocator' to supply
             // memory.  If 'basicAllocator' is 0, the currently installed
@@ -163,11 +163,11 @@ static bsls_AlignedBuffer<BUFFER_SIZE> bufferStorage;
     void *my_SequentialPool::allocate(int size)
     {
         void *address = bdema_BufferImpUtil::allocateFromBuffer(
-                                                 &d_cursor,
-                                                 d_buffer_p,
-                                                 d_bufferSize,
-                                                 size,
-                                                 bsls_Alignment::BSLS_NATURAL);
+                                                &d_cursor,
+                                                d_buffer_p,
+                                                d_bufferSize,
+                                                size,
+                                                bsls::Alignment::BSLS_NATURAL);
 //..
 // Note that if there is insufficient space in 'd_buffer_p',
 // 'allocateFromBuffer' returns 0.
@@ -179,10 +179,10 @@ static bsls_AlignedBuffer<BUFFER_SIZE> bufferStorage;
         replenishBuffer(size);
 
         return bdema_BufferImpUtil::allocateFromBufferRaw(
-                                                 &d_cursor,
-                                                 d_buffer_p,
-                                                 size,
-                                                 bsls_Alignment::BSLS_NATURAL);
+                                                &d_cursor,
+                                                d_buffer_p,
+                                                size,
+                                                bsls::Alignment::BSLS_NATURAL);
     }
 //..
 // Note that the *raw* version is used because the contract of
@@ -264,12 +264,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "CLASS METHODS TEST" << endl
                                   << "==================" << endl;
 
-        typedef bsls_Alignment::Strategy St;
+        typedef bsls::Alignment::Strategy St;
 
-        enum { MA = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { MA = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting expected cursor and offset" << endl;
         {

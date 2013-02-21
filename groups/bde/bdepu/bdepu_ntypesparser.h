@@ -428,8 +428,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_CCTYPE
@@ -557,10 +557,10 @@ struct bdepu_NTypesParser {
         //      for the target platform.
         //..
 
-    static int parseInt64(const char               **endPos,
-                          bsls_PlatformUtil::Int64  *result,
-                          const char                *inputString,
-                          int                        base = 10);
+    static int parseInt64(const char         **endPos,
+                          bsls::Types::Int64  *result,
+                          const char          *inputString,
+                          int                  base = 10);
         // Parse the specified 'inputString' for a sequence of characters
         // matching the regular expression <WHITESPACE>*<NINT64>, and place
         // into the specified 'result' the corresponding value.  Store in the
@@ -1049,10 +1049,9 @@ struct bdepu_NTypesParser {
         //   2. Parsing of a particular array element fails.
         //..
 
-    static int parseInt64Array(
-                          const char                            **endPos,
-                          bsl::vector<bsls_PlatformUtil::Int64>  *result,
-                          const char                             *inputString);
+    static int parseInt64Array(const char                      **endPos,
+                               bsl::vector<bsls::Types::Int64>  *result,
+                               const char                       *inputString);
         // Parse the specified 'inputString' for a sequence of characters
         // matching the regular expression <WHITESPACE>* [<WHITESPACE>*
         // (<NINT64><WHITESPACE>*)], (i.e., a possibly empty list of
@@ -1307,10 +1306,10 @@ struct bdepu_NTypesParser {
         // as a textual representation that is parsable by the corresponding
         // 'parseInt' function.
 
-    static void generateInt64Raw(bsl::vector<char>        *buffer,
-                                 bsls_PlatformUtil::Int64  value,
-                                 int                       level = 0,
-                                 int                       spacesPerLevel = 4);
+    static void generateInt64Raw(bsl::vector<char>  *buffer,
+                                 bsls::Types::Int64  value,
+                                 int                 level = 0,
+                                 int                 spacesPerLevel = 4);
         // Format the specified 'value' using the optionally specified
         // indentation 'level' and append the result to the specified
         // 'buffer'.  If the specified 'value' matches the unset value defined
@@ -1569,10 +1568,10 @@ struct bdepu_NTypesParser {
         // the corresponding 'parseArray' function.
 
     static void generateInt64ArrayRaw(
-             bsl::vector<char>                            *buffer,
-             const bsl::vector<bsls_PlatformUtil::Int64>&  value,
-             int                                           level = 0,
-             int                                           spacesPerLevel = 4);
+                   bsl::vector<char>                      *buffer,
+                   const bsl::vector<bsls::Types::Int64>&  value,
+                   int                                     level = 0,
+                   int                                     spacesPerLevel = 4);
         // Format the specified 'value' using the optionally specified
         // indentation 'level' and append the result to the specified
         // 'buffer'.  The 'buffer' is formatted as a comma delimited list of
@@ -1844,10 +1843,10 @@ struct bdepu_NTypesParser {
         // representation that is parsable by the corresponding 'parseInt'
         // function.
 
-    static void generateInt64(bsl::vector<char>        *buffer,
-                              bsls_PlatformUtil::Int64  value,
-                              int                       level = 0,
-                              int                       spacesPerLevel = 4);
+    static void generateInt64(bsl::vector<char>  *buffer,
+                              bsls::Types::Int64  value,
+                              int                 level = 0,
+                              int                 spacesPerLevel = 4);
         // Format the specified 'value' using the optionally specified
         // indentation 'level' and append the result to the specified 'buffer'
         // while maintaining null-character termination.  If the specified
@@ -2111,10 +2110,10 @@ struct bdepu_NTypesParser {
         // the corresponding 'parseArray' function.
 
     static void generateInt64Array(
-             bsl::vector<char>                            *buffer,
-             const bsl::vector<bsls_PlatformUtil::Int64>&  value,
-             int                                           level = 0,
-             int                                           spacesPerLevel = 4);
+                   bsl::vector<char>                      *buffer,
+                   const bsl::vector<bsls::Types::Int64>&  value,
+                   int                                     level = 0,
+                   int                                     spacesPerLevel = 4);
         // Format the specified 'value' using the optionally specified
         // indentation 'level' and append the result to the specified 'buffer'
         // while maintaining null-character termination.  The 'buffer' is

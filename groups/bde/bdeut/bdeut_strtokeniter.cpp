@@ -96,9 +96,9 @@ static void loadDelimTable(char *table, int size,
                        // ------------------------
 
 //CREATORS
-bdeut_StrTokenIter::bdeut_StrTokenIter(const char      *input,
-                                       const char      *softDelims,
-                                       bslma_Allocator *basicAllocator)
+bdeut_StrTokenIter::bdeut_StrTokenIter(const char       *input,
+                                       const char       *softDelims,
+                                       bslma::Allocator *basicAllocator)
 : d_string_p(input)
 , d_tokenBuf(basicAllocator)
 , d_bufferA(basicAllocator)
@@ -110,10 +110,10 @@ bdeut_StrTokenIter::bdeut_StrTokenIter(const char      *input,
     reset(input);
 }
 
-bdeut_StrTokenIter::bdeut_StrTokenIter(const char      *input,
-                                       const char      *softDelims,
-                                       const char      *hardDelims,
-                                       bslma_Allocator *basicAllocator)
+bdeut_StrTokenIter::bdeut_StrTokenIter(const char       *input,
+                                       const char       *softDelims,
+                                       const char       *hardDelims,
+                                       bslma::Allocator *basicAllocator)
 : d_string_p(input)
 , d_tokenBuf(basicAllocator)
 , d_bufferA(basicAllocator)

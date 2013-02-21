@@ -3,7 +3,6 @@
 #include <bdemf_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
@@ -136,8 +135,8 @@ int main(int argc, char *argv[])
 
         BDEMF_ASSERT(sizeof(int) >= sizeof(char));
         BDEMF_ASSERT(sizeof(int) >= sizeof(char));
+        BDEMF_ASSERT(1);  ASSERT(138 == __LINE__);
         BDEMF_ASSERT(1);  ASSERT(139 == __LINE__);
-        BDEMF_ASSERT(1);  ASSERT(140 == __LINE__);
         BDEMF_ASSERT(1 > 0 && 1);
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)

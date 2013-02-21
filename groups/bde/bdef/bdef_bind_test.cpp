@@ -14,8 +14,8 @@ namespace BloombergLP {
 
 // CLASS METHODS
 bool bdef_Bind_TestSlotsAlloc::verifySlots(
-        const bslma_Allocator* const *EXPECTED,
-        bool                          verboseFlag)
+        const bslma::Allocator* const *EXPECTED,
+        bool                           verboseFlag)
 {
     bool equalFlag = true;
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
@@ -37,7 +37,7 @@ bool bdef_Bind_TestSlotsAlloc::verifySlots(
             bsl::printf(" %s", (getSlot(i) == getZ0()) ? "Z0"
                             : ((getSlot(i) == getZ1()) ? "Z1"
                             : ((getSlot(i) == getZ2()) ? "Z2"
-                            : "Z?"))); 
+                            : "Z?")));
         }
         bsl::printf("\n");
     }

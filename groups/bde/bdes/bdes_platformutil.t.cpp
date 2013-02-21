@@ -699,6 +699,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "MAXIMUM ALIGNMENT TEST" << endl
                                   << "======================" << endl;
 
+// TBD The 'roundUpToMaximalAlignment' method has been removed.
+#if 0
         typedef bdes_PlatformUtil U;
 
         struct ShortAlign       { char c; short  d_short;           };
@@ -715,9 +717,9 @@ int main(int argc, char *argv[])
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    typedef U::MaxAlign                        LegacyMaxAlign;
+    typedef U::MaxAlign                         LegacyMaxAlign;
 #else
-    typedef bsls_AlignmentUtil::MaxAlignedType LegacyMaxAlign;
+    typedef bsls::AlignmentUtil::MaxAlignedType LegacyMaxAlign;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         struct MaxAlignAlign    { char c; LegacyMaxAlign d_maxAlign;};
@@ -756,6 +758,7 @@ int main(int argc, char *argv[])
         for (i = maxAlignment + 1; i <= 2 * maxAlignment; ++i) {
             ASSERT(2 * maxAlignment == U::roundUpToMaximalAlignment(i));
         }
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -877,6 +880,8 @@ int main(int argc, char *argv[])
             << "Testing little-endian & big-endian functions/macros." << endl
             << "====================================================" << endl;
 
+// TBD The 'isBigEndian' method has been removed.
+#if 0
         typedef bdes_PlatformUtil Util;
 
         if (verbose) cout << "This platform is " <<
@@ -898,6 +903,7 @@ int main(int argc, char *argv[])
         ASSERT(BDES_PLATFORMUTIL_IS_BIG_ENDIAN == Util::isBigEndian());
 #else
         ASSERT(BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN == Util::isLittleEndian());
+#endif
 #endif
       } break;
       default: {

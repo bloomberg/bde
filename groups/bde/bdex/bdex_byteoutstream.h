@@ -35,8 +35,8 @@ BDES_IDENT("$Id: $")
 // The supported types and required content are listed in the table below.  All
 // of the fundamental types in the table may be output as scalar values or as
 // homogeneous arrays.  'bsl::string' is output as a logical scalar string.
-// Note that 'Int64' and 'Uint64' denote 'bsls_PlatformUtil::Int64' and
-// 'bsls_PlatformUtil::Uint64', which in turn are 'typedef' names for the
+// Note that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
+// 'bsls::Types::Uint64', which in turn are 'typedef' names for the
 // signed and unsigned 64-bit integer types, respectively, on the host
 // platform.
 //..
@@ -153,12 +153,16 @@ BDES_IDENT("$Id: $")
 #include <bdesb_memoutstreambuf.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -167,10 +171,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -218,13 +218,13 @@ class bdex_ByteOutStream {
 
   public:
     // CREATORS
-    bdex_ByteOutStream(bslma_Allocator *basicAllocator = 0);
+    bdex_ByteOutStream(bslma::Allocator *basicAllocator = 0);
         // Create an empty output byte stream.  Optionally specify the
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used to supply memory.
 
-    bdex_ByteOutStream(int              initialCapacity,
-                       bslma_Allocator *basicAllocator = 0);
+    bdex_ByteOutStream(int               initialCapacity,
+                       bslma::Allocator *basicAllocator = 0);
         // Create an empty output byte stream having an initial buffer capacity
         // of at least the specified 'initialCapacity'.  Optionally specify the
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -269,56 +269,56 @@ class bdex_ByteOutStream {
 
                         // *** scalar integer values ***
 
-    bdex_ByteOutStream& putInt64(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStream& putInt64(bsls::Types::Int64 value);
         // Format the least significant 64 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant eight bytes of 'value' in network byte
         // order.
 
-    bdex_ByteOutStream& putUint64(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStream& putUint64(bsls::Types::Int64 value);
         // Format the least significant 64 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant eight bytes of 'value' in network byte
         // order.
 
-    bdex_ByteOutStream& putInt56(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStream& putInt56(bsls::Types::Int64 value);
         // Format the least significant 56 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant seven bytes of 'value' in network byte
         // order.
 
-    bdex_ByteOutStream& putUint56(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStream& putUint56(bsls::Types::Int64 value);
         // Format the least significant 56 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant seven bytes of 'value' in network byte
         // order.
 
-    bdex_ByteOutStream& putInt48(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStream& putInt48(bsls::Types::Int64 value);
         // Format the least significant 48 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant six bytes of 'value' in network byte
         // order.
 
-    bdex_ByteOutStream& putUint48(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStream& putUint48(bsls::Types::Int64 value);
         // Format the least significant 48 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant six bytes of 'value' in network byte
         // order.
 
-    bdex_ByteOutStream& putInt40(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStream& putInt40(bsls::Types::Int64 value);
         // Format the least significant 40 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant five bytes of 'value' in network byte
         // order.
 
-    bdex_ByteOutStream& putUint40(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStream& putUint40(bsls::Types::Int64 value);
         // Format the least significant 40 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
@@ -412,8 +412,8 @@ class bdex_ByteOutStream {
 
                         // *** arrays of integer values ***
 
-    bdex_ByteOutStream& putArrayInt64(const bsls_PlatformUtil::Int64 *array,
-                                      int                             count);
+    bdex_ByteOutStream& putArrayInt64(const bsls::Types::Int64 *array,
+                                      int                       count);
         // Format as an atomic sequence the least significant 64 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
@@ -422,8 +422,8 @@ class bdex_ByteOutStream {
         // For each element of 'array', write the least significant eight bytes
         // in network byte order.
 
-    bdex_ByteOutStream& putArrayUint64(const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count);
+    bdex_ByteOutStream& putArrayUint64(const bsls::Types::Uint64 *array,
+                                       int                        count);
         // Format as an atomic sequence the least significant 64 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
@@ -432,8 +432,8 @@ class bdex_ByteOutStream {
         // For each element of 'array', write the least significant eight bytes
         // in network byte order.
 
-    bdex_ByteOutStream& putArrayInt56(const bsls_PlatformUtil::Int64 *array,
-                                      int                             count);
+    bdex_ByteOutStream& putArrayInt56(const bsls::Types::Int64 *array,
+                                      int                       count);
         // Format as an atomic sequence the least significant 56 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
@@ -442,8 +442,8 @@ class bdex_ByteOutStream {
         // For each element of 'array', write the least significant seven bytes
         // in network byte order.
 
-    bdex_ByteOutStream& putArrayUint56(const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count);
+    bdex_ByteOutStream& putArrayUint56(const bsls::Types::Uint64 *array,
+                                       int                        count);
         // Format as an atomic sequence the least significant 56 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
@@ -452,8 +452,8 @@ class bdex_ByteOutStream {
         // For each element of 'array', write the least significant seven bytes
         // in network byte order.
 
-    bdex_ByteOutStream& putArrayInt48(const bsls_PlatformUtil::Int64 *array,
-                                      int                             count);
+    bdex_ByteOutStream& putArrayInt48(const bsls::Types::Int64 *array,
+                                      int                       count);
         // Format as an atomic sequence the least significant 48 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
@@ -462,8 +462,8 @@ class bdex_ByteOutStream {
         // For each element of 'array', write the least significant six bytes
         // in network byte order.
 
-    bdex_ByteOutStream& putArrayUint48(const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count);
+    bdex_ByteOutStream& putArrayUint48(const bsls::Types::Uint64 *array,
+                                       int                        count);
         // Format as an atomic sequence the least significant 48 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
@@ -472,8 +472,8 @@ class bdex_ByteOutStream {
         // For each element of 'array', write the least significant six bytes
         // in network byte order.
 
-    bdex_ByteOutStream& putArrayInt40(const bsls_PlatformUtil::Int64 *array,
-                                      int                             count);
+    bdex_ByteOutStream& putArrayInt40(const bsls::Types::Int64 *array,
+                                      int                       count);
         // Format as an atomic sequence the least significant 40 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
@@ -482,8 +482,8 @@ class bdex_ByteOutStream {
         // For each element of 'array', write the least significant five bytes
         // in network byte order.
 
-    bdex_ByteOutStream& putArrayUint40(const bsls_PlatformUtil::Uint64 *array,
-                                       int                              count);
+    bdex_ByteOutStream& putArrayUint40(const bsls::Types::Uint64 *array,
+                                       int                        count);
         // Format as an atomic sequence the least significant 40 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
@@ -646,7 +646,7 @@ bdex_ByteOutStream& operator<<(bdex_ByteOutStream& stream,
 
 // CREATORS
 inline
-bdex_ByteOutStream::bdex_ByteOutStream(bslma_Allocator *basicAllocator)
+bdex_ByteOutStream::bdex_ByteOutStream(bslma::Allocator *basicAllocator)
 : d_streambuf(basicAllocator)
 , d_formatter(&d_streambuf)
 {
@@ -656,8 +656,8 @@ bdex_ByteOutStream::bdex_ByteOutStream(bslma_Allocator *basicAllocator)
 }
 
 inline
-bdex_ByteOutStream::bdex_ByteOutStream(int              initialCapacity,
-                                       bslma_Allocator *basicAllocator)
+bdex_ByteOutStream::bdex_ByteOutStream(int               initialCapacity,
+                                       bslma::Allocator *basicAllocator)
 : d_streambuf(initialCapacity, basicAllocator)
 , d_formatter(&d_streambuf)
 {
@@ -719,7 +719,7 @@ bdex_ByteOutStream& bdex_ByteOutStream::putVersion(int version)
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putInt64(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStream::putInt64(bsls::Types::Int64 value)
 {
     d_formatter.putInt64(value);
     return *this;
@@ -727,7 +727,7 @@ bdex_ByteOutStream::putInt64(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putUint64(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStream::putUint64(bsls::Types::Int64 value)
 {
     d_formatter.putUint64(value);
     return *this;
@@ -735,7 +735,7 @@ bdex_ByteOutStream::putUint64(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putInt56(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStream::putInt56(bsls::Types::Int64 value)
 {
     d_formatter.putInt56(value);
     return *this;
@@ -743,7 +743,7 @@ bdex_ByteOutStream::putInt56(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putUint56(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStream::putUint56(bsls::Types::Int64 value)
 {
     d_formatter.putUint56(value);
     return *this;
@@ -751,7 +751,7 @@ bdex_ByteOutStream::putUint56(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putInt48(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStream::putInt48(bsls::Types::Int64 value)
 {
     d_formatter.putInt48(value);
     return *this;
@@ -759,7 +759,7 @@ bdex_ByteOutStream::putInt48(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putUint48(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStream::putUint48(bsls::Types::Int64 value)
 {
     d_formatter.putUint48(value);
     return *this;
@@ -767,7 +767,7 @@ bdex_ByteOutStream::putUint48(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putInt40(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStream::putInt40(bsls::Types::Int64 value)
 {
     d_formatter.putInt40(value);
     return *this;
@@ -775,7 +775,7 @@ bdex_ByteOutStream::putInt40(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putUint40(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStream::putUint40(bsls::Types::Int64 value)
 {
     d_formatter.putUint40(value);
     return *this;
@@ -863,8 +863,8 @@ bdex_ByteOutStream::putFloat32(float value)
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putArrayInt64(const bsls_PlatformUtil::Int64 *array,
-                                  int                             count)
+bdex_ByteOutStream::putArrayInt64(const bsls::Types::Int64 *array,
+                                  int                       count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -875,8 +875,8 @@ bdex_ByteOutStream::putArrayInt64(const bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putArrayUint64(const bsls_PlatformUtil::Uint64 *array,
-                                   int                              count)
+bdex_ByteOutStream::putArrayUint64(const bsls::Types::Uint64 *array,
+                                   int                        count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -887,8 +887,8 @@ bdex_ByteOutStream::putArrayUint64(const bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putArrayInt56(const bsls_PlatformUtil::Int64 *array,
-                                  int                             count)
+bdex_ByteOutStream::putArrayInt56(const bsls::Types::Int64 *array,
+                                  int                       count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -899,8 +899,8 @@ bdex_ByteOutStream::putArrayInt56(const bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putArrayUint56(const bsls_PlatformUtil::Uint64 *array,
-                                   int                              count)
+bdex_ByteOutStream::putArrayUint56(const bsls::Types::Uint64 *array,
+                                   int                        count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -911,8 +911,8 @@ bdex_ByteOutStream::putArrayUint56(const bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putArrayInt48(const bsls_PlatformUtil::Int64 *array,
-                                  int                             count)
+bdex_ByteOutStream::putArrayInt48(const bsls::Types::Int64 *array,
+                                  int                       count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -923,8 +923,8 @@ bdex_ByteOutStream::putArrayInt48(const bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putArrayUint48(const bsls_PlatformUtil::Uint64 *array,
-                                   int                              count)
+bdex_ByteOutStream::putArrayUint48(const bsls::Types::Uint64 *array,
+                                   int                        count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -935,8 +935,8 @@ bdex_ByteOutStream::putArrayUint48(const bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putArrayInt40(const bsls_PlatformUtil::Int64 *array,
-                                  int                             count)
+bdex_ByteOutStream::putArrayInt40(const bsls::Types::Int64 *array,
+                                  int                       count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -947,8 +947,8 @@ bdex_ByteOutStream::putArrayInt40(const bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteOutStream&
-bdex_ByteOutStream::putArrayUint40(const bsls_PlatformUtil::Uint64 *array,
-                                   int                              count)
+bdex_ByteOutStream::putArrayUint40(const bsls::Types::Uint64 *array,
+                                   int                        count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);

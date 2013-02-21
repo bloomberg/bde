@@ -94,7 +94,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      explicit MyContainer(bdema_Allocator *basicAllocator = 0);
+//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
 //          // Construct a container using the specified 'basicAllocator' to
 //          // supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
@@ -114,7 +114,7 @@ BDES_IDENT("$Id: $")
 // without a constructor proxy.  One possible implementation is as follows:
 //..
 //  template <typename TYPE>
-//  MyContainer<TYPE>::MyContainer(bdema_Allocator *basicAllocator)
+//  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 //  {
 //  }
 //..
@@ -126,13 +126,13 @@ BDES_IDENT("$Id: $")
 // follows:
 //..
 //  template <typename TYPE>
-//  MyContainer<TYPE>::MyContainer(bdema_Allocator *basicAllocator)
+//  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 //  : d_object(basicAllocator)
 //  {
 //  }
 //..
 // This implementation behaves as documented, but it will not compile
-// unless 'TYPE' has a constructor taking a 'bdema_Allocator *'.  For example,
+// unless 'TYPE' has a constructor taking a 'bslma::Allocator *'.  For example,
 // the following declaration of 'container' will fail to compile:
 //..
 //  bdema_TestAllocator testAllocator;
@@ -152,7 +152,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      explicit MyContainer(bdema_Allocator *basicAllocator = 0);
+//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
 //          // Construct a container using the specified 'basicAllocator' to
 //          // supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
@@ -171,7 +171,7 @@ BDES_IDENT("$Id: $")
 // The constructor for 'MyContainer' can now be implemented as follows:
 //..
 //  template <typename TYPE>
-//  MyContainer<TYPE>::MyContainer(bdema_Allocator *basicAllocator)
+//  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 //  : d_proxy(basicAllocator)
 //  {
 //  }
@@ -200,7 +200,7 @@ BDES_IDENT("$Id: $")
 //      // This class uses a 'bdema' allocator.
 //
 //      // PRIVATE DATA MEMBERS
-//      bdema_Allocator *d_allocator_p;
+//      bslma::Allocator *d_allocator_p;
 //
 //    public:
 //      // TRAITS
@@ -208,13 +208,13 @@ BDES_IDENT("$Id: $")
 //                                   bdealg_TypeTraitUsesBdemaAllocator);
 //
 //      // CREATORS
-//      explicit SomeClassUsingAllocator(bdema_Allocator *basicAllocator = 0)
+//      explicit SomeClassUsingAllocator(bslma::Allocator *basicAllocator = 0)
 //      : d_allocator_p(bdema_Default::allocator(basicAllocator))
 //      {
 //      }
 //
 //      // ACCESSORS
-//      bdema_Allocator *getAllocator() const
+//      bslma::Allocator *getAllocator() const
 //      {
 //          return d_allocator_p;
 //      }
@@ -247,7 +247,7 @@ BDES_IDENT("$Id: $")
 //                                   bdealg_TypeTraitUsesBdemaAllocator);
 //
 //      // CREATORS
-//      explicit MyContainer(bdema_Allocator *basicAllocator = 0);
+//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
 //          // Construct a container using the specified 'basicAllocator' to
 //          // supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
@@ -288,11 +288,11 @@ namespace BloombergLP {
                         // class bdealg_ConstructorProxy
                         // =============================
 
-#define bdealg_ConstructorProxy bslalg_ConstructorProxy
+#define bdealg_ConstructorProxy bslalg::ConstructorProxy
     // This class acts as a proxy for constructing and destroying an object of
     // parameterized 'OBJECT_TYPE', where 'OBJECT_TYPE' may or may not use a
     // 'bdema' allocator for supplying memory.  The constructors for this proxy
-    // class take a 'bdema_Allocator *'.  If 'OBJECT_TYPE' has the
+    // class take a 'bslma::Allocator *'.  If 'OBJECT_TYPE' has the
     // 'bdealg_TypeTraitUsesBdemaAllocator' trait declared, then the supplied
     // allocator will be used to construct the proxied object.  Otherwise, the
     // allocator is ignored.

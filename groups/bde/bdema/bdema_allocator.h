@@ -14,8 +14,8 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bdema_Allocator: protocol class for memory allocation and deallocation
 //
-//@SEE_ALSO: bdema_NewDeleteAllocator, bdema_ManagedAllocator,
-// bdema_TestAllocator
+//@SEE_ALSO: bslma_newdeleteallocator, bdema_managedallocator,
+// bslma_testallocator
 //
 //@AUTHOR: John Lakos (jlakos)
 //
@@ -259,9 +259,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdema_Allocator
-#define bdema_Allocator bslma_Allocator
-    // Provide a protocol (or pure interface) for memory allocation and
-    // deallocation.
+#define bdema_Allocator bslma::Allocator
 #endif
 
 namespace BloombergLP {

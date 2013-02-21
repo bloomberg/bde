@@ -8,13 +8,14 @@
 #include <bdet_datetimetz.h>
 #include <bdet_time.h>
 #include <bdet_timetz.h>
-#include <bsl_string.h>
+
+#include <bslma_allocator.h>
 
 #include <bsl_cctype.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
-#include <bslfwd_bslma_allocator.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -344,15 +345,15 @@ class MyChoice {
 
   private:
     union {
-        bsls_ObjectBuffer< int > d_selection1;
+        bsls::ObjectBuffer< int > d_selection1;
             // TBD: provide annotation
-        bsls_ObjectBuffer< bsl::string > d_selection2;
+        bsls::ObjectBuffer< bsl::string > d_selection2;
             // TBD: provide annotation
     };
 
     int                 d_selectionId;
 
-    bslma_Allocator    *d_allocator_p;
+    bslma::Allocator   *d_allocator_p;
 
   public:
     // TYPES
@@ -404,13 +405,13 @@ class MyChoice {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MyChoice(bslma_Allocator *basicAllocator = 0);
+    explicit MyChoice(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    MyChoice(const MyChoice& original, bslma_Allocator *basicAllocator = 0);
+    MyChoice(const MyChoice& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -638,18 +639,18 @@ void MyChoice::makeSelection2(const bsl::string& value)
 
 // CREATORS
 inline
-MyChoice::MyChoice(bslma_Allocator *basicAllocator)
+MyChoice::MyChoice(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MyChoice::MyChoice(
     const MyChoice& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -1555,14 +1556,14 @@ class MySequence {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequence(bslma_Allocator *basicAllocator = 0);
+    explicit MySequence(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequence' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    MySequence(const MySequence& original,
-               bslma_Allocator *basicAllocator = 0);
+    MySequence(const MySequence&  original,
+               bslma::Allocator  *basicAllocator = 0);
         // Create an object of type 'MySequence' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -1726,18 +1727,19 @@ int MySequence::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySequence::MySequence(bslma_Allocator *basicAllocator)
+MySequence::MySequence(bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySequence::MySequence(
     const MySequence& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -2213,21 +2215,21 @@ class MyCustomizedType {
         // the name of this class (i.e., "MyCustomizedType")
 
     // CREATORS
-    explicit MyCustomizedType(bslma_Allocator *basicAllocator = 0);
+    explicit MyCustomizedType(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyCustomizedType' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    MyCustomizedType(const MyCustomizedType& original,
-                     bslma_Allocator *basicAllocator = 0);
+    MyCustomizedType(const MyCustomizedType&  original,
+                     bslma::Allocator        *basicAllocator = 0);
         // Create an object of type 'MyCustomizedType' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    explicit MyCustomizedType(const bsl::string& value,
-                              bslma_Allocator *basicAllocator = 0);
+    explicit MyCustomizedType(const bsl::string&  value,
+                              bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'MyCustomizedType' having the specified
         // 'value'.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -2321,21 +2323,21 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MyCustomizedType& rhs);
 // CREATORS
 
 inline
-MyCustomizedType::MyCustomizedType(bslma_Allocator *basicAllocator)
+MyCustomizedType::MyCustomizedType(bslma::Allocator *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
-MyCustomizedType::MyCustomizedType(const MyCustomizedType& original,
-                                   bslma_Allocator *basicAllocator)
+MyCustomizedType::MyCustomizedType(const MyCustomizedType&  original,
+                                   bslma::Allocator        *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
-MyCustomizedType::MyCustomizedType(const bsl::string& value,
-                                   bslma_Allocator *basicAllocator)
+MyCustomizedType::MyCustomizedType(const bsl::string&  value,
+                                   bslma::Allocator   *basicAllocator)
 : d_value(value, basicAllocator)
 {
 }
@@ -2608,10 +2610,10 @@ int main(int argc, char *argv[])
         XSDNAME_TST(long                     , DEC    , "int"              );
         XSDNAME_TST(unsigned long            , DEFAULT, "unsignedInt"      );
         XSDNAME_TST(unsigned long            , DEC    , "unsignedInt"      );
-        XSDNAME_TST(bsls_PlatformUtil::Int64 , DEFAULT, "long"             );
-        XSDNAME_TST(bsls_PlatformUtil::Int64 , DEC    , "long"             );
-        XSDNAME_TST(bsls_PlatformUtil::Uint64, DEFAULT, "unsignedLong"     );
-        XSDNAME_TST(bsls_PlatformUtil::Uint64, DEC    , "unsignedLong"     );
+        XSDNAME_TST(bsls::Types::Int64       , DEFAULT, "long"             );
+        XSDNAME_TST(bsls::Types::Int64       , DEC    , "long"             );
+        XSDNAME_TST(bsls::Types::Uint64      , DEFAULT, "unsignedLong"     );
+        XSDNAME_TST(bsls::Types::Uint64      , DEC    , "unsignedLong"     );
         XSDNAME_TST(float                    , DEFAULT, "float"            );
         XSDNAME_TST(float                    , DEC    , "decimal"          );
         XSDNAME_TST(double                   , DEFAULT, "double"           );
@@ -2660,8 +2662,8 @@ int main(int argc, char *argv[])
         NAME_TST(unsigned int                   , "unsigned int"             );
         NAME_TST(long                           , "long"                     );
         NAME_TST(unsigned long                  , "unsigned long"            );
-        NAME_TST(bsls_PlatformUtil::Int64       , "Int64"                    );
-        NAME_TST(bsls_PlatformUtil::Uint64      , "Uint64"                   );
+        NAME_TST(bsls::Types::Int64             , "Int64"                    );
+        NAME_TST(bsls::Types::Uint64            , "Uint64"                   );
         NAME_TST(float                          , "float"                    );
         NAME_TST(double                         , "double"                   );
         NAME_TST(bsl::string                    , "string"                   );
@@ -2729,8 +2731,8 @@ int main(int argc, char *argv[])
         CLASSNAME_TST(unsigned int                      , 0                  );
         CLASSNAME_TST(long                              , 0                  );
         CLASSNAME_TST(unsigned long                     , 0                  );
-        CLASSNAME_TST(bsls_PlatformUtil::Int64          , 0                  );
-        CLASSNAME_TST(bsls_PlatformUtil::Uint64         , 0                  );
+        CLASSNAME_TST(bsls::Types::Int64                , 0                  );
+        CLASSNAME_TST(bsls::Types::Uint64               , 0                  );
         CLASSNAME_TST(float                             , 0                  );
         CLASSNAME_TST(double                            , 0                  );
         CLASSNAME_TST(bsl::string                       , 0                  );

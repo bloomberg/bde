@@ -171,7 +171,7 @@ BDES_IDENT("$Id: $")
 // "CREDIT_CARD_PAYMENT", "CHECK_PAYMENT", and "SALE", of type sequence
 // (i.e., 'BDEM_SEQUENCE_RECORD'):
 //..
-//  bslma_Allocator           *allocator = bslma_Default::allocator();
+//  bslma::Allocator          *allocator = bslma::Default::allocator();
 //  bdema_SequentialAllocator  seqAllocator(allocator);
 //  bdem_Schema                dummySchema;
 //
@@ -477,7 +477,7 @@ class bdem_RecordDef {
         // be set to 'true' (irrespective of its value in 'attributes').
 
     // PRIVATE ACCESSORS
-    bslma_Allocator *writeOnceAllocator() const;
+    bslma::Allocator *writeOnceAllocator() const;
         // Return the address of the modifiable write-once allocator
         // (established at construction).
 
@@ -520,7 +520,7 @@ class bdem_RecordDef {
                    const char                *name,
                    RecordType                 recordType,
                    bdema_SequentialAllocator *writeOnceAllocator,
-                   bslma_Allocator           *basicAllocator);
+                   bslma::Allocator          *basicAllocator);
         // Create a record definition having the specified 'schema', 'index',
         // 'name', and 'recordType', and using the specified
         // 'writeOnceAllocator' and 'basicAllocator' to supply memory.
@@ -764,7 +764,7 @@ class bdem_RecordDef {
 
 // PRIVATE ACCESSORS
 inline
-bslma_Allocator *bdem_RecordDef::writeOnceAllocator() const
+bslma::Allocator *bdem_RecordDef::writeOnceAllocator() const
 {
     return d_fieldNames.get_allocator().mechanism();
 }

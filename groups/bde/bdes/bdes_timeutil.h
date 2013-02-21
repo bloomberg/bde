@@ -16,7 +16,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
-//@SEE_ALSO: bdes_stopwatch
+//@SEE_ALSO: bsls_stopwatch
 //
 //@DESCRIPTION: This component provides a set of platform-neutral pure
 // procedures to access real-time system clock functionality.  High-resolution
@@ -142,7 +142,7 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-typedef bsls_TimeUtil bdes_TimeUtil;
+typedef bsls::TimeUtil bdes_TimeUtil;
     // This class provides a set of platform-neutral pure procedures to access
     // real-time system clock functionality.  High-resolution time functions
     // intended for interval-timing return an interval in nanoseconds

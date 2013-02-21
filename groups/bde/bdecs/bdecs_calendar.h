@@ -180,11 +180,11 @@ BDES_IDENT("$Id: $")
 //
 //      // DATA
 //      bsl::unordered_map<bsl::string, bdecs_PackedCalendar *>  d_map;
-//      bslma_Allocator                                         *d_allocator_p;
+//      bslma::Allocator                                        *d_allocator_p;
 //
 //     public:
 //       // CREATORS
-//       MyPackedCalendarCache(bslma_Allocator *basicAllocator = 0);
+//       MyPackedCalendarCache(bslma::Allocator *basicAllocator = 0);
 //          // Create an empty 'MyPackedCalendarCache'.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
@@ -198,7 +198,7 @@ BDES_IDENT("$Id: $")
 //  };
 //
 //  MyPackedCalendarCache::MyPackedCalendarCache(
-//                                            bslma_Allocator *basicAllocator)
+//                                            bslma::Allocator *basicAllocator)
 //  : d_map(basicAllocator)
 //  {
 //  }
@@ -245,7 +245,7 @@ BDES_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      MyCalendarCache(MyPackedCalendarCache *dataSource,
-//                      bslma_Allocator       *basicAllocator = 0);
+//                      bslma::Allocator      *basicAllocator = 0);
 //         // Create an empty 'MyCalendarCache' associated with the specified
 //         // 'dataSource'.  Optionally specify a 'basicAllocator' used to
 //         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -266,7 +266,7 @@ BDES_IDENT("$Id: $")
 //  };
 //
 //  MyCalendarCache::MyCalendarCache(MyPackedCalendarCache *dataSource,
-//                                   bslma_Allocator       *basicAllocator)
+//                                   bslma::Allocator      *basicAllocator)
 //  : d_datasource_p(dataSource)
 //  , d_map(basicAllocator)
 //  {
@@ -380,6 +380,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -390,10 +394,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -447,7 +447,7 @@ class bdecs_Calendar {
                                               // range is defined by
                                               // 'd_startDate + length() - 1'
 
-    bslma_Allocator      *d_allocator_p;      // memory allocator (not owned)
+    bslma::Allocator     *d_allocator_p;      // memory allocator (not owned)
 
     // FRIENDS
     friend bool operator==(const bdecs_Calendar&, const bdecs_Calendar&);
@@ -464,7 +464,7 @@ class bdecs_Calendar {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdecs_Calendar,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // PUBLIC TYPES
     typedef bdecs_Calendar_BusinessDayConstIter
@@ -509,14 +509,14 @@ class bdecs_Calendar {
         // containers.
 
     // CREATORS
-    explicit bdecs_Calendar(bslma_Allocator *basicAllocator = 0);
+    explicit bdecs_Calendar(bslma::Allocator *basicAllocator = 0);
         // Create an empty calendar having no valid range.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     bdecs_Calendar(const bdet_Date&  firstDate,
                    const bdet_Date&  lastDate,
-                   bslma_Allocator  *basicAllocator = 0);
+                   bslma::Allocator *basicAllocator = 0);
         // Create a calendar having a valid range from the specified
         // 'firstDate' through the specified 'lastDate' if
         // 'firstDate <= lastDate'; otherwise, make the valid range empty.
@@ -525,14 +525,14 @@ class bdecs_Calendar {
         // used.
 
     explicit bdecs_Calendar(const bdecs_PackedCalendar&  packedCalendar,
-                            bslma_Allocator             *basicAllocator = 0);
+                            bslma::Allocator            *basicAllocator = 0);
         // Create a calendar having the same value as the specified
         // 'packedCalendar'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     bdecs_Calendar(const bdecs_Calendar&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a calendar having the value of the specified 'original'
         // calendar.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default

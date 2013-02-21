@@ -170,8 +170,8 @@ int getProcessId()
 }
 
 const struct {
-    int               d_digits;
-    bsls_Types::Int64 d_cutOff;
+    int                d_digits;
+    bsls::Types::Int64 d_cutOff;
 } TENS[] = {
     { 1, 0 },
     { 2, 10 },
@@ -185,7 +185,7 @@ const struct {
     { 10, 1000 * 1000 * 1000 },
     { 11, 10LL * 1000LL * 1000LL * 1000LL } };
 
-int digits(bsls_Types::Int64 n)
+int digits(bsls::Types::Int64 n)
 {
     ASSERT(n < TENS[10].d_cutOff);
     ASSERT(n >= 0);
@@ -226,8 +226,8 @@ int main(int argc, char *argv[])
     ASSERT(FileUtil::exists(tmpDirName) && FileUtil::isDirectory(tmpDirName,
                                                                  true));
 
-    bslma_TestAllocator ta;
-    bslma_DefaultAllocatorGuard guard(&ta);
+    bslma::TestAllocator ta;
+    bslma::DefaultAllocatorGuard guard(&ta);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
     const char *fileNameTemplate = "/tmp/bdesu_FdStreamBuf.%s.%d.txt";
@@ -2709,7 +2709,7 @@ int main(int argc, char *argv[])
             break;
         }
 
-        typedef bsls_Types::Int64 Int64;
+        typedef bsls::Types::Int64 Int64;
         const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
         const Int64 halfGig  =  (Int64) 1 << 29;
 
@@ -2865,7 +2865,7 @@ int main(int argc, char *argv[])
             break;
         }
 
-        typedef bsls_Types::Int64 Int64;
+        typedef bsls::Types::Int64 Int64;
         const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
 
         FileUtil::remove(fn);
@@ -2978,7 +2978,7 @@ int main(int argc, char *argv[])
             break;
         }
 
-        typedef bsls_Types::Int64 Int64;
+        typedef bsls::Types::Int64 Int64;
         const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
 
         FileUtil::remove(fn);

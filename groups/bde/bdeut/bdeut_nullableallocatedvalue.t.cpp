@@ -34,7 +34,7 @@ using bsl::atoi;
 //
 // The following abbreviations are used throughout this documentation:
 //
-//   o b_A  -> bslma_Allocator
+//   o b_A  -> bslma::Allocator
 //   o b_GV -> bdeut_GenericVariant
 //   o c    -> const
 //
@@ -208,8 +208,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator  testAllocator(testAllocatorVerbosity);
-    bslma_TestAllocator *ALLOC = &testAllocator;
+    bslma::TestAllocator  testAllocator(testAllocatorVerbosity);
+    bslma::TestAllocator *ALLOC = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
 

@@ -176,16 +176,20 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDECS_CALENDAR
 #include <bdecs_calendar.h>
 #endif
 
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_ITERATOR
@@ -198,10 +202,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 
@@ -255,7 +255,7 @@ class bdecs_CalendarCache {
         // 'true' if this calendar cache object has a timeout value and 'false'
         // otherwise
 
-    bslma_Allocator                                   *d_allocator_p;
+    bslma::Allocator                                  *d_allocator_p;
         // memory allocator (held, not owned)
 
   private:
@@ -270,7 +270,7 @@ class bdecs_CalendarCache {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdecs_CalendarCache,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // PUBLIC TYPES
     typedef bdecs_CalendarCacheIter                       ConstIterator;
@@ -281,7 +281,7 @@ class bdecs_CalendarCache {
 
     // CREATORS
     bdecs_CalendarCache(bdecs_CalendarLoader *loader,
-                        bslma_Allocator      *basicAllocator = 0);
+                        bslma::Allocator     *basicAllocator = 0);
         // Create an empty cache that will use the specified 'loader' to obtain
         // named calendars.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -291,7 +291,7 @@ class bdecs_CalendarCache {
 
     bdecs_CalendarCache(bdecs_CalendarLoader     *loader,
                         const bdet_TimeInterval&  timeout,
-                        bslma_Allocator          *basicAllocator = 0);
+                        bslma::Allocator         *basicAllocator = 0);
         // Create an empty cache that will use the specified 'loader' to obtain
         // named calendars.  Each entry in this calendar cache will become
         // invalid after the specified 'timeout' period has passed since that

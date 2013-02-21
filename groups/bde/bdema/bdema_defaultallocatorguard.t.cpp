@@ -27,7 +27,7 @@ using namespace bsl;
 // straightforward.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bdema_DefaultAllocatorGuard(bslma_Allocator *temporary);
+// [ 1] bdema_DefaultAllocatorGuard(bslma::Allocator *temporary);
 // [ 1] ~bdema_DefaultAllocatorGuard();
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -73,7 +73,7 @@ int globalBeryVeryVerbose = 0;
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-class my_CountingAllocator : public bslma_Allocator
+class my_CountingAllocator : public bslma::Allocator
 {
     int d_blocksOutstanding;
   public:
@@ -117,19 +117,19 @@ void my_CountingAllocator::deallocate(void *address)
 
 class my_Container
 {
-    bslma_Allocator *d_allocator;
-    int             *d_intArray;
+    bslma::Allocator *d_allocator;
+    int              *d_intArray;
   public:
-    my_Container(bslma_Allocator* alloc = 0);
+    my_Container(bslma::Allocator* alloc = 0);
 
     // Containers don't typically have a function to return their
     // allocators, but this is useful for exposition:
-    bslma_Allocator *allocator() const { return d_allocator; }
+    bslma::Allocator *allocator() const { return d_allocator; }
 };
 
 // Constructor
-my_Container::my_Container(bslma_Allocator* alloc)
-: d_allocator(bslma_Default::allocator(alloc))
+my_Container::my_Container(bslma::Allocator* alloc)
+: d_allocator(bslma::Default::allocator(alloc))
 {
     d_intArray = (int*) d_allocator->allocate(10 * sizeof(int));
 }
@@ -169,27 +169,27 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         {
-            bslma_NewDeleteAllocator *na
-                                      = &bslma_NewDeleteAllocator::singleton();
-            ASSERT(na == bslma_Default::defaultAllocator());
+            bslma::NewDeleteAllocator *na
+                                     = &bslma::NewDeleteAllocator::singleton();
+            ASSERT(na == bslma::Default::defaultAllocator());
 
             {
                 my_CountingAllocator testAllocator;
                 Obj guard(&testAllocator);
-                ASSERT(&testAllocator == bslma_Default::defaultAllocator());
+                ASSERT(&testAllocator == bslma::Default::defaultAllocator());
 
                 // Create and test the object under test, which will use the
                 // test allocator *by* *default*.
 
                 // . . .
 
-                void *arena = bslma_Default::defaultAllocator()->allocate(10);
+                void *arena = bslma::Default::defaultAllocator()->allocate(10);
                 ASSERT(arena);
                 // Oops -- this will leak.
 
                 ASSERT(0 != testAllocator.blocksOutstanding());
             }
-            ASSERT(na == bslma_Default::defaultAllocator());
+            ASSERT(na == bslma::Default::defaultAllocator());
         }
 
       } break;
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1. The default allocator is bslma_NewDeleteAllocator
+        //   1. The default allocator is bslma::NewDeleteAllocator
         //   2. The allocator function returns default allocator if passed-in
         //      allocator is null.
         //   3. The allocator function.
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bdema_DefaultAllocatorGuard(bslma_Allocator *temporary);
+        //   bdema_DefaultAllocatorGuard(bslma::Allocator *temporary);
         //   ~bdema_DefaultAllocatorGuard();
         // --------------------------------------------------------------------
 
@@ -222,15 +222,15 @@ int main(int argc, char *argv[])
             // object in 'bsl' (for example).  At least that is the case with
             // xlC10 on IBM.
 
-            bslma_Default::setDefaultAllocatorRaw(&defaultAllocator);
-            ASSERT(&defaultAllocator == bslma_Default::defaultAllocator());
+            bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
+            ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
             {
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
                 Obj guard(&testAllocator);
-                ASSERT(&testAllocator == bslma_Default::defaultAllocator());
+                ASSERT(&testAllocator == bslma::Default::defaultAllocator());
             }
-            ASSERT(&defaultAllocator == bslma_Default::defaultAllocator());
+            ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
         }
       } break;
       default: {

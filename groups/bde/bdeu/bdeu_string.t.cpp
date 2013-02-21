@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTESTING 'copy'\n"
                                "==============\n";
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
 
         {
             static const struct {
