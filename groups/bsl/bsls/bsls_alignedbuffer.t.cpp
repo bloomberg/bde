@@ -2,8 +2,8 @@
 
 #include <bsls_alignedbuffer.h>
 
-#include <bsls_alignmenttotype.h>
 #include <bsls_alignmentfromtype.h>
+#include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
 
 #include <cstdio>

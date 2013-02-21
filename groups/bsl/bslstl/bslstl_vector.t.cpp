@@ -3,29 +3,28 @@
 #include <bslstl_vector.h>
 
 #include <bslstl_allocator.h>
-#include <bslstl_iterator.h>
 #include <bslstl_forwarditerator.h>
+#include <bslstl_iterator.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>   // for testing only
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
-#include <bslma_testallocator.h>           // for testing only
-#include <bslma_testallocatorexception.h>  // for testing only
-#include <bslmf_issame.h>                  // for testing only
-#include <bsls_objectbuffer.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+#include <bslmf_issame.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_stopwatch.h>
 #include <bsls_types.h>
-#include <bsls_stopwatch.h>                // for testing only
 #include <bsls_util.h>
 #include <bsltf_nontypicaloverloadstesttype.h>
 
 #include <iterator>   // 'iterator_traits'
 #include <stdexcept>  // 'length_error', 'out_of_range'
-
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>

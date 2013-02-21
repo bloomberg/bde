@@ -1,10 +1,9 @@
 // bsls_ident.t.cpp                                                   -*-C++-*-
 
-
-
 // *** The format of this component test driver is non-standard. ***
 
 // #include <bsls_ident.h>      // included below in usage example.
+
 #include <cstdlib>              // 'atoi'
 #include <iostream>
 
