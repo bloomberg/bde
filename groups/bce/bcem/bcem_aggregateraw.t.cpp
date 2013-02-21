@@ -13924,7 +13924,7 @@ void testCase3() {
                 // Test error conditions and output
 
                 // Test with an index value
-                Obj err1, err2, err3;
+                Obj err1, err2, err3, err4;
                 rc = mX.setField(&err1, &error, 0, CEA);
                 ASSERT(rc);
                 LOOP_ASSERT(error.code(),
@@ -13937,10 +13937,18 @@ void testCase3() {
                 LOOP_ASSERT(error.code(),
                             ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
+                // Test with invalid field value
+                bdeut_NullableValue<double> errValue;
+                errValue = 2;
+                rc = mX.setField(&err3, &error, fldName, errValue);
+                ASSERT(rc);
+                LOOP_ASSERT(error.code(),
+                            ErrorCode::BCEM_NON_CONFORMANT == error.code());
+
                 // Test that calling a field on an empty aggregate fails
                 Obj mV(X);
                 mV.reset();
-                rc = mV.setField(&err3, &error, fldName, CEA);
+                rc = mV.setField(&err4, &error, fldName, CEA);
                 ASSERT(rc);
                 LOOP_ASSERT(error.code(),
                             ErrorCode::BCEM_NOT_A_RECORD == error.code());
