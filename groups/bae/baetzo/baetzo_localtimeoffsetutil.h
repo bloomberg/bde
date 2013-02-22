@@ -58,25 +58,33 @@ struct baetzo_LocaltimeOffsetUtil {
     // This 'struct' provides a namespace for utility functions that
 
     // CLASS DATA
-  public:
+  private:
     static baetzo_LocalTimePeriod  s_localTimePeriod;
     static bcemt_QLock             s_lock;
     static const char             *s_timezone;
 
+    // PRIVATE CLASS METHODS
+    static int setTimezone_imp(const char           *timezone,
+                               const bdet_Datetime&  utcDatetime);
+       // Set the local time period information used by the
+       // 'loadLocalTimeOffset' method according to the specified 'timezone' at
+       // the specified 'utcDatetime'.  Return 0 on success, and a non-zero
+       // value otherwise.  This method is *not* thread-safe.
+
     // CLASS METHODS
   public:
-#if 0
    static bdetu_SystemTime::LoadLocalTimeOffsetCallback
                                               setLoadLocalTimeOffsetCallback();
-#endif
+       // Set 'loadLocalTimeOffset' as the local time offset callback of
+       // 'bdetu_SystemTime'.  Return the previously installed callback.
 
    static int loadLocalTimeOffset(int                  *result,
                                   const bdet_Datetime&  utcDatetime);
-       // Load to the specified 'result' the offset of the local time from UTC
-       // for the specified 'utcDatetime'.  Return 0 on success, and a non-zero
-       // value otherwise.  The behavior is undefined unless the local time
-       // zone has been previously established by a call to the 'setTimezone'
-       // method.
+       // Efficiently load to the specified 'result' the offset of the local
+       // time from UTC for the specified 'utcDatetime'.  Return 0 on success,
+       // and a non-zero value otherwise.  This function is thread-safe.  The
+       // behavior is undefined unless the local time zone has been previously
+       // established by a call to the 'setTimezone' method.
 
    static int setTimezone();
    static int setTimezone(const char           *timezone);
@@ -86,7 +94,7 @@ struct baetzo_LocaltimeOffsetUtil {
        // 'loadLocalTimeOffset' method according to the time zone in the 'TZ'
        // environment variable using the current UTC datetime.  Return 0 on
        // success, and a non-zero value otherwise.  Optionally specify
-       // 'timezone'.  Optionally specify 'utcDatetime'.  This method is *not*
+       // 'timezone'.  Optionally specify 'utcDatetime'.  These methods are
        // thread-safe.  The behavior is undefined unless 'timezone' remains
        // valid.  When 'timezone' is obtained from the environment, it can be
        // invalidated by a call to the 'putenv' POSIX function.
@@ -100,7 +108,8 @@ struct baetzo_LocaltimeOffsetUtil {
        // 'localTimePeriod().utcEndTime()'.
 
    static const char *timezone();
-       // Return the time zone identifier used to determine the local time offset with UTC.
+       // Return the time zone identifier used to determine the local time
+       // offset from UTC.
 };
 
 // ============================================================================
@@ -112,7 +121,6 @@ struct baetzo_LocaltimeOffsetUtil {
                         // ---------------------------------
 
 // CLASS METHODS
-#if 0
 inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback
 baetzo_LocaltimeOffsetUtil::setLoadLocalTimeOffsetCallback()
@@ -120,7 +128,6 @@ baetzo_LocaltimeOffsetUtil::setLoadLocalTimeOffsetCallback()
     return bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
                              &baetzo_LocaltimeOffsetUtil::loadLocalTimeOffset);
 }
-#endif
 
 inline
 const baetzo_LocalTimePeriod& baetzo_LocaltimeOffsetUtil::localTimePeriod()

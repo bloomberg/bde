@@ -10,6 +10,17 @@ namespace BloombergLP {
                         // struct baetzo_LocaltimeOffsetUtil
                         // ---------------------------------
 
+// PRIVATE CLASS METHODS
+int baetzo_LocaltimeOffsetUtil::setTimezone_imp(
+                                             const char           *timezone,
+                                             const bdet_Datetime&  utcDatetime)
+{
+    s_timezone = timezone;
+    return baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(&s_localTimePeriod,
+                                                          s_timezone,
+                                                          utcDatetime);
+}
+
 // CLASS DATA
 baetzo_LocalTimePeriod  baetzo_LocaltimeOffsetUtil::s_localTimePeriod(
                                             bslma::Default::globalAllocator());
@@ -48,23 +59,23 @@ int  baetzo_LocaltimeOffsetUtil::setTimezone()
 {
     const char *tz       = getenv("TZ");
     const char *timezone = tz ? tz : "Etc/GMT";
-    return setTimezone(timezone);
+    bcemt_QLockGuard qLockGuard(&s_lock);
+    return setTimezone_imp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
 }
 
 int baetzo_LocaltimeOffsetUtil::setTimezone(const char *timezone)
 {
     BSLS_ASSERT_SAFE(timezone);
-    return setTimezone(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
+    bcemt_QLockGuard qLockGuard(&s_lock);
+    return setTimezone_imp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
 }
 
 int baetzo_LocaltimeOffsetUtil::setTimezone(const char           *timezone,
                                             const bdet_Datetime&  utcDatetime)
 {
     BSLS_ASSERT_SAFE(timezone);
-    s_timezone = timezone;
-    return baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(&s_localTimePeriod,
-                                                          s_timezone,
-                                                          utcDatetime);
+    bcemt_QLockGuard qLockGuard(&s_lock);
+    return setTimezone_imp(timezone, utcDatetime);
 }
 
 }  // close enterprise namespace
