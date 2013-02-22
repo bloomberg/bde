@@ -364,28 +364,30 @@ void sleepSeconds(int sec)
 }
 
 
-struct MemOrderLoopParam
+struct TestLoopParameters
 {
-    bsls::AtomicInt cancel;
-    bsls::AtomicInt iterations;
-    void (*testFunc)(MemOrderLoopParam *);
+    typedef void (*TestFunc)(TestLoopParameters *);
+
+    bsls::AtomicInt d_cancel;
+    bsls::AtomicInt d_iterations;
+    TestFunc        d_testFunc;
 };
 
-void petersonsLockLoopTest(MemOrderLoopParam *params)
+void petersonsLockLoopTest(TestLoopParameters *params)
 {
     LockData<bsls::AtomicInt64> ld;
     PetersonsLockSeqCst<bsls::AtomicInt64> lock(0, ld);
 
-    for (; !params->cancel; ++params->iterations) {
+    for (; !params->d_cancel; ++params->d_iterations) {
         Guard<PetersonsLockSeqCst<bsls::AtomicInt64> > guard(lock);
     }
 }
 
-void sharedCountLoopTest(MemOrderLoopParam *params)
+void sharedCountLoopTest(TestLoopParameters *params)
 {
     bsls::AtomicInt count;
 
-    for (; !params->cancel; ++params->iterations) {
+    for (; !params->d_cancel; ++params->d_iterations) {
         count.storeRelease(10);
 
         while (count.loadAcquire() != 0) {
@@ -394,45 +396,45 @@ void sharedCountLoopTest(MemOrderLoopParam *params)
     }
 }
 
-void *runMemOrderLoop(void *arg)
+void *runTestingLoop(void *arg)
     // Run a simulation of the memory ordering test case to determine the
     // number of iterations for the real test.
 {
-    MemOrderLoopParam *params = static_cast<MemOrderLoopParam *>(arg);
-    params->testFunc(params);
+    TestLoopParameters *params = static_cast<TestLoopParameters *>(arg);
+    params->d_testFunc(params);
 
     return 0;
 }
 
-void *runMemOrderObserverLoop(void *arg)
+void *runObserverLoop(void *arg)
     // Observe changes in shared state for more accurate memory ordering test
     // simulation.
 {
-    MemOrderLoopParam *params = static_cast<MemOrderLoopParam *>(arg);
+    TestLoopParameters *params = static_cast<TestLoopParameters *>(arg);
 
-    while (!params->cancel && !params->iterations >= 0)
+    while (!params->d_cancel && !params->d_iterations >= 0)
     {
     }
 
     return 0;
 }
 
-int getTestCaseIterations(void (*testFunc)(MemOrderLoopParam *))
+int getTestCaseIterations(TestLoopParameters::TestFunc testFunc)
     // Return a reasonable experimentally determined number of iterations for
     // the memory ordering test case.
 {
-    MemOrderLoopParam params;
-    params.testFunc = testFunc;
-    thread_t loopThr = createThread(&runMemOrderLoop, &params);
-    thread_t obsvThr = createThread(&runMemOrderObserverLoop, &params);
+    TestLoopParameters params;
+    params.d_testFunc = testFunc;
+    thread_t loopThr = createThread(&runTestingLoop, &params);
+    thread_t obsvThr = createThread(&runObserverLoop, &params);
 
     sleepSeconds(5);  // this makes the real test run for a couple of minutes
 
-    params.cancel = 1;
+    params.d_cancel = 1;
     joinThread(loopThr);
     joinThread(obsvThr);
 
-    return params.iterations;
+    return params.d_iterations;
 }
 
 
