@@ -351,15 +351,7 @@ int main(int argc, char *argv[])
                           << "TESTING that large values (greater than 1K) "
                           << "are handled correctly" << endl;
 
-        const struct {
-            int               d_line;
-            const bsl::string d_text;
-            bool              d_allocatesMemory;
-        } DATA[] = {
-#if !defined(BSLS_PLATFORM_CPU_64_BIT)
-        // 32-bit
-        {
-            L_,
+        const bsl::string LARGE_STRING =
             "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
@@ -375,338 +367,6 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUV\"",
-            false
-        },
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVW\"",
-            false
-        },
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWX\"",
-            false
-        },
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXY\"",
-            true
-        },
-#else
-        // 64-bit
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6ABCDEFGHIJKLMNOPQRSTUV\"",
-            false
-        },
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6ABCDEFGHIJKLMNOPQRSTUVW\"",
-            false
-        },
-#if !defined(BSLS_PLATFORM_CMP_AIX)
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6ABCDEFGHIJKLMNOPQRSTUVWX\"",
-            true
-        },
-#endif // AIX
-
-#endif
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXY\"",
-            true
-        },
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF\"",
-            true
-        },
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7LONDONLONDONelementtruetruetrue12345\"",
-            true
-        },
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
-            "-980123-980123element62012-08-18T132500.000+0000980123elemefnt608"
-            "2012-08-18T132500.000+0000element7element62012-08-18T132501230000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelems12ent1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000df"
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
-            "-980123-980123element62012-08-18T132500.000+0000980123elemefnt608"
-            "2012-08-18T132500.000+0000element7element62012-08-18T132501230000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelems12ent1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000df"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemensaft2"
-            "selection11selection1element1255element43123123123elemensdfft5255"
-            "element6999999element7customelement8999element10255255elementdf11"
-            "element12element13255255element14element15312312312331231231d2dd3"
-            "selection6arbitrarystringvalueselection7element1element1elemednt2"
-            "element4element5element1element1element2element4element5elemdent1"
-            "element1element2element4element6LONDONLONDONelement2truasdfdetrue"
-            "element31.51.5element4element5-980123-980123element6ement2truetre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elasdffement7"
-            "element6LONDONLONDONelement2truetrueelement31.51.5element4ent2tue"
-            "element5-980123-980123element62012-08-18T132500.000+0000ement2tue"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemesdfnt1"
-            "element2element4element5element1element1element2element4elemendt5"
-            "element1element1element2element4element6LONDONLONDONelement2trdue"
-            "trueelement31.51.5element4element5-980123-980123element6ent2tuesd"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7sdsdd"
-            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
-            "-980123-980123element62012-08-18T132500.000+00005element4element5"
-            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000ds"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "selection21.5selection21.5\"",
-            true
-        },
-        {
-            L_,
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
-            "-980123-980123element62012-08-18T132500.000+0000980123elemefnt608"
-            "2012-08-18T132500.000+0000element7element62012-08-18T132501230000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelems12ent1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000df"
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
-            "-980123-980123element62012-08-18T132500.000+0000980123elemefnt608"
-            "2012-08-18T132500.000+0000element7element62012-08-18T132501230000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelems12ent1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000df"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemensaft2"
-            "selection11selection1element1255element43123123123elemensdfft5255"
-            "element6999999element7customelement8999element10255255elementdf11"
-            "element12element13255255element14element15312312312331231231d2dd3"
-            "selection6arbitrarystringvalueselection7element1element1elemednt2"
-            "element4element5element1element1element2element4element5elemdent1"
-            "element1element2element4element6LONDONLONDONelement2truasdfdetrue"
-            "element31.51.5element4element5-980123-980123element6ement2truetre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elasdffement7"
             "element6LONDONLONDONelement2truetrueelement31.51.5element4ent2tue"
             "element5-980123-980123element62012-08-18T132500.000+0000ement2tue"
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemesdfnt1"
@@ -808,17 +468,56 @@ int main(int argc, char *argv[])
             "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
             "trueelement31.51.5element4element5-980123-980123element62010000ds"
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "selection21.5selection21.5\"",
-            true
-        },
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000ds"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000ds"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDON";
+
+        const struct {
+            int               d_line;
+            const bsl::string d_suffixText;
+            bool              d_allocatesMemory;
+        } DATA[] = {
+
+        // Line  Suffix Text                    Allocates memory flag
+        // ----  -----------                    --------------------
+
+#if !defined(BSLS_PLATFORM_CPU_64_BIT)
+        // 32-bit
+
+        {   L_,  "ABC\"",                              false                 },
+        {   L_,  "ABCD\"",                             false                 },
+        {   L_,  "ABCDE\"",                            true                  },
+        {   L_,  "ABCDE12345678901234567890\"",        true                  },
+
+#else
+        // 64-bit
+
+        {   L_,  "12345678ABC\"",                      false                 },
+        {   L_,  "12345678ABCD\"",                     false                 },
+        {   L_,  "12345678ABCDE\"",                    true                  },
+        {   L_,  "12345678ABCDE1234567890123456789\"", true                  },
+
+#endif
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int    LINE  = DATA[ti].d_line;
-            const string TEXT  = DATA[ti].d_text;
-            const bool   ALLOC = DATA[ti].d_allocatesMemory;
+            const int    LINE   = DATA[ti].d_line;
+            const string SUFFIX = DATA[ti].d_suffixText;
+            const bool   ALLOC  = DATA[ti].d_allocatesMemory;
+            const string TEXT   = LARGE_STRING + SUFFIX;
+
+            if (veryVerbose) {
+                P(LINE) P(TEXT) P(ALLOC)
+            }
 
             bsl::ostringstream os;
             os << "{\"n\":" << TEXT << "}";
@@ -840,8 +539,8 @@ int main(int argc, char *argv[])
             ASSERTV(Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
 
             bslstl::StringRef data;
-            ASSERTV(0                == X.value(&data));
-            ASSERTV(TEXT, data, TEXT == data);
+            ASSERTV(0                      == X.value(&data));
+            ASSERTV(LINE, TEXT, data, TEXT == data);
 
             if (ALLOC) {
                 ASSERTV(LINE, ta.numBlocksTotal() > 0);
@@ -854,16 +553,30 @@ int main(int argc, char *argv[])
         {
             bsl::ostringstream os;
             os << "{\"Sequence\":{";
-            for (int ti = 0; ti < NUM_DATA - 1; ++ ti) {
-                const int    LINE  = DATA[ti].d_line;
-                const string TEXT  = DATA[ti].d_text;
+            for (int ti = 0; ti < NUM_DATA; ++ ti) {
+                const int    LINE   = DATA[ti].d_line;
+                const string SUFFIX = DATA[ti].d_suffixText;
+                const string TEXT   = LARGE_STRING + SUFFIX;
 
                 os << "\"" << 'a' << "\":" << TEXT << ",";
             }
 
-            os << 'a' << "\":" << DATA[NUM_DATA - 1].d_text << "}";
+            bsl::ostringstream ds;
+            const string S = LARGE_STRING + DATA[NUM_DATA - 1].d_suffixText;
+            const string T(S.begin() + 1, S.end() - 1);
+            const string VERY_LARGE_STRING = "\"" + T + T + T + T + "\"";
+
+            for (int ti = 0; ti < NUM_DATA - 1; ++ ti) {
+                os << "\"" << 'a' << "\":" << VERY_LARGE_STRING << ",";
+            }
+
+            os << "\"" << 'a' << "\":" << VERY_LARGE_STRING << "}";
 
             bsl::istringstream is(os.str());
+
+            if (veryVerbose) {
+                P(os.str())
+            }
 
             Obj mX;  const Obj& X = mX;
             mX.reset(is.rdbuf());
@@ -877,9 +590,10 @@ int main(int argc, char *argv[])
             ASSERTV(0                         == mX.advanceToNextToken());
             ASSERTV(Obj::BAEJSN_START_OBJECT  == X.tokenType());
 
-            for (int ti = 0; ti < NUM_DATA - 1; ++ ti) {
-                const int    LINE  = DATA[ti].d_line;
-                const string TEXT  = DATA[ti].d_text;
+            for (int ti = 0; ti < NUM_DATA; ++ ti) {
+                const int    LINE   = DATA[ti].d_line;
+                const string SUFFIX = DATA[ti].d_suffixText;
+                const string TEXT   = LARGE_STRING + SUFFIX;
 
                 ASSERTV(LINE, 0                    == mX.advanceToNextToken());
                 ASSERTV(LINE, Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
@@ -891,6 +605,21 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0                == X.value(&data));
                 ASSERTV(LINE, TEXT, data, TEXT == data);
             }
+
+            for (int ti = 0; ti < NUM_DATA; ++ ti) {
+                ASSERTV(0                         == mX.advanceToNextToken());
+                ASSERTV(Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+
+                ASSERTV(0                         == mX.advanceToNextToken());
+                ASSERTV(Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
+
+                bslstl::StringRef data;
+                ASSERTV(0                                 == X.value(&data));
+                ASSERTV(VERY_LARGE_STRING, data, VERY_LARGE_STRING == data);
+            }
+
+            ASSERTV(0                       == mX.advanceToNextToken());
+            ASSERTV(Obj::BAEJSN_END_OBJECT  == X.tokenType());
         }
       } break;
       case 9: {

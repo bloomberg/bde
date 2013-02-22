@@ -56,6 +56,13 @@ namespace BloombergLP {
 namespace {
     const char *WHITESPACE = " \n\t\v\f\r";
     const char *TOKENS     = "{}[]:,";
+
+    // Intermediate data buffer used for reading data from the stream.
+
+    const int BAEJSN_BUFSIZE = 1024 * 8;
+    const int BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE
+                                 - 1 - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+    char buffer[BAEJSN_BUFSIZE];
 }
 
                             // -----------------------
@@ -180,6 +187,18 @@ int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
         }
     }
     return 0;
+}
+
+// CREATORS
+baejsn_Tokenizer::baejsn_Tokenizer(bslma::Allocator *basicAllocator)
+: d_allocator(buffer, BAEJSN_BUFSIZE, basicAllocator)
+, d_stringBuffer(&d_allocator)
+, d_streamBuf_p(0)
+, d_cursor(0)
+, d_tokenType(BAEJSN_BEGIN)
+, d_context(BAEJSN_OBJECT_CONTEXT)
+{
+    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
 }
 
 // MANIPULATORS
