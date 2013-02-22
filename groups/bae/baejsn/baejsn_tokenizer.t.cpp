@@ -477,7 +477,7 @@ int main(int argc, char *argv[])
             "trueelement31.51.5element4element5-980123-980123element62010000ds"
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDON";
+            "2012-08-18T132500.000+0000element7element6LOND";
 
         const struct {
             int               d_line;
@@ -485,24 +485,25 @@ int main(int argc, char *argv[])
             bool              d_allocatesMemory;
         } DATA[] = {
 
-        // Line  Suffix Text                    Allocates memory flag
-        // ----  -----------                    --------------------
+        // Line  Suffix Text                             Allocates memory flag
+        // ----  -----------                             ---------------------
 
 #if !defined(BSLS_PLATFORM_CPU_64_BIT)
+
         // 32-bit
 
-        {   L_,  "ABC\"",                              false                 },
-        {   L_,  "ABCD\"",                             false                 },
-        {   L_,  "ABCDE\"",                            true                  },
-        {   L_,  "ABCDE12345678901234567890\"",        true                  },
+        {   L_,  "12345678ABC\"",                         false              },
+        {   L_,  "12345678ABCD\"",                        false              },
+        {   L_,  "12345678ABCDE\"",                       true               },
+        {   L_,  "12345678ABCDE12345678901234567890\"",   true               },
 
 #else
         // 64-bit
 
-        {   L_,  "12345678ABC\"",                      false                 },
-        {   L_,  "12345678ABCD\"",                     false                 },
-        {   L_,  "12345678ABCDE\"",                    true                  },
-        {   L_,  "12345678ABCDE1234567890123456789\"", true                  },
+        {   L_,  "ABC\"",                                 false              },
+        {   L_,  "ABCD\"",                                false              },
+        {   L_,  "ABCDE\"",                               true               },
+        {   L_,  "ABCDE12345678901234567890\"",           true               },
 
 #endif
 
