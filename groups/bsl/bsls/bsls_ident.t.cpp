@@ -5,6 +5,8 @@
 // *** The format of this component test driver is non-standard. ***
 
 // #include <bsls_ident.h>      // included below in usage example.
+#include <bsls_bsltestutil.h>
+
 #include <cstdlib>              // 'atoi'
 #include <iostream>
 
@@ -32,46 +34,33 @@ static void aSsErT(int c, const char *s, int i) {
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { std::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                    STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " \
-                          << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT BSLS_BSLTESTUTIL_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\n";           \
-                aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J    \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\t" << #M << ": " << M << "\n";         \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J     \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": "  \
-                         << L << "\t" << #M << ": " << M << "\t" << #N     \
-                         << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) std::cout << #X " = " << (X) << std::endl; // Print ID and value.
-#define Q(X) std::cout << "<| " #X " |>" << std::endl;  // Quote ID literally.
-#define P_(X) std::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
-#define L_ __LINE__                                // current Line number
-#define T_ std::cout << "\t" << flush;             // Print a tab (w/o newline)
+// ----------------------------------------------------------------------------
+
+#define Q  BSLS_BSLTESTUTIL_Q  // Quote identifier literally.
+#define P  BSLS_BSLTESTUTIL_P  // Print identifier and value.
+#define P_ BSLS_BSLTESTUTIL_P_ // P(X) without '\n'.
+#define T_ BSLS_BSLTESTUTIL_T_ // Print a tab (w/o newline).
+#define L_ BSLS_BSLTESTUTIL_L_ // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
