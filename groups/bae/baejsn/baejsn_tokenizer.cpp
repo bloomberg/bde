@@ -122,15 +122,17 @@ int baejsn_Tokenizer::skipWhitespace()
 
 int baejsn_Tokenizer::extractStringValue()
 {
-    d_valueIter           = BAEJSN_ELEMENT_NAME == d_tokenType
-                          ? d_valueBegin
-                          : d_valueBegin + 1;
-    bool        firstTime = true;
+    d_valueIter              = BAEJSN_ELEMENT_NAME == d_tokenType
+                             ? d_valueBegin
+                             : d_valueBegin + 1;
+    bool        firstTime    = true;
+    char        previousChar = 0;
 
     while (true) {
         while (d_valueIter < d_stringBuffer.length()
             && '"' != d_stringBuffer[d_valueIter]) {
             ++d_valueIter;
+            previousChar = d_stringBuffer[d_valueIter - 1];
         }
 
         if (d_valueIter >= d_stringBuffer.length()) {
@@ -141,6 +143,11 @@ int baejsn_Tokenizer::extractStringValue()
             firstTime = false;
         }
         else {
+            if ('\\' == previousChar) {
+                ++iter;
+                previousChar = 0;
+                continue;
+            }
             d_valueEnd = d_valueIter;
             return 0;                                                 // RETURN
         }
