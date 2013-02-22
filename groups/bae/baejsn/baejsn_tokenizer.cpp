@@ -144,7 +144,7 @@ int baejsn_Tokenizer::extractStringValue()
         }
         else {
             if ('\\' == previousChar) {
-                ++iter;
+                ++d_valueIter;
                 previousChar = 0;
                 continue;
             }
