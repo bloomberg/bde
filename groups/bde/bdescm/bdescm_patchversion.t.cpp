@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     verbose = (argc > 2);
     veryVerbose = (argc > 3);
 
-    printf("TEST %s CASE %d\n", __FILE__, test);
+    bsl::printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch (test) { case 0:
       case 2: {

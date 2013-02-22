@@ -19,7 +19,7 @@
 
 #include <bslma_testallocator.h>
 
-#include <bsls_Types.h>
+#include <bsls_types.h>
 
 #include <bsl_cctype.h>
 #include <bsl_climits.h>

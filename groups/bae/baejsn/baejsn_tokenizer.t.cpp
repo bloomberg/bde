@@ -166,8 +166,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, Obj::TokenType value)
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64  Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 int main(int argc, char *argv[])
 {
