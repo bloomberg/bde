@@ -327,7 +327,9 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ArrayToPointer<const char [6]>::Type, const char*);
         if (verbose) {
             //P(bslmf::ArrayToPointer<const char [6]>::ID);
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
             P(typeid(const char [6]).name());
+#endif
             P(typeid(bslmf::ArrayToPointer<const char [6]>::Type).name());
         }
 
