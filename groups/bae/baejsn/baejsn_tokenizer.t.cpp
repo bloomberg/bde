@@ -502,7 +502,13 @@ int main(int argc, char *argv[])
 
         {   L_,  "ABC\"",                                 false              },
         {   L_,  "ABCD\"",                                false              },
+
+#if !defined(BSLS_PLATFORM_CMP_AIX)
+        // AIX
+
         {   L_,  "ABCDE\"",                               true               },
+#endif
+
         {   L_,  "ABCDE12345678901234567890\"",           true               },
 
 #endif
