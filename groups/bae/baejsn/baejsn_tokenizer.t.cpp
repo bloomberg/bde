@@ -1043,7 +1043,7 @@ int main(int argc, char *argv[])
                 WS            ":"
                 WS               "["
                 WS                 "\"John\""  WS ","
-                WS                 "\"Smith\"" WS 
+                WS                 "\"Smith\"" WS
                 WS                                  "]",
                 5,
                 true,
@@ -1059,7 +1059,7 @@ int main(int argc, char *argv[])
                 WS               "["
                 WS                 "\"John\""  WS ","
                 WS                 "\"Smith\"" WS ","
-                WS                 "\"Ryan\""  WS 
+                WS                 "\"Ryan\""  WS
                 WS                                  "]",
                 6,
                 true,
@@ -1105,7 +1105,7 @@ int main(int argc, char *argv[])
                 WS                 ":"
                 WS                   "["
                 WS                    "\"" WS "John"  WS "Doe"  WS "\"" WS ","
-                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS 
+                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS
                 WS                                                         "]",
                 5,
                 true,
@@ -1120,7 +1120,7 @@ int main(int argc, char *argv[])
                 WS                 ":"
                 WS                   "["
                 WS                    "\"" WS "John"  WS "Doe"  WS "\"" WS ","
-                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS "," 
+                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS ","
                 WS                    "\"" WS "New"   WS "Deal" WS "\"" WS
                 WS                                                         "]",
                 6,
@@ -3273,7 +3273,7 @@ int main(int argc, char *argv[])
                 WS            ":"
                 WS              "["
                 WS                "\"John\""  WS ","
-                WS                "\"Smith\"" WS 
+                WS                "\"Smith\"" WS
                 WS                                 "]",
                 4,
                 true,
@@ -3289,7 +3289,7 @@ int main(int argc, char *argv[])
                 WS               "["
                 WS                 "\"John\""  WS ","
                 WS                 "\"Smith\"" WS ","
-                WS                 "\"Ryan\""  WS 
+                WS                 "\"Ryan\""  WS
                 WS                                  "]",
                 5,
                 true,
@@ -3335,7 +3335,7 @@ int main(int argc, char *argv[])
                 WS                 ":"
                 WS                   "["
                 WS                    "\"" WS "John"  WS "Doe"  WS "\"" WS ","
-                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS 
+                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS
                 WS                                                         "]",
                 4,
                 true,
@@ -3350,8 +3350,8 @@ int main(int argc, char *argv[])
                 WS                 ":"
                 WS                   "["
                 WS                    "\"" WS "John"  WS "Doe"  WS "\"" WS ","
-                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS "," 
-                WS                    "\"" WS "New"   WS "Deal" WS "\"" WS 
+                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS ","
+                WS                    "\"" WS "New"   WS "Deal" WS "\"" WS
                 WS                                                         "]",
                 5,
                 true,
@@ -3462,7 +3462,7 @@ int main(int argc, char *argv[])
                 WS            ":"
                 WS              "["
                 WS                "\"John\""  WS ","
-                WS                "12345"     WS 
+                WS                "12345"     WS
                 WS                                 "]",
                 4,
                 true,
@@ -3478,7 +3478,7 @@ int main(int argc, char *argv[])
                 WS               "["
                 WS                 "\"John\""  WS ","
                 WS                 "\"Smith\"" WS ","
-                WS                 "12345"     WS 
+                WS                 "12345"     WS
                 WS                                  "]",
                 5,
                 true,
