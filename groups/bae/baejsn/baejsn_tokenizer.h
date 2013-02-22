@@ -225,6 +225,11 @@ class baejsn_Tokenizer {
                                                                   // end of
                                                                   // value
 
+    bsl::size_t                        d_valueIter;               // cursor for
+                                                                  // iterating
+                                                                  // over the
+                                                                  // value
+
     TokenType                          d_tokenType;               // token type
 
     ContextType                        d_context;                 // context
@@ -237,11 +242,22 @@ class baejsn_Tokenizer {
         // end of the extracted string.  Return 0 on success and a non-zero
         // value otherwise.
 
+
     int reloadStringBuffer();
         // Reload the string buffer with new data read from the underlying
         // 'streambuf' and overwriting the current buffer.  After reading
         // update the cursor to the new read location.  Return the number of
         // bytes read from the 'streamBuf'.
+
+    int resetStringBufferForLongValue(bool firstTime);
+        // Reset the string buffer with new data read from the underlying
+        // 'streambuf' so that it can hold a long value that crosses the
+        // boundary of the internal buffer size.  Use the specified 'firstTime'
+        // flag to denote if this is the first time the string buffer is being
+        // reset for a long value.  If the length of the value being read
+        // exceeds the internal buffer size, allocate additional memory from
+        // the allocator supplied at construction.  Return 0 on success and a
+        // non-zero value otherwise.
 
     int skipWhitespace();
         // Skip all whitespace characters and position the cursor onto the
@@ -317,6 +333,7 @@ void baejsn_Tokenizer::reset(bsl::streambuf *streamBuf)
     d_cursor      = 0;
     d_valueBegin  = 0;
     d_valueEnd    = 0;
+    d_valueIter   = 0;
     d_tokenType   = BAEJSN_BEGIN;
 }
 

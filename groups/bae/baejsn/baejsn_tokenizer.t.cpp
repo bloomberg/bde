@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
         // 32-bit
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -375,12 +375,12 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUV",
+            "element6element7ABCDEFGHIJKLMNOPQRSTUV\"",
             false
         },
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -395,12 +395,12 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVW",
+            "element6element7ABCDEFGHIJKLMNOPQRSTUVW\"",
             false
         },
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -415,14 +415,34 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWX",
+            "element6element7ABCDEFGHIJKLMNOPQRSTUVWX\"",
+            false
+        },
+        {
+            L_,
+            "\"selection11selection1element1255element43123123123elementasdd52"
+            "element6999999element7customelement8999element10255255elementsd11"
+            "element12element13255255element14element1531231231233123123112323"
+            "selection6arbitrarystringvalueselection7element1element1elements2"
+            "element4element5element1element1element2element4element5elemenst1"
+            "element1element2element4element6LONDONLONDONelement2truetruement6"
+            "element31.51.5element4element5-980123-980123element6elemen123t608"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
+            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
+            "element5-980123-980123element62012-08-18T132500.000+0000element68"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
+            "element2element4element5element1element1element2element4edlement5"
+            "element1element1element2element4element6LONDONLONDONelemendt2true"
+            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
+            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXY\"",
             true
         },
 #else
         // 64-bit
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -437,12 +457,12 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6ABCDEFGHIJKLMNOPQRSTUV",
+            "element6ABCDEFGHIJKLMNOPQRSTUV\"",
             false
         },
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -457,13 +477,13 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6ABCDEFGHIJKLMNOPQRSTUVW",
+            "element6ABCDEFGHIJKLMNOPQRSTUVW\"",
             false
         },
 #if !defined(BSLS_PLATFORM_CMP_AIX)
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -478,7 +498,7 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6ABCDEFGHIJKLMNOPQRSTUVWX",
+            "element6ABCDEFGHIJKLMNOPQRSTUVWX\"",
             true
         },
 #endif // AIX
@@ -486,7 +506,7 @@ int main(int argc, char *argv[])
 #endif
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -501,12 +521,12 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXY",
+            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXY\"",
             true
         },
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -521,12 +541,12 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF",
+            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF\"",
             true
         },
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -541,12 +561,12 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7LONDONLONDONelementtruetruetrue12345",
+            "element6element7LONDONLONDONelementtruetruetrue12345\"",
             true
         },
         {
             L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -625,9 +645,10 @@ int main(int argc, char *argv[])
             "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
             "trueelement31.51.5element4element5-980123-980123element62010000ds"
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "selection21.5selection21.5",
+            "selection21.5selection21.5\"",
             true
         },
+
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -652,7 +673,7 @@ int main(int argc, char *argv[])
             ASSERTV(0                         == mX.advanceToNextToken());
             ASSERTV(Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
 
-            ASSERTV(0                         == mX.advanceToNextToken());
+            ASSERTV(LINE, 0                   == mX.advanceToNextToken());
             ASSERTV(Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
 
             bslstl::StringRef data;
@@ -664,6 +685,48 @@ int main(int argc, char *argv[])
             }
             else {
                 ASSERTV(LINE, 0 == ta.numBlocksTotal());
+            }
+        }
+
+        {
+            bsl::ostringstream os;
+            os << "{\"Sequence\":{";
+            for (int ti = 0; ti < NUM_DATA - 1; ++ ti) {
+                const int    LINE  = DATA[ti].d_line;
+                const string TEXT  = DATA[ti].d_text;
+
+                os << "\"" << 'a' << "\":" << TEXT << ",";
+            }
+
+            os << 'a' << "\":" << DATA[NUM_DATA - 1].d_text << "}";
+
+            bsl::istringstream is(os.str());
+
+            Obj mX;  const Obj& X = mX;
+            mX.reset(is.rdbuf());
+
+            ASSERTV(0                         == mX.advanceToNextToken());
+            ASSERTV(Obj::BAEJSN_START_OBJECT  == X.tokenType());
+
+            ASSERTV(0                         == mX.advanceToNextToken());
+            ASSERTV(Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+
+            ASSERTV(0                         == mX.advanceToNextToken());
+            ASSERTV(Obj::BAEJSN_START_OBJECT  == X.tokenType());
+
+            for (int ti = 0; ti < NUM_DATA - 1; ++ ti) {
+                const int    LINE  = DATA[ti].d_line;
+                const string TEXT  = DATA[ti].d_text;
+
+                ASSERTV(LINE, 0                    == mX.advanceToNextToken());
+                ASSERTV(LINE, Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+
+                ASSERTV(LINE, 0                    == mX.advanceToNextToken());
+                ASSERTV(LINE, Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
+
+                bslstl::StringRef data;
+                ASSERTV(LINE, 0                == X.value(&data));
+                ASSERTV(LINE, TEXT, data, TEXT == data);
             }
         }
       } break;
