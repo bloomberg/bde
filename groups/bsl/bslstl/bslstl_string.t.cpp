@@ -398,7 +398,7 @@ void debugprint(const bsl::basic_string<TYPE,TRAITS,ALLOC>& v)
     }
     else {
         for (size_t i = 0; i < v.size(); ++i) {
-            debugprint(v[i]);
+          bsls::BslTestUtil::callDebugprint(v[i]);
         }
     }
     fflush(stdout);
