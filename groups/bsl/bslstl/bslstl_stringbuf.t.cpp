@@ -59,8 +59,6 @@ using std::printf;
 using std::fflush;
 using std::atoi;
 using namespace BloombergLP;
-using namespace bsl;
-
 
 namespace {
 
