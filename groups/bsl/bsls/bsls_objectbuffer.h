@@ -115,10 +115,10 @@ BSLS_IDENT("$Id: $")
 //      };
 //
 //    public:
-//      my_Union(int i = 0) : d_type(INT) { d_int = i; }
-//      my_Union(const my_String& s) : d_type(STRING) {
+//      my_Union(int i = 0) : d_type(INT) { d_int = i; }            // IMLPICIT
+//      my_Union(const my_String& s) : d_type(STRING) {             // IMLPICIT
 //          new (d_string.buffer()) my_String(s); }
-//      my_Union(const char *s) : d_type(STRING) {
+//      my_Union(const char *s) : d_type(STRING) {                  // IMLPICIT
 //          new (d_string.buffer()) my_String(s); }
 //      my_Union(const my_Union& rhs) : d_type(rhs.d_type) {
 //          if (INT == d_type) {
@@ -222,7 +222,7 @@ namespace bsls {
                         // union ObjectBuffer
                         // ==================
 
-template <typename TYPE>
+template <class TYPE>
 union ObjectBuffer {
     // An instance of this union is a raw block of memory suitable for storing
     // an object of type 'TYPE'.  Specifically, the size and alignment of this
@@ -278,14 +278,14 @@ union ObjectBuffer {
 // ===========================================================================
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 TYPE& ObjectBuffer<TYPE>::object()
 {
     return *reinterpret_cast<TYPE*>(this);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 char *ObjectBuffer<TYPE>::buffer()
 {
@@ -293,14 +293,14 @@ char *ObjectBuffer<TYPE>::buffer()
 }
 
 // ACCESSORS
-template <typename TYPE>
+template <class TYPE>
 inline
 const TYPE& ObjectBuffer<TYPE>::object() const
 {
     return *reinterpret_cast<const TYPE*>(this);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const char *ObjectBuffer<TYPE>::buffer() const
 {

@@ -593,9 +593,10 @@ ProtocolTestImp<BSLS_PROTOCOL>::operator->()
 
 template <class BSLS_PROTOCOL>
 inline
-void ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(ProtocolTest_Status *status)
+void
+ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(ProtocolTest_Status *testStatus)
 {
-    d_status = status;
+    d_status = testStatus;
 }
 
 template <class BSLS_PROTOCOL>

@@ -9,7 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bsls {
-
+namespace {
 template <int INTEGER>
 struct AlignmentUtil_Assert;
     // This parameterized 'struct' is declared but not defined except for the
@@ -39,6 +39,7 @@ enum {
 
 };
 
+}  // close un-named namespace
 }  // close package namespace
 }  // close enterprise namespace
 

@@ -232,7 +232,7 @@ struct AlignmentImpTag {
                 // struct AlignmentImpCalc
                 // =======================
 
-template <typename TYPE>
+template <class TYPE>
 struct AlignmentImpCalc {
     // This 'struct' provides an enumerator 'VALUE' that is initialized to the
     // required alignment for the specified 'TYPE'.

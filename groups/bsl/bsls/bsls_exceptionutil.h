@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 // Next, we declare the 'vector' template and its template parameters (note
 // that the majority of the implementation is elided, for clarity):
 //..
-//  template <typename VALUE, typename ALLOCATOR /* ... */>
+//  template <class VALUE, class ALLOCATOR /* ... */>
 //  class vector {
 //      // DATA
 //      VALUE *d_begin_p;

@@ -118,19 +118,19 @@ enum CvQualification {
     CVQ_CONST_VOLATILE
 };
 
-template <typename T>
+template <class T>
 inline
 CvQualification cvqOfPtr(T *) { return CVQ_UNQUALIFIED; }
 
-template <typename T>
+template <class T>
 inline
 CvQualification cvqOfPtr(const T *) { return CVQ_CONST; }
 
-template <typename T>
+template <class T>
 inline
 CvQualification cvqOfPtr(volatile T *) { return CVQ_VOLATILE; }
 
-template <typename T>
+template <class T>
 inline
 CvQualification cvqOfPtr(const volatile T *) { return CVQ_CONST_VOLATILE; }
 
@@ -159,7 +159,7 @@ CvQualification cvqOfPtr(const volatile T *) { return CVQ_CONST_VOLATILE; }
 
       public:
         // CREATORS
-        BitReference(char *byteptr = 0, int bitpos = 0)
+        BitReference(char *byteptr = 0, int bitpos = 0)             // IMPLICIT
         : d_byte_p(byteptr)
         , d_bitpos(bitpos)
         {
@@ -182,7 +182,7 @@ CvQualification cvqOfPtr(const volatile T *) { return CVQ_CONST_VOLATILE; }
 
       public:
         // CREATORS
-        BitPointer(char *byteptr = 0, int bitpos = 0)
+        BitPointer(char *byteptr = 0, int bitpos = 0)               // IMPLICIT
         : d_byte_p(byteptr)
         , d_bitpos(bitpos)
         {
