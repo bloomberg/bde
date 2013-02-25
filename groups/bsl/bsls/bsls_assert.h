@@ -1486,26 +1486,10 @@ class AssertFailureHandlerGuard {
 #define BDE_ASSERT_CPP(X) BSLS_ASSERT(X)
 #define BSL_ASSERT_CPP(X) BSLS_ASSERT(X)       // introduced during migration
 
-namespace bdes {
-
-typedef bsls::Assert                    Assert;
+typedef bsls::Assert bdes_Assert;
     // This alias is defined for backward compatibility.
 
-typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
-    // This alias is defined for backward compatibility.
-
-}  // close package namespace
-
-#ifdef bdes_AssertFailureHandlerGuard
-#undef bdes_AssertFailureHandlerGuard
-#endif
-#define bdes_AssertFailureHandlerGuard bdes::AssertFailureHandlerGuard
-    // This alias is defined for backward compatibility.
-
-#ifdef bdes_Assert
-#undef bdes_Assert
-#endif
-#define bdes_Assert bdes::Assert
+typedef bsls::AssertFailureHandlerGuard bdes_AssertFailureHandlerGuard;
     // This alias is defined for backward compatibility.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
