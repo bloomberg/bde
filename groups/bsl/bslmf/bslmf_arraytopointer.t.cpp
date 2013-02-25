@@ -328,6 +328,8 @@ int main(int argc, char *argv[])
         if (verbose) {
             //P(bslmf::ArrayToPointer<const char [6]>::ID);
 #if !defined(BSLS_PLATFORM_CMP_CLANG)
+            // Note that there is a bug in the Clang 3.1 compiler that causes
+            // the front end to assert on the following 'typeid' expression:
             P(typeid(const char [6]).name());
 #endif
             P(typeid(bslmf::ArrayToPointer<const char [6]>::Type).name());
