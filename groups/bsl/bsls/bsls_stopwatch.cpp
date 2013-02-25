@@ -1,6 +1,9 @@
 // bsls_stopwatch.cpp                                                 -*-C++-*-
 #include <bsls_stopwatch.h>
 
+#include <bsls_bsltestutil.h>  // for testing only
+#include <bsls_platform.h>     // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
