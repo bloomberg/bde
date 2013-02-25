@@ -13,23 +13,32 @@ BSLS_IDENT("$Id: $")
 //  bsls::BslTestUtil: utilities to aid writing 'bsl' test drivers
 //
 //@MACROS:
-//  BSLS_BSLTESTUTIL_LOOP_ASSERT(I, X): print args if '!X'
-//  BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X): print args if '!X'
-//  BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X): print args if '!X'
-//  BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X): print args if '!X'
-//  BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP_ASSERT( I, X)               : print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X)            : print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X)         : print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X)      : print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X)   : print args if '!X'
 //  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X): print args if '!X'
-//  BSLS_BSLTESTUTIL_Q(X): quote identifier literally
-//  BSLS_BSLTESTUTIL_P(X): print identifier and value
+//
+//  BSLS_BSLTESTUTIL_Q(X) : quote identifier literally
+//  BSLS_BSLTESTUTIL_P(X) : print identifier and value
 //  BSLS_BSLTESTUTIL_P_(X): print identifier and value without '\n'
-//  BSLS_BSLTESTUTIL_L_: current line number
-//  BSLS_BSLTESTUTIL_T_: print tab without '\n'
+//  BSLS_BSLTESTUTIL_L_   : current line number
+//  BSLS_BSLTESTUTIL_T_   : print tab without '\n'
 //
-//@AUTHOR: Alisdair Meredith (ameredit), Chen He (che2)
+//  BSLS_BSLTESTUTIL_ZU : 'printf' format string for 'size_t'
+//  BSLS_BSLTESTUTIL_ZD : 'printf' format string for 'ssize_t'
+//  BSLS_BSLTESTUTIL_TD : 'printf' format string for 'ptrdiff_t'
+//  BSLS_BSLTESTUTIL_I64: 'printf' format string for 'bsls::Types::Int64'
+//  BSLS_BSLTESTUTIL_U64: 'printf' format string for 'bsls::Types::Uint64'
+//  BSLS_BSLTESTUTIL_ST : 'printf' format string for 'bsls::Types::size_type'
 //
-//@DESCRIPTION: This component provides the standard printing macros used in
-// BDE-style test drivers ('ASSERT', 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L',
-// and 'T') for components in the 'bsl' package group.
+//@DESCRIPTION: This component provides standard facilities for for components
+// in the 'bsl' package group to produce test driver output, including the
+// standard printing macros used in BDE-style test drivers ('ASSERT',
+// 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L', and 'T'), and a suite of
+// cross-platform format strings for printing C++ or BDE-specific types with
+// 'printf'.
 //
 // Many components in the 'bsl' package group reside below the standard
 // library; therefore, hierarchical design dictates that the test driver for
@@ -49,8 +58,10 @@ BSLS_IDENT("$Id: $")
 //:   standard boilerplate.
 //
 // This component provides solutions to the these issues by (1) encapsulating
-// all the standard printing macros in a single place and (2) providing a way
-// to extend the supplied macros to support user-defined types.
+// all the standard printing macros in a single place, (2) providing a way to
+// extend the supplied macros to support user-defined types, and (3) providing
+// macros that resolve the correct 'printf' format strings for types that do
+// not have standard, cross-platform format strings of their own.
 //
 // The macros in this component use a class method template,
 // 'BslTestUtil::callDebugprint', to print the value of an object of the
@@ -95,9 +106,9 @@ BSLS_IDENT("$Id: $")
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
 //..
-//  //=========================================================================
+//  // ========================================================================
 //  //                       STANDARD BDE ASSERT TEST MACRO
-//  //-------------------------------------------------------------------------
+//  // ------------------------------------------------------------------------
 //  static int testStatus = 0;
 //
 //  static void aSsErT(bool b, const char *s, int i)
@@ -113,9 +124,9 @@ BSLS_IDENT("$Id: $")
 // Next, we define the standard print and 'LOOP_ASSERT' macros, as aliases to
 // the macros defined by this component:
 //..
-//  //=========================================================================
+//  // ========================================================================
 //  //                       STANDARD BDE TEST DRIVER MACROS
-//  //-------------------------------------------------------------------------
+//  // ------------------------------------------------------------------------
 //  #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 //  #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 //  #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
@@ -224,12 +235,167 @@ BSLS_IDENT("$Id: $")
 //..
 //  obj = MyType<9>
 //..
+///Example 3: Printing Unusual Types with 'printf'
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we are writing a test driver that needs to print out the contents of
+// a complex data structure in 'veryVeryVerbose' mode.  The complex data
+// structure contains, among other values, an array of block sizes, expressed
+// as 'size_t'.  It would be very cumbersome, and visually confusing, to print
+// each member of the array with either the 'P_' or 'Q_' standard output
+// macros, so we elect to print out the array as a single string, following the
+// pattern of '[ A, B, C, D, E, ... ]'.  This could be easily accomplished with
+// multiple calls to 'printf', except that 'printf' has no cross-platform
+// standard formatting string for 'size_t'.  We can use the
+// 'BSLS_BSLTESTUTIL_ZU' macro to resolve the appropriate format string for us
+// on each platform.
+//
+// First, we write a component to test, which provides an a utility that
+// operates on arrays memory blocks.  Each block is a structure containing a
+// base address and a block size.
+//..
+//  namespace xyza {
+//  struct Block {
+//      // DATA
+//      char   *d_address;
+//      size_t  d_size;
+//      Block  *d_next;
+//
+//      // ...
+//  };
+//
+//  class BlockList {
+//      // ...
+//
+//    private:
+//      // DATA
+//      Block *d_head;
+//
+//      // ...
+//
+//    public:
+//      // CREATORS
+//      BlockList();
+//      ~BlockList();
+//
+//      // MANIPULATORS
+//
+//      Block *begin();
+//      Block *end();
+//
+//      void addBlock(size_t size);
+//
+//      // ...
+//
+//      // ACCESSORS
+//      int length();
+//
+//      // ...
+//  };
+//
+//  }  // close namespace xyza
+//..
+// Next, we can write a test driver for this component.  After defining the
+// standard BDE test macros, we define a macro, 'ZU' for the platform-specific
+// 'printf' format string for 'size_t':
+//..
+//  // ...
+//
+//  // ========================================================================
+//  //                       STANDARD BDE TEST DRIVER MACROS
+//  // ------------------------------------------------------------------------
+//
+//  // ...
+//
+//  // ========================================================================
+//  //                          PRINTF FORMAT MACROS
+//  // ------------------------------------------------------------------------
+//  #define ZU BSLS_BSLTESTUTIL_ZU
+//..
+// Note that, we could use 'BSLS_BSLTESTUTIL_ZU' as is, but it is more
+// convenient to define 'ZU' locally as an abbreviation.
+//
+// Then, we write the test apparatus for the test driver.  Included in our test
+// apparatus is a support function that can display a BlockList in a visually
+// succinct form:
+//..
+//  void printBlockList(xyza::BlockList &list)
+//  {
+//      xyza::Block *blockPtr = list.begin();
+//
+//      printf("{\n");
+//      while (blockPtr != list.end()) {
+//          printf("\t{ address: %p,\tsize: " ZU " }",
+//                 blockPtr->d_address,
+//                 blockPtr->d_size);
+//          blockPtr = blockPtr->d_next;
+//          if (blockPtr) {
+//              printf(",\n");
+//          } else {
+//              printf("\n");
+//          }
+//      }
+//      printf("}\n");
+//  }
+//..
+// Note that because we are looping through a number of blocks, formatting the
+// output directly with 'printf' produces more readable output than we would
+// get from callling the standard output macros.
+//
+// Direct 'printf' will yield output similar to:
+//
+// {
+//     { address: 0x012345600,    size: 32 },
+//     ...
+// }
+//
+// while the standard output macros would have produced:
+//
+// {
+//     { blockPtr->d_address = 0x012345600,    blockPtr->d_size: 32 },
+//     ...
+// }
+//
+// Now, we write a test function for one of our test cases, which provides a
+// detailed trace of 'BlockList' contents:
+//..
+//  void testBlockListConstruction(bool veryVeryVerbose)
+//  {
+//      // ...
+//
+//      {
+//          xyza::BlockList bl;
+//
+//          bl.addBlock(42);
+//          bl.addBlock(19);
+//          bl.addBlock(1024);
+//
+//          if (veryVeryVerbose) {
+//              printBlockList(bl);
+//          }
+//
+//          ASSERT(3 == bl.length());
+//
+//          // ...
+//      }
+//
+//      // ...
+//  }
+//..
+// Finally, when 'testBlockListConstruction' is called from a test case in
+// 'veryVeryVerbose' mode, we observe the console output:
+//..
+//  {
+//      { address: 0x012345600,    size: 42 },
+//      { address: 0x012345610,    size: 19 },
+//      { address: 0x012345620,    size: 1024 }
+//  }
+//..
 
-// Note that one of the requirements of this component is that it is the
-// lowest level component in the 'bsls' package, so that it can be used without
-// making cycles in any other 'bsl' test driver.  Therefore, we cannot rely on
-// <bsls_platform.h>, and must check the compiler version directly.
-#if defined(_MSC_VER)
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   ifndef INCLUDED_STDDEF
 #   include <stddef.h>
 #   define INCLUDED_STDDEF
@@ -252,7 +418,7 @@ BSLS_IDENT("$Id: $")
     BSLS_BSLTESTUTIL_ASSERT
 
 #define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) {                                   \
-    if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\n");         \
+    if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\n");          \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP1_ASSERT                                         \
@@ -260,20 +426,20 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X) {                                \
     if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
-                bsls::BslTestUtil::callDebugprint(J, #J ": ", "\n");         \
+                bsls::BslTestUtil::callDebugprint(J, #J ": ", "\n");          \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X) {                              \
     if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
-                bsls::BslTestUtil::callDebugprint(K, #K ": ", "\n");         \
+                bsls::BslTestUtil::callDebugprint(K, #K ": ", "\n");          \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X) {                            \
     if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
-                bsls::BslTestUtil::callDebugprint(L, #L ": ", "\n");         \
+                bsls::BslTestUtil::callDebugprint(L, #L ": ", "\n");          \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X) {                          \
@@ -281,7 +447,7 @@ BSLS_IDENT("$Id: $")
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(L, #L ": ", "\t");          \
-                bsls::BslTestUtil::callDebugprint(M, #M ": ", "\n");         \
+                bsls::BslTestUtil::callDebugprint(M, #M ": ", "\n");          \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X) {                        \
@@ -290,7 +456,7 @@ BSLS_IDENT("$Id: $")
                 bsls::BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(L, #L ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(M, #M ": ", "\t");          \
-                bsls::BslTestUtil::callDebugprint(N, #N ": ", "\n");         \
+                bsls::BslTestUtil::callDebugprint(N, #N ": ", "\n");          \
                 aSsErT(!(X), #X, __LINE__); } }
 
 // The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
@@ -316,7 +482,7 @@ BSLS_IDENT("$Id: $")
     BSLS_BSLTESTUTIL_LOOPN_ASSERT(                                            \
                            BSLS_BSLTESTUTIL_NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
-
+// STANDARD TEST DRIVER OUTPUT MACROS
 #define BSLS_BSLTESTUTIL_Q(X)                                                 \
                        bsls::BslTestUtil::printStringNoFlush("<| " #X " |>\n");
     // Quote identifier literally.
@@ -334,6 +500,55 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_BSLTESTUTIL_T_ bsls::BslTestUtil::printTab();
     // Print a tab (w/o newline).
+
+// PRINTF FORMAT MACROS
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#  define BSLS_BSLTESTUTIL_ZU "%Iu"
+#else
+#  define BSLS_BSLTESTUTIL_ZU "%zu"
+#endif
+    // Provide a platform-independent way to specify a size_t format for
+    // printf
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#  define BSLS_BSLTESTUTIL_ZD "%Id"
+#else
+#  define BSLS_BSLTESTUTIL_ZD "%zd"
+#endif
+    // Provide a platform-independent way to specify a ssize_t format for
+    // printf
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#  define BSLS_BSLTESTUTIL_TD "%Id"
+#else
+#  define BSLS_BSLTESTUTIL_TD "%td"
+#endif
+    // Provide a platform-independent way to specify a ptrdiff_t format for
+    // printf
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#  define BSLS_BSLTESTUTIL_I64 "%I64d"
+#else
+#  define BSLS_BSLTESTUTIL_I64 "%lld"
+#endif
+    // Provide a platform-independent way to specify a bsls::Types::Int64
+    // format for printf
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#  define BSLS_BSLTESTUTIL_U64 "%I64u"
+#else
+#  define BSLS_BSLTESTUTIL_U64 "%llu"
+#endif
+    // Provide a platform-independent way to specify a bsls::Types::Uint64
+    // format for printf
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#  define BSLS_BSLTESTUTIL_ST "%Iu"
+#else
+#  define BSLS_BSLTESTUTIL_ST "%zu"
+#endif // BSLS_PLATFORM_CMP_MSVC
+    // Provide a platform-independent way to specify a bsls::Types::size_type
+    // format for printf
 
 namespace BloombergLP {
 
@@ -470,11 +685,24 @@ void bsls::debugprint(RESULT (*v)())
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -2,117 +2,28 @@
 
 #include <bsls_bsltestutil.h>
 
-// Some I/O code differs depending on the platform (especially on Windows), so
-// we need to figure out what OS we are running on.  The following is brazenly
-// copied from bsls_platform.h since bsls_platform.h cannot be included because
-// of leveling concerns.
-
-#if defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__)
-    // which OS -- this compiler should only be used on AIX
-    #define BSLS_BSLTESTUTIL_OS_UNIX 1
-    #if defined(_AIX)                          // must be defined
-        #define BSLS_BSLTESTUTIL_OS_AIX 1
-        #define BSLS_BSLTESTUTIL_OS_VER_MAJOR _AIX
-    #else
-        #error "AIX compiler appears to be in use on non-AIX OS."
-    #endif
-// ---------------------------------------------------------------------------
-#elif defined(__HP_aCC)
-    // which OS -- should always be HPUX
-    #if defined(hpux) || defined(__hpux) || defined(_HPUX_SOURCE)
-        #define BSLS_BSLTESTUTIL_OS_UNIX 1
-        #define BSLS_BSLTESTUTIL_OS_HPUX 1
-    #else
-        #error "Unable to determine on which OS the HP compiler is running."
-    #endif
-// ---------------------------------------------------------------------------
-#elif defined(_MSC_VER)
-    // which OS -- should be some flavor of Windows
-    // there is currently no support for:
-    // - 16-bit versions of Windows (3.x)
-    // - Windows CE
-    #if defined(_WIN64) || defined(_WIN32)
-        #define BSLS_BSLTESTUTIL_OS_WINDOWS 1
-    #elif defined(_WIN16)
-        #error "16-bit Windows platform not supported."
-    #else
-        #error "Microsoft OS is running on an unknown platform."
-    #endif
-// ---------------------------------------------------------------------------
-#elif defined(__GNUC__) || defined(__EDG__)
-    // which OS -- GNU and EDG/Como are implemented almost everywhere
-    #if defined(_AIX)
-        #define BSLS_BSLTESTUTIL_OS_AIX 1
-    #elif defined(hpux) || defined(__hpux)
-        #define BSLS_BSLTESTUTIL_OS_HPUX 1
-    #elif defined(__CYGWIN__) || defined(cygwin) || defined(__cygwin)
-        #define BSLS_BSLTESTUTIL_OS_CYGWIN 1
-    #elif defined(linux) || defined(__linux)
-        #define BSLS_BSLTESTUTIL_OS_LINUX 1
-    #elif defined(__FreeBSD__)
-        #define BSLS_BSLTESTUTIL_OS_FREEBSD 1
-    #elif defined(sun) || defined(__sun)
-        #if defined(__SVR4) || defined(__svr4__)
-            #define BSLS_BSLTESTUTIL_OS_SOLARIS 1
-        #else
-            #define BSLS_BSLTESTUTIL_OS_SUNOS 1
-        #endif
-    #elif defined(_WIN32) || defined(__WIN32__) && \
-          ! (defined(cygwin) || defined(__cygwin))
-        #define BSLS_BSLTESTUTIL_OS_WINDOWS 1
-    #elif defined(__APPLE__)
-        #define BSLS_BSLTESTUTIL_OS_DARWIN 1
-    #else
-        #if defined(__GNUC__)
-            #error "Unable to determine on which OS GNU compiler is running."
-        #else
-            #error "Unable to determine on which OS EDG compiler is running."
-        #endif
-    #endif
-
-    #if !defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
-        #define BSLS_BSLTESTUTIL_OS_UNIX 1
-    #endif
-// ---------------------------------------------------------------------------
-#elif defined(__SUNPRO_CC) || defined(__SUNPRO_C)
-    // which OS
-    #define BSLS_BSLTESTUTIL_OS_UNIX 1
-    #if defined(sun) || defined(__sun)
-        #define BSLS_BSLTESTUTIL_OS_SOLARIS 1
-    #elif defined(__SVR4) || defined(__svr4__)
-        #define BSLS_BSLTESTUTIL_OS_SUNOS 1
-    #else
-        #error "Unable to determine SUN OS version."
-    #endif
-// ---------------------------------------------------------------------------
-#else
-    #error "Could not identify the compiler."
-#endif
-
+#include <fcntl.h>
+#include <float.h>     // FLT_MAX, etc.
+#include <limits.h>    // PATH_MAX on linux
+#include <stddef.h>    // ptrdiff_t
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>      // strnlen
-#include <limits.h>      // PATH_MAX on linux
-#include <float.h>       // FLT_MAX, etc.
-
+#include <stdlib.h>    // abort
+#include <string.h>    // strnlen
 #include <sys/types.h> // struct stat: required on Sun and Windows only
 #include <sys/stat.h>  // struct stat: required on Sun and Windows only
 
-#if defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
-# include <windows.h>    // MAX_PATH
-# include <io.h>         // _dup2
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+# include <windows.h>  // MAX_PATH
+# include <io.h>       // _dup2
 #else
 # include <unistd.h>
 #endif
 
-#include <fcntl.h>
-#include <cstdlib>      // abort
-
 using namespace BloombergLP;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 //
@@ -170,7 +81,7 @@ using namespace BloombergLP;
 //: o The test driver's own output is written to the calling environment's
 //:   'stdout'.
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 8] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
 // [ 8] BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
 // [ 8] BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
@@ -202,11 +113,11 @@ using namespace BloombergLP;
 // [ 3] void debugprint(const void *v)
 // [ 4] static void printStringNoFlush(const char *s);
 // [ 4] static void printTab();
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TEST APPARATUS: class 'OutputRedirector'
 // [ 9] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                VARIATIONS ON STANDARD BDE ASSERT TEST MACROS
@@ -288,9 +199,17 @@ static void realaSsErT(bool b, const char *s, int i)
         fprintf(stderr, "\t");                                                \
     } while(0)
 
-//=============================================================================
+#define TZU  BSLS_BSLTESTUTIL_ZU
+#define TZD  BSLS_BSLTESTUTIL_ZD
+#define TTD  BSLS_BSLTESTUTIL_TD
+#define TI64 BSLS_BSLTESTUTIL_I64
+#define TU64 BSLS_BSLTESTUTIL_U64
+#define TST  BSLS_BSLTESTUTIL_ST
+
+
+// ============================================================================
 //                             USAGE EXAMPLE CODE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 // Usage example code assumes that 'BSLS_BSLTESTUTIL_*' macros have been
 // renamed to replace the standard test macros.  In order to simplify the rest
@@ -322,9 +241,9 @@ static void realaSsErT(bool b, const char *s, int i)
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
 //..
-    //=========================================================================
+    // ========================================================================
     //                       STANDARD BDE ASSERT TEST MACRO
-    //-------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     static int testStatus = 0;
 
     static void aSsErT(bool b, const char *s, int i)
@@ -340,9 +259,9 @@ static void realaSsErT(bool b, const char *s, int i)
 // Next, we define the standard print and 'LOOP_ASSERT' macros, as aliases to
 // the macros defined by this component:
 //..
-    //=========================================================================
+    // ========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
-    //-------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
     #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
     #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
@@ -437,11 +356,13 @@ static void realaSsErT(bool b, const char *s, int i)
 // Notice that 'debugprint' is defined inside the namespace 'MyNamespace'.
 // This is required in order to allow the compiler to find this overload of
 // debugprint by argument-dependent lookup.
+//
 // Now, using the (standard) abbreviated macro names previously defined, we
 // write a test function for the 'MyType' constructor, to be called from a test
 // case in a test driver.
 //..
-    void testMyTypeSetValue(bool verbose) {
+    void testMyTypeSetValue(bool verbose)
+    {
         xyza::MyType obj(9);
         if (verbose) P(obj);
         LOOP_ASSERT(obj.value(), obj.value() == 9);
@@ -452,10 +373,225 @@ static void realaSsErT(bool b, const char *s, int i)
 //..
 //  obj = MyType<9>
 //..
+///Example 3: Printing Unusual Types with 'printf'
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we are writing a test driver that needs to print out the contents of
+// a complex data structure in 'veryVeryVerbose' mode.  The complex data
+// structure contains, among other values, an array of block sizes, expressed
+// as 'size_t'.  It would be very cumbersome, and visually confusing, to print
+// each member of the array with either the 'P_' or 'Q_' standard output
+// macros, so we elect to print out the array as a single string, following the
+// pattern of '[ A, B, C, D, E, ... ]'.  This could be easily accomplished with
+// multiple calls to 'printf', except that 'printf' has no cross-platform
+// standard formatting string for 'size_t'.  We can use the
+// 'BSLS_BSLTESTUTIL_ZU' macro to resolve the appropriate format string for us
+// on each platform.
+//
+// First, we write a component to test, which provides an a utility that
+// operates on arrays memory blocks.  Each block is a structure containing a
+// base address and a block size.
+//..
+    namespace xyza {
+    struct Block {
+        // DATA
+        char   *d_address;
+        size_t  d_size;
+        Block  *d_next;
 
-//=============================================================================
+        // ...
+    };
+
+    class BlockList {
+        // ...
+
+      private:
+        // DATA
+        Block *d_head;
+
+        // ...
+
+      public:
+        // CREATORS
+        BlockList();
+        ~BlockList();
+
+        // MANIPULATORS
+
+        Block *begin();
+        Block *end();
+
+        void addBlock(size_t size);
+
+        // ...
+
+        // ACCESSORS
+        int length();
+
+        // ...
+    };
+
+    }  // close namespace xyza
+//..
+// Next, we can write a test driver for this component.  After defining the
+// standard BDE test macros, we define a macro, 'ZU' for the platform-specific
+// 'printf' format string for 'size_t':
+//..
+    // ...
+
+    // ========================================================================
+    //                       STANDARD BDE TEST DRIVER MACROS
+    // ------------------------------------------------------------------------
+
+    // ...
+
+    // ========================================================================
+    //                          PRINTF FORMAT MACROS
+    // ------------------------------------------------------------------------
+    #define ZU BSLS_BSLTESTUTIL_ZU
+//..
+// Note that, we could use 'BSLS_BSLTESTUTIL_ZU' as is, but it is more
+// convenient to define 'ZU' locally as an abbreviation.
+//
+// Then, we write the test apparatus for the test driver.  Included in our test
+// apparatus is a support function that can display a BlockList in a visually
+// succinct form:
+//..
+    void printBlockList(xyza::BlockList &list)
+    {
+        xyza::Block *blockPtr = list.begin();
+
+        printf("{\n");
+        while (blockPtr != list.end()) {
+            printf("\t{ address: %p,\tsize: " ZU " }",
+                   blockPtr->d_address,
+                   blockPtr->d_size);
+            blockPtr = blockPtr->d_next;
+            if (blockPtr) {
+                printf(",\n");
+            } else {
+                printf("\n");
+            }
+        }
+        printf("}\n");
+    }
+//..
+// Note that because we are looping through a number of blocks, formatting the
+// output directly with 'printf' produces more readable output than we would
+// get from callling the standard output macros.
+//
+// Direct 'printf' will yield output similar to:
+//
+// {
+//     { address: 0x012345600,    size: 32 },
+//     ...
+// }
+//
+// while the standard output macros would have produced:
+//
+// {
+//     { blockPtr->d_address = 0x012345600,    blockPtr->d_size: 32 },
+//     ...
+// }
+//
+// Now, we write a test function for one of our test cases, which provides a
+// detailed trace of 'BlockList' contents:
+//..
+    void testBlockListConstruction(bool veryVeryVerbose)
+    {
+        // ...
+
+        {
+            xyza::BlockList bl;
+
+            bl.addBlock(42);
+            bl.addBlock(19);
+            bl.addBlock(1024);
+
+            if (veryVeryVerbose) {
+                printBlockList(bl);
+            }
+
+            ASSERT(3 == bl.length());
+
+            // ...
+        }
+
+        // ...
+    }
+//..
+// Finally, when 'testBlockListConstruction' is called from a test case in
+// 'veryVeryVerbose' mode, we observe the console output:
+//..
+//  {
+//      { address: 0x012345600,    size: 42 },
+//      { address: 0x012345610,    size: 19 },
+//      { address: 0x012345620,    size: 1024 }
+//  }
+//..
+
+xyza::BlockList::BlockList()
+  : d_head(0)
+{
+}
+
+xyza::BlockList::~BlockList()
+{
+    while (d_head) {
+        Block *next = d_head->d_next;
+        delete d_head;
+        d_head = next;
+    }
+}
+
+xyza::Block *xyza::BlockList::begin()
+{
+    return d_head;
+}
+
+xyza::Block *xyza::BlockList::end()
+{
+    return 0;
+}
+
+void xyza::BlockList::addBlock(size_t size)
+{
+    char  *dummyAddress = (char *) 0x012345600;
+    Block *blockPtr     = d_head;
+
+    if (blockPtr) {
+        while (blockPtr->d_next) {
+            blockPtr = blockPtr->d_next;
+            dummyAddress += 0x10;
+        }
+
+        blockPtr->d_next = new Block;
+        blockPtr = blockPtr->d_next ;
+    } else {
+        d_head = new Block;
+        blockPtr = d_head;
+    }
+
+    blockPtr->d_address = dummyAddress;
+    blockPtr->d_size    = size;
+    blockPtr->d_next    = 0;
+}
+
+int xyza::BlockList::length()
+{
+    Block  *blockPtr     = d_head;
+    int length = 0;
+
+    while (blockPtr) {
+        ++length;
+        blockPtr = blockPtr->d_next;
+    }
+
+    return length;
+}
+
+// ============================================================================
 //                    CLEANUP STANDARD TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #undef ASSERT
 
@@ -472,11 +608,13 @@ static void realaSsErT(bool b, const char *s, int i)
 #undef T_
 #undef L_
 
+#undef ZU
+
 #define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 enum { FORMAT_STRING_SIZE = 256 }; // Size of temporary format string buffers
                                    // used for output formatting
@@ -487,9 +625,9 @@ enum {
 
     OUTPUT_BUFFER_SIZE = 4096,
 
-#ifdef BSLS_BSLTESTUTIL_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     PATH_BUFFER_SIZE   = MAX_PATH
-#elif defined(BSLS_BSLTESTUTIL_OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
     PATH_BUFFER_SIZE   = L_tmpnam
 #else
     PATH_BUFFER_SIZE   = PATH_MAX
@@ -499,11 +637,11 @@ enum {
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
 
-//=============================================================================
+// ============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-#ifdef BSLS_BSLTESTUTIL_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 # define snprintf _snprintf
 #endif
 
@@ -619,13 +757,13 @@ bool tempFileName(char *result)
 {
     ASSERT(result);
 
-#ifdef BSLS_BSLTESTUTIL_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH];
     if (! GetTempPath(MAX_PATH, tmpPathBuf) ||
         ! GetTempFileName(tmpPathBuf, "bsls", 0, result)) {
         return false;                                                 // RETURN
     }
-#elif defined(BSLS_BSLTESTUTIL_OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
     if(! tempnam(result, "bsls")) {
         return false;
     }
@@ -659,9 +797,9 @@ double dummyDoubleFunction() {
     return 0.0;
 }
 
-//=============================================================================
+// ============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 class OutputRedirector {
     // This class provides a facility for redirecting 'stdout' to a temporary
@@ -816,10 +954,10 @@ int OutputRedirector::redirectStream(FILE *from, FILE *to)
     // instead of 'freopen', because 'freopen' fails on AIX with errno
     // 13 'Permission denied' when redirecting stderr.
 
-#if defined(BSLS_BSLTESTUTIL_OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
     int redirected = dup2(fileno(from), fileno(to));
     return redirected == fileno(to) ? 0 : -1;
-#elif defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
     return _dup2(_fileno(from), _fileno(to));
 #else
     return (stderr == freopen("/dev/stdout", "w", stderr)) ? 0 : -1;
@@ -875,7 +1013,7 @@ void OutputRedirector::redirect()
                     "Error " __FILE__ "(%d): Failed to redirect stderr\n",
                     __LINE__);
         }
-        std::abort();
+        abort();
     }
 
     if (! tempFileName(d_fileName)) {
@@ -893,7 +1031,7 @@ void OutputRedirector::redirect()
                     "(%d): Failed to get temp file name for stdout capture\n",
                     __LINE__);
         }
-        std::abort();
+        abort();
     }
 
     if (! freopen(d_fileName, "w+", stdout)) {
@@ -911,16 +1049,16 @@ void OutputRedirector::redirect()
                     __LINE__);
         }
         cleanup();
-        std::abort();
+        abort();
     }
 
     // 'stderr' and 'stdout' have been successfully redirected.
 
-#if defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
     if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
         ASSERT(0 == "Failed to set stdout to binary mode.");
         cleanup();
-        std::abort();
+        abort();
     }
 #endif
 
@@ -1173,9 +1311,9 @@ struct DataRow {
     const char *d_description_p;     // description of this test case
 };
 
-//=============================================================================
+// ============================================================================
 //                       TEST DRIVER TEMPLATE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 struct TestDriver {
     enum {
@@ -1247,12 +1385,12 @@ void TestDriver::testCase8(OutputRedirector *output)
     //:   identify and correctly format each primitive type. (C-2,3)
     //
     // Testing:
-    //     BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
-    //     BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
-    //     BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
-    //     BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
-    //     BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
-    //     BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+    //   BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
+    //   BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
+    //   BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
+    //   BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
+    //   BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
+    //   BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
     // ------------------------------------------------------------------------
 
     // [ 8] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
@@ -1708,9 +1846,39 @@ void TestDriver::testCase3(OutputRedirector                   *output,
     }
 }
 
-//=============================================================================
+// ============================================================================
+//              DUMMY TYPES FOR TESTING PRINTF FORMATTING MACROS
+// ----------------------------------------------------------------------------
+
+struct Types{
+    // Provide a namespace for a suite of 'typedef's that encapsulate
+    // platform-dependent types.
+
+    // TYPES
+    typedef size_t    size_type;
+        // The alias 'size_type' refers to the preferred type for denoting a
+        // number of elements in either allocators or container types.
+
+    typedef size_t    UintPtr;
+    typedef ptrdiff_t IntPtr;
+        // The aliases 'UintPtr' and 'IntPtr' are guaranteed to have the same
+        // size as pointers.
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    typedef          __int64 Int64;
+    typedef unsigned __int64 Uint64;
+#else
+    typedef          long long Int64;
+    typedef unsigned long long Uint64;
+#endif
+        // The aliases 'Int64' and 'Uint64' stand for the appropriate types
+        // that define signed and unsigned 64-bit integers, respectively, for
+        // the appropriate supported platforms.
+};
+
+// ============================================================================
 //                                MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1724,16 +1892,16 @@ int main(int argc, char *argv[])
     // Capture 'stdout', and send 'stderr' to 'stdout', unless we are running
     // the usage example.
     OutputRedirector output;
-    if (test != 9 && test != 0) {
+    if (test != 10 && test != 0) {
         output.redirect();
     }
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
-        // Concerns
+        // Concerns:
         //: 1 The usage example provided in the component header file must
         //:   compile, link, and run on all platforms as shown.
         //
@@ -1751,26 +1919,85 @@ int main(int argc, char *argv[])
                     "\n--------------------\n");
         }
 
-        // The actual usage example code is encapsulated in two free functions,
-        // 'testFortyTwo', and 'testMyType' so that it can be relocated to the
+        // The actual usage example code is encapsulated in three free
+        // functions, 'testFortyTwo', 'testMyType', and
+        // 'testBlockListConstruction' so that it can be relocated to the
         // section of the source file where the standard test macros have been
-        // defined in terms of the macros supplied by the component under test.
+        // defined in terms of the macros supplied by the component under
+        // test.
 
         testFortyTwo(verbose);
         testMyTypeSetValue(verbose);
+        testBlockListConstruction(veryVeryVerbose);
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING PRINTF SUPPORT
+        //
+        // Concerns:
+        //: 1 'printf' format strings constructed with the formatting macros
+        //:   produce output with the approriate sign.
+        //:
+        //: 2 'printf' statements using the formatting macros consume the
+        //:   correct number of bytes when reading each optional argument.
+        //
+        // Plan:
+        //: 1 Print out values that do and do not have the highest bit set, and
+        //:   confirm that the output presents those values with the correct
+        //:   signed-ness for the type being printed.  (C-1)
+        //:
+        //: 2 Use 'printf' to print out multiple values with a single format
+        //:   string, and confirm that a formatting macro in the format string
+        //:   does not affect the output of the preceding or following values.
+        //
+        // Testing:
+        //   BSLS_BSLTESTUTIL_ZU
+        //   BSLS_BSLTESTUTIL_ZD
+        //   BSLS_BSLTESTUTIL_TD
+        //   BSLS_BSLTESTUTIL_I64
+        //   BSLS_BSLTESTUTIL_U64
+        //   BSLS_BSLTESTUTIL_ST
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING PRINTF SUPPORT"
+                    "\n------------------\n");
+        }
+
+        if (verbose) {
+            size_t size = sizeof(verbose);
+            fprintf(stderr, "The size is: " TZU "\n", size);
+
+            fprintf(stderr, "size_type format is: %s\n", TST);
+            Types::size_type positive = (Types::size_type) 1;
+            Types::size_type negative = (Types::size_type) -1;
+            fprintf(stderr, "The positive size_type is: " TST "\n", positive);
+            fprintf(stderr, "The negative size_type is: " TST "\n", negative);
+
+            Types::IntPtr ip = ~Types::IntPtr(0);
+            fprintf(stderr, "ip is " TTD "\n", ip);
+            Types::UintPtr up = ~Types::UintPtr(0);
+            fprintf(stderr, "up is " TZU "\n", up);
+
+            Types::Int64 i64 = ~Types::Int64(0);
+            fprintf(stderr, "ip is " TI64 "\n", i64);
+            Types::Uint64 u64 = ~Types::Uint64(0);
+            fprintf(stderr, "ip is " TU64 "\n", u64);
+        }
       } break;
       case 8: {
-          // ------------------------------------------------------------------
-          // TESTING BSLS_BSLTESTUTIL_LOOP*_ASSERT MACROS
-          //
-          // Testing:
-          //     BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
-          //     BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
-          //     BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
-          //     BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
-          //     BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
-          //     BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
-          // ------------------------------------------------------------------
+        // ------------------------------------------------------------------
+        // TESTING BSLS_BSLTESTUTIL_LOOP*_ASSERT MACROS
+        //
+        // Testing:
+        //   BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
+        //   BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
+        //   BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
+        //   BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
+        //   BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
+        //   BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+        // ------------------------------------------------------------------
 
         if (verbose) {
             fprintf(stderr,
@@ -1799,7 +2026,7 @@ int main(int argc, char *argv[])
 
         //
         // Testing:
-        //    BSLS_BSLTESTUTIL_Q(X)
+        //   BSLS_BSLTESTUTIL_Q(X)
         // --------------------------------------------------------------------
 
         {
@@ -1854,7 +2081,7 @@ int main(int argc, char *argv[])
         //:   exact formatting of the 'value' portion for all types, as that
         //:   will be tested in test case 3.
         //
-        // Plan
+        // Plan:
         //: 1 Call the value output macros on a variable of known value, and
         //:   confirm that the captured output is in the correct format.  Note
         //:   that it is only necessary to conduct this test once with a single
@@ -1862,8 +2089,8 @@ int main(int argc, char *argv[])
         //:   formatting mechanisms are tested in test case 3. (C-1,2)
         //
         // Testing:
-        //    BSLS_BSLTESTUTIL_P(X)
-        //    BSLS_BSLTESTUTIL_P_(X)
+        //   BSLS_BSLTESTUTIL_P(X)
+        //   BSLS_BSLTESTUTIL_P_(X)
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1919,14 +2146,14 @@ int main(int argc, char *argv[])
         //: 3 Tab output macro output emitted is in correct format, i.e. is a
         //:   single tab character.
         //
-        // Plan
+        // Plan:
         //: 1 Compare the value of the line number macro to '__LINE__'. (C-1)
         //: 2 Call the tab output macro, and confirm that the captured output
         //:   is in the correct format.  (C-2,3)
         //
         // Testing:
-        //    BSLS_BSLTESTUTIL_L_
-        //    BSLS_BSLTESTUTIL_T_
+        //   BSLS_BSLTESTUTIL_L_
+        //   BSLS_BSLTESTUTIL_T_
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1989,7 +2216,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 'printStringNoFlush' does not flush output between calls
         //
-        // Plan
+        // Plan:
         //: 1 Using the table-driven technique, call 'printStringNoFlush' with
         //:   a variety of arguments, and check that the captured output is
         //:   correct.  (C-1,2)
@@ -2002,8 +2229,8 @@ int main(int argc, char *argv[])
         //:   (C-1,2)
         //
         // Testing:
-        //    static void printStringNoFlush(const char *s);
-        //    static void printTab();
+        //   static void printStringNoFlush(const char *s);
+        //   static void printTab();
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2227,7 +2454,8 @@ int main(int argc, char *argv[])
                 { __LINE__,  '\x01',    0,     "\\x01" },
                 { __LINE__,  UCHAR_MAX, 0,     "UCHAR_MAX" },
                 { __LINE__,  '\x50',    0,     "positive signed character" },
-                { __LINE__,  '\xcc',    0,     "negative signed character" },
+                { __LINE__,  (unsigned char) '\xcc',
+                                        0,     "negative signed character" },
             };
             TestDriver::testCase3<unsigned char>(&output,
                                                  DATA,
@@ -3710,7 +3938,7 @@ int main(int argc, char *argv[])
             stderrStat.st_dev = output.originalStdoutStat().st_dev;
             stderrStat.st_rdev = output.originalStdoutStat().st_rdev;
             ASSERT(-1 != fstat(newStderrFD, &stderrStat));
-#if !defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
             // st_dev and st_rdev are not stable on Windows
             ASSERT(stderrStat.st_dev == output.originalStdoutStat().st_dev);
             ASSERT(stderrStat.st_rdev == output.originalStdoutStat().st_rdev);
