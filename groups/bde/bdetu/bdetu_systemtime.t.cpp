@@ -167,9 +167,16 @@ class MyLocalTimeOffsetUtility {
 
  public:
   // CLASS METHODS
-  static int localLocalTimeOffset(int                  *result,
-                                  const bdet_Datetime&  utcDatetime);
-      // Callback function of local time offset.
+  static int loadLocalTimeOffset(int                  *result,
+                                 const bdet_Datetime&  utcDatetime);
+      // Load, to the to specified 'result', value at the address specified by
+      // the 'offset' argument of the last invocation of the 'setExternals'
+      // method and set to 'true' the value at the address specified by the
+      // 'callbackInvoked' argument of last invocation of the 'setExternals'
+      // method.  Return the status value at the address specified by the
+      // 'status' argument of the last invocation of the 'setExternals' method.
+      // The specified 'utcDatetime' is ignored.  The behavior is undefined
+      // unless the value at 'callbackInvoked' is initially 'false'.
 
   static void setExternals(const int *status,
                            const int *offset,
@@ -194,11 +201,13 @@ void MyLocalTimeOffsetUtility::setExternals(const int *status,
     s_callbackInvoked_p = callbackInvoked;
 }
 
-int MyLocalTimeOffsetUtility::localLocalTimeOffset(
+int MyLocalTimeOffsetUtility::loadLocalTimeOffset(
                                              int                  *result,
                                              const bdet_Datetime&  )
 {
     ASSERT(result);
+    ASSERT(!*s_callbackInvoked_p);
+
     *result              = *s_offset_p;
     *s_callbackInvoked_p = true;
     return *s_status_p;
@@ -295,8 +304,6 @@ namespace UsageExample4 {
                                              const bdet_Datetime&  utcDatetime)
     {
         ASSERT(result);
-
-        P(utcDatetime.date().year());
         ASSERT(2013 == utcDatetime.date().year());
 
         *result = utcDatetime < s_startOfDaylightSavingTime ? -18000:
@@ -639,38 +646,70 @@ int main(int argc, char *argv[])
                 == Obj::currentLoadLocalTimeOffsetCallback());
         }
 
-        if (verbose) cout << "\nTest 'MyLocalTimeOffsetUtility'" << endl;
+        if (verbose) cout << "\n'MyLocalTimeOffsetUtility' and"
+                             "'loadLocalTimeOffset'" << endl;
         {
             const int INPUT[]   = { INT_MIN, -1, 0, 1, INT_MAX};
             const int NUM_INPUT = sizeof(INPUT)/sizeof(*INPUT);
 
-            int   result;
-            int   expectedStatus;
-            int   expectedOffset;
-            bool  callbackInvoked;
+            int  resultHelper;
+            int  resultMethod;
+
+            int  expectedStatus;
+            int  expectedOffset;
+            bool callbackInvoked;
+
             MyLocalTimeOffsetUtility::setExternals(&expectedStatus,
                                                    &expectedOffset, 
                                                    &callbackInvoked);
-            for (int ti = 0; ti < NUM_INPUT; ++ti) {
-                expectedStatus = INPUT[ti];
+
+            Obj::LoadLocalTimeOffsetCallback defaultCallback =
+                              Obj::setLoadLocalTimeOffsetCallback(
+                               &MyLocalTimeOffsetUtility::loadLocalTimeOffset);
+
+            ASSERT(Obj::loadLocalTimeOffsetDefault == defaultCallback);
+            ASSERT(&MyLocalTimeOffsetUtility::loadLocalTimeOffset
+                == Obj::currentLoadLocalTimeOffsetCallback());
+
+            for (int i = 0; i < NUM_INPUT; ++i) {
+                expectedStatus = INPUT[i];
 
                 if (veryVerbose) { P(expectedStatus) }
 
-                for (int tj = 0; tj < NUM_INPUT; ++tj) {
-                    expectedOffset  = INPUT[tj];
+                for (int j = 0; j < NUM_INPUT; ++j) {
+                    expectedOffset  = INPUT[j];
 
                     if (veryVerbose) { T_() P(expectedOffset) }
+
                     callbackInvoked = false;
                     ASSERT(!callbackInvoked);
-                    int status =
-                               MyLocalTimeOffsetUtility::localLocalTimeOffset(
-                                                              &result,
+                    int statusHelper = MyLocalTimeOffsetUtility::
+                                                          loadLocalTimeOffset(
+                                                              &resultHelper,
                                                               bdet_Datetime());
                     ASSERT(callbackInvoked);
-                    ASSERT(expectedStatus == status);
-                    ASSERT(expectedOffset == result);
+                    ASSERT(expectedStatus == statusHelper);
+                    ASSERT(expectedOffset == resultHelper);
+
+                    callbackInvoked = false;
+                    ASSERT(!callbackInvoked);
+                    int statusMethod = Obj::loadLocalTimeOffset(
+                                                              &resultMethod,
+                                                              bdet_Datetime());
+                    ASSERT(callbackInvoked);
+                    ASSERT(expectedStatus == statusMethod);
+                    ASSERT(expectedOffset == resultMethod);
+
+                    ASSERT(statusHelper == statusMethod);
+                    ASSERT(resultHelper == resultMethod);
                 }
             }
+
+            // Restore default local time callback
+
+            Obj::setLoadLocalTimeOffsetCallback(defaultCallback);
+            ASSERT(&Obj::loadLocalTimeOffsetDefault
+                == Obj::currentLoadLocalTimeOffsetCallback());
         }
 
         if (verbose) cout << "\nCompare 'loadLocalTimeOffsetDefault' "
@@ -1974,7 +2013,6 @@ int main(int argc, char *argv[])
          << endl
          << "PERFORMANCE 'localTimeOffset(bdet_Datetime utcDatetime)'" << endl
          << "========================================================" << endl;
-
 
         int count = argc > 2 ? atoi(argv[2]) : 100;
 
