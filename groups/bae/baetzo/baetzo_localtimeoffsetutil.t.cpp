@@ -1,16 +1,6 @@
 // baetzo_localtimeoffsetutil.t.cpp                                   -*-C++-*-
 #include <baetzo_localtimeoffsetutil.h>
 
-#include <baetzo_timezoneutil.h>     // case -1
-#include <baetzo_localtimeperiod.h>  // case -1
-#include <bcemt_lockguard.h>         // case -1
-#include <bcemt_qlock.h>             // case -1
-#include <bdetu_systemtime.h>        // case -1
-#include <bsls_stopwatch.h>          // case -1
-
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
-
 #include <bsl_iostream.h>
 #include <bsls_types.h>
 
@@ -86,6 +76,8 @@ bool g_veryVeryVerbose;
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+typedef baetzo_LocalTimeOffsetUtil Obj;
+
 //=============================================================================
 //                      GLOBAL CONSTANTS
 //-----------------------------------------------------------------------------
@@ -121,25 +113,44 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator allocator, defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
-    bslma_TestAllocator *Z = &allocator;
-
     switch (test) { case 0:
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
-        //   Developers' Sandbox.
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //   Perform and ad-hoc test of the primary modifiers and accessors.
+        //: 1 TBD
         //
         // Testing:
-        //   This "test" *exercises* basic functionality, but *tests* nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
+        int status1 = Obj::setTimezone(NY);
+        ASSERT(0 == status1);
+ 
+        cout << Obj::localTimePeriod() << endl;
+
+        bdet_Datetime startOfDst(2013, 3, 10, 7);
+        int status2 = Obj::setTimezone(NY, startOfDst);
+        ASSERT(0 == status2);
+
+        cout << Obj::localTimePeriod() << endl;
+
+        bdet_Datetime resumeOfStd(2013, 11, 3, 6);
+        int status3 = Obj::setTimezone(NY, resumeOfStd);
+        ASSERT(0 == status3);
+
+        cout << Obj::localTimePeriod() << endl;
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

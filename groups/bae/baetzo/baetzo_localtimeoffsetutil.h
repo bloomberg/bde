@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide utilities for a 'bdetu::systemtime' local time callback.
 //
 //@CLASSES:
-//  baetzo_LocaltimeOffsetUtil: utilities managing a local time callback
+//  baetzo_LocalTimeOffsetUtil: utilities managing a local time callback
 //
 //@SEE_ALSO: bdetu::systemtime
 //
@@ -51,10 +51,10 @@ namespace BloombergLP {
 class bdet_Datetime;
 
                         // =================================
-                        // struct baetzo_LocaltimeOffsetUtil
+                        // struct baetzo_LocalTimeOffsetUtil
                         // =================================
 
-struct baetzo_LocaltimeOffsetUtil {
+struct baetzo_LocalTimeOffsetUtil {
     // This 'struct' provides a namespace for utility functions that
 
     // CLASS DATA
@@ -117,26 +117,26 @@ struct baetzo_LocaltimeOffsetUtil {
 // ============================================================================
 
                         // ---------------------------------
-                        // struct baetzo_LocaltimeOffsetUtil
+                        // struct baetzo_LocalTimeOffsetUtil
                         // ---------------------------------
 
 // CLASS METHODS
 inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback
-baetzo_LocaltimeOffsetUtil::setLoadLocalTimeOffsetCallback()
+baetzo_LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
 {
     return bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
-                             &baetzo_LocaltimeOffsetUtil::loadLocalTimeOffset);
+                             &baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset);
 }
 
 inline
-const baetzo_LocalTimePeriod& baetzo_LocaltimeOffsetUtil::localTimePeriod()
+const baetzo_LocalTimePeriod& baetzo_LocalTimeOffsetUtil::localTimePeriod()
 {
     return s_localTimePeriod;
 } 
 
 inline
-const char *baetzo_LocaltimeOffsetUtil::timezone()
+const char *baetzo_LocalTimeOffsetUtil::timezone()
 {
     return s_timezone;
 }

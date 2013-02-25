@@ -4,7 +4,7 @@
 #include <bdet_datetimeinterval.h>
 #include <bdetu_epoch.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // atoi(), getenv(), putenv(),
 #include <bsl_cstring.h>     // strcmp()
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
@@ -196,7 +196,7 @@ void MyLocalTimeOffsetUtility::setExternals(const int *status,
 
 int MyLocalTimeOffsetUtility::localLocalTimeOffset(
                                              int                  *result,
-                                             const bdet_Datetime&  utcDatetime)
+                                             const bdet_Datetime&  )
 {
     ASSERT(result);
     *result              = *s_offset_p;
@@ -235,6 +235,134 @@ bdet_DatetimeInterval getLocalTimeOffset()
     return bdet_DatetimeInterval(0, 1);  // an hour differential
 }
 //..
+
+namespace UsageExample4 {
+
+///Example 4: Using the Local Time Offset Callback
+///-----------------------------------------------
+// Suppose one has to provide time stamp values that always reflect local time
+// for a given location, even when local time transitions into and out of
+// daylight saving time.  Further suppose that one must do this quite often
+// (e.g., for every record in a high frequency log), so the performance of the
+// default method for calculating local time offset is not adequate.  Creation
+// and installation of a specialized user-defined callback for local time
+// offset allows one to solve this problem.
+// 
+// First, create a utility class that provides a method of type
+// 'bdetu_SystemTime::LoadLocalTimeOffsetCallback' that is valid for the
+// location of interest (New York) for the period of interest (the year 2013).
+// Note that the transition times into and out of daylight savings for
+// New York are given in UTC.
+//..
+    struct MyLocalTimeOffsetUtilNewYork2013 {
+
+      private:
+        // DATA
+        static int           s_useCount;
+        static bdet_Datetime s_startOfDaylightSavingTime;  // UTC Datetime
+        static bdet_Datetime s_resumptionOfStandardTime;   // UTC Datetime
+
+      public:
+        // CLASS METHODS
+        static int loadLocalTimeOffset(int                  *result,
+                                      const bdet_Datetime&  utcDatetime);
+            // Load, into the specified 'result', the offset between the local
+            // time for the "America/New_York" timezone and UTC at the
+            // specified 'utcDatetime'.  The behavior is undefined unless
+            // '2013 == utcDatetime.date().year()'.
+
+        static int useCount();
+            // Return the number of invocations of the 'loadLocalTimeOffset'
+            // since the start of the process.
+    };
+
+    // DATA
+    int MyLocalTimeOffsetUtilNewYork2013::s_useCount = 0;
+
+    bdet_Datetime
+    MyLocalTimeOffsetUtilNewYork2013::s_startOfDaylightSavingTime(2013,
+                                                                     3,
+                                                                    10,
+                                                                     7);
+    bdet_Datetime
+    MyLocalTimeOffsetUtilNewYork2013::s_resumptionOfStandardTime(2013,
+                                                                   11,
+                                                                    3,
+                                                                    6);
+    // CLASS METHODS
+    int MyLocalTimeOffsetUtilNewYork2013::loadLocalTimeOffset(
+                                             int                  *result,
+                                             const bdet_Datetime&  utcDatetime)
+    {
+        ASSERT(result);
+
+        P(utcDatetime.date().year());
+        ASSERT(2013 == utcDatetime.date().year());
+
+        *result = utcDatetime < s_startOfDaylightSavingTime ? -18000:
+                  utcDatetime < s_resumptionOfStandardTime  ? -14400:
+                                                              -18000;
+        ++s_useCount;
+        return 0;
+    }
+
+    int MyLocalTimeOffsetUtilNewYork2013::useCount()
+    {
+        return s_useCount;
+    }
+//..
+// Notice that we do not attempt to make the 'loadLocalTimeOffset' method
+// 'inline', since we must take its address to install it as the callback.
+//..
+void main4()
+{
+//..
+// Next, we install this 'loadLocalTimeOffset' as the local time offset
+// callback.
+//..
+
+    bdetu_SystemTime::LoadLocalTimeOffsetCallback defaultCallback =
+                              bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
+                                         &MyLocalTimeOffsetUtilNewYork2013::
+                                                          loadLocalTimeOffset);
+
+    ASSERT(bdetu_SystemTime::loadLocalTimeOffsetDefault == defaultCallback);
+    ASSERT(&MyLocalTimeOffsetUtilNewYork2013::loadLocalTimeOffset
+         == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
+//..
+// Now, we can use the 'bdetu_SystemTime::loadLocalTimeOffset' method to obtain
+// the local time offsets in New York on several dates of interest.  The
+// increasing values from our 'useCount' method assures us that the callback we
+// defined is indeed being used.
+//..
+    ASSERT(0 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+
+    int offset;
+    bdet_Datetime     newYearsDay(2013,  1,  1);
+    bdet_Datetime independenceDay(2013,  7,  4);
+    bdet_Datetime     newYearsEve(2013, 12, 31);
+
+    bdetu_SystemTime::loadLocalTimeOffset(&offset, newYearsDay);
+    ASSERT(-5 * 3600 == offset);
+    ASSERT(        1 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+
+    bdetu_SystemTime::loadLocalTimeOffset(&offset, independenceDay);
+    ASSERT(-4 * 3600 == offset);
+    ASSERT(        2 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+    
+    bdetu_SystemTime::loadLocalTimeOffset(&offset, newYearsEve);
+    ASSERT(-5 * 3600 == offset);
+    ASSERT(        3 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+//..
+// Finally, to be neat, we restore the local time offset callback to the
+// default callback:
+//..
+    bdetu_SystemTime::setLoadLocalTimeOffsetCallback(defaultCallback);
+    ASSERT(&bdetu_SystemTime::loadLocalTimeOffsetDefault
+        == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
+//..
+}
+}  // end usage example
 
 // ============================================================================
 //                          MAIN PROGRAM
@@ -396,8 +524,21 @@ int main(int argc, char *argv[])
       ASSERT(0 == i7.days());
       ASSERT(1 == i7.hours());
 //..
+//
         }
 #endif
+
+        if (verbose) cout << "\nTesting Usage Example 4"
+                          << "\n=======================" << endl;
+
+        // Restore state changed in Example 3.
+
+        Obj::setSystemTimeCallback(Obj::loadSystemTimeDefault);
+        ASSERT(&Obj::loadSystemTimeDefault
+            == Obj::currentSystemTimeCallback());
+
+        UsageExample4::main4();
+
     } break;
     case 13: {
       // --------------------------------------------------------------------
@@ -454,8 +595,49 @@ int main(int argc, char *argv[])
       // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "LOCAL TIME OFFSET CALLBACK FACILITY"
+                          << "LOCAL TIME OFFSET CALLBACK FACILITY" << endl
                           << "===================================" << endl;
+
+        if (verbose) cout << "\n'currentLoadLocalTimeOffsetCallback' and "
+                             "'setLoadLocalTimeOffsetCallback'" << endl;
+        {
+            if (veryVerbose) { T_() Q(Check for Default Initially) }
+
+            ASSERT(Obj::loadLocalTimeOffsetDefault
+                == Obj::currentLoadLocalTimeOffsetCallback());
+
+            if (veryVerbose) { T_() Q(Set User-Defined Callback) }
+
+            struct MyLocalTimeOffsetUtil {
+
+                // CLASS METHODS
+                static int loadLocalTimeOffset(
+                                           int                  *result,
+                                           const bdet_Datetime&  ) {
+                    ASSERT(result);
+                    *result = 0;
+                    return 0;
+                }
+            };
+
+            Obj::LoadLocalTimeOffsetCallback defaultCallback =
+                   Obj::setLoadLocalTimeOffsetCallback(&MyLocalTimeOffsetUtil::
+                                                          loadLocalTimeOffset);
+            ASSERT(Obj::loadLocalTimeOffsetDefault == defaultCallback);
+            ASSERT(&MyLocalTimeOffsetUtil::loadLocalTimeOffset
+                == Obj::currentLoadLocalTimeOffsetCallback());
+        
+            if (veryVerbose) { T_() Q(Restore Default Callback) }
+
+            Obj::LoadLocalTimeOffsetCallback userCallback =
+                   Obj::setLoadLocalTimeOffsetCallback(
+                                             &Obj::loadLocalTimeOffsetDefault);
+
+            ASSERT(&MyLocalTimeOffsetUtil::loadLocalTimeOffset
+                == userCallback);
+            ASSERT(Obj::loadLocalTimeOffsetDefault
+                == Obj::currentLoadLocalTimeOffsetCallback());
+        }
 
         if (verbose) cout << "\nTest 'MyLocalTimeOffsetUtility'" << endl;
         {
@@ -488,6 +670,55 @@ int main(int argc, char *argv[])
                     ASSERT(expectedStatus == status);
                     ASSERT(expectedOffset == result);
                 }
+            }
+        }
+
+        if (verbose) cout << "\nCompare 'loadLocalTimeOffsetDefault' "
+                             "to Alternate Implementation" << endl;
+        {
+            static const char *INPUT[]   = {  "America/New_York",
+                                              "Utc/GMT",
+                                              "Europe/Berlin"
+                                           };
+            static const int NUM_INPUT = sizeof(INPUT)/sizeof(*INPUT);
+
+            static char tzEquals[] = "TZ=";
+
+            for (int i = 0; i < NUM_INPUT; ++i) {
+                const char *const TZ = INPUT[i];
+
+                if (verbose) { T_() P(TZ) }
+
+                char buffer[80];
+                ASSERT(sizeof(buffer) > sizeof(tzEquals) -1 + strlen(TZ) + 1);
+                snprintf(buffer, sizeof(buffer), "%s%s", tzEquals, TZ);
+        
+                if (veryVeryVerbose) { T_() P(buffer) }
+
+                putenv(buffer);
+
+                ASSERT(0 == strcmp(TZ,
+                                   const_cast<const char *>(getenv("TZ"))));
+                tzset();
+
+                bdet_Datetime now = bdetu_SystemTime:: nowAsDatetimeUtc();
+                int offset;
+                bdetu_SystemTime::loadLocalTimeOffsetDefault(&offset, now);
+    
+                if (veryVeryVerbose) { T_() P_(now) P(offset) }
+    
+                time_t    currentTime;
+                bdetu_Datetime::convertToTimeT(&currentTime, now);
+    
+                struct tm gmtTM =    *gmtime(&currentTime);
+                struct tm lclTM = *localtime(&currentTime);
+                time_t    gmt   = mktime(&gmtTM);
+                time_t    lcl   = mktime(&lclTM);
+                double    diff  = difftime(lcl, gmt);
+    
+                if (veryVeryVerbose) { T_() P_(currentTime) P(diff) }
+    
+                ASSERT(static_cast<int>(difftime(lcl, gmt)) == offset);
             }
         }
          

@@ -1,4 +1,4 @@
-// bdetu_systemtime.h              -*-C++-*-
+// bdetu_systemtime.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDETU_SYSTEMTIME
 #define INCLUDED_BDETU_SYSTEMTIME
 
@@ -387,7 +387,7 @@ struct bdetu_SystemTime {
         // installed callback function.  The behavior of other methods in this
         // component will be corrupted unless 'callback' returns a correct
         // offset.
-       
+
     static GetLocalTimeOffsetCallbackSpec *
     setGetLocalTimeOffsetCallback(
                                  GetLocalTimeOffsetCallbackSpec *callbackSpec);

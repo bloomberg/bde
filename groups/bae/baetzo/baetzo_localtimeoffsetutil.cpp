@@ -7,11 +7,11 @@
 namespace BloombergLP {
 
                         // ---------------------------------
-                        // struct baetzo_LocaltimeOffsetUtil
+                        // struct baetzo_LocalTimeOffsetUtil
                         // ---------------------------------
 
 // PRIVATE CLASS METHODS
-int baetzo_LocaltimeOffsetUtil::setTimezone_imp(
+int baetzo_LocalTimeOffsetUtil::setTimezone_imp(
                                              const char           *timezone,
                                              const bdet_Datetime&  utcDatetime)
 {
@@ -22,14 +22,14 @@ int baetzo_LocaltimeOffsetUtil::setTimezone_imp(
 }
 
 // CLASS DATA
-baetzo_LocalTimePeriod  baetzo_LocaltimeOffsetUtil::s_localTimePeriod(
+baetzo_LocalTimePeriod  baetzo_LocalTimeOffsetUtil::s_localTimePeriod(
                                             bslma::Default::globalAllocator());
-bcemt_QLock             baetzo_LocaltimeOffsetUtil::s_lock =
+bcemt_QLock             baetzo_LocalTimeOffsetUtil::s_lock =
                                                        BCEMT_QLOCK_INITIALIZER;
-const char             *baetzo_LocaltimeOffsetUtil::s_timezone = 0;
+const char             *baetzo_LocalTimeOffsetUtil::s_timezone = 0;
 
 // CLASS METHODS
-int baetzo_LocaltimeOffsetUtil::loadLocalTimeOffset(
+int baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
                                              int                  *result,
                                              const bdet_Datetime&  utcDatetime)
 {
@@ -55,7 +55,7 @@ int baetzo_LocaltimeOffsetUtil::loadLocalTimeOffset(
     return 0;
 }
 
-int  baetzo_LocaltimeOffsetUtil::setTimezone()
+int  baetzo_LocalTimeOffsetUtil::setTimezone()
 {
     const char *tz       = getenv("TZ");
     const char *timezone = tz ? tz : "Etc/GMT";
@@ -63,14 +63,14 @@ int  baetzo_LocaltimeOffsetUtil::setTimezone()
     return setTimezone_imp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
 }
 
-int baetzo_LocaltimeOffsetUtil::setTimezone(const char *timezone)
+int baetzo_LocalTimeOffsetUtil::setTimezone(const char *timezone)
 {
     BSLS_ASSERT_SAFE(timezone);
     bcemt_QLockGuard qLockGuard(&s_lock);
     return setTimezone_imp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
 }
 
-int baetzo_LocaltimeOffsetUtil::setTimezone(const char           *timezone,
+int baetzo_LocalTimeOffsetUtil::setTimezone(const char           *timezone,
                                             const bdet_Datetime&  utcDatetime)
 {
     BSLS_ASSERT_SAFE(timezone);

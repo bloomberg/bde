@@ -150,18 +150,17 @@ int bdetu_SystemTime::loadLocalTimeOffsetDefault(
        gmtime_r(&currentTime,   &gmtTm);
 #endif
 
-    bdet_Datetime localDateTime;
-    bdet_Datetime   gmtDateTime;
-    bdetu_Datetime::convertFromTm(&localDateTime, localTm);
-    bdetu_Datetime::convertFromTm(  &gmtDateTime,   gmtTm);
+    bdet_Datetime localDatetime;
+    bdet_Datetime   gmtDatetime;
+    bdetu_Datetime::convertFromTm(&localDatetime, localTm);
+    bdetu_Datetime::convertFromTm(  &gmtDatetime,   gmtTm);
 
-    bdet_DatetimeInterval offset = localDateTime - gmtDateTime;
+    bdet_DatetimeInterval offset = localDatetime - gmtDatetime;
 
-    *result = offset.seconds();
+    *result = static_cast<int>(offset.totalSecondsAsDouble());
 
     return 0;
 }
-
 
 }  // close namespace BloombergLP
 
