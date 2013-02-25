@@ -22,8 +22,8 @@ namespace BloombergLP {
                                              "." STRINGIFY(BCE_VERSION_PATCH) \
                                              BDE_VERSION_RELEASETYPE
 
-const char *bcescm_Version::d_ident = "$Id: "BCESCM_VERSION_STRING" $";
-const char *bcescm_Version::d_what  = "@(#)"BCESCM_VERSION_STRING;
+const char *bcescm_Version::d_ident = "$Id: " BCESCM_VERSION_STRING " $";
+const char *bcescm_Version::d_what  = "@(#)" BCESCM_VERSION_STRING;
 
 const char *bcescm_Version::d_version           = BCESCM_VERSION_STRING;
 const char *bcescm_Version::d_dependencies      = BDESCM_VERSION_STRING;
