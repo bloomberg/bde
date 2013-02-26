@@ -31,11 +31,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>   // printf
+#include <stdlib.h>  // atoi
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
