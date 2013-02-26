@@ -1,4 +1,4 @@
-// bbescm_version.t.cpp    -*-C++-*-
+// bbescm_version.t.cpp                                               -*-C++-*-
 
 #include <bbescm_version.h>
 
