@@ -566,9 +566,9 @@ int main(int argc, char *argv[])
       //:   in the values returned by these methods, and, when relevant, the
       //:   status value provided by the callback is passed through.  The
       //:   relevant methods are:
-      //:   o 'nowAsDatetimeLocal'
-      //:   o 'localTimeOffset'
-      //:   o 'loadLocalTimeOffset'
+      //:   1 'nowAsDatetimeLocal'
+      //:   2 'localTimeOffset'
+      //:   3 'loadLocalTimeOffset'
       //:
       //: 5 The user-defined callback used in this test operates correctly.
       //:
@@ -583,13 +583,27 @@ int main(int argc, char *argv[])
       //:
       //: 2 Create a user-defined callback that provides an external indication
       //:   when called, and provides user-specified offset and status to its
-      //:   caller.  Demonstrate that the callback works as designed for
-      //:   several unambiguous sets of status and offset values.  (C-5)
+      //:   caller.  Using an array-drive test, demonstrate that the callback
+      //:   works as designed for several unambiguous combinations of status
+      //:   and offset values (C-5), and, when the user-defined callback is
+      //:   installed as the local time offset callback, demonstrate that the
+      //:   'loadLocalTimeOffset' method passes through those same status and
+      //:   offset values exactly (C-4.3).
       //:
-      //: 3 Install the user-defined callback and then call each of the the
-      //:   three methods of interest, and confirm that their results match the
-      //:   values expected, given the known values coming from the
-      //:   user-defined callback.  (C-4)
+      //: 3 Install the user-defined callback, and then call the
+      //:   'nowAsDatetimeLocal' and 'localTimeOffset' methods, and confirm
+      //:   that their results match the values expected given the known values
+      //:   coming from the user-defined callback.  (C-4.1, C-4.2)
+      //:
+      //:   o The test of 'nowAsDatetimeLocal' requires two measurements UTC
+      //:     time (one implicit in the method calls the other explicit to
+      //:     obtain a value for comparison).  Since time changes between the
+      //:     two calls, the results cannot be expected to always compare
+      //:     exactly; some positive variance is accepted.
+      //:
+      //:   o Also, we assume that there is no change in offset (e.g., the
+      //:     start of daylight saving time) between the two measures of UTC
+      //:     time. 
       //:
       //: 4 Compare the results of the 'loadSystemTimeDefault' method with an
       //:   independent source for local time offset.  (C-6)
@@ -742,42 +756,55 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P(expectedOffset) }
 
+                bdet_Datetime utcDatetime;
+                double        measuredOffset;
+                double        delta;
 
-                bdet_Datetime utcDatetime    = Obj::nowAsDatetimeUtc();
+                // test 'nowAsDatetimeLocal'
 
                 callbackInvoked = false;
-                bdet_Datetime  lclDatetime   = Obj::nowAsDatetimeLocal();
+                bdet_Datetime  lclDatetime = Obj::nowAsDatetimeLocal();
                 ASSERT(callbackInvoked);
 
-                callbackInvoked = false;
-                bdet_DatetimeInterval offset = Obj::localTimeOffset();
-                ASSERT(callbackInvoked);
+                // Race condition:  UTC time is advancing, effectively
+                // lengthening the offet between local and GMT time.
 
-                bdet_DatetimeInterval diff   = lclDatetime - utcDatetime;
+                utcDatetime    = Obj::nowAsDatetimeUtc();
+                measuredOffset = (lclDatetime - utcDatetime).
+                                                        totalSecondsAsDouble();
+                delta = measuredOffset - static_cast<double>(expectedOffset);
 
                 if (veryVeryVerbose) { T_()
                                        P_(utcDatetime)
                                        P_(lclDatetime)
-                                       P_(diff)
-                                       P(offset)
+                                       P_(expectedOffset)
+                                       P_(measuredOffset)
+                                       P(delta)
                                      }
 
-                // Round down to second to reduce chance of assertion
-                // failure due to race condition, UTC time changes between
-                // measurements of offset.
+                LOOP3_ASSERT(lclDatetime, utcDatetime, delta, 0.0 <= delta);
+                LOOP3_ASSERT(lclDatetime, utcDatetime, delta, 1.1 >  delta);
 
-                int offsetAsSeconds =
-                               static_cast<int>(offset.totalSecondsAsDouble());
-                int diffAsSeconds  =
-                                 static_cast<int>(diff.totalSecondsAsDouble());
+                // test 'localTimeOffset'
 
-                LOOP2_ASSERT(expectedOffset,
-                             offsetAsSeconds,
-                             expectedOffset == offsetAsSeconds);
+                callbackInvoked = false;
+                bdet_DatetimeInterval reportedOffset = Obj::localTimeOffset();
+                ASSERT(callbackInvoked);
 
-                LOOP2_ASSERT(expectedOffset,
-                             diffAsSeconds,
-                             expectedOffset == diffAsSeconds);
+                delta = reportedOffset.totalSecondsAsDouble()
+                      - static_cast<double>(expectedOffset);
+
+                if (veryVeryVerbose) { T_()
+                                       P_(reportedOffset)
+                                       P_(expectedOffset)
+                                       P(delta)
+                                     }
+
+                LOOP3_ASSERT(reportedOffset,
+                             expectedOffset,
+                             delta,
+                             0.0 == delta);
+
             }
         }
 
