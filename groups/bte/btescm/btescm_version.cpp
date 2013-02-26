@@ -32,12 +32,12 @@ namespace BloombergLP {
                                              "." STRINGIFY(BTE_VERSION_PATCH) \
                                              BDE_VERSION_RELEASETYPE
 
-const char *btescm_Version::d_ident = "$Id: "BTESCM_VERSION_STRING" $";
-const char *btescm_Version::d_what  = "@(#)"BTESCM_VERSION_STRING;
+const char *btescm_Version::d_ident = "$Id: " BTESCM_VERSION_STRING " $";
+const char *btescm_Version::d_what  = "@(#)" BTESCM_VERSION_STRING;
 
 const char *btescm_Version::d_version           = BTESCM_VERSION_STRING;
 const char *btescm_Version::d_dependencies      =
-                                 BDESCM_VERSION_STRING" "BCESCM_VERSION_STRING;
+                               BDESCM_VERSION_STRING " " BCESCM_VERSION_STRING;
 const char *btescm_Version::d_buildInfo         = "";
 const char *btescm_Version::d_timestamp         = "";
 const char *btescm_Version::d_sourceControlInfo = "";
