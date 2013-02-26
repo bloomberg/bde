@@ -13924,34 +13924,53 @@ void testCase3() {
                 // Test error conditions and output
 
                 // Test with an index value
-                Obj err1, err2, err3, err4;
-                rc = mX.setField(&err1, &error, 0, CEA);
-                ASSERT(rc);
-                LOOP_ASSERT(error.code(),
-                            ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                {
+                    Obj err;
+                    rc = mX.setField(&err, &error, 0, CEA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
 
                 // Test with invalid field name
-                const char *errFldName = "ErrorField";
-                rc = mX.setField(&err2, &error, errFldName, CEA);
-                ASSERT(rc);
-                LOOP_ASSERT(error.code(),
-                            ErrorCode::BCEM_BAD_FIELDNAME == error.code());
-
-                // Test with invalid field value
-                bdeut_NullableValue<double> errValue;
-                errValue = 2;
-                rc = mX.setField(&err3, &error, fldName, errValue);
-                ASSERT(rc);
-                LOOP_ASSERT(error.code(),
-                            ErrorCode::BCEM_NON_CONFORMANT == error.code());
+                {
+                    Obj err;
+                    const char *errFldName = "ErrorField";
+                    rc = mX.setField(&err, &error, errFldName, CEA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
 
                 // Test that calling a field on an empty aggregate fails
-                Obj mV(X);
-                mV.reset();
-                rc = mV.setField(&err4, &error, fldName, CEA);
-                ASSERT(rc);
-                LOOP_ASSERT(error.code(),
-                            ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                {
+                    Obj err;
+                    Obj mV(X);
+                    mV.reset();
+                    rc = mV.setField(&err, &error, fldName, CEA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    if (s.numRecords() > 1 || ET::BDEM_STRING != TYPE) {
+                        bdeut_NullableValue<double> errValue;
+
+                        Obj err;
+                        rc = mX.setField(&err, &error, fldName, errValue);
+                        LOOP_ASSERT(LINE, rc);
+                        if (1 == s.numRecords()) {
+                            LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                        }
+                        else {
+                            LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_NON_CONFORMANT == error.code());
+                        }
+                    }
+                }
 
                 destroyAggData(&mZ, &t);
                 destroyAggData(&mY, &t);
