@@ -492,7 +492,7 @@ struct allocator_traits {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template <class ELEMENT_TYPE>
     using rebind_alloc =
-           typename ALLOCATOR_TYPE::template rebind<Alloc,ELEMENT_TYPE>::other;
+                 typename ALLOCATOR_TYPE::template rebind<ELEMENT_TYPE>::other;
 
     template <class ELEMENT_TYPE>
     using rebind_traits = allocator_traits<rebind_alloc<ELEMENT_TYPE> >;
