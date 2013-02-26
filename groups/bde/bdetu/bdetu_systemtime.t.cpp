@@ -652,8 +652,8 @@ int main(int argc, char *argv[])
             const int INPUT[]   = { INT_MIN, -1, 0, 1, INT_MAX};
             const int NUM_INPUT = sizeof(INPUT)/sizeof(*INPUT);
 
-            int  resultHelper;
-            int  resultMethod;
+            int resultHelper;
+            int resultMethod;
 
             int  expectedStatus;
             int  expectedOffset;
@@ -710,6 +710,75 @@ int main(int argc, char *argv[])
             Obj::setLoadLocalTimeOffsetCallback(defaultCallback);
             ASSERT(&Obj::loadLocalTimeOffsetDefault
                 == Obj::currentLoadLocalTimeOffsetCallback());
+        }
+
+        if (verbose) cout << "\n'MyLocalTimeOffsetUtility' and"
+                             "'loadLocalTimeOffset'" << endl;
+        {
+            const int OFFSETS[]   = {  -48 * 3600, 0, 72 * 3600 };
+            const int NUM_OFFSETS = sizeof(OFFSETS)/sizeof(*OFFSETS);
+
+            int resultHelper;
+            int resultMethod;
+
+            const int expectedStatus = 0;
+            int       expectedOffset;
+            bool      callbackInvoked;
+
+            MyLocalTimeOffsetUtility::setExternals(&expectedStatus,
+                                                   &expectedOffset, 
+                                                   &callbackInvoked);
+
+            Obj::LoadLocalTimeOffsetCallback defaultCallback =
+                              Obj::setLoadLocalTimeOffsetCallback(
+                               &MyLocalTimeOffsetUtility::loadLocalTimeOffset);
+
+            ASSERT(Obj::loadLocalTimeOffsetDefault == defaultCallback);
+            ASSERT(&MyLocalTimeOffsetUtility::loadLocalTimeOffset
+                == Obj::currentLoadLocalTimeOffsetCallback());
+
+            for (int i = 0; i < NUM_OFFSETS; ++i) {
+                expectedOffset = OFFSETS[i];
+
+                if (veryVerbose) { P(expectedOffset) }
+
+
+                bdet_Datetime utcDatetime    = Obj::nowAsDatetimeUtc();
+
+                callbackInvoked = false;
+                bdet_Datetime  lclDatetime   = Obj::nowAsDatetimeLocal();
+                ASSERT(callbackInvoked);
+
+                callbackInvoked = false;
+                bdet_DatetimeInterval offset = Obj::localTimeOffset();
+                ASSERT(callbackInvoked);
+
+                bdet_DatetimeInterval diff   = lclDatetime - utcDatetime;
+
+                if (veryVeryVerbose) { T_()
+                                       P_(utcDatetime)
+                                       P_(lclDatetime)
+                                       P_(diff)
+                                       P(offset)
+                                     }
+
+                // Round down to second to reduce chance of assertion
+                // failure due to race condition, UTC time changes between
+                // measurements of offset.
+
+                int offsetAsSeconds =
+                               static_cast<int>(offset.totalSecondsAsDouble());
+                int diffAsSeconds  =
+                                 static_cast<int>(diff.totalSecondsAsDouble());
+
+                LOOP2_ASSERT(expectedOffset,
+                             offsetAsSeconds,
+                             expectedOffset == offsetAsSeconds);
+
+                LOOP2_ASSERT(expectedOffset,
+                             diffAsSeconds,
+                             expectedOffset == diffAsSeconds);
+            }
         }
 
         if (verbose) cout << "\nCompare 'loadLocalTimeOffsetDefault' "
