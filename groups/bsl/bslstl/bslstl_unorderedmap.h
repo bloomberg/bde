@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE:Provide an STL-compliant 'unordered_map' class.
+//@PURPOSE:Provide an STL-compliant 'unordered_map' container.
 //
 //@CLASSES:
-//   bsl::unordered_map : STL-compliant 'unordered-map' class
+//   bsl::unordered_map : STL-compliant 'unordered_map' container
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
@@ -37,10 +37,12 @@ BSLS_IDENT("$Id: $")
 // An 'unordered_map' meets the requirements of an unordered associative
 // container with forward iterators in the C++11 standard [unord].  The
 // 'unordered_map' implemented here adheres to the C++11 standard, except that
-// it does not have interfaces that take rvalue references, 'initializer_list',
-// 'emplace', or operations taking a variadic number of template parameters.
-// Note that excluded C++11 features are those that require (or are greatly
-// simplified by) C++11 compiler support.
+// it may rehash when setting the 'max_load_factor' in order to preserve the
+// property that the value is always respected (which is a potentially throwing
+// operation) and it does not have interfaces that take rvalue references,
+// 'initializer_list', 'emplace', or operations taking a variadic number of
+// template parameters.  Note that excluded C++11 features are those that
+// require (or are greatly simplified by) C++11 compiler support.
 //
 ///Requirements on 'KEY' and 'VALUE'
 ///---------------------------------
@@ -66,6 +68,40 @@ BSLS_IDENT("$Id: $")
 //: "equality-comparable": The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
+//
+///Requirements on 'HASH' and 'EQUAL'
+///----------------------------------
+// The (template parameter) types 'HASH' and 'EQUAL' must be copy-constructible
+// function-objects.  Note that this requirement is somewhat stronger than the
+// requirement currently in the standard; see the discussion for Issue 2215
+// (http://cplusplus.github.com/LWG/lwg-active.html#2215);
+//
+// Naturally, if either 'HASH' or 'EQUAL' is to be the default for its type, it
+// must be default-constructible as well.
+//
+// 'HASH' shall support a function call operator compatible with the following
+// statements:
+//..
+//  HASH        hash;
+//  KEY         key;
+//  std::size_t result = hash(key);
+//..
+// where the definition of the called function meets the requirements of a
+// hash function as specified in {'bslstl_hash|Standard Hash Function'}.
+//
+// 'EQUAL' shall support the a function call operator compatible with the
+//  following statements:
+//..
+//  EQUAL equal;
+//  KEY   key1, key2;
+//  bool  result = equal(key1, key2);
+//..
+// where the definition of the called function defines an equivalence
+// relationship on keys that is both reflexive and transitive.
+//
+// 'HASH' and 'EQUAL' function-objects are further constrained, such for any
+// two objects whose keys compare equal by the comparator, shall produce the
+// same value from the hasher.
 //
 ///Memory Allocation
 ///-----------------
@@ -229,8 +265,577 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //..
 //
+///Unordered Map Configuration
+///---------------------------
+// The unordered map has interfaces that can provide insight into and control
+// of its inner workings.  The unordered map is implemented using a hash table
+// (see {'bslstl_hashtable'}), a dynamically sized array of "buckets".  If two
+// elements hash to the same bucket (termed a "collision"), then that bucket
+// will house multiple elements.  As elements are added to the unordered map,
+// the number of buckets is increased (and the existing elements redistributed)
+// to keep the average number of elements per bucket (the "loading factor")
+// below the specified maximum (the "maximum load factor", 1 by default).
+// {Example 2: Examining and Setting Unordered Map Configuration} illustrates
+// the use of these interfaces.
+//
+///Practical Requirements on 'HASH'
+///--------------------------------
+// An important factor in the performance an unordered map (and any of the
+// other unordered containers) is the choice of hash function.  In general, one
+// wants the hash function to return uniformly distributed values that can be
+// assigned to buckets (see {Unordered Map Configuration}) with few collisions.
+//
+// The 'bsl' package provides general purpose, default hash functions for
+// 'bsl::string', 'bslstl::StringRef', and the arithmetic types (e.g., 'int');
+// however, custom defined hash functions may do better, especially if one has
+// information about the distribution of keys; there is considerable literature
+// on designing hash functions.
+//
+// When a user-defined class is used as a key, hasher must be provided (and
+// equality functor, if equality is not otherwise defined).  Two examples,
+// {Example 3} and {'bslstl_unorderedset'|Example 1}, address this issue by
+// adapting the existing default hash functions for primitive types, an
+// approach that may not always prove adequate.
+//
 ///Usage
 ///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Gathering Document Statistics
+/// - - - - - - - - - - - - - - - - - - - -
+// Unordered maps are useful in situations when there is no meaningful way to
+// order the key values, when the order of the keys is irrelevant to the
+// problem domain (see {Example 3}), and (even if there is a meaningful
+// ordering) the value of ordering the results is outweighed by the higher
+// performance provided by unordered maps (compared to ordered maps).
+//
+// Suppose one wished to gather statistics on the words appearing in a large
+// set of documents on disk or in a data base.  Gathering those statistics is
+// intrusive (as one is competing for access to the documents with the regular
+// users) and must be done as quickly as possible.  Moreover, the set of unique
+// words appearing in those documents may be high.  The English language has in
+// excess of a million words (albeit many appear infrequently), and, if the
+// documents contain serial numbers, or Social Security numbers, or chemical
+// formulas, etc. then the O[log(n)] insertion time of ordered maps may well be
+// inadequate.  The unordered map, having an O[1] typical insersion cost, is a
+// viable alternative.  In many problem domains, sorting, if needed, can be
+// done after the data is gathered.
+//
+// This example illustrates the use of 'bsl::unordered_map' to gather one
+// simple statistic (counts of unique words) on a single document.  To avoid
+// irrelevant details of acquiring the data, several modestly sized documents
+// are stored in static arrays:
+//..
+//  static char document0[] =
+//  " IN CONGRESS, July 4, 1776.\n"
+//  "\n"
+//  " The unanimous Declaration of the thirteen united States of America,\n"
+//  "\n"
+//  " When in the Course of human events, it becomes necessary for one\n"
+//  " people to dissolve the political bands which have connected them with\n"
+//  " another, and to assume among the powers of the earth, the separate\n"
+//  " and equal station to which the Laws of Nature and of Nature's God\n"
+//  " entitle them, a decent respect to the opinions of mankind requires\n"
+//  " that they should declare the causes which impel them to the\n"
+//  " separation.  We hold these truths to be self-evident, that all men\n"
+//  " are created equal, that they are endowed by their Creator with\n"
+//  " certain unalienable Rights, that among these are Life, Liberty and\n"
+//  " the pursuit of Happiness.--That to secure these rights, Governments\n"
+//  " are instituted among Men, deriving their just powers from the consent\n"
+//  " of the governed, --That whenever any Form of Government becomes\n"
+//  ...
+//  " States may of right do.  And for the support of this Declaration,\n"
+//  " with a firm reliance on the protection of divine Providence, we\n"
+//  " mutually pledge to each other our Lives, our Fortunes and our sacred\n"
+//  " Honor.\n";
+//
+//  static char document1[] =
+//  "/The Universal Declaration of Human Rights\n"
+//  "/-----------------------------------------\n"
+//  "/Preamble\n"
+//  "/ - - - -\n"
+//  " Whereas recognition of the inherent dignity and of the equal and\n"
+//  " inalienable rights of all members of the human family is the\n"
+//  " foundation of freedom, justice and peace in the world,\n"
+//  ...
+//  "/Article 30\n"
+//  "/ - - - - -\n"
+//  " Nothing in this Declaration may be interpreted as implying for any\n"
+//  " State, group or person any right to engage in any activity or to\n"
+//  " perform any act aimed at the destruction of any of the rights and\n"
+//  " freedoms set forth herein.\n";
+//
+//  static char document2[] =
+//  "/CHARTER OF FUNDAMENTAL RIGHTS OF THE EUROPEAN UNION\n"
+//  "/---------------------------------------------------\n"
+//  " PREAMBLE\n"
+//  "\n"
+//  " The peoples of Europe, in creating an ever closer union among them,\n"
+//  " are resolved to share a peaceful future based on common values.\n"
+//  ...
+//  "/Article 54\n"
+//  "/-  -  -  -\n"
+//  " Prohibition of abuse of rights\n"
+//  "\n"
+//  " Nothing in this Charter shall be interpreted as implying any right to\n"
+//  " engage in any activity or to perform any act aimed at the destruction\n"
+//  " of any of the rights and freedoms recognised in this Charter or at\n"
+//  " their limitation to a greater extent than is provided for herein.\n";
+//
+//  static char * const documents[] = { document0,
+//                                      document1,
+//                                      document2
+//                                    };
+//  const int           numDocuments = sizeof documents / sizeof *documents;
+//..
+// First, we define an alias to make our code more comprehensible.
+//..
+//  typedef bsl::unordered_map<bsl::string, int> WordTally;
+//..
+// Next, we create an (empty) unordered map to hold our word tallies.  The
+// output from the 'printf' statements will be discussed in {Example 2}.
+//..
+//  WordTally wordTally;
+//
+//  printf("size             %4d initial\n", wordTally.size());
+//  printf("bucket_count     %4d initial\n", wordTally.bucket_count());
+//  printf("load_factor      %f  initial\n", wordTally.load_factor());
+//  printf("max_load_factor  %f  initial\n", wordTally.max_load_factor());
+//..
+// Then, we define the set of characters that define word boundaries:
+//..
+//  const char *delimiters = " \n\t,:;.()[]?!/";
+//..
+// Next, we extract the words from our documents.  Note that 'strtok' modifies
+// the document arrays (which were not made 'const').
+//
+// For each iteration of the inner loop, that method looks for a map entry
+// matchingv the given key value.  On the first occurence of a word, the map
+// has no such entry, so one is created with a default value of the mapped
+// value (0, just what we want in this case) and inserted into the map where is
+// is found on any subsequent occurrences of the word.  The 'operator[]' method
+// returns a reference providing modifiable access to the mapped value.  Here,
+// we  the '++' operator to that reference to maintain a tally for the word.
+//..
+//  for (int idx = 0; idx < numDocuments; ++idx) {
+//      for (char *cur = strtok(documents[idx], delimiters);
+//                 cur;
+//                 cur = strtok(NULL,     delimiters)) {
+//          ++wordTally[bsl::string(cur)];
+//      }
+//  }
+//..
+// Now that the data has been (quickly) gathered, we can indulge in analysis
+// that is more time consuming.  For example, we can define a comparison
+// function, copy the data to another container (e.g., 'bsl::vector'), sort the
+// entries, and determine the 20 most commonly used words in the given
+// documents:
+//..
+//  typedef bsl::pair<bsl::string, int> WordTallyEntry;
+//      // Assignable equivalent to 'WordTally::value_type'.  Note that
+//      // 'bsl::vector' requires assignable types.
+//
+//  struct WordTallyEntryCompare {
+//      static bool lessValue(const WordTallyEntry& a,
+//                            const WordTallyEntry& b) {
+//          return a.second < b.second;
+//      }
+//      static bool moreValue(const WordTallyEntry& a,
+//                            const WordTallyEntry& b) {
+//          return !lessValue(a, b);
+//      }
+//  };
+//
+//  bsl::vector<WordTallyEntry> array(wordTally.cbegin(), wordTally.cend());
+//
+//  assert(20 <= array.size());
+//
+//  std::partial_sort(array.begin(),
+//                    array.begin() + 20,
+//                    array.end(),
+//                    WordTallyEntryCompare::moreValue);
+//..
+// Notice that 'partial_sort' suffices here since we seek only the 20 most used
+// words, not a complete distribution of word counts.
+//
+// Finally, we print the sorted portion of 'array':
+//..
+//  for (bsl::vector<WordTallyEntry>::const_iterator cur  = array.begin(),
+//                                                   end  = cur + 20;
+//                                                   end != cur; ++cur) {
+//      printf("%-10s %4d\n", cur->first.c_str(), cur->second);
+//  }
+//..
+// and standard output shows:
+//..
+//  the         463
+//  -           398
+//  of          361
+//  and         349
+//  to          306
+//  in          141
+//  or          106
+//  right        93
+//  be           90
+//  Article      86
+//  has          79
+//  a            76
+//  shall        69
+//  for          69
+//  by           62
+//  with         50
+//  Everyone     49
+//  rights       44
+//  their        44
+//  is           43
+//..
+// Notice that "-" (used as an header underscore in our markup) appears in the
+// word count.  That could be elimiated by adding '-' to the set of delimiters;
+// however, that would partition hyphenated words into separate words.  In
+// practice, one defines a "stop list" of common words (e.g., "the", "of",
+// "and", "is") that one does not wish to tally.  We could easily and "-" to
+// the stop list.
+//
+///Example 2: Examining and Setting Unordered Map Configuration
+///------------------------------------------------------------
+// Suppose we wish to examine (and possibly influence) the performance of an
+// unordered map.  The unordered map provides several interfaces that allow us
+// to do so.  Several of these were used in {Example 1} (code repeated below):
+//..
+//  WordTally wordTally;
+//
+//  printf("size             %4d initial\n", wordTally.size());
+//  printf("bucket_count     %4d initial\n", wordTally.bucket_count());
+//  printf("load_factor      %f  initial\n", wordTally.load_factor());
+//  printf("max_load_factor  %f  initial\n", wordTally.max_load_factor());
+//..
+// First, we examine the metrics of of this newly created (empty) unordered
+// map:
+//..
+//  size                0 initial
+//  bucket_count        1 initial
+//  load_factor      0.000000  initial
+//  max_load_factor  1.000000  initial
+//..
+// Notice that even when there are no elements ('size' is 0) there is one
+// bucket.  Since there are no elements, the average number of elements per
+// bucket (the 'load_factor' above) must be 0.
+//
+// Next, after 'wordTally' has been loaded, we examine its metrics:
+//..
+//  printf("size             %4d\n", wordTally.size());
+//  printf("bucket_count     %4d\n", wordTally.bucket_count());
+//  printf("load_factor      %f\n",  wordTally.load_factor());
+//  printf("max_load_factor  %f\n",  wordTally.max_load_factor());
+//..
+// and find at standard output:
+//..
+//  size             1504
+//  bucket_count     2099
+//  load_factor      0.716532
+//  max_load_factor  1.000000
+//..
+// Notice how the number of buckets has increased.  (Sampling this metric as
+// the map was loaded would show that the increase was done in several stages.)
+//
+// Then, we see that the load factor is indeed below the specified maximum;
+// however we obtain further details of how the buckets are used.
+//
+// Using the 'bucket_count' method, the unordered map's interface for the
+// number of elements in each bucket, we can easily determine the bucket with
+// the greatest number of elements (i.e., the greatest number of collisions):
+//..
+//  bsl::vector<int> bucketSizes;
+//  bucketSizes.reserve(wordTally.bucket_count());
+//
+//  for (int idx = 0; idx < wordTally.bucket_count(); ++idx) {
+//     bucketSizes.push_back(wordTally.bucket_size(idx));
+//  }
+//
+//  assert(0 < bucketSizes.size());
+//  int maxBucketSize = *std::max_element(bucketSizes.begin(),
+//                                        bucketSizes.end());
+//  printf("maxBucketSize    %4d\n", maxBucketSize);
+//..
+// and find on standard output:
+//..
+//  maxBucketSize       5
+//..
+// We can also count the number of empty buckets, and the number of buckets at
+// 'maxBucketSize'.
+//..
+//  int numEmptyBuckets = std::count(bucketSizes.begin(),
+//                                   bucketSizes.end(),
+//                                   0);
+//  printf("numEmptyBuckets  %4d\n", numEmptyBuckets);
+//
+//  int numMaxBuckets = std::count(bucketSizes.begin(),
+//                                 bucketSizes.end(),
+//                                 maxBucketSize);
+//  printf("numMaxBuckets    %4d\n", numMaxBuckets);
+//..
+// which shows on standard output:
+//..
+//  numEmptyBuckets  1031
+//  numMaxBuckets       3
+//..
+// Suppose we are not satisfied with this distribution.  (Perhaps the load
+// factor is too high.)  We can create a second, differently configured table.
+//
+// Next, create a new table 'wordTally2' with twice the bucket count shown by
+// the first table ('wordTally'), and examine its initial metrics.
+//..
+//  WordTally wordTally2(wordTally.bucket_count() * 2);
+//
+//  printf("size2            %4d initial\n", wordTally2.size());
+//  printf("bucket_count2    %4d initial\n", wordTally2.bucket_count());
+//  printf("load_factor2     %f  initial\n", wordTally2.load_factor());
+//  printf("max_load_factor2 %f  initial\n", wordTally2.max_load_factor());
+//..
+// Standard output shows:
+//..
+//  size2               0 initial
+//  bucket_count2    4201 initial
+//  load_factor2     0.000000  initial
+//  max_load_factor2 1.000000  initial
+//..
+// Notice that although we requested 4198 buckets (2 * 2099), we created a
+// table with 4201 buckets.  (4201 is the smallest prime number greater than
+// 4198).
+//
+// Then, we load our new table and examine its metrics.  For simplicity, we
+// load data from the first table rather than re-tokenize our documents.
+//..
+//  wordTally2 = wordTally;
+//
+//  printf("size2            %4d\n", wordTally2.size());
+//  printf("bucket_count2    %4d\n", wordTally2.bucket_count());
+//  printf("load_factor2     %f\n",  wordTally2.load_factor());
+//  printf("max_load_factor2 %f\n",  wordTally2.max_load_factor());
+//
+//  bsl::vector<int> bucketSizes2;
+//  bucketSizes2.reserve(wordTally2.bucket_count());
+//
+//  for (int idx = 0; idx < wordTally2.bucket_count(); ++idx) {
+//     bucketSizes2.push_back(wordTally2.bucket_size(idx));
+//  }
+//
+//  assert(0 < bucketSizes2.size());
+//  int maxBucketSize2 = *std::max_element(bucketSizes2.begin(),
+//                                         bucketSizes2.end());
+//  printf("maxBucketSize2   %4d\n", maxBucketSize2);
+//
+//  int numEmptyBuckets2 = std::count(bucketSizes2.begin(),
+//                                    bucketSizes2.end(),
+//                                    0);
+//  printf("numEmptyBuckets2 %4d\n", numEmptyBuckets2);
+//
+//  int numMaxBuckets2 = std::count(bucketSizes2.begin(),
+//                                  bucketSizes2.end(),
+//                                  maxBucketSize2);
+//  printf("numMaxBuckets2   %4d\n", numMaxBuckets2);
+//..
+// Finally, we see on standard output:
+//..
+//  size2            1504
+//  bucket_count2    4201
+//  load_factor2     0.358010
+//  max_load_factor2 1.000000
+//  maxBucketSize2      4
+//  numEmptyBuckets2 2971
+//  numMaxBuckets2      5
+//..
+// Notice that the loading factor has been (roughly) cut in half; we have
+// achieved our goal.  Also notice that the bucket count is unchanged since
+// construction; thus, there were no rehashs during the loading this unordered
+// map.  Finally, notice that the number of empty (unused) buckets is
+// significantly higher, and there's been a modest decrease in the largest
+// bucket size, but more instances of them.
+//
+// Thus, the unordered map provides facilities by which we can make trade-offs
+// in performance characteristics of the containers we create.
+//
+///Example 3: Inverse Concordance
+///------------------------------
+// If one has a concordance for a set of documents (an index of the position of
+// every unique word in those documents), then words of interest can be
+// efficiently located.  Suppose after locating a word of interest one also
+// needs the surrounding words (for context).  Searching in the original
+// document requires re-tokenization (time consuming).  Alternatively, one can
+// use the concordance to create an inverse concordance to provide a fast
+// lookup of the words at given locations in a document and then examine words
+// near the word of interest.
+//
+// First, we define the types required (and convenient aliases) to create an
+// unordered map from a word location to the corresponding word.  The "key"
+// value will be 'WordLocation', a pair of 'int' values: the first being the
+// document code number (arbitrarily assigned), and second the word offset in
+// that document (the first word of the document is at offset 0).  The "value"
+// of each entry is a 'bsl::string' containing the word at that location.
+//..
+//  typedef bsl::pair<int, int> WordLocation;
+//      // Document code number ('first') and word offset ('second') in that
+//      // document specify a word location.  The first word in the document
+//      // is at word offset 0.
+//..
+// Notice that that 'WordLocation', the type of the key value, has no natural
+// ordering.  The assignment of document codes is arbitrary so there is no
+// reason to consider the words on one document to sort below those in any
+// another.
+//
+// Then, since there is no default hash function for the 'WordLocation' type,
+// we define one.  The document code and the word offset are individually
+// hashed using the default hasher for the 'int' type and those results bitwise
+// exclusive OR-ed a combined result.  This trivial combination formula
+// suffices for this problem, but is *not* a general solution for combining
+// hashes; see {Practical Requirements on 'HASH'}.
+//..
+//  class WordLocationHash
+//  {
+//    private:
+//      WordLocationHash& operator=(const WordLocationHash& rhs);
+//
+//    public:
+//      // CREATORS
+//      //! WordLocationHash() = default;
+//          // Create a 'WordLocationHash' object.
+//
+//      //! WordLocationHash(const WordLocationHash& original) = default;
+//          // Create a 'WordLocationHash' object.  Note that as
+//          // 'WordLocationHash' is an empty (stateless) type, this operation
+//          // will have no observable effect.
+//
+//      //! ~WordLocationHash() = default;
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      std::size_t operator()(WordLocation x) const
+//          // Return a hash value computed using the specified 'x'.
+//      {
+//          bsl::hash<int> hasher;
+//          return hasher(x.first) ^ hasher(x.second);
+//      }
+//  };
+//..
+// Notice that many of the required methods of the hash type are compiler
+// generated.  (The declaration of those methods are commented out and suffixed
+// by an '= default' comment.)
+//
+// In addition to a hash functor, the unordered map requires an equality
+// comparison functor.  In this example, the unordered map uses 'operator=='
+// method of 'std::pair' by default.  If the mapped type has no such method, a
+// equality comparison functor must be provided explicitly.
+//
+// Next, we define the type of the unordered map and associated convenience
+// aliases:
+//..
+//  typedef bsl::unordered_map<WordLocation, bsl::string, WordLocationHash>
+//                                               InverseConcordance;
+//
+//  typedef InverseConcordance::const_iterator   InverseConcordanceConstItr;
+//..
+// Next, we obtain a concordance for the document set (see
+// {'bslstl_unorderedmultimap'|Example 1}).  Here, the concordance is provided
+// as a statically initialized array:
+//..
+//  const static struct {
+//      const char *d_word;
+//      int         d_documentCode;
+//      int         d_wordOffset;
+//  } concordance[] = {
+//      { "extent",             2,  3597 }, { "to",                 2,  1225 },
+//      ...
+//      { "to",                 2,  1252 }, { "Every",              2,  1049 }
+//  };
+//  const int numConcordance = sizeof concordance/sizeof *concordance;
+//..
+// Then, we create 'inverseConcordance', an unordered map, and initialize it
+// with values obtained from 'concordance'.
+//..
+//  InverseConcordance inverseConcordance;
+//
+//  for (int idx = 0; idx < numConcordance; ++idx) {
+//      bsl::string word         = concordance[idx].d_word;
+//      int         documentCode = concordance[idx].d_documentCode;
+//      int         wordOffset   = concordance[idx].d_wordOffset;
+//
+//      WordLocation                   location(documentCode, wordOffset);
+//      InverseConcordance::value_type value(location, word);
+//      bool                           status =
+//                                     inverseConcordance.insert(value).second;
+//      assert(status);
+//  }
+//..
+// Notice that we expect every 'insert' to be successful, as the concordance
+// should not show more than one word at any location.
+//
+// Next, suppose we knew the location of the word "unalienable" in the document
+// set (see {'bslstl_unorderedmultimap'|Example 1}) and want to know its
+// context?
+//..
+//  "unalienable",  0,  109
+//..
+// We use the 'find' method of 'inverseConcordance' to determine the words
+// within offset 'delta' of "unalienable".  Note that we must check the
+// validity of the returned interator, in case we probe beyond the boundaries
+// of the document.
+//..
+//  const int docCode =   0;
+//  const int origin  = 109;
+//  const int delta   =  16;
+//
+//  for (int offset = origin - delta; offset < origin + delta; ++offset) {
+//      WordLocation               location(docCode, offset);
+//      InverseConcordanceConstItr itr = inverseConcordance.find(location);
+//
+//      if (inverseConcordance.end() != itr) {
+//          printf("%d %4d: %s\n",
+//                 itr->first.first,
+//                 itr->first.second,
+//                 itr->second.c_str());
+//          assert(origin != offset
+//              || bsl::string("unalienable") == itr->second);
+//      }
+//  }
+//..
+// Notice that the assertion confirms that "unalienable" is found in our
+// inverse location at the location we obtained from the concordance.
+//
+// Finally, we find on standard output:
+//..
+//  0   93: evident
+//  0   94: that
+//  0   95: all
+//  0   96: men
+//  0   97: are
+//  0   98: created
+//  0   99: equal
+//  0  100: that
+//  0  101: they
+//  0  102: are
+//  0  103: endowed
+//  0  104: by
+//  0  105: their
+//  0  106: Creator
+//  0  107: with
+//  0  108: certain
+//  0  109: unalienable
+//  0  110: Rights
+//  0  111: that
+//  0  112: among
+//  0  113: these
+//  0  114: are
+//  0  115: Life
+//  0  116: Liberty
+//  0  117: and
+//  0  118: the
+//  0  119: pursuit
+//  0  120: of
+//  0  121: Happiness
+//  0  122: That
+//  0  123: to
+//  0  124: secure
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -674,12 +1279,15 @@ class unordered_map {
         // exceed its 'max_load_factor'.
 
     void reserve(size_type numElements);
-        // Change the size of the array of buckets maintained by this unordered
-        // container so that 'load_factor() < max_load_factor()', even if the
-        // container grows to a size of the specified 'numElements', and
-        // redistribute all the contained elements into the new sequence of
-        // buckets, according to their hash values.  This operation has no
-        // effect if 'numElements <= size()'.
+        // Increase the number of buckets of this set to a quantity such that
+        // the ratio between the specified 'numElements' and this quantity does
+        // not exceed 'max_load_factor', and allocate footprint memory
+        // sufficient to grow the table to contain 'numElements' elements.
+        // Note that this guarantees that, after the reserve, elements can be
+        // inserted to grow the container to 'size() == numElements' without
+        // any further allocation, unless the 'KEY' or 'VALUE' types themselves
+        // or the hash function allocate memory.  Also note that this operation
+        // has no effect if 'numElements <= size()'.
 
     void swap(unordered_map& other);
         // Exchange the value of this object as well as its hasher,
@@ -946,7 +1554,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
+: d_impl(allocator)
 {
 }
 
@@ -1150,7 +1758,7 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
                                                           INPUT_ITERATOR first,
                                                           INPUT_ITERATOR last)
 {
-    std::size_t maxInsertions =
+    size_type maxInsertions =
             ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
     if (maxInsertions) {
         this->reserve(this->size() + maxInsertions);
@@ -1158,7 +1766,8 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 
     bool isInsertedFlag;  // not used
     while (first != last) {
-        d_impl.insertIfMissing(&isInsertedFlag, *first++);
+        d_impl.insertIfMissing(&isInsertedFlag, *first);
+        ++first;
     }
 }
 
@@ -1200,7 +1809,7 @@ void
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
                                                          size_type numElements)
 {
-    d_impl.rehashForNumElements(numElements);
+    d_impl.reserveForNumElements(numElements);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1328,7 +1937,7 @@ inline
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
 {
-    return d_impl.maxNumOfBuckets();
+    return d_impl.maxNumBuckets();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>

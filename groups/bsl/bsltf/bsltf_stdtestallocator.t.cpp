@@ -1,11 +1,11 @@
-// bsltf_stdtestallocator.t.cpp                               -*-C++-*-
+// bsltf_stdtestallocator.t.cpp                                       -*-C++-*-
 #include <bsltf_stdtestallocator.h>
 
 #include <bsltf_simpletesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -14,6 +14,7 @@
 #include <bslmf_issame.h>
 
 #include <limits>
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -101,10 +102,11 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) { ++testStatus; }
     }
 }
 
@@ -179,8 +181,8 @@ class MyContainer {
     TYPE      *d_object_p;   // pointer to the contained object
 
   public:
-    // CONSTRUCTORS
-    MyContainer(const TYPE& object);
+    // CREATORS
+    explicit MyContainer(const TYPE& object);
         // Create an container containing the specified 'object', using the
         // parameterized 'ALLOCATOR' to allocate memory.
 
@@ -243,7 +245,7 @@ class TestType {
 
   public:
     // CREATORS
-    TestType(int data)
+    explicit TestType(int data)
     : d_data(data)
     {
     }
@@ -266,7 +268,8 @@ class TestType {
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int test                = argc > 1 ? atoi(argv[1]) : 0;
     int verbose             = argc > 2;
     int veryVerbose         = argc > 3;
@@ -325,6 +328,7 @@ int main(int argc, char *argv[]) {
         // This part has been copied from bslstl_allocator's test driver and
         // had been originally written by Pablo.
 
+#if 0
         typedef bslma::Allocator::size_type bsize;
 
         enum {
@@ -338,17 +342,20 @@ int main(int argc, char *argv[]) {
         if (verbose) {
             printf("Illustrating the reason for the cast in the"
                    " enumeration (on AIX 64-bit mode):\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
+            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", (int)BSLMA_SIZE_IS_SIGNED);
             printf("\tMAX_NUM_BYTES = %ld\n", (bsize)MAX_NUM_BYTES);
             printf("\tMAX_ELEMENTS1 = %ld\n", (bsize)MAX_ELEMENTS1);
             printf("\tMAX_ELEMENTS2 = %ld\n", (bsize)MAX_ELEMENTS2);
 
             printf("Printing the same values as unsigned:\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
+            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", (int)BSLMA_SIZE_IS_SIGNED);
             printf("\tMAX_NUM_BYTES = %lu\n", (bsize)MAX_NUM_BYTES);
             printf("\tMAX_ELEMENTS1 = %lu\n", (bsize)MAX_ELEMENTS1);
             printf("\tMAX_ELEMENTS2 = %lu\n", (bsize)MAX_ELEMENTS2);
         }
+#else
+        typedef StdTestAllocator<char>::size_type bsize;
+#endif
 
         StdTestAllocator<char> X;
         bsize cas = X.max_size();
@@ -453,10 +460,10 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //: 1 The 'allocate' method forwards allocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //:
         //: 2 The 'deallocate' method forwards the deallocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //
         // Plan:
         //: 1 Create a 'bslma_Allocator' object and install it as the delegate
@@ -544,6 +551,7 @@ int main(int argc, char *argv[]) {
         typedef StdTestAllocator<float> AF;
         typedef StdTestAllocator<void>  AV;
 
+#if 0
         if (verbose) printf("\tTesting 'size_type'.\n");
         {
             ASSERT(sizeof(AI::size_type) == sizeof(int*));
@@ -561,6 +569,19 @@ int main(int argc, char *argv[]) {
             ASSERT(0 > ~(AI::difference_type)0);
             ASSERT(0 > ~(AV::difference_type)0);
         }
+#else
+        if (verbose) printf("\tTesting 'size_type'.\n");
+        {
+            ASSERT((bsl::is_same<AI::size_type, unsigned int>::value));
+            ASSERT((bsl::is_same<AV::size_type, unsigned int>::value));
+        }
+
+        if (verbose) printf("\tTesting 'difference_type'.\n");
+        {
+            ASSERT((bsl::is_same<AI::difference_type, int>::value));
+            ASSERT((bsl::is_same<AV::difference_type, int>::value));
+        }
+#endif
 
         if (verbose) printf("\tTesting 'pointer'.\n");
         {
@@ -633,7 +654,7 @@ int main(int argc, char *argv[]) {
         //:   copy-assignment operator defined in this component.  (C-1)
         //:
         //: 2 Create two sets of 'StdTestAllocator' objects (parameterized on
-        //:   void and int) and assign a non-modifiable refernce of one to the
+        //:   void and int) and assign a non-modifiable reference of one to the
         //:   other.  (C-2)
         //
         // Testing:
@@ -715,7 +736,7 @@ int main(int argc, char *argv[]) {
         //: 1 'operator==' always return true, even for objects of different
         //:   template instances.
         //:
-        //: 2 'operator!=' always return false, enve for objects of different
+        //: 2 'operator!=' always return false, even for objects of different
         //:   template instances.
         //
         //: 3 The equality operator's signature and return type are standard.
@@ -877,7 +898,7 @@ int main(int argc, char *argv[]) {
           ASSERT(0 == oa.numBytesInUse());
 
           StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
-                                       &bslma::NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
 
       } break;
       case 1: {

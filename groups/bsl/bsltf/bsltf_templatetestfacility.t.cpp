@@ -1,15 +1,19 @@
 // bsltf_templatetestfacility.t.cpp                                   -*-C++-*-
 #include <bsltf_templatetestfacility.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
+#include <bslalg_scalardestructionprimitives.h>
+
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_objectbuffer.h>
+#include <bsls_util.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,16 +35,18 @@ using namespace BloombergLP::bsltf;
 // CLASS METHODS
 // [ 5] void TemplateTestFacility::create(int value);
 // [ 5] int TemplateTestFacility::getIndex(const TYPE& object);
+// [ 6] void TemplateTestFacility::emplace<T>(T *, int, bslma::Allocator *);
+// [ 6] void TemplateTestFacility::emplace<T>(T **, int, bslma::Allocator *);
 //
 // FREE FUNCTIONS
-// [ 6] void debugprint(const EnumeratedTestType::Enum& obj);
-// [ 6] void debugprint(const UnionTestType& obj);
-// [ 6] void debugprint(const SimpleTestType& obj);
-// [ 6] void debugprint(const AllocTestType& obj);
-// [ 6] void debugprint(const BitwiseMoveableTestType& obj);
-// [ 6] void debugprint(const AllocBitwiseMoveableTestType& obj);
-// [ 6] void debugprint(const NonTypicalOverloadsTestType& obj);
-// [ 6] void debugprint(const NonDefaultConstructibleTestType& obj);
+// [ 7] void debugprint(const EnumeratedTestType::Enum& obj);
+// [ 7] void debugprint(const UnionTestType& obj);
+// [ 7] void debugprint(const SimpleTestType& obj);
+// [ 7] void debugprint(const AllocTestType& obj);
+// [ 7] void debugprint(const BitwiseMoveableTestType& obj);
+// [ 7] void debugprint(const AllocBitwiseMoveableTestType& obj);
+// [ 7] void debugprint(const NonTypicalOverloadsTestType& obj);
+// [ 7] void debugprint(const NonDefaultConstructibleTestType& obj);
 //
 // MACROS
 // [ 4] BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE
@@ -51,7 +57,7 @@ using namespace BloombergLP::bsltf;
 // [ 3] BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(CLASS, METHOD, ...)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 // [ 2] ALIASES
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -62,14 +68,15 @@ static int testStatus = 0;
 
 namespace {
 
-void aSsErT(bool b, const char *s, int i) {
+void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -216,10 +223,11 @@ class MyNullableValue {
         return d_nullFlag;
     }
 
-    const TYPE& value() const {
-        // Return a reference providing non-modifiable access to the
-        // underlying object of the parameterized 'TYPE'.  The behavior is
-        // undefined if the object is null.
+    const TYPE& value() const
+    // Return a reference providing non-modifiable access to the
+    // underlying object of the parameterized 'TYPE'.  The behavior is
+    // undefined if the object is null.
+    {
         return d_value;
     }
 };
@@ -299,8 +307,8 @@ void MyTestDriver<TYPE>::testCase2()
     //:
     //:   3 Use the 'makeValue' method to set the value of 'mL' to 'LV'.  Use
     //:     the (as yet unproven) salient attribute accessors and the
-    //:     'TemplateTestFacility::getIdentifier' class method template to verify
-    //:     'mL' has the expected value.  (C-2)
+    //:     'TemplateTestFacility::getIdentifier' class method template to
+    //:     verify 'mL' has the expected value.  (C-2)
     //:
     //:   4 Invoke the 'makeNull' method of 'mL'.  Use the attribute
     //:     accessors to verify the value of the object is now null.  (C-3)
@@ -394,6 +402,8 @@ struct TestHelper
     static void test5Helper();
 
     static void test6Helper();
+
+    static void test7Helper();
 };
 
 template <class TYPE>
@@ -608,8 +618,47 @@ void TestHelper<TYPE>::test5Helper()
     }
 }
 
+// Test Case 6 Aparatus
+
 template <class TYPE>
 void TestHelper<TYPE>::test6Helper()
+{
+    if (veryVerbose)
+        printf("\n==TYPE: %s==\n", typeid(TYPE).name());
+
+    bslma::TestAllocator defaultAllocator("defaultAllocator",
+                                          veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
+
+    bslma::TestAllocator objectAllocator("objectAllocator",
+                                          veryVeryVeryVerbose);
+
+    bsls::ObjectBuffer<TYPE> buffer;
+    TYPE &mX = buffer.object();
+    const TYPE &X = mX;
+    TYPE *address = bsls::Util::addressOf(mX);
+
+    for (int ti = 0; ti <= 127; ++ti) {
+        TemplateTestFacility::emplace(address, ti, &objectAllocator);
+        int value = TemplateTestFacility::getIdentifier<TYPE>(X);
+
+        if (veryVeryVerbose) {
+            P_(ti) P(value) }
+
+        ASSERTV(ti, value, ti == value);
+
+        bslalg::ScalarDestructionPrimitives::destroy(address);
+    }
+
+    ASSERTV(defaultAllocator.numBlocksTotal(),
+            0 == defaultAllocator.numBlocksTotal());
+
+}
+
+// Test Case 7 Aparatus
+
+template <class TYPE>
+void TestHelper<TYPE>::test7Helper()
 {
     if (veryVerbose)
         printf("\n==TYPE: %s==\n", typeid(TYPE).name());
@@ -618,7 +667,8 @@ void TestHelper<TYPE>::test6Helper()
         TYPE X = TemplateTestFacility::create<TYPE>(ti);
 
         if (verbose) {
-            using bsls::debugprint;  // otherwise the name is hidden by this component
+            using bsls::debugprint;  // otherwise the name is hidden by this
+                                     // component
 
             debugprint(X);
 
@@ -629,13 +679,14 @@ void TestHelper<TYPE>::test6Helper()
     }
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int test            = argc > 1 ? atoi(argv[1]) : 0;
     verbose             = argc > 2;
     veryVerbose         = argc > 3;
@@ -645,7 +696,7 @@ int main(int argc, char *argv[]) {
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
           if (verbose) printf("\nUSAGE EXAMPLE"
                               "\n=============\n");
 
@@ -681,7 +732,7 @@ int main(int argc, char *argv[]) {
 //    } break;
 //..
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // 'debugprint' FREE FUNCTION
         //
@@ -759,6 +810,51 @@ int main(int argc, char *argv[]) {
         BSLS_BSLTESTUTIL_P(o6);
         BSLS_BSLTESTUTIL_P(o7);
         BSLS_BSLTESTUTIL_P(o8);
+
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestHelper,
+                                    test7Helper,
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // CLASS METHODS 'create' and 'getIdentifier'
+        //   Ensure that the class method 'TemplateTestFacility::emplace'
+        //   overloads behave according to their contracts.
+        //
+        // Concerns:
+        //: 1 For all test types, invoking the 'TemplateTestFacility::emplace'
+        //:   class method passing in an integer value creates a new object of
+        //:   that type, at the specified address.  Henceforce invoking the
+        //:   'TemplateTestFacility::getIdentifier' class method passing in the
+        //:   just created object returns the the previously used integer
+        //:   value.
+        //:
+        //: 2 For all test types, the 'TemplateTestFacility::create' method
+        //:   supports integer values from 0 to 127.
+        //:
+        //: 3 All memory is supplied by the specified allocator.  No memory is
+        //:   supplied by the default or global allocators.
+        //
+        // Plan:
+        //: 1 Create a function member template parameterized on a type and
+        //:   does teh following: For each integer value from 0 to 127, create
+        //:   an object using 'TemplateTestFacility::emplace' passing in the
+        //:   integer value.  Verify that the integer value return from
+        //:   'TemplateTestFacility::getIdentifier' compare equal to the value
+        //:   passed to 'create'.
+        //:
+        //: 2 Invoke the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro
+        //:   passing in the function member template defined in P-1 and
+        //:   'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL' to run the instances
+        //:   of the template for all test types.  (C-1,2)
+        //
+        // Testing:
+        //   void emplace<TYPE>(TYPE *, int, bslma::Allocator *);
+        //   void emplace<TYPE>(TYPE **, int, bslma::Allocator *);
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nCLASS METHOD 'emplace'"
+                            "\n======================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,

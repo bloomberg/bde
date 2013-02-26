@@ -48,6 +48,10 @@ BSLS_IDENT("$Id: $")
 //  X = Y; // This will not compile
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 namespace BloombergLP {
 namespace bsltf {
 
@@ -64,7 +68,7 @@ class NonAssignableTestType {
 
   private:
     // NOT IMPLEMENTED
-    NonAssignableTestType& operator=(const NonAssignableTestType& rhs);
+    NonAssignableTestType& operator=(const NonAssignableTestType&);
 
   public:
 

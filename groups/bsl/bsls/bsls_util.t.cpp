@@ -134,6 +134,12 @@ template <typename T>
 inline
 CvQualification cvqOfPtr(const volatile T *) { return CVQ_CONST_VOLATILE; }
 
+namespace TestFuncs
+{
+void a() {}
+int b(double&) { return 0; }
+double *c(const int &, volatile double) { return 0; }
+}  // close namespace TestFuncs
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -408,6 +414,10 @@ int main(int argc, char *argv[])
         ASSERT(CVQ_CONST          == cvqOfPtr(bsls::Util::addressOf( crx)));
         ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls::Util::addressOf( vrx)));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls::Util::addressOf(cvrx)));
+
+        ASSERT(TestFuncs::a == bsls::Util::addressOf(TestFuncs::a));
+        ASSERT(TestFuncs::b == bsls::Util::addressOf(TestFuncs::b));
+        ASSERT(TestFuncs::c == bsls::Util::addressOf(TestFuncs::c));
       } break;
       case 1: {
         // --------------------------------------------------------------------

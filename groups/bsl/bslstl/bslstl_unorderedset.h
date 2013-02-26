@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an STL-compliant unordered_set class.
+//@PURPOSE: Provide an STL-compliant 'unordered_set' container.
 //
 //@CLASSES:
-//   bsl::unordered_set : STL-compatible unordered set container
+//   bsl::unordered_set : STL-compliant 'unordered_set' container
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
@@ -36,10 +36,12 @@ BSLS_IDENT("$Id: $")
 // An 'unordered_set' meets the requirements of an unordered associative
 // container with forward iterators in the C++11 standard [unord].  The
 // 'unordered_set' implemented here adheres to the C++11 standard, except that
-// it does not have interfaces that take rvalue references, 'initializer_list',
-// 'emplace', or operations taking a variadic number of template parameters.
-// Note that excluded C++11 features are those that require (or are greatly
-// simplified by) C++11 compiler support.
+// it may rehash when setting the 'max_load_factor' in order to preserve the
+// property that the value is always respected (which is a potentially throwing
+// operation) and it does not have interfaces that take rvalue references,
+// 'initializer_list', 'emplace', or operations taking a variadic number of
+// template parameters.  Note that excluded C++11 features are those that
+// require (or are greatly simplified by) C++11 compiler support.
 //
 ///Requirements on 'KEY'
 ///---------------------
@@ -53,7 +55,7 @@ BSLS_IDENT("$Id: $")
 // function's requirements for the 'KEY' template parameter.  These terms are
 // also defined in section [utility.arg.requirements] of the C++11 standard.
 // Note that, in the context of an 'unordered_set' instantiation, the
-// requirements apply specifically to the 'unordered_set's entry type,
+// requirements apply specifically to the 'unordered_set's element type,
 // 'value_type', which is an alias for 'KEY'.
 //
 //: "default-constructible": The type provides an accessible default
@@ -64,6 +66,37 @@ BSLS_IDENT("$Id: $")
 //: "equality-comparable": The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
+//
+///Requirements on 'HASH' and 'EQUAL'
+///----------------------------------
+// The (template parameter) types 'HASH' and 'EQUAL' must be copy-constructible
+// function-objects.  Note that this requirement is somewhat stronger than the
+// requirement currently in the standard; see the discussion for Issue 2215
+// (http://cplusplus.github.com/LWG/lwg-active.html#2215);
+//
+// 'HASH' shall support a function call operator compatible with the following
+// statements:
+//..
+//  HASH        hash;
+//  KEY         key;
+//  std::size_t result = hash(key);
+//..
+// where the definition of the called function meets the requirements of a
+// hash function, as specified in {'bslstl_hash|Standard Hash Function'}.
+//
+// 'EQUAL' shall support the a function call operator compatible with the
+//  following statements:
+//..
+//  EQUAL equal;
+//  KEY   key1, key2;
+//  bool  result = equal(key1, key2);
+//..
+// where the definition of the called function defines an equivalence
+// relationship on keys that is both reflexive and transitive.
+//
+// 'HASH' and 'EQUAL' function-objects are further constrained, such for any
+// two objects whose keys compare equal by the comparator, shall produce the
+// same value from the hasher.
 //
 ///Memory Allocation
 ///-----------------
@@ -214,11 +247,254 @@ BSLS_IDENT("$Id: $")
 //  | a.resize(k)                                        | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//
 //..
+//
+///Unordered Set Configuration
+///---------------------------
+// The unordered set has interfaces that can provide insight into and control
+// of its inner workings.  The syntax and semantics of these interfaces for
+// 'bslstl_unoroderedset' are identical to those of 'bslstl_unorderedmap'.  See
+// the discussion in {'bslstl_unorderedmap'|Unordered Map Configuration} and
+// the illustrative material in {'bslstl_unorderedmap'|Example 2}.
+//
+///Practical Requirements on 'HASH'
+///--------------------------------
+// An important factor in the performance an unordered set (and any of the
+// other unordered containers) is the choice of hash function.  Please see
+// the discussion in {'bslstl_unorderedmap'|Practical Requirements on 'HASH'}.
 //
 ///Usage
 ///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Categorizing Data
+/// - - - - - - - - - - - - - -
+// Unordered set are useful in situations when there is no meaningful way to
+// order key values, when the order of the values is irrelevant to the problem
+// domain, and (even if there is a meaningful ordering) the value of ordering
+// the results is outweighed by the higher performance provided by unordered
+// sets (compared to ordered sets).
+//
+// Suppose one is analyzing data on a set of customers, and each customer is
+// categorized by several attributes: customer type, geographic area, and
+// (internal) project code; and that each attribute takes on one of a limited
+// set of values.  This data can be handled by creating an enumeration for each
+// of the attributes:
+//..
+//  typedef enum {
+//      REPEAT
+//    , DISCOUNT
+//    , IMPULSE
+//    , NEED_BASED
+//    , BUSINESS
+//    , NON_PROFIT
+//    , INSTITUTE
+//      // ...
+//  } CustomerCode;
+//
+//  typedef enum {
+//      USA_EAST
+//    , USA_WEST
+//    , CANADA
+//    , MEXICO
+//    , ENGLAND
+//    , SCOTLAND
+//    , FRANCE
+//    , GERMANY
+//    , RUSSIA
+//      // ...
+//  } LocationCode;
+//
+//  typedef enum {
+//      TOAST
+//    , GREEN
+//    , FAST
+//    , TIDY
+//    , PEARL
+//    , SMITH
+//      // ...
+//  } ProjectCode;
+//..
+// For printing these values in a human-readable form, we define these helper
+// functions:
+//..
+//  static const char *toAscii(CustomerCode value)
+//  {
+//      switch (value) {
+//        case REPEAT:     return "REPEAT";
+//        case DISCOUNT:   return "DISCOUNT";
+//        case IMPULSE:    return "IMPULSE";
+//        case NEED_BASED: return "NEED_BASED";
+//        case BUSINESS:   return "BUSINESS";
+//        case NON_PROFIT: return "NON_PROFIT";
+//        case INSTITUTE:  return "INSTITUTE";
+//        // ...
+//        default: return "(* UNKNOWN *)";
+//      }
+//  }
+//
+//  static const char *toAscii(LocationCode value)
+//  {
+//      ...
+//  }
+//
+//  static const char *toAscii(ProjectCode  value)
+//  {
+//      ...
+//  }
+//..
+// The data set (randomly generated for this example) is provided in a
+// statically initialized array:
+//..
+//  static const struct CustomerProfile {
+//      CustomerCode d_customer;
+//      LocationCode d_location;
+//      ProjectCode  d_project;
+//  } customerProfiles[] = {
+//      { IMPULSE   , CANADA  , SMITH },
+//      { NON_PROFIT, USA_EAST, GREEN },
+//      ...
+//      { INSTITUTE , USA_EAST, TOAST },
+//      { NON_PROFIT, ENGLAND , FAST  },
+//      { NON_PROFIT, USA_WEST, TIDY  },
+//      { REPEAT    , MEXICO  , TOAST },
+//  };
+//  const int numCustomerProfiles = sizeof  customerProfiles
+//                                / sizeof *customerProfiles;
+//..
+// Suppose, as the first step in analysis, we wish to determine the number of
+// unique combinations of customer attributes that exist in our data set.  We
+// can do that by inserting each data item into an (unordered) set: the first
+// insert of a combination will succeed, the others will fail, but at the end
+// of the process, the set will contain one entry for every unique combination
+// in our data.
+//
+// First, as there are no standard methods for hashing or comparing our user
+// defined types, we define 'CustomerProfileHash' and 'CustomerProfileEqual'
+// classes, each a stateless functor.  Note that there is no meaningful
+// ordering of the attribute values, they are merely arbitrary code numbers;
+// nothing is lost by using an unordered set instead of an ordered set:
+//..
+//  class CustomerProfileHash
+//  {
+//    public:
+//      // CREATORS
+//      //! CustomerProfileHash() = default;
+//          // Create a 'CustomerProfileHash' object.
+//
+//      //! CustomerProfileHash(const CustomerProfileHash& original) = default;
+//          // Create a 'CustomerProfileHash' object.  Note that as
+//          // 'CustomerProfileHash' is an empty (stateless) type, this
+//          // operation will have no observable effect.
+//
+//      //! ~CustomerProfileHash() = default;
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      std::size_t operator()(CustomerProfile x) const;
+//          // Return a hash value computed using the specified 'x'.
+//  };
+//..
+// The hash function combines the several enumerated values from the class
+// (each a small 'int' value) into a single, unique 'int' value, and then
+// applying the default hash function for 'int'.  See {Practical Requirements
+// on 'HASH'}.
+//..
+//  // ACCESSORS
+//  std::size_t CustomerProfileHash::operator()(CustomerProfile x) const
+//  {
+//      return bsl::hash<int>()(x.d_location * 100 * 100
+//                            + x.d_customer * 100
+//                            + x.d_project);
+//  }
+//
+//  class CustomerProfileEqual
+//  {
+//    public:
+//      // CREATORS
+//      //! CustomerProfileEqual() = default;
+//          // Create a 'CustomerProfileEqual' object.
+//
+//      //! CustomerProfileEqual(const CustomerProfileEqual& original)
+//      //!                                                          = default;
+//          // Create a 'CustomerProfileEqual' object.  Note that as
+//          // 'CustomerProfileEqual' is an empty (stateless) type, this
+//          // operation will have no observable effect.
+//
+//      //! ~CustomerProfileEqual() = default;
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      bool operator()(const CustomerProfile& lhs,
+//                      const CustomerProfile& rhs) const;
+//          // Return 'true' if the specified 'lhs' have the same value as the
+//          // specified 'rhs', and 'false' otherwise.
+//  };
+//
+//  // ACCESSORS
+//  bool CustomerProfileEqual::operator()(const CustomerProfile& lhs,
+//                                        const CustomerProfile& rhs) const
+//  {
+//      return lhs.d_location == rhs.d_location
+//          && lhs.d_customer == rhs.d_customer
+//          && lhs.d_project  == rhs.d_project;
+//  }
+//..
+// Notice that many of the required methods of the hash and comparitor types
+// are compiler generated.  (The declaration of those methods are commented out
+// and suffixed by an '= default' comment.)
+//
+// Then, we define the type of the unordered set and a convenience aliases:
+//..
+//  typedef bsl::unordered_set<CustomerProfile,
+//                             CustomerProfileHash,
+//                             CustomerProfileEqual> ProfileCategories;
+//  typedef ProfileCategories::const_iterator        ProfileCategoriesConstItr;
+//..
+// Next, we create an unordered set and insert each item of 'data'.
+//..
+//  ProfileCategories profileCategories;
+//
+//  for (int idx = 0; idx < numCustomerProfiles; ++idx) {
+//     profileCategories.insert(customerProfiles[idx]);
+//  }
+//
+//  assert(numCustomerProfiles >= profileCategories.size());
+//..
+// Notice that we ignore the status returned by the 'insert' method.  We fully
+// expect some operations to fail.
+//
+// Now, the size of 'profileCategories' matches the number of unique customer
+// profiles in this data set.
+//..
+//  printf("%d %d\n", numCustomerProfiles, profileCategories.size());
+//..
+// Standard output shows:
+//..
+//  100 84
+//..
+// Finally, we can examine the unique set by iterating through the unordered
+// set and printing each element.  Note the use of the several 'toAscii'
+// functions defined earlier to make the output comprehensible:
+//..
+//  for (ProfileCategoriesConstItr itr  = profileCategories.begin(),
+//                                 end  = profileCategories.end();
+//                                 end != itr; ++itr) {
+//      printf("%-10s %-8s %-5s\n",
+//             toAscii(itr->d_customer),
+//             toAscii(itr->d_location),
+//             toAscii(itr->d_project));
+//  }
+//..
+// We find on standard output:
+//..
+//  NON_PROFIT ENGLAND  FAST
+//  DISCOUNT   CANADA   TIDY
+//  IMPULSE    USA_WEST GREEN
+//  ...
+//  DISCOUNT   USA_EAST GREEN
+//  DISCOUNT   MEXICO   SMITH
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -289,6 +565,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -594,7 +874,7 @@ class unordered_set
         // the (template parameter) type 'KEY' be "copy-constructible" (see
         // {Requirements on 'KEY'}).
 
-    void  max_load_factor(float newLoadFactor);
+    void max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
         // 'newLoadFactor'.
 
@@ -609,7 +889,13 @@ class unordered_set
     void reserve(size_type numElements);
         // Increase the number of buckets of this set to a quantity such that
         // the ratio between the specified 'numElements' and this quantity does
-        // not exceed 'max_load_factor'.
+        // not exceed 'max_load_factor', and allocate footprint memory
+        // sufficient to grow the table to contain 'numElements' elements.
+        // Note that this guarantees that, after the reserve, elements can be
+        // inserted to grow the container to 'size() == numElements' without
+        // any further allocation, unless the 'KEY' type itself or the hash
+        // function allocate memory.  Also note that this operation has no
+        // effect if 'numElements <= size()'.
 
     void swap(unordered_set& other);
         // Exchange the value of this object as well as its hasher and
@@ -844,7 +1130,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
+: d_impl(allocator)
 {
 }
 
@@ -1041,7 +1327,7 @@ inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                         INPUT_ITERATOR last)
 {
-    if (size_t maxInsertions =
+    if (size_type maxInsertions =
             ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
         this->reserve(this->size() + maxInsertions);
     }
@@ -1074,7 +1360,7 @@ inline
 void
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::reserve(size_type numElements)
 {
-    d_impl.rehashForNumElements(numElements);
+    d_impl.reserveForNumElements(numElements);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1266,7 +1552,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
 {
-    return d_impl.maxNumOfBuckets();
+    return d_impl.maxNumBuckets();
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>

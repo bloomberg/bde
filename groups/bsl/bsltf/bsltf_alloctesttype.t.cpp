@@ -1,23 +1,26 @@
 // bsltf_alloctesttype.t.cpp                                          -*-C++-*-
 #include <bsltf_alloctesttype.h>
 
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
 #include <climits>
+#include <new>
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <cstring>
+#include <string.h>
 
-#include <new>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
@@ -253,14 +256,16 @@ int main(int argc, char *argv[]) {
             new (arr) Obj();
             arr[0].~Obj();
 
+#if defined(BDE_BUILD_TARGET_EXC)
+            if (verbose) printf("\nNegative Testing.\n");
             {
-                bsls::AssertFailureHandlerGuard hG(
-                                              bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 new (arr) Obj();
-                std::memmove(arr+1, arr, sizeof(Obj));
+                memmove(arr+1, arr, sizeof(Obj));
                 ASSERT_OPT_FAIL(arr[1].~Obj());
             }
+#endif
 
             scratch.deallocate(reinterpret_cast<void*>(arr));
         }
@@ -1097,7 +1102,7 @@ int main(int argc, char *argv[]) {
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                  } break;
+                  } return testStatus;                                // RETURN
                 }
 
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
@@ -1119,7 +1124,7 @@ int main(int argc, char *argv[]) {
                       } break;
                       default: {
                         ASSERTV(CONFIG, !"Bad allocator config.");
-                      } break;
+                      } return testStatus;                            // RETURN
                     }
                     ASSERTV(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
@@ -1278,7 +1283,6 @@ int main(int argc, char *argv[]) {
             switch (CONFIG) {
               case 'a': {
                 objAllocatorPtr = &da;
-
               } break;
               case 'b': {
                 objAllocatorPtr = &da;
@@ -1288,7 +1292,7 @@ int main(int argc, char *argv[]) {
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
-              } break;
+              } return testStatus;                                    // RETURN
             }
 
             bslma::TestAllocator&  oa = *objAllocatorPtr;
@@ -1310,7 +1314,7 @@ int main(int argc, char *argv[]) {
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                  } break;
+                  } return testStatus;                                // RETURN
                 }
                 ASSERTV(CONFIG, tam.isInUseUp());
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;

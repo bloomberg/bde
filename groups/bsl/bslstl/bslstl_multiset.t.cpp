@@ -941,6 +941,12 @@ class TestDriver {
         // *test* nothing.
 };
 
+template <class KEY>
+class StdAllocTestDriver : public TestDriver<KEY,
+                                             TestComparator<KEY>,
+                                             bsltf::StdTestAllocator<KEY> > {
+};
+
                                // --------------
                                // TEST APPARATUS
                                // --------------
@@ -950,8 +956,6 @@ int TestDriver<KEY, COMP, ALLOC>::ggg(bsl::multiset<KEY, COMP, ALLOC> *object,
                                       const char                      *spec,
                                       int                              verbose)
 {
-    bslma::DefaultAllocatorGuard guard(
-                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -6462,7 +6466,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STL ALLOCATOR
         // --------------------------------------------------------------------
-        RUN_EACH_TYPE(TestDriver,
+        RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase22,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
