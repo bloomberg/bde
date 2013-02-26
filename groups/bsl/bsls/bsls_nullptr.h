@@ -197,9 +197,10 @@ namespace bsl
     // We must define this 'typedef' appropriately for platforms that support
     // 'nullptr' to avoid accidental clashes in 'BSL_OVERRIDES_STD' mode.
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-    // Microsoft need this definition to support optionally building in /clr
-    //mode
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(__cplusplus_cli)
+    // MSVC in /clr mode defines 'nullptr' as the .NET null pointer type, which
+    // is different from C++11 'nullptr'.  To resolve this conflict MSVC
+    // provides '__nullptr' for C++11 'nullptr'.
 
     typedef decltype(__nullptr) nullptr_t;
 #else
