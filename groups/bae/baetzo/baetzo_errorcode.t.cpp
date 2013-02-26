@@ -245,28 +245,26 @@ if (veryVerbose)
 #define NL "\n"
             //line level spl    enumerator value          expected result
             //---- ----- --- ---------------------------  ------------------
-            { L_,    0,   4, Obj::BAETZO_UNSUPPORTED_ID,  "UNSUPPORTED_ID"NL },
+            { L_,    0,   4, Obj::BAETZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
 
             { L_,    0,   4, (Enum)(NUM_ENUMERATORS + 1), UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)-1,                    UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)-5,                    UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)99,                    UNKNOWN_FORMAT NL  },
 
-            { L_,    0,  -1, Obj::BAETZO_UNSUPPORTED_ID,  "UNSUPPORTED_ID"   },
-            { L_,    0,   0, Obj::BAETZO_UNSUPPORTED_ID,  "UNSUPPORTED_ID"NL },
-            { L_,    0,   2, Obj::BAETZO_UNSUPPORTED_ID,  "UNSUPPORTED_ID"NL },
+            { L_,    0,  -1, Obj::BAETZO_UNSUPPORTED_ID, "UNSUPPORTED_ID"    },
+            { L_,    0,   0, Obj::BAETZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
+            { L_,    0,   2, Obj::BAETZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
             { L_,    1,   1, Obj::BAETZO_UNSUPPORTED_ID,
-                                                         " UNSUPPORTED_ID"NL },
+                                                        " UNSUPPORTED_ID" NL },
             { L_,    1,   2, Obj::BAETZO_UNSUPPORTED_ID,
-                                                        "  UNSUPPORTED_ID"NL },
-            { L_,   -1,   2, Obj::BAETZO_UNSUPPORTED_ID,
-                                                        "UNSUPPORTED_ID"NL   },
-            { L_,   -2,   1, Obj::BAETZO_UNSUPPORTED_ID,
-                                                        "UNSUPPORTED_ID"NL   },
+                                                       "  UNSUPPORTED_ID" NL },
+            { L_,   -1,   2, Obj::BAETZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
+            { L_,   -2,   1, Obj::BAETZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
             { L_,    2,   1, Obj::BAETZO_UNSUPPORTED_ID,
-                                                        "  UNSUPPORTED_ID"NL },
+                                                       "  UNSUPPORTED_ID" NL },
             { L_,    1,   3, Obj::BAETZO_UNSUPPORTED_ID,
-                                                        "   UNSUPPORTED_ID"NL},
+                                                      "   UNSUPPORTED_ID" NL },
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

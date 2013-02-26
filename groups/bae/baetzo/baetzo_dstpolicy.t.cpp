@@ -244,9 +244,9 @@ if (veryVerbose)
 #define NL "\n"
             //line  level  spl    enumerator value        expected result
             //----  -----  ---  ----------------------    -----------------
-            { L_,     0,    4,  Obj::BAETZO_DST,          "DST"NL            },
-            { L_,     0,    4,  Obj::BAETZO_STANDARD,     "STANDARD"NL       },
-            { L_,     0,    4,  Obj::BAETZO_UNSPECIFIED,  "UNSPECIFIED"NL    },
+            { L_,     0,    4,  Obj::BAETZO_DST,          "DST" NL           },
+            { L_,     0,    4,  Obj::BAETZO_STANDARD,     "STANDARD" NL      },
+            { L_,     0,    4,  Obj::BAETZO_UNSPECIFIED,  "UNSPECIFIED" NL   },
 
             { L_,     0,    4,  (Enum)NUM_ENUMERATORS,    UNKNOWN_FORMAT NL  },
             { L_,     0,    4,  (Enum)-1,                 UNKNOWN_FORMAT NL  },
@@ -254,14 +254,14 @@ if (veryVerbose)
             { L_,     0,    4,  (Enum)99,                 UNKNOWN_FORMAT NL  },
 
             { L_,     0,   -1,  Obj::BAETZO_DST,         "DST"               },
-            { L_,     0,    0,  Obj::BAETZO_DST,         "DST"NL             },
-            { L_,     0,    2,  Obj::BAETZO_DST,         "DST"NL             },
-            { L_,     1,    1,  Obj::BAETZO_DST,         " DST"NL            },
-            { L_,     1,    2,  Obj::BAETZO_DST,         "  DST"NL           },
-            { L_,    -1,    2,  Obj::BAETZO_DST,         "DST"NL             },
-            { L_,    -2,    1,  Obj::BAETZO_DST,         "DST"NL             },
-            { L_,     2,    1,  Obj::BAETZO_DST,         "  DST"NL           },
-            { L_,     1,    3,  Obj::BAETZO_DST,         "   DST"NL          },
+            { L_,     0,    0,  Obj::BAETZO_DST,         "DST" NL            },
+            { L_,     0,    2,  Obj::BAETZO_DST,         "DST" NL            },
+            { L_,     1,    1,  Obj::BAETZO_DST,         " DST" NL           },
+            { L_,     1,    2,  Obj::BAETZO_DST,         "  DST" NL          },
+            { L_,    -1,    2,  Obj::BAETZO_DST,         "DST" NL            },
+            { L_,    -2,    1,  Obj::BAETZO_DST,         "DST" NL            },
+            { L_,     2,    1,  Obj::BAETZO_DST,         "  DST" NL          },
+            { L_,     1,    3,  Obj::BAETZO_DST,         "   DST" NL         },
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
