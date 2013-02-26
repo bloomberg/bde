@@ -12462,7 +12462,7 @@ void testCase4() {
 
                 // Test with invalid field value
                 {
-                    bdeut_NullableValue<double> errValue;
+                    bdet_Date errValue(2000, 1, 1);
 
                     rc = mX.setField(&errAgg, &error, f1, errValue);
                     LOOP_ASSERT(LINE, rc);
@@ -12587,7 +12587,7 @@ void testCase4() {
 
                 // Test with invalid field value
                 {
-                    bdeut_NullableValue<double> errValue;
+                    bdet_Date errValue(2000, 1, 1);
 
                     rc = mX.setField(&errAgg, &error, f2, f1, errValue);
                     LOOP_ASSERT(LINE, rc);
@@ -12718,7 +12718,7 @@ void testCase4() {
 
                 // Test with invalid field value
                 {
-                    bdeut_NullableValue<double> errValue;
+                    bdet_Date errValue(2000, 1, 1);
 
                     rc = mX.setField(&errAgg, &error, f3, f2, f1, errValue);
                     LOOP_ASSERT(LINE, rc);
@@ -12845,7 +12845,7 @@ void testCase4() {
 
                 // Test with invalid field value
                 {
-                    bdeut_NullableValue<double> errValue;
+                    bdet_Date errValue(2000, 1, 1);
 
                     rc = mX.setField(&errAgg, &error, f4, f3, f2,
                                      f1, errValue);
@@ -13113,7 +13113,7 @@ void testCase4() {
 
                 // Test with invalid field value
                 {
-                    bdeut_NullableValue<double> errValue;
+                    double errValue = 3.14;
 
                     rc = mX.setField(&errAgg, &error, f6,
                                      f5, f4, f3, f2, f1, errValue);
@@ -13267,7 +13267,7 @@ void testCase4() {
 
                 // Test with invalid field value
                 {
-                    bdeut_NullableValue<double> errValue;
+                    bdet_Date errValue(2000, 1, 1);
 
                     rc = mX.setField(&errAgg, &error, f7, f6,
                                      f5, f4, f3, f2, f1, errValue);
@@ -13430,7 +13430,7 @@ void testCase4() {
 
                 // Test with invalid field value
                 {
-                    bdeut_NullableValue<double> errValue;
+                    bdet_Date errValue(2000, 1, 1);
 
                     rc = mX.setField(&errAgg, &error, f8, f7, f6,
                                      f5, f4, f3, f2, f1, errValue);
@@ -13598,7 +13598,7 @@ void testCase4() {
 
                 // Test with invalid field value
                 {
-                    bdeut_NullableValue<double> errValue;
+                    bdet_Date errValue(2000, 1, 1);
 
                     rc = mX.setField(&errAgg, &error, f9, f8, f7, f6,
                                      f5, f4, f3, f2, f1, errValue);
@@ -13775,7 +13775,7 @@ void testCase4() {
 
                 // Test with invalid field value
                 {
-                    bdeut_NullableValue<double> errValue;
+                    bdet_Date errValue(2000, 1, 1);
 
                     rc = mX.setField(&errAgg, &error, f10, f9, f8, f7, f6,
                                      f5, f4, f3, f2, f1, errValue);
@@ -14543,7 +14543,7 @@ void testCase3() {
                 // Test with invalid field value
                 {
                     if (s.numRecords() > 1 || ET::BDEM_STRING != TYPE) {
-                        bdeut_NullableValue<double> errValue;
+                        bdeut_NullableValue<double> errValue(3.14);
 
                         Obj err;
                         rc = mX.setField(&err, &error, fldName, errValue);
