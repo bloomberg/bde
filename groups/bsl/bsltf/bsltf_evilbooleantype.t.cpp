@@ -20,8 +20,8 @@ using namespace BloombergLP::bsltf;
 //*[  ] EvilBooleanType(bool value);
 //*[  ] operator BoolResult() const;
 //*[  ] EvilBooleanType operator!() const;
-//*[  ] EvilBooleanType operator==(const EvilBooleanType&, const EvilBooleanType&);
-//*[  ] EvilBooleanType operator!=(const EvilBooleanType&, const EvilBooleanType&);
+//*[  ] EvilBooleanType operator==(EvilBooleanType, EvilBooleanType);
+//*[  ] EvilBooleanType operator!=(EvilBooleanType, EvilBooleanType);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 //*[ 2] USAGE EXAMPLE
