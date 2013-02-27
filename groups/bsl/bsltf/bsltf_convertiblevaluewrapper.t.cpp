@@ -108,6 +108,29 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        bsltf::ConvertibleValueWrapper<int>    mX = 13;
+        bsltf::ConvertibleValueWrapper<double> mY = 3.14159;
+        const bsltf::ConvertibleValueWrapper<int>    X = mX;
+        const bsltf::ConvertibleValueWrapper<double> Y = mY;
+
+        int i = X;
+        ASSERTV(i, 13 == i);
+
+        double d = Y;
+        ASSERTV(d, 3.14159 == d);
+
+        ASSERT(mX ==  X);
+        ASSERT( Y == mY);
+        ASSERT(13 == mX);
+
+        struct LocalFunction {
+            static void call(const bsltf::ConvertibleValueWrapper<int> &) {}
+                // Dummy function to simply take a value convertible from an
+                // 'int'.  Note that there is no observable behavior.
+        };
+
+        LocalFunction::call(42);
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
