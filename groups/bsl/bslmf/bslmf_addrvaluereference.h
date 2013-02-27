@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time type transformation to rvalue reference.
 //
 //@CLASSES:
-//  bsl::add_rvalue_reference: standard meta-function for transforming type
+//  bsl::add_rvalue_reference: standard meta-function for transforming types
 //
 //@SEE_ALSO: bslmf_integralconstant, bslmf_addlvaluereference
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::add_rvalue_reference', which may be used to transform a type to its
+// 'bsl::add_rvalue_reference', that may be used to transform a type to its
 // rvalue reference type.
 //
 // 'bsl::add_rvalue_reference' meets the requirements of the
@@ -30,12 +30,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Transform to Rvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a couple of types to rvalue reference
-// types.
+// Suppose that we want to transform some types to rvalue reference types.
 //
-// Now, we instantiate the 'bsl::add_rvalue_reference' template for these
-// types, and use the 'bsl::is_same' meta-function to assert the 'type' static
-// data member of each instantiation:
+// Now, for a set of types, we transform each type to the corresponding rvalue
+// reference of that type using 'bsl::add_rvalue_reference' and verify the
+// result:
 //..
 //#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 //  assert(true  ==
@@ -48,8 +47,10 @@ BSLS_IDENT("$Id: $")
 //       (bsl::is_same<bsl::add_rvalue_reference<int&&>::type, int&&>::value));
 //#endif
 //..
-// Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.
+// Note that rvalue reference was introduced in C++11 and may not be supported
+// by all compilers.  Note also that according to 'reference collapsing'
+// semantics [8.3.2], 'add_rvalue_reference' does not transform 'TYPE' to
+// rvalue reference type if 'TYPE' is an lvalue reference type.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -65,21 +66,58 @@ namespace bsl {
 
 template <class TYPE>
 struct add_rvalue_reference {
+    // This 'struct' template implements a meta-function to transform the
+    // (template parameter) 'TYPE' to its rvalue reference type.
+
+    // PUBLIC TYPES
     typedef TYPE&& type;
+        // This 'typedef' is an alias to the return value of this
+        // meta-function.
 };
 
-#define BSL_DEFINE_ADD_RVALUE_REFERENCE(TYPE, REF_TYPE) \
-template <>                                             \
-struct add_rvalue_reference<TYPE> {                     \
-    typedef REF_TYPE type;                              \
-}                                                       \
+template <>
+struct add_rvalue_reference<void> {
+    // This partial specialization of 'add_rvalue_reference' defines the return
+    // type when it is instantiated with the 'void' type.
 
-BSL_DEFINE_ADD_RVALUE_REFERENCE(void, void);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(void const, void const);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(void volatile, void volatile);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(void const volatile, void const volatile);
+    // PUBLIC TYPES
+    typedef void type;
+        // This 'typedef' is an alias to the return value of this
+        // meta-function.
+}
 
-#undef BSL_DEFINE_ADD_RVALUE_REFERENCE
+template <>
+struct add_rvalue_reference<void const> {
+    // This partial specialization of 'add_rvalue_reference' defines the return
+    // type when it is instantiated with the 'void const' type.
+
+    // PUBLIC TYPES
+    typedef void const type;
+        // This 'typedef' is an alias to the return value of this
+        // meta-function.
+}
+
+template <>
+struct add_rvalue_reference<void volatile> {
+    // This partial specialization of 'add_rvalue_reference' defines the return
+    // type when it is instantiated with the 'void volatile' type.
+
+    // PUBLIC TYPES
+    typedef void volatile type;
+        // This 'typedef' is an alias to the return value of this
+        // meta-function.
+}
+
+template <>
+struct add_rvalue_reference<void const volatile> {
+    // This partial specialization of 'add_rvalue_reference' defines the return
+    // type when it is instantiated with the 'void const volatile' type.
+
+    // PUBLIC TYPES
+    typedef void const volatile type;
+        // This 'typedef' is an alias to the return value of this
+        // meta-function.
+}
 
 #endif
 

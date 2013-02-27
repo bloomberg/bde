@@ -1,6 +1,6 @@
 // bslmf_integralconstant.t.cpp                                       -*-C++-*-
 
-#include "bslmf_integralconstant.h"
+#include <bslmf_integralconstant.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -222,7 +222,7 @@ template <class T> inline bool isConst(const T&) { return true; }
 // This section illustates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
-/// - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - -
 // The most common use of this structure is to perform compile-time function
 // dispatching based on a compile-time calculation.  Often the calculation is
 // nothing more than a simple predicate, allowing us to select one of two
@@ -235,25 +235,25 @@ template <class T> inline bool isConst(const T&) { return true; }
 // 'integral_constant<bool, false>', respectively.
 //..
       #include <bslmf_integralconstant.h>
-  
+
       template <class T>
       int doSomethingImp(T *t, bsl::true_type)
       {
           // slow, generic implementation
           // ...
           (void) t;
-          return 11; 
+          return 11;
       }
-  
+
       template <class T>
       int doSomethingImp(T *t, bsl::false_type)
       {
           // fast implementation that works only for some types of T
           // ...
           (void) t;
-          return 55; 
+          return 55;
       }
-  
+
       template <bool IsSlow, class T>
       int doSomething(T *t)
       {
@@ -270,11 +270,11 @@ template <class T> inline bool isConst(const T&) { return true; }
       int usageExample1()
       {
           int r;
-  
+
           int i;
           r = doSomething<false>(&i);   // select fast version for int
           ASSERT(55 == r);
-  
+
           double m;
           r = doSomething<true>(&m); // select slow version for double
           ASSERT(11 == r);
@@ -283,7 +283,7 @@ template <class T> inline bool isConst(const T&) { return true; }
       }
 //..
 ///Example 2: Base class for metafunctions
-/// - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - -
 // Hard-coding the value of an 'integral_constant' is not especially useful.
 // Rather, 'integral_constant' is typically used as the base class for
 // "metafunction" classes, classes that yield the value of compile-time
@@ -314,15 +314,15 @@ template <class T> inline bool isConst(const T&) { return true; }
           const bool isSlow = IsFloatingPoint<T>::value;
           return doSomethingImp(t, bsl::integral_constant<bool, isSlow>());
       }
-  
+
       int usageExample2()
       {
           int r;
-  
+
           int i;
           r = doSomething2(&i); // select fast version for int
           ASSERT(55 == r);
-  
+
           double m;
           r = doSomething2(&m); // select slow version for double
           ASSERT(11 == r);
@@ -447,7 +447,7 @@ int main(int argc, char *argv[])
                            bsl::integral_constant<bool, false> >::VALUE));
         ASSERT((IsSameType<bsl::true_type,
                            bsl::integral_constant<bool, true> >::VALUE));
-        
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
         //: 6 'integral_constant<TYPE, VAL>' is copy constructible such that
         //:   the copy constructor has exactly the same behavior as the default
         //:   constructor (i.e., the argument to the copy constructor is
-        //:   ignored). 
+        //:   ignored).
         //:
         //: 7 'integral_constant<TYPE, VAL>' is assignable, though the
         //:   assignment operator has no effect.
@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
         fullTest<signed char, 0>("signed char");
         fullTest<signed char, -128>("signed char");
         fullTest<signed char, 127>("signed char");
-        
+
         fullTest<short, -5>("short");
         fullTest<short, SHRT_MIN>("short");
         fullTest<short, SHRT_MAX>("short");
@@ -624,7 +624,7 @@ int main(int argc, char *argv[])
         ASSERT((! IsSameType<DummyType, int>::VALUE));
         ASSERT((! IsSameType<DummyType, char>::VALUE));
         ASSERT((  IsSameType<DummyType, DummyType>::VALUE));
-                             
+
         ASSERT((  IsSameType<               int,                int>::VALUE));
         ASSERT((! IsSameType<               int, const          int>::VALUE));
         ASSERT((! IsSameType<               int,       volatile int>::VALUE));
@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
         ASSERT(  isConst(ci));
         ASSERT(! isConst(vi));
         ASSERT(  isConst(cvi));
-        
+
         ASSERT(! isConst(d));
         ASSERT(  isConst(D));
 

@@ -1,10 +1,10 @@
 // bslmf_addcv.t.cpp                                                  -*-C++-*-
 #include <bslmf_addcv.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -19,12 +19,12 @@ using std::atoi;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function, 'bsl::add_cv', that adds a
-// top-level 'const'-qualifier and a 'volatile'-qualifier to a template
-// parameter type.  Thus, we need to ensure that the values returned by the
-// meta-function is correct for each possible category of types.
+// top-level 'const'-qualifier and a top-level 'volatile'-qualifier to a
+// template parameter type.  Thus, we need to ensure that the values returned
+// by the meta-function are correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
+// PUBLIC TYPES
 // [ 1] bsl::add_cv::type
 //
 // ----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding a 'const'-qualifier and 'volatile'-qualifier to a Type
+///Example 1: Adding a 'const'-Qualifier and a 'volatile'-Qualifier to a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to add a 'const'-qualifier and a 'volatile'-qualifier
 // to a particular type.
@@ -143,11 +143,11 @@ int main(int argc, char *argv[])
         //   type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::add_cv' adds a top-level 'const'-qualifier and a
+        //: 1 'bsl::add_cv' adds a top-level 'const'-qualifier and a top-level
         //:   'volatile'-qualifier only to regular types (primitive, pointers,
         //:   and user-defined types).
         //:
-        //: 2 'bsl::add_cv' does not add a 'const'-qualifier nor
+        //: 2 'bsl::add_cv' does not add a 'const'-qualifier nor a
         //:   'volatile'-qualifier to reference types, function types, or types
         //:   that are already both 'const'-qualified and 'volatile'-qualified.
         //

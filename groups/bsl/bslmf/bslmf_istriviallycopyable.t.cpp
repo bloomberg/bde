@@ -1,6 +1,6 @@
 // bslmf_istriviallycopyable.t.cpp                                    -*-C++-*-
 
-#include "bslmf_istriviallycopyable.h"
+#include <bslmf_istriviallycopyable.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -18,7 +18,7 @@ using std::atoi;
 //                                --------
 // The component under test defines a meta-function,
 // 'bsl::is_trivially_copyable', that determines whether a template parameter
-// type is trivially copyable.  By defualt, the meta-function supports a
+// type is trivially copyable.  By default, the meta-function supports a
 // restricted set of type categories and can be extended to support other types
 // through either template specialization or use of the
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
@@ -35,7 +35,7 @@ using std::atoi;
 //
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
-// [ 2] EXTENDING bsl::is_trivially_copyable::value
+// [ 2] EXTENDING bsl::is_trivially_copyable
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -169,9 +169,6 @@ int main(int argc, char *argv[])
 {
     int test                = argc > 1 ? atoi(argv[1]) : 0;
     int verbose             = argc > 2;
-    int veryVerbose         = argc > 3;
-    int veryVeryVerbose     = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -194,7 +191,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
-                              "\n=============\n");
+                            "\n=============\n");
 
 ///Usage
 ///-----
@@ -225,7 +222,7 @@ int main(int argc, char *argv[])
 //  template <>
 //  struct is_trivially_copyable<MyTriviallyCopyableType> : bsl::true_type {
 //      // This template specialization for 'is_trivially_copyable' indicates
-//      // that 'MyTriviallyCopyableType' is a trivially copyable.
+//      // that 'MyTriviallyCopyableType' is a trivially copyable type.
 //  };
 //
 //  }  // close namespace bsl
@@ -294,7 +291,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 The meta-function returns 'true' for fundamental types.
         //:
-        //: 3 The meta-function returns 'true' for enum types.
+        //: 3 The meta-function returns 'true' for enumerated types.
         //:
         //: 4 The meta-function returns 'true' for pointer types.
         //:
@@ -342,11 +339,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

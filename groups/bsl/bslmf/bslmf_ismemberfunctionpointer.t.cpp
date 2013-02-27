@@ -149,6 +149,21 @@ typedef int (StructTestType::*MethodPtrTestType10) (int, int, int, int, int,
     // for testing as the template parameter 'TYPE' of
     // 'bsl::is_member_function_pointer'.
 
+typedef int (StructTestType::*ConstMethodPtrTestType) (int) const;
+    // This pointer to non-static 'const' member function type is intended to
+    // be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*VolatileMethodPtrTestType) (int) volatile;
+    // This pointer to non-static 'volatile' member function type is intended
+    // to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*CVMethodPtrTestType) (int) const volatile;
+    // This pointer to non-static 'const volatile' member function type is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
 typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
@@ -388,30 +403,42 @@ int main(int argc, char *argv[])
            bsl::is_member_function_pointer, MethodPtrTestType9,         false);
         TYPE_ASSERT_CVQ_REF(
            bsl::is_member_function_pointer, MethodPtrTestType10,        false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, ConstMethodPtrTestType,     false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, VolatileMethodPtrTestType,  false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, CVMethodPtrTestType,        false);
 
         // C-4
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType0,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType0,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType1,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType1,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType2,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType2,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType3,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType3,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType4,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType4,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType5,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType5,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType6,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType6,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType7,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType7,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType8,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType8,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType9,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType9,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType10, true);
+             bsl::is_member_function_pointer, MethodPtrTestType10,       true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, ConstMethodPtrTestType,    true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, VolatileMethodPtrTestType, true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, CVMethodPtrTestType,       true);
 
         // C-5
         TYPE_ASSERT_CVQ_PREFIX(

@@ -1,6 +1,6 @@
 // bslmf_isbitwiseequalitycomparable.t.cpp                  -*-C++-*-
 
-#include "bslmf_isbitwiseequalitycomparable.h"
+#include <bslmf_isbitwiseequalitycomparable.h>
 
 #include <new>
 #include <cstdio>

@@ -1,9 +1,10 @@
 // bslmf_conditional.t.cpp                                            -*-C++-*-
 #include <bslmf_conditional.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <cstdio>     // 'printf'
 #include <cstdlib>    // 'atoi'
@@ -17,12 +18,12 @@ using namespace std;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function, 'bsl::conditional', that
-// transforms to one of the two template parameter types based on its 'bool'
-// template parameter value.  Thus we need to ensure that the value returned by
-// this meta-functions is correct for each possible pair of types.
+// conditionally selects to one of its two template parameter types based on a
+// 'bool' (template parameter) value.  Thus, we need to ensure that the values
+// returned by this meta-function are correct for each possible set of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
+// PUBLIC TYPES
 // [ 1] bsl::conditional::type
 //
 // ----------------------------------------------------------------------------
@@ -156,20 +157,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Conditional Type Transformation Based on Boolean Value
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to select between two types, 'int' and 'char', based on
-// 'bool' value.  If the 'bool' value is 'true', the 'int' type is returned;
-// otherwise the 'char' type is returned.
+///Example 1: Conditionally Select From Two Types
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to select between two types based on a 'bool' value.
 //
-// Now, we instantiate the 'bsl::conditional' template using 'int', 'char', and
-// each of the two 'bool' values.  We use the 'bsl::is_same' meta-function to
-// assert the 'type' static data member of each instantiation:
+// Now, we use 'bsl::conditional' to select between two types, 'int' and
+// 'char', with a 'bool' value.  When the 'bool' is 'true', we select 'int';
+// otherwise, we select 'char'.  We verify that our code behaves correctly by
+// asserting the result of 'bsl::conditional' with the expected type using
+// 'bsl::is_same':
 //..
     ASSERT(true ==
         (bsl::is_same<bsl::conditional<true,  int, char>::type, int >::value));
@@ -181,17 +181,21 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::conditional::type'
-        //   Ensure that the static data member 'type' of 'bsl::conditional'
-        //   instantiations has the correct value.
+        //   Ensure that each 'typedef' 'type' of 'bsl::conditional'
+        //   instantiations has the correct return value.
         //
         // Concerns:
-        //: 1 'conditional::type' correctly transforms to one of the two
-        //:   template parameter types when a 'true' or 'false' is set as its
-        //:   'bool' template parameter type value.
+        //: 1 'bsl::conditional' selects the first of its two (template
+        //:   parameter) types when the (template parameter) value 'COND' is
+        //:   'true'.
+        //:
+        //: 2 'bsl::conditional' selects the second of its two (template
+        //:   parameter) types when the (template parameter) value 'COND' is
+        //:   'false'.
         //
         // Plan:
         //   Instantiate 'bsl::conditional' with various types and verify that
-        //   the 'type' member is initialized properly.  (C-1)
+        //   the 'type' member is initialized properly.  (C-1..2)
         //
         // Testing:
         //   bsl::conditional::type
@@ -199,7 +203,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("bsl::conditional::type\n"
                             "======================\n");
-        // C-1
 
         ASSERT_SAME_CV(   int ,  char);
         ASSERT_SAME_CV(  void*,  Enum);
