@@ -635,8 +635,11 @@ int main(int argc, char *argv[])
                      << "." << endl;
             }
         }
+#else
+        if (verbose) {
+            cout << "Skipping case 4 on Windows and Cygwin..." << endl;
+        }
 #endif
-
       } break;
       case 3: {
         // --------------------------------------------------------------------

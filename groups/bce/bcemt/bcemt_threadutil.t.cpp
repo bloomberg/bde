@@ -687,9 +687,10 @@ int main(int argc, char *argv[])
         // Spawning threads fails on HP-UX and Cygwin unless
         // 'inheritSchedule == true'.
 
-        if (1) break;
-#endif
-
+        if (verbose) {
+            cout << "Skipping case 11 on HP-UX and Cygwin..." << endl;
+        }
+#else
         using namespace MULTIPRIORITY_USAGE_TEST_CASE;
 
         enum { NUM_THREADS = 3 };
@@ -721,6 +722,7 @@ int main(int argc, char *argv[])
             int rc = bcemt_ThreadUtil::join(handles[i]);
             ASSERT(0 == rc);
         }
+#endif
       }  break;
       case 10: {
         // --------------------------------------------------------------------

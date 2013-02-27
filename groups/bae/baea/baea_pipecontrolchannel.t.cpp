@@ -314,8 +314,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // Child process for case 10
         // --------------------------------------------------------------------
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
-        cout << "Skipping case -10 on Windows and Cygwin..." << endl;
+        if (verbose) {
+            cout << "Skipping case -10 on Windows and Cygwin..." << endl;
+        }
 #else
         if (argc != 5 ||
             (argv[2][0] != 'Y' &&
@@ -374,7 +377,9 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
 #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
-        cout << "Skipping case 10 on Windows and Cygwin..." << endl;
+        if (verbose) {
+            cout << "Skipping case 10 on Windows and Cygwin..." << endl;
+        }
 #else
         if (verbose) {
             cout << "EINTR test" << endl
@@ -509,8 +514,11 @@ int main(int argc, char *argv[])
         // cannot open the same pipe or interfere with its operation.
         //
         //---------------------------------------------------------------------
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
-        cout << "Skipping case 9 on Windows and Cygwin..." << endl;
+        if (verbose) {
+            cout << "Skipping case 9 on Windows and Cygwin..." << endl;
+        }
 #else
         if (verbose) {
             cout << "Pipe-in-use safety test" << endl
@@ -596,8 +604,11 @@ int main(int argc, char *argv[])
         // subsequently crashes, another process can then open the
         // same named pipe.
         //---------------------------------------------------------------------
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
-        cout << "Skipping case 8 on Windows and Cygwin..." << endl;
+        if (verbose) {
+            cout << "Skipping case 8 on Windows and Cygwin..." << endl;
+        }
 #else
         if (verbose) {
             cout << "Crash recovery test: \"Bus Error\" is OK" << endl
@@ -666,8 +677,11 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+
 #if defined(BSLS_PLATFORM_OS_CYGWIN)
-        cout << "Skipping case 7 on Cygwin..." << endl;
+        if (verbose) {
+            cout << "Skipping case 7 on Cygwin..." << endl;
+        }
 #else
         if (verbose) {
             cout << "Usage Example" << endl
@@ -729,8 +743,11 @@ int main(int argc, char *argv[])
         // Testing:
         //   Concurrent writes
         // --------------------------------------------------------------------
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
-        cout << "Skipping case 6 on Windows and Cygwin..." << endl;
+        if (verbose) {
+            cout << "Skipping case 6 on Windows and Cygwin..." << endl;
+        }
 #else
         if (verbose) {
             cout << "TESTING CONCERN: CONCURRENT WRITES" << endl
@@ -812,8 +829,11 @@ int main(int argc, char *argv[])
         // Testing:
         //   Reading data from the named pipe
         // --------------------------------------------------------------------
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
-        cout << "Skipping case 5 on Windows and Cygwin..." << endl;
+        if (verbose) {
+            cout << "Skipping case 5 on Windows and Cygwin..." << endl;
+        }
 #else
         if (verbose) {
             cout << "TESTING CONCERN: READING DATA FROM NAMED PIPE" << endl

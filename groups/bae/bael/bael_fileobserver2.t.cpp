@@ -1541,6 +1541,10 @@ int main(int argc, char *argv[])
             removeFilesByPrefix(smallFile.c_str());
             multiplexObserver.deregisterObserver(&mX);
         }
+#else
+        if (verbose) {
+            cout << "Skipping case 4 on Windows and Cygwin..." << endl;
+        }
 #endif
       } break;
       case 3: {

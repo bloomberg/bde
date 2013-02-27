@@ -1427,10 +1427,10 @@ int main(int argc, char *argv[])
             // their differences taken, and those differences compared to
             // whatever constants are involved.
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BSLS_PLATFORM_OS_CYGWIN)
-            ASSERT(wt2 - wt1 >= shortSleep * nsecsPerSec);
-#else
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT(wt2 - wt1 + windowsFudge >= shortSleep * nsecsPerSec);
+#else
+            ASSERT(wt2 - wt1 >= shortSleep * nsecsPerSec);
 #endif
                                                // Did we sleep long enough?
 
@@ -1561,16 +1561,16 @@ int main(int argc, char *argv[])
 
             ASSERT(st2 - st1 >= 0);     // And system time did not go backward.
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BSLS_PLATFORM_OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
+            ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1)
+                                   + 10 * windowsFudge + 2 * timeQuantum >= 0);
+#else
             ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1) +
                                                          2 * timeQuantum >= 0);
                                         // And our wall time was greater than
                                         // our user and system time together,
                                         // allowing for quantization error
                                         // (in both user and system time).
-#else
-            ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1)
-                                  + 10 * windowsFudge + 2 * timeQuantum >= 0);
 #endif
 
         }

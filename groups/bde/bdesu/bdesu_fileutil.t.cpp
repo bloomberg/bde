@@ -1075,6 +1075,10 @@ int main(int argc, char *argv[])
                 bdesu_FileUtil::close(fdSuccess);
             }
         }
+#else
+        if (verbose) {
+            cout << "Skipping case 10 on Windows and Cygwin..." << endl;
+        }
 #endif
       } break;
       case 9: {

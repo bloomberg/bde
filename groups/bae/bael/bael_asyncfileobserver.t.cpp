@@ -840,6 +840,10 @@ int main(int argc, char *argv[])
             removeFilesByPrefix(stderrFN.c_str());
             removeFilesByPrefix(fn.c_str());
         }
+#else
+        if (verbose) {
+            cout << "Skipping case 5 on Windows and Cygwin..." << endl;
+        }
 #endif
       } break;
       case 4: {
