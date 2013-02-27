@@ -691,7 +691,7 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CPU_X86)
 
-#   if defined(BSLS_PLATFORM_CMP_GNU)
+#   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #       include <bsls_atomicoperations_x86_all_gcc.h>
 #   elif defined(BSLS_PLATFORM_CMP_MSVC)
 #       include <bsls_atomicoperations_x86_win_msvc.h>
@@ -701,7 +701,7 @@ BSLS_IDENT("$Id: $")
 
 #elif defined(BSLS_PLATFORM_CPU_X86_64)
 
-#   if defined(BSLS_PLATFORM_CMP_GNU)
+#   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #       include <bsls_atomicoperations_x64_all_gcc.h>
 #   elif defined(BSLS_PLATFORM_CMP_MSVC)
 #       include <bsls_atomicoperations_x64_win_msvc.h>
