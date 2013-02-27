@@ -3914,7 +3914,7 @@ int main(int argc, char *argv[])
                     }
 
                     {                                   // Null allocator.
-                        const Obj Y1(X, (bslma_Allocator *) 0);
+                        const Obj Y1(X, (bslma::Allocator *) 0);
                         LOOP2_ASSERT(SPEC, PERTURB[ei],
                                      functionsHaveSameValue(W, Y1));
                         LOOP2_ASSERT(SPEC, PERTURB[ei],
@@ -5248,7 +5248,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Load a 'bdef_Function' object with a nop functor and call it
-        //   repeatdly.  Time how long this takes.
+        //   repeatedly.  Time how long this takes.
         // --------------------------------------------------------------------
 
         cout << "'bdef_Function' nop benchmark\n"

@@ -2,7 +2,7 @@
 #ifndef INCLUDED_BDEF_BIND_TEST5
 #define INCLUDED_BDEF_BIND_TEST5
 
-//@PURPOSE: Provide a test sequence for 'bdef_bind' with 5 arguments
+//@PURPOSE: Provide a test sequence for 'bdef_bind' with 5 arguments.
 //
 //@CLASSES:
 //

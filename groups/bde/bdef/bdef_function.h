@@ -538,7 +538,7 @@ class bdef_Function_Rep {
     };
 
     // CREATORS
-    bdef_Function_Rep(bslma::Allocator *allocator = 0);
+    explicit bdef_Function_Rep(bslma::Allocator *allocator = 0);
         // Create an unset functor using the specified 'allocator' to supply
         // memory.  If 'allocator' is 0, the currently installed default
         // allocator is used.

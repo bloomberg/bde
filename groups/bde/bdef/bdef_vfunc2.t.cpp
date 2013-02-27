@@ -17,7 +17,7 @@ using namespace bsl;  // automatically added by script
 //                              Overview
 //                              --------
 // The 'bdef_Vfunc2' class holds a pointer to an instance of a 'bdefr_Vfunc2'
-// (an abstact class), and manipulates it appropriately.  Our main objective
+// (an abstract class), and manipulates it appropriately.  Our main objective
 // is to make sure that the 'bdefr_Vfunc2' object is initialized correctly and
 // that its integer data (the reference count) is modified by the methods of
 // 'bdef_Vfunc2' as expected.
@@ -81,7 +81,7 @@ class FunctorRep : public bdefr_Vfunc2<A1, A2> {
     // It mimics the behavior of classes in 'bdefi' with one exception: it
     // allows to count the number of time the 'execute' function has been
     // called, which is used to verify that different functors, that are
-    // supposed to share the implementation (as a result of copy constrution
+    // supposed to share the implementation (as a result of copy construction
     // or assignment) indeed share the implementation.
 
     F  d_f;  // function pointer or function object (functor)
@@ -389,12 +389,12 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT OPERATOR
         //
         //   We need to test the following six cases:
-        //    a. Assignment to uninitialized object from unitialized object.
-        //    b. Assignment to initialized object from unitialized object.
-        //    c. Assignment of unitialized object to self.
-        //    d. Assignment to uninitialized object from itialized object.
-        //    e. Assignment to initialized object from itialized object.
-        //    f. Assignment of itialized object to self.
+        //    a. Assignment to uninitialized object from uninitialized object.
+        //    b. Assignment to initialized object from uninitialized object.
+        //    c. Assignment of uninitialized object to self.
+        //    d. Assignment to uninitialized object from initialized object.
+        //    e. Assignment to initialized object from initialized object.
+        //    f. Assignment of initialized object to self.
         //
         //   We have the following specific concerns for each case:
         //    1. The assignment operator fully initializes the object

@@ -7,7 +7,6 @@
 #endif
 BDES_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide a signature-specific function object (functor).
 //
 //@CLASSES:
@@ -93,6 +92,7 @@ class bdef_Vfunc5 {
     bdefr_Vfunc5<A1, A2, A3, A4, A5> *d_rep_p;
         // polymorphic functor representation
 
+  private:
     // NOT IMPLEMENTED
     bool operator==(const bdef_Vfunc5&) const;
     bool operator!=(const bdef_Vfunc5&) const;

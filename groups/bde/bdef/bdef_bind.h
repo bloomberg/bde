@@ -983,7 +983,8 @@ struct bdef_Bind_BoundTuple1 : public bslmf::TypeList1<A1>
     {
     }
 
-    bdef_Bind_BoundTuple1(A1 const& a1, bslma::Allocator *allocator = 0)
+    explicit bdef_Bind_BoundTuple1(A1 const& a1,
+                                   bslma::Allocator *allocator = 0)
     : d_a1(a1, allocator)
     {
     }
@@ -4014,8 +4015,10 @@ class bdef_Bind_MemFnObjectWrapper {
                                   bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
-    bdef_Bind_MemFnObjectWrapper(TYPE  *object) : d_object(object) {}
-    bdef_Bind_MemFnObjectWrapper(TYPE&  object) : d_object(&object) {}
+    bdef_Bind_MemFnObjectWrapper(TYPE  *object)                     // IMPLICIT
+    : d_object(object) {}
+    bdef_Bind_MemFnObjectWrapper(TYPE&  object)                     // IMPLICIT
+    : d_object(&object) {}
         // Implicitly converts the specified object (of parameterized 'TYPE')
         // to a 'bdef_Bind_MemFnObjectWrapper'.
 

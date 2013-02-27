@@ -165,16 +165,16 @@ BDES_IDENT("$Id: $")
 #include <bslalg_constructorproxy.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_HASTRAIT
+#include <bslalg_hastrait.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
 #include <bslalg_typetraithaspointersemantics.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
@@ -977,10 +977,10 @@ template <class PROTOTYPE, class INSTANCE>
 inline
 bdef_MemFnInstance<PROTOTYPE, INSTANCE>::bdef_MemFnInstance(
                                               PROTOTYPE         func,
-                                              const INSTANCE&   obj,
+                                              const INSTANCE&   object,
                                               bslma::Allocator *basicAllocator)
 : d_func_p(func)
-, d_obj(obj, bslma::Default::allocator(basicAllocator))
+, d_obj(object, bslma::Default::allocator(basicAllocator))
 {
 }
 
