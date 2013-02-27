@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an enumerated test type.
+//@PURPOSE: Provide a wrapper class, convtertible to a supplied value.
 //
 //@CLASSES:
 //   bsltf::ConvertibleValueWrapper: wrapper of a value semantic class
@@ -16,7 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
-//@DESCRIPTION: This component provides ... (TBD)
+//@DESCRIPTION: This component provides that wraps a value semantic type
+// specified by the user, holding a value of the specified type, and implicitly
+// convertible to the wrapped value.  This supports simple testing of function
+// templates whose contract requires a type that is "convertible to the
+// specified type".  It also ensures that this uses up the one user-defined
+// conversion in permitted in the conversion sequence, rather than accidentally
+// relying on a built-in conversion such as type promotion.
 //
 ///Usage
 ///-----
@@ -47,12 +53,15 @@ struct ConvertibleValueWrapper {
   public:
     // CREATORS
     ConvertibleValueWrapper(const TYPE& value);                     // IMPLICIT
+        // Create an object wrapping the specified 'value'.
 
     // MANIPULATORS
     operator       TYPE&();
+        // Return a reference to the (modifiable) wrapped value.
 
     // ACCESSORS
     operator const TYPE&() const;
+        // Return a reference to the (non-modifiable) wrapped value.
 };
 
 
