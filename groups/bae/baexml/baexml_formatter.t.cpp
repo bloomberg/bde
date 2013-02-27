@@ -693,10 +693,26 @@ int main(int argc, char *argv[])
         // TESTING that add* functions invalidate the stream on failure
         //
         // Concerns:
+        //: 1 That the add* functions, 'addData', 'addListData', and
+        //:   'addAttribute' invalidate the stream on error.
         //
-        // Plans:
+        // Plan:
+        //: 1 Create a 'ostringstream' object, ss.
+        //:
+        //: 2 Create a 'baexml_Formatter' object and associate 'ss' with it.
+        //:
+        //: 3 Invoke one of the functions under test passing either an invalid
+        //:   value or an incorrect formatting mode.
+        //:
+        //: 4 Verify that 'ss' is invalid after the call.
+        //:
+        //: 5 Repeat steps 1-4 for all the functions under test and for all
+        //:   the error conditions.
         //
         // Testing:
+        //   void addData(const TYPE& value, int formattingMode);
+        //   void addListData(const TYPE& value, int formattingMode);
+        //   void addAttribute(name, const TYPE& value, int formattingMode);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -805,9 +821,6 @@ int main(int argc, char *argv[])
                 bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
-                mX.openElement("test");
-                ASSERT( ss.good());
-
                 mX.addAttribute("test", value);
                 ASSERT(!ss.good());
             }
@@ -820,9 +833,6 @@ int main(int argc, char *argv[])
                 bsl::ostringstream   ss;
                 Obj mX(ss);  const Obj& X = mX;
 
-                mX.openElement("test");
-                ASSERT( ss.good());
-
                 mX.addAttribute("test", value);
                 ASSERT(!ss.good());
             }
@@ -833,9 +843,6 @@ int main(int argc, char *argv[])
 
                 bsl::ostringstream   ss;
                 Obj mX(ss);  const Obj& X = mX;
-
-                mX.openElement("test");
-                ASSERT( ss.good());
 
                 mX.addAttribute("test", value, 0xFFFFFFFF);
                 ASSERT(!ss.good());
