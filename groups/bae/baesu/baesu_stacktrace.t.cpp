@@ -11,6 +11,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
