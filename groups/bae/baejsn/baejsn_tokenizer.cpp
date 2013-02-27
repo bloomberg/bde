@@ -193,18 +193,6 @@ int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
     return 0;
 }
 
-// CREATORS
-baejsn_Tokenizer::baejsn_Tokenizer(bslma::Allocator *basicAllocator)
-: d_allocator(d_buffer, BAEJSN_BUFSIZE, basicAllocator)
-, d_stringBuffer(&d_allocator)
-, d_streamBuf_p(0)
-, d_cursor(0)
-, d_tokenType(BAEJSN_BEGIN)
-, d_context(BAEJSN_OBJECT_CONTEXT)
-{
-    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
-}
-
 // MANIPULATORS
 int baejsn_Tokenizer::advanceToNextToken()
 {
