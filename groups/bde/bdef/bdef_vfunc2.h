@@ -1,4 +1,4 @@
-// bdef_vfunc2.h                -*-C++-*-
+// bdef_vfunc2.h                                                      -*-C++-*-
 #ifndef INCLUDED_BDEF_VFUNC2
 #define INCLUDED_BDEF_VFUNC2
 
@@ -294,7 +294,7 @@ class bdef_Vfunc2 {
         // Create an uninitialized functor.  The resulting functor cannot be
         // invoked, but may subsequently be assigned an invokable value.
 
-    bdef_Vfunc2(bdefr_Vfunc2<A1, A2> *representation);
+    bdef_Vfunc2(bdefr_Vfunc2<A1, A2> *representation);              // IMPLICIT
         // Create a functor that assumes shared ownership of the specified,
         // dynamically allocated, reference-counted representation.  If 0 is
         // specified, the functor is created in a null state (i.e., cannot be
@@ -305,7 +305,7 @@ class bdef_Vfunc2 {
         // components (see 'bdefu_vfunc2') to create an appropriate
         // representation and load it into an existing functor.
 
-    bdef_Vfunc2(const bdef_Vfunc2<A1, A2>& functionObject);
+    bdef_Vfunc2(const bdef_Vfunc2& functionObject);
         // Create a copy of the specified 'functionObject'.  If
         // 'functionObject' is null, an independent null functor is created.
         // Otherwise, both functors will share ownership of the same internal
@@ -318,7 +318,7 @@ class bdef_Vfunc2 {
         // the static 'deleteObject' method of 'bdefr_Vfunc2' base class).
 
     // MANIPULATORS
-    bdef_Vfunc2<A1, A2>& operator=(const bdef_Vfunc2<A1, A2>& functionObject);
+    bdef_Vfunc2<A1, A2>& operator=(const bdef_Vfunc2& functionObject);
         // Assign the value of the specified 'functionObject' to this object.
         // If 'functionObject' is not null, both functors will share ownership
         // of the same internal representation; otherwise, both functors will
@@ -349,8 +349,8 @@ inline bdef_Vfunc2<A1, A2>::bdef_Vfunc2()
 }
 
 template <class A1, class A2>
-inline bdef_Vfunc2<A1, A2>::bdef_Vfunc2(bdefr_Vfunc2<A1, A2> *rep)
-: d_rep_p(rep)
+inline bdef_Vfunc2<A1, A2>::bdef_Vfunc2(bdefr_Vfunc2<A1, A2> *representation)
+: d_rep_p(representation)
 {
     if (d_rep_p) {
         d_rep_p->increment();
@@ -358,8 +358,8 @@ inline bdef_Vfunc2<A1, A2>::bdef_Vfunc2(bdefr_Vfunc2<A1, A2> *rep)
 }
 
 template <class A1, class A2>
-inline bdef_Vfunc2<A1, A2>::bdef_Vfunc2(const bdef_Vfunc2& functor)
-: d_rep_p(functor.d_rep_p)
+inline bdef_Vfunc2<A1, A2>::bdef_Vfunc2(const bdef_Vfunc2& functionObject)
+: d_rep_p(functionObject.d_rep_p)
 {
     if (d_rep_p) {
         d_rep_p->increment();
@@ -376,13 +376,13 @@ inline bdef_Vfunc2<A1, A2>::~bdef_Vfunc2()
 
 template <class A1, class A2> inline
 bdef_Vfunc2<A1, A2>&
-bdef_Vfunc2<A1, A2>::operator=(const bdef_Vfunc2<A1, A2>& rhs)
+bdef_Vfunc2<A1, A2>::operator=(const bdef_Vfunc2& functionObject)
 {
-    if (d_rep_p != rhs.d_rep_p) {
+    if (d_rep_p != functionObject.d_rep_p) {
         if (d_rep_p && 0 == d_rep_p->decrement()) {
             bdefr_Vfunc2<A1, A2>::deleteObject(d_rep_p);
         }
-        d_rep_p = rhs.d_rep_p;
+        d_rep_p = functionObject.d_rep_p;
         if (d_rep_p) {
             d_rep_p->increment();
         }
