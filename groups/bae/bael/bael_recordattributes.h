@@ -188,10 +188,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_STRINGREF
-#include <bslstl_stringref.h>
-#endif
-
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
 #ifndef INCLUDED_BSL_OSTREAM
