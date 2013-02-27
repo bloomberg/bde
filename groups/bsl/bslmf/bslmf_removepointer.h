@@ -47,12 +47,16 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
+#include <bslmf_functionpointertraits.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
-#include <bslmf_functionpointertraits.h>
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 namespace BloombergLP {
@@ -62,7 +66,7 @@ namespace bslmf {
                          // struct RemovePointer_Imp
                          // ========================
 
-template <typename TYPE>
+template <class TYPE>
 struct RemovePointer_Imp {
     // This 'struct' template provides an alias 'Type' that refers to the type
     // pointed to by the (template parameter) 'TYPE' if 'TYPE' is a
@@ -80,7 +84,7 @@ struct RemovePointer_Imp {
                          // struct RemovePointer_Imp<TYPE *>
                          // ================================
 
-template <typename TYPE>
+template <class TYPE>
 struct RemovePointer_Imp<TYPE *> {
      // This partial specialization of 'RemovePointer_Imp', for when the
      // (template parameter) 'TYPE' is a pointer type, provides an alias 'Type'
@@ -93,7 +97,7 @@ struct RemovePointer_Imp<TYPE *> {
 };
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-template <typename TYPE, bool isFunctionPtr>
+template <class TYPE, bool isFunctionPtr>
 struct RemovePointer_Aix : RemovePointer_Imp<TYPE> {
     // The implementation of the 'RemovePointer_Imp' for the AIX xlC compiler
     // which has a bug removing pointer from a function pointer type if the
@@ -104,7 +108,7 @@ struct RemovePointer_Aix : RemovePointer_Imp<TYPE> {
     // However, nothing in BDE currently relies on that.
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct RemovePointer_Aix<TYPE, true> {
     typedef TYPE Type;
 };
@@ -119,7 +123,7 @@ namespace bsl {
                          // struct remove_pointer
                          // =====================
 
-template <typename TYPE>
+template <class TYPE>
 struct remove_pointer {
     // This 'struct' template implements the 'remove_pointer' meta-function
     // defined in the C++11 standard [meta.trans.ptr], providing an alias,
@@ -133,7 +137,7 @@ struct remove_pointer {
     typedef typename BloombergLP::bslmf::RemovePointer_Aix<TypeNoCv,
             BloombergLP::bslmf::IsFunctionPointer<TypeNoCv>::VALUE>::Type type;
 #else
-    typedef typename 
+    typedef typename
                     BloombergLP::bslmf::RemovePointer_Imp<TypeNoCv>::Type type;
         // This 'typedef' is an alias to the type pointed to by the (template
         // parameter) 'TYPE' if 'TYPE' is a (possibly cv-qualified) pointer

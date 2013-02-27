@@ -1,15 +1,13 @@
-// bslmf_isbitwiseequalitycomparable.t.cpp                  -*-C++-*-
+// bslmf_isbitwiseequalitycomparable.t.cpp                            -*-C++-*-
 
 #include <bslmf_isbitwiseequalitycomparable.h>
 
-#include <new>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace std;
-using namespace bsl;
 
 int main()
 {

@@ -16,18 +16,18 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alexei Zakharov <azakharov7)
 //
-//@DECRIPTION:
+//@DESCRIPTION:
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
-template <typename TYPE>
+template <class TYPE>
 struct HasPointerSemantics
     : bsl::integral_constant<bool,
                              bsl::is_pointer<TYPE>::value

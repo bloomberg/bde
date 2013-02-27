@@ -1,4 +1,4 @@
-// bslmf_selecttrait.cpp                  -*-C++-*-
+// bslmf_selecttrait.cpp                                              -*-C++-*-
 
 #include <bslmf_selecttrait.h>
 

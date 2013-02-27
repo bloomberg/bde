@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
         //:   member.
         //:
         //: 4 'is_pointer::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer to a (possibly cv-qualifie) type.
+        //:   cv-qualified) pointer to a (possibly cv-qualified) type.
         //
         // Plan:
         //   Verify that 'bsl::is_pointer::value' has the correct value for

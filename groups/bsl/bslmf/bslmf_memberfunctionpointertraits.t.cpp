@@ -2,8 +2,8 @@
 
 #include <bslmf_memberfunctionpointertraits.h>
 
-#include <bslmf_typelist.h>  // for testing only
 #include <bslmf_issame.h>    // for testing only
+#include <bslmf_typelist.h>
 
 #include <cstdlib>           // atoi()
 #include <iostream>

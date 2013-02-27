@@ -125,6 +125,16 @@ typedef char ( & RA)[5];
     ASSERT_SAME_CV2(volatile TYPE1, TYPE2)                                    \
     ASSERT_SAME_CV2(const volatile TYPE1, TYPE2)
 
+#define ASSERT_SAME_FN_TYPE(TYPE1, TYPE2)                                     \
+    ASSERT((bsl::is_same<bsl::conditional<true,                               \
+                                          TYPE1,                              \
+                                          TYPE2>::type,                       \
+            TYPE1>::value));                                                  \
+    ASSERT((bsl::is_same<bsl::conditional<false,                              \
+                                          TYPE1,                              \
+                                          TYPE2>::type,                       \
+            TYPE2>::value));                                                  \
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -209,18 +219,14 @@ int main(int argc, char *argv[])
         ASSERT_SAME_CV(  Enum&, Class);
         ASSERT_SAME_CV( Class*, Union);
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-        // Disable tests for function types due to a bug in MSVC.
-#else
-        ASSERT_SAME_CV(     F ,    RF);
-        ASSERT_SAME_CV(    RF ,    PF);
-        ASSERT_SAME_CV(    PF ,   RPF);
-        ASSERT_SAME_CV(   RPF ,    Fi);
-        ASSERT_SAME_CV(    Fi ,   RFi);
-        ASSERT_SAME_CV(   RFi ,   FRi);
-        ASSERT_SAME_CV(   FRi ,  RFRi);
-        ASSERT_SAME_CV(  RFRi ,     A);
-#endif
+        ASSERT_SAME_FN_TYPE(     F ,    RF);
+        ASSERT_SAME_FN_TYPE(    RF ,    PF);
+        ASSERT_SAME_FN_TYPE(    PF ,   RPF);
+        ASSERT_SAME_FN_TYPE(   RPF ,    Fi);
+        ASSERT_SAME_FN_TYPE(    Fi ,   RFi);
+        ASSERT_SAME_FN_TYPE(   RFi ,   FRi);
+        ASSERT_SAME_FN_TYPE(   FRi ,  RFRi);
+        ASSERT_SAME_FN_TYPE(  RFRi ,     A);
 
         ASSERT_SAME_CV(     A ,    RA);
       } break;
