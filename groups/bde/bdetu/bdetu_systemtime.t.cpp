@@ -320,14 +320,12 @@ namespace UsageExample4 {
 //..
 // Notice that we do not attempt to make the 'loadLocalTimeOffset' method
 // 'inline', since we must take its address to install it as the callback.
-//..
+//
 void main4()
 {
-//..
 // Next, we install this 'loadLocalTimeOffset' as the local time offset
 // callback.
 //..
-
     bdetu_SystemTime::LoadLocalTimeOffsetCallback defaultCallback =
                               bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
                                          &MyLocalTimeOffsetUtilNewYork2013::

@@ -143,6 +143,7 @@ BDES_IDENT("$Id: $")
 //    assert(1 == i6.seconds());
 //    assert(1 == i6.nanoseconds());
 //..
+//
 #if 0
 ///Usage 4
 ///-------
@@ -178,6 +179,123 @@ BDES_IDENT("$Id: $")
 //    assert(1 == i7.hours());
 //..
 #endif
+///Example 4: Using the Local Time Offset Callback
+///-----------------------------------------------
+// Suppose one has to provide time stamp values that always reflect local time
+// for a given location, even when local time transitions into and out of
+// daylight saving time.  Further suppose that one must do this quite often
+// (e.g., for every record in a high frequency log), so the performance of the
+// default method for calculating local time offset is not adequate.  Creation
+// and installation of a specialized user-defined callback for local time
+// offset allows one to solve this problem.
+// 
+// First, create a utility class that provides a method of type
+// 'bdetu_SystemTime::LoadLocalTimeOffsetCallback' that is valid for the
+// location of interest (New York) for the period of interest (the year 2013).
+// Note that the transition times into and out of daylight savings for
+// New York are given in UTC.
+//..
+//  struct MyLocalTimeOffsetUtilNewYork2013 {
+//
+//    private:
+//      // DATA
+//      static int           s_useCount;
+//      static bdet_Datetime s_startOfDaylightSavingTime;  // UTC Datetime
+//      static bdet_Datetime s_resumptionOfStandardTime;   // UTC Datetime
+//
+//    public:
+//      // CLASS METHODS
+//      static int loadLocalTimeOffset(int                  *result,
+//                                    const bdet_Datetime&  utcDatetime);
+//          // Load, into the specified 'result', the offset between the local
+//          // time for the "America/New_York" timezone and UTC at the
+//          // specified 'utcDatetime'.  The behavior is undefined unless
+//          // '2013 == utcDatetime.date().year()'.
+//
+//      static int useCount();
+//          // Return the number of invocations of the 'loadLocalTimeOffset'
+//          // since the start of the process.
+//  };
+//
+//  // DATA
+//  int MyLocalTimeOffsetUtilNewYork2013::s_useCount = 0;
+//
+//  bdet_Datetime
+//  MyLocalTimeOffsetUtilNewYork2013::s_startOfDaylightSavingTime(2013,
+//                                                                   3,
+//                                                                  10,
+//                                                                   7);
+//  bdet_Datetime
+//  MyLocalTimeOffsetUtilNewYork2013::s_resumptionOfStandardTime(2013,
+//                                                                 11,
+//                                                                  3,
+//                                                                  6);
+//  // CLASS METHODS
+//  int MyLocalTimeOffsetUtilNewYork2013::loadLocalTimeOffset(
+//                                           int                  *result,
+//                                           const bdet_Datetime&  utcDatetime)
+//  {
+//      assert(result);
+//      assert(2013 == utcDatetime.date().year());
+//
+//      *result = utcDatetime < s_startOfDaylightSavingTime ? -18000:
+//                utcDatetime < s_resumptionOfStandardTime  ? -14400:
+//                                                            -18000;
+//      ++s_useCount;
+//      return 0;
+//  }
+//
+//  int MyLocalTimeOffsetUtilNewYork2013::useCount()
+//  {
+//      return s_useCount;
+//  }
+//..
+// Notice that we do not attempt to make the 'loadLocalTimeOffset' method
+// 'inline', since we must take its address to install it as the callback.
+//
+// Next, we install this 'loadLocalTimeOffset' as the local time offset
+// callback.
+//..
+//  bdetu_SystemTime::LoadLocalTimeOffsetCallback defaultCallback =
+//                            bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
+//                                       &MyLocalTimeOffsetUtilNewYork2013::
+//                                                        loadLocalTimeOffset);
+//
+//  assert(bdetu_SystemTime::loadLocalTimeOffsetDefault == defaultCallback);
+//  assert(&MyLocalTimeOffsetUtilNewYork2013::loadLocalTimeOffset
+//       == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
+//..
+// Now, we can use the 'bdetu_SystemTime::loadLocalTimeOffset' method to obtain
+// the local time offsets in New York on several dates of interest.  The
+// increasing values from our 'useCount' method assures us that the callback we
+// defined is indeed being used.
+//..
+//  assert(0 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+//
+//  int offset;
+//  bdet_Datetime     newYearsDay(2013,  1,  1);
+//  bdet_Datetime independenceDay(2013,  7,  4);
+//  bdet_Datetime     newYearsEve(2013, 12, 31);
+//
+//  bdetu_SystemTime::loadLocalTimeOffset(&offset, newYearsDay);
+//  assert(-5 * 3600 == offset);
+//  assert(        1 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+//
+//  bdetu_SystemTime::loadLocalTimeOffset(&offset, independenceDay);
+//  assert(-4 * 3600 == offset);
+//  assert(        2 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+//  
+//  bdetu_SystemTime::loadLocalTimeOffset(&offset, newYearsEve);
+//  assert(-5 * 3600 == offset);
+//  assert(        3 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+//..
+// Finally, to be neat, we restore the local time offset callback to the
+// default callback:
+//..
+//  bdetu_SystemTime::setLoadLocalTimeOffsetCallback(defaultCallback);
+//  assert(&bdetu_SystemTime::loadLocalTimeOffsetDefault
+//      == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
+//..
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>

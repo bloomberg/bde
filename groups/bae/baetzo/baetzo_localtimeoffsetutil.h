@@ -46,6 +46,10 @@ BDES_IDENT("$Id: $")
 #include <bcemt_qlock.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 namespace BloombergLP {
 
 class bdet_Datetime;
@@ -62,6 +66,7 @@ struct baetzo_LocalTimeOffsetUtil {
     static baetzo_LocalTimePeriod  s_localTimePeriod;
     static bcemt_QLock             s_lock;
     static const char             *s_timezone;
+    static bsls::AtomicInt         s_updateCount;
 
     // PRIVATE CLASS METHODS
     static int setTimezone_imp(const char           *timezone,
@@ -73,11 +78,6 @@ struct baetzo_LocalTimeOffsetUtil {
 
     // CLASS METHODS
   public:
-   static bdetu_SystemTime::LoadLocalTimeOffsetCallback
-                                              setLoadLocalTimeOffsetCallback();
-       // Set 'loadLocalTimeOffset' as the local time offset callback of
-       // 'bdetu_SystemTime'.  Return the previously installed callback.
-
    static int loadLocalTimeOffset(int                  *result,
                                   const bdet_Datetime&  utcDatetime);
        // Efficiently load to the specified 'result' the offset of the local
@@ -85,6 +85,19 @@ struct baetzo_LocalTimeOffsetUtil {
        // and a non-zero value otherwise.  This function is thread-safe.  The
        // behavior is undefined unless the local time zone has been previously
        // established by a call to the 'setTimezone' method.
+
+   static const baetzo_LocalTimePeriod& localTimePeriod();
+       // Return a reference providing unmodifiable access to the local time
+       // period information currently used by the 'loadLocalTimeOffset'
+       // method.  That information is updated when 'loadLocalTimeOffset' is
+       // called with a 'utcDatetime' outside the range
+       // 'localTimePeriod().utcStartTime()' (inclusive)
+       // 'localTimePeriod().utcEndTime()' (exclusive).
+
+   static bdetu_SystemTime::LoadLocalTimeOffsetCallback
+                                              setLoadLocalTimeOffsetCallback();
+       // Set 'loadLocalTimeOffset' as the local time offset callback of
+       // 'bdetu_SystemTime'.  Return the previously installed callback.
 
    static int setTimezone();
    static int setTimezone(const char           *timezone);
@@ -99,17 +112,17 @@ struct baetzo_LocalTimeOffsetUtil {
        // valid.  When 'timezone' is obtained from the environment, it can be
        // invalidated by a call to the 'putenv' POSIX function.
 
-   static const baetzo_LocalTimePeriod& localTimePeriod();
-       // Return a reference providing unmodifiable access to the local time
-       // period information currently used by the 'loadLocalTimeOffset'
-       // method.  That information is updated when 'loadLocalTimeOffset' is
-       // called with a 'utcDatetime' outside the range
-       // 'localTimePeriod().utcStartTime()' (inclusive)
-       // 'localTimePeriod().utcEndTime()'.
-
    static const char *timezone();
        // Return the time zone identifier used to determine the local time
        // offset from UTC.
+
+   static int updateCount();
+       // Return the number updates of the local time period information
+       // (whether or not the update is successful) since the start of the
+       // process.  This count is incremented on calls to any of the
+       // 'setTimeZone' methods and when 'loadLocalTimePeriod' is called with a
+       // 'utcDatetime' outside the range of the current local time period
+       // information.
 };
 
 // ============================================================================
@@ -122,6 +135,12 @@ struct baetzo_LocalTimeOffsetUtil {
 
 // CLASS METHODS
 inline
+const baetzo_LocalTimePeriod& baetzo_LocalTimeOffsetUtil::localTimePeriod()
+{
+    return s_localTimePeriod;
+} 
+
+inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback
 baetzo_LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
 {
@@ -129,11 +148,6 @@ baetzo_LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
                              &baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset);
 }
 
-inline
-const baetzo_LocalTimePeriod& baetzo_LocalTimeOffsetUtil::localTimePeriod()
-{
-    return s_localTimePeriod;
-} 
 
 inline
 const char *baetzo_LocalTimeOffsetUtil::timezone()
@@ -141,7 +155,14 @@ const char *baetzo_LocalTimeOffsetUtil::timezone()
     return s_timezone;
 }
 
+inline
+int baetzo_LocalTimeOffsetUtil::updateCount()
+{
+    return s_updateCount;
+}
+
 }  // close namespace BloombergLP
+
 
 #endif
 

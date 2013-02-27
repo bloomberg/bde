@@ -15,6 +15,7 @@ int baetzo_LocalTimeOffsetUtil::setTimezone_imp(
                                              const char           *timezone,
                                              const bdet_Datetime&  utcDatetime)
 {
+    ++s_updateCount;
     s_timezone = timezone;
     return baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(&s_localTimePeriod,
                                                           s_timezone,
@@ -24,9 +25,13 @@ int baetzo_LocalTimeOffsetUtil::setTimezone_imp(
 // CLASS DATA
 baetzo_LocalTimePeriod  baetzo_LocalTimeOffsetUtil::s_localTimePeriod(
                                             bslma::Default::globalAllocator());
-bcemt_QLock             baetzo_LocalTimeOffsetUtil::s_lock =
+
+bcemt_QLock             baetzo_LocalTimeOffsetUtil::s_lock     =
                                                        BCEMT_QLOCK_INITIALIZER;
+
 const char             *baetzo_LocalTimeOffsetUtil::s_timezone = 0;
+
+bsls::AtomicInt         baetzo_LocalTimeOffsetUtil::s_updateCount(0);
 
 // CLASS METHODS
 int baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
@@ -43,7 +48,7 @@ int baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
        if (utcDatetime <  s_localTimePeriod.utcStartTime()
         || utcDatetime >= s_localTimePeriod.utcEndTime()) {
 
-           status = setTimezone(s_timezone, utcDatetime);
+           status = setTimezone_imp(s_timezone, utcDatetime);
        }
     }
 

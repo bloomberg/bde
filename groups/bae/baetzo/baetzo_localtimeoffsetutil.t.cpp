@@ -5,6 +5,7 @@
 #include <bsls_types.h>
 
 #include <bsls_asserttest.h>
+#include <bsl_cstring.h>     // 'strcmp'
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -18,7 +19,17 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // CLASS METHODS
+// [ x] int loadLocalTimeOffset(int *result, const bdet_Datetime& utc);
+// [ 2] const baetzo_LocalTimePeriod& localTimePeriod();
+// [ x] bdetu_SystemTime::LLTOC setLoadLocalTimeOffsetCallback();
+// [ 2] int setTimezone();
+// [ 2] int setTimezone(const char *timezone);
+// [ 2] int setTimezone(const char *timezone, const bdet_Datetime& utc);
+// [ 2] const char *timezone();
+// [ x] int updateCount();
 // ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -99,6 +110,108 @@ const char *GM1 = "Etc/GMT-1";
 //                                 HELPER FUNCTIONS
 //-----------------------------------------------------------------------------
 
+// ============================================================================
+//                                 USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+namespace UsageExample1 {
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using 'loadLocalTimeOffset' as the Local Time Offset Callback
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we must quickly generate time stamp values in local time (e.g., on
+// records for a high frequency logger) and the default performance of the
+// relevant methods of 'bdetu_SystemTime' is inadequate.  Further suppose that
+// we must do so arbitrary time values and time zones.  Those requirements can
+// be met by installing the 'loadLocalTimeOffset' method of
+// 'baetzo_LocalTimeOffsetUtil' as the local time callback used by
+// 'bdetu_SystemTime'.
+//
+// First, specify the time zone to be used by the callback and a UTC date time
+// for the initial offset information in the cache.
+//..
+void main1()
+{
+    ASSERT(0 == baetzo_LocalTimeOffsetUtil::updateCount());
+
+    int status = baetzo_LocalTimeOffsetUtil::setTimezone("America/New_York",
+                                                          bdet_Datetime(2013,
+                                                                           2,
+                                                                          26));
+    ASSERT(0 == status);
+    ASSERT(1 == baetzo_LocalTimeOffsetUtil::updateCount());
+    ASSERT(0 == strcmp("America/New_York",
+                       baetzo_LocalTimeOffsetUtil::timezone()));
+//..
+// Notice that the value returned by the 'updateCount' method is increased
+// by one after then time zone information has been set.
+//
+// Then, use the 'setLoadLocalTimeOffsetCallback' method to set the
+// 'loadLocalTimeOffset' of 'baetzo_LocalTimeOffsetUtil' as the local time
+// offset callback used in 'bdetu_SystemTime'.
+//..
+    bdetu_SystemTime::LoadLocalTimeOffsetCallback previousCallback =
+                  baetzo_LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback();
+
+    ASSERT(&baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset
+        == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
+//..
+// Notice that previously installed callback was saved so we can restore it,
+// if needed.
+//
+// Now, calls to 'bdetu_SystemTime' methods will use the method we installed.
+// For example, we can check the time offset in New York for three dates
+// of interest:
+//..
+    int offsetInSeconds;
+
+    status = bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
+                                                   bdet_Datetime(2013,
+                                                                    2,
+                                                                   26));
+    ASSERT(        0 == status);
+    ASSERT(-5 * 3600 == offsetInSeconds);
+    ASSERT(        1 == baetzo_LocalTimeOffsetUtil::updateCount());
+    ASSERT(        0 == strcmp("America/New_York",
+                                baetzo_LocalTimeOffsetUtil::timezone()));
+    
+    status = bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
+                                                   bdet_Datetime(2013,
+                                                                    7,
+                                                                    4));
+    ASSERT(        0 == status);
+    ASSERT(-4 * 3600 == offsetInSeconds);
+    ASSERT(        2 == baetzo_LocalTimeOffsetUtil::updateCount());
+    ASSERT(        0 == strcmp("America/New_York",
+                                baetzo_LocalTimeOffsetUtil::timezone()));
+   
+    status = bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
+                                                   bdet_Datetime(2013,
+                                                                   12,
+                                                                   21));
+    ASSERT(        0 == status);
+    ASSERT(-5 * 3600 == offsetInSeconds);
+    ASSERT(        3 == baetzo_LocalTimeOffsetUtil::updateCount());
+    ASSERT(        0 == strcmp("America/New_York",
+                                baetzo_LocalTimeOffsetUtil::timezone()));
+//..
+// Notice that the value returned by 'updateCount()' is unchanged by our first
+// request, but incremented by the second and third request, which transitions
+// into and then out of daylight saving time.  Also notice that the updates
+// change the offset information but do not change the timezone.
+//
+// Finally, we restore the original local time callback.
+//..
+    previousCallback = bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
+                                                             previousCallback);
+    ASSERT(previousCallback
+        == &baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset);
+//..
+}
+}  // end usage example namespace
 
 // ============================================================================
 //                                 MAIN PROGRAM
@@ -114,6 +227,55 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+        UsageExample1::main1();
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // 'setTimezone', 'timezone', and 'localTimePeriod'
+        //
+        // Concerns:
+        //: 1 TBD 
+        //:   
+        //
+        // Plan:
+        //: 1 TBD
+        //
+        // Testing:
+        //   const baetzo_LocalTimePeriod& localTimePeriod();
+        //   int setTimezone();
+        //   int setTimezone(const char *timezone);
+        //   int setTimezone(const char *timezone, const bdet_Datetime& utc);
+        //   const char *timezone();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "'setTimezone', 'timezone', and 'localTimePeriod'"
+                          << "================================================"
+                          << endl;
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -124,7 +286,9 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 TBD
+        //: 1 Set the time zone to "America/New_York" for several dates in
+        //:   succession, and examine the local time period information at each
+        //:   stage.
         //
         // Testing:
         //   BREATHING TEST
@@ -137,19 +301,25 @@ int main(int argc, char *argv[])
         int status1 = Obj::setTimezone(NY);
         ASSERT(0 == status1);
  
-        cout << Obj::localTimePeriod() << endl;
+        if (verbose) {
+            cout << Obj::localTimePeriod() << endl;
+        }
 
         bdet_Datetime startOfDst(2013, 3, 10, 7);
         int status2 = Obj::setTimezone(NY, startOfDst);
         ASSERT(0 == status2);
 
-        cout << Obj::localTimePeriod() << endl;
+        if (verbose) {
+            cout << Obj::localTimePeriod() << endl;
+        }
 
         bdet_Datetime resumeOfStd(2013, 11, 3, 6);
         int status3 = Obj::setTimezone(NY, resumeOfStd);
         ASSERT(0 == status3);
 
-        cout << Obj::localTimePeriod() << endl;
+        if (verbose) {
+            cout << Obj::localTimePeriod() << endl;
+        }
 
       } break;
       default: {
