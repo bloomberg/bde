@@ -713,7 +713,10 @@ int main(int argc, char *argv[])
                 bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
-                mX.addElementAndData("test", value);
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addData(value);
                 ASSERT(!ss.good());
             }
 
@@ -725,7 +728,10 @@ int main(int argc, char *argv[])
                 bsl::ostringstream   ss;
                 Obj mX(ss);  const Obj& X = mX;
 
-                mX.addElementAndData("test", value);
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addData(value);
                 ASSERT(!ss.good());
             }
 
@@ -736,18 +742,56 @@ int main(int argc, char *argv[])
                 bsl::ostringstream   ss;
                 Obj mX(ss);  const Obj& X = mX;
 
-                mX.addElementAndData("test", value, 0xFFFFFFFF);
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addData(value, 0xFFFFFFFF);
                 ASSERT(!ss.good());
             }
         }
 
         // addListData
         {
+            // non-generated enum
             {
+                Test value = TEST_A;
+
                 bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
-                mX.addListData("test", TEST_A);
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addListData(value);
+                ASSERT(!ss.good());
+            }
+
+            // non-UTF strings
+            {
+                const unsigned char *valuePtr = T1;
+                bsl::string          value((const char *)valuePtr);
+
+                bsl::ostringstream   ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addListData(value);
+                ASSERT(!ss.good());
+            }
+
+            // invalid formatting mode
+            {
+                int value = 1;
+
+                bsl::ostringstream   ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addListData(value, 0xFFFFFFFF);
                 ASSERT(!ss.good());
             }
         }
@@ -761,6 +805,9 @@ int main(int argc, char *argv[])
                 bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
+                mX.openElement("test");
+                ASSERT( ss.good());
+
                 mX.addAttribute("test", value);
                 ASSERT(!ss.good());
             }
@@ -773,6 +820,9 @@ int main(int argc, char *argv[])
                 bsl::ostringstream   ss;
                 Obj mX(ss);  const Obj& X = mX;
 
+                mX.openElement("test");
+                ASSERT( ss.good());
+
                 mX.addAttribute("test", value);
                 ASSERT(!ss.good());
             }
@@ -783,6 +833,9 @@ int main(int argc, char *argv[])
 
                 bsl::ostringstream   ss;
                 Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
 
                 mX.addAttribute("test", value, 0xFFFFFFFF);
                 ASSERT(!ss.good());
