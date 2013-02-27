@@ -81,12 +81,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_IF
 #include <bslmf_if.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
@@ -804,7 +804,8 @@ struct MemberFunctionPointerTraitsImp<
 #ifdef bslmf_MemberFunctionPointerTraitsImp
 #undef bslmf_MemberFunctionPointerTraitsImp
 #endif
-#define bslmf_MemberFunctionPointerTraitsImp bslmf::MemberFunctionPointerTraitsImp
+#define bslmf_MemberFunctionPointerTraitsImp  \
+        bslmf::MemberFunctionPointerTraitsImp
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 

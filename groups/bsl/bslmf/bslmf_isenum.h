@@ -98,15 +98,15 @@ struct IsEnum_AnyArithmeticType {
     // to 'IsEnum_AnyArithmeticType'.
 
     // NOT IMPLEMENTED
-    IsEnum_AnyArithmeticType(wchar_t);
-    IsEnum_AnyArithmeticType(int);
-    IsEnum_AnyArithmeticType(unsigned int);
-    IsEnum_AnyArithmeticType(long);
-    IsEnum_AnyArithmeticType(unsigned long);
-    IsEnum_AnyArithmeticType(long long);
-    IsEnum_AnyArithmeticType(unsigned long long);
-    IsEnum_AnyArithmeticType(double);
-    IsEnum_AnyArithmeticType(long double);
+    IsEnum_AnyArithmeticType(wchar_t);                              // IMPLICIT
+    IsEnum_AnyArithmeticType(int);                                  // IMPLICIT
+    IsEnum_AnyArithmeticType(unsigned int);                         // IMPLICIT
+    IsEnum_AnyArithmeticType(long);                                 // IMPLICIT
+    IsEnum_AnyArithmeticType(unsigned long);                        // IMPLICIT
+    IsEnum_AnyArithmeticType(long long);                            // IMPLICIT
+    IsEnum_AnyArithmeticType(unsigned long long);                   // IMPLICIT
+    IsEnum_AnyArithmeticType(double);                               // IMPLICIT
+    IsEnum_AnyArithmeticType(long double);                          // IMPLICIT
         // Create an 'IsEnum_AnyArithmeticType' object from a value of one of
         // the indicated arithmetic types.  Note that it is not necessary to
         // provide overloads taking 'bool', 'char', or 'short' because they are

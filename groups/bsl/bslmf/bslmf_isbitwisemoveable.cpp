@@ -1,4 +1,4 @@
-// bslmf_isbitwisemoveable.cpp                  -*-C++-*-
+// bslmf_isbitwisemoveable.cpp                                        -*-C++-*-
 
 #include <bslmf_isbitwisemoveable.h>
 
