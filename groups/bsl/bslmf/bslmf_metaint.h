@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to map integral constants to unique types.
 //
-//@DEPRECATED: Use 'bslmf_integral_constant' instead.
+//@DEPRECATED: Use 'bslmf_integralconstant' instead.
 //
 //@CLASSES:
 //  bslmf::MetaInt: meta-function mapping integral constants to C++ types
