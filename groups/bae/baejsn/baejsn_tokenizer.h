@@ -193,6 +193,17 @@ class baejsn_Tokenizer {
         BAEJSN_ARRAY_CONTEXT               // array context
     };
 
+    // CONSTANTS
+    enum {
+        BAEJSN_BUFSIZE         = 1024 * 8,
+        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE
+                                  - 1 - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+    };
+
+    char                               d_buffer[BAEJSN_BUFSIZE];  // data
+                                                                  // buffer
+                                                                  // (owned)
+
     bdema_BufferedSequentialAllocator  d_allocator;               // allocater
                                                                   // (owned)
 
@@ -214,11 +225,6 @@ class baejsn_Tokenizer {
                                                                   // end of
                                                                   // value
 
-    bsl::size_t                        d_valueIter;               // cursor for
-                                                                  // iterating
-                                                                  // over the
-                                                                  // value
-
     TokenType                          d_tokenType;               // token type
 
     ContextType                        d_context;                 // context
@@ -238,14 +244,18 @@ class baejsn_Tokenizer {
         // update the cursor to the new read location.  Return the number of
         // bytes read from the 'streamBuf'.
 
-    int resetStringBufferForLongValue(bool firstTime);
+    int resetStringBufferForLongValue(bsl::size_t *updatedIter,
+                                      bsl::size_t  currIter,
+                                      bool         firstTime);
         // Reset the string buffer with new data read from the underlying
-        // 'streambuf' so that it can hold a long value that crosses the
-        // boundary of the internal buffer size.  Use the specified 'firstTime'
-        // flag to denote if this is the first time the string buffer is being
-        // reset for a long value.  If the length of the value being read
-        // exceeds the internal buffer size, allocate additional memory from
-        // the allocator supplied at construction.  Return 0 on success and a
+        // 'streambuf' so that it can hold a value larger than the internal
+        // buffer's size.  Use the specified 'currIter' to denote the current
+        // read position and the specified 'firstTime' flag to specify if this
+        // is the first time the string buffer is being reset for a long value.
+        // Load into the specified 'updatedIter' the updated read position
+        // after the resetting.  If the length of the value being read exceeds
+        // the internal buffer size, allocate additional memory from the
+        // allocator supplied at construction.  Return 0 on success and a
         // non-zero value otherwise.
 
     int skipWhitespace();
@@ -310,7 +320,6 @@ void baejsn_Tokenizer::reset(bsl::streambuf *streamBuf)
     d_cursor      = 0;
     d_valueBegin  = 0;
     d_valueEnd    = 0;
-    d_valueIter   = 0;
     d_tokenType   = BAEJSN_BEGIN;
 }
 
