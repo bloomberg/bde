@@ -1,4 +1,4 @@
-// bslmf_nestedtraitdeclaration.t.cpp                  -*-C++-*-
+// bslmf_nestedtraitdeclaration.t.cpp                                 -*-C++-*-
 
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // Plan:
-	//
+        //
         // Testing:
         //
         // --------------------------------------------------------------------

@@ -332,7 +332,7 @@ BSLS_IDENT("$Id: $")
 // Next, we use overloaded 'privateInitDispatch' method in the range
 // constructor of 'MyContainer'.  Note that we always supply a 'bslmf::Nil'
 // object (an exact type match) as the final argument, the choice of overload
-// will be govered according to the type of 'first'.  Consequently, if 'first'
+// will be governed according to the type of 'first'.  Consequently, if 'first'
 // is implicitly convertible to 'bslmf::MatchArithmeticType', then the overload
 // leading to repeated value construction is used; otherwise, the overload
 // leading to range construction is used.
@@ -405,7 +405,7 @@ namespace bslmf {
 class MatchArithmeticType {
     // This copy-constructible mechanism can be used as a formal parameter for
     // functions where an arithmetic type can be confused with an iterator
-    // type.  A copy-constructbile mechanism is needed so that such objects can
+    // type.  A copy-constructible mechanism is needed so that such objects can
     // be used as function arguments.
     //
     // Note that if a type has a user-defined conversion to arithmetic value,

@@ -17,7 +17,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The implicity convertibility of integral and floating point types to
+// The implicit convertibility of integral and floating point types to
 // 'bslmf::MatchArithmeticType' is confirmed by creating an object for each
 // type of interest, and then using it a context where implicit conversion is
 // required: i.e., as an argument to a function expecting an argument of type
@@ -98,7 +98,7 @@ struct ArithmeticConveribility
 
     // CLASS METHODS
     static void implicitlyConvert();
-        // Implicity convert objects of type:
+        // Implicitly convert objects of type:
         //: o 'TYPE'
         //: o 'TYPE&'
         //: o 'const TYPE'
@@ -591,7 +591,7 @@ namespace usageExample1 {
 // Next, we use overloaded 'privateInitDispatch' method in the range
 // constructor of 'MyContainer'.  Note that we always supply a 'bslmf::Nil'
 // object (an exact type match) as the final argument, the choice of overload
-// will be govered according to the type of 'first'.  Consequently, if 'first'
+// will be governed according to the type of 'first'.  Consequently, if 'first'
 // is implicitly convertible to 'bslmf::MatchArithmeticType', then the overload
 // leading to repeated value construction is used; otherwise, the overload
 // leading to range construction is used.
@@ -801,12 +801,12 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Define 'acceptObj', a function specifying a parameter of type
-        //:   'bslmf::MatchArithmeticType', and 'ArithmeticConvertability' a
-        //:   structure templated on 'TYPE' whose 'implicityConvert' method has
-        //:   multipled invocations of 'acceptObj' providing and object 'TYPE'
-        //:   with different qualifications: e.g., by value, by reference, by
-        //:   'const'-reference, by 'volatile'-'const'-reference.  Successful
-        //:   compilation indicates success.  (C-1)
+        //:   'bslmf::MatchArithmeticType', and 'ArithmeticConveribility' a
+        //:   structure templated on 'TYPE' whose 'implicitlyConvert' method
+        //:   has multiple invocations of 'acceptObj' providing an object
+        //:   'TYPE' with different qualifications: e.g., by value,
+        //:   by reference, by 'const'-reference, by 'volatile'-'const'-
+        //:   reference.  Successful compilation indicates success.  (C-1)
         //:
         //: 2 Define 'enum MyEnum', then use that arbitrary user-defined
         //:   enumerated type in the same tests as were used for C++

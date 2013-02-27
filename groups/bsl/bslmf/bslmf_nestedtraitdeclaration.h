@@ -1,4 +1,4 @@
-// bslmf_nestedtraitdeclaration.h                  -*-C++-*-
+// bslmf_nestedtraitdeclaration.h                                     -*-C++-*-
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #define INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 
@@ -24,6 +24,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 namespace BloombergLP {
 

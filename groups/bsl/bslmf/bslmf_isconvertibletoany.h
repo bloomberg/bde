@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // First, we define a type with the template conversion operator:
 //..
 //  struct TypeWithTemplateConversion {
-//      template <typename TYPE>
+//      template <class TYPE>
 //      operator TYPE() {
 //          return TYPE();
 //      }
@@ -63,7 +63,7 @@ namespace bslmf {
                           // struct IsConvertibleToAny
                           // =========================
 
-template <typename TYPE>
+template <class TYPE>
 class IsConvertibleToAny_Imp {
     // This class template implements a component-private meta-function to
     // determine if the (template parameter) 'TYPE' is convertible to any other
@@ -80,7 +80,7 @@ public:
         // 'UniqueType' and 'bsl::false_type' otherwise.
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct IsConvertibleToAny : IsConvertibleToAny_Imp<TYPE>::Type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is convertible to any other type.  This

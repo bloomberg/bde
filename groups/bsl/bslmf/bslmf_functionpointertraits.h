@@ -71,6 +71,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
 #endif
@@ -315,7 +319,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-typedef bslmf::FunctionPointerCPlusPlusLinkage bslmf_FunctionPointerCPlusPlusLinkage;
+typedef bslmf::FunctionPointerCPlusPlusLinkage
+                                         bslmf_FunctionPointerCPlusPlusLinkage;
     // This alias is defined for backward compatibility.
 
 typedef bslmf::FunctionPointerCLinkage bslmf_FunctionPointerCLinkage;
