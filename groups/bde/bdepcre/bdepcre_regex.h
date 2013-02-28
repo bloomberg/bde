@@ -409,7 +409,7 @@ class bdepcre_RegEx {
         // 'prepare' method to effect specific pattern matching behavior.
 
     // CLASS METHODS
-    static int getDefaultDepthLimit();
+    static int defaultDepthLimit();
         // Returns the process-wide default evaluation recursion depth limit.
 
     static int setDefaultDepthLimit(int depthLimit);
@@ -453,6 +453,11 @@ class bdepcre_RegEx {
         //  BDEPCRE_FLAG_UTF8
         //..
 
+    int setDepthLimit(int depthLimit);
+        // Set the evaluation recursion depth limit for this regular-expression
+        // object to the specified 'depthLimit'.  Return the previous depth
+        // limit.
+
     // ACCESSORS
     int flags() const;
         // Return the flags that were supplied to the most recent successful
@@ -467,7 +472,7 @@ class bdepcre_RegEx {
         //  BDEPCRE_FLAG_UTF8
         //..
 
-    int getDepthLimit() const;
+    int depthLimit() const;
         // Returns the evaluation recursion depth limit for this
         // regular-expression object.
 
@@ -555,12 +560,6 @@ class bdepcre_RegEx {
         // 'isPrepared() == true'.  Note that the returned value is intended to
         // be used as an index into the 'bsl::vector<bsl::pair<int, int> >'
         // returned by 'match'.
-
-    // MANIPULATORS
-    int setDepthLimit(int depthLimit);
-        // Set the evaluation recursion depth limit for this regular-expression
-        // object to the specified 'depthLimit'.  Return the previous depth
-        // limit.
 };
 
 // ============================================================================
@@ -573,7 +572,7 @@ class bdepcre_RegEx {
 
 // CLASS METHODS
 inline
-int bdepcre_RegEx::getDefaultDepthLimit()
+int bdepcre_RegEx::defaultDepthLimit()
 {
     return s_depthLimit;
 }
@@ -603,7 +602,7 @@ int bdepcre_RegEx::flags() const
 }
 
 inline
-int bdepcre_RegEx::getDepthLimit() const
+int bdepcre_RegEx::depthLimit() const
 {
     return d_depthLimit;
 }

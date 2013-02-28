@@ -567,6 +567,47 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Depth Limit"
                           << "\n===================" << endl;
 
+        Obj x;
+        int originalDepthLimit = x.depthLimit();
+
+        ASSERT(x.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+
+        bdepcre_RegEx::setDefaultDepthLimit(3);
+        ASSERT(3                  == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(3                  != originalDepthLimit);
+        ASSERT(originalDepthLimit == x.depthLimit());
+
+        Obj y;
+
+        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+
+        x.setDepthLimit(5);
+        ASSERT(5              == x.depthLimit());
+        ASSERT(5              != originalDepthLimit);
+        ASSERT(3              == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+
+        const char *testString       = "a\n\n\n\n\nb";
+        bsl::size_t testStringLength = bsl::strlen(testString);
+        const char *testRegex        = "a(\n)+b";
+
+        bsl::string errorMessage;
+        int         errorOffset;
+
+        // We expect this to fail at depth 3, since it requires depth 14
+        ASSERT(0 == y.prepare(&errorMessage, &errorOffset, testRegex));
+        ASSERT(3 == y.depthLimit());
+        ASSERT(0 != y.match(testString, testStringLength));
+
+        // We expect this to fail at depth 5
+        ASSERT(0 == x.prepare(&errorMessage, &errorOffset, testRegex));
+        ASSERT(5 == x.depthLimit());
+        ASSERT(0 != x.match(testString, testStringLength));
+
+        // We know this succeeds at depth 14
+        x.setDepthLimit(14);
+        ASSERT(14 == x.depthLimit());
+        ASSERT( 0 == x.match(testString, testStringLength));
       } break;
 
       case 11: {
