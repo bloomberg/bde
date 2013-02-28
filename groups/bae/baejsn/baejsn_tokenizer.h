@@ -195,7 +195,7 @@ class baejsn_Tokenizer {
 
     // CONSTANTS
     enum {
-        BAEJSN_BUFSIZE         = 1024 * 8,
+        BAEJSN_BUFSIZE         = 1024,
         BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE
                                   - 1 - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
     };
