@@ -73,35 +73,33 @@ int baejsn_Tokenizer::reloadStringBuffer()
     return numRead;
 }
 
-int baejsn_Tokenizer::resetStringBufferForLongValue(bsl::size_t *updatedIter,
-                                                    bsl::size_t  currIter,
-                                                    bool         firstTime)
+int baejsn_Tokenizer::resizeBufferForLargeValue(bsl::size_t position)
 {
-    if (!firstTime) {
-        d_stringBuffer.resize(d_stringBuffer.length()
-                              + BAEJSN_MAX_STRING_SIZE);
-        const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[currIter],
-                                                 BAEJSN_MAX_STRING_SIZE);
-        return numRead ? 0 : -1;                                      // RETURN
-    }
+    d_stringBuffer.resize(d_stringBuffer.length() + BAEJSN_MAX_STRING_SIZE);
+
+    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[position],
+                                             BAEJSN_MAX_STRING_SIZE);
+    return numRead ? 0 : -1;
+}
+
+int baejsn_Tokenizer::moveValueCharsToStartAndReloadBuffer()
+{
+    const bsl::size_t iter = d_stringBuffer.length() - d_valueBegin;
 
     d_stringBuffer.erase(d_stringBuffer.begin(),
                          d_stringBuffer.begin() + d_valueBegin);
     d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
 
-    int numRead = currIter - d_valueBegin;
-    currIter = numRead;
-
-    numRead = d_streamBuf_p->sgetn(&d_stringBuffer[currIter],
-                                   BAEJSN_MAX_STRING_SIZE - numRead);
+    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[iter],
+                                             BAEJSN_MAX_STRING_SIZE - iter);
 
     if (0 == numRead) {
         return -1;                                                    // RETURN
     }
 
-    d_stringBuffer.resize(currIter + numRead);
+    d_stringBuffer.resize(iter + numRead);
     d_valueBegin = 0;
-    *updatedIter = currIter;
+
     return 0;
 }
 
@@ -139,15 +137,20 @@ int baejsn_Tokenizer::extractStringValue()
         }
 
         if (iter >= d_stringBuffer.length()) {
-            bsl::size_t newIter;
-            const int rc = resetStringBufferForLongValue(&newIter,
-                                                         iter,
-                                                         firstTime);
-            if (rc) {
-                return rc;                                            // RETURN
+            if (!firstTime) {
+                const int rc = resizeBufferForLargeValue(iter);
+                if (rc) {
+                    return rc;                                        // RETURN
+                }
             }
-            firstTime = false;
-            iter      = newIter;
+            else {
+                iter = iter - d_valueBegin;
+                const int rc = moveValueCharsToStartAndReloadBuffer();
+                if (rc) {
+                    return rc;                                        // RETURN
+                }
+                firstTime = false;
+            }
         }
         else {
             if ('\\' == previousChar) {
@@ -175,15 +178,20 @@ int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
         }
 
         if (iter >= d_stringBuffer.length()) {
-            bsl::size_t newIter;
-            const int rc = resetStringBufferForLongValue(&newIter,
-                                                         iter,
-                                                         firstTime);
-            if (rc) {
-                return rc;                                            // RETURN
+            if (!firstTime) {
+                const int rc = resizeBufferForLargeValue(iter);
+                if (rc) {
+                    return rc;                                        // RETURN
+                }
             }
-            firstTime = false;
-            iter      = newIter;
+            else {
+                iter = iter - d_valueBegin;
+                const int rc = moveValueCharsToStartAndReloadBuffer();
+                if (rc) {
+                    return rc;                                        // RETURN
+                }
+                firstTime = false;
+            }
         }
         else {
             d_valueEnd = iter;

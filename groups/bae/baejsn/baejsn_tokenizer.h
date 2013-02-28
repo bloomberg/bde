@@ -237,6 +237,12 @@ class baejsn_Tokenizer {
         // end of the extracted string.  Return 0 on success and a non-zero
         // value otherwise.
 
+    int moveValueCharsToStartAndReloadBuffer();
+        // Move the sequence of characters representing the value to the start
+        // of the internal string buffer erasing the characters preceding it.
+        // Resize the buffer to its maximum internal buffer size and load new
+        // data from the internally-held 'streambuf' after the last value
+        // character.  Return 0 on success and a non-zero value otherwise.
 
     int reloadStringBuffer();
         // Reload the string buffer with new data read from the underlying
@@ -244,19 +250,11 @@ class baejsn_Tokenizer {
         // update the cursor to the new read location.  Return the number of
         // bytes read from the 'streamBuf'.
 
-    int resetStringBufferForLongValue(bsl::size_t *updatedIter,
-                                      bsl::size_t  currIter,
-                                      bool         firstTime);
-        // Reset the string buffer with new data read from the underlying
-        // 'streambuf' so that it can hold a value larger than the internal
-        // buffer's size.  Use the specified 'currIter' to denote the current
-        // read position and the specified 'firstTime' flag to specify if this
-        // is the first time the string buffer is being reset for a long value.
-        // Load into the specified 'updatedIter' the updated read position
-        // after the resetting.  If the length of the value being read exceeds
-        // the internal buffer size, allocate additional memory from the
-        // allocator supplied at construction.  Return 0 on success and a
-        // non-zero value otherwise.
+    int resizeBufferForLargeValue(bsl::size_t position);
+        // Resize the string buffer with new data read from the underlying
+        // 'streambuf' and written starting at the specified 'position' so that
+        // it can hold a value larger than the internal buffer's size.  Return
+        // 0 on success and a non-zero value otherwise.
 
     int skipWhitespace();
         // Skip all whitespace characters and position the cursor onto the
