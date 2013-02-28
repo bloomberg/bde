@@ -16,6 +16,7 @@ bcemt_recursivemutex
 bcemt_recursivemuteximpl_pthread
 bcemt_recursivemuteximpl_win32
 bcemt_rwmutex
+bcemt_saturatedtimeconversion
 bcemt_semaphore
 bcemt_semaphoreimpl_countedpthread
 bcemt_semaphoreimpl_pthread
