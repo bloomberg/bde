@@ -37,10 +37,12 @@ using namespace bsl;  // automatically added by script
 // CREATORS
 // [ 2] bdepcre_RegEx(bslma_Allocator *basicAllocator = 0);
 // [ 2] ~bdepcre_RegEx();
-
+//
 // MANIPULATORS
 // [ 2] void clear();
 // [ 2] int prepare(const char*, int, const char**, int*);
+// [12] int setDepthLimit(int)
+// [12] int setDefaultDepthLimit(int)
 //
 // ACCESSORS
 // [4-6] int flags() const;
@@ -51,6 +53,8 @@ using namespace bsl;  // automatically added by script
 // [ 7] int numSubpatterns() const;
 // [ 2] const bsl::string& pattern() const;
 // [ 7] int subpatternIndex(const char *name) const;
+// [12] int getDepthLimit(int)
+// [12] int getDefaultDepthLimit(int)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] BDEPCRE_FLAG_CASELESS
@@ -487,7 +491,7 @@ typedef bdepcre_RegEx Obj;
         returnValue = regEx.match(&matchVector, message, messageLength);
 
         if (0 != returnValue) {
-            return returnValue;  // no match
+            return returnValue;  // no match                          // RETURN
         }
 //..
 // Next we pass "subjectText" to the 'subpatternIndex' method to obtain the
@@ -524,6 +528,47 @@ int main(int argc, char *argv[])
     bslma_TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING DEPTH LIMIT
+        //  This will test both the default and per-regex depth limit
+        //  attributes.
+        //
+        // Concerns:
+        //  The object depth limit attribute should take on the default value
+        //  by default, and be modifiable by the relevant accessor.
+        //
+        //  The object depth limit attribute should limit the recursion depth
+        //  for regular expression matches.
+        //
+        // Plan:
+        //  Default-construct a regular expression, and make sure that the depth
+        //  limit matches the process default.
+        //
+        //  Modify the process default, making sure that the
+        //  already-constructed regex is not affected, that the process default
+        //  accessor returns the new value, and that a new regex object is
+        //  affected.
+        //
+        //  Modify the depth limit for both objects, and make sure they don't
+        //  affect each other or the default value.
+        //
+        //  Finally, modify the depth limit for a regular expression and make
+        //  sure it affects the behaviour of the various 'match' overloads as
+        //  expected.
+        //
+        // Testing:
+        //   int setDepthLimit(int)
+        //   int setDefaultDepthLimit(int)
+        //   int getDepthLimit(int)
+        //   int getDefaultDepthLimit(int)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Depth Limit"
+                          << "\n===================" << endl;
+
+      } break;
+
       case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
