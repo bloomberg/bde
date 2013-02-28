@@ -4454,7 +4454,7 @@ void TestDriver<TYPE,ALLOC>::testInsert()
             char *v = 0;
 
             x.insert(X.begin(), n, 0);  // Literal null, acts like an int.
-            ASSERT((int) X.size()  == n);
+            ASSERT(X.size()  == (size_t)n);
             ASSERT(X.front() == v);
             ASSERT(X.back()  == v);
         }
@@ -6237,7 +6237,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
             list<char*, ALLOC> x(n, 0);  // Literal null, acts like an int.
             list<char*, ALLOC>& X = x;
 
-            ASSERT((int) X.size()  == n);
+            ASSERT(X.size()  == (size_t)n);
             ASSERT(X.front() == v);
             ASSERT(X.back()  == v);
         }
@@ -8715,6 +8715,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nusageExample2\n");
         usageExample2(veryVerbose);
+
+        // Erase output files.
 
         remove("star_data1.txt");
         remove("star_data2.txt");
