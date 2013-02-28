@@ -166,6 +166,8 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+#if !defined(BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
+
 // We define an object 'policy' of type 'baesu_ObjectFileFormat::Policy', which
 // will be of type '...::Elf', '...::Xcoff', or '...::Windows' appropriate for
 // the platform.
@@ -188,6 +190,8 @@ int main(int argc, char *argv[])
         ASSERT(3 == typeTest(policy));
     #endif
 //..
+
+#endif
 
       }  break;
       case 3: {
@@ -262,6 +266,10 @@ int main(int argc, char *argv[])
         ++count;
 #endif
 
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
+        ++count;
+#endif
+
         ASSERT(1 == count);
       }  break;
       case 1: {
@@ -313,7 +321,9 @@ int main(int argc, char *argv[])
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_CYGWIN)
-    // not implemented
+
+        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED);
+
 #else
 # error unrecognized platform
 #endif
