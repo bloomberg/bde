@@ -343,6 +343,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 #ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
 #include <bslfwd_bslma_allocator.h>
 #endif
@@ -365,15 +369,22 @@ class bdepcre_RegEx {
     // PRIVATE TYPES
     struct Pcre;  // opaque type for the PCRE library
 
+    // CLASS DATA
+    static
+    bsls::AtomicInt  s_depthLimit;   // process-wide default maximum evaluation
+                                     // recursion depth
+
     // PRIVATE DATA
     int              d_flags;        // prepare/match flags
     bsl::string      d_pattern;      // regular expression pattern
     Pcre            *d_pcre_p;       // PCRE's internal data structure (owned)
+    int              d_depthLimit;   // maximum evaluation recursion depth
     bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
-    bdepcre_RegEx(const bdepcre_RegEx& original);
-    bdepcre_RegEx& operator=(const bdepcre_RegEx& rhs);
+    bdepcre_RegEx(const bdepcre_RegEx&);
+    bdepcre_RegEx& operator=(const bdepcre_RegEx&);
 
   public:
     // PUBLIC TYPES
@@ -397,8 +408,16 @@ class bdepcre_RegEx {
         // This enumeration defines the flags that may be supplied to the
         // 'prepare' method to effect specific pattern matching behavior.
 
+    // CLASS METHODS
+    static int getDefaultDepthLimit();
+        // Returns the process-wide default evaluation recursion depth limit.
+
+    static int setDefaultDepthLimit(int depthLimit);
+        // Set the process-wide default evaluation recursion depth limit to the
+        // specified 'depthLimit'.  Returns the previous depth limit.
+
     // CREATORS
-    bdepcre_RegEx(bslma_Allocator *basicAllocator = 0);
+    bdepcre_RegEx(bslma_Allocator *basicAllocator = 0);             // IMPLICIT
         // Create a regular-expression object in the "unprepared" state.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -447,6 +466,10 @@ class bdepcre_RegEx {
         //  BDEPCRE_FLAG_MULTILINE
         //  BDEPCRE_FLAG_UTF8
         //..
+
+    int getDepthLimit() const;
+        // Returns the evaluation recursion depth limit for this
+        // regular-expression object.
 
     bool isPrepared() const;
         // Return 'true' if this regular-expression object is in the "prepared"
@@ -532,6 +555,12 @@ class bdepcre_RegEx {
         // 'isPrepared() == true'.  Note that the returned value is intended to
         // be used as an index into the 'bsl::vector<bsl::pair<int, int> >'
         // returned by 'match'.
+
+    // MANIPULATORS
+    int setDepthLimit(int depthLimit);
+        // Set the evaluation recursion depth limit for this regular-expression
+        // object to the specified 'depthLimit'.  Return the previous depth
+        // limit.
 };
 
 // ============================================================================
@@ -541,6 +570,23 @@ class bdepcre_RegEx {
                              // -------------------
                              // class bdepcre_RegEx
                              // -------------------
+
+// CLASS METHODS
+inline
+int bdepcre_RegEx::getDefaultDepthLimit()
+{
+    return s_depthLimit;
+}
+
+inline
+int bdepcre_RegEx::setDefaultDepthLimit(int depthLimit)
+{
+    int previous = s_depthLimit;
+
+    s_depthLimit = depthLimit;
+
+    return previous;
+}
 
 // CREATORS
 inline
@@ -557,6 +603,12 @@ int bdepcre_RegEx::flags() const
 }
 
 inline
+int bdepcre_RegEx::getDepthLimit() const
+{
+    return d_depthLimit;
+}
+
+inline
 bool bdepcre_RegEx::isPrepared() const
 {
     return 0 != d_pcre_p;
@@ -566,6 +618,18 @@ inline
 const bsl::string& bdepcre_RegEx::pattern() const
 {
     return d_pattern;
+}
+
+// MANIPULATORS
+
+inline
+int bdepcre_RegEx::setDepthLimit(int depthLimit)
+{
+    int previous = d_depthLimit;
+
+    d_depthLimit = depthLimit;
+
+    return previous;
 }
 
 }  // close namespace BloombergLP
