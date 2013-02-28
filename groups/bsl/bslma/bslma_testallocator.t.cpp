@@ -439,7 +439,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TEST USAGE
         //   Verify that the usage example for testing exception neutrality is
@@ -555,6 +555,298 @@ int main(int argc, char *argv[])
 // Note that the 'BDE_BUILD_TARGET_EXC' macro is defined at compile-time to
 // indicate whether or not exceptions are enabled.
 
+      } break;
+     case 12: {
+        // --------------------------------------------------------------------
+        // TEST 'print' METHOD
+        //
+        // Concerns:
+        //: 1 The method correctly prints the allocator state including the
+        //:   in use, maximum, and total number of blocks and bytes.
+        //:
+        //: 2 Any outstanding allocations are mentioned.
+        //:
+        //: 3 The allocator name is provided is specified.
+        //:
+        //: 4 The method is declared 'const'.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //: 4 For each row (representing a distinct attribute value, 'V') in
+        //:   the table of P-3, verify that the class method returns the
+        //:   expected value.  (C-1)
+        //:
+        //: 1 Create a 'bslma_TestAllocator' object, and install it as the
+        //:   default allocator (note that a ubiquitous test allocator is
+        //:   already installed as the global allocator).
+        //:
+        //: 5 Use the test allocator from P-2 to verify that no memory is ever
+        //:   allocated from the default allocator.  (C-3)
+        //
+        // Testing:
+        //   void print() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "TEST 'print' METHOD"
+                          << endl << "===================" << endl;
+
+        static const char *TEMPLATE_WITH_NAME =
+                        "\n"
+                        "==================================================\n"
+                        "                TEST ALLOCATOR %s STATE\n"
+                        "--------------------------------------------------\n"
+                        "        Category\tBlocks\tBytes\n"
+                        "        --------\t------\t-----\n"
+                        "          IN USE\t%lld\t%lld\n"
+                        "             MAX\t%lld\t%lld\n"
+                        "           TOTAL\t%lld\t%lld\n"
+                        "  NUM MISMATCHES\t%lld\n"
+                        "   BOUNDS ERRORS\t%lld\n"
+                        "--------------------------------------------------\n";
+
+        static const char *TEMPLATE_WITHOUT_NAME =
+                        "\n"
+                        "==================================================\n"
+                        "                TEST ALLOCATOR STATE\n"
+                        "--------------------------------------------------\n"
+                        "        Category\tBlocks\tBytes\n"
+                        "        --------\t------\t-----\n"
+                        "          IN USE\t%lld\t%lld\n"
+                        "             MAX\t%lld\t%lld\n"
+                        "           TOTAL\t%lld\t%lld\n"
+                        "  NUM MISMATCHES\t%lld\n"
+                        "   BOUNDS ERRORS\t%lld\n"
+                        "--------------------------------------------------\n";
+
+        const int MAX_ENTRIES = 10;
+        static const
+        struct DefaultDataRow {
+            int         d_line;                  // source line number
+            const char *d_name_p;                // allocator name
+            int         d_numAllocs;             // number of allocations
+            int         d_allocs[MAX_ENTRIES];   // num allocation bytes
+            int         d_numDeallocs;           // number of deallocations
+            int         d_deallocs[MAX_ENTRIES]; // num deallocation indices
+        } DATA [] = {
+            {
+                L_,
+                0,
+                0,
+                { 0 },
+                0,
+                { 0 },
+            },
+            {
+                L_,
+                "",
+                0,
+                { 0 },
+                0,
+                { 0 },
+            },
+            {
+                L_,
+                "FIRST_ALLOCATOR",
+                0,
+                { 0 },
+                0,
+                { 0 },
+            },
+            {
+                L_,
+                0,
+                2,
+                { 10, 20 },
+                1,
+                { 1 },
+            },
+            {
+                L_,
+                "",
+                2,
+                { 10, 20 },
+                1,
+                { 1 },
+            },
+            {
+                L_,
+                "SecondAllocator",
+                2,
+                { 10, 20 },
+                1,
+                { 1 },
+            },
+            {
+                L_,
+                0,
+                5,
+                { 10, 20, 30, 40, 50 },
+                2,
+                { 1, 3 },
+            },
+            {
+                L_,
+                "",
+                5,
+                { 10, 20, 30, 40, 50 },
+                2,
+                { 1, 3 },
+            },
+            {
+                L_,
+                "Third Allocator",
+                5,
+                { 10, 20, 30, 40, 50 },
+                2,
+                { 1, 3 },
+            },
+            {
+                L_,
+                0,
+                2,
+                { 10, 20 },
+                2,
+                { 0, 1 },
+            },
+            {
+                L_,
+                "",
+                2,
+                { 10, 20 },
+                2,
+                { 0, 1 },
+            },
+            {
+                L_,
+                "Fourth_Allocator",
+                2,
+                { 10, 20 },
+                2,
+                { 0, 1 },
+            },
+            {
+                L_,
+                0,
+                10,
+                { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                5,
+                { 0, 2, 4, 6, 8 },
+            },
+            {
+                L_,
+                "",
+                10,
+                { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                5,
+                { 0, 2, 4, 6, 8 },
+            },
+            {
+                L_,
+                "finalallocator",
+                10,
+                { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                5,
+                { 0, 2, 4, 6, 8 },
+            },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE           = DATA[ti].d_line;
+            const char       *NAME           = DATA[ti].d_name_p;
+            const int         NUM_ALLOCS     = DATA[ti].d_numAllocs;
+            const int        *ALLOCS         = DATA[ti].d_allocs;
+            const int         NUM_DEALLOCS   = DATA[ti].d_numDeallocs;
+            const int        *DEALLOCS       = DATA[ti].d_deallocs;
+                  void       *addresses[MAX_ENTRIES];
+                  int         numRemAllocs   = 0;
+                  int         remAllocs[MAX_ENTRIES] = { 0 };
+
+            bslma::TestAllocator ta;
+            bslma::TestAllocator *mXPtr = NAME
+                                        ? new (ta) bslma::TestAllocator(NAME)
+                                        : new (ta) bslma::TestAllocator();
+
+            bslma::TestAllocator& mX = *mXPtr;
+            const bslma::TestAllocator& X = mX;
+
+            for (int di = 0; di < NUM_ALLOCS; ++di) {
+                const int BYTES = DATA[ti].d_allocs[di];
+
+                addresses[di] = mX.allocate(BYTES);
+            }
+
+            for (int di = 0; di < NUM_DEALLOCS; ++di) {
+                const int INDEX = DATA[ti].d_deallocs[di];
+
+                ASSERT(0 <= INDEX && INDEX < NUM_ALLOCS);
+
+                mX.deallocate(addresses[INDEX]);
+            }
+
+            const int   EXP_BUF_SIZE = 1024;
+            char        expBuffer[EXP_BUF_SIZE];
+
+            if (NAME) {
+                sprintf(expBuffer,
+                        TEMPLATE_WITH_NAME,
+                        NAME,
+                        X.numBlocksInUse(), X.numBytesInUse(),
+                        X.numBlocksMax(), X.numBytesMax(),
+                        X.numBlocksTotal(), X.numBytesTotal(),
+                        X.numMismatches(), X.numBoundsErrors());
+            }
+            else {
+                sprintf(expBuffer,
+                        TEMPLATE_WITHOUT_NAME,
+                        X.numBlocksInUse(), X.numBytesInUse(),
+                        X.numBlocksMax(), X.numBytesMax(),
+                        X.numBlocksTotal(), X.numBytesTotal(),
+                        X.numMismatches(), X.numBoundsErrors());
+            }
+
+            int offset = strlen(expBuffer);
+
+            if (NUM_ALLOCS != NUM_DEALLOCS) {
+                for (int i = 0; i < NUM_ALLOCS; ++i) {
+                    bool wasDeallocated = false;
+                    for (int j = 0; j < NUM_DEALLOCS; ++j) {
+                        const int INDEX = DATA[ti].d_deallocs[j];
+
+                        if (INDEX == i) {
+                            wasDeallocated = true;
+                            break;
+                        }
+                    }
+
+                    if (!wasDeallocated) {
+                        remAllocs[numRemAllocs] = i;
+                        ++numRemAllocs;
+                    }
+                }
+
+                strcpy(expBuffer + offset,
+                       " Indices of Outstanding Memory Allocation:\n ");
+                offset = strlen(expBuffer);
+
+                for (int i = 0; i < numRemAllocs; ++i) {
+                    sprintf(expBuffer + offset, "%d\t", remAllocs[i]);
+                    offset = strlen(expBuffer);
+                }
+
+                if (numRemAllocs > 0) {
+                    sprintf(expBuffer + offset, "\n ");
+                }
+            }
+            ASSERT(0 == verifyPrint(X, expBuffer, argc));
+
+            for (int i = 0; i < numRemAllocs; ++i) {
+                mX.deallocate(addresses[remAllocs[i]]);
+            }
+
+            ta.deleteObject(mXPtr);
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------
