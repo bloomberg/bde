@@ -13,7 +13,7 @@ BDES_IDENT_RCSID(bcema_protectablesequentialallocator_cpp,"$Id$ $CSID$")
 #include <bdema_protectableblocklist.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>      // for 'bsl::abs'
 #include <bsl_limits.h>       // for 'bsl::numeric_limits'
@@ -24,8 +24,8 @@ namespace {
 
 // STATIC HELPER FUNCTIONS
 static inline
-bslma::Allocator::size_type roundUp(bslma::Allocator::size_type value,
-                                    bslma::Allocator::size_type multiple)
+bsls::Types::size_type roundUp(bsls::Types::size_type value,
+                               bsls::Types::size_type multiple)
     // Return the specified 'value' rounded up to the next highest multiple of
     // the specified 'multiple'
 {
@@ -120,7 +120,7 @@ bcema_ProtectableSequentialAllocator(
 , d_growthLimit(bsl::numeric_limits<size_type>::max())
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_size(0)
-, d_strategy(bsls_Alignment::BSLS_NATURAL)
+, d_strategy(bsls::Alignment::BSLS_NATURAL)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
@@ -132,7 +132,7 @@ bcema_ProtectableSequentialAllocator(
 
 bcema_ProtectableSequentialAllocator::
 bcema_ProtectableSequentialAllocator(
-                               bsls_Alignment::Strategy         strategy,
+                               bsls::Alignment::Strategy        strategy,
                                bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
 , d_buffer(0)
@@ -152,7 +152,7 @@ bcema_ProtectableSequentialAllocator(
 
 bcema_ProtectableSequentialAllocator::
 bcema_ProtectableSequentialAllocator(
-                          bsls_Alignment::Strategy         strategy,
+                          bsls::Alignment::Strategy        strategy,
                           bsls::BlockGrowth::Strategy      growthStrategy,
                           size_type                        bufferExpansionSize,
                           bdema_ProtectableBlockDispenser *blockDispenser)
@@ -198,10 +198,10 @@ void bcema_ProtectableSequentialAllocator::release()
     d_size    = 0;
 }
 
-bslma::Allocator::size_type bcema_ProtectableSequentialAllocator::expand(
-                                 void                        *address,
-                                 bslma::Allocator::size_type  originalNumBytes,
-                                 bslma::Allocator::size_type  maxNumBytes)
+bsls::Types::size_type bcema_ProtectableSequentialAllocator::expand(
+                                      void                   *address,
+                                      bsls::Types::size_type  originalNumBytes,
+                                      bsls::Types::size_type  maxNumBytes)
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
