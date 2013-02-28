@@ -2,6 +2,8 @@
 
 #include <bdes_platformutil.h>
 
+#include <bslmf_issame.h>    // bsl::is_same
+
 #include <bsls_platform.h>     // for testing only
 #include <bsls_types.h>
 
@@ -768,10 +770,8 @@ int main(int argc, char *argv[])
         //   Concerns:
         //     Since the size_type is generated, it is possible that the
         //     typedef statements concerned for those types were wrong.  We
-        //     must ensure that:
-        //     - 'size_type' has the same signed-ness as
-        //       'bsls::Types::size_type'
-        //     - a size_type is the same size as 'bsls::Types::size_type'
+        //     must ensure that 'bdes_PlatformUtil::size_type' is the same type
+        //     as 'bsls::Types::size_type'.
         //
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
@@ -788,18 +788,14 @@ int main(int argc, char *argv[])
 
         typedef bdes_PlatformUtil Util;
 
-        // Must be the same size as 'bsls::Types::size_type'
-        LOOP2_ASSERT(
-                    sizeof(Util::size_type),
-                    sizeof(bsls::Types::size_type),
-                    sizeof(Util::size_type) == sizeof(bsls::Types::size_type));
+        // Note that we cannot assert directly on the call to 'bsl::is_same',
+        // because the comma between the template parameters confuses the
+        // 'ASSERT' macro.
 
-        // Must have the same signed-ness as bsls::Types::size_type
-        bool isTypesSizeTypeSigned = ~bsls::Types::size_type(0) < 0;
-        bool isUtilSizeTypeSigned  =        ~Util::size_type(0) < 0;
-        LOOP2_ASSERT(isTypesSizeTypeSigned,
-                     isUtilSizeTypeSigned,
-                     isTypesSizeTypeSigned == isUtilSizeTypeSigned);
+        bool isSameType =
+                  bsl::is_same<Util::size_type, bsls::Types::size_type>::value;
+
+        ASSERT(isSameType);
 
       } break;
       case 2: {
