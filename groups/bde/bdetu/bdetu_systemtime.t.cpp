@@ -828,8 +828,8 @@ int main(int argc, char *argv[])
         
                 if (veryVeryVerbose) { T_() P(buffer) }
 
-                putenv(buffer);
-
+                int status = putenv(buffer);
+                ASSERT(0 == status);
                 ASSERT(0 == strcmp(TZ,
                                    const_cast<const char *>(getenv("TZ"))));
                 tzset();

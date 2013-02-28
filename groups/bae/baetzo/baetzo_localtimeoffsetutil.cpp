@@ -62,8 +62,11 @@ int baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
 
 int  baetzo_LocalTimeOffsetUtil::setTimezone()
 {
-    const char *tz       = getenv("TZ");
-    const char *timezone = tz ? tz : "Etc/GMT";
+    const char *timezone = getenv("TZ");
+    if (!timezone) {
+        return -1;                                                    // RETURN
+    }
+
     bcemt_QLockGuard qLockGuard(&s_lock);
     return setTimezone_imp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
 }
