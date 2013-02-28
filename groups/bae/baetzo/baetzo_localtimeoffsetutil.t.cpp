@@ -47,6 +47,8 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
+// [ 2] BOOTSTRAP1: int updateCount();
+// [ 3] BOOTSTRAP2: int updateCount();
 // [ 5] CONCERN: This component uses the default global allocator.
 // [ 5] CONCERN: The static members have the expected initial values.
 // [ X] CONCERN: The public methods of this component are *thread-safe*.
