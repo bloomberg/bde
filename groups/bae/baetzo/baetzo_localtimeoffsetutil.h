@@ -215,12 +215,11 @@ struct baetzo_LocalTimeOffsetUtil {
        // offset from UTC.
 
    static int updateCount();
-       // Return the number updates of the local time period information
-       // (whether or not the update is successful) since the start of the
-       // process.  This count is incremented on calls to any of the
-       // 'setTimeZone' methods and when 'loadLocalTimePeriod' is called with a
-       // 'utcDatetime' outside the range of the current local time period
-       // information.
+       // Return the number of successful updates of the local time period
+       // information since the start of the process.  This count is
+       // incremented on calls to any of the 'setTimeZone' methods and when
+       // 'loadLocalTimePeriod' is called with a 'utcDatetime' outside the
+       // range of the current local time period information.
 };
 
 // ============================================================================

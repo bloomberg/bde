@@ -15,11 +15,17 @@ int baetzo_LocalTimeOffsetUtil::setTimezone_imp(
                                              const char           *timezone,
                                              const bdet_Datetime&  utcDatetime)
 {
-    ++s_updateCount;
-    s_timezone = timezone;
-    return baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(&s_localTimePeriod,
-                                                          s_timezone,
+    BSLS_ASSERT(timezone);
+    int retval = baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(
+                                                          &s_localTimePeriod,
+                                                          timezone,
                                                           utcDatetime);
+    if (retval) {
+        return retval;                                                // RETURN
+    }
+    s_timezone = timezone;
+    ++s_updateCount;
+    return retval;
 }
 
 // CLASS DATA
