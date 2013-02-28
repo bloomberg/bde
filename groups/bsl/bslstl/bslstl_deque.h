@@ -886,49 +886,6 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // exception.
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
-//: o A sequence container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <typename VALUE_TYPE, typename ALLOCATOR>
-struct HasStlIterators<bsl::deque<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
-{};
-
-}
-
-namespace bslmf {
-
-template <typename VALUE_TYPE, typename ALLOCATOR>
-struct IsBitwiseMoveable<bsl::deque<VALUE_TYPE, ALLOCATOR> >
-    : IsBitwiseMoveable<ALLOCATOR>
-{};
-
-}
-
-namespace bslma {
-
-template <typename VALUE_TYPE, typename ALLOCATOR>
-struct UsesBslmaAllocator<bsl::deque<VALUE_TYPE, ALLOCATOR> >
-    : bsl::is_convertible<Allocator*, ALLOCATOR>
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
-
 // FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator==(const deque<VALUE_TYPE,ALLOCATOR>& lhs,
@@ -3033,6 +2990,47 @@ Deque_Guard<VALUE_TYPE, ALLOCATOR>::end() const
 }
 
 }  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct HasStlIterators<bsl::deque<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslmf {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct IsBitwiseMoveable<bsl::deque<VALUE_TYPE, ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::deque<VALUE_TYPE, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

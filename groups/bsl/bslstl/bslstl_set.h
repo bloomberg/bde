@@ -1013,43 +1013,6 @@ class set {
 
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *ordered* containers:
-//: o An ordered container defines STL iterators.
-//: o An ordered container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <typename KEY,
-          typename COMPARATOR,
-          typename ALLOCATOR>
-struct HasStlIterators<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
-    : bsl::true_type
-{};
-
-}
-
-namespace bslma {
-
-template <typename KEY,
-          typename COMPARATOR,
-          typename ALLOCATOR>
-struct UsesBslmaAllocator<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
-    : bsl::is_convertible<Allocator*, ALLOCATOR>
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
-
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator==(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
@@ -1783,6 +1746,41 @@ void bsl::swap(bsl::set<KEY, COMPARATOR, ALLOCATOR>& a,
 {
     a.swap(b);
 }
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct HasStlIterators<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

@@ -2131,50 +2131,6 @@ class basic_string
         // "Lexicographical Comparisons" for definitions.
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
-//: o A sequence container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
-struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
-    : bsl::true_type
-{};
-
-}
-
-namespace bslmf {
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
-struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
-    : IsBitwiseMoveable<ALLOC>
-{};
-
-}
-
-namespace bslma {
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
-struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
-    : bsl::is_convertible<Allocator*, ALLOC>
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
-
 // TYPEDEFS
 typedef basic_string<char>    string;
 typedef basic_string<wchar_t> wstring;
@@ -5527,6 +5483,48 @@ hashBasicString(const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
 }
 
 }  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslmf {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : IsBitwiseMoveable<ALLOC>
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : bsl::is_convertible<Allocator*, ALLOC>
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #undef BSLSTL_CHAR_TRAITS
 
