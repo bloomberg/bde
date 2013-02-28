@@ -1,6 +1,8 @@
 // bdema_testprotectableblockdispenser.t.cpp -*-C++-*-
 
 #include <bdema_testprotectableblockdispenser.h>
+
+#include <bslma_allocator.h>
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_platform.h>      // BDES_PLATFORM__ defines
@@ -10,6 +12,7 @@
 #include <bsl_cstdio.h>               // printf()
 #include <bsl_cstdlib.h>              // atoi()
 #include <bsl_cstring.h>              // memset(), strlen()
+#include <bsl_limits.h>               // is_signed
 #include <bsl_new.h>
 #include <bsl_iostream.h>
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -1416,8 +1419,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nMake sure allocate/deallocate invalid "
                           << "size/address is recorded." << endl;
         static const bool BSLMA_SIZE_IS_SIGNED =
-                                ~BloombergLP::bslma::Allocator::size_type(0) <=
-                                 BloombergLP::bslma::Allocator::size_type(0);
+                   bsl::numeric_limits<bslma::Allocator::size_type>::is_signed;
 
         a.setNoAbort(1);
         a.setQuiet(1);
