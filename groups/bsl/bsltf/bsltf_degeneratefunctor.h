@@ -7,16 +7,26 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an enumerated test type.
+//@PURPOSE: Provide an awkward type to adapt a user-supplied functor.
 //
 //@CLASSES:
-//   bsltf::EnumeratedTestType: enumerated test type
+//  bsltf::DegenerateFunctor: awkward type that adapts a user-supplied functor
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
-//@DESCRIPTION: This component provides ... (TBD)
+//@DESCRIPTION: This component provides a functor adaptor, primarily for use
+// when testing templates that accept some arbitrary notion of functor.  The
+// adaptror embodied by this component provides the most awkward interface we
+// can imagine that should be accepted by generic code, especially for code
+// conforming to the widest interpretation of the C++ standard library.  Many
+// common operations that would be implicitly supplied, such as the address-of
+// operator and the comma operator, are explicitly disabled.  While the adapter
+// remains CopyConstructible so that it may be used as a member of a class,
+// such as a standard container, it is not CopyAssignable, and so typically is
+// not Swappable.  An additional boolean template argument optionally creates
+// an adapter that supports swapping.
 //
 ///Usage
 ///-----
@@ -30,17 +40,16 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
-
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>  // 'swap', supplied by <utility> in C++11
-#define INCLUDED_ALGORITHM
 #endif
 
 namespace BloombergLP {
@@ -53,7 +62,7 @@ namespace bsltf {
 
 template <class FUNCTOR, bool ENABLE_SWAP = true>
 class DegenerateFunctor : private FUNCTOR {
-    // This test class template adapts a DefaultConstructible class to offer
+    // This test class template adapts a CopyConstructible class to offer
     // a minimal or outright obstructive interface for testing generic code.
     // We expect to use this to supply Hasher and Comparator classes to test
     // 'HashTable', which must be CopyConstructible, Swappable, and nothrow
@@ -169,8 +178,8 @@ DegenerateFunctor<FUNCTOR, ENABLE_SWAP>::exchangeValues(
 {
     BSLS_ASSERT_SAFE(other);
 
-    using std::swap;
-    swap(static_cast<FUNCTOR&>(*this), static_cast<FUNCTOR&>(*other));
+    bslalg::SwapUtil::swap(static_cast<FUNCTOR *>(this),
+                           static_cast<FUNCTOR *>(other) );
 }
 
 }  // close package namespace
