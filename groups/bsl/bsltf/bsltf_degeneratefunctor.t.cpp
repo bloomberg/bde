@@ -7,7 +7,6 @@
 #include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace BloombergLP::bsltf;
 
 //=============================================================================
 //                             TEST PLAN
@@ -73,6 +72,24 @@ static void aSsErT(bool b, const char *s, int i) {
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
+//                          HELPER CLASS FOR TESTING
+//-----------------------------------------------------------------------------
+
+template <class TYPE>
+struct Compare {
+    bool operator()(const TYPE& a, const TYPE& b) const;
+       // Return 'true' if the specified 'a' compares equal to the specified
+       // 'b' using the operator '=='.
+};
+
+template <class TYPE>
+inline
+bool Compare<TYPE>::operator()(const TYPE& a, const TYPE& b) const
+{
+    return a == b;
+}
+
+//=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -111,6 +128,18 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+
+        typedef bsltf::DegenerateFunctor<Compare<int> > ComparatorType;
+        typedef bsltf::DegenerateFunctor<Compare<int>, true > SwappableType;
+
+        const ComparatorType x = ComparatorType::cloneBaseObject(
+                                                               Compare<int>());
+        ASSERT(( x(1, 1)));
+        ASSERT((!x(1, 2)));
+
+        ComparatorType y = ComparatorType::cloneBaseObject(Compare<int>());
+        ComparatorType z = ComparatorType::cloneBaseObject(Compare<int>());
+        swap(y, z);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
