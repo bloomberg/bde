@@ -3,11 +3,10 @@
 #include <bslmf_typelist.h>
 #include <bslmf_issame.h>
 
-#include <cstdio>
-#include <cstdlib>    // atoi()
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN

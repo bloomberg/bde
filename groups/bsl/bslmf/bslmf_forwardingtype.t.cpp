@@ -4,7 +4,9 @@
 #include <bslmf_isarray.h>
 #include <bslmf_issame.h>          // for testing only
 
-#include <cstdlib>    // atoi()
+#include <bsls_platform.h>
+
+#include <stdlib.h>    // atoi()
 #include <iostream>
 #include <typeinfo>
 

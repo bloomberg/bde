@@ -2,13 +2,12 @@
 
 #include <bslmf_metaint.h>
 
-#include <climits>
-#include <cstdio>
-#include <cstdlib>      // atoi()
-#include <cstring>      // strcmp()
+#include <limits.h>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
+#include <string.h>  // 'strcmp'
 
 using namespace BloombergLP;
-using namespace std;
 using namespace bslmf;
 
 //=============================================================================

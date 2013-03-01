@@ -2,13 +2,12 @@
 
 #include <bslmf_isbitwisemoveable.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <new>
 
 using namespace BloombergLP;
-using namespace std;
 using namespace bsl;
 
 //=============================================================================
@@ -142,7 +141,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                                  bsl::true_type)
     {
         // Bitwise moveable types can be moved using memcpy
-        std::memcpy(to, from, size * sizeof(TYPE));
+        memcpy(to, from, size * sizeof(TYPE));
     }
 
     template <class TYPE>

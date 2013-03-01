@@ -3,15 +3,11 @@
 
 #include <bslmf_issame.h>  // for testing only
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::atoi;
-using std::printf;
-using std::fprintf;
 
 //=============================================================================
 //                                TEST PLAN

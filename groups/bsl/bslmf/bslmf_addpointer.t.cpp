@@ -4,15 +4,11 @@
 #include <bslmf_issame.h>  // for testing only
 #include <bsls_compilerfeatures.h>
 
-#include <cstdlib>
-#include <cstdio>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::atoi;
 
 //=============================================================================
 //                                TEST PLAN

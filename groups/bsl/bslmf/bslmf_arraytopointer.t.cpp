@@ -5,7 +5,7 @@
 
 #include <bsls_platform.h>            // for testing only
 
-#include <cstdlib>    // atoi()
+#include <stdlib.h>    // atoi()
 #include <iostream>
 #include <typeinfo>
 

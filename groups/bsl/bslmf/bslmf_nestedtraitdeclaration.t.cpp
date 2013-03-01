@@ -2,11 +2,10 @@
 
 #include <bslmf_nestedtraitdeclaration.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN

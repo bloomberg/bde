@@ -5,12 +5,11 @@
 #include <bslmf_matchanytype.h>  // for testing only (Usage)
 #include <bslmf_nil.h>           // for testing only (Usage)
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 #include <typeinfo>
 
 using namespace BloombergLP;
-using namespace std;
 
 // ============================================================================
 //                             TEST PLAN

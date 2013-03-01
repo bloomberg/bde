@@ -2,13 +2,12 @@
 
 #include <bslmf_selecttrait.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
+#include <string.h>
 #include <new>
 
 using namespace BloombergLP;
-using namespace std;
 using namespace bsl;
 
 //=============================================================================
@@ -322,7 +321,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                       bslma::Allocator                        *,
                       bslmf::SelectTraitCase<IsBitwiseCopyable>)
         {
-            std::memcpy(address, &original, sizeof(original));
+            memcpy(address, &original, sizeof(original));
             ++d_isBitwiseCopyableCounter;
         }
 

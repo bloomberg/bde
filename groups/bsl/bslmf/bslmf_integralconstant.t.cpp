@@ -2,9 +2,9 @@
 
 #include <bslmf_integralconstant.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <climits>
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
 
 using namespace std;
 
