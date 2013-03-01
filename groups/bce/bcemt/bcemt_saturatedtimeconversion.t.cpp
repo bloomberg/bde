@@ -313,6 +313,21 @@ int main(int argc, char *argv[])
             ASSERT(d == uintMax);
         }
 
+        for (ns = -BILLION + MILLION; ns < BILLION; ns += MILLION / 4) {
+            bdet_TimeInterval ti(0, ns);
+            ASSERT(ti.nanoseconds() == ns);
+
+            Obj::toMillisec(&d, ti);
+
+            if (ns <= 0) {
+                ASSERT(0 == d);
+            }
+            else {
+                ASSERT(ns / MILLION >= 0);
+                ASSERT((DWORD) (ns / MILLION) == d);
+            }
+        }
+
         ns = 0;
         for (ns = 0; ns < BILLION; ns += MILLION) {
             bdet_TimeInterval ti(int64Max, ns);
