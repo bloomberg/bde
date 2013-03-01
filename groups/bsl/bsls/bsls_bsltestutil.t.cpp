@@ -423,7 +423,10 @@ static void realaSsErT(bool b, const char *s, int i)
       public:
         // CREATORS
         BlockList();
+            // Create an empty 'BlockList'.
+
         ~BlockList();
+            // Destroy this object.
 
         // MANIPULATORS
 
@@ -431,11 +434,12 @@ static void realaSsErT(bool b, const char *s, int i)
         Block *end();
 
         void addBlock(size_t size);
-
+            // Add a block of the specified 'size' to is 'BlockList'.
         // ...
 
         // ACCESSORS
         int length();
+            // Return the number of blocks in this 'BlockList'.
 
         // ...
     };
