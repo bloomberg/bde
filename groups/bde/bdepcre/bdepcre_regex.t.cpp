@@ -41,8 +41,8 @@ using namespace bsl;  // automatically added by script
 // MANIPULATORS
 // [ 2] void clear();
 // [ 2] int prepare(const char*, int, const char**, int*);
-// [12] int setDepthLimit(int)
-// [12] int setDefaultDepthLimit(int)
+// [11] int setDepthLimit(int)
+// [11] int setDefaultDepthLimit(int)
 //
 // ACCESSORS
 // [4-6] int flags() const;
@@ -53,15 +53,15 @@ using namespace bsl;  // automatically added by script
 // [ 7] int numSubpatterns() const;
 // [ 2] const bsl::string& pattern() const;
 // [ 7] int subpatternIndex(const char *name) const;
-// [12] int getDepthLimit(int)
-// [12] int getDefaultDepthLimit(int)
+// [11] int getDepthLimit(int)
+// [11] int getDefaultDepthLimit(int)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] BDEPCRE_FLAG_CASELESS
 // [ 5] BDEPCRE_FLAG_MULTILINE
 // [ 6] BDEPCRE_FLAG_UTF8
 // [ 8] ALLOCATION PROPAGATION
-// [ 9] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -530,97 +530,6 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING DEPTH LIMIT
-        //  This will test both the default and per-regex depth limit
-        //  attributes.
-        //
-        // Concerns:
-        //  The object depth limit attribute should take on the default value
-        //  by default, and be modifiable by the relevant accessor.
-        //
-        //  The object depth limit attribute should limit the recursion depth
-        //  for regular expression matches.
-        //
-        // Plan:
-        //  Default-construct a regular expression, and make sure that the depth
-        //  limit matches the process default.
-        //
-        //  Modify the process default, making sure that the
-        //  already-constructed regex is not affected, that the process default
-        //  accessor returns the new value, and that a new regex object is
-        //  affected.
-        //
-        //  Modify the depth limit for both objects, and make sure they don't
-        //  affect each other or the default value.
-        //
-        //  Finally, modify the depth limit for a regular expression and make
-        //  sure it affects the behaviour of the various 'match' overloads as
-        //  expected.
-        //
-        // Testing:
-        //   int setDepthLimit(int)
-        //   int setDefaultDepthLimit(int)
-        //   int getDepthLimit(int)
-        //   int getDefaultDepthLimit(int)
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Depth Limit"
-                          << "\n===================" << endl;
-
-        Obj x;
-        int originalDepthLimit = x.depthLimit();
-
-        ASSERT(x.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
-
-        bdepcre_RegEx::setDefaultDepthLimit(3);
-        ASSERT(3                  == bdepcre_RegEx::defaultDepthLimit());
-        ASSERT(3                  != originalDepthLimit);
-        ASSERT(originalDepthLimit == x.depthLimit());
-
-        Obj y;
-
-        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
-
-        x.setDepthLimit(5);
-        ASSERT(5              == x.depthLimit());
-        ASSERT(5              != originalDepthLimit);
-        ASSERT(3              == bdepcre_RegEx::defaultDepthLimit());
-        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
-
-        const char *testString       = "a\n\n\n\n\nb";
-        bsl::size_t testStringLength = bsl::strlen(testString);
-        const char *testRegex        = "a(\n)+b";
-
-        bsl::string errorMessage;
-        int         errorOffset;
-
-        bsl::pair<int, int> resultPair;
-        bsl::vector<bsl::pair<int, int> > resultVector;
-
-        // We expect this to fail at depth 3, since it requires depth 14
-        ASSERT(0 == y.prepare(&errorMessage, &errorOffset, testRegex));
-        ASSERT(3 == y.depthLimit());
-        ASSERT(0 != y.match(testString, testStringLength));
-        ASSERT(0 != y.match(&resultPair, testString, testStringLength));
-        ASSERT(0 != y.match(&resultVector, testString, testStringLength));
-
-        // We expect this to fail at depth 5
-        ASSERT(0 == x.prepare(&errorMessage, &errorOffset, testRegex));
-        ASSERT(5 == x.depthLimit());
-        ASSERT(0 != x.match(testString, testStringLength));
-        ASSERT(0 != x.match(&resultPair, testString, testStringLength));
-        ASSERT(0 != x.match(&resultVector, testString, testStringLength));
-
-        // We know this succeeds at depth 14
-        x.setDepthLimit(14);
-        ASSERT(14 == x.depthLimit());
-        ASSERT( 0 == x.match(testString, testStringLength));
-        ASSERT( 0 == x.match(&resultPair, testString, testStringLength));
-        ASSERT( 0 == x.match(&resultVector, testString, testStringLength));
-      } break;
-
-      case 11: {
-        // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   This will test the usage example provided in the component header
         //   file.
@@ -678,6 +587,98 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nEnd of Usage Example Test." << endl;
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING DEPTH LIMIT
+        //  This will test both the default and per-regex depth limit
+        //  attributes.
+        //
+        // Concerns:
+        //  The object depth limit attribute should take on the default value
+        //  by default, and be modifiable by the relevant accessor.
+        //
+        //  The object depth limit attribute should limit the recursion depth
+        //  for regular expression matches.
+        //
+        // Plan:
+        //  Default-construct a regular expression, and make sure that the depth
+        //  limit matches the process default.
+        //
+        //  Modify the process default, making sure that the
+        //  already-constructed regex is not affected, that the process default
+        //  accessor returns the new value, and that a new regex object is
+        //  affected.
+        //
+        //  Modify the depth limit for both objects, and make sure they don't
+        //  affect each other or the default value.
+        //
+        //  Finally, modify the depth limit for a regular expression and make
+        //  sure it affects the behaviour of the various 'match' overloads as
+        //  expected.
+        //
+        // Testing:
+        //   int setDepthLimit(int)
+        //   int setDefaultDepthLimit(int)
+        //   int getDepthLimit(int)
+        //   int getDefaultDepthLimit(int)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Depth Limit"
+                          << "\n===================" << endl;
+
+        Obj x;
+        int originalDepthLimit = x.depthLimit();
+
+        ASSERT(x.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+
+        int previousGlobalLimit = bdepcre_RegEx::setDefaultDepthLimit(3);
+        ASSERT(3                  == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(3                  != originalDepthLimit);
+        ASSERT(originalDepthLimit == x.depthLimit());
+        ASSERT(originalDepthLimit == previousGlobalLimit);
+
+        Obj y;
+
+        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+
+        int previousXLimit = x.setDepthLimit(5);
+        ASSERT(5              == x.depthLimit());
+        ASSERT(5              != originalDepthLimit);
+        ASSERT(3              == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(previousXLimit == previousGlobalLimit);
+        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+
+        const char *testString       = "a\n\n\n\n\nb";
+        bsl::size_t testStringLength = bsl::strlen(testString);
+        const char *testRegex        = "a(\n)+b";
+
+        bsl::string errorMessage;
+        int         errorOffset;
+
+        bsl::pair<int, int> resultPair;
+        bsl::vector<bsl::pair<int, int> > resultVector;
+
+        // We expect this to fail at depth 3, since it requires depth 14
+        ASSERT(0 == y.prepare(&errorMessage, &errorOffset, testRegex));
+        ASSERT(3 == y.depthLimit());
+        ASSERT(0 != y.match(testString, testStringLength));
+        ASSERT(0 != y.match(&resultPair, testString, testStringLength));
+        ASSERT(0 != y.match(&resultVector, testString, testStringLength));
+
+        // We expect this to fail at depth 5
+        ASSERT(0 == x.prepare(&errorMessage, &errorOffset, testRegex));
+        ASSERT(5 == x.depthLimit());
+        ASSERT(0 != x.match(testString, testStringLength));
+        ASSERT(0 != x.match(&resultPair, testString, testStringLength));
+        ASSERT(0 != x.match(&resultVector, testString, testStringLength));
+
+        // We know this succeeds at depth 14
+        x.setDepthLimit(14);
+        ASSERT(14 == x.depthLimit());
+        ASSERT( 0 == x.match(testString, testStringLength));
+        ASSERT( 0 == x.match(&resultPair, testString, testStringLength));
+        ASSERT( 0 == x.match(&resultVector, testString, testStringLength));
       } break;
       case 10: {
         // --------------------------------------------------------------------
