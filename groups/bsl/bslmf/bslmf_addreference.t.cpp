@@ -2,8 +2,9 @@
 
 #include <bslmf_addreference.h>
 
-#include <bslmf_issame.h>
 #include <bslmf_addrvaluereference.h>
+#include <bslmf_issame.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>    // atoi()

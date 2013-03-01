@@ -2,6 +2,8 @@
 #include <bslmf_addpointer.h>
 
 #include <bslmf_issame.h>  // for testing only
+
+#include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
 #include <stdio.h>   // 'printf'

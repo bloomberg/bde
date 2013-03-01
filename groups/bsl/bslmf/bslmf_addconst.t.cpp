@@ -78,7 +78,6 @@ struct TestType {
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;

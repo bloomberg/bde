@@ -3,6 +3,8 @@
 
 #include <bslmf_issame.h>  // for testing only
 
+#include <bsls_bsltestutil.h>
+
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
 
@@ -79,8 +81,8 @@ struct TestType {
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    bool     verbose = argc > 2;
+    bool veryVerbose = argc > 3;
 
     (void) verbose;
     (void) veryVerbose;

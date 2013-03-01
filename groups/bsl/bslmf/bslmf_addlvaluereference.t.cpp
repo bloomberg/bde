@@ -9,6 +9,10 @@
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4180)  // 'const' applied to function type
+#endif
+
 using namespace bsl;
 using namespace BloombergLP;
 

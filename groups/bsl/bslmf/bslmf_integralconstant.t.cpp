@@ -2,11 +2,13 @@
 
 #include <bslmf_integralconstant.h>
 
+#include <bsls_bsltestutil.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 
-using namespace std;
+using namespace BloombergLP;
 
 //=============================================================================
 //                             TEST PLAN
@@ -98,49 +100,20 @@ void aSsErT(int c, const char *s, int i) {
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                    \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                  \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\t"); \
-                printf("%s", #M ": "); dbg_print(M); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");     // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n")  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
-#define L_ __LINE__                        // current Line number
-#define T_ putchar('\t');                  // Print a tab (w/o newline)
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -156,40 +129,6 @@ struct DummyType
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-void dbg_print_char(int val)
-    // Print the specified integer 'val' as a signed char.  If called with an
-    // argument of unsigned char type, the promotion rules will cause it to
-    // be printed as a positive value.
-{
-    if (val < 0) {
-        printf("-");
-        val = -val;
-    }
-    if (' ' <= val && val < '\177')
-        printf("'%c'", val);  // Printable character
-    else
-        printf("'\\%o'", val);  // Unprintable character (print as octal)
-    fflush(stdout);
-}
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(char val) { dbg_print_char(val); }
-inline void dbg_print(unsigned char val) { dbg_print_char(val); }
-inline void dbg_print(signed char val) { dbg_print_char(val); }
-inline void dbg_print(short val) { printf("%hd", val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {printf("%hu", val); fflush(stdout);}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) { printf("%lu", val); fflush(stdout);}
-inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
-inline void dbg_print(unsigned long long val)
-    { printf("%llu", val); fflush(stdout);}
-inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(const char* val)
-    { printf("\"%s\"", val); fflush(stdout); }
 
 template <class A, class B>
 struct IsSameType
@@ -347,7 +286,7 @@ void fullTest(const char TYPENAME[])
 {
     if (verbose) {
         printf("\nRun fullTest<%s, ", TYPENAME);
-        dbg_print(VAL);
+        bsls::debugprint(VAL);
         printf(">()\n");
     }
 

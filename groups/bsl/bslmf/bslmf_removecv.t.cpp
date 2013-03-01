@@ -3,6 +3,8 @@
 
 #include <bslmf_issame.h>  // for testing only
 
+#include <bsls_bsltestutil.h>
+
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
 

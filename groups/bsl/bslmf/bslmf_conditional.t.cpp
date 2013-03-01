@@ -4,9 +4,14 @@
 #include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4181)  // 'const' applied to reference type
+#endif
 
 using namespace BloombergLP;
 
