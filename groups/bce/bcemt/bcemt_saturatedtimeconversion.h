@@ -197,8 +197,8 @@ class bcemt_SaturatedTimeConversion {
         // is the closest possible value to the value of the specified 'src'.
 #endif
 
-#ifdef bces_platform_WIN32_THREADS
-    static void toMillesec(DWORD *dst, const bdet_TimeInterval& src);
+#ifdef BCES_PLATFORM_WIN32_THREADS
+    static void toMillisec(DWORD *dst, const bdet_TimeInterval& src);
         // Assign to the specified '*dst' the value that it can represent that
         // is the closest possible value to the value of the specified 'src',
         // translated to milliseconds.
@@ -229,9 +229,8 @@ void bcemt_SaturatedTimeConversion::toTimeTImp(int                *dst,
                                                bsls::Types::Int64  src)
 {
     *dst = src > maxOf(*dst) ? maxOf(*dst)
-                             : (src < minOf(*dst) ? minOf(*dst) : src);
+                             : (src < minOf(*dst) ? minOf(*dst) : (int) src);
 }
-
 inline
 void bcemt_SaturatedTimeConversion::toTimeTImp(long               *dst,
                                                bsls::Types::Int64  src)
@@ -240,7 +239,8 @@ void bcemt_SaturatedTimeConversion::toTimeTImp(long               *dst,
     *dst = src;
 #else
     *dst = src > maxOf(*dst) ? maxOf(*dst)
-                             : (src < minOf(*dst) ? minOf(*dst) : src);
+                             : (src < minOf(*dst) ? minOf(*dst)
+                                                  : (long) src);
 #endif
 }
 
@@ -256,7 +256,7 @@ void bcemt_SaturatedTimeConversion::toTimeTImp(unsigned int       *dst,
                                                bsls::Types::Int64  src)
 {
     *dst = src > maxOf(*dst) ? maxOf(*dst)
-                             : (src < 0 ? 0 : src);
+                             : (src < 0 ? 0 : (unsigned int) src);
 }
 
 inline
@@ -267,7 +267,7 @@ void bcemt_SaturatedTimeConversion::toTimeTImp(unsigned long      *dst,
     *dst = src < 0 ? 0 : src;
 #else
     *dst = src > maxOf(*dst) ? maxOf(*dst)
-                             : (src < 0 ? 0 : src);
+                             : (src < 0 ? 0 : (unsigned long) src);
 #endif
 }
 
@@ -275,7 +275,7 @@ inline
 void bcemt_SaturatedTimeConversion::toTimeTImp(unsigned long long *dst,
                                                bsls::Types::Int64  src)
 {
-    *dst = src < 0 ? 0 : src;
+    *dst = src < 0 ? 0 : (unsigned long long) src;
 }
 
 #ifdef BCES_PLATFORM_POSIX_THREADS
@@ -323,12 +323,14 @@ void bcemt_SaturatedTimeConversion::toTimeT(bsl::time_t              *dst,
 #ifdef BCES_PLATFORM_WIN32_THREADS
 
 inline
-void bcemt_SaturatedTimeConversion::toMillesec(DWORD                    *dst,
+void bcemt_SaturatedTimeConversion::toMillisec(DWORD                    *dst,
                                                const bdet_TimeInterval&  src)
 {
     enum { MILLION = 1000 * 1000 };
 
-    BSLMF_ASSERT((bslmf::IsSame<DWORD, unsigned int>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<DWORD, unsigned long>::value));
+    BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));
+    BSLMF_ASSERT((DWORD) -1 > 0);
 
     const Int64 sec = src.seconds();
     const int nanoMilliSeconds = src.nanoseconds() / MILLION;
@@ -343,7 +345,7 @@ void bcemt_SaturatedTimeConversion::toMillesec(DWORD                    *dst,
         // 'sec < 2^32', therefore 'sec * 1000 + 999 < 2^63', so this will
         // work.  We also know that 'sec >= 1', so 'nanoMilliSeconds() >= 0'.
 
-        toTimeTImp(&dst, sec * 1000 + nanoMilliSeconds);
+        toTimeTImp(dst, sec * 1000 + nanoMilliSeconds);
     }
 }
 

@@ -49,6 +49,17 @@ static void aSsErT(int c, const char *s, int i)
    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
               << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
+#define LOOP4_ASSERT(I,J,K,L,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
+              << #K << ": " << K << "\t" << #L << ": " << L <<  "\n";     \
+              aSsErT(1, #X, __LINE__); } }
+
+#define LOOP5_ASSERT(I,J,K,L,M,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
+              << #K << ": " << K << "\t" << #L << ": " << L << "\t" <<    \
+              #M << ": " << M <<  "\n";                                   \
+              aSsErT(1, #X, __LINE__); } }
+
 #define LOOP0_ASSERT    ASSERT
 #define LOOP1_ASSERT    LOOP_ASSERT
 
@@ -224,7 +235,7 @@ int main(int argc, char *argv[])
         // TESTING DWORD
         // --------------------------------------------------------------------
 
-#ifndef bces_platform_WIN32_THREADS
+#ifndef BCES_PLATFORM_WIN32_THREADS
         if (verbose) cout << "NOT WINDOWS -- DWORD TEST NOT RUN\n"
                              "=================================\n";
 #else
@@ -243,22 +254,25 @@ int main(int argc, char *argv[])
 
         for (int ns = BILLION - 1; ns >= 0; ns -= MILLION) {
             bdet_TimeInterval ti(maxSec, ns);
-            Obj::toMilliSec(&d, ti);
+            Obj::toMillisec(&d, ti);
 
-            ASSERT((Int64) d == (ns > maxNSec ? uintMax : 1000 * maxSec + ns));
+            Int64 expected = ns > maxNSec ? uintMax
+                                          : 1000 * maxSec + ns / MILLION;
+            ASSERTV(uintMax, maxNSec, ns, d, expected, (Int64) d == expected);
         }
 
         for (Int64 i = maxSec - 1000; i < maxSec + 1000; ++i) {
             bdet_TimeInterval ti(i, 0);
-            Obj::toMilliSec(&d, ti);
+            Obj::toMillisec(&d, ti);
 
             ASSERT((Int64) d == (i > maxSec ? uintMax : i * 1000));
         }
 
         Int64 nsDiv = maxNSec / MILLION + 1;
+        ASSERT(nsDiv < 1000);
         for (Int64 i = maxSec - 1000; i < maxSec + 1000; ++i) {
             bdet_TimeInterval ti(i, maxNSec + MILLION);
-            Obj::toMilliSec(&d, ti);
+            Obj::toMillisec(&d, ti);
 
             ASSERT((Int64) d == (i >= maxSec ? uintMax : i * 1000 + nsDiv));
         }
@@ -267,7 +281,7 @@ int main(int argc, char *argv[])
         int ns = 0;
         for (Int64 i = 0; i < stopAt; i += 1000, ++ns) {
             bdet_TimeInterval ti(i, ns);
-            Obj::toMilliSec(&d, ti);
+            Obj::toMillisec(&d, ti);
 
             ASSERT((Int64) d == (i < maxSec || i == maxSec && ns <= maxNSec
                                ? i * 1000 + ns / MILLION
@@ -276,9 +290,9 @@ int main(int argc, char *argv[])
 
         ns = maxNSec;
         nsDiv = ns / MILLION;
-        for (Int64 i = maxSec; i >= 0; i += 1000) {
+        for (Int64 i = maxSec; i >= 0; i -= 1000) {
             bdet_TimeInterval ti(i, ns);
-            Obj::toMilliSec(&d, ti);
+            Obj::toMillisec(&d, ti);
 
             ASSERT(d == i * 1000 + nsDiv);
         }
@@ -286,15 +300,15 @@ int main(int argc, char *argv[])
         ns = -MILLION;
         for (Int64 i = 0; i > -i48; i -= i32, --ns) {
             bdet_TimeInterval ti(i, ns);
-            Obj::toMilliSec(&d, ti);
+            Obj::toMillisec(&d, ti);
 
             ASSERT(d == 0);
         }
 
-        ns = maxNsec;
+        ns = maxNSec;
         for (Int64 i = maxSec; i < -i48; i += i32, ++ns) {
             bdet_TimeInterval ti(i, ns);
-            Obj::toMilliSec(&d, ti);
+            Obj::toMillisec(&d, ti);
 
             ASSERT(d == uintMax);
         }
@@ -302,7 +316,7 @@ int main(int argc, char *argv[])
         ns = 0;
         for (ns = 0; ns < BILLION; ns += MILLION) {
             bdet_TimeInterval ti(int64Max, ns);
-            Obj::toMilliSec(&d, ti);
+            Obj::toMillisec(&d, ti);
 
             ASSERT(d == uintMax);
         }
@@ -310,7 +324,7 @@ int main(int argc, char *argv[])
         ns = 0;
         for (ns = 0; ns > -BILLION; ns -= MILLION) {
             bdet_TimeInterval ti(int64Min, ns);
-            Obj::toMilliSec(&d, ti);
+            Obj::toMillisec(&d, ti);
 
             ASSERT(d == 0);
         }
