@@ -26,12 +26,11 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BSLTESTUTIL_L_   : current line number
 //  BSLS_BSLTESTUTIL_T_   : print tab without '\n'
 //
-//  BSLS_BSLTESTUTIL_ZU : 'printf' format string for 'size_t'
-//  BSLS_BSLTESTUTIL_ZD : 'printf' format string for 'ssize_t'
-//  BSLS_BSLTESTUTIL_TD : 'printf' format string for 'ptrdiff_t'
-//  BSLS_BSLTESTUTIL_I64: 'printf' format string for 'bsls::Types::Int64'
-//  BSLS_BSLTESTUTIL_U64: 'printf' format string for 'bsls::Types::Uint64'
-//  BSLS_BSLTESTUTIL_ST : 'printf' format string for 'bsls::Types::size_type'
+//  BSLS_BSLTESTUTIL_FORMAT_ZU : 'printf' format for 'size_t'
+//  BSLS_BSLTESTUTIL_FORMAT_ZD : 'printf' format for 'ssize_t'
+//  BSLS_BSLTESTUTIL_FORMAT_TD : 'printf' format for 'ptrdiff_t'
+//  BSLS_BSLTESTUTIL_FORMAT_I64: 'printf' format for unsigned 64-bit integers
+//  BSLS_BSLTESTUTIL_FORMAT_U64: 'printf' format for signed 64-bit integers
 //
 //@DESCRIPTION: This component provides standard facilities for for components
 // in the 'bsl' package group to produce test driver output, including the
@@ -246,8 +245,8 @@ BSLS_IDENT("$Id: $")
 // pattern of '[ A, B, C, D, E, ... ]'.  This could be easily accomplished with
 // multiple calls to 'printf', except that 'printf' has no cross-platform
 // standard formatting string for 'size_t'.  We can use the
-// 'BSLS_BSLTESTUTIL_ZU' macro to resolve the appropriate format string for us
-// on each platform.
+// 'BSLS_BSLTESTUTIL_FORMAT_ZU' macro to resolve the appropriate format string
+// for us on each platform.
 //
 // First, we write a component to test, which provides an a utility that
 // operates on arrays memory blocks.  Each block is a structure containing a
@@ -294,9 +293,7 @@ BSLS_IDENT("$Id: $")
 //
 //  }  // close namespace xyza
 //..
-// Next, we can write a test driver for this component.  After defining the
-// standard BDE test macros, we define a macro, 'ZU' for the platform-specific
-// 'printf' format string for 'size_t':
+// Then, we write a test driver for this component.
 //..
 //  // ...
 //
@@ -305,18 +302,21 @@ BSLS_IDENT("$Id: $")
 //  // ------------------------------------------------------------------------
 //
 //  // ...
-//
+//..
+// Here, after defining the standard BDE test macros, we define a macro, 'ZU'
+// for the platform-specific 'printf' format string for 'size_t':
+//..
 //  // ========================================================================
 //  //                          PRINTF FORMAT MACROS
 //  // ------------------------------------------------------------------------
-//  #define ZU BSLS_BSLTESTUTIL_ZU
+//  #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 //..
-// Note that, we could use 'BSLS_BSLTESTUTIL_ZU' as is, but it is more
+// Note that, we could use 'BSLS_BSLTESTUTIL_FORMAT_ZU' as is, but it is more
 // convenient to define 'ZU' locally as an abbreviation.
 //
-// Then, we write the test apparatus for the test driver.  Included in our test
-// apparatus is a support function that can display a BlockList in a visually
-// succinct form:
+// Next, we write the test apparatus for the test driver, which includes a
+// support function that prints the list of blocks in a 'BlockList' in a
+// visually succinct form:
 //..
 //  void printBlockList(xyza::BlockList &list)
 //  {
@@ -324,10 +324,16 @@ BSLS_IDENT("$Id: $")
 //
 //      printf("{\n");
 //      while (blockPtr != list.end()) {
+//..
+// Here, we use 'ZU' as the format specifier for the 'size_t' in the 'printf'
+// invocation. 'ZU' is the appropriate format specifier for 'size_t' on each
+// supported platform.
+//..
 //          printf("\t{ address: %p,\tsize: " ZU " }",
 //                 blockPtr->d_address,
 //                 blockPtr->d_size);
 //          blockPtr = blockPtr->d_next;
+//
 //          if (blockPtr) {
 //              printf(",\n");
 //          } else {
@@ -341,20 +347,20 @@ BSLS_IDENT("$Id: $")
 // output directly with 'printf' produces more readable output than we would
 // get from callling the standard output macros.
 //
-// Direct 'printf' will yield output similar to:
-//
+// Calling 'printf' directly will yield output similar to:
+//..
 // {
 //     { address: 0x012345600,    size: 32 },
 //     ...
 // }
-//
+//..
 // while the standard output macros would have produced:
-//
+//..
 // {
 //     { blockPtr->d_address = 0x012345600,    blockPtr->d_size: 32 },
 //     ...
 // }
-//
+//..
 // Now, we write a test function for one of our test cases, which provides a
 // detailed trace of 'BlockList' contents:
 //..
@@ -382,7 +388,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Finally, when 'testBlockListConstruction' is called from a test case in
-// 'veryVeryVerbose' mode, we observe the console output:
+// 'veryVeryVerbose' mode, we observe console output similar to:
 //..
 //  {
 //      { address: 0x012345600,    size: 42 },
@@ -503,51 +509,43 @@ BSLS_IDENT("$Id: $")
 
 // PRINTF FORMAT MACROS
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#  define BSLS_BSLTESTUTIL_ZU "%Iu"
+#  define BSLS_BSLTESTUTIL_FORMAT_ZU "%Iu"
 #else
-#  define BSLS_BSLTESTUTIL_ZU "%zu"
+#  define BSLS_BSLTESTUTIL_FORMAT_ZU "%zu"
 #endif
-    // Provide a platform-independent way to specify a size_t format for
+    // Provide a platform-independent way to specify a 'size_t' format for
     // printf
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#  define BSLS_BSLTESTUTIL_ZD "%Id"
+#  define BSLS_BSLTESTUTIL_FORMAT_ZD "%Id"
 #else
-#  define BSLS_BSLTESTUTIL_ZD "%zd"
+#  define BSLS_BSLTESTUTIL_FORMAT_ZD "%zd"
 #endif
-    // Provide a platform-independent way to specify a ssize_t format for
+    // Provide a platform-independent way to specify a 'ssize_t' format for
     // printf
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#  define BSLS_BSLTESTUTIL_TD "%Id"
+#  define BSLS_BSLTESTUTIL_FORMAT_TD "%Id"
 #else
-#  define BSLS_BSLTESTUTIL_TD "%td"
+#  define BSLS_BSLTESTUTIL_FORMAT_TD "%td"
 #endif
-    // Provide a platform-independent way to specify a ptrdiff_t format for
+    // Provide a platform-independent way to specify a 'ptrdiff_t' format for
     // printf
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#  define BSLS_BSLTESTUTIL_I64 "%I64d"
+#  define BSLS_BSLTESTUTIL_FORMAT_I64 "%I64d"
 #else
-#  define BSLS_BSLTESTUTIL_I64 "%lld"
+#  define BSLS_BSLTESTUTIL_FORMAT_I64 "%lld"
 #endif
-    // Provide a platform-independent way to specify a bsls::Types::Int64
+    // Provide a platform-independent way to specify a signed 64-bit integer
     // format for printf
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#  define BSLS_BSLTESTUTIL_U64 "%I64u"
+#  define BSLS_BSLTESTUTIL_FORMAT_U64 "%I64u"
 #else
-#  define BSLS_BSLTESTUTIL_U64 "%llu"
+#  define BSLS_BSLTESTUTIL_FORMAT_U64 "%llu"
 #endif
-    // Provide a platform-independent way to specify a bsls::Types::Uint64
-    // format for printf
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#  define BSLS_BSLTESTUTIL_ST "%Iu"
-#else
-#  define BSLS_BSLTESTUTIL_ST "%zu"
-#endif // BSLS_PLATFORM_CMP_MSVC
-    // Provide a platform-independent way to specify a bsls::Types::size_type
+    // Provide a platform-independent way to specify an unsigned 64-bit integer
     // format for printf
 
 namespace BloombergLP {

@@ -4,7 +4,7 @@
 
 #include <fcntl.h>
 #include <float.h>     // FLT_MAX, etc.
-#include <limits.h>    // PATH_MAX on linux
+#include <limits.h>    // PATH_MAX on linux, CHAR_BIT
 #include <stddef.h>    // ptrdiff_t
 #include <stdio.h>
 #include <stdlib.h>    // abort
@@ -82,17 +82,29 @@ using namespace BloombergLP;
 //:   'stdout'.
 //
 // ----------------------------------------------------------------------------
+// STANDARD LOOP ASSERT MACROS
 // [ 8] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
 // [ 8] BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
 // [ 8] BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
 // [ 8] BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
 // [ 8] BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
 // [ 8] BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+//
+// STANDARD OUTPUT MACROS
 // [ 7] BSLS_BSLTESTUTIL_Q(X)
 // [ 6] BSLS_BSLTESTUTIL_P(X)
 // [ 6] BSLS_BSLTESTUTIL_P_(X)
 // [ 5] BSLS_BSLTESTUTIL_L_
 // [ 5] BSLS_BSLTESTUTIL_T_
+//
+// PRINTF FORMAT SPECIFIER MACROS
+// [ 9] BSLS_BSLTESTUTIL_FORMAT_ZU
+// [ 9] BSLS_BSLTESTUTIL_FORMAT_ZD
+// [ 9] BSLS_BSLTESTUTIL_FORMAT_TD
+// [ 9] BSLS_BSLTESTUTIL_FORMAT_I64
+// [ 9] BSLS_BSLTESTUTIL_FORMAT_U64
+//
+// UNDERLYING IMPLEMENTATION AND EXTENSIBILITY INTERFACE
 // [ 3] void debugprint(bool v)
 // [ 3] void debugprint(char v)
 // [ 3] void debugprint(signed char v)
@@ -117,6 +129,7 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 // [ 2] TEST APPARATUS: class 'OutputRedirector'
 // [ 9] USAGE EXAMPLE
+// [-1] CONCERN: 'printf' stack corruption test works
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -199,13 +212,11 @@ static void realaSsErT(bool b, const char *s, int i)
         fprintf(stderr, "\t");                                                \
     } while(0)
 
-#define TZU  BSLS_BSLTESTUTIL_ZU
-#define TZD  BSLS_BSLTESTUTIL_ZD
-#define TTD  BSLS_BSLTESTUTIL_TD
-#define TI64 BSLS_BSLTESTUTIL_I64
-#define TU64 BSLS_BSLTESTUTIL_U64
-#define TST  BSLS_BSLTESTUTIL_ST
-
+#define TZU  BSLS_BSLTESTUTIL_FORMAT_ZU
+#define TZD  BSLS_BSLTESTUTIL_FORMAT_ZD
+#define TTD  BSLS_BSLTESTUTIL_FORMAT_TD
+#define TI64 BSLS_BSLTESTUTIL_FORMAT_I64
+#define TU64 BSLS_BSLTESTUTIL_FORMAT_U64
 
 // ============================================================================
 //                             USAGE EXAMPLE CODE
@@ -384,8 +395,8 @@ static void realaSsErT(bool b, const char *s, int i)
 // pattern of '[ A, B, C, D, E, ... ]'.  This could be easily accomplished with
 // multiple calls to 'printf', except that 'printf' has no cross-platform
 // standard formatting string for 'size_t'.  We can use the
-// 'BSLS_BSLTESTUTIL_ZU' macro to resolve the appropriate format string for us
-// on each platform.
+// 'BSLS_BSLTESTUTIL_FORMAT_ZU' macro to resolve the appropriate format string
+// for us on each platform.
 //
 // First, we write a component to test, which provides an a utility that
 // operates on arrays memory blocks.  Each block is a structure containing a
@@ -432,9 +443,7 @@ static void realaSsErT(bool b, const char *s, int i)
 
     }  // close namespace xyza
 //..
-// Next, we can write a test driver for this component.  After defining the
-// standard BDE test macros, we define a macro, 'ZU' for the platform-specific
-// 'printf' format string for 'size_t':
+// Then, we write a test driver for this component.
 //..
     // ...
 
@@ -443,18 +452,21 @@ static void realaSsErT(bool b, const char *s, int i)
     // ------------------------------------------------------------------------
 
     // ...
-
+//..
+// Here, after defining the standard BDE test macros, we define a macro, 'ZU'
+// for the platform-specific 'printf' format string for 'size_t':
+//..
     // ========================================================================
     //                          PRINTF FORMAT MACROS
     // ------------------------------------------------------------------------
-    #define ZU BSLS_BSLTESTUTIL_ZU
+    #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 //..
-// Note that, we could use 'BSLS_BSLTESTUTIL_ZU' as is, but it is more
+// Note that, we could use 'BSLS_BSLTESTUTIL_FORMAT_ZU' as is, but it is more
 // convenient to define 'ZU' locally as an abbreviation.
 //
-// Then, we write the test apparatus for the test driver.  Included in our test
-// apparatus is a support function that can display a BlockList in a visually
-// succinct form:
+// Next, we write the test apparatus for the test driver, which includes a
+// support function that prints the list of blocks in a 'BlockList' in a
+// visually succinct form:
 //..
     void printBlockList(xyza::BlockList &list)
     {
@@ -462,10 +474,16 @@ static void realaSsErT(bool b, const char *s, int i)
 
         printf("{\n");
         while (blockPtr != list.end()) {
+//..
+// Here, we use 'ZU' as the format specifier for the 'size_t' in the 'printf'
+// invocation. 'ZU' is the appropriate format specifier for 'size_t' on each
+// supported platform.
+//..
             printf("\t{ address: %p,\tsize: " ZU " }",
                    blockPtr->d_address,
                    blockPtr->d_size);
             blockPtr = blockPtr->d_next;
+
             if (blockPtr) {
                 printf(",\n");
             } else {
@@ -479,20 +497,20 @@ static void realaSsErT(bool b, const char *s, int i)
 // output directly with 'printf' produces more readable output than we would
 // get from callling the standard output macros.
 //
-// Direct 'printf' will yield output similar to:
-//
+// Calling 'printf' directly will yield output similar to:
+//..
 // {
 //     { address: 0x012345600,    size: 32 },
 //     ...
 // }
-//
+//..
 // while the standard output macros would have produced:
-//
+//..
 // {
 //     { blockPtr->d_address = 0x012345600,    blockPtr->d_size: 32 },
 //     ...
 // }
-//
+//..
 // Now, we write a test function for one of our test cases, which provides a
 // detailed trace of 'BlockList' contents:
 //..
@@ -520,7 +538,7 @@ static void realaSsErT(bool b, const char *s, int i)
     }
 //..
 // Finally, when 'testBlockListConstruction' is called from a test case in
-// 'veryVeryVerbose' mode, we observe the console output:
+// 'veryVeryVerbose' mode, we observe console output similar to:
 //..
 //  {
 //      { address: 0x012345600,    size: 42 },
@@ -785,15 +803,18 @@ bool tempFileName(char *result)
     return true;
 }
 
-void dummyVoidFunction() {
+void dummyVoidFunction()
+{
     return;
 }
 
-int dummyIntFunction() {
+int dummyIntFunction()
+{
     return 0;
 }
 
-double dummyDoubleFunction() {
+double dummyDoubleFunction()
+{
     return 0.0;
 }
 
@@ -1847,36 +1868,6 @@ void TestDriver::testCase3(OutputRedirector                   *output,
 }
 
 // ============================================================================
-//              DUMMY TYPES FOR TESTING PRINTF FORMATTING MACROS
-// ----------------------------------------------------------------------------
-
-struct Types{
-    // Provide a namespace for a suite of 'typedef's that encapsulate
-    // platform-dependent types.
-
-    // TYPES
-    typedef size_t    size_type;
-        // The alias 'size_type' refers to the preferred type for denoting a
-        // number of elements in either allocators or container types.
-
-    typedef size_t    UintPtr;
-    typedef ptrdiff_t IntPtr;
-        // The aliases 'UintPtr' and 'IntPtr' are guaranteed to have the same
-        // size as pointers.
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-    typedef          __int64 Int64;
-    typedef unsigned __int64 Uint64;
-#else
-    typedef          long long Int64;
-    typedef unsigned long long Uint64;
-#endif
-        // The aliases 'Int64' and 'Uint64' stand for the appropriate types
-        // that define signed and unsigned 64-bit integers, respectively, for
-        // the appropriate supported platforms.
-};
-
-// ============================================================================
 //                                MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -1946,45 +1937,246 @@ int main(int argc, char *argv[])
         //:   confirm that the output presents those values with the correct
         //:   signed-ness for the type being printed.  (C-1)
         //:
-        //: 2 Use 'printf' to print out multiple values with a single format
-        //:   string, and confirm that a formatting macro in the format string
-        //:   does not affect the output of the preceding or following values.
+        //: 2 Use 'sscanf' to assign a value to a variable, using the format
+        //:   specifier under test, and confirm that all bytes in the variable
+        //:   are changed by the assignment, and that subsequent memory
+        //:   locations are not changed by the assignment.  (C-2)
         //
         // Testing:
-        //   BSLS_BSLTESTUTIL_ZU
-        //   BSLS_BSLTESTUTIL_ZD
-        //   BSLS_BSLTESTUTIL_TD
-        //   BSLS_BSLTESTUTIL_I64
-        //   BSLS_BSLTESTUTIL_U64
-        //   BSLS_BSLTESTUTIL_ST
+        //   BSLS_BSLTESTUTIL_FORMAT_ZU
+        //   BSLS_BSLTESTUTIL_FORMAT_ZD
+        //   BSLS_BSLTESTUTIL_FORMAT_TD
+        //   BSLS_BSLTESTUTIL_FORMAT_I64
+        //   BSLS_BSLTESTUTIL_FORMAT_U64
         // --------------------------------------------------------------------
 
         if (verbose) {
             fprintf(stderr,
                     "\nTESTING PRINTF SUPPORT"
-                    "\n------------------\n");
+                    "\n----------------------\n");
         }
 
-        if (verbose) {
-            size_t size = sizeof(verbose);
-            fprintf(stderr, "The size is: " TZU "\n", size);
+        if (verbose) fprintf(stderr, "\nTesting for Correct Output\n");
 
-            fprintf(stderr, "size_type format is: %s\n", TST);
-            Types::size_type positive = (Types::size_type) 1;
-            Types::size_type negative = (Types::size_type) -1;
-            fprintf(stderr, "The positive size_type is: " TST "\n", positive);
-            fprintf(stderr, "The negative size_type is: " TST "\n", negative);
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+        const char *SIGNED_EXPECTED   = "<-1> <0> <1> <-9223372036854775808>";
+        const char *UNSIGNED_EXPECTED = "<0> <1> <9223372036854775808>";
+#else
+        const char *SIGNED_EXPECTED   = "<-1> <0> <1> <-2147483648>";
+        const char *UNSIGNED_EXPECTED = "<0> <1> <2147483648>";
+#endif
+        const char *SIGNED_64_EXPECTED   =
+                                         "<-1> <0> <1> <-9223372036854775808>";
+        const char *UNSIGNED_64_EXPECTED = "<0> <1> <9223372036854775808>";
 
-            Types::IntPtr ip = ~Types::IntPtr(0);
-            fprintf(stderr, "ip is " TTD "\n", ip);
-            Types::UintPtr up = ~Types::UintPtr(0);
-            fprintf(stderr, "up is " TZU "\n", up);
+        if (verbose) fprintf(stderr, "\tTesting 'size_t'\n");
+        {
+            size_t zero = 0;
+            size_t one = 1;
+            size_t largeValue = 1;
+            largeValue <<= (sizeof(size_t) * CHAR_BIT) - 1;
 
-            Types::Int64 i64 = ~Types::Int64(0);
-            fprintf(stderr, "ip is " TI64 "\n", i64);
-            Types::Uint64 u64 = ~Types::Uint64(0);
-            fprintf(stderr, "ip is " TU64 "\n", u64);
+            output.reset();
+            printf("<" TZU "> <" TZU "> <" TZU ">", zero, one, largeValue);
+            ASSERT(output.load());
+            ANNOTATED2_ASSERT(UNSIGNED_EXPECTED, "%s",
+                              output.getOutput(), "%s",
+                              0 == output.compare(UNSIGNED_EXPECTED));
         }
+
+        if (verbose) fprintf(stderr, "\tTesting 'ssize_t'\n");
+        {
+            ssize_t minusOne = -1;
+            ssize_t zero = 0;
+            ssize_t one = 1;
+            ssize_t largeValue = 1;
+            largeValue <<= (sizeof(ssize_t) * CHAR_BIT) - 1;
+
+            output.reset();
+            printf("<" TZD "> <" TZD "> <" TZD "> <" TZD ">",
+                                              minusOne, zero, one, largeValue);
+            ASSERT(output.load());
+            ANNOTATED2_ASSERT(SIGNED_EXPECTED, "%s",
+                              output.getOutput(), "%s",
+                              0 == output.compare(SIGNED_EXPECTED));
+        }
+
+        if (verbose) fprintf(stderr, "\tTesting 'ptrdiff_t'\n");
+        {
+            ptrdiff_t minusOne = -1;
+            ptrdiff_t zero = 0;
+            ptrdiff_t one = 1;
+            ptrdiff_t largeValue = 1;
+            largeValue <<= (sizeof(ptrdiff_t) * CHAR_BIT) - 1;
+
+            output.reset();
+            printf("<" TTD "> <" TTD "> <" TTD "> <" TTD ">",
+                                              minusOne, zero, one, largeValue);
+            ASSERT(output.load());
+            ANNOTATED2_ASSERT(SIGNED_EXPECTED, "%s",
+                              output.getOutput(), "%s",
+                              0 == output.compare(SIGNED_EXPECTED));
+        }
+
+        if (verbose) fprintf(stderr, "\tTesting 'Int64'\n");
+        {
+            long long minusOne = -1;
+            long long zero = 0;
+            long long one = 1;
+            long long largeValue = 1;
+            largeValue <<= (sizeof(long long) * CHAR_BIT) - 1;
+
+            output.reset();
+            printf("<" TI64 "> <" TI64 "> <" TI64 "> <" TI64 ">",
+                                              minusOne, zero, one, largeValue);
+            ASSERT(output.load());
+            ANNOTATED2_ASSERT(SIGNED_64_EXPECTED, "%s",
+                              output.getOutput(), "%s",
+                              0 == output.compare(SIGNED_64_EXPECTED));
+        }
+
+        if (verbose) fprintf(stderr, "\tTesting 'Uint64'\n");
+        {
+            unsigned long long zero = 0;
+            unsigned long long one = 1;
+            unsigned long long largeValue = 1;
+            largeValue <<= (sizeof(unsigned long long) * CHAR_BIT) - 1;
+
+            output.reset();
+            printf("<" TU64 "> <" TU64 "> <" TU64 ">", zero, one, largeValue);
+            ASSERT(output.load());
+            ANNOTATED2_ASSERT(UNSIGNED_64_EXPECTED, "%s",
+                              output.getOutput(), "%s",
+                              0 == output.compare(UNSIGNED_64_EXPECTED));
+        }
+
+        if (verbose) fprintf(stderr, "\nTesting for Stack Corruption\n");
+
+        if (verbose) fprintf(stderr, "\tTesting 'size_t'\n");
+        {
+            const size_t        TARGET_ONES   = ~((size_t) 0);
+            const unsigned char SENTINEL_ONES = ~((unsigned char) 0);
+
+            struct {
+                size_t        target;
+                unsigned char sentinel;
+                long long     prophylactic;
+            } data;
+            data.target       = TARGET_ONES;
+            data.sentinel     = SENTINEL_ONES;
+            data.prophylactic = 0;
+
+            const char *INPUT = "0";
+
+            ASSERT(data.target   == TARGET_ONES);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+
+            sscanf(INPUT, TZU, &data.target);
+
+            ASSERT(data.target   ==  0);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+        }
+
+        if (verbose) fprintf(stderr, "\tTesting 'ssize_t'\n");
+        {
+            const ssize_t       TARGET_ONES   = ~((ssize_t) 0);
+            const unsigned char SENTINEL_ONES = ~((unsigned char) 0);
+
+            struct {
+                ssize_t       target;
+                unsigned char sentinel;
+                long long     prophylactic;
+            } data;
+            data.target       = TARGET_ONES;
+            data.sentinel     = SENTINEL_ONES;
+            data.prophylactic = 0;
+
+            const char *INPUT = "0";
+
+            ASSERT(data.target   == TARGET_ONES);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+
+            sscanf(INPUT, TZD, &data.target);
+
+            ASSERT(data.target   ==  0);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+        }
+
+        if (verbose) fprintf(stderr, "\tTesting 'ptrdiff_t'\n");
+        {
+            const ptrdiff_t     TARGET_ONES   = ~((ptrdiff_t) 0);
+            const unsigned char SENTINEL_ONES = ~((unsigned char) 0);
+
+            struct {
+                ptrdiff_t     target;
+                unsigned char sentinel;
+                long long     prophylactic;
+            } data;
+            data.target       = TARGET_ONES;
+            data.sentinel     = SENTINEL_ONES;
+            data.prophylactic = 0;
+
+            const char *INPUT = "0";
+
+            ASSERT(data.target   == TARGET_ONES);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+
+            sscanf(INPUT, TTD, &data.target);
+
+            ASSERT(data.target   ==  0);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+        }
+
+        if (verbose) fprintf(stderr, "\tTesting 'Int64' (equivalent)\n");
+        {
+            const long long     TARGET_ONES   = ~((long long) 0);
+            const unsigned char SENTINEL_ONES = ~((unsigned char) 0);
+
+            struct {
+                long long     target;
+                unsigned char sentinel;
+                long long     prophylactic;
+            } data;
+            data.target       = TARGET_ONES;
+            data.sentinel     = SENTINEL_ONES;
+            data.prophylactic = 0;
+
+            const char *INPUT = "0";
+
+            ASSERT(data.target   == TARGET_ONES);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+
+            sscanf(INPUT, TI64, &data.target);
+
+            ASSERT(data.target   ==  0);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+        }
+
+        if (verbose) fprintf(stderr, "\tTesting 'Uint64' (equivalent)\n");
+        {
+            const unsigned long long TARGET_ONES   = ~((unsigned long long) 0);
+            const unsigned char      SENTINEL_ONES = ~((unsigned char) 0);
+
+            struct {
+                unsigned long long target;
+                unsigned char      sentinel;
+                long long          prophylactic;
+            } data;
+            data.target       = TARGET_ONES;
+            data.sentinel     = SENTINEL_ONES;
+            data.prophylactic = 0;
+
+            const char *INPUT = "0";
+
+            ASSERT(data.target   == TARGET_ONES);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+
+            sscanf(INPUT, TU64, &data.target);
+
+            ASSERT(data.target   ==  0);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+        }
+
       } break;
       case 8: {
         // ------------------------------------------------------------------
@@ -4095,6 +4287,71 @@ int main(int argc, char *argv[])
 
             ASSERT(testStatus == 6);
         }
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'printf' stack corruption test works
+        //
+        // Concerns:
+        //   That the data corruption strategy used in test case 9 would detect
+        //   corruption if the format specifier string under test were
+        //   incorrect, i.e. that the 'data.target' and 'data.sentinel' values
+        //   tested in test case 9 would actually trigger asserts.
+        //
+        // Plan:
+        //   Use the same test strategy as the stack corruption test in test
+        //   case 9, using format strings that are either smaller or larger
+        //   than the type being printed.
+        //
+        // Testing:
+        //   CONCERN: 'printf' stack corruption test works
+        // --------------------------------------------------------------------
+        if (verbose) fprintf(stderr,
+                          "\tCONCERN: 'printf' stack corruption test works\n");
+
+        int           TARGET_ONES   = ~((int) 0);
+        unsigned char SENTINEL_ONES = ~((unsigned char) 0);
+
+        struct {
+            int           target;
+            unsigned char sentinel;
+            long long     prophylactic;
+        } data;
+        data.target       = TARGET_ONES;
+        data.sentinel     = SENTINEL_ONES;
+        data.prophylactic = 0;
+
+        const char *INPUT = "0";
+
+        // Simulate test case 9, with a format specifier too small for 'int'.
+
+        ASSERT(data.target   == TARGET_ONES);
+        ASSERT(data.sentinel == SENTINEL_ONES);
+
+        sscanf(INPUT, "%c", &data.target);
+
+        // Test case 9 asserts 'data.target == 0', so here we assert the
+        // opposite.
+
+        ASSERT(data.target   != 0);
+        ASSERT(data.sentinel == SENTINEL_ONES);
+
+        // Simulate test case 9, with a format specifier too large for 'int'.
+
+        data.target       = TARGET_ONES;
+        data.sentinel     = SENTINEL_ONES;
+
+        ASSERT(data.target   == TARGET_ONES);
+        ASSERT(data.sentinel == SENTINEL_ONES);
+
+        sscanf(INPUT, "%lld", &data.target);
+
+        // Test case 9 asserts 'data.sentinel == SENTINEL_ONES', so here we
+        // assert the opposite.
+
+        ASSERT(data.target   == 0);
+        ASSERT(data.sentinel != SENTINEL_ONES);
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
