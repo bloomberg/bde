@@ -27,6 +27,7 @@ BDES_IDENT_RCSID(bdepcre_regex_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_cstring.h>    // bsl::memset
 #include <bsl_string.h>
 #include <bsl_utility.h>    // bsl::pair
 #include <bsl_vector.h>
