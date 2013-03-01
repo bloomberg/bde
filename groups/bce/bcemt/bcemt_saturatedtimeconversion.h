@@ -329,7 +329,8 @@ void bcemt_SaturatedTimeConversion::toMillisec(DWORD                    *dst,
     enum { MILLION = 1000 * 1000 };
 
     BSLMF_ASSERT((bsl::is_same<DWORD, unsigned long>::value));
-    BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));
+    BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));     // 'long' is 4 bytes on
+                                                    // windows, 32 or 64 bit
     BSLMF_ASSERT((DWORD) -1 > 0);
 
     const Int64 sec = src.seconds();
