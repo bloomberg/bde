@@ -7,10 +7,8 @@
 
 #include <stdio.h>           // printf
 #include <stdlib.h>          // atoi
-#include <iostream>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -199,16 +197,17 @@ typedef void (*TestVoidFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     (void) verbose;          // eliminate unused variable warning
     (void) veryVerbose;      // eliminate unused variable warning
     (void) veryVeryVerbose;  // eliminate unused variable warning
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
 
     switch (test) {
       case 0:  // Zero is always the leading case.
@@ -495,13 +494,15 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
+
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 
