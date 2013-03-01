@@ -1651,6 +1651,30 @@ bdem_ElemType::Type bcem_AggregateRaw::getBdemType(
     return value.dataType();
 }
 
+// CREATORS
+#ifdef BDE_BUILD_TARGET_SAFE
+inline
+bcem_AggregateRaw::~bcem_AggregateRaw()
+{
+    // Assert invariants (see member variable description in class definition)
+    if (d_dataType != bdem_ElemType::BDEM_VOID) {
+        BSLS_ASSERT(d_schema_p || (!d_recordDef_p && !d_fieldDef_p));
+
+        BSLS_ASSERT(!d_schema_p || (d_recordDef_p || d_fieldDef_p));
+
+        BSLS_ASSERT(! d_recordDef_p || &d_recordDef_p->schema() == d_schema_p);
+
+        // Cannot easily test that 'd_fieldDef_p' is within 'd_schema_p'
+        BSLS_ASSERT(! d_fieldDef_p
+                    || d_fieldDef_p->elemType() == d_dataType
+                    || d_fieldDef_p->elemType() ==
+                            bdem_ElemType::toArrayType(d_dataType));
+        BSLS_ASSERT(! d_fieldDef_p
+                    || d_recordDef_p  == d_fieldDef_p->recordConstraint());
+    }
+}
+#endif
+
 // MANIPULATORS
 inline
 void bcem_AggregateRaw::setData(void *data)
