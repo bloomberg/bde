@@ -1,6 +1,8 @@
 // bsltf_convertiblevaluewrapper.t.cpp                                -*-C++-*-
 #include <bsltf_convertiblevaluewrapper.h>
 
+#include <bsltf_templatetestfacility.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
@@ -14,7 +16,21 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements ... (TBD)
+// The component under test implements a simple object wrapper, wrapping an
+// object of a type specified by the user, and implicitly convertible both to
+// and from objects of that type.  If the wrapped typs is value semantic, then
+// so is the wrapper type, courtesy of the implicit conversions.
+// 
+// In order to validate the behavior, we must first demonstrate that the class
+// successfully wraps the user supplied object, and does not merely form a
+// reference to it.  We should confirm this for a variety of user-supplied
+// types, both value-semantic, and deliberately designed to have the minimal
+// supported interface.  Our final concerns are to demonstrate the value-
+// semantic properties when the class being wrapped is a value-semantic type.
+//
+// As this type is not in any of the standard pre-defined collections of types
+// used by the 'bsltf_TemplateTestFacility' component, we use that component to
+// automate testing over a variety of interesting types.
 //
 //-----------------------------------------------------------------------------
 //*[  ] ConvertibleValueWrapper(const TYPE& value);

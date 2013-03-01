@@ -14,8 +14,16 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements ...
-//
+// The component under test implements a type that should be usable in contexts
+// where a boolean value is expected, but offers the minimal set of supported
+// operations.  There are two kinds of tests we are interested in to validate
+// this class:
+//: o It correctly acts like a 'bool' in a variety of contexts.
+//: o It supports only a restricted interface, and attempts to use many regular
+//:   operations should fail to compile.
+// The second set of tests are difficult to automate, as compilation failures
+// will break the test driver.  Hence, these tests will be moved below the line
+// as negative test numbers, explicitly enabled and run manually.
 //-----------------------------------------------------------------------------
 //*[  ] EvilBooleanType(bool value);
 //*[  ] operator BoolResult() const;
