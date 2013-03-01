@@ -347,11 +347,9 @@ BDES_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
+
+namespace bslma { class Allocator; }
 
                              // ===================
                              // class bdepcre_RegEx
@@ -375,11 +373,11 @@ class bdepcre_RegEx {
                                      // recursion depth
 
     // PRIVATE DATA
-    int              d_flags;        // prepare/match flags
-    bsl::string      d_pattern;      // regular expression pattern
-    Pcre            *d_pcre_p;       // PCRE's internal data structure (owned)
-    int              d_depthLimit;   // maximum evaluation recursion depth
-    bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+    int               d_flags;        // prepare/match flags
+    bsl::string       d_pattern;      // regular expression pattern
+    Pcre             *d_pcre_p;       // PCRE's internal data structure (owned)
+    int               d_depthLimit;   // maximum evaluation recursion depth
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -417,7 +415,7 @@ class bdepcre_RegEx {
         // specified 'depthLimit'.  Returns the previous depth limit.
 
     // CREATORS
-    bdepcre_RegEx(bslma_Allocator *basicAllocator = 0);             // IMPLICIT
+    bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);             // IMPLICIT
         // Create a regular-expression object in the "unprepared" state.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is

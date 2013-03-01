@@ -71,12 +71,12 @@ bsls::AtomicInt bdepcre_RegEx::s_depthLimit(10000000); // from pcre's config.h
 
 // CREATORS
 
-bdepcre_RegEx::bdepcre_RegEx(bslma_Allocator *basicAllocator)
+bdepcre_RegEx::bdepcre_RegEx(bslma::Allocator *basicAllocator)
 : d_flags(0)
 , d_pattern(basicAllocator)
 , d_pcre_p(0)
 , d_depthLimit(s_depthLimit)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -234,8 +234,8 @@ bdepcre_RegEx::match(bsl::vector<bsl::pair<int, int> > *result,
 
     // Let a proctor manage 'outputVector' (to ensure exception safety).
 
-    bslma_DeallocatorProctor<bslma_Allocator> proctor(outputVector,
-                                                      d_allocator_p);
+    bslma::DeallocatorProctor<bslma::Allocator> proctor(outputVector,
+                                                        d_allocator_p);
 
     struct pcre_extra extra;
     initializePcreExtra(&extra, d_depthLimit);
