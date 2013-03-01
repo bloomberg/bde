@@ -594,20 +594,29 @@ int main(int argc, char *argv[])
         bsl::string errorMessage;
         int         errorOffset;
 
+        bsl::pair<int, int> resultPair;
+        bsl::vector<bsl::pair<int, int> > resultVector;
+
         // We expect this to fail at depth 3, since it requires depth 14
         ASSERT(0 == y.prepare(&errorMessage, &errorOffset, testRegex));
         ASSERT(3 == y.depthLimit());
         ASSERT(0 != y.match(testString, testStringLength));
+        ASSERT(0 != y.match(&resultPair, testString, testStringLength));
+        ASSERT(0 != y.match(&resultVector, testString, testStringLength));
 
         // We expect this to fail at depth 5
         ASSERT(0 == x.prepare(&errorMessage, &errorOffset, testRegex));
         ASSERT(5 == x.depthLimit());
         ASSERT(0 != x.match(testString, testStringLength));
+        ASSERT(0 != x.match(&resultPair, testString, testStringLength));
+        ASSERT(0 != x.match(&resultVector, testString, testStringLength));
 
         // We know this succeeds at depth 14
         x.setDepthLimit(14);
         ASSERT(14 == x.depthLimit());
         ASSERT( 0 == x.match(testString, testStringLength));
+        ASSERT( 0 == x.match(&resultPair, testString, testStringLength));
+        ASSERT( 0 == x.match(&resultVector, testString, testStringLength));
       } break;
 
       case 11: {

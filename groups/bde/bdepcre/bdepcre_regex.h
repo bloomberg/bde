@@ -594,6 +594,17 @@ bdepcre_RegEx::~bdepcre_RegEx()
     clear();
 }
 
+// MANIPULATORS
+inline
+int bdepcre_RegEx::setDepthLimit(int depthLimit)
+{
+    int previous = d_depthLimit;
+
+    d_depthLimit = depthLimit;
+
+    return previous;
+}
+
 // ACCESSORS
 inline
 int bdepcre_RegEx::flags() const
@@ -617,18 +628,6 @@ inline
 const bsl::string& bdepcre_RegEx::pattern() const
 {
     return d_pattern;
-}
-
-// MANIPULATORS
-
-inline
-int bdepcre_RegEx::setDepthLimit(int depthLimit)
-{
-    int previous = d_depthLimit;
-
-    d_depthLimit = depthLimit;
-
-    return previous;
 }
 
 }  // close namespace BloombergLP
