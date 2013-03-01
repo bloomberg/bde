@@ -7,11 +7,15 @@
 #include <bael_loggermanagerconfiguration.h> 
 #include <bael_severity.h>
 
-#include <bsl_iostream.h>
-#include <bsls_types.h>
+#include <bcemt_barrier.h>       // case -1
+#include <bcemt_configuration.h> // case -1
+#include <bcemt_threadutil.h>    // case -1
 
+#include <bsl_cstring.h>         // 'strcmp'
+#include <bsl_iostream.h>
 #include <bsls_asserttest.h>
-#include <bsl_cstring.h>     // 'strcmp'
+#include <bsls_types.h>
+#include <bsl_vector.h>          // case -1
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -25,15 +29,16 @@ using namespace bsl;
 // all serve to set or report on local time offset information (consisting of
 // value semnatic types), the test strategy of this component more closely
 // resembles that of a VST than of a typcial utility.  In particular, we will
-// designate methods as "Primary Manipulators" and "Basic Accessors"
-// validate them, and then use them in tests for other methods.
+// informally categorize certain methods as "Primary Manipulators" and "Basic
+// Accessors" validate them, and then use them in tests for other methods.
 //
 // Primary Manipulators:
-//: o 'setTimezone' (the overlaod with two  parameters)
+//: o 'setTimezone' (the overlaod with two parameters)
 //
 // Basic Accessors:
 //: o 'timezone'
 //: o 'localTimePeriod'
+//
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 6] int loadLocalTimeOffset(int *result, const bdet_Datetime& utc);
@@ -51,7 +56,7 @@ using namespace bsl;
 // [ 3] BOOTSTRAP2: int updateCount();
 // [ 5] CONCERN: This component uses the default global allocator.
 // [ 5] CONCERN: The static members have the expected initial values.
-// [ X] CONCERN: The public methods of this component are *thread-safe*.
+// [-1] CONCERN: The public methods of this component are *thread-safe*.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -195,9 +200,32 @@ struct LogVerbosityGuard {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //                                 HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+struct ThreadArg {
+    int            d_status;
+    int            d_offset;
+    bdet_Datetime  d_utcDatetime;
+    bcemt_Barrier *d_barrier_p;
+};
+
+typedef bsl::vector<struct ThreadArg> ThreadArgs;
+
+extern "C" void *workerThread(void *arg)
+{
+    ThreadArg *p = static_cast<ThreadArg *>(arg);
+
+    p->d_barrier_p->wait();
+
+    p->d_status = baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
+                                                             &p->d_offset,
+                                                             p->d_utcDatetime);
+    return 0;
+}
+
+typedef bsl::vector<bcemt_ThreadUtil::Handle> Handles;
 
 // ============================================================================
 //                                 USAGE EXAMPLE
@@ -928,6 +956,117 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << Util::localTimePeriod() << endl;
+        }
+
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // THREAD SAFETY
+        //   The primary concern is the thread-safety of the
+        //   'loadLocalTimeOffset' method.  The other public methods will
+        //   typically be called once near the start of a process, and before
+        //   multiple threads are launched.  Since the limit on thread creation
+        //   vary significantly with platform, this test is designed to be run
+        //   interactively (i.e., the test has a negative test number).
+        //
+        // Concerns:
+        //: 1 Concurrent threads calling the 'loadLocalTimeOffset' method each
+        //:   receive the correct result and return value indicating success.
+        //:
+        //: 2 When needed, the cached local time zone information is updated
+        //:   exactly once.
+        //
+        // Plan:
+        //: 1 Set the timezone and UTC time to a day before the start of
+        //:   daylight saving time in 2013 (in New York).
+        //:
+        //: 2 Launch multiple threads (where the number is determined by a
+        //:   command-line argument) that each wait at a common barrier until
+        //:   all the threads have been created, and then invoke the
+        //:   'loadLocalTimeOffset' method requesting the offset for the start
+        //:   of daylight saving time.
+        //:
+        //: 3 Compare the values obtained by each thread with the expected
+        //:   offset for the start of daylight saving time.
+        //:
+        //: 4 Confirm that the value returned by 'updateCount' increased by
+        //:   exactly one.
+        //:
+        //: 5 Repeat the test a number of times specified by a command-line
+        //:   argument.
+        //
+        // Testing:
+        //   CONCERN: The public methods of this component are *thread-safe*.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "THREAD SAFETY" << endl
+                          << "=============" << endl;
+
+        const int numThreads    = argc > 2 ? atoi(argv[2]) : 1;
+        const int numIterations = argc > 3 ? atoi(argv[3]) : 1;
+    
+        P(numThreads)
+        P(numIterations)
+    
+        bcemt_Configuration::setDefaultThreadStackSize(
+                     bcemt_Configuration::recommendedDefaultThreadStackSize());
+    
+        const bdet_Datetime newYearsDay(2013, 1,  1);
+        const bdet_Datetime  startOfDst(2013, 3, 10, 7);
+        const char          *timezone             = "America/New_York";
+        int                  previousUpdateCount = Util::updateCount();
+
+        ASSERT(0 == previousUpdateCount);
+
+        for (int i = 0;  i < numIterations; ++i) {
+
+            int status = Util::setTimezone(timezone, newYearsDay);
+            ASSERT(0 == status);
+
+            int updateCount = Util::updateCount();
+            ASSERT(previousUpdateCount + 1 == updateCount);
+            previousUpdateCount = updateCount;
+
+            Handles       handles(numThreads);
+            ThreadArgs threadArgs(numThreads);
+
+            bcemt_Barrier barrier(numThreads);
+
+            // Setup and launch threads.
+
+            for (int j = 0; j < numThreads; ++j) {
+                threadArgs[j].d_status      = 0xDEADBEEF;
+                threadArgs[j].d_offset      = 0x0BADCAFE;
+                threadArgs[j].d_utcDatetime = startOfDst;
+                threadArgs[j].d_barrier_p   = &barrier;
+    
+                int status = bcemt_ThreadUtil::create(&handles[j],
+                                                      workerThread,
+                                                      &threadArgs[j]);
+                ASSERT(0 == status);
+            }
+        
+            // Wait for all threads to complete.
+
+            for (Handles::iterator itr  = handles.begin(),
+                                   end  = handles.end();
+                                   end != itr; ++itr) {
+                bcemt_ThreadUtil::join(*itr);
+            }
+
+            // Examine results.
+
+            updateCount = Util::updateCount();
+            ASSERT(previousUpdateCount + 1 == updateCount);
+            previousUpdateCount = updateCount;
+
+            for (ThreadArgs::iterator itr  = threadArgs.begin(),
+                                      end  = threadArgs.end();
+                                      end != itr; ++itr) {
+                ASSERT(        0 == itr->d_status);
+                ASSERT(-4 * 3600 == itr->d_offset);
+            }
         }
 
       } break;
