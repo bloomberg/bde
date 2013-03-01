@@ -144,41 +144,6 @@ BDES_IDENT("$Id: $")
 //    assert(1 == i6.nanoseconds());
 //..
 //
-#if 0
-///Usage 4
-///-------
-// For applications that choose to define there own mechanism for determining
-// the differential between local time and UTC time, the 'bdetu_SystemTime'
-// utility provides the ability to install a custom local-time-offset callback.
-//
-// First, we define the user-defined callback function 'getLocalTimeOffset':
-//..
-//    bdet_DatetimeInterval getLocalTimeOffset()
-//    {
-//        return bdet_DatetimeInterval(0, 1);  // an hour differential
-//    }
-//..
-// Then, store the address of the user-defined callback function
-// 'getLocalTimeOffset' into 'callback_user_ptr1':
-//..
-//    const bdetu_SystemTime::LocalTimeOffsetCallback callback_user_ptr1
-//                                                       = &getLocalTimeOffset;
-//..
-// Then call the utility function 'setLocalTimeOffsetCallback' to load the
-// user-defined local-time-offset callback function:
-//..
-//    bdetu_SystemTime::setLocalTimeOffsetCallback(callback_user_ptr1);
-//    assert(callback_user_ptr1
-//           == bdetu_SystemTime::currentLocalTimeOffsetCallback());
-//..
-// Next, we call the utility function 'localTimeOffset' to get the current
-// local time offset:
-//..
-//    bdet_DatetimeInterval i7 = bdetu_SystemTime::localTimeOffset();
-//    assert(0 == i7.days());
-//    assert(1 == i7.hours());
-//..
-#endif
 ///Example 4: Using the Local Time Offset Callback
 ///-----------------------------------------------
 // Suppose one has to provide time stamp values that always reflect local time
@@ -188,7 +153,7 @@ BDES_IDENT("$Id: $")
 // default method for calculating local time offset is not adequate.  Creation
 // and installation of a specialized user-defined callback for local time
 // offset allows one to solve this problem.
-// 
+//
 // First, create a utility class that provides a method of type
 // 'bdetu_SystemTime::LoadLocalTimeOffsetCallback' that is valid for the
 // location of interest (New York) for the period of interest (the year 2013).
@@ -284,7 +249,7 @@ BDES_IDENT("$Id: $")
 //  bdetu_SystemTime::loadLocalTimeOffset(&offset, independenceDay);
 //  assert(-4 * 3600 == offset);
 //  assert(        2 == MyLocalTimeOffsetUtilNewYork2013::useCount());
-//  
+//
 //  bdetu_SystemTime::loadLocalTimeOffset(&offset, newYearsEve);
 //  assert(-5 * 3600 == offset);
 //  assert(        3 == MyLocalTimeOffsetUtilNewYork2013::useCount());
@@ -345,32 +310,6 @@ struct bdetu_SystemTime {
     // at most once in 'main' before any threads have been started.
 
     // TYPES
-    typedef void (*SystemTimeCallback)(bdet_TimeInterval *result);
-        // 'SystemTimeCallback' is a callback function pointer for a callback
-        // function that returns 'void' and takes as arguments a
-        // 'bdet_TimeInterval' object 'result'.
-
-#if 0
-    typedef bdet_DatetimeInterval (*LocalTimeOffsetCallback)();
-        // 'LocalTimeOffsetCallback' is a callback function pointer for a
-        // callback function that returns the time difference between local
-        // time and UTC time.
-
-    typedef bdet_DatetimeInterval (*GetLocalTimeOffsetCallback)(
-                                                       bdet_TimeInterval  now,
-                                                       void              *arg);
-        // 'GetLocalTimeOffsetCallback' is a function that retrieve the offset
-        // between local time and UTC when called with the specified, 'now'
-        // (the current system time), and the specified opaque argument pointer
-        // 'arg' (which must define the local timezone in a manner known to
-        // 'callback').
-
-    typedef struct {
-        GetLocalTimeOffsetCallback  d_callback;
-        void                       *d_arg;
-    } GetLocalTimeOffsetCallbackSpec;
-#endif
-
     typedef int (*LoadLocalTimeOffsetCallback)(
                                      int                   *offsetInSecondsPtr,
                                      const bdet_Datetime&   utcDatetime);
@@ -381,20 +320,17 @@ struct bdetu_SystemTime {
         // callback function must have geographic information specifying the
         // local timezone.
 
-  private:
-    static SystemTimeCallback          s_systime_callback_p;
-                                       // address of system-time callback
-#if 0
-    static LocalTimeOffsetCallback  s_localtimeoffset_callback_p;
-                                       // address of local-time offset callback
+    typedef void (*SystemTimeCallback)(bdet_TimeInterval *result);
+        // 'SystemTimeCallback' is a callback function pointer for a callback
+        // function that returns 'void' and takes as arguments a
+        // 'bdet_TimeInterval' object 'result'.
 
-    static GetLocalTimeOffsetCallbackSpec
-                                   *s_getLocalTimeOffsetCallbackSpec_p;
-                                       // address of get local-time callback
-                                       // specifcation
-#endif
+  private:
     static LoadLocalTimeOffsetCallback s_loadLocalTimeOffsetCallback_p;
                                        // address of local-time callback
+
+    static SystemTimeCallback          s_systime_callback_p;
+                                       // address of system-time callback
 
   public:
     // CLASS METHODS
@@ -432,12 +368,12 @@ struct bdetu_SystemTime {
         // function consistent with 'now' and the currently installed callback
         // function for obtaining the local time offset from UTC.
 
-                        // ** XXX **
-
     static bdet_DatetimeInterval localTimeOffset();
         // Return a 'bdet_DatetimeInterval' value representing the current
         // difference between the local time and the UTC time.  This method
         // uses the currently installed local-time-offset callback mechanism.
+
+                        // ** load methods **
 
     static void loadCurrentTime(bdet_TimeInterval *result);
         // Load into the specified 'result', the current system time using
@@ -450,14 +386,7 @@ struct bdetu_SystemTime {
         // 0 on success, and a non-zero value otherwise.  This method uses the
         // currently installed local-time-offset callback mechanism.
 
-    static void loadSystemTimeDefault(bdet_TimeInterval *result);
-        // Load into the specified 'result' the current system time.  This is
-        // the default system-time callback implementation for system time
-        // retrieval.  The obtained system time is expressed as a time interval
-        // between the current time and '00:00 UTC, January 1, 1970'.  On UNIX
-        // (Solaris, LINUX and DG-UNIX) this function provides a microsecond
-        // resolution.  On Windows (NT, WIN2000, 95, 98 etc) it provides a
-        // resolution of 100 nanoseconds.
+                        // ** default callbacks **
 
     static int loadLocalTimeOffsetDefault(int                  *result,
                                           const bdet_Datetime&  utcDatetime);
@@ -467,27 +396,22 @@ struct bdetu_SystemTime {
         // determined by the 'TZ' environment variable in the same manner as
         // the 'localtime' POSIX function.
 
-#if 0
-    static bdet_DatetimeInterval loadLocalTimeOffsetDefault();
-        // Return a 'bdet_DatetimeInterval' value representing the current
-        // differential between the local time and the UTC time.  This is the
-        // default local-time-offset callback implementation for local time
-        // offset retrieval.
-
-    static bdet_DatetimeInterval getLocalTimeOffset();
-        // Return a 'bdet_DatetimeInterval' value representing the current
-        // differential between the local time and the UTC time using the
-        // currently installed 'GetLocalTimeOffsetCallback' function and its
-        // opaque argument pointer.
-
-    static bdet_DatetimeInterval getLocalTimeOffset(
-                                             const bdet_Datetime& utcDatetime);
-        // Return a 'bdet_DatetimeInterval' value representing the current
-        // differential between the local time and UTC time at the specified
-        // 'utcDatetime'.
-#endif
+    static void loadSystemTimeDefault(bdet_TimeInterval *result);
+        // Load into the specified 'result' the current system time.  This is
+        // the default system-time callback implementation for system time
+        // retrieval.  The obtained system time is expressed as a time interval
+        // between the current time and '00:00 UTC, January 1, 1970'.  On UNIX
+        // (Solaris, LINUX and DG-UNIX) this function provides a microsecond
+        // resolution.  On Windows (NT, WIN2000, 95, 98 etc) it provides a
+        // resolution of 100 nanoseconds.
 
                         // ** set callbacks **
+
+    static LoadLocalTimeOffsetCallback setLoadLocalTimeOffsetCallback(
+                                         LoadLocalTimeOffsetCallback callback);
+        // Install the user-specified custom 'callback' function to load the
+        // offset in seconds between the local time and UTC time at a specified
+        // UTC date and time.  Return the previously installed callback.
 
     static SystemTimeCallback
     setSystemTimeCallback(SystemTimeCallback callback);
@@ -497,51 +421,19 @@ struct bdetu_SystemTime {
         // unless 'callback' returns an absolute offset since the epoch time
         // 00:00 UTC, January 1, 1970.
 
-#if 0
-    static LocalTimeOffsetCallback
-    setLocalTimeOffsetCallback(LocalTimeOffsetCallback callback);
-        // Install the user-specified custom 'callback' function to retrieve
-        // the offset between local time and UTC time.  Return the previously
-        // installed callback function.  The behavior of other methods in this
-        // component will be corrupted unless 'callback' returns a correct
-        // offset.
+                        // ** get current callbacks **
 
-    static GetLocalTimeOffsetCallbackSpec *
-    setGetLocalTimeOffsetCallback(
-                                 GetLocalTimeOffsetCallbackSpec *callbackSpec);
-        // Install from the specified 'callbackSpec' a callback function to
-        // retrieve the offset between local time and UTC when called with the
-        // current system time and with the opaque argument pointer from
-        // 'callbackSpec'.  The opaque argument must define the local timezone
-        // in a manner known to the callback function).  Return the previously
-        // installed callback specification.  The behavior of other methods in
-        // this component will be corrupted unless 'callback' returns a correct
-        // offset.
-#endif
-    static LoadLocalTimeOffsetCallback setLoadLocalTimeOffsetCallback(
-                                         LoadLocalTimeOffsetCallback callback);
-        // Install the user-specified custom 'callback' function to load the
-        // offset in seconds between the local time and UTC time at a specified
-        // UTC date and time.  Return the previously installed callback.
-
-                        // ** get callbacks **
-
-    static SystemTimeCallback currentSystemTimeCallback();
+    static SystemTimeCallback currentCallback();
         // Return the currently installed 'SystemTimeCallback' function.
-
-#if 0
-    static LocalTimeOffsetCallback currentLocalTimeOffsetCallback();
-        // Return the currently installed 'LocalTimeOffsetCallback' function.
-
-    static GetLocalTimeOffsetCallbackSpec *
-                                       currentGetLocalTimeOffsetCallbackSpec();
-        // Return the currently installed 'GetLocalTimeOffsetCallback'
-        // function and its opaque argument pointer.
-#endif
+        //
+        // DEPRECATED: replaced by 'currentSystemTimeCallback'
 
     static LoadLocalTimeOffsetCallback currentLoadLocalTimeOffsetCallback();
         // Return the currently installed 'LoadLocalTimeOffsetCallback'
         // function.
+
+    static SystemTimeCallback currentSystemTimeCallback();
+        // Return the currently installed 'SystemTimeCallback' function.
 };
 
 // ==========================================================================
@@ -585,8 +477,6 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
     return nowAsDatetimeUtc();
 }
 
-                        // ** XXX callbacks **
-
 inline
 bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
 {
@@ -600,11 +490,14 @@ bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
     return bdet_DatetimeInterval(0, 0, 0, offsetInSeconds);
 }
 
+                        // ** load methods **
+
 inline
 void bdetu_SystemTime::loadCurrentTime(bdet_TimeInterval *result)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(s_systime_callback_p);
+
     s_systime_callback_p(result);
 }
 
@@ -614,56 +507,11 @@ int bdetu_SystemTime::loadLocalTimeOffset(int                  *result,
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(s_loadLocalTimeOffsetCallback_p);
+
     return (*s_loadLocalTimeOffsetCallback_p)(result, utcDatetime);
 }
 
-#if 0
-inline
-bdet_DatetimeInterval bdetu_SystemTime::getLocalTimeOffset()
-{
-    BSLS_ASSERT_SAFE(s_getLocalTimeOffsetCallbackSpec_p);
-    BSLS_ASSERT_SAFE(s_getLocalTimeOffsetCallbackSpec_p->d_callback);
-    return (*s_getLocalTimeOffsetCallbackSpec_p->d_callback)(
-                                    now(),
-                                    s_getLocalTimeOffsetCallbackSpec_p->d_arg);
-}
-#endif
-
                         // ** set callbacks **
-
-inline
-bdetu_SystemTime::SystemTimeCallback
-bdetu_SystemTime::setSystemTimeCallback(
-                                 bdetu_SystemTime::SystemTimeCallback callback)
-{
-    bdetu_SystemTime::SystemTimeCallback previousCallback =
-                                                          s_systime_callback_p;
-    s_systime_callback_p = callback;
-    return previousCallback;
-}
-
-#if 0
-inline
-bdetu_SystemTime::LocalTimeOffsetCallback
-bdetu_SystemTime::setLocalTimeOffsetCallback(LocalTimeOffsetCallback callback)
-{
-    bdetu_SystemTime::LocalTimeOffsetCallback
-                               previousCallback = s_localtimeoffset_callback_p;
-    s_localtimeoffset_callback_p = callback;
-    return previousCallback;
-}
-
-inline
-bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec *
-bdetu_SystemTime::setGetLocalTimeOffsetCallback(
-                                  GetLocalTimeOffsetCallbackSpec *callbackSpec)
-{
-    GetLocalTimeOffsetCallbackSpec *previousCallbackSpec =
-                                            s_getLocalTimeOffsetCallbackSpec_p;
-    s_getLocalTimeOffsetCallbackSpec_p = callbackSpec;
-    return previousCallbackSpec;
-}
-#endif
 
 inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback
@@ -676,36 +524,38 @@ bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
     return previousCallback;
 }
 
-                        // ** get callbacks **
+inline
+bdetu_SystemTime::SystemTimeCallback
+bdetu_SystemTime::setSystemTimeCallback(
+                                 bdetu_SystemTime::SystemTimeCallback callback)
+{
+    bdetu_SystemTime::SystemTimeCallback previousCallback =
+                                                          s_systime_callback_p;
+    s_systime_callback_p = callback;
+    return previousCallback;
+}
+
+                        // ** get current callbacks **
 
 inline
 bdetu_SystemTime::SystemTimeCallback
-bdetu_SystemTime::currentSystemTimeCallback()
+bdetu_SystemTime::currentCallback()
 {
     return s_systime_callback_p;
 }
-
-#if 0
-inline
-bdetu_SystemTime::LocalTimeOffsetCallback
-bdetu_SystemTime::currentLocalTimeOffsetCallback()
-{
-    return s_localtimeoffset_callback_p;
-}
-
-inline
-bdetu_SystemTime::GetLocalTimeOffsetCallbackSpec *
-bdetu_SystemTime::currentGetLocalTimeOffsetCallbackSpec()
-{
-    return s_getLocalTimeOffsetCallbackSpec_p;
-}
-#endif
 
 inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback
 bdetu_SystemTime::currentLoadLocalTimeOffsetCallback()
 {
     return s_loadLocalTimeOffsetCallback_p;
+}
+
+inline
+bdetu_SystemTime::SystemTimeCallback
+bdetu_SystemTime::currentSystemTimeCallback()
+{
+    return s_systime_callback_p;
 }
 
 }  // close namespace BloombergLP
