@@ -154,6 +154,11 @@ namespace BloombergLP {
                              // ===================
 
 class bcemt_SaturatedTimeConversion {
+    // Namespace class for the platform-dependent class methods 'toTimeSpec',
+    // 'toTimeT', and 'toMillisec', used for saturating conversions of
+    // times stored as 'bdet_TimeInterval' to other types used by underlying
+    // threading platforms.
+
     // PRIVATE TYPE
     typedef bsls::Types::Int64 Int64;
 
