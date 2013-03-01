@@ -399,8 +399,8 @@ static void realaSsErT(bool b, const char *s, int i)
 // for us on each platform.
 //
 // First, we write a component to test, which provides an a utility that
-// operates on arrays memory blocks.  Each block is a structure containing a
-// base address and a block size.
+// operates on a list of memory blocks.  Each block is a structure containing a
+// base address, a block size, and a pointer to the next block in the list.
 //..
     namespace xyza {
     struct Block {
@@ -415,7 +415,6 @@ static void realaSsErT(bool b, const char *s, int i)
     class BlockList {
         // ...
 
-      private:
         // DATA
         Block *d_head;
 
@@ -547,18 +546,22 @@ static void realaSsErT(bool b, const char *s, int i)
 //  }
 //..
 
+namespace xyza {
+    const int MAX_BLOCKS = 10;
+
+    Block blockListStorage[MAX_BLOCKS];
+}  // close namespace xyza
+
 xyza::BlockList::BlockList()
   : d_head(0)
 {
+    for (int i = 0; i < MAX_BLOCKS; ++i) {
+        blockListStorage[i].d_next = 0;
+    }
 }
 
 xyza::BlockList::~BlockList()
 {
-    while (d_head) {
-        Block *next = d_head->d_next;
-        delete d_head;
-        d_head = next;
-    }
 }
 
 xyza::Block *xyza::BlockList::begin()
@@ -574,24 +577,23 @@ xyza::Block *xyza::BlockList::end()
 void xyza::BlockList::addBlock(size_t size)
 {
     char  *dummyAddress = (char *) 0x012345600;
-    Block *blockPtr     = d_head;
+    Block *blockPtr     = 0;
+    int len = length();
 
-    if (blockPtr) {
-        while (blockPtr->d_next) {
-            blockPtr = blockPtr->d_next;
-            dummyAddress += 0x10;
-        }
-
-        blockPtr->d_next = new Block;
-        blockPtr = blockPtr->d_next ;
-    } else {
-        d_head = new Block;
-        blockPtr = d_head;
+    if (len == 0) {
+        blockPtr = blockListStorage;
+        d_head = blockPtr;
+    } else if (len < MAX_BLOCKS) {
+        blockPtr = blockListStorage + len;
+        blockListStorage[len - 1].d_next = blockPtr;
+        dummyAddress += 0x10 * len;
     }
 
-    blockPtr->d_address = dummyAddress;
-    blockPtr->d_size    = size;
-    blockPtr->d_next    = 0;
+    if (blockPtr) {
+        blockPtr->d_address = dummyAddress;
+        blockPtr->d_size    = size;
+        blockPtr->d_next    = 0;
+    }
 }
 
 int xyza::BlockList::length()
@@ -1920,6 +1922,11 @@ int main(int argc, char *argv[])
         testFortyTwo(verbose);
         testMyTypeSetValue(verbose);
         testBlockListConstruction(veryVeryVerbose);
+
+        // None of the usage examples generates a failure, so 'testStatus',
+        // defined as part of Example 1, should still be 0.
+
+        ASSERT(testStatus == 0);
       } break;
       case 9: {
         // --------------------------------------------------------------------

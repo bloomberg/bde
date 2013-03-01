@@ -249,8 +249,8 @@ BSLS_IDENT("$Id: $")
 // for us on each platform.
 //
 // First, we write a component to test, which provides an a utility that
-// operates on arrays memory blocks.  Each block is a structure containing a
-// base address and a block size.
+// operates on a list of memory blocks.  Each block is a structure containing a
+// base address, a block size, and a pointer to the next block in the list.
 //..
 //  namespace xyza {
 //  struct Block {
@@ -265,7 +265,6 @@ BSLS_IDENT("$Id: $")
 //  class BlockList {
 //      // ...
 //
-//    private:
 //      // DATA
 //      Block *d_head;
 //
