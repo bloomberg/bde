@@ -5,7 +5,8 @@
 #include <bslmf_issame.h>    // for testing only
 #include <bslmf_typelist.h>
 
-#include <stdlib.h>           // atoi()
+#include <stdio.h>           // printf
+#include <stdlib.h>          // atoi
 #include <iostream>
 
 using namespace BloombergLP;
