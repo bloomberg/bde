@@ -17,12 +17,12 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
 //@DESCRIPTION: This component provides that wraps a value semantic type
-// specified by the user, holding a value of the specified type, and implicitly
-// convertible to the wrapped value.  This supports simple testing of function
-// templates whose contract requires a type that is "convertible to the
-// specified type".  It also ensures that this uses up the one user-defined
-// conversion in permitted in the conversion sequence, rather than accidentally
-// relying on a built-in conversion such as type promotion.
+// specified by the user, holding a value of the specified (value semantic)
+// type, and implicitly convertible to the wrapped value.  This supports simple
+// testing of function templates whose contract requires a type that is
+// "convertible to the specified type".  It also ensures that this uses up the
+// one user-defined conversion in permitted in the conversion sequence, rather
+// than accidentally relying on a built-in conversion such as type promotion.
 //
 ///Usage
 ///-----
@@ -46,6 +46,12 @@ namespace bsltf {
 
 template <class TYPE>
 struct ConvertibleValueWrapper {
+    // This class provides a wrapper around an object of the specified
+    // (template parameter) 'TYPE', which shall be a CopyConstructible object
+    // type.  If 'TYPE' is a value-semantic type, then this class will also be
+    // value semantic.  Objects of this type are implcitly convertible to and
+    // from objects of the specified 'TYPE'.
+
   private:
     // DATA
     TYPE d_value;
