@@ -154,7 +154,10 @@ namespace BloombergLP {
                              // ===================
 
 class bcemt_SaturatedTimeConversion {
+    // PRIVATE TYPE
     typedef bsls::Types::Int64 Int64;
+
+    // COMPILE-TIME ASSERTS
 
 #ifdef BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT
     BSLMF_ASSERT(sizeof(long) == sizeof(Int64));
