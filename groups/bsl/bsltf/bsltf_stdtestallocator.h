@@ -132,6 +132,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
@@ -139,6 +143,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_NEW
 #include <new>
 #define INCLUDED_NEW
+#endif
+
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace BloombergLP {
@@ -372,6 +381,24 @@ bool operator!=(const StdTestAllocator<TYPE1>& lhs,
                 const StdTestAllocator<TYPE2>& rhs);
     // Return 'false' because 'StdTestAllocator' does not hold a state.
 
+
+                        // ======================
+                        // class StdTestAllocator
+                        // ======================
+
+struct StdTestAllocator_CommonUtil {
+    // This 'struct' provides a namespace for utilities that are common to
+    // all instantiations of the 'StdTestAllocator' class template.
+
+    static unsigned int maxSize(size_t elementSize);
+        // Return the maximum number of objects, each required the specified
+        // 'elementSize' bytes of storage, that can potentially be allocated by
+        // a 'StdTestAllocator'.  Note that this function is mostly about
+        // insulating consumers of this component from a standard header, so
+        // that theis test componet does not hide missing header dependencies
+        // in testing scenarios.
+};
+
 // ===========================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ===========================================================================
@@ -454,7 +481,7 @@ inline
 typename StdTestAllocator<TYPE>::pointer
 StdTestAllocator<TYPE>::address(reference object) const
 {
-    return BSLS_UTIL_ADDRESSOF(object);
+    return bsls::Util::addressOf(object);
 }
 
 template <class TYPE>
@@ -462,7 +489,7 @@ inline
 typename StdTestAllocator<TYPE>::const_pointer
 StdTestAllocator<TYPE>::address(const_reference object) const
 {
-    return BSLS_UTIL_ADDRESSOF(object);
+    return bsls::Util::addressOf(object);
 }
 
 template <class TYPE>
@@ -470,12 +497,7 @@ inline
 typename StdTestAllocator<TYPE>::size_type
 StdTestAllocator<TYPE>::max_size() const
 {
-    // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
-    // 'size_type' (copied from bslstl_allocator).
-
-    static const unsigned int MAX_NUM_BYTES    = UINT_MAX;
-    static const unsigned int MAX_NUM_ELEMENTS = MAX_NUM_BYTES / sizeof(TYPE);
-    return MAX_NUM_ELEMENTS;
+    return StdTestAllocator_CommonUtil::maxSize(sizeof(TYPE));
 }
 
                         // ----------------------------
