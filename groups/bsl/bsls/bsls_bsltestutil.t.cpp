@@ -99,7 +99,6 @@ using namespace BloombergLP;
 //
 // PRINTF FORMAT SPECIFIER MACROS
 // [ 9] BSLS_BSLTESTUTIL_FORMAT_ZU
-// [ 9] BSLS_BSLTESTUTIL_FORMAT_ZD
 // [ 9] BSLS_BSLTESTUTIL_FORMAT_TD
 // [ 9] BSLS_BSLTESTUTIL_FORMAT_I64
 // [ 9] BSLS_BSLTESTUTIL_FORMAT_U64
@@ -213,7 +212,6 @@ static void realaSsErT(bool b, const char *s, int i)
     } while(0)
 
 #define TZU  BSLS_BSLTESTUTIL_FORMAT_ZU
-#define TZD  BSLS_BSLTESTUTIL_FORMAT_ZD
 #define TTD  BSLS_BSLTESTUTIL_FORMAT_TD
 #define TI64 BSLS_BSLTESTUTIL_FORMAT_I64
 #define TU64 BSLS_BSLTESTUTIL_FORMAT_U64
@@ -1955,7 +1953,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   BSLS_BSLTESTUTIL_FORMAT_ZU
-        //   BSLS_BSLTESTUTIL_FORMAT_ZD
         //   BSLS_BSLTESTUTIL_FORMAT_TD
         //   BSLS_BSLTESTUTIL_FORMAT_I64
         //   BSLS_BSLTESTUTIL_FORMAT_U64
@@ -1993,23 +1990,6 @@ int main(int argc, char *argv[])
             ANNOTATED2_ASSERT(UNSIGNED_EXPECTED, "%s",
                               output.getOutput(), "%s",
                               0 == output.compare(UNSIGNED_EXPECTED));
-        }
-
-        if (verbose) fprintf(stderr, "\tTesting 'ssize_t'\n");
-        {
-            ssize_t minusOne = -1;
-            ssize_t zero = 0;
-            ssize_t one = 1;
-            ssize_t largeValue = 1;
-            largeValue <<= (sizeof(ssize_t) * CHAR_BIT) - 1;
-
-            output.reset();
-            printf("<" TZD "> <" TZD "> <" TZD "> <" TZD ">",
-                                              minusOne, zero, one, largeValue);
-            ASSERT(output.load());
-            ANNOTATED2_ASSERT(SIGNED_EXPECTED, "%s",
-                              output.getOutput(), "%s",
-                              0 == output.compare(SIGNED_EXPECTED));
         }
 
         if (verbose) fprintf(stderr, "\tTesting 'ptrdiff_t'\n");
@@ -2083,31 +2063,6 @@ int main(int argc, char *argv[])
             ASSERT(data.sentinel == SENTINEL_ONES);
 
             sscanf(INPUT, TZU, &data.target);
-
-            ASSERT(data.target   ==  0);
-            ASSERT(data.sentinel == SENTINEL_ONES);
-        }
-
-        if (verbose) fprintf(stderr, "\tTesting 'ssize_t'\n");
-        {
-            const ssize_t       TARGET_ONES   = ~((ssize_t) 0);
-            const unsigned char SENTINEL_ONES = ~((unsigned char) 0);
-
-            struct {
-                ssize_t       target;
-                unsigned char sentinel;
-                long long     prophylactic;
-            } data;
-            data.target       = TARGET_ONES;
-            data.sentinel     = SENTINEL_ONES;
-            data.prophylactic = 0;
-
-            const char *INPUT = "0";
-
-            ASSERT(data.target   == TARGET_ONES);
-            ASSERT(data.sentinel == SENTINEL_ONES);
-
-            sscanf(INPUT, TZD, &data.target);
 
             ASSERT(data.target   ==  0);
             ASSERT(data.sentinel == SENTINEL_ONES);

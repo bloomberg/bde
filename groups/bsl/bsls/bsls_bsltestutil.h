@@ -27,7 +27,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BSLTESTUTIL_T_   : print tab without '\n'
 //
 //  BSLS_BSLTESTUTIL_FORMAT_ZU : 'printf' format for 'size_t'
-//  BSLS_BSLTESTUTIL_FORMAT_ZD : 'printf' format for 'ssize_t'
 //  BSLS_BSLTESTUTIL_FORMAT_TD : 'printf' format for 'ptrdiff_t'
 //  BSLS_BSLTESTUTIL_FORMAT_I64: 'printf' format for unsigned 64-bit integers
 //  BSLS_BSLTESTUTIL_FORMAT_U64: 'printf' format for signed 64-bit integers
@@ -513,14 +512,6 @@ BSLS_IDENT("$Id: $")
 #  define BSLS_BSLTESTUTIL_FORMAT_ZU "%zu"
 #endif
     // Provide a platform-independent way to specify a 'size_t' format for
-    // printf
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#  define BSLS_BSLTESTUTIL_FORMAT_ZD "%Id"
-#else
-#  define BSLS_BSLTESTUTIL_FORMAT_ZD "%zd"
-#endif
-    // Provide a platform-independent way to specify a 'ssize_t' format for
     // printf
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
