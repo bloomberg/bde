@@ -486,13 +486,13 @@ class bdepcre_RegEx {
         // ('pattern()').  Begin matching at the optionally-specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
         // then begin matching from the start of 'subject'.  Return 0 on
-        // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless 'isPrepared() == true', '0 <= subjectLength',
-        // '0 <= subjectOffset', and 'subjectOffset <= subjectLength'.  The
-        // behavior is also undefined if 'pattern()' was prepared with
-        // 'BDEPCRE_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note that
-        // 'subject' need not be null-terminated and may contain embedded null
-        // characters.
+        // success, 1 if the depth limit was exceeded, and another non-zero
+        // value otherwise.  The behavior is undefined unless 'isPrepared() ==
+        // true', '0 <= subjectLength', '0 <= subjectOffset', and
+        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
+        // 'pattern()' was prepared with 'BDEPCRE_FLAG_UTF8', but 'subject' is
+        // not valid UTF-8.  Note that 'subject' need not be null-terminated
+        // and may contain embedded null characters.
 
     int match(bsl::pair<int, int> *result,
               const char          *subject,
@@ -505,9 +505,10 @@ class bdepcre_RegEx {
         // then begin matching from the start of 'subject'.  On success, load
         // the specified 'result' with the '(offset, length)' pair indicating
         // the leftmost match of 'pattern()', and return 0.  Otherwise, return
-        // a non-zero value with no effect on 'result'.  The behavior is
-        // undefined unless 'isPrepared() == true', '0 <= subjectLength',
-        // '0 <= subjectOffset', and 'subjectOffset <= subjectLength'.  The
+        // a non-zero value with no effect on 'result'.  The return value is 1
+        // if the failure is caused by exceeding the depth limit.  The behavior
+        // is undefined unless 'isPrepared() == true', '0 <= subjectLength', '0
+        // <= subjectOffset', and 'subjectOffset <= subjectLength'.  The
         // behavior is also undefined if 'pattern()' was prepared with
         // 'BDEPCRE_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note that
         // 'subject' need not be null-terminated and may contain embedded null
@@ -531,13 +532,14 @@ class bdepcre_RegEx {
         // matching multiple times have their respective 'result' elements
         // loaded with the pairs indicating the rightmost match), and (3)
         // return 0.  Otherwise, return a non-zero value with no effect on
-        // 'result'.  The behavior is undefined unless 'isPrepared() == true',
-        // '0 <= subjectLength', '0 <= subjectOffset', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'BDEPCRE_FLAG_UTF8', but 'subject' is
-        // not valid UTF-8.  Note that 'subject' need not be null-terminated
-        // and may contain embedded null characters.  Also note that after a
-        // successful call, 'result' will contain exactly
+        // 'result'.  The return value is 1 if the failure is caused by
+        // exceeding the depth limit.  The behavior is undefined unless
+        // 'isPrepared() == true', '0 <= subjectLength', '0 <= subjectOffset',
+        // and 'subjectOffset <= subjectLength'.  The behavior is also
+        // undefined if 'pattern()' was prepared with 'BDEPCRE_FLAG_UTF8', but
+        // 'subject' is not valid UTF-8.  Note that 'subject' need not be
+        // null-terminated and may contain embedded null characters.  Also note
+        // that after a successful call, 'result' will contain exactly
         // 'numSubpatterns() + 1' elements.
 
     int numSubpatterns() const;

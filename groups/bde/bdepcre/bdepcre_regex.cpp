@@ -52,8 +52,9 @@ namespace BloombergLP {
 // CONSTANTS
 
 enum {
-    BDEPCRE_SUCCESS =  0,
-    BDEPCRE_FAILURE = -1
+    BDEPCRE_SUCCESS           =  0,
+    BDEPCRE_DEPTHLIMITFAILURE =  1,
+    BDEPCRE_FAILURE           = -1
 };
     // Return values for this API.
 
@@ -168,7 +169,10 @@ int bdepcre_RegEx::match(const char *subject,
                                 0,
                                 d_allocator_p);
 
-    if (0 > returnValue) {
+    if (PCRE_ERROR_MATCHLIMIT == returnValue) {
+        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+    }
+    else if (0 > returnValue) {
         return BDEPCRE_FAILURE;                                       // RETURN
     }
 
@@ -202,7 +206,10 @@ int bdepcre_RegEx::match(bsl::pair<int, int> *result,
                                 NUM_INTS_PER_CAPTURED_STRING,
                                 d_allocator_p);
 
-    if (0 > returnValue) {
+    if (PCRE_ERROR_MATCHLIMIT == returnValue) {
+        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+    }
+    else if (0 > returnValue) {
         return BDEPCRE_FAILURE;                                       // RETURN
     }
 
@@ -250,7 +257,10 @@ bdepcre_RegEx::match(bsl::vector<bsl::pair<int, int> > *result,
                                 len * NUM_INTS_PER_CAPTURED_STRING,
                                 d_allocator_p);
 
-    if (0 > returnValue) {
+    if (PCRE_ERROR_MATCHLIMIT == returnValue) {
+        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+    }
+    else if (0 > returnValue) {
         return BDEPCRE_FAILURE;                                       // RETURN
     }
 
