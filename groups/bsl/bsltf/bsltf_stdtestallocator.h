@@ -390,6 +390,7 @@ struct StdTestAllocator_CommonUtil {
     // This 'struct' provides a namespace for utilities that are common to
     // all instantiations of the 'StdTestAllocator' class template.
 
+    // CLASS METHODS
     static unsigned int maxSize(size_t elementSize);
         // Return the maximum number of objects, each taking the specified
         // 'elementSize' bytes of storage, that can potentially be allocated by

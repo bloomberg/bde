@@ -67,7 +67,7 @@ class DegenerateFunctor : private FUNCTOR {
     // CopyConstructible, nothrow Destructible, and (optionally) Swappable as
     // long as the adapted 'FUNCTOR' satisfies the same requirements.  The
     // (inherited) function call operator should be the only other available
-    // method, no other operation (e.g. the unary address-of operator) should
+    // method, no other operation (e.g., the unary address-of operator) should
     // be usable.  We take advantage of the fact that defining a copy
     // constructor inhibits the generation of a default constructor, and that
     // constructors are not inherited by a derived class.  'DegenerateFunctor'

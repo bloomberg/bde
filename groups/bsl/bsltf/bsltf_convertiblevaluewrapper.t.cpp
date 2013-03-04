@@ -20,7 +20,7 @@ using namespace BloombergLP::bsltf;
 // object of a type specified by the user, and implicitly convertible both to
 // and from objects of that type.  If the wrapped type is value semantic, then
 // so is the wrapper type, courtesy of the implicit conversions.
-// 
+//
 // In order to validate the behavior, we must first demonstrate that the class
 // successfully wraps the user supplied object, and does not merely form a
 // reference to it.  We should confirm this for a variety of user-supplied
@@ -46,7 +46,8 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -89,11 +90,12 @@ static void aSsErT(bool b, const char *s, int i) {
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose         = argc > 2;
-    int veryVerbose     = argc > 3;
-    int veryVeryVerbose = argc > 4;
+int main(int argc, char *argv[])
+{
+    int  test            = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

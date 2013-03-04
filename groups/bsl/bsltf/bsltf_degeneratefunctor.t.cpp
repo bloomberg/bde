@@ -41,7 +41,8 @@ using namespace BloombergLP;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -87,8 +88,8 @@ static void aSsErT(bool b, const char *s, int i) {
 template <class TYPE>
 struct Compare {
     bool operator()(const TYPE& a, const TYPE& b) const;
-       // Return 'true' if the specified 'a' compares equal to the specified
-       // 'b' using the operator '=='.
+        // Return 'true' if the specified 'a' compares equal to the specified
+        // 'b' using the operator '=='.
 };
 
 template <class TYPE>
@@ -102,11 +103,12 @@ bool Compare<TYPE>::operator()(const TYPE& a, const TYPE& b) const
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose         = argc > 2;
-    int veryVerbose     = argc > 3;
-    int veryVeryVerbose = argc > 4;
+int main(int argc, char *argv[])
+{
+    int  test            = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

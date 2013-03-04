@@ -48,7 +48,7 @@ struct ConvertibleValueWrapper {
     // This class provides a wrapper around an object of the specified
     // (template parameter) 'TYPE'.  'TYPE' shall be CopyConstructible.  If
     // 'TYPE' is a value-semantic type, then this class will also be value
-    // semantic.  Objects of this type are implictly convertible to and from
+    // semantic.  Objects of this type are implicitly convertible to and from
     // objects of the specified 'TYPE'.
 
   private:

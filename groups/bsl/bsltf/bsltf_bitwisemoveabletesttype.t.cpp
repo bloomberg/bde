@@ -302,8 +302,8 @@ int main(int argc, char *argv[]) {
         //:     same value as 'ZZ'.  (C-5)
         //
         // Testing:
-        //   BitwiseMoveableTestType& operator=(const BitwiseMoveableTestType& rhs);
-        // --------------------------------------------------------------------
+        //  BitwiseMoveableTestType& operator=(const BitwiseMoveableTestType&);
+        // -------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
                             "\n========================\n");
