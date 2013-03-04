@@ -17,10 +17,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Arthur Chiu (achiu21), Alisdair Meredith (ameredith1)
 //         Stefano Pacifico (spacifico1), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides a template unary functor,
-//'bsl::hash', implementing the 'std::hash' functor.  'bsl::hash' applies a C++
-//standard compliant, implementation defined, hash function to fundamental
-//types returning the result of such application.
+//@DESCRIPTION: This component provides a template unary functor, 'bsl::hash',
+// implementing the 'std::hash' functor.  'bsl::hash' applies a C++ standard
+// compliant, implementation defined, hash function to fundamental types
+// returning the result of such application.
 //
 /// Standard Hash Function
 // According to the C++ standard the requirements of a standard hash function
@@ -1003,40 +1003,24 @@ struct hash<long double> {
 };
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
+
+#if !defined(BSL_HASH_CSTRINGS_AS_POINTERS)
 template <>
-struct hash<const char *> {
-    // Specialization of 'hash' for 'const char *' strings.  This explicit
-    // template specialization is non-standard, assuming that any
-    // 'const char *' pointer points to a null-terminated string, and
-    // providing a hash for the (assumed) string value, rather than the
-    // pointer value.
+struct hash<const char *>;
+    // This explicit specialization of 'hash' is declared, but not defined,
+    // so that the compiler will complain about use of this template
+    // instantiation.  If you are reading this because your compiler is
+    // complaining, review the code in question.  If it relies on the
+    // 'hash' call treating 'const char *' as a string, you should switch to
+    // a different hash function that supports this behavior, such as
+    // 'bdeu_cstringhash'.  Otherwise, if your code expects that 'hash' to
+    // act on the value of the pointer, you may define the macro
+    // 'BSL_HASH_CSTRINGS_AS_POINTERS' to recompile your code selecting the
+    // partial sepcialization for pointers defined above.  In a subsequent
+    // BDE release this usage will become the default, rather than an error, so
+    // that the explicit use of this macro should no longer be necesary.
+#endif
 
-    // STANDARD TYPEDEFS
-    typedef const char * argument_type;
-    typedef std::size_t result_type;
-
-    //! hash() = default;
-        // Create a 'hash' object.
-
-    //! hash(const hash& original) = default;
-        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
-        // type, this operation will have no observable effect.
-
-    //! ~hash() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    //! hash& operator=(const hash& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as 'hash' is an empty (stateless) type, this operation will
-        // have no observable effect.
-
-    // ACCESSORS
-    std::size_t operator()(const char *x) const;
-        // Return a hash value computed for the specified null-terminated
-        // string 'x'.
-};
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ===========================================================================
