@@ -30,7 +30,6 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: (TBD)
 /// - - - - - - - - - - - - - - - -
-// First, we ...
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

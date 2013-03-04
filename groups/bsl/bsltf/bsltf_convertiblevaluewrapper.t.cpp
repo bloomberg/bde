@@ -18,7 +18,7 @@ using namespace BloombergLP::bsltf;
 //                              --------
 // The component under test implements a simple object wrapper, wrapping an
 // object of a type specified by the user, and implicitly convertible both to
-// and from objects of that type.  If the wrapped typs is value semantic, then
+// and from objects of that type.  If the wrapped type is value semantic, then
 // so is the wrapper type, courtesy of the implicit conversions.
 // 
 // In order to validate the behavior, we must first demonstrate that the class

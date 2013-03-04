@@ -391,7 +391,7 @@ struct StdTestAllocator_CommonUtil {
     // all instantiations of the 'StdTestAllocator' class template.
 
     static unsigned int maxSize(size_t elementSize);
-        // Return the maximum number of objects, each required the specified
+        // Return the maximum number of objects, each taking the specified
         // 'elementSize' bytes of storage, that can potentially be allocated by
         // a 'StdTestAllocator'.  Note that this function is mostly about
         // insulating consumers of this component from a standard header, so
