@@ -156,8 +156,9 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     const char* end  = iter + d_formatSpec.length();
 
     // Create a buffer on the stack for formatting the record.  Note that the
-    // size of the buffer should be larger than the amount we reserve in order
-    // 
+    // size of the buffer should be slightly larger than the amount we reserve
+    // in order to ensure only a single allocation occurs.
+
     char fixedBuffer[512];
     bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer, 512);
     bsl::string output(&stringAllocator);
