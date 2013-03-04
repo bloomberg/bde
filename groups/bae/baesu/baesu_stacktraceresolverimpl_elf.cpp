@@ -1068,6 +1068,8 @@ int linkmapCallback(struct dl_phdr_info *info,
     // unused, the specified 'data' is a pointer to the elf resolver.  Return 0
     // on success and a non-zero value otherwise.
 {
+    (void) size;
+
     Local::StackTraceResolver *resolver =
                            reinterpret_cast<Local::StackTraceResolver *>(data);
 
