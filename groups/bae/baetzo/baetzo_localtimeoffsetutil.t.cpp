@@ -14,6 +14,7 @@
 #include <bsl_cstring.h>         // 'strcmp'
 #include <bsl_iostream.h>
 #include <bsls_asserttest.h>
+#include <bsls_stopwatch.h>      // case -2, -3
 #include <bsls_types.h>
 #include <bsl_vector.h>          // case -1
 
@@ -57,6 +58,8 @@ using namespace bsl;
 // [ 5] CONCERN: This component uses the default global allocator.
 // [ 5] CONCERN: The static members have the expected initial values.
 // [-1] CONCERN: The public methods of this component are *thread-safe*.
+// [-2] CONCERN: Performance on cache hits.
+// [-3] CONCERN: Performance on cache misses.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -977,8 +980,8 @@ int main(int argc, char *argv[])
         //:   exactly once.
         //
         // Plan:
-        //: 1 Set the timezone and UTC time to a day before the start of
-        //:   daylight saving time in 2013 (in New York).
+        //: 1 Set the timezone and UTC time to some day in 2013 before the
+        //:   start of daylight saving time in New York).
         //:
         //: 2 Launch multiple threads (where the number is determined by a
         //:   command-line argument) that each wait at a common barrier until
@@ -1068,6 +1071,128 @@ int main(int argc, char *argv[])
                 ASSERT(-4 * 3600 == itr->d_offset);
             }
         }
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE: CACHE-HITS
+        //
+        // Concerns:
+        //: 1 The time needed to deliver an offset value from the cached
+        //:   information should be known.
+        //
+        // Plan:
+        //: 1 Set the timezone and UTC time to some day in 2013 before the
+        //:   start of daylight saving time in New York).
+        //:
+        //: 2 Use a stopwatch mechanism to measure the time needed to
+        //:   iteratively request the local time offset at the UTC datetime
+        //:   set in P-1.  The number of iterations is determined by a
+        //:   command-line parameter.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: Performance on cache hits.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PERFORMANCE: CACHE-HITS" << endl
+                          << "=======================" << endl;
+
+        const int numIterations = argc > 2 ? atoi(argv[2]) : 0;
+
+        P(numIterations);
+
+        const bdet_Datetime newYearsDay(2013, 1,  1);
+        const char          *timezone             = "America/New_York";
+
+        int status = Util::setTimezone(timezone, newYearsDay);
+        ASSERT(0 == status);
+
+        // Confirm that the callback is working
+
+        int offset;
+        status = Util::loadLocalTimeOffset(&offset, newYearsDay);
+        ASSERT(0 == status);
+
+        bsls::Stopwatch stopwatch;
+        stopwatch.start();
+
+        for (int i = 0;  i < numIterations; ++i) {
+            Util::loadLocalTimeOffset(&offset, newYearsDay);
+        }
+
+        stopwatch.stop();
+
+        double systemTime;
+        double   userTime;
+        double   wallTime;
+        stopwatch.accumulatedTimes(&systemTime, &userTime, &wallTime);
+
+        P_(systemTime) P_(userTime) P(wallTime);
+
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE: CACHE MISSES
+        //
+        // Concerns:
+        //: 1 The time needed to deliver an offset value when the information
+        //:   is not in the cache information should be known.
+        //
+        // Plan:
+        //: 1 Set the timezone and UTC time to some day in 2013 before the
+        //:   start of daylight saving time in New York).
+        //:
+        //: 2 Use a stopwatch mechanism to measure the time needed to
+        //:   iteratively request the local time offset at the UTC datetime
+        //:   corresponding to the start of daylight savings time in New York,
+        //:   a cache-miss, which resets the cache.  Then, request the result
+        //:   for the UTC time set in P-1, another cache-miss.  The number of
+        //    requests is determined by a command-line parameter.
+        //:   parameter.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: Performance on cache misses.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PERFORMANCE: CACHE-MISSES" << endl
+                          << "=========================" << endl;
+
+        const int numIterations = argc > 2 ? atoi(argv[2]) : 0;
+
+        P(numIterations);
+
+        const bdet_Datetime newYearsDay(2013, 1,  1);
+        const bdet_Datetime  startOfDst(2013, 3, 10, 7);
+        const char          *timezone             = "America/New_York";
+
+        int status = Util::setTimezone(timezone, newYearsDay);
+        ASSERT(0 == status);
+
+        // Confirm that the callback is working
+
+        int offset;
+        status = Util::loadLocalTimeOffset(&offset, newYearsDay);
+        ASSERT(0 == status);
+
+        const int numIterations2 = numIterations/2;
+
+        bsls::Stopwatch stopwatch;
+        stopwatch.start();
+
+        for (int i = 0;  i < numIterations2; ++i) {
+            Util::loadLocalTimeOffset(&offset, startOfDst);
+            Util::loadLocalTimeOffset(&offset, newYearsDay);
+        }
+
+        stopwatch.stop();
+
+        double systemTime;
+        double   userTime;
+        double   wallTime;
+        stopwatch.accumulatedTimes(&systemTime, &userTime, &wallTime);
+
+        P_(systemTime) P_(userTime) P(wallTime);
 
       } break;
       default: {
