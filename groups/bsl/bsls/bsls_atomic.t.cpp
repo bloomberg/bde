@@ -412,7 +412,7 @@ void *runObserverLoop(void *arg)
 {
     TestLoopParameters *params = static_cast<TestLoopParameters *>(arg);
 
-    while (!params->d_cancel && !params->d_iterations >= 0)
+    while (!params->d_cancel && params->d_iterations >= 0)
     {
     }
 
