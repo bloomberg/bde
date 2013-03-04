@@ -2,9 +2,10 @@
 
 #include <bsls_platform.h>
 
-#include <cstdio>      // 'printf'
-#include <cstdlib>     // 'atoi'
 #include <iostream>
+
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 
 
 using namespace BloombergLP;

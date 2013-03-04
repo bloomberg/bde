@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
             struct MemberTest {
                 bool data;
 
-                MemberTest(BoolType b) : data(b) {}
+                MemberTest(BoolType b) : data(b) {}                 // IMPLICIT
             } bmt = bt;
             ASSERT(!bmt.data);
 
@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
             struct MemberTest {
                 bool data;
 
-                MemberTest(Booleable b) : data(b) {}
+                MemberTest(Booleable b) : data(b) {}                // IMPLICIT
             } bmt = babel;
             ASSERT(!bmt.data);
 

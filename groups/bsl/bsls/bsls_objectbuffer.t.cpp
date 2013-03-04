@@ -4,12 +4,12 @@
 
 #include <bsls_platform.h>          // for testing only
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -68,7 +68,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // Can't use obvious definition because some compilers have placement new
 // built-in.
 struct Placement { void *d_ptr; Placement(void *p) : d_ptr(p) { } };
-inline void *operator new(std::size_t, Placement p) throw() { return p.d_ptr; }
+inline void *operator new(size_t, Placement p) throw() { return p.d_ptr; }
 #if !defined(BSLS_PLATFORM_CMP_MSVC) && \
    (!defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 30000)
 inline void operator delete(void *, Placement) throw() { }
@@ -91,8 +91,8 @@ class my_String
     void set(const char* s, int len);
 
   public:
-    my_String(const char* s);
-    my_String(const my_String& rhs);
+    my_String(const char* s);                                       // IMPLICIT
+    my_String(const my_String& rhs);                                // IMPLICIT
     my_String& operator=(const my_String& rhs);
     ~my_String();
 
@@ -247,10 +247,10 @@ struct my_Type
         };
 
       public:
-        my_Union(int i = 0) : d_type(INT) { d_int = i; }
-        my_Union(const my_String& s) : d_type(STRING) {
+        my_Union(int i = 0) : d_type(INT) { d_int = i; }            // IMLPICIT
+        my_Union(const my_String& s) : d_type(STRING) {             // IMLPICIT
             new (d_string.buffer()) my_String(s); }
-        my_Union(const char *s) : d_type(STRING) {
+        my_Union(const char *s) : d_type(STRING) {                  // IMLPICIT
             new (d_string.buffer()) my_String(s); }
         my_Union(const my_Union& rhs) : d_type(rhs.d_type) {
             if (INT == d_type) {

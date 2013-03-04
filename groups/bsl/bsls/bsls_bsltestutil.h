@@ -417,7 +417,7 @@ void debugprint(const volatile void *v);
     // Print to the console the specified memory address, 'v', formatted as
     // a hexadecimal integer.
 
-template <typename RESULT>
+template <class RESULT>
 void debugprint(RESULT (*v)());
     // Print to the console the specified function pointer, 'v', formatted as a
     // hexadecimal integer. On some platforms (notably Windows), a function
@@ -459,7 +459,7 @@ void BslTestUtil::callDebugprint(const TYPE& obj,
 
 // FREE FUNCTIONS
 
-template <typename RESULT>
+template <class RESULT>
 void bsls::debugprint(RESULT (*v)())
 {
     uintptr_t address = reinterpret_cast<uintptr_t>(v);

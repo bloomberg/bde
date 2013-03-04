@@ -194,21 +194,21 @@ struct S5 { long long d_longLong __attribute__((__aligned__(8))); };
 #endif
 union  U1 { char d_c; int *d_pointer; };
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, void *)
 {
     return false;
 }
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, T *)
 {
     return true;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool sameType(T1 t1, T2 t2)
 {
