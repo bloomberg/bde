@@ -580,14 +580,7 @@ void TestValuesArray_DefaultConverter<VALUE>::createInplace(
                                                    char              value,
                                                    bslma::Allocator *allocator)
 {
-#if 0
-    bslalg::ScalarPrimitives::copyConstruct(
-                             objPtr,
-                             bsltf::TemplateTestFacility::create<VALUE>(value),
-                             allocator);
-#else
     bsltf::TemplateTestFacility::emplace(objPtr, value, allocator);
-#endif
 }
 
                        // --------------------

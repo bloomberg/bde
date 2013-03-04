@@ -599,7 +599,7 @@ BSLTF_TTF_TEST4_SPECIALIZE(NonEqualComparableTestType, 14)
 #define BSLTF_TTF_TEST4_NUM_ALL_TYPES                                         \
 (BSLTF_TTF_TEST4_NUM_REGULAR_TYPES + BSLTF_TTF_TEST4_NUM_AWKWARD_TYPES)
 
-// Test Case 5 Aparatus
+// Test Case 5 Apparatus
 
 template <class TYPE>
 void TestHelper<TYPE>::test5Helper()
@@ -618,7 +618,7 @@ void TestHelper<TYPE>::test5Helper()
     }
 }
 
-// Test Case 6 Aparatus
+// Test Case 6 Apparatus
 
 template <class TYPE>
 void TestHelper<TYPE>::test6Helper()
@@ -655,7 +655,7 @@ void TestHelper<TYPE>::test6Helper()
 
 }
 
-// Test Case 7 Aparatus
+// Test Case 7 Apparatus
 
 template <class TYPE>
 void TestHelper<TYPE>::test7Helper()
@@ -741,9 +741,9 @@ int main(int argc, char *argv[])
         //:   all supported user-defined types intended for testing defined in
         //:   the 'bsltf' package.
         //:
-        //: 2 Enusre that the 'debugprint' function overloads print the integer
-        //:   specified to the 'TemplateTestFacility::create' class method used
-        //:   to create the function argument.
+        //: 2 Ensure that the 'debugprint' function overloads print the
+        //:   integer specified to the 'TemplateTestFacility::create' class
+        //:   method used to create the function argument.
         //:
         //: 3 Ensure that the macros defined in 'bsls_bsltestutil' supports the
         //:   types for which 'debugprint' are defined.
@@ -825,7 +825,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 For all test types, invoking the 'TemplateTestFacility::emplace'
         //:   class method passing in an integer value creates a new object of
-        //:   that type, at the specified address.  Henceforce invoking the
+        //:   that type, at the specified address.  Henceforth invoking the
         //:   'TemplateTestFacility::getIdentifier' class method passing in the
         //:   just created object returns the the previously used integer
         //:   value.
@@ -838,7 +838,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a function member template parameterized on a type and
-        //:   does teh following: For each integer value from 0 to 127, create
+        //:   does the following: For each integer value from 0 to 127, create
         //:   an object using 'TemplateTestFacility::emplace' passing in the
         //:   integer value.  Verify that the integer value return from
         //:   'TemplateTestFacility::getIdentifier' compare equal to the value
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 For all test types, invoking the 'TemplateTestFacility::create'
         //:   class method passing in an integer value return a new object of
-        //:   that type.  Henceforce invoking the
+        //:   that type.  Henceforth invoking the
         //:   'TemplateTestFacility::getIdentifier' class method passing in the
         //:   just created object returns the the previously used integer
         //:   value.
@@ -881,7 +881,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a function member template parameterized on a type and
-        //:   does teh following: For each integer value from 0 to 127, create
+        //:   does the following: For each integer value from 0 to 127, create
         //:   an object using 'TemplateTestFacility::create' passing in the
         //:   integer value.  Verify that the integer value return from
         //:   'TemplateTestFacility::getIdentifier' compare equal to the value

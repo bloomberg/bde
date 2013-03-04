@@ -132,6 +132,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
@@ -139,6 +143,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_NEW
 #include <new>
 #define INCLUDED_NEW
+#endif
+
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace BloombergLP {
@@ -218,22 +227,17 @@ class StdTestAllocator {
 
   public:
     // PUBLIC TYPES
-#if 0
-    typedef std::size_t     size_type;
-    typedef std::ptrdiff_t  difference_type;
-#else
     // Deliberately use types that will *not* have the same representation as
     // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
     // wide enough to support our regular testing, as verified on 32-bit
     // platforms.
-    typedef unsigned int     size_type;
-    typedef int              difference_type;
-#endif
-    typedef TYPE           *pointer;
-    typedef const TYPE     *const_pointer;
-    typedef TYPE&           reference;
-    typedef const TYPE&     const_reference;
-    typedef TYPE            value_type;
+    typedef unsigned int  size_type;
+    typedef int           difference_type;
+    typedef TYPE         *pointer;
+    typedef const TYPE   *const_pointer;
+    typedef TYPE&         reference;
+    typedef const TYPE&   const_reference;
+    typedef TYPE          value_type;
 
     template <class OTHER_TYPE>
     struct rebind
@@ -318,20 +322,15 @@ class StdTestAllocator<void> {
 
   public:
     // PUBLIC TYPES
-#if 0
-    typedef std::size_t     size_type;
-    typedef std::ptrdiff_t  difference_type;
-#else
     // Deliberately use types that will *not* have the same representation as
     // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
     // wide enough to support our regular testing, as verified on 32-bit
     // platforms.
-    typedef unsigned int     size_type;
-    typedef int              difference_type;
-#endif
-    typedef void           *pointer;
-    typedef const void     *const_pointer;
-    typedef void            value_type;
+    typedef unsigned int  size_type;
+    typedef int           difference_type;
+    typedef void         *pointer;
+    typedef const void   *const_pointer;
+    typedef void          value_type;
 
     template <class OTHER_TYPE>
     struct rebind
@@ -381,6 +380,25 @@ template <class TYPE1, class TYPE2>
 bool operator!=(const StdTestAllocator<TYPE1>& lhs,
                 const StdTestAllocator<TYPE2>& rhs);
     // Return 'false' because 'StdTestAllocator' does not hold a state.
+
+
+                        // ======================
+                        // class StdTestAllocator
+                        // ======================
+
+struct StdTestAllocator_CommonUtil {
+    // This 'struct' provides a namespace for utilities that are common to
+    // all instantiations of the 'StdTestAllocator' class template.
+
+    // CLASS METHODS
+    static unsigned int maxSize(size_t elementSize);
+        // Return the maximum number of objects, each taking the specified
+        // 'elementSize' bytes of storage, that can potentially be allocated by
+        // a 'StdTestAllocator'.  Note that this function is mostly about
+        // insulating consumers of this component from a standard header, so
+        // that theis test componet does not hide missing header dependencies
+        // in testing scenarios.
+};
 
 // ===========================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
@@ -464,7 +482,7 @@ inline
 typename StdTestAllocator<TYPE>::pointer
 StdTestAllocator<TYPE>::address(reference object) const
 {
-    return BSLS_UTIL_ADDRESSOF(object);
+    return bsls::Util::addressOf(object);
 }
 
 template <class TYPE>
@@ -472,7 +490,7 @@ inline
 typename StdTestAllocator<TYPE>::const_pointer
 StdTestAllocator<TYPE>::address(const_reference object) const
 {
-    return BSLS_UTIL_ADDRESSOF(object);
+    return bsls::Util::addressOf(object);
 }
 
 template <class TYPE>
@@ -480,23 +498,7 @@ inline
 typename StdTestAllocator<TYPE>::size_type
 StdTestAllocator<TYPE>::max_size() const
 {
-    // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
-    // 'size_type' (copied from bslstl_allocator).
-
-#if 0
-    static const bool BSLMA_SIZE_IS_SIGNED =
-                              ~BloombergLP::bslma::Allocator::size_type(0) < 0;
-    static const std::size_t MAX_NUM_BYTES =
-                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
-    static const std::size_t MAX_NUM_ELEMENTS =
-                                     std::size_t(MAX_NUM_BYTES) / sizeof(TYPE);
-    return MAX_NUM_ELEMENTS;
-#else
-    static const size_type MAX_NUM_BYTES = ~size_type(0);
-    static const size_type MAX_NUM_ELEMENTS =
-                          MAX_NUM_BYTES / static_cast<size_type>(sizeof(TYPE));
-    return MAX_NUM_ELEMENTS;
-#endif
+    return StdTestAllocator_CommonUtil::maxSize(sizeof(TYPE));
 }
 
                         // ----------------------------

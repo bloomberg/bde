@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an enumerated test type.
+//@PURPOSE: Provide the most awkward type that is convertible to 'bool'.
 //
 //@CLASSES:
-//   bsltf::EnumeratedTestType: enumerated test type
+//  bsltf::EnumeratedTestType: most awkward type that is convertible to 'bool'
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // requirements.  This type is not intented for use in production code, but is
 // most useful when implementing test drivers for generic components that must
 // accept predicates, or other expressions, that yield a type that is merely
-// convertible to' bool'.
+// convertible to 'bool'.
 //
 ///Usage
 ///-----
@@ -30,7 +30,6 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: (TBD)
 /// - - - - - - - - - - - - - - - -
-// First, we ...
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
