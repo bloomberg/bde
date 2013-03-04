@@ -415,7 +415,7 @@ class bdepcre_RegEx {
         // specified 'depthLimit'.  Returns the previous depth limit.
 
     // CREATORS
-    bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);             // IMPLICIT
+    bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);            // IMPLICIT
         // Create a regular-expression object in the "unprepared" state.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is

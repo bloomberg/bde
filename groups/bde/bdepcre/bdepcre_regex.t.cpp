@@ -602,8 +602,8 @@ int main(int argc, char *argv[])
         //  for regular expression matches.
         //
         // Plan:
-        //  Default-construct a regular expression, and make sure that the depth
-        //  limit matches the process default.
+        //  Default-construct a regular expression, and make sure that the
+        //  depth limit matches the process default.
         //
         //  Modify the process default, making sure that the
         //  already-constructed regex is not affected, that the process default
