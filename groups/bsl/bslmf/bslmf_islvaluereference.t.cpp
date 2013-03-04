@@ -3,10 +3,9 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
-using namespace std;
 using namespace BloombergLP;
 
 //=============================================================================

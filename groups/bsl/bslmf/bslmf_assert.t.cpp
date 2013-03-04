@@ -1,14 +1,12 @@
 // bslmf_assert.t.cpp                                                 -*-C++-*-
-
 #include <bslmf_assert.h>
+
+#include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
-#include <cstdlib>     // atoi()
-#include <cstring>     // strcmp()
-#include <iostream>
-
-using namespace std;
+#include <stdio.h>   // printf
+#include <stdlib.h>  // atoi
 
 //=============================================================================
 //                                TEST PLAN
@@ -16,34 +14,44 @@ using namespace std;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
-// [ 1] BSLMF_ASSERT(expr)
+// [ 1] BSLMF_ASSERT(expr)i
+//
+// ----------------------------------------------------------------------------
+// [  ] USAGE EXAMPLE
+
 //=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
+//
+//                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+void aSsErT(bool b, const char *s, int i)
+{
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -106,10 +114,10 @@ void MyType::foo()
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    bool verbose = argc > 2;
+    // bool veryVerbose = argc > 3;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
@@ -129,14 +137,13 @@ int main(int argc, char *argv[])
         //   BSLMF_ASSERT(expr)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BSLMF_ASSERT Macro" << endl
-                          << "==================" << endl;
+        if (verbose) printf("\nBSLMF_ASSERT Macro\n"
+                            "\n==================\n");
 
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-        BSLMF_ASSERT(1);  ASSERT(138 == __LINE__);
-        BSLMF_ASSERT(1);  ASSERT(139 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(145 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(146 == __LINE__);
         BSLMF_ASSERT(1 > 0 && 1);
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
@@ -144,8 +151,8 @@ int main(int argc, char *argv[])
 #if !defined(BSLS_PLATFORM_CMP_MSVC) &&                    \
     !defined(BSLS_PLATFORM_CMP_SUN)  &&                    \
     !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
-        bslmf_Assert_138 t1; // test typedef name creation; matches above line
-        bslmf_Assert_139 t2; // test typedef name creation; matches above line
+        bslmf_Assert_145 t1; // test typedef name creation; matches above line
+        bslmf_Assert_146 t2; // test typedef name creation; matches above line
         ASSERT(sizeof t1 == sizeof t2);  // use t1 and t2
 #endif
 
@@ -160,15 +167,15 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

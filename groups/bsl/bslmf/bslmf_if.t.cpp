@@ -4,7 +4,7 @@
 
 #include <bslmf_nil.h>  // for testing only
 
-#include <cstdlib>
+#include <stdlib.h>
 #include <iostream>
 
 using namespace BloombergLP;

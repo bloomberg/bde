@@ -4,11 +4,15 @@
 #include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
-#include <cstdlib>
-#include <cstdio>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
-using namespace std;
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4180)  // 'const' applied to function type
+#endif
+
 using namespace bsl;
 using namespace BloombergLP;
 
@@ -329,7 +333,7 @@ int main(int argc, char *argv[])
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete &, Incomplete &);
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete*&, Incomplete*&);
 
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
         // Some cv-qualified function types are not compilable on AIX.
 
         ASSERT_ADD_LVALUE_REF_CVQ(F &, F &);
@@ -387,7 +391,7 @@ int main(int argc, char *argv[])
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete &&, Incomplete &);
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete*&&, Incomplete*&);
 
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
         // Some cv-qualified function types are not compilable on AIX.
 
         ASSERT_ADD_LVALUE_REF_CVQ(F &&, F &);
