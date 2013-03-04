@@ -15,8 +15,13 @@
 #include <bdex_testinstream.h>           // for testing only
 #include <bdex_testoutstream.h>          // for testing only
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+
 
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
@@ -149,6 +154,37 @@ const bdet_DatetimeInterval TB(0, -1);
 
 const char *FC = "yet another format";
 const bdet_DatetimeInterval TC(1, 0);
+
+const char *MSG_1BYTE   = "0";
+const char *MSG_20BYTE  = "01234567890123456789"; 
+const char *MSG_200BYTE =
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789";
+const char *MSG_450BYTE =
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789";
+const char *MSG_550BYTE =
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789"
+"012345678901234567890123456789012345678901234567890123456789";
+
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -626,6 +662,64 @@ int main(int argc, char *argv[])
             X(oss1, record);
             if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
             ASSERT(oss1.str() == "log this");
+        }
+
+        if (verbose) cout << "\n Testing allocation behavior." << endl;
+        {
+
+            const char *TEST_MESSAGES[] = { 
+                MSG_1BYTE, 
+                MSG_20BYTE, 
+                MSG_200BYTE,
+                MSG_450BYTE,
+                MSG_550BYTE,
+            };
+            const int NUM_TEST_MESSAGES = sizeof(TEST_MESSAGES) /
+                                          sizeof(*TEST_MESSAGES);
+
+            for (int i = 0; i < NUM_TEST_MESSAGES; ++i) {
+                const char *MSG     = TEST_MESSAGES[i];
+                const int   MSG_LEN = bsl::strlen(MSG);
+
+                bslma::TestAllocator oa, da;
+                Obj x("%m", &oa); const Obj& X = x;
+            
+                bael_RecordAttributes fixedFields(bdet_Datetime(),
+                                                  processID,
+                                                  threadID,
+                                                  filename,
+                                                  lineNum,
+                                                  "FOO.BAR.BAZ",
+                                                  bael_Severity::BAEL_WARN,
+                                                  MSG,
+                                                  &oa);
+                fixedFields.setTimestamp(bdetu_SystemTime::nowAsDatetimeUtc());
+                
+                bdem_List   userFields(&oa);
+                bael_Record record(fixedFields, userFields);
+
+                bsl::ostringstream stream;                
+                bslma::DefaultAllocatorGuard guard(&da);
+
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+                
+                X(stream, record);
+
+                bool expectIncrease = MSG_LEN > 500;
+
+                ASSERT(oam.isInUseSame());
+                ASSERT(oam.isMaxSame());
+                ASSERT(dam.isInUseSame());
+                ASSERT(expectIncrease == dam.isMaxUp());
+
+                if (veryVeryVerbose) {
+                    P_(oam.isInUseSame());
+                    P_(oam.isMaxSame());
+                    P_(dam.isInUseSame());
+                    P(dam.isMaxUp());
+                    P(stream.str());
+                }
+            }
         }
       } break;
       case 11: {
