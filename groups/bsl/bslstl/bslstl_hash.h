@@ -1004,7 +1004,7 @@ struct hash<long double> {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
 
-#if !defined BSL_HASH_CSTRINGS_AS_POINTERS
+#if !defined(BSL_HASH_CSTRINGS_AS_POINTERS)
 template <>
 struct hash<const char *>;
     // This explicit specialization of 'hash' is declared, but not defined,
