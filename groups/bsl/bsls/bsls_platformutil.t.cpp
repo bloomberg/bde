@@ -73,6 +73,10 @@ static void aSsErT(int c, const char *s, int i)
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
+#define LOOP2_ASSERT(I,J,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n"; \
+               aSsErT(1, #X, __LINE__); }}
+
 //=============================================================================
 //                      SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -727,9 +731,9 @@ if (verbose)
         //     Since the size_type is generated, it is possible that the
         //     typedef statements concerned for those types were wrong.  We
         //     must ensure that:
-        //     - 'size_type' is a signed integer type
-        //     - a size_type is at least as wide as an int.
-        //     - a size_type can contain the difference between two pointers.
+        //     - 'size_type' has the same signed-ness as
+        //       'bsls::Types::size_type'
+        //     - a size_type is the same size as 'bsls::Types::size_type'
         //
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
@@ -746,24 +750,18 @@ if (verbose)
 
         typedef bsls::PlatformUtil Util;
 
-        // Must be at least as wide as an int.
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        ASSERT(sizeof(Util::size_type) >= sizeof(long int));
-#else
-        ASSERT(sizeof(Util::size_type) >= sizeof(int));
-#endif
+        // Must be the same size as 'bsls::Types::size_type'
+        LOOP2_ASSERT(
+                    sizeof(Util::size_type),
+                    sizeof(bsls::Types::size_type),
+                    sizeof(Util::size_type) == sizeof(bsls::Types::size_type));
 
-        // Must be convertible (without error or warning) from a difference of
-        // two pointers.  Use some arbitrary values for this.
-        Util::size_type zero     = std::ptrdiff_t(0);
-        Util::size_type minusOne = std::ptrdiff_t(-1);
-        Util::size_type posValue = std::ptrdiff_t(1048576);
-
-        // Must be signed.
-        ASSERT(0 == zero);
-        ASSERT(minusOne < 0);
-        ASSERT(0 <  posValue);
-
+        // Must have the same signed-ness as bsls::Types::size_type
+        bool isTypesSizeTypeSigned = ~bsls::Types::size_type(0) < 0;
+        bool isUtilSizeTypeSigned  =        ~Util::size_type(0) < 0;
+        LOOP2_ASSERT(isTypesSizeTypeSigned,
+                     isUtilSizeTypeSigned,
+                     isTypesSizeTypeSigned == isUtilSizeTypeSigned);
       } break;
       case 2: {
         // --------------------------------------------------------------------

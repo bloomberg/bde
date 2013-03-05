@@ -2,23 +2,23 @@
 
 #include <bcema_protectablesequentialallocator.h>
 
-#include <bdema_testprotectableblockdispenser.h>       // for testing only
-#include <bcemt_barrier.h>                             // for testing only
 #include <bcema_testallocator.h>                       // for testing only
-#include <bslma_testallocatorexception.h>              // for testing only
-#include <bslma_defaultallocatorguard.h>               // for testing only
 
+#include <bcemt_barrier.h>
+#include <bdema_testprotectableblockdispenser.h>
 #include <bdema_protectableblockdispenser.h>
 #include <bdema_nativeprotectableblockdispenser.h>
+#include <bslma_testallocatorexception.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bsls_alignmentutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 #include <bsl_c_signal.h>
-
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
+#include <bsl_limits.h>      // for 'bsl::numeric_limits'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -29,37 +29,47 @@ using namespace bsl;  // automatically added by script
 //                                  Overview
 //                                  --------
 //-----------------------------------------------------------------------------
-// [ 2] Verify helper functions (testProtectedSet)
-// [ 3] Primary creators
-//           bcema_ProtectableSequentialAllocator();
-//           ~bcema_ProtectableSequentialAllocator();
-// [ 4] Primary modifier
-//           void *allocate(int size);
-// [ 5] Primary modifiers, accessor
-//           int protect(), int unprotect(), bool isProtected()
-// [ 6] Modifier: release()
-// [ 7] Modifier: expand(void *, int, 0)
-// [ 8] Modifier: expand(void *, int, int)
-// [ 9] Modifier: reserveCapacity(int x)
-// [10] Modifier: deallocate(void *)
-// [11] Primary modifier (geometric expansion & limit)
-//           void *allocate(int size);
-//           bcema_ProtectableSequentialAllocator(int, strategy, dispenser);
-// [12] Primary modifier (linear expansion)
-//           void *allocate(int size);
-//           bcema_ProtectableSequentialAllocator(int, strategy, dispenser);
-// [13] Free operators: new, delete
-// [14] Concurrency
+// TEST APPARATUS
+// [ 2] int testProtectedSet(Obj *testAlloc, char *data, char val)
+//
+// PRIMARY CREATORS
+// [ 3] bcema_ProtectableSequentialAllocator(bdema_PBD *d = 0);
+// [ 3] ~bcema_ProtectableSequentialAllocator();
+// [12] bcema_ProtectableSA(Align::Strat, bdema_PBD *d = 0);
+// [11] bcema_ProtectableSA(Align::Strat, BG:Strat, s_t, PBD *d = 0);
+//
+// MANIPULATORS
+// [ 4] void *allocate(size_type size);
+// [ 5] void protect();
+// [ 5] void unprotect();
+// [ 6] void release();
+// [ 7] size_type expand(void *, size_type, 0);
+// [ 8] size_type expand(void *, size_type, size_type);
+// [ 9] void reserveCapacity(size_type);
+// [10] void deallocate(void *);
+//
+// ACCESSORS
+// [ 5] bool isProtected() const;
+//
+// FREE OPERATORS
+// [13] new
+// [13] delete
+//
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 0] USAGE EXAMPLE
+// [11] CONCERN: Geometric expansion and limit on allocate
+// [12] CONCERN: Linear expansion on allocate
+// [14] CONCERN: Concurrency
+
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -72,12 +82,16 @@ static void aSsErT(int c, const char *s, int i) {
 //                    STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
+#define LOOP_ASSERT(I,X) {                                                    \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
+#define LOOP2_ASSERT(I,J,X) {                                                 \
+    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
               << J << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP3_ASSERT(I,J,K,X) {                                               \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
+              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
 //=============================================================================
 //                      SEMI-STANDARD TEST OUTPUT MACROS
@@ -111,7 +125,7 @@ static void aSsErT(int c, const char *s, int i) {
 
 #define END_BDEMA_EXCEPTION_TEST                                          \
         } catch (bslma::TestAllocatorException& e) {                      \
-            if (veryVerbose && bdemaExceptionLimit || veryVeryVerbose) {  \
+            if ((veryVerbose && bdemaExceptionLimit) || veryVeryVerbose) {\
                 --bdemaExceptionLimit;                                    \
                 cout << "(*** " << bdemaExceptionCounter << ')';          \
                 if (veryVeryVerbose) { cout << " BEDMA_EXCEPTION: "       \
@@ -151,16 +165,17 @@ static void aSsErT(int c, const char *s, int i) {
 typedef bcema_ProtectableSequentialAllocator Obj;
 typedef bdema_TestProtectableBlockDispenser  TestDisp;
 typedef bdema_MemoryBlockDescriptor          Block;
+typedef bsls::Types::size_type               SizeType;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-//---- Global variables used by the segmentation fault handler -------- //
+// -------- Global variables used by the segmentation fault handler ---------//
 bool   g_inTest = false;   // whether we are in a test
 bool   g_fault  = false;   // whether a fault has occurred
 Obj   *g_testingAlloc = 0; // A global variable that must refer to the
-// ----------------------------------------------------------- //
+// ------------------------------------------------------------------------- //
 
 extern "C" {
 
@@ -170,6 +185,8 @@ void segfaultHandler(int x)
 // g_fault and, if protection is under test, unprotect the memory pointed to by
 // the allocator under test.
 {
+    (void) x;  // suppress unused variable warning
+
     g_fault = true;
     if (g_inTest) {
         g_testingAlloc->unprotect();
@@ -220,25 +237,28 @@ int testProtectedSet(Obj *testAlloc, char *data, char val)
 struct PtrComparator
 // A pointer comparator used for creating maps of addresses
 {
-  bool operator()(const void* a, const void* b) const
-  {
-      return a < b;
-  }
+    bool operator()(const void* a, const void* b) const;
 };
+
+bool PtrComparator::operator()(const void* a, const void* b) const
+{
+    return a < b;
+}
 
 enum {
     NUM_THREADS = 4
 };
 
 struct WorkerArgs {
-    Obj       *d_allocator; // allocator to perform allocations
-    const int *d_sizes;     // array of allocations sizes
-    int        d_numSizes;  // number of allocations
+    Obj            *d_allocator; // allocator to perform allocations
+    const SizeType *d_sizes;     // array of allocations sizes
+    int             d_numSizes;  // number of allocations
 
 };
 
 bcemt_Barrier g_barrier(NUM_THREADS);
-extern "C" void *workerThread(void *arg) {
+extern "C" void *workerThread(void *arg)
+{
     // Perform a series of allocate, protect, unprotect, and deallocate
     // operations on the 'bdema_TestProtectableBlockDispenser' and verify
     // their results.  This is operation is intended to be a thread entry
@@ -253,9 +273,9 @@ extern "C" void *workerThread(void *arg) {
     ASSERT(0 != args);
     ASSERT(0 != args->d_sizes);
 
-    Obj       *allocator  = args->d_allocator;
-    const int *allocSizes = args->d_sizes;
-    const int  numAllocs  = args->d_numSizes;
+    Obj            *allocator  = args->d_allocator;
+    const SizeType *allocSizes = args->d_sizes;
+    const int       numAllocs  = args->d_numSizes;
 
     bsl::vector<char *> blocks(bslma::Default::allocator(0));
     blocks.resize(numAllocs);
@@ -305,7 +325,7 @@ extern "C" void *workerThread(void *arg) {
 
     g_barrier.wait();
 
-    for (int i = 0; i < allocSizes[numAllocs - 1]; ++i) {
+    for (SizeType i = 0; i < allocSizes[numAllocs - 1]; ++i) {
         unsigned char *data = (unsigned char *)blocks[numAllocs - 1];
         ASSERT(threadId == data[i]);
     }
@@ -321,68 +341,80 @@ extern "C" void *workerThread(void *arg) {
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// The following example uses the 'bcema_ProtectableSequentialAllocator'
-// to create a protected stack of integers.  Integers can be pushed onto and
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Implementing a Protectable Stack
+///- - - - - - - - - - - - - - - - - - - - - -
+// The following example uses the 'bcema_ProtectableSequentialAllocator' to
+// create a protected stack of integers.  Integers can be pushed onto and
 // popped off of the stack, but the memory in the stack is protected so that a
-// fault will occur if any of the data in the container is written to
-// outside of the 'IntegerStack' container.  Since a sequential allocator
-// will not deallocate memory, this container is not very efficient.
+// segmentation violation will occur if any of the memory in the container is
+// written to outside of the 'IntegerStack' container.  Since a sequential
+// allocator will not release individual blocks of memory when deallocated,
+// this container is not very efficient:
 //..
     class IntegerStack {
-        // This is a trivial implementation of a stack of ints whose data
-        // has READ-ONLY access protection.  It does not perform bounds
-        // checking.
+        // This is a trivial implementation of a stack of ints whose data has
+        // READ-ONLY access protection.  It does not perform bounds checking.
 
-        int                                        *d_data;      // stack
-        int                                         d_stackSize; // top of
-                                                                 // stack
-        int                                         d_maxSize;   // max size
-        bcema_ProtectableSequentialAllocator  d_allocator; // owned
+        // DATA
+        int                            *d_data_p;     // memory for the stack
 
-        // NOT IMPLEMENTED
-        IntegerStack(const IntegerStack& original);
-        IntegerStack& operator=(const IntegerStack& rhs);
+        int                             d_stackSize;  // index of top of stack
 
-        enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
+        int                             d_maxSize;    // max stack size
+
+        bcema_ProtectableSequentialAllocator
+                                        d_allocator;  // owned memory allocator
 
       private:
+        // NOT IMPLEMENTED
+        IntegerStack(const IntegerStack&);
+        IntegerStack& operator=(const IntegerStack&);
+
+        // PRIVATE TYPES
+        enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 
 //..
 // Note that the increaseSize() method below will waste the previously
 // allocated memory because a sequential allocator does not provide a means to
 // deallocate it.
 //..
+        // PRIVATE MANIPULATORS
         void increaseSize()
-            // Increases the size of the stack memory by the growth factor.
-            // Behavior is undefined unless the stacks allocator is in an
-            // unprotected state.
+            // Geometrically increase the size of this stack's memory by the
+            // growth factor.  The behavior is undefined unless the stack's
+            // allocator is in an unprotected state.
         {
-            int *oldData = d_data;
-            int  oldSize = d_maxSize;
+            int      *oldData = d_data_p;
+            SizeType  oldSize = d_maxSize;
             d_maxSize *= GROW_FACTOR;
-            d_data = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
-            memcpy(d_data, oldData, sizeof(int) * oldSize);
+            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
+            memcpy(d_data_p, oldData, sizeof(int) * oldSize);
         }
 
       public:
 
         // CREATORS
-        IntegerStack(
-                bdema_ProtectableBlockDispenser *protectedDispenser = 0)
-            // Create an 'IntegerStack' using the optionally specified
-            // the specified 'protectedDispenser'.   If the
-            // 'protectedDispenser' is not specified, use the native dispenser.
-        : d_data()
+        explicit IntegerStack(
+                       bdema_ProtectableBlockDispenser *protectedDispenser = 0)
+            // Create an 'IntegerStack'.  Optionally specify a 'dispenser'
+            // used to supply protectable memory.  If 'dispenser' is not
+            // specified, the
+            // 'bdema_NativeProtectableBlockDispenser::singleton()' is used.
+        : d_data_p()
         , d_stackSize(0)
         , d_maxSize(INITIAL_SIZE)
         , d_allocator(protectedDispenser)
         {
-            d_data = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
+            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
             d_allocator.protect();
         }
 
         ~IntegerStack()
-            // Destroy this object and release its memory.
+            // Destroy this object (and release its memory).
         {
         }
 
@@ -398,15 +430,18 @@ extern "C" void *workerThread(void *arg) {
             if (d_stackSize >= d_maxSize) {
                 increaseSize();
             }
-            d_data[d_stackSize++] = value;
+
+            // Sufficient room is guaranteed.
+            d_data_p[d_stackSize++] = value;
             d_allocator.protect();
         }
 
         int pop()
             // Remove the top value from the stack and return it.
         {
-            // Memory is only being read so there is no need to unprotect it
-            return d_data[--d_stackSize];
+            // Memory is being read, not written, so there is no need to
+            // unprotect it.
+            return d_data_p[--d_stackSize];
         }
     };
 
@@ -433,20 +468,22 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
-        //
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl << "USAGE EXAMPLE"
                           << endl << "============="
                           << endl;
@@ -454,14 +491,17 @@ int main(int argc, char *argv[])
         IntegerStack stack(&testDispenser);
 
         stack.push(9);
+
         ASSERT( testDispenser.numBlocksProtected() ==
                 testDispenser.numBlocksInUse());
 
         stack.push(5);
+
         ASSERT( testDispenser.numBlocksProtected() ==
                 testDispenser.numBlocksInUse());
 
         stack.push(3);
+
         ASSERT( testDispenser.numBlocksProtected() ==
                 testDispenser.numBlocksInUse());
 
@@ -478,7 +518,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //     Thread-safety of allocate/deallocate methods.
-        //
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
@@ -490,12 +529,12 @@ int main(int argc, char *argv[])
             TestDisp disp(1024, veryVeryVerbose);
             Obj      mX(&disp);
 
-            int SIZES[]   = {1, 2, 3, 4, 5};
+            SizeType SIZES[]   = {1, 2, 3, 4, 5};
             const int NUM_SIZES = sizeof (SIZES) / sizeof(*SIZES);
 
             WorkerArgs args;
             args.d_allocator = &mX;
-            args.d_sizes     = (int *)&SIZES;
+            args.d_sizes     = (SizeType *)&SIZES;
             args.d_numSizes  = NUM_SIZES;
 
             for (int i = 0; i < NUM_THREADS; ++i) {
@@ -519,17 +558,18 @@ int main(int argc, char *argv[])
 
             // Using equal sizes ensures that we can deterministically compute
             // the expected maximum number of blocks allocated
-            int SIZES[]   = {PG_SIZE - HEADER_SIZE,
-                             PG_SIZE - HEADER_SIZE,
-                             PG_SIZE - HEADER_SIZE,
-                             PG_SIZE - HEADER_SIZE,
-                             PG_SIZE - HEADER_SIZE};
+            SizeType SIZES[]   = {
+                (SizeType) PG_SIZE - HEADER_SIZE,
+                (SizeType) PG_SIZE - HEADER_SIZE,
+                (SizeType) PG_SIZE - HEADER_SIZE,
+                (SizeType) PG_SIZE - HEADER_SIZE,
+                (SizeType) PG_SIZE - HEADER_SIZE};
 
             const int NUM_SIZES = sizeof (SIZES) / sizeof(*SIZES);
 
             WorkerArgs args;
             args.d_allocator = &mX;
-            args.d_sizes     = (int *)&SIZES;
+            args.d_sizes     = (SizeType *)&SIZES;
             args.d_numSizes  = NUM_SIZES;
 
             for (int i = 0; i < NUM_THREADS; ++i) {
@@ -553,8 +593,10 @@ int main(int argc, char *argv[])
         // VERIFY FREE OPERATORS: new/delete
         //
         // Verify new calls allocate() and delete is a no-op.
-        // Testing:
         //
+        // Testing:
+        //   new
+        //   delete
         // -------------------------------------------------------------------
 
         if (verbose) {
@@ -564,37 +606,36 @@ int main(int argc, char *argv[])
         }
 
         Obj a(&testDispenser);
+
         ASSERT( 0 == testDispenser.numBytesInUse());
 
         struct DummyType {
-                int d_dummy1;
-                int d_dummy2;
+            int d_dummy1;
+            int d_dummy2;
         };
         DummyType *mem = new (a) DummyType;
+        (void) mem;  // suppress unused variable warning
 
         ASSERT( 0 < testDispenser.numBytesInUse() );
-        int numBytes = testDispenser.numBytesInUse();
       } break;
       case 12: {
         // -------------------------------------------------------------------
         // VERIFY PRIMARY MODIFIER: allocate
         //
         // Concerns:
-        // 1. Test that the pool expands linearly if a positive expansion
-        //    limit is supplied.
+        //  1 Test that the pool expands linearly if
+        //    'bsls::BlockGrowth::BSLS_CONSTANT' is specified for the growth
+        //    strategy.
         //
-        // Third, create a sequential allocator with a negative expansion
-        // limit (linear growth).  Allocate 1 byte, then expand, and
-        // repeat.  Verify the memory expands linearly with increments of the
-        // absolute value of the specified limit.  Allocate 3 * limit, verify
-        // sufficient memory is allocated.
+        // Third, create a sequential allocator with growth strategy of
+        // 'bsls::BlockGrowth::BSLS_CONSTANT' (linear growth).  Allocate 1
+        // byte, then expand, and repeat.  Verify the memory expands linearly
+        // with increments of the absolute value of the specified limit.
+        // Allocate 3 * limit, verify sufficient memory is allocated.
         //
         // Testing:
-        //      void *allocate(int x);
-        //      bcema_ProtectableSequentialAllocator(
-        //                         size_type,
-        //                         bsls::Alignment::Strategy,
-        //                         bdema_ProtectableBlockDispenser *);
+        //   bcema_ProtectableSA(Align::Strat, bdema_PBD *d = 0);
+        //   CONCERN: Linear expansion on allocate
         // -------------------------------------------------------------------
         if (verbose) {
             bsl::cout << "\nVerify linear expansion"
@@ -602,12 +643,14 @@ int main(int argc, char *argv[])
         }
         const int BHS       = HEADER_SIZE;
         const int MAX_ALLOCS = 12;
-        int LIMITS[] = { 0,
-                         1,
-                         PG_SIZE - BHS,
-                         2 * PG_SIZE - BHS,
-                         5 * PG_SIZE - BHS,
-                         32 * PG_SIZE - BHS};
+        const int LIMITS[] = {
+            0,
+            1,
+            PG_SIZE - BHS,
+            2 * PG_SIZE - BHS,
+            5 * PG_SIZE - BHS,
+            32 * PG_SIZE - BHS
+        };
         const int NUM_LIMITS = sizeof(LIMITS)/sizeof(*LIMITS);
 
         if (veryVerbose) {P_(HEADER_SIZE) P(PG_SIZE);}
@@ -621,24 +664,37 @@ int main(int argc, char *argv[])
             // repeat.  Verify linear growth increments of -limit size,
             // allocate 3 * limit, verify 3 * limit is allocated.
 
-            const int LIMIT = LIMITS[i];
+            const SizeType LIMIT = LIMITS[i];
             if (0 == LIMIT) {
                 continue;
             }
 
             if (veryVerbose) {P(LIMIT);}
-            Obj a(bsls::Alignment::BSLS_NATURAL, LIMIT, &testDispenser);
+
+            Obj a(bsls::Alignment::BSLS_NATURAL,
+                  bsls::BlockGrowth::BSLS_CONSTANT,
+                  LIMIT,
+                  &testDispenser);
 
             const int EXPECTED = (((LIMIT + PG_SIZE - 1)/ PG_SIZE) * PG_SIZE);
             for (int i = 0; i < MAX_ALLOCS; ++i) {
                 void *ptr = a.allocate(1);
-                ASSERT(EXPECTED == testDispenser.lastAllocateNumBytes());
+
+                LOOP3_ASSERT(i,
+                             EXPECTED,
+                             testDispenser.lastAllocateNumBytes(),
+                             EXPECTED == testDispenser.lastAllocateNumBytes());
+
                 a.expand(ptr, 1);
             }
 
             const int EXPECTED2 = (((3*LIMIT + PG_SIZE - 1)/PG_SIZE)*PG_SIZE);
+
             a.allocate(3 * LIMIT);
-            ASSERT(EXPECTED2 == testDispenser.lastAllocateNumBytes());
+
+            LOOP2_ASSERT(EXPECTED2,
+                         testDispenser.lastAllocateNumBytes(),
+                         EXPECTED2 == testDispenser.lastAllocateNumBytes());
         }
       } break;
       case 11: {
@@ -660,11 +716,8 @@ int main(int argc, char *argv[])
         // again.  Verify that the memory allocated matches the size requested.
         //
         // Testing:
-        //      void *allocate(int x);
-        //      bcema_ProtectableSequentialAllocator(
-        //                         size_type,
-        //                         bsls::Alignment::Strategy,
-        //                         bdema_ProtectableBlockDispenser *);
+        //   bcema_ProtectableSA(Align::Strat, BG:Strat, s_t, PBD *d = 0);
+        //   CONCERN: Geometric expansion and limit on allocate
         // -------------------------------------------------------------------
         if (verbose) {
             bsl::cout << "\nVerify geometric expansion & Limit"
@@ -672,12 +725,14 @@ int main(int argc, char *argv[])
         }
         const int BHS       = HEADER_SIZE;
         const int MAX_ALLOCS = 12;
-        int LIMITS[] = { 0,
-                         1,
-                         PG_SIZE - BHS,
-                         2 * PG_SIZE - BHS,
-                         5 * PG_SIZE - BHS,
-                         32 * PG_SIZE - BHS};
+        const int LIMITS[] = {
+            0,
+            1,
+            PG_SIZE - BHS,
+            2 * PG_SIZE - BHS,
+            5 * PG_SIZE - BHS,
+            32 * PG_SIZE - BHS
+        };
         const int NUM_LIMITS = sizeof(LIMITS)/sizeof(*LIMITS);
 
         if (veryVerbose) {P_(HEADER_SIZE) P(PG_SIZE);}
@@ -689,14 +744,20 @@ int main(int argc, char *argv[])
             // TEST 1: Set max buffer size limit.  Allocate 1 byte, expand,
             // repeat.  Verify geometric growth up to limit.
 
-            const int LIMIT_PARAM = LIMITS[i];
-            const int LIMIT = (0 == LIMITS[i]) ? INT_MAX : LIMITS[i];
+            const SizeType LIMIT_PARAM = LIMITS[i];
+            const SizeType LIMIT = (0 == LIMITS[i])
+                                         ? bsl::numeric_limits<SizeType>::max()
+                                         : LIMITS[i];
 
             if (veryVerbose) { P(LIMIT_PARAM); }
-            Obj a(bsls::Alignment::BSLS_NATURAL, -LIMIT_PARAM, &testDispenser);
 
-            int size      = 0;
-            int nextAlloc = PG_SIZE;
+            Obj a(bsls::Alignment::BSLS_NATURAL,
+                  bsls::BlockGrowth::BSLS_GEOMETRIC,
+                  LIMIT,
+                  &testDispenser);
+
+            SizeType size      = 0;
+            SizeType nextAlloc = PG_SIZE;
             for (int j = 0; j < MAX_ALLOCS; ++j) {
                 void *ptr = a.allocate(1);
 
@@ -705,7 +766,9 @@ int main(int argc, char *argv[])
                     P(testDispenser.lastAllocateNumBytes());
                 }
 
-                ASSERT(nextAlloc == testDispenser.lastAllocateNumBytes());
+                ASSERT(nextAlloc ==
+                              (SizeType) testDispenser.lastAllocateNumBytes());
+
                 a.expand(ptr, 1);
 
                 size     += nextAlloc;
@@ -724,13 +787,17 @@ int main(int argc, char *argv[])
             // 2 * LIMIT, allocate 1. Observer allocations larger than the
             // limit are handled correctly.
 
-            const int LIMIT = LIMITS[i];
+            const SizeType LIMIT = LIMITS[i];
 
             if (0 == LIMIT) {
                 continue;
             }
             if (veryVerbose) {P(LIMIT);}
-            Obj a(bsls::Alignment::BSLS_NATURAL, -LIMIT, &testDispenser);
+
+            Obj a(bsls::Alignment::BSLS_NATURAL,
+                  bsls::BlockGrowth::BSLS_GEOMETRIC,
+                  LIMIT,
+                  &testDispenser);
 
             // Expected allocation is the the allocated amount + block header
             // size rounded to the nearest page size.
@@ -740,11 +807,13 @@ int main(int argc, char *argv[])
                                    * PG_SIZE;
 
             void *ptr = a.allocate(LIMIT);
+
             LOOP2_ASSERT(EXP_ALLOC,
                          testDispenser.lastAllocateNumBytes(),
                          EXP_ALLOC == testDispenser.lastAllocateNumBytes());
 
             ptr = a.allocate(2 * LIMIT);
+
             LOOP2_ASSERT(EXP_DBL_ALLOC,
                          testDispenser.lastAllocateNumBytes(),
                          EXP_DBL_ALLOC ==
@@ -752,6 +821,7 @@ int main(int argc, char *argv[])
 
             a.expand(ptr, 2 * LIMIT);
             a.allocate(1);
+
             LOOP2_ASSERT(EXP_ALLOC,
                          testDispenser.lastAllocateNumBytes(),
                          EXP_ALLOC == testDispenser.lastAllocateNumBytes());
@@ -765,7 +835,7 @@ int main(int argc, char *argv[])
         // Test deallocate has no impact on allocated memory.
         //
         // Testing:
-        //      void deallocate(void *);
+        //   void deallocate(void *);
         // -------------------------------------------------------------------
 
         if (verbose) {
@@ -773,7 +843,7 @@ int main(int argc, char *argv[])
                 << "\nVerify Modifier: deallocate"
                 << "\n===========================" << bsl::endl;
         }
-        int SIZES[] = {
+        const int SIZES[] = {
             1,
             PG_SIZE - HEADER_SIZE,
             PG_SIZE,
@@ -782,24 +852,36 @@ int main(int argc, char *argv[])
             2 * PG_SIZE
         };
         int NUM_TESTS = sizeof(SIZES)/sizeof(*SIZES);
+
         for (int i = 0; i < NUM_TESTS; ++i) {
+            const SizeType SIZE = SIZES[i];
             {
                 Obj a(&testDispenser);
+
                 ASSERT( 0 == testDispenser.numBytesInUse());
-                void *mem = a.allocate(SIZES[i]);
-                ASSERT(0 < testDispenser.numBytesInUse());
+
+                void *mem = a.allocate(SIZE);
+
+                ASSERT( 0 < testDispenser.numBytesInUse());
+
                 int numBytes = testDispenser.numBytesInUse();
                 a.deallocate(mem);
+
                 ASSERT(numBytes == testDispenser.numBytesInUse());
             }
             {
                 Obj a(&testDispenser);
+
                 ASSERT( 0 == testDispenser.numBytesInUse());
-                void *mem = a.allocate(SIZES[i]);
-                ASSERT(0 < testDispenser.numBytesInUse());
+
+                void *mem = a.allocate(SIZE);
+
+                ASSERT( 0 < testDispenser.numBytesInUse());
+
                 int numBytes = testDispenser.numBytesInUse();
                 a.protect();
                 a.deallocate(mem);
+
                 ASSERT(numBytes == testDispenser.numBytesInUse());
             }
 
@@ -814,7 +896,7 @@ int main(int argc, char *argv[])
         // allocated on a call to allocate().
         //
         // Testing:
-        //      void reserveCapacity(int numBytes);
+        //   void reserveCapacity(size_type);
         // -------------------------------------------------------------------
 
         if (verbose) {
@@ -825,7 +907,7 @@ int main(int argc, char *argv[])
 
         const int BHS = HEADER_SIZE;
         const int ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-        struct {
+        const struct {
             int d_firstAlloc;
             int d_secondAlloc;
             int d_actualAlloc;
@@ -852,16 +934,22 @@ int main(int argc, char *argv[])
         int NUM_TESTS = sizeof(DATA)/sizeof(*DATA);
 
         for (int i = 0; i < NUM_TESTS; ++i) {
+            const SizeType FIRST_ALLOC  = DATA[i].d_firstAlloc;
+            const SizeType SECOND_ALLOC = DATA[i].d_secondAlloc;
+            const int      ACTUAL_ALLOC = DATA[i].d_actualAlloc;
+
             Obj a(&testDispenser);
+
             ASSERT( 0 == testDispenser.numBytesInUse());
 
-            a.allocate(DATA[i].d_firstAlloc);
-            a.reserveCapacity(DATA[i].d_secondAlloc);
+            a.allocate(FIRST_ALLOC);
+            a.reserveCapacity(SECOND_ALLOC);
 
-            ASSERT(DATA[i].d_actualAlloc == testDispenser.numBytesInUse());
-            a.allocate(DATA[i].d_secondAlloc);
+            ASSERT(ACTUAL_ALLOC == testDispenser.numBytesInUse());
 
-            ASSERT(DATA[i].d_actualAlloc == testDispenser.numBytesInUse());
+            a.allocate(SECOND_ALLOC);
+
+            ASSERT(ACTUAL_ALLOC == testDispenser.numBytesInUse());
         }
       } break;
       case 8: {
@@ -872,7 +960,7 @@ int main(int argc, char *argv[])
         // verify that allocateAndExpand behaves as expected
         //
         // Testing:
-        //      int expand(void *, int, int);
+        //   size_type expand(void *, size_type, size_type);
         // -------------------------------------------------------------------
 
         if (verbose) {
@@ -881,10 +969,10 @@ int main(int argc, char *argv[])
                 << "\n=======================" << bsl::endl;
         }
         const int BHS = HEADER_SIZE;
-        struct {
-                int d_allocSize;
-                int d_maxSize;
-                int d_actualAlloc;
+        const struct {
+            int d_allocSize;
+            int d_maxExpandSize;
+            int d_actualAlloc;
         } DATA[] = {
             { 0,                 0,                    0},
             { 0,                 100,                  0},
@@ -905,19 +993,22 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == testDispenser.numBytesInUse());
 
-            int   size = DATA[i].d_allocSize;
-            void *mem  = a.allocate(size);
+            const SizeType SIZE            = DATA[i].d_allocSize;
+            const SizeType MAX_EXPAND_SIZE = DATA[i].d_maxExpandSize;
+
+            void    *mem  = a.allocate(SIZE);
+
             ASSERT(DATA[i].d_actualAlloc == testDispenser.numBytesInUse());
 
-            a.expand(mem, size, DATA[i].d_maxSize);
+            a.expand(mem, SIZE, MAX_EXPAND_SIZE);
 
             ASSERT(DATA[i].d_actualAlloc == testDispenser.numBytesInUse());
 
-            int maxSize = (DATA[i].d_maxSize == 0) ?
+            int maxSize = (DATA[i].d_maxExpandSize == 0) ?
                           DATA[i].d_actualAlloc :
                           bsl::min(DATA[i].d_actualAlloc,
-                                   DATA[i].d_maxSize + HEADER_SIZE);
-            int expectedLastByte = (size == 0) ? 0 : maxSize;
+                                   DATA[i].d_maxExpandSize + HEADER_SIZE);
+            int expectedLastByte = (SIZE == 0) ? 0 : maxSize;
 
             // We need to determine if we expanded in such a way that a new
             // allocation will actually return more memory
@@ -932,7 +1023,9 @@ int main(int argc, char *argv[])
                 newActualAlloc =  (expand) ? DATA[i].d_actualAlloc * 2 :
                                              DATA[i].d_actualAlloc;
             }
+
             a.allocate(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+
             LOOP_ASSERT(i, newActualAlloc == testDispenser.numBytesInUse());
         }
 
@@ -949,7 +1042,7 @@ int main(int argc, char *argv[])
         // new memory.
         //
         // Testing:
-        //      int expand(void *, int);
+        //   size_type expand(void *, size_type, 0);
         // -------------------------------------------------------------------
 
         if (verbose) {
@@ -958,9 +1051,9 @@ int main(int argc, char *argv[])
                 << "\n=======================" << bsl::endl;
         }
         const int BHS = HEADER_SIZE;
-        struct {
-                int d_allocSize;
-                int d_actualAlloc;
+        const struct {
+            int d_allocSize;
+            int d_actualAlloc;
         } DATA[] = {
             { 0,                     0},
             { 1,                     PG_SIZE},
@@ -977,13 +1070,15 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_TESTS; ++i) {
             Obj a(&testDispenser);
 
-            int size  = DATA[i].d_allocSize;
-            void *mem = a.allocate(size);
+            const SizeType SIZE  = DATA[i].d_allocSize;
+
+            void *mem = a.allocate(SIZE);
 
             LOOP_ASSERT(i, DATA[i].d_actualAlloc ==
                            testDispenser.numBytesInUse());
 
-            a.expand(mem, size);
+            a.expand(mem, SIZE);
+
             LOOP_ASSERT(i, DATA[i].d_actualAlloc ==
                            testDispenser.numBytesInUse());
 
@@ -1012,7 +1107,7 @@ int main(int argc, char *argv[])
         // protected memory
         //
         // Testing:
-        //      void release();
+        //   void release();
         // -------------------------------------------------------------------
         if (verbose) {
             bsl::cout
@@ -1021,9 +1116,9 @@ int main(int argc, char *argv[])
         }
 
         const int BHS       = HEADER_SIZE;
-        struct {
-                int d_allocSize;
-                int d_actualAlloc;
+        const struct {
+            int d_allocSize;
+            int d_actualAlloc;
         } DATA[] = {
             { 0,                     0},
             { 1,                     PG_SIZE},
@@ -1037,11 +1132,14 @@ int main(int argc, char *argv[])
         };
         const int NUM_TESTS  = sizeof(DATA)/sizeof(*DATA);
         for (int i = 0; i < NUM_TESTS; ++i) {
+            const SizeType ALLOC_SIZE = DATA[i].d_allocSize;
+
             Obj a(&testDispenser);
 
             ASSERT( 0 == testDispenser.numBytesInUse());
 
-            a.allocate(DATA[i].d_allocSize);
+            a.allocate(ALLOC_SIZE);
+
             ASSERT(DATA[i].d_actualAlloc == testDispenser.numBytesInUse());
 
             a.release();
@@ -1050,15 +1148,19 @@ int main(int argc, char *argv[])
 
         // Verify release on protected memory.
         for (int i = 0; i < NUM_TESTS; ++i) {
+            const SizeType ALLOC_SIZE = DATA[i].d_allocSize;
+
             Obj a(&testDispenser);
 
             ASSERT( 0 == testDispenser.numBytesInUse());
 
-            a.allocate(DATA[i].d_allocSize);
+            a.allocate(ALLOC_SIZE);
+
             ASSERT(DATA[i].d_actualAlloc == testDispenser.numBytesInUse());
 
             a.protect();
             a.release();
+
             ASSERT( 0 == testDispenser.numBytesInUse());
         }
 
@@ -1076,9 +1178,9 @@ int main(int argc, char *argv[])
         // verify that protect will protect all the allocated memory.
         //
         // Testing:
-        //      int protect();
-        //      int unprotect();
-        //      bool isProtected() const;
+        //   void protect();
+        //   void unprotect();
+        //   bool isProtected() const;
         // -------------------------------------------------------------------
 
         if (verbose) {
@@ -1092,7 +1194,7 @@ int main(int argc, char *argv[])
                 bsl::cout << "\t\tverify various protect/unprotect calls"
                           << bsl::endl;
 
-            int SIZES[] = {
+            const int SIZES[] = {
                 1,
                 PG_SIZE - HEADER_SIZE,
                 PG_SIZE,
@@ -1107,8 +1209,8 @@ int main(int argc, char *argv[])
                 // For each iteration select one more allocation from the
                 // sample data to allocate.
                 for (int j = 0; j <= i; ++j) {
-                    int size;
-                    a.allocate(SIZES[i]);
+                    const SizeType SIZE = SIZES[i];
+                    a.allocate(SIZE);
                 }
 
                 ASSERT( 0 < testDispenser.numBlocksInUse());
@@ -1116,20 +1218,24 @@ int main(int argc, char *argv[])
                 ASSERT( false == a.isProtected());
 
                 a.protect();
+
                 ASSERT( testDispenser.numBlocksInUse() ==
                         testDispenser.numBlocksProtected());
                 ASSERT( true == a.isProtected());
 
                 a.protect();
+
                 ASSERT( testDispenser.numBlocksInUse() ==
                         testDispenser.numBlocksProtected());
                 ASSERT( true == a.isProtected());
 
                 a.unprotect();
+
                 ASSERT( 0 == testDispenser.numBlocksProtected());
                 ASSERT( false == a.isProtected());
 
                 a.unprotect();
+
                 ASSERT( 0 == testDispenser.numBlocksProtected());
                 ASSERT( false == a.isProtected());
 
@@ -1148,7 +1254,7 @@ int main(int argc, char *argv[])
         //    results.
         //
         // Testing:
-        //      void *allocate(int x);
+        //   void *allocate(size_type size);
         // -------------------------------------------------------------------
         if (verbose) {
             bsl::cout << "\nVerify Primary Modifier: allocate"
@@ -1156,9 +1262,9 @@ int main(int argc, char *argv[])
         }
         const int BHS       = HEADER_SIZE;
         {
-            struct {
-                    int d_allocSize;
-                    int d_actualAlloc;
+            const struct {
+                int d_allocSize;
+                int d_actualAlloc;
             } DATA[] = {
                 { 0,                 0},
                 { 1,                 PG_SIZE},
@@ -1170,21 +1276,26 @@ int main(int argc, char *argv[])
                 { 2 * PG_SIZE + 1,   4 * PG_SIZE}
             };
             const int NUM_TESTS  = sizeof(DATA)/sizeof(*DATA);
+
             for (int i = 0; i < NUM_TESTS; ++i) {
                 // Test allocating with an unprotected allocator
+                const SizeType ALLOC_SIZE = DATA[i].d_allocSize;
+
                 Obj a(&testDispenser);
-                a.allocate(DATA[i].d_allocSize);
+
+                a.allocate(ALLOC_SIZE);
+
                 LOOP_ASSERT(i, DATA[i].d_actualAlloc ==
-                            testDispenser.lastAllocateNumBytes());
+                                         testDispenser.lastAllocateNumBytes());
             }
 
         }
         {
             const int ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-            struct {
-                    int d_firstAlloc;
-                    int d_secondAlloc;
-                    int d_actualAlloc;
+            const struct {
+                int d_firstAlloc;
+                int d_secondAlloc;
+                int d_actualAlloc;
             } DATA[] = {
           { 0,                         0,                         0},
           { 1,                         PG_SIZE - BHS - ALIGN - 1, PG_SIZE},
@@ -1202,15 +1313,19 @@ int main(int argc, char *argv[])
           { 2 * PG_SIZE - BHS,         2 * PG_SIZE - BHS,         4 * PG_SIZE},
           { 2 * PG_SIZE - BHS,         2 * PG_SIZE - BHS + 1,     6 * PG_SIZE},
             };
-
             const int NUM_TESTS  = sizeof(DATA)/sizeof(*DATA);
+
             for (int i = 0; i < NUM_TESTS; ++i) {
                 // test allocating from a protected container
+                const SizeType FIRST_ALLOC  = DATA[i].d_firstAlloc;
+                const SizeType SECOND_ALLOC = DATA[i].d_secondAlloc;
+
                 BEGIN_BDEMA_EXCEPTION_TEST {
                     Obj a(&testDispenser);
 
-                    a.allocate(DATA[i].d_firstAlloc);
-                    a.allocate(DATA[i].d_secondAlloc);
+                    a.allocate(FIRST_ALLOC);
+                    a.allocate(SECOND_ALLOC);
+
                     LOOP2_ASSERT(i,
                                  testDispenser.numBytesInUse(),
                                  DATA[i].d_actualAlloc ==
@@ -1225,10 +1340,8 @@ int main(int argc, char *argv[])
         // VERIFY PRIMARY CONSTRUCTORS
         //
         // Testing:
-        //     bcema_ProtectableSequentialAllocator(
-        //                             bcema_ProtectedMemoryAllocator *);
-        //    ~bcema_ProtectableSequentialAllocator(
-        //                             bcema_ProtectedMemoryAllocator *);
+        //   bcema_ProtectableSequentialAllocator(bdema_PBD *d = 0);
+        //   ~bcema_ProtectableSequentialAllocator();
         // -------------------------------------------------------------------
         if (verbose) {
             bsl::cout << "\nVerify Primary Creators"
@@ -1237,16 +1350,22 @@ int main(int argc, char *argv[])
 
         {
             Obj a(&testDispenser);
+
             ASSERT(0 == testDispenser.numBytesInUse());
+
             a.allocate(1);
+
             ASSERT(0 < testDispenser.numBytesInUse());
         }
         ASSERT(0 == testDispenser.numBytesInUse());
         {
             Obj a(&testDispenser);
+
             ASSERT(0 == testDispenser.numBytesInUse());
+
             a.allocate(1);
             a.protect();
+
             ASSERT(0 < testDispenser.numBytesInUse());
         }
 
@@ -1256,7 +1375,8 @@ int main(int argc, char *argv[])
         // VERIFY HELPER FUNCTIONS:
         // Test the helper functions and classes defined in this test driver
         //
-        // testProtectedSet()
+        // Testing:
+        //   int testProtectedSet(Obj *testAlloc, char *data, char val)
         // --------------------------------------------------------------------
         if (verbose) {
             bsl::cout << "\tVerify Helper Functions\n"
@@ -1266,7 +1386,6 @@ int main(int argc, char *argv[])
             // testProtectedSet()
             Obj a;
             char  dummy = '0';
-            int   size;
             char *memX = (char *)a.allocate(1);
 
             *memX = 'x';
@@ -1293,24 +1412,27 @@ int main(int argc, char *argv[])
         }
 
         Obj a;
-        const int SIZES[]    = { 0,
-                                 1,
-                                 200,
-                                 ACTUAL_PG_SIZE - 50,
-                                 ACTUAL_PG_SIZE,
-                                 ACTUAL_PG_SIZE + 1,
-                                 2*ACTUAL_PG_SIZE - 50,
-                                 2*ACTUAL_PG_SIZE,
-                                 2*ACTUAL_PG_SIZE+1
-                               };
-        const int NUM_TESTS  = sizeof(SIZES)/sizeof(int);
-        char     *DATA[NUM_TESTS];
+        const int SIZES[] = {
+            0,
+            1,
+            200,
+            ACTUAL_PG_SIZE - 50,
+            ACTUAL_PG_SIZE,
+            ACTUAL_PG_SIZE + 1,
+            2*ACTUAL_PG_SIZE - 50,
+            2*ACTUAL_PG_SIZE,
+            2*ACTUAL_PG_SIZE+1
+        };
+        const int  NUM_TESTS  = sizeof(SIZES)/sizeof(*SIZES);
+        char      *data[NUM_TESTS];
 
         for (int i = 0; i < NUM_TESTS; ++i) {
-            // Initialized DATA
-            DATA[i] = (char *)a.allocate(SIZES[i]);
+            const SizeType SIZE = SIZES[i];
 
-            memset(DATA[i], 'x', SIZES[i]);
+            // Initialized data
+            data[i] = (char *)a.allocate(SIZE);
+
+            memset(data[i], 'x', SIZE);
 
             if (SIZES[i] == 0) {
                 ASSERT(0 == SIZES[i]);
@@ -1322,13 +1444,13 @@ int main(int argc, char *argv[])
             int mid = SIZES[i] / 2;
             int end = SIZES[i] - 1;
 
-            ASSERT(0 == testProtectedSet(&a, &DATA[i][start], 'a'));
-            ASSERT(0 == testProtectedSet(&a, &DATA[i][mid],   'a'));
-            ASSERT(0 == testProtectedSet(&a, &DATA[i][end],   'a'));
+            ASSERT(0 == testProtectedSet(&a, &data[i][start], 'a'));
+            ASSERT(0 == testProtectedSet(&a, &data[i][mid],   'a'));
+            ASSERT(0 == testProtectedSet(&a, &data[i][end],   'a'));
 
-            ASSERT('a' == DATA[i][start]);
-            ASSERT('a' == DATA[i][mid]);
-            ASSERT('a' == DATA[i][end]);
+            ASSERT('a' == data[i][start]);
+            ASSERT('a' == data[i][mid]);
+            ASSERT('a' == data[i][end]);
         }
 
       } break;

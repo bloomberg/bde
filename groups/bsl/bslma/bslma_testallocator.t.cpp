@@ -214,8 +214,8 @@ inline void my_ShortArray::append(int value)
 }
 
 inline static
-void reallocate(short            **array, 
-                int                newSize, 
+void reallocate(short            **array,
+                int                newSize,
                 int                length,
                 bslma::Allocator  *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified 'newSize'
@@ -1988,6 +1988,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nMake sure allocate/deallocate invalid "
                           << "size/address is recorded." << endl;
+
+        static const bool BSLMA_SIZE_IS_SIGNED =
+                                ~BloombergLP::bslma::Allocator::size_type(0) <=
+                                 BloombergLP::bslma::Allocator::size_type(0);
+
         a.setNoAbort(1);
         a.setQuiet(1);
 
@@ -2000,32 +2005,47 @@ int main(int argc, char *argv[])
         ASSERT(4 == a.numAllocations());
         ASSERT(3 == a.numDeallocations());
 
-        if (verbose) cout << "\tallocate -1" << endl;
-        void *addr5 = a.allocate(-1);
-        ASSERT(-1 == a.lastAllocatedNumBytes());
-        ASSERT( 0 == a.lastAllocatedAddress());
-        ASSERT( 1 == a.lastDeallocatedNumBytes());
-        ASSERT(addr1 == a.lastDeallocatedAddress());
-        ASSERT( 5 == a.numAllocations());
-        ASSERT( 3 == a.numDeallocations());
+        if (BSLMA_SIZE_IS_SIGNED) {
+            if (verbose) cout << "\tallocate -1" << endl;
+            void *addr5 = a.allocate(-1);
+            ASSERT(-1 == a.lastAllocatedNumBytes());
+            ASSERT( 0 == a.lastAllocatedAddress());
+            ASSERT( 1 == a.lastDeallocatedNumBytes());
+            ASSERT(addr1 == a.lastDeallocatedAddress());
+            ASSERT( 5 == a.numAllocations());
+            ASSERT( 3 == a.numDeallocations());
 
-        if (verbose) cout << "\tdeallocate -1" << endl;
-        a.deallocate(addr5);
-        ASSERT(-1 == a.lastAllocatedNumBytes());
-        ASSERT( 0 == a.lastAllocatedAddress());
-        ASSERT( 0 == a.lastDeallocatedNumBytes());
-        ASSERT( 0 == a.lastDeallocatedAddress());
-        ASSERT( 5 == a.numAllocations());
-        ASSERT( 4 == a.numDeallocations());
+            if (verbose) cout << "\tdeallocate -1" << endl;
+            a.deallocate(addr5);
+            ASSERT(-1 == a.lastAllocatedNumBytes());
+            ASSERT( 0 == a.lastAllocatedAddress());
+            ASSERT( 0 == a.lastDeallocatedNumBytes());
+            ASSERT( 0 == a.lastDeallocatedAddress());
+            ASSERT( 5 == a.numAllocations());
+            ASSERT( 4 == a.numDeallocations());
 
-        if (verbose) cout << "\tallocate 0" << endl;
-        a.deallocate(addr5);
-        ASSERT(-1 == a.lastAllocatedNumBytes());
-        ASSERT( 0 == a.lastAllocatedAddress());
-        ASSERT( 0 == a.lastDeallocatedNumBytes());
-        ASSERT( 0 == a.lastDeallocatedAddress());
-        ASSERT( 5 == a.numAllocations());
-        ASSERT( 5 == a.numDeallocations());
+            if (verbose) cout << "\tdeallocate 0" << endl;
+            a.deallocate(addr5);
+            ASSERT(-1 == a.lastAllocatedNumBytes());
+            ASSERT( 0 == a.lastAllocatedAddress());
+            ASSERT( 0 == a.lastDeallocatedNumBytes());
+            ASSERT( 0 == a.lastDeallocatedAddress());
+            ASSERT( 5 == a.numAllocations());
+            ASSERT( 5 == a.numDeallocations());
+        } else {
+            if (verbose) cout << "\nTest for invalid size/address cannot be "
+                                 "executed if 'bslma::Allocator::size_type' "
+                                 "is unsigned." << endl;
+
+            if (verbose) cout << "\tdeallocate 0" << endl;
+            a.deallocate(0);
+            ASSERT(0 == a.lastAllocatedNumBytes());
+            ASSERT(0 == a.lastAllocatedAddress());
+            ASSERT(0 == a.lastDeallocatedNumBytes());
+            ASSERT(0 == a.lastDeallocatedAddress());
+            ASSERT(4 == a.numAllocations());
+            ASSERT(4 == a.numDeallocations());
+        }
 
         if (verbose) cout << "\nEnsure new and delete are not called." << endl;
         ASSERT(0 == globalNewCalledCount);

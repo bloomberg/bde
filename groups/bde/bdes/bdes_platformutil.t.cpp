@@ -2,7 +2,10 @@
 
 #include <bdes_platformutil.h>
 
+#include <bslmf_issame.h>    // bsl::is_same
+
 #include <bsls_platform.h>     // for testing only
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 
@@ -73,6 +76,10 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+
+#define LOOP2_ASSERT(I,J,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n"; \
+               aSsErT(1, #X, __LINE__); }}
 
 //=============================================================================
 //                      SEMI-STANDARD TEST OUTPUT MACROS
@@ -766,10 +773,8 @@ int main(int argc, char *argv[])
         //   Concerns:
         //     Since the size_type is generated, it is possible that the
         //     typedef statements concerned for those types were wrong.  We
-        //     must ensure that:
-        //     - 'size_type' is a signed integer type
-        //     - a size_type is at least as wide as an int.
-        //     - a size_type can contain the difference between two pointers.
+        //     must ensure that 'bdes_PlatformUtil::size_type' is the same type
+        //     as 'bsls::Types::size_type'.
         //
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
@@ -786,19 +791,14 @@ int main(int argc, char *argv[])
 
         typedef bdes_PlatformUtil Util;
 
-        // Must be at least as wide as an int.
-        ASSERT(sizeof(Util::size_type) >= sizeof(int));
+        // Note that we cannot assert directly on the call to 'bsl::is_same',
+        // because the comma between the template parameters confuses the
+        // 'ASSERT' macro.
 
-        // Must be convertible (without error or warning) from a difference of
-        // two pointers.  Use some arbitrary values for this.
-        Util::size_type zero     = bsl::ptrdiff_t(0);
-        Util::size_type minusOne = bsl::ptrdiff_t(-1);
-        Util::size_type posValue = bsl::ptrdiff_t(1048576);
+        bool isSameType =
+                  bsl::is_same<Util::size_type, bsls::Types::size_type>::value;
 
-        // Must be signed.
-        ASSERT(0 == zero);
-        ASSERT(minusOne < 0);
-        ASSERT(0 <  posValue);
+        ASSERT(isSameType);
 
       } break;
       case 2: {
