@@ -18,6 +18,10 @@
 #include <bsls_types.h>
 #include <bsl_vector.h>          // case -1
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 

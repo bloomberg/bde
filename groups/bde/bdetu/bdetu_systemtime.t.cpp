@@ -9,6 +9,10 @@
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
