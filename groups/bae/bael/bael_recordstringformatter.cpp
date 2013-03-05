@@ -159,10 +159,14 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     // size of the buffer should be slightly larger than the amount we reserve
     // in order to ensure only a single allocation occurs.
 
-    char fixedBuffer[512];
-    bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer, 512);
+    const int BUFFER_SIZE        = 512;
+    const int STRING_RESERVATION = BUFFER_SIZE - 16;
+
+    char fixedBuffer[BUFFER_SIZE];
+    bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer, 
+                                                      BUFFER_SIZE);
     bsl::string output(&stringAllocator);
-    output.reserve(500);
+    output.reserve(STRING_RESERVATION);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
