@@ -7,7 +7,7 @@ BDES_IDENT_RCSID(bdeut_functionoutputiterator_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-} // Close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

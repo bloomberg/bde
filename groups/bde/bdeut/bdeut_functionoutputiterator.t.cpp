@@ -1,3 +1,4 @@
+// bdeut_functionoutputiterator.t.cpp                                 -*-C++-*-
 #include <bsl_iostream.h>
 #include <bsl_algorithm.h>
 #include <bdef_memfn.h>
@@ -16,20 +17,30 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// 1. Features those are intrinsic to the output iterator should be tested,
+//    i.e. type traits, pre- and post-increment operators,
+//    assignment to the dereferenced iterator
+// 2. Use of bdeut_FunctionOutputIterator with function pointer,
+//    bdef_MemFnInstance, bdef_Function should be tested
 //=============================================================================
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
+}
+
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -94,7 +105,6 @@ class Value {
     static Value singleton;
 
     class Setter {
-      private:
         static int instanceCount;
 
         const int  d_id;
@@ -112,7 +122,7 @@ class Value {
         {
         }
 
-        Setter(Value *value)
+        explicit Setter(Value *value)
             : d_id(++instanceCount)
             , d_value_p(value)
         {
@@ -120,13 +130,11 @@ class Value {
 
         Setter& operator=(const Setter& src)
         {
-            if (&src != this) {
-                d_value_p = src.d_value_p;
-            }
+            d_value_p = src.d_value_p;
             return *this;
         }
 
-        inline int getId() const { return d_id; };
+        int getId() const { return d_id; };
         void operator()(const TYPE& data)
         {
             d_value_p->set(data);
@@ -143,11 +151,11 @@ class Value {
     Value() : d_data() {};
     explicit Value(const TYPE& data) : d_data(data) {};
     // MANIPULATORS
-    inline void set(const TYPE& data) { d_data = data; };
-    inline int setLastSetterId(int id) { d_lastSetterId = id; };
+    void set(const TYPE& data) { d_data = data; };
+    void setLastSetterId(int id) { d_lastSetterId = id; };
     // ACCESSORS
-    inline TYPE get() const { return d_data; };
-    inline int getLastSetterId() const { return d_lastSetterId; };
+    TYPE get() const { return d_data; };
+    int getLastSetterId() const { return d_lastSetterId; };
 
     Setter createSetter() { return Setter(this); };
 };
@@ -159,12 +167,13 @@ template<typename TYPE>
 int Value<TYPE>::Setter::instanceCount = 0;
 
 namespace {
-    int simpleFunctionValue = 0;
-}
 
-void SimpleFunction(int value)
+int simpleFunctionValue = 0;
+
+void simpleFunction(int value)
 {
     simpleFunctionValue = value;
+}
 }
 
 //=============================================================================
@@ -179,8 +188,8 @@ int main(int argc, char *argv[]) {
     bool veryVeryVerbose = argc > 4;
 
     verbose = true;
-    for(test = 1; test <= 10; test++)
-    switch (test) {
+    for (test = 1; test <= 10; test++) {
+        switch (test) {
 
         case 0:
 
@@ -189,7 +198,7 @@ int main(int argc, char *argv[]) {
             // Use of template bdef_Function<> as a functional object:
             //   Ensure that the object of the class bdef_Function<>
             //   specified as an functional object will be invoked on
-            //   assigment to dereferenced iterator.
+            //   assignment to dereferenced iterator.
             //
             // Concerns:
             //   1 Template class bdeut_FunctionOutputIterator<> can be
@@ -214,8 +223,8 @@ int main(int argc, char *argv[]) {
                     << "======================" << bsl::endl;
             }
 
-            enum { initialValue = 1,
-                   theValue = 17 };
+            const int initialValue =  1;
+            const int theValue     = 17;
 
             typedef Value<int> IntValue;
             typedef bdef_Function<void (*)(const int&)> Function;
@@ -225,7 +234,7 @@ int main(int argc, char *argv[]) {
             Iterator it(bdef_BindUtil::bind(&IntValue::set,
                                             &value,
                                             bdef_PlaceHolders::_1));
-            *it = (IntValue::value_type) theValue;
+            *it = theValue;
 
             // check that functional object was invoked and 'theValue'
             // was set to 'value'
@@ -238,7 +247,7 @@ int main(int argc, char *argv[]) {
             // Use of template bdef_MemFnInstance<> as a functional object:
             //   Ensure that the object of the class bdef_MemFnInstance<>
             //   specified as an functional object will be invoked on
-            //   assigment to dereferenced iterator.
+            //   assignment to dereferenced iterator.
             //
             // Concerns:
             //   1 Template class bdeut_FunctionOutputIterator<> can be
@@ -263,8 +272,8 @@ int main(int argc, char *argv[]) {
                     << "===========================" << bsl::endl;
             }
 
-            enum { initialValue = 1,
-                   theValue = 17 };
+            const int initialValue =  1;
+            const int theValue     = 17;
 
             typedef Value<int> IntValue;
             typedef bdef_MemFnInstance<
@@ -275,7 +284,7 @@ int main(int argc, char *argv[]) {
             IntValue value(initialValue);
             Iterator it(Function(&IntValue::set, &value));
 
-            *it = (IntValue::value_type) theValue;
+            *it = theValue;
 
             // check that functional object was invoked and 'theValue'
             // was set to 'value'
@@ -287,7 +296,7 @@ int main(int argc, char *argv[]) {
             // ----------------------------------------------------------------
             // Use of function pointer as a functional object:
             //   Ensure that the function pointer specified as an functional
-            //   object will be invoked on assigment to dereferenced iterator.
+            //   object will be invoked on assignment to dereferenced iterator.
             //
             // Concerns:
             //   1 Template class bdeut_FunctionOutputIterator<> can be
@@ -311,15 +320,15 @@ int main(int argc, char *argv[]) {
                     << "=======================" << bsl::endl;
             }
 
-            enum { initialValue = 1,
-                   theValue = 17 };
+            const int initialValue =  1;
+            const int theValue     = 17;
 
             typedef void (*Function)(int);
             typedef bdeut_FunctionOutputIterator<Function> Iterator;
 
-            Iterator it(&SimpleFunction);
+            Iterator it(&simpleFunction);
             simpleFunctionValue = initialValue;
-            *it = (int) theValue;
+            *it = theValue;
 
             // check that functional object was invoked and 'theValue'
             // was set to 'simpleFunctionValue'
@@ -331,13 +340,13 @@ int main(int argc, char *argv[]) {
             // ----------------------------------------------------------------
             // Pre-increment and post-increment operators
             //   Ensure that pre-increment and post-increment operators
-            //   are defined and doen't affect iterator behaviour.
+            //   are defined and doesn't affect iterator behaviour.
             //
             // Concerns:
             //   1 Pre-increment and post-increment operators should be
             //     declared and defined so they could be called by client code
             //
-            //   2 Iterator should preserve its behavour after increment
+            //   2 Iterator should preserve its behaviour after increment
             //     operator was invoked
             //
             // Plan:
@@ -365,10 +374,10 @@ int main(int argc, char *argv[]) {
                     << "=================================" << bsl::endl;
             }
 
-            enum { initialValue = 1,
-                   theValue1 = 17,
-                   theValue2 = 19,
-                   theValue3 = 23 };
+            const int initialValue =  1;
+            const int theValue1    = 17;
+            const int theValue2    = 19;
+            const int theValue3    = 23;
 
             typedef Value<int> IntValue;
             typedef bdeut_FunctionOutputIterator<IntValue::Setter> Iterator;
@@ -376,7 +385,7 @@ int main(int argc, char *argv[]) {
 
             Iterator it(value.createSetter());
 
-            *it = (IntValue::value_type) theValue1;
+            *it = theValue1;
 
             // check that functional object was invoked and 'theValue1'
             // was set to 'value'
@@ -386,13 +395,13 @@ int main(int argc, char *argv[]) {
 
             ++it;
 
-            *it = (IntValue::value_type) theValue2;
+            *it = theValue2;
             ASSERT(theValue2 == value.get());
             ASSERT(setterId == value.getLastSetterId());
 
             it++;
 
-            *it = (IntValue::value_type) theValue3;
+            *it = theValue3;
             ASSERT(theValue3 == value.get());
             ASSERT(setterId == value.getLastSetterId());
 
@@ -403,11 +412,11 @@ int main(int argc, char *argv[]) {
             // ----------------------------------------------------------------
             // Assignment operator:
             //   Ensure that the functional object of the original iterator
-            //   (i.e. r-value iterator) will be invoked on assigment to
+            //   (i.e. r-value iterator) will be invoked on assignment to
             //   dereferenced iterator.
             //
             // Concerns:
-            //   1 L-value iterator is in appropriate state after assigment.
+            //   1 L-value iterator is in appropriate state after assignment.
             //
             //   2 R-value iterator can be 'const'.
             //
@@ -439,9 +448,9 @@ int main(int argc, char *argv[]) {
                     << "===================" << bsl::endl;
             }
 
-            enum { initialValue = 1,
-                   theValue1 = 17,
-                   theValue2 = 19 };
+            const int initialValue =  1;
+            const int theValue1    = 17;
+            const int theValue2    = 19;
 
             typedef Value<int> IntValue;
             typedef bdeut_FunctionOutputIterator<IntValue::Setter> Iterator;
@@ -450,7 +459,7 @@ int main(int argc, char *argv[]) {
             // original iterator
             Iterator itOriginal(value.createSetter());
 
-            *itOriginal = (IntValue::value_type) theValue1;
+            *itOriginal = theValue1;
 
             // check that functional object was invoked and 'theValue1'
             // was set to 'value'
@@ -460,9 +469,9 @@ int main(int argc, char *argv[]) {
 
             // copy of the original iterator
             Iterator itCopy;
-            itCopy = (const Iterator) itOriginal;
+            itCopy = itOriginal;
 
-            *itCopy = (IntValue::value_type) theValue2;
+            *itCopy = theValue2;
 
             // check that copy of the functional object 'setter' was
             // actually invoked
@@ -479,7 +488,7 @@ int main(int argc, char *argv[]) {
             // Copy CTOR:
             //   Ensure that the functional object of the original iterator
             //   (i.e. argument of the copy ctor) will be invoked
-            //   on assigment to dereferenced iterator.
+            //   on assignment to dereferenced iterator.
             //
             // Concerns:
             //   1 The newly created object is in appropriate state.
@@ -513,9 +522,9 @@ int main(int argc, char *argv[]) {
                     << "=========" << bsl::endl;
             }
 
-            enum { initialValue = 1,
-                   theValue1 = 17,
-                   theValue2 = 19 };
+            const int initialValue =  1;
+            const int theValue1    = 17;
+            const int theValue2    = 19;
 
             typedef Value<int> IntValue;
             typedef bdeut_FunctionOutputIterator<IntValue::Setter> Iterator;
@@ -525,7 +534,7 @@ int main(int argc, char *argv[]) {
             // original iterator
             Iterator itOriginal(value.createSetter());
 
-            *itOriginal = (IntValue::value_type) theValue1;
+            *itOriginal = theValue1;
 
             // check that functional object was invoked and 'theValue1'
             // was set to 'value'
@@ -536,7 +545,7 @@ int main(int argc, char *argv[]) {
             // copy of the original iterator
             Iterator itCopy((const Iterator) itOriginal);
 
-            *itCopy = (IntValue::value_type) theValue2;
+            *itCopy = theValue2;
 
             // check that copy of the functional object 'setter' was
             // actually invoked
@@ -551,7 +560,7 @@ int main(int argc, char *argv[]) {
             // ----------------------------------------------------------------
             // VALUE CTOR:
             //   Ensure that the functional object specified in
-            //   the value ctor will be invoked on assigment to dereferenced
+            //   the value ctor will be invoked on assignment to dereferenced
             //   iterator.
             //
             // Concerns:
@@ -565,10 +574,10 @@ int main(int argc, char *argv[]) {
             //   4 The newly created iterator invokes functional object
             //
             // Plan:
-            //   1 Create iterator object with value contructor specifing const
-            //     original functor
+            //   1 Create iterator object with value constructor specifying
+            //     const original functor
             //
-            //   2 Check that iterastor makes a copy of original
+            //   2 Check that iterator makes a copy of original
             //     (specified in the constructor) functor
             //
             //   3 Check that functor is invoked on assignment of dereferenced
@@ -585,8 +594,8 @@ int main(int argc, char *argv[]) {
                     << "==========" << bsl::endl;
             }
 
-            enum { initialValue = 1,
-                   theValue = 17 };
+            const int initialValue =  1;
+            const int theValue     = 17;
 
             typedef Value<int> IntValue;
             IntValue value(initialValue);
@@ -596,7 +605,7 @@ int main(int argc, char *argv[]) {
             // value CTOR
             bdeut_FunctionOutputIterator<IntValue::Setter> it(setter);
 
-            *it = (IntValue::value_type) theValue;
+            *it = theValue;
 
             // check that copy of the functional object 'setter' was
             // actually invoked
@@ -628,20 +637,22 @@ int main(int argc, char *argv[]) {
             //
             //  2 Assign value to dereferenced iterator.
             //
-            //  3 Check that corrsponding functional object (singleton) was
+            //  3 Check that corresponding functional object (singleton) was
             //    invoked with correct value.
             //
             // Testing:
-            //   bdeut_FunctionalIterator<FUNCTION>();
+            //   bdeut_FunctionOutputIterator<FUNCTION>();
             // ----------------------------------------------------------------
 
-            if (verbose) cout
-                << bsl::endl
-                << "DEFAULT CTOR" << bsl::endl
-                << "============" << bsl::endl;
+            if (verbose) {
+                bsl::cout
+                    << bsl::endl
+                    << "DEFAULT CTOR" << bsl::endl
+                    << "============" << bsl::endl;
+            }
 
-            enum { initialValue = 1,
-                   theValue = 17 };
+            const int initialValue =  1;
+            const int theValue     = 17;
 
             typedef Value<int> IntValue;
             IntValue::singleton.set(initialValue);
@@ -649,7 +660,7 @@ int main(int argc, char *argv[]) {
             // default CTOR
             bdeut_FunctionOutputIterator<IntValue::Setter> it;
 
-            *it = (IntValue::value_type) theValue;
+            *it = theValue;
 
             // check that functional object was invoked and 'theValue' was set
             // to 'value'
@@ -685,15 +696,15 @@ int main(int argc, char *argv[]) {
                     << "==============" << bsl::endl;
             }
 
-            enum { initialValue = 1,
-                   theValue = 17 };
+            const int initialValue =  1;
+            const int theValue     = 17;
 
             typedef Value<int> IntValue;
             IntValue value(initialValue);
             bdeut_FunctionOutputIterator<IntValue::Setter>
                                 it(value.createSetter());
 
-            *it = (IntValue::value_type) theValue;
+            *it = theValue;
 
             // check that functional object was invoked and 'theValue' was set
             // to 'value'
@@ -756,7 +767,7 @@ int main(int argc, char *argv[]) {
             // pointer == void
             res = bslmf_IsSame<
                 bdeut_FunctionOutputIterator<int>::pointer,
-                void>::VALUE;
+                    void>::VALUE;
             ASSERT(0 != res);
 
             // reference == void
@@ -771,6 +782,7 @@ int main(int argc, char *argv[]) {
                       << bsl::endl;
             testStatus = -1;
         }
+        }
     }
 
     if (testStatus > 0) {
@@ -779,3 +791,13 @@ int main(int argc, char *argv[]) {
 
     return testStatus;
 }
+
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------
