@@ -411,9 +411,11 @@ int bcem_AggregateRaw::descendIntoArrayItem(
 
             itemType                   = ref.type();
             itemPtr                    = ref.dataRaw();
-            const bdem_FieldDef& field = d_recordDef_p->field(0);
-            d_recordDef_p              = field.recordConstraint();
-            d_fieldDef_p               = &field;
+            if (d_recordDef_p) {
+                const bdem_FieldDef& field = d_recordDef_p->field(0);
+                d_recordDef_p              = field.recordConstraint();
+                d_fieldDef_p               = &field;
+            }
             d_parentType               = bdem_ElemType::BDEM_ROW;
             d_parentData_p             = row;
             d_indexInParent            = 0;
@@ -576,11 +578,15 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
         d_indexInParent = fieldIndex;
         *d_isTopLevelAggregateNull_p = 0;  // don't care
 
-        const bdem_FieldDef& field = d_recordDef_p->field(fieldIndex);
-        d_dataType    = field.elemType();
-        d_recordDef_p = field.recordConstraint();
-        d_fieldDef_p  = &field;
-        d_value_p     = row[fieldIndex].dataRaw();
+        if (d_recordDef_p) {
+            const bdem_FieldDef& field = d_recordDef_p->field(fieldIndex);
+            d_recordDef_p = field.recordConstraint();
+            d_fieldDef_p  = &field;
+        }
+
+        bdem_ElemRef dataRef = row[fieldIndex];
+        d_dataType = dataRef.type();
+        d_value_p  = dataRef.dataRaw();
       } break;
 
       case bdem_ElemType::BDEM_CHOICE:
@@ -620,11 +626,15 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
         *d_isTopLevelAggregateNull_p = 0;  // don't care
 
         // Descend into current selection
-        const bdem_FieldDef& field = d_recordDef_p->field(selectorIndex);
-        d_dataType    = field.elemType();
-        d_recordDef_p = field.recordConstraint();
-        d_fieldDef_p  = &field;
-        d_value_p     = choiceItem.selection().dataRaw();
+        if (d_recordDef_p) {
+            const bdem_FieldDef& field = d_recordDef_p->field(selectorIndex);
+            d_recordDef_p              = field.recordConstraint();
+            d_fieldDef_p               = &field;
+        }
+
+        bdem_ElemRef dataRef = choiceItem.selection();
+        d_dataType = dataRef.type();
+        d_value_p  = dataRef.dataRaw();
       } break;
 
       default: {

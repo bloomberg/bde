@@ -3531,8 +3531,7 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-
-void testCase30() {
+void testCase31() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3561,6 +3560,74 @@ void testCase30() {
           }
 
           destroyAggData(&object, &t);
+}
+
+void testCase30() {
+        // --------------------------------------------------------------------
+        // TESTING ACCESING SCHEMA-LESS FIELD BY INDEX
+        //
+        // Concerns:
+        //: 1 Accessing fields by index for schema-less aggregates works as
+        //:   expected.
+        //
+        // Plan:
+        //: 1 Create a 'bcem_AggregateRaw' object, 'mX', and assign a table to
+        //:   it.
+        //:
+        //: 2 Access individual elements in a row of the table and ensure that
+        //:   they can be updated correctly.
+        //
+        // Testing:
+        //   int fieldByIndex(Obj *field, ErrorAttr *err, int index) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING ACCESING SCHEMA-LESS FIELD BY INDEX"
+                          << "\n==========================================="
+                          << bsl::endl;
+
+        bdem_ElemType::Type TYPES[] = {
+            bdem_ElemType::BDEM_INT,
+            bdem_ElemType::BDEM_STRING
+        };
+        const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
+
+        bdem_Table table(TYPES, NUM_TYPES);
+
+        int nullnessFlag = 0;
+        Obj mX;  const Obj& X = mX;
+        mX.setData(&table);
+        mX.setDataType(bdem_ElemType::BDEM_TABLE);
+        mX.setTopLevelAggregateNullness(&nullnessFlag);
+
+        if (veryVerbose) {
+            P(X);
+        }
+
+        const int         VA = 10;
+        const bsl::string VB = "Hello";
+
+        Error error;
+        mX.resize(&error, 1);
+
+        Obj mA;  const Obj& A = mA;
+        int rc = mX.getArrayItem(&mA, &error, 0);
+        ASSERT(!rc);
+
+        Obj mB;  const Obj& B = mB;
+        rc = mA.fieldByIndex(&mB, &error, 0);
+        ASSERT(!rc);
+
+        rc = mB.setValue(&error, VA);
+        ASSERT(!rc);
+        ASSERT(VA == mB.asInt());
+
+        Obj mC;  const Obj& C = mC;
+        rc = mA.fieldByIndex(&mC, &error, 1);
+        ASSERT(!rc);
+
+        rc = mC.setValue(&error, VB);
+        ASSERT(!rc);
+        ASSERT(VB == mC.asString());
 }
 
 void testCase29() {
