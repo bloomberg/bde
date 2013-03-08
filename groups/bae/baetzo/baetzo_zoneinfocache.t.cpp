@@ -206,22 +206,22 @@ class TestDriverTestLoader : public baetzo_Loader {
         // information about that time zone.
 
     // DATA
-    TimeZoneMap      d_timeZones;    // set of time zones that this test
-                                     // loader will return
+    TimeZoneMap       d_timeZones;    // set of time zones that this test
+                                      // loader will return
 
-    bsl::string      d_lastRequestedTimeZone;
-                                     // most recently requested time zone id
+    bsl::string       d_lastRequestedTimeZone;
+                                      // most recently requested time zone id
 
-    bces_AtomicInt   d_concurrentCallCount;
-                                     // number of concurrent function calls
-                                     // currently being made to 'loadTimeZone'
-                                     // (must be <= 1).
+    bces_AtomicInt    d_concurrentCallCount;
+                                      // number of concurrent function calls
+                                      // currently being made to 'loadTimeZone'
+                                      // (must be <= 1).
 
-    int              d_delayMicroseconds;
-                                     // number of seconds to sleep on each
-                                     // call to 'loadTimeZone'
+    int               d_delayMicroseconds;
+                                      // number of seconds to sleep on each
+                                      // call to 'loadTimeZone'
 
-    bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -233,9 +233,9 @@ class TestDriverTestLoader : public baetzo_Loader {
     static const char *NO_REQUESTS;
 
     // CREATORS
-    explicit TestDriverTestLoader(bslma_Allocator *basicAllocator = 0);
-    explicit TestDriverTestLoader(int              loadDelayMicroseconds,
-                                  bslma_Allocator *basicAllocator = 0);
+    explicit TestDriverTestLoader(bslma::Allocator *basicAllocator = 0);
+    explicit TestDriverTestLoader(int               loadDelayMicroseconds,
+                                  bslma::Allocator *basicAllocator = 0);
         // Create a 'TestLoader' object.  Optionally specify
         // 'loadDelayMicroseconds' indicating the period of time to sleep on
         // each call to 'loadTimeZone'.  If 'loadDelayMicroseconds' is not
@@ -283,20 +283,21 @@ class TestDriverTestLoader : public baetzo_Loader {
 const char *TestDriverTestLoader::NO_REQUESTS = "loadTimeZone not called";
 
 // CREATORS
-TestDriverTestLoader::TestDriverTestLoader(bslma_Allocator *basicAllocator)
+TestDriverTestLoader::TestDriverTestLoader(bslma::Allocator *basicAllocator)
     : d_timeZones(basicAllocator)
     , d_lastRequestedTimeZone(NO_REQUESTS, basicAllocator)
     , d_concurrentCallCount(0)
     , d_delayMicroseconds(0)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator)) { }
+    , d_allocator_p(bslma::Default::allocator(basicAllocator)) { }
 
-TestDriverTestLoader::TestDriverTestLoader(int loadDelayMicroseconds,
-                                           bslma_Allocator *basicAllocator)
+TestDriverTestLoader::TestDriverTestLoader(
+                                       int               loadDelayMicroseconds,
+                                       bslma::Allocator *basicAllocator)
     : d_timeZones(basicAllocator)
     , d_lastRequestedTimeZone(NO_REQUESTS, basicAllocator)
     , d_concurrentCallCount(0)
     , d_delayMicroseconds(loadDelayMicroseconds)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator)) { }
+    , d_allocator_p(bslma::Default::allocator(basicAllocator)) { }
 
 TestDriverTestLoader::~TestDriverTestLoader() { }
 
@@ -315,7 +316,7 @@ void TestDriverTestLoader::addTimeZone(const char *timeZone,
 
     baetzo_LocalTimeDescriptor type(utcOffset, dstFlag, name, d_allocator_p);
     bdet_Datetime firstTime(1, 1, 1);
-    bsls_Types::Int64 firstTimeT = bdetu_Epoch::convertToTimeT64(firstTime);
+    bsls::Types::Int64 firstTimeT = bdetu_Epoch::convertToTimeT64(firstTime);
 
     zoneinfo.addTransition(firstTimeT, type);
     d_timeZones[timeZone] = zoneinfo;
@@ -472,7 +473,7 @@ class TestLoader : public baetzo_Loader {
 
   public:
     // CREATORS
-    explicit TestLoader(bslma_Allocator *basicAllocator = 0);
+    explicit TestLoader(bslma::Allocator *basicAllocator = 0);
         // Create a 'TestLoader' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  By default the
@@ -505,7 +506,7 @@ class TestLoader : public baetzo_Loader {
 
 // CREATORS
 inline
-TestLoader::TestLoader(bslma_Allocator *basicAllocator)
+TestLoader::TestLoader(bslma::Allocator *basicAllocator)
 : d_timeZones(basicAllocator)
 {
 }
@@ -562,15 +563,15 @@ int main(int argc, char *argv[])
     bael_LoggerManager& manager =
                    bael_LoggerManager::initSingleton(&observer, configuration);
 
-    bslma_TestAllocator defaultAllocator;  // To be used to make sure the
-                                           // allocator is always passed down
-                                           // where necessary.
+    bslma::TestAllocator defaultAllocator;  // To be used to make sure the
+                                            // allocator is always passed down
+                                            // where necessary.
 
-    bslma_TestAllocator testAllocator;
-    bslma_TestAllocator *Z = &testAllocator;  // To be used to allocate
-                                              // everything in this code.
+    bslma::TestAllocator testAllocator;
+    bslma::TestAllocator *Z = &testAllocator;  // To be used to allocate
+                                               // everything in this code.
 
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     if (veryVeryVerbose) {
         defaultAllocator.setVerbose(true);
@@ -632,7 +633,7 @@ int main(int argc, char *argv[])
 // 'baetzo_Zoneinfo' object to be considered Well-Defined (see
 // 'isWellFormed'):
 //..
-    bsls_Types::Int64 firstTime = bdetu_Epoch::convertToTimeT64(
+    bsls::Types::Int64 firstTime = bdetu_Epoch::convertToTimeT64(
                                                        bdet_Datetime(1, 1, 1));
     newYorkZoneinfo.addTransition(firstTime, est);
     londonZoneinfo.addTransition(firstTime, gmt);
@@ -860,7 +861,8 @@ int main(int argc, char *argv[])
             }
         }
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             TestDriverTestLoader testLoader(Z);
@@ -962,7 +964,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             TestDriverTestLoader testLoader(Z);
@@ -1181,7 +1184,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tTesting exception neutrality." << endl;
 
-            bslma_TestAllocator  testAllocator;
+            bslma::TestAllocator testAllocator;
             Obj mX(&testLoader, Z); const Obj& X = mX;
             BEGIN_BSLMA_EXCEPTION_TEST {
                 for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1207,7 +1210,8 @@ int main(int argc, char *argv[])
             } END_BSLMA_EXCEPTION_TEST
         }
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             TestDriverTestLoader testLoader(Z);
@@ -1379,7 +1383,7 @@ int main(int argc, char *argv[])
         //:         returns an error status.
         //
         // Testing:
-        //   explicit TestDriverTestLoader(bslma_Allocator *);
+        //   explicit TestDriverTestLoader(bslma::Allocator *);
         //   virtual ~TestDriverTestLoader();
         //   void addTimeZone(const char *, int , bool, const char *);
         //   void addInvalidTimeZone(const char *);
@@ -1463,7 +1467,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, 1 == result.numTransitions());
 
                         bdet_Datetime firstTime(1, 1, 1);
-                        bsls_Types::Int64 firstTimeT =
+                        bsls::Types::Int64 firstTimeT =
                                     bdetu_Epoch::convertToTimeT64(firstTime);
 
                         baetzo_Zoneinfo::TransitionConstIterator itT =
@@ -1498,7 +1502,7 @@ int main(int argc, char *argv[])
 
         TestLoader testLoader;
 
-        bsls_Types::Int64 NB = defaultAllocator.numBytesInUse();
+        bsls::Types::Int64 NB = defaultAllocator.numBytesInUse();
         Obj mX(&testLoader, Z); const Obj& X = mX;
         ASSERT(defaultAllocator.numBytesInUse() == NB);
 
@@ -1525,7 +1529,7 @@ int main(int argc, char *argv[])
         const int   NUM_TIME_ZONES = sizeof(ID_ARRAY)/sizeof(*ID_ARRAY);
 
         bdet_Datetime firstTime(1, 1, 1);
-        bsls_Types::Int64 firstTimeT =
+        bsls::Types::Int64 firstTimeT =
                                       bdetu_Epoch::convertToTimeT64(firstTime);
 
         bsl::vector<Zone> timeZones(Z);

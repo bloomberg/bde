@@ -55,7 +55,7 @@ BDES_IDENT("$Id: $")
 // dynamically allocated and destroyed by a factory.  For the purposes of this,
 // component, a factory is any class that provides a 'deleteObject' function
 // taking a single argument of the (pointer) type of the managed pointer.
-// E.g., 'bslma_Allocator' is a commonly used factory, and the currently
+// E.g., 'bslma::Allocator' is a commonly used factory, and the currently
 // installed default allocator is the factory that is assumed to be used if
 // neither a factory nor deleter are specified when supplying a pointer to be
 // managed.
@@ -182,7 +182,7 @@ BDES_IDENT("$Id: $")
 //..
 //  bdema_ManagedPtr<Shape> makeShape(Shapes::VALUES kind, double dimension)
 //  {
-//      bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+//      bslma::Allocator *alloc = bslma::Default::defaultAllocator();
 //      bdema_ManagedPtr<Shape> result;
 //      switch (kind) {
 //          case Shapes::SHAPE_CIRCLE : {
@@ -224,11 +224,11 @@ BDES_IDENT("$Id: $")
 // default allocator each time.  Note that when we do this, we pass the user's
 // allocator to the 'bdema_ManagedPtr' object as the "factory".
 //..
-//  bdema_ManagedPtr<Shape> makeShape(Shapes::VALUES   kind,
-//                                    double           dimension,
-//                                    bslma_Allocator *allocator)
+//  bdema_ManagedPtr<Shape> makeShape(Shapes::VALUES    kind,
+//                                    double            dimension,
+//                                    bslma::Allocator *allocator)
 //  {
-//      bslma_Allocator *alloc = bslma_Default::allocator(allocator);
+//      bslma::Allocator *alloc = bslma::Default::allocator(allocator);
 //      bdema_ManagedPtr<Shape> result;
 //      switch (kind) {
 //      case Shapes::SHAPE_CIRCLE : {
@@ -249,7 +249,7 @@ BDES_IDENT("$Id: $")
 //..
 //  void testShapesToo()
 //  {
-//      bslma_TestAllocator ta("object");
+//      bslma::TestAllocator ta("object");
 //
 //      bdema_ManagedPtr<Shape> shape =
 //                                   makeShape(Shapes::SHAPE_CIRCLE, 1.0, &ta);
@@ -302,7 +302,7 @@ BDES_IDENT("$Id: $")
 //  const double END_QUOTE = -1;
 //
 //  bdema_ManagedPtr<double>
-//  getFirstQuoteLargerThan(double threshold, bslma_Allocator *allocator)
+//  getFirstQuoteLargerThan(double threshold, bslma::Allocator *allocator)
 //  {
 //      assert(END_QUOTE < 0 && 0 <= threshold);
 //..
@@ -341,7 +341,7 @@ BDES_IDENT("$Id: $")
 //..
 //  int aliasExample()
 //  {
-//      bslma_TestAllocator ta;
+//      bslma::TestAllocator ta;
 //      bdema_ManagedPtr<double> result = getFirstQuoteLargerThan(16.00, &ta);
 //      assert(*result > 16.00);
 //      assert(1 == ta.numBlocksInUse());
@@ -392,8 +392,8 @@ BDES_IDENT("$Id: $")
 //..
 //  class CountedFactory {
 //      // DATA
-//      int              d_count;
-//      bslma_Allocator *d_allocator;
+//      int               d_count;
+//      bslma::Allocator *d_allocator;
 //
 //      // NOT IMPLEMENTED
 //      CountedFactory(const CountedFactory&);
@@ -401,7 +401,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      explicit CountedFactory(bslma_Allocator *alloc = 0);
+//      explicit CountedFactory(bslma::Allocator *alloc = 0);
 //          // Create a 'CountedFactory' object which uses the supplied
 //          // allocator 'alloc'.
 //
@@ -436,9 +436,9 @@ BDES_IDENT("$Id: $")
 //..
 // Next, we define the operations declared by the class.
 //..
-//  CountedFactory::CountedFactory(bslma_Allocator *alloc)
+//  CountedFactory::CountedFactory(bslma::Allocator *alloc)
 //  : d_count(0)
-//  , d_allocator(bslma_Default::allocator(alloc))
+//  , d_allocator(bslma::Default::allocator(alloc))
 //  {
 //  }
 //
@@ -477,7 +477,7 @@ BDES_IDENT("$Id: $")
 // Next, we declare a test allocator, and an object of our 'CountedFactory'
 // type using that allocator.
 //..
-//      bslma_TestAllocator ta;
+//      bslma::TestAllocator ta;
 //      CountedFactory cf(&ta);
 //..
 // Then, we open a new local scope and declare an array of managed pointers.
@@ -537,10 +537,10 @@ BDES_IDENT("$Id: $")
 //..
 // If the statements:
 //..
-//      bslma_TestAllocator localDefaultTa;
-//      bslma_TestAllocator localTa;
+//      bslma::TestAllocator localDefaultTa;
+//      bslma::TestAllocator localTa;
 //
-//      bslma_DefaultAllocatorGuard guard(&localDefaultTa);
+//      bslma::DefaultAllocatorGuard guard(&localDefaultTa);
 //
 //      int numdels = 0;
 //
@@ -706,8 +706,8 @@ BDES_IDENT("$Id: $")
 #include <bsl_utility.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -977,9 +977,9 @@ class bdema_ManagedPtr {
         // to 'TARGET_TYPE *'.  The behavior is undefined unless the managed
         // object (if any) can be destroyed by the specified 'factory', or if
         // the the lifetime of the managed object is already managed by another
-        // object.  Note that 'bslma_Allocator', and any class publicly and
-        // unambiguously derived from 'bslma_Allocator', meets the requirements
-        // for 'FACTORY_TYPE'.
+        // object.  Note that 'bslma::Allocator', and any class publicly and
+        // unambiguously derived from 'bslma::Allocator', meets the
+        // requirements for 'FACTORY_TYPE'.
 
     template <class FACTORY_TYPE>
     bdema_ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *factory);
@@ -1155,9 +1155,9 @@ class bdema_ManagedPtr {
         // undefined unless the managed object (if any) can be destroyed by the
         // specified 'factory',  or if '0 == factory && 0 != ptr', or if the
         // the lifetime of the managed object is already managed by another
-        // object.  Note that 'bslma_Allocator', and any class publicly and
-        // unambiguously derived from 'bslma_Allocator', meets the requirements
-        // for 'FACTORY_TYPE'.
+        // object.  Note that 'bslma::Allocator', and any class publicly and
+        // unambiguously derived from 'bslma::Allocator', meets the
+        // requirements for 'FACTORY_TYPE'.
 
     template <class FACTORY_TYPE>
     void load(bsl::nullptr_t, FACTORY_TYPE *factory);
@@ -1333,14 +1333,14 @@ struct bdema_ManagedPtrNilDeleter {
 
 template <class TARGET_TYPE, class FACTORY_TYPE>
 struct bdema_ManagedPtr_FactoryDeleterType
-    : bslmf_If<bslmf::IsConvertible<FACTORY_TYPE*, bslma::Allocator*>::VALUE,
+    : bslmf::If<bslmf::IsConvertible<FACTORY_TYPE*, bslma::Allocator*>::VALUE,
                bdema_ManagedPtr_FactoryDeleter<TARGET_TYPE, bslma::Allocator>,
                bdema_ManagedPtr_FactoryDeleter<TARGET_TYPE, FACTORY_TYPE> > {
     // This metafunction class-template provides a means to compute the
     // preferred deleter function for a factory class for those methods of
     // 'bdema_ManagedPtr' that supply only a factory, and no additional deleter
     // function.  The intent is to use a common deleter function for all
-    // allocators that implement the 'bslma_Allocator' protocol, rather than
+    // allocators that implement the 'bslma::Allocator' protocol, rather than
     // create a special deleter function based on the complete type of each
     // allocator, each doing the same thing (invoking the virtual function
     // 'deleteObject').
@@ -1607,7 +1607,7 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                                          void         *cookie,
                                          DeleterFunc   deleter)
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     this->loadImp(ptr, cookie, deleter);

@@ -668,57 +668,56 @@ class bdesu_FdStreamBuf : public bsl::streambuf {
 
   private:
     // DATA
-
                         // data members used in all modes
 
     bdesu_FdStreamBuf_FileHandler
-                     d_fileHandler;      // file handler, holds the file
-                                         // descriptor, used for doing low
-                                         // level operations on the file
-                                         // descriptor
+                      d_fileHandler;      // file handler, holds the file
+                                          // descriptor, used for doing low
+                                          // level operations on the file
+                                          // descriptor
 
                         // mode information
 
-    FdStreamBufMode  d_mode;
+    FdStreamBufMode   d_mode;
 
-    bool             d_dynamicBufferFlag;// 'true' if the buffer 'd_buf_p' is
-                                         // heap allocated, 'false' if it was
-                                         // supplied by the user.
+    bool              d_dynamicBufferFlag;// 'true' if the buffer 'd_buf_p' is
+                                          // heap allocated, 'false' if it was
+                                          // supplied by the user.
 
                         // putback buffer
 
-    char             d_pBackBuf[BDESU_PBACK_BUF_SIZE];
-                                         // for putback mode (see above)
+    char              d_pBackBuf[BDESU_PBACK_BUF_SIZE];
+                                          // for putback mode (see above)
 
                         // input/output buffer
 
-    char            *d_buf_p;            // buffer
-    char            *d_bufEOS_p;         // end of buffer space, allocated or
-                                         // otherwise
-    char            *d_bufEnd_p;         // end of data that's been read in
-                                         // input mode, not used in output
-                                         // mode.
+    char             *d_buf_p;            // buffer
+    char             *d_bufEOS_p;         // end of buffer space, allocated or
+                                          // otherwise
+    char             *d_bufEnd_p;         // end of data that's been read in
+                                          // input mode, not used in output
+                                          // mode.
 
                         // data members saved when entering putback mode --
                         // these elements are for for saving fields from the
                         // base class while we are in putback mode
 
-    char            *d_savedEback_p;     // saved value of 'eback'
-    char            *d_savedGptr_p;      // saved value of 'gptr'
-    char            *d_savedEgptr_p;     // saved value of 'egptr'
+    char             *d_savedEback_p;     // saved value of 'eback'
+    char             *d_savedGptr_p;      // saved value of 'gptr'
+    char             *d_savedEgptr_p;     // saved value of 'egptr'
 
                         // fields relevant to mapping the file while in input
                         // mode
 
-    char            *d_mmapBase_p;       // pointer to the 'mmap'ed input
-                                         // area, 0 if we are not in 'mmap'
-                                         // input mode
+    char             *d_mmapBase_p;       // pointer to the 'mmap'ed input
+                                          // area, 0 if we are not in 'mmap'
+                                          // input mode
 
-    bsl::streamoff   d_mmapLen;          // length of mapped area
+    bsl::streamoff    d_mmapLen;          // length of mapped area
 
                         // memory allocator
 
-    bslma_Allocator *d_allocator_p;      // allocator (held, not owned)
+    bslma::Allocator *d_allocator_p;      // allocator (held, not owned)
 
   private:
     // PRIVATE MANIPULATORS
@@ -944,7 +943,7 @@ class bdesu_FdStreamBuf : public bsl::streambuf {
                   bool                            writableFlag,
                   bool                            willCloseOnResetFlag = true,
                   bool                            binaryModeFlag       = false,
-                  bslma_Allocator                *basicAllocator       = 0);
+                  bslma::Allocator               *basicAllocator       = 0);
         // Create a 'bdesu_FdStreamBuf' associated with the specified
         // 'fileDescriptor' that refers to an already opened file or device,
         // and specify 'writableFlag' which, if 'true', indicates that

@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // to verify that constructs designed to support a standard-compliant allocator
 // access the allocator only through the standard-defined interface.
 //
-// 'StdTestAllocator' delegates its operations to a static 'bslma_Allocator'
+// 'StdTestAllocator' delegates its operations to a static 'bslma::Allocator'
 // (delegate allocator) that can be configured by the utilities provided in the
 // namespace 'StdTestAllocatorConfiguration'.
 // 'StdTestAllocatorConfigurationGuard' provides a scoped guard to enable
@@ -124,12 +124,16 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == oa.numBytesInUse());
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_NEWDELETEALLOCATOR
-#include <bslma_newdeleteallocator.h>
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UTIL
@@ -139,6 +143,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_NEW
 #include <new>
 #define INCLUDED_NEW
+#endif
+
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace BloombergLP {
@@ -155,10 +164,6 @@ struct StdTestAllocatorConfiguration {
     // their operations.  The provided operations are *not* thread-safe.  Note
     // that this allocator is configured globally as C++03 standard compliant
     // allocators cannot have individually identifiable state.
-
-  private:
-    // CLASS DATA
-    static bslma::Allocator *s_allocator_p; // the delegate allocator
 
   public:
     // CLASS METHODS
@@ -196,6 +201,7 @@ class StdTestAllocatorConfigurationGuard {
 
   public:
     // CREATORS
+    explicit
     StdTestAllocatorConfigurationGuard(bslma::Allocator *temporaryAllocator);
         // Create a scoped guard that installs the specified
         // 'temporaryAllocator' as the delegate allocator.
@@ -221,13 +227,17 @@ class StdTestAllocator {
 
   public:
     // PUBLIC TYPES
-    typedef std::size_t     size_type;
-    typedef std::ptrdiff_t  difference_type;
-    typedef TYPE           *pointer;
-    typedef const TYPE     *const_pointer;
-    typedef TYPE&           reference;
-    typedef const TYPE&     const_reference;
-    typedef TYPE            value_type;
+    // Deliberately use types that will *not* have the same representation as
+    // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
+    // wide enough to support our regular testing, as verified on 32-bit
+    // platforms.
+    typedef unsigned int  size_type;
+    typedef int           difference_type;
+    typedef TYPE         *pointer;
+    typedef const TYPE   *const_pointer;
+    typedef TYPE&         reference;
+    typedef const TYPE&   const_reference;
+    typedef TYPE          value_type;
 
     template <class OTHER_TYPE>
     struct rebind
@@ -265,10 +275,9 @@ class StdTestAllocator {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    pointer allocate(size_type numElements, const void *hint = 0);
+    pointer allocate(size_type numElements);
         // Allocate enough (properly aligned) space for the specified
-        // 'numElements' of type 'T'.  The 'hint' argument is ignored by this
-        // allocator type.  The behavior is undefined unless
+        // 'numElements' of type 'T'.  The behavior is undefined unless
         // 'numElements <= max_size()'.
 
     void deallocate(pointer address, size_type numElements = 1);
@@ -313,11 +322,15 @@ class StdTestAllocator<void> {
 
   public:
     // PUBLIC TYPES
-    typedef std::size_t     size_type;
-    typedef std::ptrdiff_t  difference_type;
-    typedef void           *pointer;
-    typedef const void     *const_pointer;
-    typedef void            value_type;
+    // Deliberately use types that will *not* have the same representation as
+    // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
+    // wide enough to support our regular testing, as verified on 32-bit
+    // platforms.
+    typedef unsigned int  size_type;
+    typedef int           difference_type;
+    typedef void         *pointer;
+    typedef const void   *const_pointer;
+    typedef void          value_type;
 
     template <class OTHER_TYPE>
     struct rebind
@@ -355,35 +368,42 @@ class StdTestAllocator<void> {
     //                          const StdTestAllocator& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
-
 };
 
 // FREE OPERATORS
 template <class TYPE1, class TYPE2>
 bool operator==(const StdTestAllocator<TYPE1>& lhs,
                 const StdTestAllocator<TYPE2>& rhs);
-    // Return 'true' because StdTestAllocator does not hold a state.
+    // Return 'true' because 'StdTestAllocator' does not hold a state.
 
 template <class TYPE1, class TYPE2>
 bool operator!=(const StdTestAllocator<TYPE1>& lhs,
                 const StdTestAllocator<TYPE2>& rhs);
-    // Return 'false' because StdTestAllocator does not hold a state.
+    // Return 'false' because 'StdTestAllocator' does not hold a state.
+
+
+                        // ======================
+                        // class StdTestAllocator
+                        // ======================
+
+struct StdTestAllocator_CommonUtil {
+    // This 'struct' provides a namespace for utilities that are common to
+    // all instantiations of the 'StdTestAllocator' class template.
+
+    // CLASS METHODS
+    static unsigned int maxSize(size_t elementSize);
+        // Return the maximum number of objects, each taking the specified
+        // 'elementSize' bytes of storage, that can potentially be allocated by
+        // a 'StdTestAllocator'.  Note that this function is mostly about
+        // insulating consumers of this component from a standard header, so
+        // that theis test componet does not hide missing header dependencies
+        // in testing scenarios.
+};
 
 // ===========================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ===========================================================================
 
-                        // -----------------------------------
-                        // class StdTestAllocatorConfiguration
-                        // -----------------------------------
-
-// CLASS METHODS
-inline
-bslma::Allocator* StdTestAllocatorConfiguration::delegateAllocator()
-{
-    return s_allocator_p ?
-                        s_allocator_p : &bslma::NewDeleteAllocator::singleton();
-}
                         // ----------------------------------------
                         // class StdTestAllocatorConfigurationGuard
                         // ----------------------------------------
@@ -391,12 +411,12 @@ bslma::Allocator* StdTestAllocatorConfiguration::delegateAllocator()
 // CREATORS
 inline
 StdTestAllocatorConfigurationGuard::StdTestAllocatorConfigurationGuard(
-                                                   bslma::Allocator *temporary)
+                                          bslma::Allocator *temporaryAllocator)
 : d_original_p(StdTestAllocatorConfiguration::delegateAllocator())
 {
-    BSLS_ASSERT(temporary);
+    BSLS_ASSERT(temporaryAllocator);
 
-    StdTestAllocatorConfiguration::setDelegateAllocatorRaw(temporary);
+    StdTestAllocatorConfiguration::setDelegateAllocatorRaw(temporaryAllocator);
 }
 
 inline
@@ -428,13 +448,12 @@ StdTestAllocator<TYPE>::StdTestAllocator(const StdTestAllocator<OTHER>&)
 template <class TYPE>
 inline
 typename StdTestAllocator<TYPE>::pointer
-StdTestAllocator<TYPE>::allocate(
-               typename StdTestAllocator<TYPE>::size_type  numElements,
-               const void *)
+StdTestAllocator<TYPE>::allocate(typename StdTestAllocator<TYPE>::size_type
+                                                                   numElements)
 {
-    return static_cast<pointer>(
-        StdTestAllocatorConfiguration::delegateAllocator()->allocate(
-         BloombergLP::bslma::Allocator::size_type(numElements * sizeof(TYPE))));
+    return
+      static_cast<pointer>(StdTestAllocatorConfiguration::delegateAllocator()->
+            allocate(bslma::Allocator::size_type(numElements * sizeof(TYPE))));
 }
 
 template <class TYPE>
@@ -463,7 +482,7 @@ inline
 typename StdTestAllocator<TYPE>::pointer
 StdTestAllocator<TYPE>::address(reference object) const
 {
-    return BSLS_UTIL_ADDRESSOF(object);
+    return bsls::Util::addressOf(object);
 }
 
 template <class TYPE>
@@ -471,7 +490,7 @@ inline
 typename StdTestAllocator<TYPE>::const_pointer
 StdTestAllocator<TYPE>::address(const_reference object) const
 {
-    return BSLS_UTIL_ADDRESSOF(object);
+    return bsls::Util::addressOf(object);
 }
 
 template <class TYPE>
@@ -479,16 +498,7 @@ inline
 typename StdTestAllocator<TYPE>::size_type
 StdTestAllocator<TYPE>::max_size() const
 {
-    // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
-    // 'size_type' (copied from bslstl_allocator).
-
-    static const bool BSLMA_SIZE_IS_SIGNED =
-                              ~BloombergLP::bslma::Allocator::size_type(0) < 0;
-    static const std::size_t MAX_NUM_BYTES =
-                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
-    static const std::size_t MAX_NUM_ELEMENTS =
-                                     std::size_t(MAX_NUM_BYTES) / sizeof(TYPE);
-    return MAX_NUM_ELEMENTS;
+    return StdTestAllocator_CommonUtil::maxSize(sizeof(TYPE));
 }
 
                         // ----------------------------
@@ -528,11 +538,24 @@ bool operator!=(const bsltf::StdTestAllocator<TYPE1>&,
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

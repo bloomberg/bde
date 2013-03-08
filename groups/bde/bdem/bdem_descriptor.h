@@ -62,12 +62,12 @@ BDES_IDENT("$Id: $")
 #include <bdeimp_bitwisecopy.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
@@ -102,13 +102,13 @@ struct bdem_Descriptor {
     void (*unsetConstruct)(
                       void                                     *obj,
                       bdem_AggregateOption::AllocationStrategy  allocationMode,
-                      bslma_Allocator                          *alloc);
+                      bslma::Allocator                         *alloc);
 
     void (*copyConstruct)(
                       void                                     *obj,
                       const void                               *rhs,
                       bdem_AggregateOption::AllocationStrategy  allocationMode,
-                      bslma_Allocator                          *alloc);
+                      bslma::Allocator                         *alloc);
 
     void (*destroy)(void *obj);
 

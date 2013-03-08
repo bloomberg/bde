@@ -11,7 +11,7 @@
 #include <bslma_testallocator.h>           // for testing only
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iterator.h>
@@ -39,7 +39,7 @@ using namespace bsl;  // automatically added by script
 //
 // We use the following abbreviations: (for documentation purposes only)
 //  'cchar'      for 'const char'
-//  'int64'      for 'bsls_PlatformUtil::Int64;
+//  'int64'      for 'bsls::Types::Int64;
 //  'bStr'       for 'bsl::string'
 //  'bDate'      for 'bdet_Date'
 //  'bDatez'     for 'bdet_DateTz'
@@ -141,7 +141,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64 Int64;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 35: {
@@ -1378,11 +1378,11 @@ int main(int argc, char *argv[])
  "???????????????????????????????????????????????????????????????????????????";
 
             static const struct {
-                int                       d_lineNum;  // source line number
-                const char               *d_text_p;   // specification string
-                bsls_PlatformUtil::Int64  d_value;    // specification value
-                int                       d_base;     // specification base
-                const char               *d_exp_p;    // expected result string
+                int                 d_lineNum;  // source line number
+                const char         *d_text_p;   // specification string
+                bsls::Types::Int64  d_value;    // specification value
+                int                 d_base;     // specification base
+                const char         *d_exp_p;    // expected result string
             } DATA[] = {
                 //line  text      value             base  exp
                 //----  --------  -----------       ----  ----------------
@@ -1521,11 +1521,11 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
-                const int LINE                       = DATA[ti].d_lineNum;
-                const char *const TEXT               = DATA[ti].d_text_p;
-                const bsls_PlatformUtil::Int64 VALUE = DATA[ti].d_value;
-                const int BASE                       = DATA[ti].d_base;
-                const char *const EXP                = DATA[ti].d_exp_p;
+                const int                LINE  = DATA[ti].d_lineNum;
+                const char *const        TEXT  = DATA[ti].d_text_p;
+                const bsls::Types::Int64 VALUE = DATA[ti].d_value;
+                const int                BASE  = DATA[ti].d_base;
+                const char *const        EXP   = DATA[ti].d_exp_p;
 
                 const int PREFIX = strlen(TEXT);
                 const int LEN    = strlen(EXP);
@@ -1562,7 +1562,7 @@ int main(int argc, char *argv[])
 
                 // parse the data and verify the value is recovered
                 buffer.push_back('\0');
-                bsls_PlatformUtil::Int64 result = 0;
+                bsls::Types::Int64 result = 0;
                 const char *endPos = 0;
                 int rv = bdepu_TypesParserImpUtil::
                                      parseInt64(&endPos,
@@ -2058,7 +2058,7 @@ int main(int argc, char *argv[])
                  << "==========================================" << endl;
         }
 
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&testAllocator);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&testAllocator);
         {
             vector<char> buffer(&testAllocator);
             const char *UNFILLED = "?????????????????????????????????????????";
@@ -2139,13 +2139,13 @@ int main(int argc, char *argv[])
                         P(EXP);
                     }
 
-                    int numAllocation = testAllocator.numAllocations();
+                    int numAllocations = testAllocator.numAllocations();
                     const int RET = bdepu_TypesParserImpUtil::generateFloat(
                                                              &(buffer[PREFIX]),
                                                              VALUE,
                                                              j);
                     LOOP_ASSERT(LINE,
-                             numAllocation == testAllocator.numAllocations());
+                             numAllocations == testAllocator.numAllocations());
 
                     if (veryVerbose) {
                         cout << "\tBDEPU_MAX_FLOAT_STRLEN10 = "
@@ -2345,7 +2345,7 @@ int main(int argc, char *argv[])
                  << "============================================" << endl;
         }
 
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&testAllocator);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&testAllocator);
         {
             vector<char> buffer(&testAllocator);
             const char *UNFILLED = "?????????????????????????????????????????";
@@ -2422,13 +2422,13 @@ int main(int argc, char *argv[])
                         P(EXP);
                     }
 
-                    int numAllocation = testAllocator.numAllocations();
+                    int numAllocations = testAllocator.numAllocations();
                     const int RET = bdepu_TypesParserImpUtil::generateDouble(
                                                              &(buffer[PREFIX]),
                                                              VALUE,
                                                              j);
                     LOOP_ASSERT(LINE,
-                             numAllocation == testAllocator.numAllocations());
+                             numAllocations == testAllocator.numAllocations());
 
                     if (veryVerbose) {
                         cout << "\tBDEPU_MAX_DOUBLE_STRLEN10 = "

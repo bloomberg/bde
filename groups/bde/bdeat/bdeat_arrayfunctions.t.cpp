@@ -8,8 +8,6 @@
 
 #include <bslmf_issame.h>             // for testing only
 
-#include <bsls_platformutil.h>
-
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -215,7 +213,7 @@ namespace bdeat_ArrayFunctions {
     };
 
     template <int SIZE, typename TYPE>
-    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf_MetaInt<1> {
+    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf::MetaInt<1> {
     };
 }
 }
@@ -434,7 +432,7 @@ class PrintValue {
     int operator()(const TYPE& value)
     {
         typedef typename
-        bslmf_If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
+        bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
                  IsArrayType,
                  IsNotArrayType>::Type Toggle;
 
@@ -518,11 +516,11 @@ int main(int argc, char *argv[])
             Obj::ElementType<Test::FixedArray<9, short> >::Type FAElementType;
         ASSERT(1 ==
            (bdeat_ArrayFunctions::IsArray<Test::FixedArray<3, char> >::VALUE));
-        ASSERT(1 == (bslmf_IsSame<FAElementType, short>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<FAElementType, short>::VALUE));
 
         typedef Obj::ElementType<bsl::vector<int> >::Type VecElementType;
         ASSERT(1 == bdeat_ArrayFunctions::IsArray<bsl::vector<int> >::VALUE);
-        ASSERT(1 == (bslmf_IsSame<VecElementType, int>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<VecElementType, int>::VALUE));
 
       } break;
       case 1: {

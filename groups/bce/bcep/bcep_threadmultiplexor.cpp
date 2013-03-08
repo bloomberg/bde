@@ -51,10 +51,10 @@ int bcep_ThreadMultiplexor::processJobQueue()
 // CREATORS
 
 bcep_ThreadMultiplexor::bcep_ThreadMultiplexor(
-        int              maxProcessors,
-        int              maxQueueSize,
-        bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+        int               maxProcessors,
+        int               maxQueueSize,
+        bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_jobQueue_p(0)
 , d_numProcessors(0)
 , d_maxProcessors(maxProcessors)

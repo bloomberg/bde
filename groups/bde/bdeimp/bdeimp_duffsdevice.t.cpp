@@ -2,8 +2,8 @@
 
 #include <bdeimp_duffsdevice.h>
 
-#include <bsls_platformutil.h>       // for testing only
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>                  // memcpy()
@@ -729,7 +729,7 @@ int main(int argc, char *argv[])
         //   vectors and ensure the expected result is obtained, and that the
         //   block using Duff's device is slower than the corresponding block
         //   using 'bsl::memset', 'bsl::memcpy', or 'bsl::memmove', as measured
-        //   by 'bsls_TimeUtil::getTimer'.
+        //   by 'bsls::TimeUtil::getTimer'.
         //
         // Testing:
         //   'bdeimp_DuffsDevice::initialize' versus 'bsl::memset'
@@ -793,24 +793,24 @@ int main(int argc, char *argv[])
             char *dd = new char[1024*1024];  // array for Duff's device
             char *ms = new char[1024*1024];  // array for 'bsl::memset'
 
-            bsls_PlatformUtil::Int64 ddStart, ddStop;
-            bsls_PlatformUtil::Int64 msStart, msStop;
+            bsls::Types::Int64 ddStart, ddStop;
+            bsls::Types::Int64 msStart, msStop;
 
             for (int i = 0; i < DATA_SIZE; ++i) {
                 int LINE   = DATA[i].d_line;
                 int VALUE  = DATA[i].d_value;
                 int LENGTH = DATA[i].d_length;
 
-                ddStart = bsls_TimeUtil::getTimer();
+                ddStart = bsls::TimeUtil::getTimer();
                 bdeimp_DuffsDevice<char>::initialize(dd, VALUE, LENGTH);
-                ddStop  = bsls_TimeUtil::getTimer();
+                ddStop  = bsls::TimeUtil::getTimer();
 
-                msStart = bsls_TimeUtil::getTimer();
+                msStart = bsls::TimeUtil::getTimer();
                 bsl::memset(ms, VALUE, LENGTH);
-                msStop  = bsls_TimeUtil::getTimer();
+                msStop  = bsls::TimeUtil::getTimer();
 
-                bsls_PlatformUtil::Int64 ddTime = ddStop - ddStart;
-                bsls_PlatformUtil::Int64 msTime = msStop - msStart;
+                bsls::Types::Int64 ddTime = ddStop - ddStart;
+                bsls::Types::Int64 msTime = msStop - msStart;
                 LOOP2_ASSERT(i, LINE, msTime <= ddTime);
 
                 if (verbose) {
@@ -868,8 +868,8 @@ int main(int argc, char *argv[])
             char *dd = new char[1024*1024];  // array for Duff's device
             char *mc = new char[1024*1024];  // array for 'bsl::memcpy'
 
-            bsls_PlatformUtil::Int64 ddStart, ddStop;
-            bsls_PlatformUtil::Int64 mcStart, mcStop;
+            bsls::Types::Int64 ddStart, ddStop;
+            bsls::Types::Int64 mcStart, mcStop;
 
             for (int i = 0; i < DATA_SIZE; ++i) {
                 int LINE   = DATA[i].d_line;
@@ -878,18 +878,18 @@ int main(int argc, char *argv[])
 
                 bsl::memset(dd, 0x0d, LENGTH);
                 bsl::memset(mc, VALUE, LENGTH);
-                ddStart = bsls_TimeUtil::getTimer();
+                ddStart = bsls::TimeUtil::getTimer();
                 bdeimp_DuffsDevice<char>::assign(dd, mc, LENGTH);
-                ddStop  = bsls_TimeUtil::getTimer();
+                ddStop  = bsls::TimeUtil::getTimer();
 
                 bsl::memset(dd, VALUE, LENGTH);
                 bsl::memset(mc, 0x0d, LENGTH);
-                mcStart = bsls_TimeUtil::getTimer();
+                mcStart = bsls::TimeUtil::getTimer();
                 bsl::memcpy(mc, dd, LENGTH);
-                mcStop  = bsls_TimeUtil::getTimer();
+                mcStop  = bsls::TimeUtil::getTimer();
 
-                bsls_PlatformUtil::Int64 ddTime = ddStop - ddStart;
-                bsls_PlatformUtil::Int64 mcTime = mcStop - mcStart;
+                bsls::Types::Int64 ddTime = ddStop - ddStart;
+                bsls::Types::Int64 mcTime = mcStop - mcStart;
                 LOOP2_ASSERT(i, LINE, mcTime <= ddTime);
 
                 if (verbose) {
@@ -942,8 +942,8 @@ int main(int argc, char *argv[])
             char *dd = new char[1024*1024];  // array for Duff's device
             char *mm = new char[1024*1024];  // array for 'bsl::memmove'
 
-            bsls_PlatformUtil::Int64 ddStart, ddStop;
-            bsls_PlatformUtil::Int64 mmStart, mmStop;
+            bsls::Types::Int64 ddStart, ddStop;
+            bsls::Types::Int64 mmStart, mmStop;
 
             enum { DUFF_SIZE = 8 };  // Size of Duff's device (imp detail)
             for (int i = 0; i < DATA_SIZE; ++i) {
@@ -956,22 +956,22 @@ int main(int argc, char *argv[])
 
                     bsl::memset(dd, VALUE, HALF_LENGTH);
                     bsl::memset(dd + HALF_LENGTH, 0x0d, HALF_LENGTH);
-                    ddStart = bsls_TimeUtil::getTimer();
+                    ddStart = bsls::TimeUtil::getTimer();
                     bdeimp_DuffsDevice<char>::assign(dd + j,
                                                      dd + j + HALF_LENGTH,
                                                      HALF_LENGTH - j);
-                    ddStop  = bsls_TimeUtil::getTimer();
+                    ddStop  = bsls::TimeUtil::getTimer();
 
                     bsl::memset(mm, VALUE, HALF_LENGTH);
                     bsl::memset(mm + HALF_LENGTH, 0x0d, HALF_LENGTH);
-                    mmStart = bsls_TimeUtil::getTimer();
+                    mmStart = bsls::TimeUtil::getTimer();
                     bsl::memmove(mm + j,
                                  mm + j + HALF_LENGTH,
                                  HALF_LENGTH - j);
-                    mmStop  = bsls_TimeUtil::getTimer();
+                    mmStop  = bsls::TimeUtil::getTimer();
 
-                    bsls_PlatformUtil::Int64 ddTime = ddStop - ddStart;
-                    bsls_PlatformUtil::Int64 mmTime = mmStop - mmStart;
+                    bsls::Types::Int64 ddTime = ddStop - ddStart;
+                    bsls::Types::Int64 mmTime = mmStop - mmStart;
                     LOOP3_ASSERT(i, j, LINE, mmTime <= ddTime);
 
                     if (verbose) {

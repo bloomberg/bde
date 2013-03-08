@@ -48,8 +48,8 @@ using namespace bsl;
 // class bteso_IpResolutionCache
 //
 // CREATORS
-// [ 6] bteso_IpResolutionCache(bslma_Allocator *bA);
-// [ 7] bteso_IpResolutionCache(Callback cb, bslma_Allocator *bA);
+// [ 6] bteso_IpResolutionCache(bslma::Allocator *bA);
+// [ 7] bteso_IpResolutionCache(Callback cb, bslma::Allocator *bA);
 // [ 6] ~bteso_IpResolutionCache();
 //
 // MANIPULATORS
@@ -58,7 +58,7 @@ using namespace bsl;
 // [ 6] void setTimeToLive(const bdet_DatetimeInterval& value);
 //
 // ACCESSORS
-// [ 7] bslma_Allocator *allocator() const;
+// [ 7] bslma::Allocator *allocator() const;
 // [ 8] int lookupAddressRaw(vector *res, const char *host, int num);
 // [ 7] ResolveByNameCallback resolverCallback();
 // [ 7] const bdet_DatetimeInterval& timeToLive();
@@ -170,13 +170,13 @@ class bteso_IpResolutionCache_Data {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_IpResolutionCache,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATOR
     bteso_IpResolutionCache_Data(
                     const bsl::vector<bteso_IPv4Address>&  ipAddresses,
                     const bdet_Datetime&                   creationTime,
-                    bslma_Allocator                       *basicAllocator = 0);
+                    bslma::Allocator                      *basicAllocator = 0);
         // Create an object storing the specified 'ipAddresses', and having the
         // specified 'creationTime'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -238,7 +238,8 @@ enum {
         static bteso_IpResolutionCache *singletonCachePtr = 0;
         BCEMT_ONCE_DO {
             if (0 == singletonCachePtr) {
-                bslma_Allocator *allocator = bslma_Default::globalAllocator();
+                bslma::Allocator *allocator =
+                                             bslma::Default::globalAllocator();
                 static bteso_IpResolutionCache cache(allocator);
                 singletonCachePtr = &cache;
             }
@@ -423,7 +424,7 @@ void performanceTest(bcemt_Mutex    *updateMutex,
 {
     bteso_IPv4Address address;
 
-    bsls_Stopwatch timer;
+    bsls::Stopwatch timer;
     timer.start();
 
     for (vector<string>::const_iterator it = hostname->begin();
@@ -623,14 +624,14 @@ class TestAllocatorMonitor {
     // TBD
 
     // DATA
-    int                              d_lastInUse;
-    int                              d_lastMax;
-    int                              d_lastTotal;
-    const bslma_TestAllocator *const d_allocator_p;
+    int                               d_lastInUse;
+    int                               d_lastMax;
+    int                               d_lastTotal;
+    const bslma::TestAllocator *const d_allocator_p;
 
   public:
     // CREATORS
-    TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
+    TestAllocatorMonitor(const bslma::TestAllocator& basicAllocator);
         // TBD
 
     ~TestAllocatorMonitor();
@@ -659,7 +660,7 @@ class TestAllocatorMonitor {
 // CREATORS
 inline
 TestAllocatorMonitor::TestAllocatorMonitor(
-                                     const bslma_TestAllocator& basicAllocator)
+                                    const bslma::TestAllocator& basicAllocator)
 : d_lastInUse(basicAllocator.numBlocksInUse())
 , d_lastMax(basicAllocator.numBlocksMax())
 , d_lastTotal(basicAllocator.numBlocksTotal())
@@ -727,7 +728,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     bteso_IpResolutionCache IpResolutionCache(&scratch);
 
@@ -867,7 +868,7 @@ int main(int argc, char *argv[])
             int count = 0;
             ASSERT(TestResolver::count() == count);
 
-            bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             Obj mX(&TestResolver::callback, &oa); Obj &X = mX;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1013,8 +1014,8 @@ int main(int argc, char *argv[])
                           << "Testing 'resolveAddress'" << endl
                           << "========================" << endl;
 
-        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout << "Create table of distinct values" << endl;
 
@@ -1038,7 +1039,7 @@ int main(int argc, char *argv[])
         int count = 0;
         ASSERT(TestResolver::count() == count);
 
-        bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         Obj X(&TestResolver::callback, &oa);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1088,7 +1089,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Test expiration time" << endl;
         {
-            bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             Obj X(&TestResolver::callback, &oa);
             X.setTimeToLive(bdet_DatetimeInterval(0, 0, 0, 2));
 
@@ -1125,7 +1126,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Error on callback" << endl;
         {
-            bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             Obj X(&TestResolver::callback, &oa);
             TestResolver::setErrorCode(1);
 
@@ -1144,9 +1145,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
-            bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             Obj X(&TestResolver::callback, &oa);
 
             if (veryVerbose) cout << "\t'resolveAddress'" << endl;
@@ -1175,7 +1177,7 @@ int main(int argc, char *argv[])
         //: 3 No accessor allocates any memory.
         //
         // Plan:
-        //: 1 Create two 'bslma_TestAllocator' objects, and install one as
+        //: 1 Create two 'bslma::TestAllocator' objects, and install one as
         //:   the current default allocator (note that a ubiquitous test
         //:   allocator is already installed as the global allocator).
         //:
@@ -1198,7 +1200,7 @@ int main(int argc, char *argv[])
         //:     there is no change in total memory allocation.  (C-3)
         //
         // Testing:
-        //   bslma_Allocator *allocator() const;
+        //   bslma::Allocator *allocator() const;
         //   ResolveByNameCallback resolverCallback();
         //   const bdet_DatetimeInterval& timeToLive();
         // --------------------------------------------------------------------
@@ -1232,10 +1234,10 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nCreate two test allocators; install one as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma::Default::setDefaultAllocatorRaw(&da);
 
         if (verbose) cout <<
                  "\nCreate an object, passing in the other allocator." << endl;
@@ -1343,7 +1345,7 @@ int main(int argc, char *argv[])
         //:   and (c) passing the address of a test allocator distinct from the
         //:   default.  For each of these three iterations:  (C-1..14)
         //:
-        //:   1 Create three 'bslma_TestAllocator' objects, and install one as
+        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
         //:     as the current default allocator (note that a ubiquitous test
         //:     allocator is already installed as the global allocator).
         //:
@@ -1393,7 +1395,7 @@ int main(int argc, char *argv[])
         //:   (C-15)
         //
         // Testing:
-        //   bteso_IpResolutionCache(bslma_Allocator *bA);
+        //   bteso_IpResolutionCache(bslma::Allocator *bA);
         //   ~bteso_IpResolutionCache();
         //   void setTimeToLive(const bdet_DatetimeInterval& value);
         // --------------------------------------------------------------------
@@ -1430,14 +1432,14 @@ int main(int argc, char *argv[])
 
             const char CONFIG = cfg;  // how we specify the allocator
 
-            bslma_TestAllocator da("default",   veryVeryVeryVerbose);
-            bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
-            bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma_Default::setDefaultAllocatorRaw(&da);
+            bslma::Default::setDefaultAllocatorRaw(&da);
 
-            Obj                 *objPtr;
-            bslma_TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
 
             switch (CONFIG) {
               case 'a': {
@@ -1445,7 +1447,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &da;
               } break;
               case 'b': {
-                objPtr = new (fa) Obj((bslma_Allocator *)0);
+                objPtr = new (fa) Obj((bslma::Allocator *)0);
                 objAllocatorPtr = &da;
               } break;
               case 'c': {
@@ -1457,9 +1459,9 @@ int main(int argc, char *argv[])
               } break;
             }
 
-            Obj&                  mX = *objPtr;  const Obj& X = mX;
-            bslma_TestAllocator&  oa = *objAllocatorPtr;
-            bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // -------------------------------------------------------
             // Verify any attribute allocators are installed properly.
@@ -1530,10 +1532,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
-            bslma_TestAllocator da("default", veryVeryVeryVerbose);
-            bslma_Default::setDefaultAllocatorRaw(&da);
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::Default::setDefaultAllocatorRaw(&da);
 
             Obj mX;
 
@@ -1732,7 +1735,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        bslma_TestAllocator ta("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator ta("object", veryVeryVeryVerbose);
 
         // 'D' values: These are the default-constructed values.
 
@@ -1952,7 +1955,7 @@ int main(int argc, char *argv[])
             bteso_IPv4Address ipv4;
             int err;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < 10; ++i) {
                 bteso_ResolveUtil::getAddress(&ipv4, "nylxdev1", &err);
@@ -1968,7 +1971,7 @@ int main(int argc, char *argv[])
             bteso_IPv4Address ipv4;
             int err;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
 
             for (int i = 0; i < 10; ++i) {

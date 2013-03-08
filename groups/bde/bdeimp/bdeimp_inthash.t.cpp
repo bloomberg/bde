@@ -2,8 +2,7 @@
 
 #include <bdeimp_inthash.h>
 
-#include <bsls_platformutil.h>                  // for testing only
-#include <bsls_stopwatch.h>                     // for testing only
+#include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -223,7 +222,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Perform a large number of hashes and measure the timing by a
-        //   'bsls_Stopwatch'.
+        //   'bsls::Stopwatch'.
         //
         // Testing:
         //   static int hash(int value, int size);  CONCERN: timing
@@ -238,7 +237,7 @@ int main(int argc, char *argv[])
         enum { ITERATIONS = 1000000 }; // 1M
 
         unsigned int value = 0;
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < ITERATIONS; ++i) {
                 value += bdeimp_IntHash::hash(i, LENGTH);

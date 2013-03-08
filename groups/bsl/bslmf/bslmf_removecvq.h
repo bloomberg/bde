@@ -38,16 +38,16 @@ BSLS_IDENT("$Id: $")
 // First, we create a template that will determine whether two objects are
 // EXACTLY the same type:
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  bool isSame(TYPE& a, TYPE& b) { return true; }
-//  template <typename TYPEA, typename TYPEB>
+//  template <class TYPEA, class TYPEB>
 //  bool isSame(TYPEA& a, TYPEB& b) { return false; }
 //..
 // Next, we combine that template function with the use of 'bslmf::RemoveCvq'
 // to create a template that will determine whether two objects are the same
 // type, ignoring 'const' and 'volatile' qualifiers:
 //..
-//  template <typename TYPEA, typename TYPEB>
+//  template <class TYPEA, class TYPEB>
 //  bool isSortaSame(TYPEA& a, TYPEB& b)
 //  {
 //      typename bslmf::RemoveCvq<TYPEA>::Type aa = a;
@@ -105,7 +105,7 @@ namespace bslmf {
                            // struct RemoveCvq
                            // ================
 
-template <typename TYPE>
+template <class TYPE>
 struct RemoveCvq
 {
     // This class implements a meta-function for stripping top-level
@@ -132,11 +132,24 @@ struct RemoveCvq
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

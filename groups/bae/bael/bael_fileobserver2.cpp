@@ -273,10 +273,10 @@ void computeNextRotationTime(bdet_Datetime                *result,
     BSLS_ASSERT(result);
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 
-    bsls_Types::Int64 timeLeft = (fileCreationTime
-                                  - referenceStartTime
-                                  + localTimeOffset).totalMilliseconds()
-                               % interval.totalMilliseconds();
+    bsls::Types::Int64 timeLeft = (fileCreationTime
+                                   - referenceStartTime
+                                   + localTimeOffset).totalMilliseconds()
+                                  % interval.totalMilliseconds();
 
     // The modulo operator may return a negative number depending on
     // implementation.
@@ -350,7 +350,7 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
     stream << buffer;
     stream << fixedFields.category();
     stream << ' ';
-    bslstl_StringRef message = fixedFields.messageRef();
+    bslstl::StringRef message = fixedFields.messageRef();
     stream.write(message.data(), message.length());
     stream << ' ';
 
@@ -444,8 +444,8 @@ int  bael_FileObserver2::rotateIfNecessary(
         // 'tellp' returns -1 on failure.  Rotate the log file if either
         // 'tellp' fails, or the rotation size is exceeded.
 
-        if (static_cast<bsls_Types::Uint64>(d_logOutStream.tellp()) >
-            static_cast<bsls_Types::Uint64>(d_rotationSize) * 1024) {
+        if (static_cast<bsls::Types::Uint64>(d_logOutStream.tellp()) >
+            static_cast<bsls::Types::Uint64>(d_rotationSize) * 1024) {
 
             return rotateFile(rotatedLogFileName);                    // RETURN
         }
@@ -459,7 +459,7 @@ int  bael_FileObserver2::rotateIfNecessary(
 }
 
 // CREATORS
-bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
+bael_FileObserver2::bael_FileObserver2(bslma::Allocator *basicAllocator)
 : d_logStreamBuf(bdesu_FileUtil::INVALID_FD, false)
 , d_logOutStream(&d_logStreamBuf)
 , d_logFilePattern(basicAllocator)

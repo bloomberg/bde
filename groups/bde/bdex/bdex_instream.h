@@ -214,8 +214,8 @@ BDES_IDENT("$Id: $")
 #include <bdex_instreammethods.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -235,7 +235,7 @@ class bdex_InStream {
     // values, to be unexternalized from some platform-neutral representation.
     //
     // This protocol assumes that short integers are at least 16 bits, integers
-    // and floats are at least 32 bits, and 'bsls_PlatformUtil' "64-bit"
+    // and floats are at least 32 bits, and 'bsls::Types' "64-bit"
     // integers and doubles are at least 64 bits, but makes no other
     // internal-format or stream-format assumptions.  Note that concrete
     // streams following this protocol are free to publish specific formats
@@ -265,7 +265,7 @@ class bdex_InStream {
 
                         // *** scalar integer values ***
 
-    virtual bdex_InStream& getInt64(bsls_PlatformUtil::Int64& variable) = 0;
+    virtual bdex_InStream& getInt64(bsls::Types::Int64& variable) = 0;
         // Consume a 64-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -273,7 +273,7 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getUint64(bsls_PlatformUtil::Uint64& variable) = 0;
+    virtual bdex_InStream& getUint64(bsls::Types::Uint64& variable) = 0;
         // Consume a 64-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -281,7 +281,7 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getInt56(bsls_PlatformUtil::Int64& variable) = 0;
+    virtual bdex_InStream& getInt56(bsls::Types::Int64& variable) = 0;
         // Consume a 56-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -289,7 +289,7 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getUint56(bsls_PlatformUtil::Uint64& variable) = 0;
+    virtual bdex_InStream& getUint56(bsls::Types::Uint64& variable) = 0;
         // Consume a 56-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -297,7 +297,7 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getInt48(bsls_PlatformUtil::Int64& variable) = 0;
+    virtual bdex_InStream& getInt48(bsls::Types::Int64& variable) = 0;
         // Consume a 48-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -305,7 +305,7 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getUint48(bsls_PlatformUtil::Uint64& variable) = 0;
+    virtual bdex_InStream& getUint48(bsls::Types::Uint64& variable) = 0;
         // Consume a 48-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -313,7 +313,7 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getInt40(bsls_PlatformUtil::Int64& variable) = 0;
+    virtual bdex_InStream& getInt40(bsls::Types::Int64& variable) = 0;
         // Consume a 40-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -321,7 +321,7 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getUint40(bsls_PlatformUtil::Uint64& variable) = 0;
+    virtual bdex_InStream& getUint40(bsls::Types::Uint64& variable) = 0;
         // Consume a 40-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -427,7 +427,7 @@ class bdex_InStream {
                         // *** arrays of integer values ***
 
     virtual bdex_InStream&
-    getArrayInt64(bsls_PlatformUtil::Int64 *array, int length) = 0;
+    getArrayInt64(bsls::Types::Int64 *array, int length) = 0;
         // Consume a 64-bit signed integer array of the specified 'length' from
         // this input stream, place that value in the specified 'array', and
         // return a reference to this modifiable stream.  If this stream is
@@ -437,8 +437,8 @@ class bdex_InStream {
         // The behavior is undefined unless 0 <= length.
 
     virtual
-    bdex_InStream& getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                  int                        length) = 0;
+    bdex_InStream& getArrayUint64(bsls::Types::Uint64 *array,
+                                  int                  length) = 0;
         // Consume a 64-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -448,7 +448,7 @@ class bdex_InStream {
         // The behavior is undefined unless 0 <= length.
 
     virtual bdex_InStream&
-    getArrayInt56(bsls_PlatformUtil::Int64 *array, int length) = 0;
+    getArrayInt56(bsls::Types::Int64 *array, int length) = 0;
         // Consume a 56-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -456,8 +456,8 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                          int                        length)=0;
+    virtual bdex_InStream& getArrayUint56(bsls::Types::Uint64 *array,
+                                          int                  length)=0;
         // Consume a 56-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -466,7 +466,7 @@ class bdex_InStream {
         // of 'variable' is undefined.
 
     virtual bdex_InStream&
-    getArrayInt48(bsls_PlatformUtil::Int64 *array, int length) = 0;
+    getArrayInt48(bsls::Types::Int64 *array, int length) = 0;
         // Consume a 48-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -474,8 +474,8 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                          int                        length)=0;
+    virtual bdex_InStream& getArrayUint48(bsls::Types::Uint64 *array,
+                                          int                  length)=0;
         // Consume a 48-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -484,7 +484,7 @@ class bdex_InStream {
         // of 'variable' is undefined.
 
     virtual bdex_InStream&
-    getArrayInt40(bsls_PlatformUtil::Int64 *array, int length) = 0;
+    getArrayInt40(bsls::Types::Int64 *array, int length) = 0;
         // Consume a 40-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -492,8 +492,8 @@ class bdex_InStream {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    virtual bdex_InStream& getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                          int                        length)=0;
+    virtual bdex_InStream& getArrayUint40(bsls::Types::Uint64 *array,
+                                          int                  length)=0;
         // Consume a 40-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,

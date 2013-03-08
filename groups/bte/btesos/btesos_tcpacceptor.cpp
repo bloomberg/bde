@@ -107,7 +107,7 @@ RESULT *allocate(int *status, int flags,
 
 btesos_TcpAcceptor::btesos_TcpAcceptor(
         bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
-        bslma_Allocator                              *basicAllocator)
+        bslma::Allocator                             *basicAllocator)
 : d_pool(ARENA_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_factory_p(factory)
@@ -121,9 +121,9 @@ btesos_TcpAcceptor::btesos_TcpAcceptor(
 btesos_TcpAcceptor::btesos_TcpAcceptor(
         bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
         int                                           initialCapacity,
-        bslma_Allocator                              *basicAllocator)
+        bslma::Allocator                             *basicAllocator)
 : d_pool(ARENA_SIZE,
-         bsls_BlockGrowth::BSLS_CONSTANT,
+         bsls::BlockGrowth::BSLS_CONSTANT,
          initialCapacity,
          basicAllocator)
 , d_channels(basicAllocator)

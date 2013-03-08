@@ -4,15 +4,18 @@
 
 #include <bdeat_enumfunctions.h>
 #include <bdet_datetime.h>
-#include <bsls_platform.h>
 #include <bdes_float.h>
+
+#include <bslma_allocator.h>
+
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstring.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 #include <bsl_limits.h>
-#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -136,7 +139,7 @@ namespace BloombergLP {
 namespace bdeat_EnumFunctions {
 
     template <>
-    struct IsEnumeration<TestEnum::Value> : bslmf_MetaInt<1> {
+    struct IsEnumeration<TestEnum::Value> : bslmf::MetaInt<1> {
     };
 
     template <>
@@ -961,21 +964,21 @@ class CustomizedString {
         // the name of this class (i.e., "CustomizedString")
 
     // CREATORS
-    explicit CustomizedString(bslma_Allocator *basicAllocator = 0);
+    explicit CustomizedString(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     CustomizedString(const CustomizedString& original,
-                     bslma_Allocator *basicAllocator = 0);
+                     bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     explicit CustomizedString(const bsl::string& value,
-                              bslma_Allocator *basicAllocator = 0);
+                              bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the specified
         // 'value'.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -1069,21 +1072,21 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
 // CREATORS
 
 inline
-CustomizedString::CustomizedString(bslma_Allocator *basicAllocator)
+CustomizedString::CustomizedString(bslma::Allocator *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
 CustomizedString::CustomizedString(const CustomizedString&  original,
-                                   bslma_Allocator         *basicAllocator)
+                                   bslma::Allocator        *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
 CustomizedString::CustomizedString(const bsl::string&  value,
-                                   bslma_Allocator    *basicAllocator)
+                                   bslma::Allocator   *basicAllocator)
 : d_value(value, basicAllocator)
 {
 }
@@ -1819,9 +1822,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls_PlatformUtil::Int64'." << endl;
+        if (verbose) cout << "\nUsing 'bsls::Types::Int64'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 Type;
+            typedef bsls::Types::Int64 Type;
 
             static const struct {
                 int         d_lineNum;
@@ -1946,9 +1949,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls_PlatformUtil::Uint64'." << endl;
+        if (verbose) cout << "\nUsing 'bsls::Types::Uint64'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 Type;
+            typedef bsls::Types::Uint64 Type;
 
             static const struct {
                 int         d_lineNum;
@@ -4683,9 +4686,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls_PlatformUtil::Int64'." << endl;
+        if (verbose) cout << "\nUsing 'bsls::Types::Int64'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 Type;
+            typedef bsls::Types::Int64 Type;
 
             static const struct {
                 int         d_lineNum;
@@ -4850,9 +4853,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls_PlatformUtil::Uint64'." << endl;
+        if (verbose) cout << "\nUsing 'bsls::Types::Uint64'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 Type;
+            typedef bsls::Types::Uint64 Type;
 
             static const struct {
                 int         d_lineNum;

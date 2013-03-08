@@ -33,11 +33,11 @@ struct bdema_HeapBypassAllocator::BufferHeader {
     // beginning of the buffer it describes, and contains the size (in bytes)
     // of the buffer.
 
-    BufferHeader               *d_nextBuffer;   // pointer to linked list of
+    BufferHeader                *d_nextBuffer;  // pointer to linked list of
                                                 // buffers allocated after this
                                                 // one
 
-    bdema_Allocator::size_type  d_size;         // size (in bytes) of this
+    bslma::Allocator::size_type  d_size;        // size (in bytes) of this
                                                 // buffer
 };
 
@@ -133,7 +133,7 @@ bdema_HeapBypassAllocator::bdema_HeapBypassAllocator()
 , d_currentBuffer_p(0)
 , d_cursor_p(0)
 , d_endOfBuffer_p(0)
-, d_alignment(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT)
+, d_alignment(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT)
 {
 #if defined(BSLS_PLATFORM_OS_UNIX)
     d_pageSize = ::sysconf(_SC_PAGESIZE);
@@ -155,7 +155,7 @@ bdema_HeapBypassAllocator::bdema_HeapBypassAllocator()
     d_alignment = (char *)&s.d_dummyFloat80 - &s.d_dummyChar;
 #endif
 
-    BSLS_ASSERT_SAFE(d_alignment >= bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+    BSLS_ASSERT_SAFE(d_alignment >= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
     BSLS_ASSERT_SAFE(0 == (d_alignment & (d_alignment - 1)));  // is power of 2
 }
 
@@ -176,7 +176,7 @@ void *bdema_HeapBypassAllocator::allocate(size_type size)
         return 0;                                                     // RETURN
     }
 
-    d_cursor_p = d_cursor_p + bsls_AlignmentUtil::calculateAlignmentOffset(
+    d_cursor_p = d_cursor_p + bsls::AlignmentUtil::calculateAlignmentOffset(
                                                       d_cursor_p, d_alignment);
     if (d_endOfBuffer_p < d_cursor_p + size) {
         size_type blockSize = size + d_alignment + sizeof(BufferHeader);
@@ -190,7 +190,8 @@ void *bdema_HeapBypassAllocator::allocate(size_type size)
             return 0;                                                 // RETURN
         }
 
-        d_cursor_p = d_cursor_p + bsls_AlignmentUtil::calculateAlignmentOffset(
+        d_cursor_p =
+                    d_cursor_p + bsls::AlignmentUtil::calculateAlignmentOffset(
                                                       d_cursor_p, d_alignment);
     }
 

@@ -192,6 +192,7 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a < b, a <= b, a > b, a >= b            | O[n]                          |
 //  |-----------------------------------------+-------------------------------|
+//..
 //
 ///Usage
 ///-----
@@ -1488,49 +1489,6 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     VALUE_TYPE *const *data() const
         { return (VALUE_TYPE *const *)Base::data(); }
 };
-
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
-//: o A sequence container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <typename VALUE_TYPE, typename ALLOCATOR>
-struct HasStlIterators<bsl::vector<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
-{};
-
-}
-
-namespace bslmf {
-
-template <typename VALUE_TYPE, typename ALLOCATOR>
-struct IsBitwiseMoveable<bsl::vector<VALUE_TYPE, ALLOCATOR> >
-    : IsBitwiseMoveable<ALLOCATOR>
-{};
-
-}
-
-namespace bslma {
-
-template <typename VALUE_TYPE, typename ALLOCATOR>
-struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
-    : bsl::is_convertible<Allocator*, ALLOCATOR>::type
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
 
 // FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -3180,6 +3138,47 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 
 }  // close namespace bsl
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct HasStlIterators<bsl::vector<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslmf {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct IsBitwiseMoveable<bsl::vector<VALUE_TYPE, ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>::type
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 extern template class bsl::Vector_ImpBase<bool>;
 extern template class bsl::Vector_ImpBase<char>;
@@ -3235,11 +3234,24 @@ extern template class bsl::vector<void *>;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

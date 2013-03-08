@@ -85,8 +85,8 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows> Obj;
 typedef baesu_StackTraceFrame                                         Frame;
-typedef bsls_Types::UintPtr                                           UintPtr;
-typedef bsls_Types::IntPtr                                            IntPtr;
+typedef bsls::Types::UintPtr                                          UintPtr;
+typedef bsls::Types::IntPtr                                           IntPtr;
 
 //=============================================================================
 // GLOBAL HELPER VARIABLES FOR TESTING
@@ -140,7 +140,7 @@ UintPtr foilOptimizer(const UintPtr u)
 }
 
 static
-const void *addFixedOffset(bsls_Types::UintPtr funcAddress)
+const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
     // Given a function pointer stored in a 'UintPtr', add an offset to the
     // pointer and return it as a 'const void *'.
 {
@@ -157,14 +157,14 @@ const char *ng(const char *str)
     return str ? str : "(null)";
 }
 
-static bsls_Types::Uint64 bigRandSeed = 0;
-static const bsls_Types::Uint64 randA = 6364136223846793005ULL;
-static const bsls_Types::Uint64 randC = 1442695040888963407ULL;
+static bsls::Types::Uint64 bigRandSeed = 0;
+static const bsls::Types::Uint64 randA = 6364136223846793005ULL;
+static const bsls::Types::Uint64 randC = 1442695040888963407ULL;
 
 static
 UintPtr bigRand()
 {
-    typedef bsls_Types::Uint64 Uint64;
+    typedef bsls::Types::Uint64 Uint64;
 
     Uint64 next = randA * bigRandSeed + randC;
     Uint64 lowBits = next >> 32;
@@ -208,8 +208,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    bslma_TestAllocator ta;
-    bslma_TestAllocator da;
+    bslma::TestAllocator ta;
+    bslma::TestAllocator da;
 
     switch (test) { case 0:
       case 2: {
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
         // the function.  So we'll leave the testing of symbols in shared
         // libraries and global symbols to 'baesu_stacktrace.t.cpp.
 
-        typedef bsls_Types::UintPtr UintPtr;
+        typedef bsls::Types::UintPtr UintPtr;
 
         baesu_StackTrace st;
         st.resize(1);

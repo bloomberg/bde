@@ -13,12 +13,11 @@ BSLS_IDENT("$Id$")
 //  bdema_AlignedAllocator: protocol for aligned memory allocators
 //
 //@SEE_ALSO:
-//  bdema_posixmemalignallocator
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component extends the base-level protocol (pure abstract
-// interface) class, 'bslma_Allocator', providing the ability to allocate
+// interface) class, 'bslma::Allocator', providing the ability to allocate
 // raw memory with a specified alignment.  The following inheritance diagram
 // shows the classes involved and their methods:
 //..
@@ -27,9 +26,9 @@ BSLS_IDENT("$Id$")
 //   `----------------------'
 //               |       allocateAligned
 //               V
-//       ,---------------.
-//      ( bslma_Allocator )
-//       `---------------'
+//       ,----------------.
+//      ( bslma::Allocator )
+//       `----------------'
 //                       allocate
 //                       deallocate
 //..
@@ -141,7 +140,7 @@ BSLS_IDENT("$Id$")
 //          return 0;                                                 // RETURN
 //      }
 //
-//      int alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
+//      int alignment = bsls::AlignmentUtil::calculateAlignmentFromSize(size);
 //      return allocateAligned(size, alignment);
 //  }
 //
@@ -162,17 +161,17 @@ BSLS_IDENT("$Id$")
 //      errno = 0;
 //      ret = _aligned_malloc(size, alignment);
 //      if (0 != errno) {
-//          bslma_Allocator::throwBadAlloc();
+//          bslma::Allocator::throwBadAlloc();
 //      }
 //  #elif defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
 //      ret = memalign(alignment, size);
 //      if (0 == ret) {
-//          bslma_Allocator::throwBadAlloc();
+//          bslma::Allocator::throwBadAlloc();
 //      }
 //  #else
 //      int rc = ::posix_memalign(&ret, alignment, size);
 //      if (0 != rc) {
-//          bslma_Allocator::throwBadAlloc();
+//          bslma::Allocator::throwBadAlloc();
 //      }
 //  #endif
 //
@@ -248,7 +247,7 @@ namespace BloombergLP {
                         // class bdema_AlignedAllocator
                         // ============================
 
-class bdema_AlignedAllocator : public bslma_Allocator {
+class bdema_AlignedAllocator : public bslma::Allocator {
     // This protocol provides a pure abstract interface and contract for
     // clients and suppliers of raw aligned memory.  If the requested memory
     // cannot be returned, the contract requires that an 'std::bad_alloc'

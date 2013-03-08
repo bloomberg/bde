@@ -134,12 +134,12 @@ BDES_IDENT("$Id: $")
 #include <bdema_pool.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
 #endif
 
 namespace BloombergLP {
@@ -193,7 +193,7 @@ class btesos_TcpAcceptor : public btesc_ChannelAllocator {
     // CREATORS
     btesos_TcpAcceptor(
              bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
-             bslma_Allocator                              *basicAllocator = 0);
+             bslma::Allocator                             *basicAllocator = 0);
         // Create an acceptor that uses the specified 'factory' to create
         // stream sockets.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -206,7 +206,7 @@ class btesos_TcpAcceptor : public btesc_ChannelAllocator {
     btesos_TcpAcceptor(
              bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
              int                                           initialCapacity,
-             bslma_Allocator                              *basicAllocator = 0);
+             bslma::Allocator                             *basicAllocator = 0);
         // Create a timed acceptor that uses the specified 'factory' to create
         // stream sockets with enough internal capacity to accommodate up to
         // the specified 'initialCapacity' channels without reallocation.

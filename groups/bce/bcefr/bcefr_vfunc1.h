@@ -52,7 +52,7 @@ BDES_IDENT("$Id: $")
 //   template <class A1>
 //   class ConcreteDerivedClass : public bcefr_Vfunc1 <A1> {
 //     public:
-//       ConcreteDerivedClass(bslma_Allocator *basicAllocator)
+//       ConcreteDerivedClass(bslma::Allocator *basicAllocator)
 //       : bcefr_Vfunc1(basicAllocator) { }
 //
 //       virtual void execute(const A1& argument1) const
@@ -119,7 +119,7 @@ BDES_IDENT("$Id: $")
 //
 //   typedef ConcreteDerivedClass<int> DerivedObj;
 //   typedef bcefr_Vfunc1<int> Obj;
-//   bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+//   bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 //
 //   Obj *x = new(*myAllocator) DerivedObj(myAllocator);
 //   {
@@ -146,8 +146,8 @@ BDES_IDENT("$Id: $")
 #include <bces_atomicutil.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -169,7 +169,8 @@ class bcefr_Vfunc1 {
     // and limit an object instantiation to the heap.
 
     bces_AtomicUtil::Int d_count;    // dumb data (number of active references)
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) memory allocator
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) memory
+                                     // allocator
 
   private:
     bcefr_Vfunc1(const bcefr_Vfunc1&);                  // not implemented
@@ -191,7 +192,7 @@ class bcefr_Vfunc1 {
         // specified 'object' holds a valid memory allocator.
 
     // CREATORS
-    bcefr_Vfunc1(bslma_Allocator *basicAllocator);
+    bcefr_Vfunc1(bslma::Allocator *basicAllocator);
         // Create the base portion of a functor object, with the initial
         // reference count set to 0.  Return the specified 'basicAllocator' to
         // deallocate memory when 'destroyObject' is invoked.
@@ -230,7 +231,7 @@ void bcefr_Vfunc1<A1>::deleteObject(bcefr_Vfunc1 *object)
 
 // CREATORS
 template <class A1>
-inline bcefr_Vfunc1<A1>::bcefr_Vfunc1(bslma_Allocator *basicAllocator)
+inline bcefr_Vfunc1<A1>::bcefr_Vfunc1(bslma::Allocator *basicAllocator)
 : d_allocator_p(basicAllocator)
 {
     bces_AtomicUtil::initInt(&d_count,0);

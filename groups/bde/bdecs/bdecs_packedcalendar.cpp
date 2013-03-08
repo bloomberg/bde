@@ -703,40 +703,40 @@ void bdecs_PackedCalendar::intersectBusinessDaysImp(
 }
 
 // CREATORS
-bdecs_PackedCalendar::bdecs_PackedCalendar(bslma_Allocator *basicAllocator)
+bdecs_PackedCalendar::bdecs_PackedCalendar(bslma::Allocator *basicAllocator)
 : d_firstDate(9999, 12, 31)
 , d_lastDate(1, 1, 1)
 , d_weekendDaysTransitions(basicAllocator)
 , d_holidayOffsets(basicAllocator)
 , d_holidayCodesIndex(basicAllocator)
 , d_holidayCodes(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 bdecs_PackedCalendar::bdecs_PackedCalendar(const bdet_Date&  firstDate,
                                            const bdet_Date&  lastDate,
-                                           bslma_Allocator  *basicAllocator)
+                                           bslma::Allocator *basicAllocator)
 : d_firstDate(firstDate <= lastDate ? firstDate : bdet_Date(9999, 12, 31))
 , d_lastDate(firstDate <= lastDate ? lastDate : bdet_Date(1, 1, 1))
 , d_weekendDaysTransitions(basicAllocator)
 , d_holidayOffsets(basicAllocator)
 , d_holidayCodesIndex(basicAllocator)
 , d_holidayCodes(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 bdecs_PackedCalendar::bdecs_PackedCalendar(
                                    const bdecs_PackedCalendar&  original,
-                                   bslma_Allocator             *basicAllocator)
+                                   bslma::Allocator            *basicAllocator)
 : d_firstDate(original.d_firstDate)
 , d_lastDate(original.d_lastDate)
 , d_weekendDaysTransitions(original.d_weekendDaysTransitions, basicAllocator)
 , d_holidayOffsets(original.d_holidayOffsets, basicAllocator)
 , d_holidayCodesIndex(original.d_holidayCodesIndex, basicAllocator)
 , d_holidayCodes(original.d_holidayCodes, basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -761,13 +761,13 @@ void bdecs_PackedCalendar::swap(bdecs_PackedCalendar& other)
 
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
-    bslalg_SwapUtil::swap(&d_firstDate,         &other.d_firstDate);
-    bslalg_SwapUtil::swap(&d_lastDate,          &other.d_lastDate);
-    bslalg_SwapUtil::swap(&d_weekendDaysTransitions,
+    bslalg::SwapUtil::swap(&d_firstDate,         &other.d_firstDate);
+    bslalg::SwapUtil::swap(&d_lastDate,          &other.d_lastDate);
+    bslalg::SwapUtil::swap(&d_weekendDaysTransitions,
                           &other.d_weekendDaysTransitions);
-    bslalg_SwapUtil::swap(&d_holidayOffsets,    &other.d_holidayOffsets);
-    bslalg_SwapUtil::swap(&d_holidayCodesIndex, &other.d_holidayCodesIndex);
-    bslalg_SwapUtil::swap(&d_holidayCodes,      &other.d_holidayCodes);
+    bslalg::SwapUtil::swap(&d_holidayOffsets,    &other.d_holidayOffsets);
+    bslalg::SwapUtil::swap(&d_holidayCodesIndex, &other.d_holidayCodesIndex);
+    bslalg::SwapUtil::swap(&d_holidayCodes,      &other.d_holidayCodes);
 }
 
 void bdecs_PackedCalendar::addDay(const bdet_Date& date)

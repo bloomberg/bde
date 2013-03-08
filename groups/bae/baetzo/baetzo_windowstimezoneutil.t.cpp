@@ -1454,7 +1454,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
 #ifdef BDE_BUILD_TARGET_EXC
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             const char  *tzId = "America/Mexico_City";
             const char *winId;
@@ -1569,7 +1570,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
 #ifdef BDE_BUILD_TARGET_EXC
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             const char *winId = "Central Standard Time (Mexico)";
             const char *tzId;

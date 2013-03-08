@@ -31,10 +31,10 @@ typedef BloombergLP::baexml_MiniReader   Reader;
 
 #include <bdesb_fixedmeminstreambuf.h>       // for testing only
 
-#include <bslma_default.h>                   // for testing only
-#include <bslma_testallocator.h>             // for testing only
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
 
-#include <bsls_platformutil.h>               // for testing only
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -129,8 +129,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPES AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef baexml_SchemaParser Obj;
-typedef baexml_ErrorInfo    ErrInfo;
+typedef baexml_SchemaParser     Obj;
+typedef baexml_ErrorInfo        ErrInfo;
 
 typedef bdem_ElemRef             ERef;
 typedef bdem_ElemType            EType;
@@ -139,7 +139,7 @@ typedef bdem_FieldDefAttributes  FldAttr;
 typedef bdem_RecordDef           RecDef;
 typedef bdem_EnumerationDef      EnumDef;
 typedef RecDef::RecordType       RecType;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64       Int64;
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
@@ -178,8 +178,7 @@ const int             N02 = bdetu_Unset<int>::unsetValue();
 
 const Int64           A03 = -100;
 const Int64           B03 = -200;
-const Int64           N03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const Int64           N03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
 const float           A04 = -1.5;
 const float           B04 = -2.5;
@@ -1321,7 +1320,7 @@ class Resolver
 
         bsl::string buffer(ptr);
 
-        bslma_Allocator * allocator = bslma_Default::defaultAllocator();
+        bslma::Allocator *allocator = bslma::Default::defaultAllocator();
         InpStrStreamPtr issPtr (
             new (*allocator) bsl::istringstream(buffer));
 
@@ -1596,8 +1595,8 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
-    bslma_TestAllocator testAllocator(veryVeryVeryVerbose);
-    bslma_Default::setDefaultAllocatorRaw(&testAllocator);
+    bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocatorRaw(&testAllocator);
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 

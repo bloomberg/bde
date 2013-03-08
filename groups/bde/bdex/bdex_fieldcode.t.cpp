@@ -1,8 +1,6 @@
-// bdex_fieldcode.t.cpp         -*-C++-*-
+// bdex_fieldcode.t.cpp                                               -*-C++-*-
 
 #include <bdex_fieldcode.h>
-
-#include <bsls_platformutil.h>                  // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>

@@ -80,10 +80,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>    // @DEPRECATED
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -124,7 +120,7 @@ class bdeut_BigEndianInt16 {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdeut_BigEndianInt16,
-                                  bslalg_TypeTraitBitwiseCopyable,
+                                  bslalg::TypeTraitBitwiseCopyable,
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS METHODS
@@ -243,7 +239,7 @@ class bdeut_BigEndianUint16 {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdeut_BigEndianUint16,
-                                  bslalg_TypeTraitBitwiseCopyable,
+                                  bslalg::TypeTraitBitwiseCopyable,
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS METHODS
@@ -361,7 +357,7 @@ class bdeut_BigEndianInt32 {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdeut_BigEndianInt32,
-                                  bslalg_TypeTraitBitwiseCopyable,
+                                  bslalg::TypeTraitBitwiseCopyable,
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS METHODS
@@ -480,7 +476,7 @@ class bdeut_BigEndianUint32 {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdeut_BigEndianUint32,
-                                  bslalg_TypeTraitBitwiseCopyable,
+                                  bslalg::TypeTraitBitwiseCopyable,
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS METHODS
@@ -588,7 +584,7 @@ class bdeut_BigEndianInt64 {
     // both source and destination) is supported in all cases.
 
     // DATA
-    bsls_Types::Int64 d_value;  // in-core value (network byte-order)
+    bsls::Types::Int64 d_value;  // in-core value (network byte-order)
 
     // FRIENDS
     friend bool operator==(const bdeut_BigEndianInt64& lhs,
@@ -599,7 +595,7 @@ class bdeut_BigEndianInt64 {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdeut_BigEndianInt64,
-                                  bslalg_TypeTraitBitwiseCopyable,
+                                  bslalg::TypeTraitBitwiseCopyable,
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS METHODS
@@ -609,7 +605,7 @@ class bdeut_BigEndianInt64 {
         // more information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static bdeut_BigEndianInt64 make(bsls_Types::Int64 value);
+    static bdeut_BigEndianInt64 make(bsls::Types::Int64 value);
         // Create and initialize a 'bdeut_BigEndianInt64' object which stores
         // 'value' as a signed 64-bit big-endian integer.
 
@@ -617,7 +613,7 @@ class bdeut_BigEndianInt64 {
     // assignment operator that are provided by the compiler.
 
     // MANIPULATORS
-    bdeut_BigEndianInt64& operator=(bsls_Types::Int64 value);
+    bdeut_BigEndianInt64& operator=(bsls::Types::Int64 value);
        // Store in this object the specified 'value' as a signed 64-bit
        // big-endian integer, and return a reference to this modifiable
        // object.
@@ -635,8 +631,8 @@ class bdeut_BigEndianInt64 {
         // value-semantic types and containers.
 
     // ACCESSORS
-    operator bsls_Types::Int64() const;
-        // Return the value stored in this object as a 'bsls_Types::Int64' in
+    operator bsls::Types::Int64() const;
+        // Return the value stored in this object as a 'bsls::Types::Int64' in
         // the native byte-order.
 
     bsl::ostream& print(bsl::ostream& stream,
@@ -707,7 +703,7 @@ class bdeut_BigEndianUint64 {
     // supported in all cases.
 
     // DATA
-    bsls_Types::Uint64 d_value;  // in-core value (network byte-order)
+    bsls::Types::Uint64 d_value;  // in-core value (network byte-order)
 
     // FRIENDS
     friend bool operator==(const bdeut_BigEndianUint64& lhs,
@@ -718,7 +714,7 @@ class bdeut_BigEndianUint64 {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdeut_BigEndianUint64,
-                                  bslalg_TypeTraitBitwiseCopyable,
+                                  bslalg::TypeTraitBitwiseCopyable,
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS METHODS
@@ -728,7 +724,7 @@ class bdeut_BigEndianUint64 {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static bdeut_BigEndianUint64 make(bsls_Types::Uint64 value);
+    static bdeut_BigEndianUint64 make(bsls::Types::Uint64 value);
         // Create and initialize a 'bdeut_BigEndianInt64' object which stores
         // 'value' as an unsigned 64-bit big-endian integer.
 
@@ -736,7 +732,7 @@ class bdeut_BigEndianUint64 {
     // assignment operator that are provided by the compiler.
 
     // MANIPULATORS
-    bdeut_BigEndianUint64& operator=(bsls_Types::Uint64 value);
+    bdeut_BigEndianUint64& operator=(bsls::Types::Uint64 value);
         // Store in this object the specified 'value' as an unsigned 64-bit
         // big-endian integer, and return a reference to this modifiable
         // object.
@@ -754,8 +750,8 @@ class bdeut_BigEndianUint64 {
         // value-semantic types and containers.
 
     // ACCESSORS
-    operator bsls_Types::Uint64() const;
-        // Return the value stored in this object as a 'bsls_Types::Uint64' in
+    operator bsls::Types::Uint64() const;
+        // Return the value stored in this object as a 'bsls::Types::Uint64' in
         // the native byte-order.
 
     bsl::ostream& print(bsl::ostream& stream,
@@ -843,7 +839,7 @@ bdeut_BigEndianUint32& bdeut_BigEndianUint32::operator=(unsigned int value)
 }
 
 inline
-bdeut_BigEndianInt64& bdeut_BigEndianInt64::operator=(bsls_Types::Int64 value)
+bdeut_BigEndianInt64& bdeut_BigEndianInt64::operator=(bsls::Types::Int64 value)
 {
     d_value = BSLS_BYTEORDER_HOST_U64_TO_BE(value);
     return *this;
@@ -851,7 +847,7 @@ bdeut_BigEndianInt64& bdeut_BigEndianInt64::operator=(bsls_Types::Int64 value)
 
 inline
 bdeut_BigEndianUint64& bdeut_BigEndianUint64::operator=(
-                                                      bsls_Types::Uint64 value)
+                                                     bsls::Types::Uint64 value)
 {
     d_value = BSLS_BYTEORDER_HOST_U64_TO_BE(value);
     return *this;
@@ -1191,7 +1187,7 @@ int bdeut_BigEndianInt64::maxSupportedBdexVersion()
 }
 
 inline
-bdeut_BigEndianInt64 bdeut_BigEndianInt64::make(bsls_Types::Int64 value)
+bdeut_BigEndianInt64 bdeut_BigEndianInt64::make(bsls::Types::Int64 value)
 {
     bdeut_BigEndianInt64 ret;
     return ret = value;
@@ -1215,7 +1211,7 @@ STREAM& bdeut_BigEndianInt64::bdexStreamIn(STREAM& stream, int version)
 
 // ACCESSORS
 inline
-bdeut_BigEndianInt64::operator bsls_Types::Int64() const
+bdeut_BigEndianInt64::operator bsls::Types::Int64() const
 {
     return BSLS_BYTEORDER_HOST_U64_TO_BE(d_value);
 }
@@ -1270,7 +1266,7 @@ int bdeut_BigEndianUint64::maxSupportedBdexVersion()
 }
 
 inline
-bdeut_BigEndianUint64 bdeut_BigEndianUint64::make(bsls_Types::Uint64 value)
+bdeut_BigEndianUint64 bdeut_BigEndianUint64::make(bsls::Types::Uint64 value)
 {
     bdeut_BigEndianUint64 ret;
     return ret = value;
@@ -1294,7 +1290,7 @@ STREAM& bdeut_BigEndianUint64::bdexStreamIn(STREAM& stream, int version)
 
 // ACCESSORS
 inline
-bdeut_BigEndianUint64::operator bsls_Types::Uint64() const
+bdeut_BigEndianUint64::operator bsls::Types::Uint64() const
 {
     return BSLS_BYTEORDER_HOST_U64_TO_BE(d_value);
 }

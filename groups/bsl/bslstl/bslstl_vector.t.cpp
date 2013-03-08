@@ -3,8 +3,8 @@
 #include <bslstl_vector.h>
 
 #include <bslstl_allocator.h>
-#include <bslstl_iterator.h>
 #include <bslstl_forwarditerator.h>
+#include <bslstl_iterator.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -12,15 +12,19 @@
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>           // for testing only
 #include <bslma_testallocatorexception.h>  // for testing only
+
 #include <bslmf_issame.h>                  // for testing only
-#include <bsls_objectbuffer.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_exceptionutil.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>                // for testing only
 #include <bsls_util.h>
+
 #include <bsltf_nontypicaloverloadstesttype.h>
 
 #include <iterator>   // 'iterator_traits'
@@ -5428,7 +5432,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("\t\tCreating object of "); P(LENGTH);
                 }
 
-                try {
+                BSLS_TRY {
                     const bsls::Types::Int64 TB =
                                            defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
@@ -5443,7 +5447,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (...) {
+                BSLS_CATCH(...) {
                     break;
                 }
                 ASSERT(0 == globalAllocator_p->numBytesInUse());
@@ -5465,7 +5469,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("using "); P(VALUE);
                 }
 
-                try {
+                BSLS_TRY {
                     const bsls::Types::Int64 TB =
                                            defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
@@ -5480,7 +5484,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (...) {
+                BSLS_CATCH(...) {
 
                     break;
                 }
@@ -9351,11 +9355,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

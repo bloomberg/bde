@@ -38,7 +38,7 @@ namespace BloombergLP {
             // struct bdealg_TypeTraitHasTrivialDefaultConstructor
             //====================================================
 
-typedef bslalg_TypeTraitHasTrivialDefaultConstructor
+typedef bslalg::TypeTraitHasTrivialDefaultConstructor
                                   bdealg_TypeTraitHasTrivialDefaultConstructor;
     // Objects of a type with this trait can be default-initialized by simply
     // writing zeros into the memory footprint of the object.  Although it is

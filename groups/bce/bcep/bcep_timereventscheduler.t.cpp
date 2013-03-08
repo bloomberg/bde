@@ -13,11 +13,12 @@
 #include <bdef_memfn.h>
 #include <bdeimp_fuzzy.h>
 #include <bdes_bitutil.h>
-#include <bsls_platform.h>
-#include <bsls_stopwatch.h>
-
 #include <bdet_datetime.h>
 #include <bdetu_systemtime.h>
+
+#include <bsls_platform.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
@@ -214,14 +215,14 @@ typedef Obj::Handle Handle;
 void sleepUntilMs(int ms)
 {
     int sleepIncrement = bsl::min(250, (ms/4)+1);
-    
-    bsls_Stopwatch timer;
+
+    bsls::Stopwatch timer;
     timer.start();
     while (timer.elapsedTime() * 1000 < ms) {
         bcemt_ThreadUtil::microSleep(sleepIncrement);
     }
-} 
-                  
+}
+
 static const float DECI_SEC = 1.0/10;    // 1 deci-second (a tenth of a second)
 
 static const int   DECI_SEC_IN_MICRO_SEC = 100000;
@@ -671,13 +672,13 @@ class my_Server {
   public:
     // CREATORS
     my_Server(const bdet_TimeInterval& ioTimeout,
-              bslma_Allocator *allocator = 0);
+              bslma::Allocator *allocator = 0);
     ~my_Server();
 };
 
 // CREATORS
 my_Server::my_Server(const bdet_TimeInterval& ioTimeout,
-                     bslma_Allocator *alloc)
+                     bslma::Allocator *alloc)
 : d_connections(alloc)
 , d_scheduler(alloc)
 , d_ioTimeout(ioTimeout)
@@ -982,7 +983,7 @@ TestClass1 testObj[NUM_THREADS]; // one test object for each thread
 extern "C" {
 void *workerThread11(void *arg)
 {
-    int id = (int)(bsls_PlatformUtil::IntPtr)arg;
+    int id = (int)(bsls::Types::IntPtr)arg;
 
     barrier.wait();
     switch(id % 2) {
@@ -1059,7 +1060,7 @@ TestClass1 testObj[NUM_THREADS]; // one test object for each thread
 extern "C" {
 void *workerThread10(void *arg)
 {
-    int id = (int)(bsls_PlatformUtil::IntPtr)arg;
+    int id = (int)(bsls::Types::IntPtr)arg;
 
     barrier.wait();
     switch(id % 2) {

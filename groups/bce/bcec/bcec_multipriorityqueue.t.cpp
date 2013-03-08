@@ -693,7 +693,7 @@ int main(int argc, char *argv[])
     bcema_TestAllocator ta(veryVeryVeryVerbose);  // passed to
                                                   // multipriority queue
 
-    bslma_DefaultAllocatorGuard guard(&taDefault);
+    bslma::DefaultAllocatorGuard guard(&taDefault);
 
     switch (test) { case 0:
       case 16: {
@@ -1014,8 +1014,8 @@ int main(int argc, char *argv[])
             numAllocList.clear();
             start = testAllocator.numAllocations();
 
-                                                              // numAllocation:
-                                                              // --------------
+                                                             // numAllocations:
+                                                             // --------------
             numAllocList.push_back(testAllocator.numAllocations());    // 0
 
             Sobj mX(&testAllocator);    const Sobj& X = mX;
@@ -1196,7 +1196,7 @@ int main(int argc, char *argv[])
         bcema_TestAllocator taString(veryVeryVeryVerbose);
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
-        bslma_DefaultAllocatorGuard guard(&taDefault);
+        bslma::DefaultAllocatorGuard guard(&taDefault);
 
         LOOP_ASSERT(taDefault.numBytesMax(), 0 == taDefault.numBytesMax());
 
@@ -1874,7 +1874,7 @@ int main(int argc, char *argv[])
             GARBAGE_VALUE = -2374
         };
 
-        bslma_DefaultAllocatorGuard guard(&ta);
+        bslma::DefaultAllocatorGuard guard(&ta);
 
         for (int construct = 0; true; ++construct) {
             Obj *pX;

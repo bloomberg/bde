@@ -140,6 +140,7 @@ struct baesu_ObjectFileFormat {
 
     typedef Dummy Policy;
 #   error unrecognized platform
+#   define BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED 1
 
 #endif
 

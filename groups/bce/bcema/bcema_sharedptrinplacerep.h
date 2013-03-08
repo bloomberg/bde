@@ -71,10 +71,10 @@ BDES_IDENT("$Id: $")
 //          // is the last shared reference, deleted the managed object.
 //
 //      // MANIPULATORS
-//      void createInplace(bslma_Allocator *basicAllocator,
-//                         int              year,
-//                         int              month,
-//                         int              day);
+//      void createInplace(bslma::Allocator *basicAllocator,
+//                         int               year,
+//                         int               month,
+//                         int               day);
 //          // Create a new 'bcema_SharedPtrInplaceRep', using the specified
 //          // 'basicAllocator' to supply memory, using the specified 'year',
 //          // 'month' and 'day' to initialize the 'bdet_Datetime' within the
@@ -128,12 +128,12 @@ BDES_IDENT("$Id: $")
 //      }
 //  }
 //
-//  void MySharedDatetimePtr::createInplace(bslma_Allocator *basicAllocator,
-//                                          int              year,
-//                                          int              month,
-//                                          int              day)
+//  void MySharedDatetimePtr::createInplace(bslma::Allocator *basicAllocator,
+//                                          int               year,
+//                                          int               month,
+//                                          int               day)
 //  {
-//      basicAllocator = bslma_Default::allocator(basicAllocator);
+//      basicAllocator = bslma::Default::allocator(basicAllocator);
 //      bcema_SharedPtrInplaceRep<bdet_Datetime> *rep = new (*basicAllocator)
 //                     bcema_SharedPtrInplaceRep<bdet_Datetime>(basicAllocator,
 //                                                              year,
@@ -190,17 +190,17 @@ class bcema_SharedPtrInplaceRep : public bcema_SharedPtrRep {
     // of 'TYPE' is invoked.
 
     // DATA
-    bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
+    bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
 
-    TYPE             d_instance;    // beginning of the in-place buffer
-                                    // note that this must be last in this
-                                    // layout to allow for the possibility of
-                                    // creating in-place uninitialized buffer,
-                                    // where it is possible to access memory
-                                    // beyond the 'd_instance' footprint (refer
-                                    // to 'bcema_SharePtr::
-                                    // createInplaceUninitializedBuffer' for
-                                    // sample usage)
+    TYPE              d_instance;    // beginning of the in-place buffer
+                                     // note that this must be last in this
+                                     // layout to allow for the possibility of
+                                     // creating in-place uninitialized buffer,
+                                     // where it is possible to access memory
+                                     // beyond the 'd_instance' footprint
+                                     // (refer to 'bcema_SharePtr::
+                                     // createInplaceUninitializedBuffer' for
+                                     // sample usage)
 
   private:
     // NOT IMPLEMENTED
@@ -217,7 +217,7 @@ class bcema_SharedPtrInplaceRep : public bcema_SharedPtrRep {
 
   public:
     // CREATORS
-    explicit bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator);
+    explicit bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator);
         // Create a 'bcema_SharedPtrInplaceRep' object having an "in-place"
         // default-constructed instance of the parameterized 'TYPE'.  Use the
         // specified 'basicAllocator' to supply memory and, upon a call to
@@ -225,147 +225,147 @@ class bcema_SharedPtrInplaceRep : public bcema_SharedPtrRep {
         // shared object) .
 
     template <class A1>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator, const A1& a1);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator, const A1& a1);
     template <class A1, class A2>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2);
     template <class A1, class A2, class A3>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3);
     template <class A1, class A2, class A3, class A4>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4);
     template <class A1, class A2, class A3, class A4, class A5>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5);
     template <class A1, class A2, class A3, class A4, class A5, class A6>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5,
-                              const A6&        a6);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5,
+                              const A6&         a6);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
              class A7>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5,
-                              const A6&        a6,
-                              const A7&        a7);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5,
+                              const A6&         a6,
+                              const A7&         a7);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5,
-                              const A6&        a6,
-                              const A7&        a7,
-                              const A8&        a8);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5,
+                              const A6&         a6,
+                              const A7&         a7,
+                              const A8&         a8);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5,
-                              const A6&        a6,
-                              const A7&        a7,
-                              const A8&        a8,
-                              const A9&        a9);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5,
+                              const A6&         a6,
+                              const A7&         a7,
+                              const A8&         a8,
+                              const A9&         a9);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5,
-                              const A6&        a6,
-                              const A7&        a7,
-                              const A8&        a8,
-                              const A9&        a9,
-                              const A10&       a10);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5,
+                              const A6&         a6,
+                              const A7&         a7,
+                              const A8&         a8,
+                              const A9&         a9,
+                              const A10&        a10);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5,
-                              const A6&        a6,
-                              const A7&        a7,
-                              const A8&        a8,
-                              const A9&        a9,
-                              const A10&       a10,
-                              const A11&       a11);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5,
+                              const A6&         a6,
+                              const A7&         a7,
+                              const A8&         a8,
+                              const A9&         a9,
+                              const A10&        a10,
+                              const A11&        a11);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5,
-                              const A6&        a6,
-                              const A7&        a7,
-                              const A8&        a8,
-                              const A9&        a9,
-                              const A10&       a10,
-                              const A11&       a11,
-                              const A12&       a12);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5,
+                              const A6&         a6,
+                              const A7&         a7,
+                              const A8&         a8,
+                              const A9&         a9,
+                              const A10&        a10,
+                              const A11&        a11,
+                              const A12&        a12);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5,
-                              const A6&        a6,
-                              const A7&        a7,
-                              const A8&        a8,
-                              const A9&        a9,
-                              const A10&       a10,
-                              const A11&       a11,
-                              const A12&       a12,
-                              const A13&       a13);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5,
+                              const A6&         a6,
+                              const A7&         a7,
+                              const A8&         a8,
+                              const A9&         a9,
+                              const A10&        a10,
+                              const A11&        a11,
+                              const A12&        a12,
+                              const A13&        a13);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13, class A14>
-    bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator,
-                              const A1&        a1,
-                              const A2&        a2,
-                              const A3&        a3,
-                              const A4&        a4,
-                              const A5&        a5,
-                              const A6&        a6,
-                              const A7&        a7,
-                              const A8&        a8,
-                              const A9&        a9,
-                              const A10&       a10,
-                              const A11&       a11,
-                              const A12&       a12,
-                              const A13&       a13,
-                              const A14&       a14);
+    bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator,
+                              const A1&         a1,
+                              const A2&         a2,
+                              const A3&         a3,
+                              const A4&         a4,
+                              const A5&         a5,
+                              const A6&         a6,
+                              const A7&         a7,
+                              const A8&         a8,
+                              const A9&         a9,
+                              const A10&        a10,
+                              const A11&        a11,
+                              const A12&        a12,
+                              const A13&        a13,
+                              const A14&        a14);
         // Create a 'bcema_SharedPtrInplaceRep' object having an "in-place"
         // instance of the parameterized 'TYPE' using the 'TYPE' constructor
         // that takes the specified arguments, 'a1' up to 'aN', where 'N' (at
@@ -414,7 +414,7 @@ class bcema_SharedPtrInplaceRep : public bcema_SharedPtrRep {
 template <class TYPE>
 inline
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_allocator_p(basicAllocator)
 {
 }
@@ -422,8 +422,8 @@ bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
 template <class TYPE>
 template <class A1>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1)
 : d_allocator_p(basicAllocator)
 , d_instance(a1)
 {
@@ -432,9 +432,9 @@ bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
 template <class TYPE>
 template <class A1, class A2>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2)
 {
@@ -443,10 +443,10 @@ bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
 template <class TYPE>
 template <class A1, class A2, class A3>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3)
 {
@@ -455,11 +455,11 @@ bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
 template <class TYPE>
 template <class A1, class A2, class A3, class A4>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4)
 {
@@ -468,12 +468,12 @@ bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5)
 {
@@ -482,13 +482,13 @@ bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
 template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5,
-                                               const A6&        a6)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5,
+                                              const A6&         a6)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5, a6)
 {
@@ -498,14 +498,14 @@ template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5,
-                                               const A6&        a6,
-                                               const A7&        a7)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5,
+                                              const A6&         a6,
+                                              const A7&         a7)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5, a6, a7)
 {
@@ -515,15 +515,15 @@ template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5,
-                                               const A6&        a6,
-                                               const A7&        a7,
-                                               const A8&        a8)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5,
+                                              const A6&         a6,
+                                              const A7&         a7,
+                                              const A8&         a8)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5, a6, a7, a8)
 {
@@ -533,16 +533,16 @@ template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5,
-                                               const A6&        a6,
-                                               const A7&        a7,
-                                               const A8&        a8,
-                                               const A9&        a9)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5,
+                                              const A6&         a6,
+                                              const A7&         a7,
+                                              const A8&         a8,
+                                              const A9&         a9)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9)
 {
@@ -552,17 +552,17 @@ template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5,
-                                               const A6&        a6,
-                                               const A7&        a7,
-                                               const A8&        a8,
-                                               const A9&        a9,
-                                               const A10&       a10)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5,
+                                              const A6&         a6,
+                                              const A7&         a7,
+                                              const A8&         a8,
+                                              const A9&         a9,
+                                              const A10&        a10)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
 {
@@ -572,18 +572,18 @@ template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5,
-                                               const A6&        a6,
-                                               const A7&        a7,
-                                               const A8&        a8,
-                                               const A9&        a9,
-                                               const A10&       a10,
-                                               const A11&       a11)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5,
+                                              const A6&         a6,
+                                              const A7&         a7,
+                                              const A8&         a8,
+                                              const A9&         a9,
+                                              const A10&        a10,
+                                              const A11&        a11)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
 {
@@ -593,19 +593,19 @@ template <class TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11, class A12>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5,
-                                               const A6&        a6,
-                                               const A7&        a7,
-                                               const A8&        a8,
-                                               const A9&        a9,
-                                               const A10&       a10,
-                                               const A11&       a11,
-                                               const A12&       a12)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5,
+                                              const A6&         a6,
+                                              const A7&         a7,
+                                              const A8&         a8,
+                                              const A9&         a9,
+                                              const A10&        a10,
+                                              const A11&        a11,
+                                              const A12&        a12)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
 {
@@ -616,20 +616,20 @@ template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5,
-                                               const A6&        a6,
-                                               const A7&        a7,
-                                               const A8&        a8,
-                                               const A9&        a9,
-                                               const A10&       a10,
-                                               const A11&       a11,
-                                               const A12&       a12,
-                                               const A13&       a13)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5,
+                                              const A6&         a6,
+                                              const A7&         a7,
+                                              const A8&         a8,
+                                              const A9&         a9,
+                                              const A10&        a10,
+                                              const A11&        a11,
+                                              const A12&        a12,
+                                              const A13&        a13)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)
 {
@@ -640,21 +640,21 @@ template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13, class A14>
 bcema_SharedPtrInplaceRep<TYPE>::bcema_SharedPtrInplaceRep(
-                                               bslma_Allocator *basicAllocator,
-                                               const A1&        a1,
-                                               const A2&        a2,
-                                               const A3&        a3,
-                                               const A4&        a4,
-                                               const A5&        a5,
-                                               const A6&        a6,
-                                               const A7&        a7,
-                                               const A8&        a8,
-                                               const A9&        a9,
-                                               const A10&       a10,
-                                               const A11&       a11,
-                                               const A12&       a12,
-                                               const A13&       a13,
-                                               const A14&       a14)
+                                              bslma::Allocator *basicAllocator,
+                                              const A1&         a1,
+                                              const A2&         a2,
+                                              const A3&         a3,
+                                              const A4&         a4,
+                                              const A5&         a5,
+                                              const A6&         a6,
+                                              const A7&         a7,
+                                              const A8&         a8,
+                                              const A9&         a9,
+                                              const A10&        a10,
+                                              const A11&        a11,
+                                              const A12&        a12,
+                                              const A13&        a13,
+                                              const A14&        a14)
 : d_allocator_p(basicAllocator)
 , d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)
 {

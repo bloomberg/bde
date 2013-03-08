@@ -149,7 +149,7 @@ struct NullFunc {
 };
 
 template <typename A1>
-void makeNull(bslma_Allocator * a, bdef_Function<void (*)(A1)> * f) {
+void makeNull(bslma::Allocator *a, bdef_Function<void (*)(A1)> * f) {
     *f = bdef_Function<void (*)(A1)>(NullFunc<A1>(), a);
 }
 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " __FILE__ " CASE " << test << endl;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     testAllocator.setNoAbort(1);
 
     switch (test) { case 0:/* { // Zero is always the leading case.

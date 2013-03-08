@@ -3,6 +3,8 @@
 
 #include <bces_atomictypes.h>
 
+#include <bsls_assert.h>
+
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
@@ -64,7 +66,8 @@ void My_Sleep(int ms)
     nanosleep(&naptime, 0);
 }
 
-void My_CreateDetachedThread(ThreadFunction function, void *userData) {
+void My_CreateDetachedThread(ThreadFunction function, void *userData)
+{
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr,

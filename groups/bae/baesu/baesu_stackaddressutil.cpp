@@ -27,7 +27,7 @@ BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 #elif defined(BSLS_PLATFORM_OS_HPUX)
 
 # include <bdema_heapbypassallocator.h>
-# include <bsls_platformutil.h>
+# include <bsls_types.h>
 
 # include <uwx.h>
 # include <uwx_self.h>
@@ -138,11 +138,11 @@ static
 void *allocationCallBack(void *allocator, size_t size)
     // Use 'allocator' to allocate a segment of memory that is at least 'size'
     // in bytes.  Return a pointer to the segment.  The behavior is undefined
-    // unless 'locator' is of type 'bslma_Allocator *'.  Note that a pointer to
-    // this function is passed to the 'uwx' debugging routines provided by HP
-    // to allow this component to specify how 'uwx' is to allocate memory.
+    // unless 'locator' is of type 'bslma::Allocator *'.  Note that a pointer
+    // to this function is passed to the 'uwx' debugging routines provided by
+    // HP to allow this component to specify how 'uwx' is to allocate memory.
 {
-    return ((bslma_Allocator *) allocator)->allocate(size);
+    return ((bslma::Allocator *)allocator)->allocate(size);
 }
 
 static
@@ -210,7 +210,7 @@ int baesu_StackAddressUtil::getStackAddresses(void **buffer,
             return -125;                                              // RETURN
         }
 
-        buffer[i] = (void *) (bsls_PlatformUtil::UintPtr) ip;
+        buffer[i] = (void *) (bsls::Types::UintPtr) ip;
     }
 
     return maxFrames;

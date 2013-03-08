@@ -58,7 +58,7 @@ namespace BloombergLP {
 
 #define EXIT_IF_FALSE(X) do {                                             \
     if (!(X)) {                                                           \
-        BloombergLP::bsls_Assert::invokeHandler(#X, __FILE__, __LINE__);  \
+        BloombergLP::bsls::Assert::invokeHandler(#X, __FILE__, __LINE__); \
     }                                                                     \
 } while (false)
     // This macro is enabled *unconditionally*.  Note that 'BSLS_ASSERT'
@@ -239,10 +239,9 @@ bool parseValue(void *value, const char *input, bdem_ElemType::Type type)
         result = !bdepu_TypesParser::parseInt(&end, (int *)value, input);
       } break;
       case bdem_ElemType::BDEM_INT64: {
-        result = !bdepu_TypesParser::parseInt64(
-                                             &end,
-                                             (bsls_PlatformUtil::Int64 *)value,
-                                             input);
+        result = !bdepu_TypesParser::parseInt64(&end,
+                                                (bsls::Types::Int64 *)value,
+                                                input);
       } break;
       case bdem_ElemType::BDEM_FLOAT: {
         result = !bdepu_TypesParser::parseFloat(&end, (float *)value, input);
@@ -387,7 +386,7 @@ class BoolConstraint : public baea_CommandLine_Constraint {
 
   public:
     // CREATORS
-    BoolConstraint(bslma_Allocator *basicAllocator = 0);
+    BoolConstraint(bslma::Allocator *basicAllocator = 0);
         // Create a 'bool' constraint object.  Optionally specify a
         // 'basicAllocator', which is ignored.
 
@@ -412,7 +411,7 @@ class BoolConstraint : public baea_CommandLine_Constraint {
 };
 
 // CREATORS
-BoolConstraint::BoolConstraint(bslma_Allocator *)
+BoolConstraint::BoolConstraint(bslma::Allocator *)
 {
 }
 
@@ -468,12 +467,12 @@ class ScalarConstraint : public baea_CommandLine_Constraint {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(ScalarConstraint,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
     ScalarConstraint(const CONSTRAINT_TYPE&  constraint,
-                     bslma_Allocator        *basicAllocator = 0);
+                     bslma::Allocator       *basicAllocator = 0);
         // Create a constraint object storing the specified 'constraint'
         // functor.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently-installed default
@@ -511,7 +510,7 @@ class ScalarConstraint : public baea_CommandLine_Constraint {
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 ScalarConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::ScalarConstraint(
                                         const CONSTRAINT_TYPE&  constraint,
-                                        bslma_Allocator        *basicAllocator)
+                                        bslma::Allocator       *basicAllocator)
 : d_constraint(constraint, basicAllocator)
 {
 }
@@ -590,7 +589,7 @@ class ScalarConstraint<int,
                        baea_CommandLineConstraint::IntConstraint,
                        bdem_ElemType::BDEM_INT>;
 template
-class ScalarConstraint<bsls_PlatformUtil::Int64,
+class ScalarConstraint<bsls::Types::Int64,
                        baea_CommandLineConstraint::Int64Constraint,
                        bdem_ElemType::BDEM_INT64>;
 template
@@ -640,11 +639,11 @@ class ArrayConstraint : public baea_CommandLine_Constraint {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(ArrayConstraint,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     ArrayConstraint(const CONSTRAINT_TYPE&  constraint,
-                    bslma_Allocator        *basicAllocator);
+                    bslma::Allocator       *basicAllocator);
         // Create a constraint object storing the specified 'constraint'
         // functor.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently-installed default
@@ -682,7 +681,7 @@ class ArrayConstraint : public baea_CommandLine_Constraint {
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 ArrayConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::ArrayConstraint(
                                         const CONSTRAINT_TYPE&  constraint,
-                                        bslma_Allocator        *basicAllocator)
+                                        bslma::Allocator       *basicAllocator)
 : d_constraint(constraint, basicAllocator)
 {
 }
@@ -785,7 +784,7 @@ class ArrayConstraint<int,
                       baea_CommandLineConstraint::IntConstraint,
                       bdem_ElemType::BDEM_INT_ARRAY>;
 template
-class ArrayConstraint<bsls_PlatformUtil::Int64,
+class ArrayConstraint<bsls::Types::Int64,
                       baea_CommandLineConstraint::Int64Constraint,
                       bdem_ElemType::BDEM_INT64_ARRAY>;
 template
@@ -838,11 +837,11 @@ typedef ScalarConstraint<int,
     // The type 'IntConstraint' is an alias for a scalar constraint on type
     // 'int' using the 'baea_CommandLineConstraint::IntConstraint' functor.
 
-typedef ScalarConstraint<bsls_PlatformUtil::Int64,
+typedef ScalarConstraint<bsls::Types::Int64,
                          baea_CommandLineConstraint::Int64Constraint,
                          bdem_ElemType::BDEM_INT64>       Int64Constraint;
     // The type 'Int64Constraint' is an alias for a scalar constraint on type
-    // 'bsls_PlatformUtil::Int64' using the
+    // 'bsls::Types::Int64' using the
     // 'baea_CommandLineConstraint::Int64Constraint' functor.
 
 typedef ScalarConstraint<float,
@@ -912,11 +911,11 @@ typedef ArrayConstraint<int,
     // 'bsl::vector<int>' using the
     // 'baea_CommandLineConstraint::IntConstraint' functor.
 
-typedef ArrayConstraint<bsls_PlatformUtil::Int64,
+typedef ArrayConstraint<bsls::Types::Int64,
                        baea_CommandLineConstraint::Int64Constraint,
                        bdem_ElemType::BDEM_INT64_ARRAY> Int64ArrayConstraint;
     // The type 'Int64ArrayConstraint' is an alias for a constraint on type
-    // 'bsl::vector<bsls_PlatformUtil::Int64>' using the
+    // 'bsl::vector<bsls::Types::Int64>' using the
     // 'baea_CommandLineConstraint::Int64Constraint' functor.
 
 typedef ArrayConstraint<float,
@@ -976,7 +975,7 @@ typedef ArrayConstraint<bdet_Time,
 
 // CREATORS
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -984,8 +983,8 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 }
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
-                                               OccurrenceType   type,
-                                               bslma_Allocator *basicAllocator)
+                                              OccurrenceType    type,
+                                              bslma::Allocator *basicAllocator)
 : d_isRequired(BAEA_REQUIRED == type)
 , d_isHidden(  BAEA_HIDDEN   == type)
 , d_defaultValue(basicAllocator)
@@ -993,8 +992,8 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 }
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
-                                               char             charValue,
-                                               bslma_Allocator *basicAllocator)
+                                              char              charValue,
+                                              bslma::Allocator *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1003,8 +1002,8 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 }
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
-                                               short            shortValue,
-                                               bslma_Allocator *basicAllocator)
+                                              short             shortValue,
+                                              bslma::Allocator *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1013,8 +1012,8 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 }
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
-                                               int              intValue,
-                                               bslma_Allocator *basicAllocator)
+                                              int               intValue,
+                                              bslma::Allocator *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1023,8 +1022,8 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 }
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
-                                      bsls_PlatformUtil::Int64  int64Value,
-                                      bslma_Allocator          *basicAllocator)
+                                            bsls::Types::Int64  int64Value,
+                                            bslma::Allocator   *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1033,8 +1032,8 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 }
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
-                                               float            floatValue,
-                                               bslma_Allocator *basicAllocator)
+                                              float             floatValue,
+                                              bslma::Allocator *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1043,8 +1042,8 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 }
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
-                                               double           doubleValue,
-                                               bslma_Allocator *basicAllocator)
+                                              double            doubleValue,
+                                              bslma::Allocator *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1054,7 +1053,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                             const bsl::string&  stringValue,
-                                            bslma_Allocator    *basicAllocator)
+                                            bslma::Allocator   *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1064,7 +1063,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                           const bdet_Datetime&  datetimeValue,
-                                          bslma_Allocator      *basicAllocator)
+                                          bslma::Allocator     *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1074,7 +1073,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                               const bdet_Date&  dateValue,
-                                              bslma_Allocator  *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1084,7 +1083,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                               const bdet_Time&  timeValue,
-                                              bslma_Allocator  *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1094,7 +1093,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                       const bsl::vector<char>&  charArrayValue,
-                                      bslma_Allocator          *basicAllocator)
+                                      bslma::Allocator         *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1104,7 +1103,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                     const bsl::vector<short>&  shortArrayValue,
-                                    bslma_Allocator           *basicAllocator)
+                                    bslma::Allocator          *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1114,7 +1113,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                        const bsl::vector<int>&  intArrayValue,
-                                       bslma_Allocator         *basicAllocator)
+                                       bslma::Allocator        *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1123,8 +1122,8 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 }
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
-                 const bsl::vector<bsls_PlatformUtil::Int64>&  int64ArrayValue,
-                 bslma_Allocator                              *basicAllocator)
+                       const bsl::vector<bsls::Types::Int64>&  int64ArrayValue,
+                       bslma::Allocator                       *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1134,7 +1133,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                     const bsl::vector<float>&  floatArrayValue,
-                                    bslma_Allocator           *basicAllocator)
+                                    bslma::Allocator          *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1144,7 +1143,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                   const bsl::vector<double>&  doubleArrayValue,
-                                  bslma_Allocator            *basicAllocator)
+                                  bslma::Allocator           *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1154,7 +1153,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                              const bsl::vector<bsl::string>&  stringArrayValue,
-                             bslma_Allocator                 *basicAllocator)
+                             bslma::Allocator                *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1164,7 +1163,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                          const bsl::vector<bdet_Datetime>&  datetimeArrayValue,
-                         bslma_Allocator                   *basicAllocator)
+                         bslma::Allocator                  *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1174,7 +1173,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                  const bsl::vector<bdet_Date>&  dateArrayValue,
-                                 bslma_Allocator               *basicAllocator)
+                                 bslma::Allocator              *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1184,7 +1183,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                                  const bsl::vector<bdet_Time>&  timeArrayValue,
-                                 bslma_Allocator               *basicAllocator)
+                                 bslma::Allocator              *basicAllocator)
 : d_isRequired(false)
 , d_isHidden(false)
 , d_defaultValue(basicAllocator)
@@ -1194,7 +1193,7 @@ baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
 
 baea_CommandLineOccurrenceInfo::baea_CommandLineOccurrenceInfo(
                          const baea_CommandLineOccurrenceInfo&  original,
-                         bslma_Allocator                       *basicAllocator)
+                         bslma::Allocator                      *basicAllocator)
 : d_isRequired(original.d_isRequired)
 , d_isHidden(original.d_isHidden)
 , d_defaultValue(original.d_defaultValue, basicAllocator)
@@ -1370,7 +1369,7 @@ bool                                  * const CLOT::BAEA_BOOL           = 0;
 char                                  * const CLOT::BAEA_CHAR           = 0;
 short                                 * const CLOT::BAEA_SHORT          = 0;
 int                                   * const CLOT::BAEA_INT            = 0;
-bsls_PlatformUtil::Int64              * const CLOT::BAEA_INT64          = 0;
+bsls::Types::Int64                    * const CLOT::BAEA_INT64          = 0;
 float                                 * const CLOT::BAEA_FLOAT          = 0;
 double                                * const CLOT::BAEA_DOUBLE         = 0;
 bsl::string                           * const CLOT::BAEA_STRING         = 0;
@@ -1380,7 +1379,7 @@ bdet_Time                             * const CLOT::BAEA_TIME           = 0;
 bsl::vector<char>                     * const CLOT::BAEA_CHAR_ARRAY     = 0;
 bsl::vector<short>                    * const CLOT::BAEA_SHORT_ARRAY    = 0;
 bsl::vector<int>                      * const CLOT::BAEA_INT_ARRAY      = 0;
-bsl::vector<bsls_PlatformUtil::Int64> * const CLOT::BAEA_INT64_ARRAY    = 0;
+bsl::vector<bsls::Types::Int64>       * const CLOT::BAEA_INT64_ARRAY    = 0;
 bsl::vector<float>                    * const CLOT::BAEA_FLOAT_ARRAY    = 0;
 bsl::vector<double>                   * const CLOT::BAEA_DOUBLE_ARRAY   = 0;
 bsl::vector<bsl::string>              * const CLOT::BAEA_STRING_ARRAY   = 0;
@@ -1394,30 +1393,30 @@ bsl::vector<bdet_Time>                * const CLOT::BAEA_TIME_ARRAY     = 0;
 
 // CREATORS
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_STRING)
 , d_linkedVariable_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                           bool            *variable,
-                                           bslma_Allocator *basicAllocator)
+                                           bool             *variable,
+                                           bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_BOOL)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               char            *variable,
-                                               bslma_Allocator *basicAllocator)
+                                              char             *variable,
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_CHAR)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1425,20 +1424,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
              char                                              *variable,
              const baea_CommandLineConstraint::CharConstraint&  constraint,
-             bslma_Allocator                                   *basicAllocator)
+             bslma::Allocator                                  *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_CHAR)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               short           *variable,
-                                               bslma_Allocator *basicAllocator)
+                                              short            *variable,
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_SHORT)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1446,20 +1445,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
             short                                              *variable,
             const baea_CommandLineConstraint::ShortConstraint&  constraint,
-            bslma_Allocator                                    *basicAllocator)
+            bslma::Allocator                                   *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_SHORT)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               int             *variable,
-                                               bslma_Allocator *basicAllocator)
+                                              int              *variable,
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_INT)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1467,41 +1466,41 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
               int                                              *variable,
               const baea_CommandLineConstraint::IntConstraint&  constraint,
-              bslma_Allocator                                  *basicAllocator)
+              bslma::Allocator                                 *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_INT)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                      bsls_PlatformUtil::Int64 *variable,
-                                      bslma_Allocator          *basicAllocator)
+                                            bsls::Types::Int64 *variable,
+                                            bslma::Allocator   *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_INT64)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-            bsls_PlatformUtil::Int64                           *variable,
+            bsls::Types::Int64                                 *variable,
             const baea_CommandLineConstraint::Int64Constraint&  constraint,
-            bslma_Allocator                                    *basicAllocator)
+            bslma::Allocator                                   *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_INT64)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               float           *variable,
-                                               bslma_Allocator *basicAllocator)
+                                              float            *variable,
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_FLOAT)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1509,20 +1508,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
             float                                              *variable,
             const baea_CommandLineConstraint::FloatConstraint&  constraint,
-            bslma_Allocator                                    *basicAllocator)
+            bslma::Allocator                                   *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_FLOAT)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               double          *variable,
-                                               bslma_Allocator *basicAllocator)
+                                              double           *variable,
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DOUBLE)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1530,20 +1529,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
            double                                              *variable,
            const baea_CommandLineConstraint::DoubleConstraint&  constraint,
-           bslma_Allocator                                     *basicAllocator)
+           bslma::Allocator                                    *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DOUBLE)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               bsl::string     *variable,
-                                               bslma_Allocator *basicAllocator)
+                                              bsl::string      *variable,
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_STRING)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1551,20 +1550,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
            bsl::string                                         *variable,
            const baea_CommandLineConstraint::StringConstraint&  constraint,
-           bslma_Allocator                                     *basicAllocator)
+           bslma::Allocator                                    *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_STRING)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               bdet_Datetime   *variable,
-                                               bslma_Allocator *basicAllocator)
+                                              bdet_Datetime    *variable,
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DATETIME)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1572,20 +1571,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
          bdet_Datetime                                         *variable,
          const baea_CommandLineConstraint::DatetimeConstraint&  constraint,
-         bslma_Allocator                                       *basicAllocator)
+         bslma::Allocator                                      *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DATETIME)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               bdet_Date       *variable,
-                                               bslma_Allocator *basicAllocator)
+                                              bdet_Date        *variable,
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DATE)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1593,20 +1592,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
              bdet_Date                                         *variable,
              const baea_CommandLineConstraint::DateConstraint&  constraint,
-             bslma_Allocator                                   *basicAllocator)
+             bslma::Allocator                                  *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DATE)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                                               bdet_Time       *variable,
-                                               bslma_Allocator *basicAllocator)
+                                              bdet_Time        *variable,
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_TIME)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1614,20 +1613,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
              bdet_Time                                         *variable,
              const baea_CommandLineConstraint::TimeConstraint&  constraint,
-             bslma_Allocator                                   *basicAllocator)
+             bslma::Allocator                                  *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_TIME)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                              bsl::vector<char> *variable,
-                                             bslma_Allocator   *basicAllocator)
+                                             bslma::Allocator  *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_CHAR_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1635,20 +1634,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
              bsl::vector<char>                                 *variable,
              const baea_CommandLineConstraint::CharConstraint&  constraint,
-             bslma_Allocator                                   *basicAllocator)
+             bslma::Allocator                                  *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_CHAR_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                             bsl::vector<short> *variable,
-                                            bslma_Allocator    *basicAllocator)
+                                            bslma::Allocator   *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_SHORT_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1656,20 +1655,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
             bsl::vector<short>                                 *variable,
             const baea_CommandLineConstraint::ShortConstraint&  constraint,
-            bslma_Allocator                                    *basicAllocator)
+            bslma::Allocator                                   *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_SHORT_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                               bsl::vector<int> *variable,
-                                              bslma_Allocator  *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_INT_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1677,41 +1676,41 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
               bsl::vector<int>                                 *variable,
               const baea_CommandLineConstraint::IntConstraint&  constraint,
-              bslma_Allocator                                  *basicAllocator)
+              bslma::Allocator                                 *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_INT_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-                         bsl::vector<bsls_PlatformUtil::Int64> *variable,
-                         bslma_Allocator                       *basicAllocator)
+                               bsl::vector<bsls::Types::Int64> *variable,
+                               bslma::Allocator                *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_INT64_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
-            bsl::vector<bsls_PlatformUtil::Int64>              *variable,
+            bsl::vector<bsls::Types::Int64>                    *variable,
             const baea_CommandLineConstraint::Int64Constraint&  constraint,
-            bslma_Allocator                                    *basicAllocator)
+            bslma::Allocator                                   *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_INT64_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                             bsl::vector<float> *variable,
-                                            bslma_Allocator    *basicAllocator)
+                                            bslma::Allocator   *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_FLOAT_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1719,20 +1718,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
             bsl::vector<float>                                 *variable,
             const baea_CommandLineConstraint::FloatConstraint&  constraint,
-            bslma_Allocator                                    *basicAllocator)
+            bslma::Allocator                                   *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_FLOAT_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                            bsl::vector<double> *variable,
-                                           bslma_Allocator     *basicAllocator)
+                                           bslma::Allocator    *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DOUBLE_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1740,20 +1739,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
            bsl::vector<double>                                 *variable,
            const baea_CommandLineConstraint::DoubleConstraint&  constraint,
-           bslma_Allocator                                     *basicAllocator)
+           bslma::Allocator                                    *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DOUBLE_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                       bsl::vector<bsl::string> *variable,
-                                      bslma_Allocator          *basicAllocator)
+                                      bslma::Allocator         *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_STRING_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1761,20 +1760,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
            bsl::vector<bsl::string>                            *variable,
            const baea_CommandLineConstraint::StringConstraint&  constraint,
-           bslma_Allocator                                     *basicAllocator)
+           bslma::Allocator                                    *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_STRING_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                     bsl::vector<bdet_Datetime> *variable,
-                                    bslma_Allocator            *basicAllocator)
+                                    bslma::Allocator           *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DATETIME_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1782,20 +1781,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
          bsl::vector<bdet_Datetime>                            *variable,
          const baea_CommandLineConstraint::DatetimeConstraint&  constraint,
-         bslma_Allocator                                       *basicAllocator)
+         bslma::Allocator                                      *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DATETIME_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                         bsl::vector<bdet_Date> *variable,
-                                        bslma_Allocator        *basicAllocator)
+                                        bslma::Allocator       *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DATE_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1803,20 +1802,20 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
              bsl::vector<bdet_Date>                            *variable,
              const baea_CommandLineConstraint::DateConstraint&  constraint,
-             bslma_Allocator                                   *basicAllocator)
+             bslma::Allocator                                  *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_DATE_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                         bsl::vector<bdet_Time> *variable,
-                                        bslma_Allocator        *basicAllocator)
+                                        bslma::Allocator       *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_TIME_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
 }
@@ -1824,21 +1823,21 @@ baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
              bsl::vector<bdet_Time>                            *variable,
              const baea_CommandLineConstraint::TimeConstraint&  constraint,
-             bslma_Allocator                                   *basicAllocator)
+             bslma::Allocator                                  *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_TIME_ARRAY)
 , d_linkedVariable_p(variable)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
 }
 
 baea_CommandLineTypeInfo::baea_CommandLineTypeInfo(
                                const baea_CommandLineTypeInfo&  original,
-                               bslma_Allocator                 *basicAllocator)
+                               bslma::Allocator                *basicAllocator)
 : d_elemType(original.d_elemType)
 , d_linkedVariable_p(original.d_linkedVariable_p)
 , d_constraint_p(original.d_constraint_p)  // share constraint
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -2216,8 +2215,7 @@ void baea_CommandLineTypeInfo::setLinkedVariable(int *variable)
     resetConstraint();
 }
 
-void baea_CommandLineTypeInfo::setLinkedVariable(
-                                            bsls_PlatformUtil::Int64 *variable)
+void baea_CommandLineTypeInfo::setLinkedVariable(bsls::Types::Int64 *variable)
 {
     d_elemType         = bdem_ElemType::BDEM_INT64;
     d_linkedVariable_p = variable;
@@ -2288,7 +2286,7 @@ void baea_CommandLineTypeInfo::setLinkedVariable(bsl::vector<int> *variable)
 }
 
 void baea_CommandLineTypeInfo::setLinkedVariable(
-                               bsl::vector<bsls_PlatformUtil::Int64> *variable)
+                                     bsl::vector<bsls::Types::Int64> *variable)
 {
     d_elemType         = bdem_ElemType::BDEM_INT64_ARRAY;
     d_linkedVariable_p = variable;
@@ -2490,32 +2488,32 @@ operator<<(bsl::ostream& stream, const baea_CommandLineOptionInfo& rhs)
 // PRIVATE MANIPULATORS
 void baea_CommandLineOption::init(const baea_CommandLineOptionInfo& optionInfo)
 {
-    bslalg_ScalarPrimitives::copyConstruct(&d_optionInfo.object().d_tag,
-                                           optionInfo.d_tag,
-                                           d_allocator_p);
-    bslalg_AutoScalarDestructor<bsl::string> tagGuard(
+    bslalg::ScalarPrimitives::copyConstruct(&d_optionInfo.object().d_tag,
+                                            optionInfo.d_tag,
+                                            d_allocator_p);
+    bslalg::AutoScalarDestructor<bsl::string> tagGuard(
                                                  &d_optionInfo.object().d_tag);
 
-    bslalg_ScalarPrimitives::copyConstruct(&d_optionInfo.object().d_name,
-                                           optionInfo.d_name,
-                                           d_allocator_p);
-    bslalg_AutoScalarDestructor<bsl::string> nameGuard(
+    bslalg::ScalarPrimitives::copyConstruct(&d_optionInfo.object().d_name,
+                                            optionInfo.d_name,
+                                            d_allocator_p);
+    bslalg::AutoScalarDestructor<bsl::string> nameGuard(
                                                 &d_optionInfo.object().d_name);
 
-    bslalg_ScalarPrimitives::copyConstruct(
+    bslalg::ScalarPrimitives::copyConstruct(
                                           &d_optionInfo.object().d_description,
                                           optionInfo.d_description,
                                           d_allocator_p);
-    bslalg_AutoScalarDestructor<bsl::string> descGuard(
+    bslalg::AutoScalarDestructor<bsl::string> descGuard(
                                          &d_optionInfo.object().d_description);
 
-    bslalg_ScalarPrimitives::copyConstruct(&d_optionInfo.object().d_typeInfo,
-                                           optionInfo.d_typeInfo,
-                                           d_allocator_p);
-    bslalg_AutoScalarDestructor<baea_CommandLineTypeInfo> typeGuard(
+    bslalg::ScalarPrimitives::copyConstruct(&d_optionInfo.object().d_typeInfo,
+                                            optionInfo.d_typeInfo,
+                                            d_allocator_p);
+    bslalg::AutoScalarDestructor<baea_CommandLineTypeInfo> typeGuard(
                                             &d_optionInfo.object().d_typeInfo);
 
-    bslalg_ScalarPrimitives::copyConstruct(
+    bslalg::ScalarPrimitives::copyConstruct(
                                           &d_optionInfo.object().d_defaultInfo,
                                           optionInfo.d_defaultInfo,
                                           d_allocator_p);
@@ -2534,30 +2532,31 @@ void baea_CommandLineOption::init(const baea_CommandLineOptionInfo& optionInfo)
 }
 
 // CREATORS
-baea_CommandLineOption::baea_CommandLineOption(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+baea_CommandLineOption::baea_CommandLineOption(
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    bslalg_ScalarPrimitives::defaultConstruct(
+    bslalg::ScalarPrimitives::defaultConstruct(
                                  &d_optionInfo.object().d_tag, d_allocator_p);
-    bslalg_AutoScalarDestructor<bsl::string> tagGuard(
+    bslalg::AutoScalarDestructor<bsl::string> tagGuard(
                                                  &d_optionInfo.object().d_tag);
 
-    bslalg_ScalarPrimitives::defaultConstruct(
+    bslalg::ScalarPrimitives::defaultConstruct(
                                 &d_optionInfo.object().d_name, d_allocator_p);
-    bslalg_AutoScalarDestructor<bsl::string> nameGuard(
+    bslalg::AutoScalarDestructor<bsl::string> nameGuard(
                                                 &d_optionInfo.object().d_name);
 
-    bslalg_ScalarPrimitives::defaultConstruct(
+    bslalg::ScalarPrimitives::defaultConstruct(
                          &d_optionInfo.object().d_description, d_allocator_p);
-    bslalg_AutoScalarDestructor<bsl::string> descGuard(
+    bslalg::AutoScalarDestructor<bsl::string> descGuard(
                                          &d_optionInfo.object().d_description);
 
-    bslalg_ScalarPrimitives::defaultConstruct(
+    bslalg::ScalarPrimitives::defaultConstruct(
                             &d_optionInfo.object().d_typeInfo, d_allocator_p);
-    bslalg_AutoScalarDestructor<baea_CommandLineTypeInfo> typeGuard(
+    bslalg::AutoScalarDestructor<baea_CommandLineTypeInfo> typeGuard(
                                             &d_optionInfo.object().d_typeInfo);
 
-    bslalg_ScalarPrimitives::defaultConstruct(
+    bslalg::ScalarPrimitives::defaultConstruct(
                          &d_optionInfo.object().d_defaultInfo, d_allocator_p);
     typeGuard.release();
     descGuard.release();
@@ -2567,23 +2566,23 @@ baea_CommandLineOption::baea_CommandLineOption(bslma_Allocator *basicAllocator)
 
 baea_CommandLineOption::baea_CommandLineOption(
                                  const baea_CommandLineOption&  original,
-                                 bslma_Allocator               *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                 bslma::Allocator              *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     init(static_cast<const baea_CommandLineOptionInfo&>(original));
 }
 
 baea_CommandLineOption::baea_CommandLineOption(
                              const baea_CommandLineOptionInfo&  optionInfo,
-                             bslma_Allocator                   *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                             bslma::Allocator                  *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     init(optionInfo);
 }
 
 baea_CommandLineOption::~baea_CommandLineOption()
 {
-    bslalg_ScalarDestructionPrimitives::destroy(&d_optionInfo.object());
+    bslalg::ScalarDestructionPrimitives::destroy(&d_optionInfo.object());
 }
 
 // MANIPULATORS
@@ -3496,7 +3495,7 @@ int baea_CommandLine::missing(bool checkAlsoNonOptions) const
 baea_CommandLine::baea_CommandLine(
                               const baea_CommandLineOptionInfo *specTable,
                               int                               length,
-                              bslma_Allocator                  *basicAllocator)
+                              bslma::Allocator                 *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -3520,8 +3519,8 @@ baea_CommandLine::baea_CommandLine(
 baea_CommandLine::baea_CommandLine(
                               const baea_CommandLineOptionInfo *specTable,
                               int                               length,
-                              bsl::ostream&                    stream,
-                              bslma_Allocator                  *basicAllocator)
+                              bsl::ostream&                     stream,
+                              bslma::Allocator                 *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -3543,7 +3542,7 @@ baea_CommandLine::baea_CommandLine(
 }
 
 baea_CommandLine::baea_CommandLine(const baea_CommandLine&  original,
-                                   bslma_Allocator         *basicAllocator)
+                                   bslma::Allocator        *basicAllocator)
 : d_options(original.d_options, basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -3739,7 +3738,7 @@ int baea_CommandLine::theInt(const bsl::string& name) const
     return data().theInt(name.c_str());
 }
 
-bsls_PlatformUtil::Int64
+bsls::Types::Int64
 baea_CommandLine::theInt64(const bsl::string& name) const
 {
     return data().theInt64(name.c_str());
@@ -3794,7 +3793,7 @@ baea_CommandLine::theIntArray(const bsl::string& name) const
     return data().theIntArray(name.c_str());
 }
 
-const bsl::vector<bsls_PlatformUtil::Int64>&
+const bsl::vector<bsls::Types::Int64>&
 baea_CommandLine::theInt64Array(const bsl::string& name) const
 {
     return data().theInt64Array(name.c_str());

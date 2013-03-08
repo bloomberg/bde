@@ -195,13 +195,13 @@ class baexml_NamespaceRegistry {
     };
 
     // CREATORS
-    baexml_NamespaceRegistry(bslma_Allocator *basicAllocator = 0);
+    baexml_NamespaceRegistry(bslma::Allocator *basicAllocator = 0);
         // Construct an empty registry.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the current
         // default allocator is used.
 
     baexml_NamespaceRegistry(const baexml_NamespaceRegistry& other,
-                             bslma_Allocator                *basicAllocator=0);
+                             bslma::Allocator               *basicAllocator=0);
         // Construct a copy of the specified 'other' namespace registry using
         // the (optionally) specified 'basicAllocator'.  For a given URI, the
         // results of calling 'lookup' by URI will produce equal results for
@@ -285,7 +285,7 @@ bsl::ostream& operator<<(bsl::ostream& os, const baexml_NamespaceRegistry& r);
 // CREATORS
 inline
 baexml_NamespaceRegistry::baexml_NamespaceRegistry(
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_namespaces(basicAllocator)
 {
 }
@@ -293,7 +293,7 @@ baexml_NamespaceRegistry::baexml_NamespaceRegistry(
 inline
 baexml_NamespaceRegistry::baexml_NamespaceRegistry(
     const baexml_NamespaceRegistry&  other,
-    bslma_Allocator                 *basicAllocator)
+    bslma::Allocator                *basicAllocator)
 : d_namespaces(other.d_namespaces, basicAllocator)
 {
 }

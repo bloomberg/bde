@@ -47,7 +47,7 @@ baem_MetricSampleGroup::print(bsl::ostream& stream,
 
 // CREATORS
 baem_MetricSample::baem_MetricSample(const baem_MetricSample&  original,
-                                     bslma_Allocator          *basicAllocator)
+                                     bslma::Allocator         *basicAllocator)
 : d_timeStamp(original.d_timeStamp)
 , d_records(original.d_records, basicAllocator)
 , d_numRecords(original.d_numRecords)

@@ -229,7 +229,7 @@ class baexml_Encoder {
 
       public:
         // CREATORS
-        MemOutStream(bslma_Allocator *basicAllocator = 0);
+        MemOutStream(bslma::Allocator *basicAllocator = 0);
             // Create a new stream using the specified 'basicAllocator'.
 
         virtual ~MemOutStream();
@@ -257,9 +257,9 @@ class baexml_Encoder {
   private:
     // DATA
     const baexml_EncoderOptions     *d_options;        // held, not owned
-    bslma_Allocator                 *d_allocator;      // held, not owned
+    bslma::Allocator                *d_allocator;      // held, not owned
 
-    bsls_ObjectBuffer<MemOutStream>  d_logArea;
+    bsls::ObjectBuffer<MemOutStream> d_logArea;
         // placeholder for MemOutStream
 
     MemOutStream                    *d_logStream;
@@ -285,12 +285,12 @@ class baexml_Encoder {
   public:
     // CREATORS
     baexml_Encoder(const baexml_EncoderOptions *options,
-                   bslma_Allocator             *basicAllocator);
+                   bslma::Allocator            *basicAllocator);
 
     baexml_Encoder(const baexml_EncoderOptions *options,
                    bsl::ostream                *errorStream   = 0,
                    bsl::ostream                *warningStream = 0,
-                   bslma_Allocator             *basicAllocator = 0);
+                   bslma::Allocator            *basicAllocator = 0);
         // Construct a encoder object using the specified 'options'.  Errors
         // and warnings will be rendered to the optionally specified
         // 'errorStream' and 'warningStream' respectively.
@@ -761,7 +761,7 @@ struct baexml_Encoder_EncodeObject_executeImpProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -796,7 +796,7 @@ struct baexml_Encoder_EncodeValue_executeImpProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -858,7 +858,7 @@ struct baexml_Encoder_SequenceFirstPass_addAttributeImpProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -884,9 +884,9 @@ struct baexml_Encoder_SequenceFirstPass_addAttributeImpProxy {
                    // -------------------------------------
 
 inline
-baexml_Encoder::MemOutStream::MemOutStream(bslma_Allocator *basicAllocator)
+baexml_Encoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
 : bsl::ostream(0)
-, d_sb(bslma_Default::allocator(basicAllocator))
+, d_sb(bslma::Default::allocator(basicAllocator))
 {
     rdbuf(&d_sb);
 }

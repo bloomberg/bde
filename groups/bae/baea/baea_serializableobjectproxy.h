@@ -146,7 +146,7 @@ BDES_IDENT_PRAGMA_ONCE
 //..
 //  class MyChoiceType {
 //    union {
-//      bsls_ObjectBuffer<MySequenceType> d_mySequence;  // selection 0
+//      bsls::ObjectBuffer<MySequenceType> d_mySequence;  // selection 0
 //      // ...
 //    };
 //    // ...
@@ -698,10 +698,10 @@ struct baea_SerializableObjectProxy_SimplePointer {
         TYPE_UCHAR,       // represents a 'unsigned char' value
         TYPE_SHORT,       // represents a 'short' value
         TYPE_INT,         // represents a 'int' value
-        TYPE_INT64,       // represents a 'bsls_Types::Int64' value
+        TYPE_INT64,       // represents a 'bsls::Types::Int64' value
         TYPE_USHORT,      // represents a 'unsigned short' value
         TYPE_UINT,        // represents a 'unsigned int' value
-        TYPE_UINT64,      // represents a 'bsls_Types::Uint64' value
+        TYPE_UINT64,      // represents a 'bsls::Types::Uint64' value
         TYPE_FLOAT,       // represents a 'float' value
         TYPE_DOUBLE,      // represents a 'double' value
         TYPE_STRING,      // represents a 'bsl::string' value
@@ -822,7 +822,7 @@ class baea_SerializableObjectProxy {
                           SimplePointer> ObjectInfo;
 
     // DATA
-    bsls_ObjectBuffer<ObjectInfo> d_objectInfoArena;
+    bsls::ObjectBuffer<ObjectInfo> d_objectInfoArena;
                                                // held as an ObjectBuffer to
                                                // avoid the expense of
                                                // default-constructing and
@@ -1237,24 +1237,24 @@ class baea_SerializableObjectProxy {
         // The behavior is undefined unless this proxy represents a Nullable
         // value for decoding.  
 
-    void loadSimple(char               *value);
-    void loadSimple(unsigned char      *value);
-    void loadSimple(short              *value);
-    void loadSimple(int                *value);
-    void loadSimple(bsls_Types::Int64  *value);
-    void loadSimple(unsigned short     *value);
-    void loadSimple(unsigned int       *value);
-    void loadSimple(bsls_Types::Uint64 *value);
-    void loadSimple(float              *value);
-    void loadSimple(double             *value);
-    void loadSimple(bsl::string        *value);
-    void loadSimple(bdet_Datetime      *value);
-    void loadSimple(bdet_Date          *value);
-    void loadSimple(bdet_Time          *value);
-    void loadSimple(bool               *value);
-    void loadSimple(bdet_DatetimeTz    *value);
-    void loadSimple(bdet_DateTz        *value);
-    void loadSimple(bdet_TimeTz        *value);
+    void loadSimple(char                *value);
+    void loadSimple(unsigned char       *value);
+    void loadSimple(short               *value);
+    void loadSimple(int                 *value);
+    void loadSimple(bsls::Types::Int64  *value);
+    void loadSimple(unsigned short      *value);
+    void loadSimple(unsigned int        *value);
+    void loadSimple(bsls::Types::Uint64 *value);
+    void loadSimple(float               *value);
+    void loadSimple(double              *value);
+    void loadSimple(bsl::string         *value);
+    void loadSimple(bdet_Datetime       *value);
+    void loadSimple(bdet_Date           *value);
+    void loadSimple(bdet_Time           *value);
+    void loadSimple(bool                *value);
+    void loadSimple(bdet_DatetimeTz     *value);
+    void loadSimple(bdet_DateTz         *value);
+    void loadSimple(bdet_TimeTz         *value);
         // Configure this proxy to represent the specified primitive 'value' so
         // that it can be used for encoding or decoding.
 
@@ -1946,7 +1946,7 @@ int baea_SerializableObjectProxy::manipulateSimple(MANIPULATOR& manipulator)
                            bdeat_TypeCategory::Simple());             // RETURN
       }
       case SimplePointer::TYPE_INT64: {
-        return manipulator((bsls_Types::Int64*)d_object_p,
+        return manipulator((bsls::Types::Int64*)d_object_p,
                            bdeat_TypeCategory::Simple());             // RETURN
       }
       case SimplePointer::TYPE_USHORT: {
@@ -1958,7 +1958,7 @@ int baea_SerializableObjectProxy::manipulateSimple(MANIPULATOR& manipulator)
                            bdeat_TypeCategory::Simple());             // RETURN
       }
       case SimplePointer::TYPE_UINT64: {
-        return manipulator((bsls_Types::Uint64*)d_object_p,
+        return manipulator((bsls::Types::Uint64*)d_object_p,
                            bdeat_TypeCategory::Simple());             // RETURN
       }
       case SimplePointer::TYPE_FLOAT: {
@@ -2153,7 +2153,7 @@ int baea_SerializableObjectProxy::accessSimple(ACCESSOR& accessor) const
                         bdeat_TypeCategory::Simple());                // RETURN
       }
       case SimplePointer::TYPE_INT64: {
-        return accessor(*(bsls_Types::Int64*)d_object_p,
+        return accessor(*(bsls::Types::Int64*)d_object_p,
                         bdeat_TypeCategory::Simple());                // RETURN
       }
       case SimplePointer::TYPE_USHORT: {
@@ -2165,7 +2165,7 @@ int baea_SerializableObjectProxy::accessSimple(ACCESSOR& accessor) const
                         bdeat_TypeCategory::Simple());                // RETURN
       }
       case SimplePointer::TYPE_UINT64: {
-        return accessor(*(bsls_Types::Uint64*)d_object_p,
+        return accessor(*(bsls::Types::Uint64*)d_object_p,
                         bdeat_TypeCategory::Simple());                // RETURN
       }
       case SimplePointer::TYPE_FLOAT: {
@@ -2347,7 +2347,7 @@ int bdeat_typeCategoryManipulateNullableValue(
 namespace bdeat_EnumFunctions {
 
 // META-FUNCTIONS
-bslmf_MetaInt<1> isEnumerationMetaFunction(
+bslmf::MetaInt<1> isEnumerationMetaFunction(
                                           const baea_SerializableObjectProxy&);
     // This function can be overloaded to support partial specialization
     // (Sun5.2 compiler is unable to partially specialize the 'struct'
@@ -2396,7 +2396,7 @@ int bdeat_enumFromString(baea_SerializableObjectProxy *result,
 
 namespace bdeat_ArrayFunctions {
 
-bslmf_MetaInt<1> isArrayMetaFunction(const baea_SerializableObjectProxy&);
+bslmf::MetaInt<1> isArrayMetaFunction(const baea_SerializableObjectProxy&);
 
 template <>
 struct IsArray<baea_SerializableObjectProxy> {
@@ -2446,7 +2446,7 @@ int bdeat_arrayManipulateElement(baea_SerializableObjectProxy* object,
 
 namespace bdeat_SequenceFunctions {
 
-bslmf_MetaInt<1> isSequenceMetaFunction(const baea_SerializableObjectProxy&);
+bslmf::MetaInt<1> isSequenceMetaFunction(const baea_SerializableObjectProxy&);
 
 template <>
 struct IsSequence<baea_SerializableObjectProxy> {
@@ -2539,7 +2539,7 @@ bool bdeat_sequenceHasAttribute(
 // ============================================================================
 namespace bdeat_NullableValueFunctions {
 
-bslmf_MetaInt<1> isNullableValueMetaFunction(
+bslmf::MetaInt<1> isNullableValueMetaFunction(
                           const baea_SerializableObjectProxy_NullableAdapter&);
 
 template <>
@@ -2616,7 +2616,7 @@ const char *bdeat_TypeName_className(
 // ============================================================================
 
 namespace bdeat_ChoiceFunctions {
-bslmf_MetaInt<1> isChoiceMetaFunction(const baea_SerializableObjectProxy&);
+bslmf::MetaInt<1> isChoiceMetaFunction(const baea_SerializableObjectProxy&);
 
 template <>
 struct IsChoice<baea_SerializableObjectProxy> {

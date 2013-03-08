@@ -206,6 +206,10 @@ BDES_IDENT("$Id: $")
 #include <bdem_elemref.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -228,10 +232,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -294,7 +294,7 @@ class bdem_Choice {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdem_Choice,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -304,10 +304,10 @@ class bdem_Choice {
 
     // CREATORS
     explicit
-    bdem_Choice(bslma_Allocator                          *basicAllocator = 0);
+    bdem_Choice(bslma::Allocator                         *basicAllocator = 0);
     explicit
     bdem_Choice(bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
         // Create an unselected choice having an empty types catalog.
         // Optionally specify a memory 'allocationStrategy'.  If
         // 'allocationStrategy' is not specified, then 'BDEM_PASS_THROUGH' is
@@ -318,11 +318,11 @@ class bdem_Choice {
 
     bdem_Choice(const bdem_ElemType::Type                 typesCatalog[],
                 int                                       numTypes,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
     bdem_Choice(const bdem_ElemType::Type                 typesCatalog[],
                 int                                       numTypes,
                 bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
         // Create an unselected choice having a types catalog of 'numTypes'
         // that are the same as those in the specified sequence 'typesCatalog'.
         // Optionally specify a memory 'allocationStrategy'.  If
@@ -335,10 +335,10 @@ class bdem_Choice {
         // 'numTypes' types.
 
     bdem_Choice(const bsl::vector<bdem_ElemType::Type>&   typesCatalog,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
     bdem_Choice(const bsl::vector<bdem_ElemType::Type>&   typesCatalog,
                 bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
         // Create an unselected choice having a types catalog whose types are
         // the same as those in the specified 'typesCatalog'.  Optionally
         // specify a memory 'allocationStrategy'.  If 'allocationStrategy' is
@@ -348,16 +348,16 @@ class bdem_Choice {
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    bdem_Choice(const bdem_Choice&                       original,
-                bslma_Allocator                          *basicAllocator = 0);
+    bdem_Choice(const bdem_Choice&                        original,
+                bslma::Allocator                         *basicAllocator = 0);
     bdem_Choice(const bdem_Choice&                        original,
                 bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
     explicit bdem_Choice(const bdem_ChoiceArrayItem&      original,
-                         bslma_Allocator                 *basicAllocator = 0);
+                         bslma::Allocator                *basicAllocator = 0);
     bdem_Choice(const bdem_ChoiceArrayItem&               original,
                 bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
         // Create a choice having the value of the specified 'original' object
         // (choice or choice array item).  Optionally specify a memory
         // 'allocationStrategy'.  If 'allocationStrategy' is not specified,
@@ -407,7 +407,7 @@ class bdem_Choice {
     char& theModifiableChar();
     short& theModifiableShort();
     int& theModifiableInt();
-    bsls_Types::Int64& theModifiableInt64();
+    bsls::Types::Int64& theModifiableInt64();
     float& theModifiableFloat();
     double& theModifiableDouble();
     bsl::string& theModifiableString();
@@ -421,7 +421,7 @@ class bdem_Choice {
     bsl::vector<char>& theModifiableCharArray();
     bsl::vector<short>& theModifiableShortArray();
     bsl::vector<int>& theModifiableIntArray();
-    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array();
+    bsl::vector<bsls::Types::Int64>& theModifiableInt64Array();
     bsl::vector<float>& theModifiableFloatArray();
     bsl::vector<double>& theModifiableDoubleArray();
     bsl::vector<bsl::string>& theModifiableStringArray();
@@ -519,7 +519,7 @@ class bdem_Choice {
     const char& theChar() const;
     const short& theShort() const;
     const int& theInt() const;
-    const bsls_Types::Int64& theInt64() const;
+    const bsls::Types::Int64& theInt64() const;
     const float& theFloat() const;
     const double& theDouble() const;
     const bsl::string& theString() const;
@@ -533,7 +533,7 @@ class bdem_Choice {
     const bsl::vector<char>& theCharArray() const;
     const bsl::vector<short>& theShortArray() const;
     const bsl::vector<int>& theIntArray() const;
-    const bsl::vector<bsls_Types::Int64>& theInt64Array() const;
+    const bsl::vector<bsls::Types::Int64>& theInt64Array() const;
     const bsl::vector<float>& theFloatArray() const;
     const bsl::vector<double>& theDoubleArray() const;
     const bsl::vector<bsl::string>& theStringArray() const;
@@ -622,7 +622,7 @@ int bdem_Choice::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-bdem_Choice::bdem_Choice(bslma_Allocator *basicAllocator)
+bdem_Choice::bdem_Choice(bslma::Allocator *basicAllocator)
 : d_choiceImp(basicAllocator)
 {
 }
@@ -630,7 +630,7 @@ bdem_Choice::bdem_Choice(bslma_Allocator *basicAllocator)
 inline
 bdem_Choice::bdem_Choice(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_choiceImp(allocationStrategy, basicAllocator)
 {
 }
@@ -638,7 +638,7 @@ bdem_Choice::bdem_Choice(
 inline
 bdem_Choice::bdem_Choice(const bdem_ElemType::Type  typesCatalog[],
                          int                        numTypes,
-                         bslma_Allocator           *basicAllocator)
+                         bslma::Allocator          *basicAllocator)
 : d_choiceImp(typesCatalog,
               numTypes,
               bdem_ElemAttrLookup::lookupTable(),
@@ -653,7 +653,7 @@ bdem_Choice::bdem_Choice(
                   const bdem_ElemType::Type                 typesCatalog[],
                   int                                       numTypes,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_choiceImp(typesCatalog,
               numTypes,
               bdem_ElemAttrLookup::lookupTable(),
@@ -666,7 +666,7 @@ bdem_Choice::bdem_Choice(
 inline
 bdem_Choice::bdem_Choice(
                       const bsl::vector<bdem_ElemType::Type>&  typesCatalog,
-                      bslma_Allocator                         *basicAllocator)
+                      bslma::Allocator                        *basicAllocator)
 : d_choiceImp(0 == typesCatalog.size() ? 0 : &typesCatalog[0],
               (int)typesCatalog.size(),
               bdem_ElemAttrLookup::lookupTable(),
@@ -679,7 +679,7 @@ inline
 bdem_Choice::bdem_Choice(
                   const bsl::vector<bdem_ElemType::Type>&   typesCatalog,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_choiceImp(0 == typesCatalog.size() ? 0 : &typesCatalog[0],
               (int)typesCatalog.size(),
               bdem_ElemAttrLookup::lookupTable(),
@@ -690,7 +690,7 @@ bdem_Choice::bdem_Choice(
 
 inline
 bdem_Choice::bdem_Choice(const bdem_Choice&  original,
-                         bslma_Allocator    *basicAllocator)
+                         bslma::Allocator   *basicAllocator)
 : d_choiceImp(original.d_choiceImp, basicAllocator)
 {
 }
@@ -699,14 +699,14 @@ inline
 bdem_Choice::bdem_Choice(
                   const bdem_Choice&                        original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_choiceImp(original.d_choiceImp, allocationStrategy, basicAllocator)
 {
 }
 
 inline
 bdem_Choice::bdem_Choice(const bdem_ChoiceArrayItem&  original,
-                         bslma_Allocator             *basicAllocator)
+                         bslma::Allocator            *basicAllocator)
 : d_choiceImp((const bdem_ChoiceHeader &) original,
               bdem_AggregateOption::BDEM_PASS_THROUGH,
               basicAllocator)
@@ -717,7 +717,7 @@ inline
 bdem_Choice::bdem_Choice(
                   const bdem_ChoiceArrayItem&               original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_choiceImp((const bdem_ChoiceHeader &) original,
               allocationStrategy,
               basicAllocator)
@@ -789,10 +789,10 @@ int& bdem_Choice::theModifiableInt()
 }
 
 inline
-bsls_Types::Int64& bdem_Choice::theModifiableInt64()
+bsls::Types::Int64& bdem_Choice::theModifiableInt64()
 {
     d_choiceImp.clearNullnessBit();
-    return *(bsls_Types::Int64 *)d_choiceImp.selectionPointer();
+    return *(bsls::Types::Int64 *)d_choiceImp.selectionPointer();
 }
 
 inline
@@ -887,10 +887,10 @@ bsl::vector<int>& bdem_Choice::theModifiableIntArray()
 }
 
 inline
-bsl::vector<bsls_Types::Int64>& bdem_Choice::theModifiableInt64Array()
+bsl::vector<bsls::Types::Int64>& bdem_Choice::theModifiableInt64Array()
 {
     d_choiceImp.clearNullnessBit();
-    return *(bsl::vector<bsls_Types::Int64> *)d_choiceImp.selectionPointer();
+    return *(bsl::vector<bsls::Types::Int64> *)d_choiceImp.selectionPointer();
 }
 
 inline
@@ -1092,9 +1092,9 @@ const int& bdem_Choice::theInt() const
 }
 
 inline
-const bsls_Types::Int64& bdem_Choice::theInt64() const
+const bsls::Types::Int64& bdem_Choice::theInt64() const
 {
-    return *(const bsls_Types::Int64 *)d_choiceImp.selectionPointer();
+    return *(const bsls::Types::Int64 *)d_choiceImp.selectionPointer();
 }
 
 inline
@@ -1176,10 +1176,10 @@ const bsl::vector<int>& bdem_Choice::theIntArray() const
 }
 
 inline
-const bsl::vector<bsls_Types::Int64>&
+const bsl::vector<bsls::Types::Int64>&
 bdem_Choice::theInt64Array() const
 {
-    return *(const bsl::vector<bsls_Types::Int64> *)
+    return *(const bsl::vector<bsls::Types::Int64> *)
                                                 d_choiceImp.selectionPointer();
 }
 

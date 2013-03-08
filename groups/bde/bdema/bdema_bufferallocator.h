@@ -19,18 +19,18 @@ BDES_IDENT("$Id: $")
 //@SEE_ALSO: bsls_alignment
 //
 //@DESCRIPTION: This component implements a concrete allocator derived from the
-// 'bdema_Allocator' interface.  'bdema_BufferAllocator' sequentially allocates
-// memory blocks from a fixed-size buffer that is supplied by the user at
-// construction.  If an allocation request exceeds the remaining space in the
-// buffer, the return value is the result of invoking an optional callback
-// function that was supplied at construction, or zero if no callback was
-// specified.  This component also provides static utility functions for
+// 'bslma::Allocator' interface.  'bdema_BufferAllocator' sequentially
+// allocates memory blocks from a fixed-size buffer that is supplied by the
+// user at construction.  If an allocation request exceeds the remaining space
+// in the buffer, the return value is the result of invoking an optional
+// callback function that was supplied at construction, or zero if no callback
+// was specified.  This component also provides static utility functions for
 // allocating memory directly from a user-specified buffer:
 //..
 //                     ( bdema_BufferAllocator )
 //                                 |         ctor
 //                                 V
-//                        ( bdema_Allocator )
+//                        ( bslma::Allocator )
 //                                           dtor
 //                                           allocate
 //                                           deallocate
@@ -42,7 +42,7 @@ BDES_IDENT("$Id: $")
 //..
 //     MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
 //     the most restrictive alignment on the host platform.  The value is
-//     defined in 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+//     defined in 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 //
 //     NATURAL ALIGNMENT: This strategy allocates memory whose alignment
 //     depends on the requested number of bytes.  An instance of a fundamental
@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $")
 //     always at least as restrictive as the compiler's required alignment.
 //     When only the size of an aggregate is known, and not its composition,
 //     we compute the alignment by finding the largest integral power of 2 (up
-//     to and including 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
+//     to and including 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
 //     the requested (non-zero) number of bytes.  This computed alignment is
 //     guaranteed to be at least as restrictive as any sub-object within the
 //     aggregate.
@@ -63,23 +63,23 @@ BDES_IDENT("$Id: $")
 // The 'bdema_BufferAllocator' class defined in this component is commonly used
 // to allocate memory from a static buffer that does not require "deletion".
 // The following snippet of code creates an array that obtains its memory from
-// a fixed-sized buffer, but through the 'bdema_Allocator' protocol:
+// a fixed-sized buffer, but through the 'bslma::Allocator' protocol:
 //..
 //  // my_shortarray.h
 //
 //  // ...
 //
-//  class bdema_Allocator;
+//  class bslma::Allocator;
 //
 //  class my_ShortArray {
-//      short           *d_array_p;      // dynamically-allocated array of
-//                                       // 'short' integers
+//      short            *d_array_p;      // dynamically-allocated array of
+//                                        // 'short' integers
 //
-//      int              d_size;         // physical size of 'd_array_p'
+//      int               d_size;         // physical size of 'd_array_p'
 //
-//      int              d_length;       // logical length of 'd_array_p'
+//      int               d_length;       // logical length of 'd_array_p'
 //
-//      bdema_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+//      bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 //
 //    private:
 //      // PRIVATE MANIPULATORS
@@ -87,7 +87,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_ShortArray(bdema_Allocator *basicAllocator);
+//      my_ShortArray(bslma::Allocator *basicAllocator);
 //          // Create an empty array using the specified 'basicAllocator' to
 //          // supply memory.
 //      // ...
@@ -106,7 +106,7 @@ BDES_IDENT("$Id: $")
 //  enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 //  // ...
 //
-//  my_ShortArray::my_ShortArray(bdema_Allocator *basicAllocator)
+//  my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 //  : d_size(INITIAL_SIZE)
 //  , d_length(0)
 //  , d_allocator_p(basicAllocator)
@@ -138,7 +138,7 @@ BDES_IDENT("$Id: $")
 //
 //  static
 //  void reallocate(short **array, int newSize, int length,
-//                  bdema_Allocator *basicAllocator)
+//                  bslma::Allocator *basicAllocator)
 //      // Reallocate memory in the specified 'array' to the specified
 //      // 'newSize' using the specified 'basicAllocator' or global new
 //      // operator.  The specified 'length' number of leading elements are
@@ -197,21 +197,28 @@ BDES_IDENT("$Id: $")
 // because 'bdema_BufferAllocator::allocate' internally performs alignment for
 // each requested memory block based on the allocator's alignment strategy.
 
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bdema_bufferallocator is deprecated"
+#endif
+
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_BUFFERALLOCATOR
-#include <bslma_bufferallocator.h>
-#endif
+// TBD The following inclusion and the 'typedef' below have been commented out
+// in anticipation of this component's retirement in BDE 2.17.
+// #ifndef INCLUDED_BSLMA_BUFFERALLOCATOR
+// #include <bslma_bufferallocator.h>
+// #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
 
-typedef bslma_BufferAllocator bdema_BufferAllocator;
+// TBD see above
+// typedef bslma::BufferAllocator bdema_BufferAllocator;
     // This 'class' defines a concrete, fixed-size buffer allocator
     // implementing the 'bdema_Allocator' interface.  The allocator supports
     // both maximum (default) and natural alignment strategies.

@@ -262,11 +262,11 @@ unsigned int bdeu_HashUtil::hash1(unsigned long key)
 {
     return HASH1(key);
 }
-unsigned int bdeu_HashUtil::hash1(bsls_Types::Int64 key)
+unsigned int bdeu_HashUtil::hash1(bsls::Types::Int64 key)
 {
     return HASH1(key);
 }
-unsigned int bdeu_HashUtil::hash1(bsls_Types::Uint64 key)
+unsigned int bdeu_HashUtil::hash1(bsls::Types::Uint64 key)
 {
     return HASH1(key);
 }
@@ -319,11 +319,11 @@ unsigned int bdeu_HashUtil::hash2(unsigned long key)
 {
     return HASH2(key);
 }
-unsigned int bdeu_HashUtil::hash2(bsls_Types::Int64 key)
+unsigned int bdeu_HashUtil::hash2(bsls::Types::Int64 key)
 {
     return HASH2(key);
 }
-unsigned int bdeu_HashUtil::hash2(bsls_Types::Uint64 key)
+unsigned int bdeu_HashUtil::hash2(bsls::Types::Uint64 key)
 {
     return HASH2(key);
 }

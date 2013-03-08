@@ -20,7 +20,7 @@ using bsl::endl;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
-// [01] baexml_NamespaceRegistry(bslma_Allocator* allocator = 0);
+// [01] baexml_NamespaceRegistry(bslma::Allocator *allocator = 0);
 // [01] ~baexml_NamespaceRegistry();
 //
 // MANIPULATORS
@@ -101,9 +101,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    bslma_TestAllocator da;
-    bslma_DefaultAllocatorGuard defaultGuard(&da);
-    bslma_TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator da;
+    bslma::DefaultAllocatorGuard defaultGuard(&da);
+    bslma::TestAllocator ta(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
 
@@ -226,14 +226,14 @@ int main(int argc, char *argv[])
         static const char N2[] = "http://google.com/xml2";
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
 
           ASSERT(0 == x.lookupOrRegister(N));
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           ASSERT(0 == x.lookupOrRegister(N));
 
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           ASSERT(0 == x.lookupOrRegister(N));
           ASSERT(0 == x.lookupOrRegister(N));
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           ASSERT(0 == x.lookupOrRegister(N1));
 
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           ASSERT(0 == x.lookupOrRegister(N1));
           ASSERT(1 == x.lookupOrRegister(N2));
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           ASSERT(0 == x.lookupOrRegister(N));
           ASSERT(1 == x.lookupOrRegister(N2));
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
         }
 
         {
-          bslma_TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           ASSERT(0 == x.lookupOrRegister(N1));
           ASSERT(1 == x.lookupOrRegister(N));
@@ -316,8 +316,8 @@ int main(int argc, char *argv[])
         const char N2[] = "http://google.com/xml2";
         const char XX[] = "urn:xx";
 
-        bslma_TestAllocator tb;
-        bslma_TestAllocator tc;
+        bslma::TestAllocator tb;
+        bslma::TestAllocator tc;
 
         {
             Obj x(&ta); const Obj& X = x;

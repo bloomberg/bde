@@ -12,7 +12,6 @@ BDES_IDENT_RCSID(baea_testmessages_cpp,"$Id$ $CSID$")
 #include <bdeu_printmethods.h>
 #include <bdeu_string.h>
 
-#include <bdes_platformutil.h>
 #include <bdet_datetimetz.h>
 #include <bdeut_nullableallocatedvalue.h>
 #include <bdeut_nullablevalue.h>
@@ -259,9 +258,9 @@ const bdeat_SelectionInfo *SequenceWithAnonymityChoice1::lookupSelectionInfo(int
 
 SequenceWithAnonymityChoice1::SequenceWithAnonymityChoice1(
     const SequenceWithAnonymityChoice1& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION5: {
@@ -564,14 +563,14 @@ const bdeat_AttributeInfo *SimpleRequest::lookupAttributeInfo(int id)
 
 // CREATORS
 
-SimpleRequest::SimpleRequest(bslma_Allocator *basicAllocator)
+SimpleRequest::SimpleRequest(bslma::Allocator *basicAllocator)
 : d_data(basicAllocator)
 , d_responseLength()
 {
 }
 
 SimpleRequest::SimpleRequest(const SimpleRequest& original,
-                             bslma_Allocator *basicAllocator)
+                             bslma::Allocator *basicAllocator)
 : d_data(original.d_data, basicAllocator)
 , d_responseLength(original.d_responseLength)
 {
@@ -1051,7 +1050,7 @@ const bdeat_AttributeInfo *Sequence3::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence3::Sequence3(bslma_Allocator *basicAllocator)
+Sequence3::Sequence3(bslma::Allocator *basicAllocator)
 : d_element2(basicAllocator)
 , d_element4(basicAllocator)
 , d_element5(basicAllocator)
@@ -1061,8 +1060,8 @@ Sequence3::Sequence3(bslma_Allocator *basicAllocator)
 {
 }
 
-Sequence3::Sequence3(const Sequence3& original,
-                     bslma_Allocator *basicAllocator)
+Sequence3::Sequence3(const Sequence3&  original,
+                     bslma::Allocator *basicAllocator)
 : d_element2(original.d_element2, basicAllocator)
 , d_element4(original.d_element4, basicAllocator)
 , d_element5(original.d_element5, basicAllocator)
@@ -1334,8 +1333,8 @@ const bdeat_AttributeInfo *Sequence5::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence5::Sequence5(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+Sequence5::Sequence5(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_element5(basicAllocator)
 , d_element3(basicAllocator)
 , d_element4(basicAllocator)
@@ -1347,9 +1346,9 @@ Sequence5::Sequence5(bslma_Allocator *basicAllocator)
             Sequence3(d_allocator_p);
 }
 
-Sequence5::Sequence5(const Sequence5& original,
-                     bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+Sequence5::Sequence5(const Sequence5&  original,
+                     bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_element5(original.d_element5, basicAllocator)
 , d_element3(original.d_element3, basicAllocator)
 , d_element4(original.d_element4, basicAllocator)
@@ -1743,7 +1742,7 @@ const bdeat_AttributeInfo *Sequence6::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence6::Sequence6(bslma_Allocator *basicAllocator)
+Sequence6::Sequence6(bslma::Allocator *basicAllocator)
 : d_element12(basicAllocator)
 , d_element10(basicAllocator)
 , d_element15(basicAllocator)
@@ -1762,8 +1761,8 @@ Sequence6::Sequence6(bslma_Allocator *basicAllocator)
 {
 }
 
-Sequence6::Sequence6(const Sequence6& original,
-                     bslma_Allocator *basicAllocator)
+Sequence6::Sequence6(const Sequence6&  original,
+                     bslma::Allocator *basicAllocator)
 : d_element12(original.d_element12, basicAllocator)
 , d_element10(original.d_element10, basicAllocator)
 , d_element15(original.d_element15, basicAllocator)
@@ -2113,10 +2112,10 @@ const bdeat_SelectionInfo *Choice3::lookupSelectionInfo(int id)
 // CREATORS
 
 Choice3::Choice3(
-    const Choice3& original,
-    bslma_Allocator *basicAllocator)
+    const Choice3&    original,
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -2550,9 +2549,9 @@ const bdeat_SelectionInfo *SequenceWithAnonymityChoice::lookupSelectionInfo(int 
 
 SequenceWithAnonymityChoice::SequenceWithAnonymityChoice(
     const SequenceWithAnonymityChoice& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -2986,9 +2985,9 @@ const bdeat_SelectionInfo *Choice1::lookupSelectionInfo(int id)
 
 Choice1::Choice1(
     const Choice1& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -3420,9 +3419,9 @@ const bdeat_SelectionInfo *Choice2::lookupSelectionInfo(int id)
 
 Choice2::Choice2(
     const Choice2& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -4046,7 +4045,7 @@ const bdeat_AttributeInfo *Sequence4::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence4::Sequence4(bslma_Allocator *basicAllocator)
+Sequence4::Sequence4(bslma::Allocator *basicAllocator)
 : d_element10()
 , d_element17(basicAllocator)
 , d_element15(basicAllocator)
@@ -4070,7 +4069,7 @@ Sequence4::Sequence4(bslma_Allocator *basicAllocator)
 }
 
 Sequence4::Sequence4(const Sequence4& original,
-                     bslma_Allocator *basicAllocator)
+                     bslma::Allocator *basicAllocator)
 : d_element10(original.d_element10)
 , d_element17(original.d_element17, basicAllocator)
 , d_element15(original.d_element15, basicAllocator)
@@ -4482,8 +4481,8 @@ const bdeat_AttributeInfo *Sequence1::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence1::Sequence1(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+Sequence1::Sequence1(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_element4(basicAllocator)
 , d_element5(basicAllocator)
 , d_element2(basicAllocator)
@@ -4494,8 +4493,8 @@ Sequence1::Sequence1(bslma_Allocator *basicAllocator)
 }
 
 Sequence1::Sequence1(const Sequence1& original,
-                     bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                     bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_element4(original.d_element4, basicAllocator)
 , d_element5(original.d_element5, basicAllocator)
 , d_element2(original.d_element2, basicAllocator)
@@ -4726,7 +4725,7 @@ const bdeat_AttributeInfo *Sequence2::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence2::Sequence2(bslma_Allocator *basicAllocator)
+Sequence2::Sequence2(bslma::Allocator *basicAllocator)
 : d_element5()
 , d_element4(basicAllocator)
 , d_element3()
@@ -4735,8 +4734,8 @@ Sequence2::Sequence2(bslma_Allocator *basicAllocator)
 {
 }
 
-Sequence2::Sequence2(const Sequence2& original,
-                     bslma_Allocator *basicAllocator)
+Sequence2::Sequence2(const Sequence2&  original,
+                     bslma::Allocator *basicAllocator)
 : d_element5(original.d_element5)
 , d_element4(original.d_element4, basicAllocator)
 , d_element3(original.d_element3)
@@ -4933,9 +4932,9 @@ const bdeat_SelectionInfo *SequenceWithAnonymityChoice2::lookupSelectionInfo(int
 
 SequenceWithAnonymityChoice2::SequenceWithAnonymityChoice2(
     const SequenceWithAnonymityChoice2& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION7: {
@@ -5306,7 +5305,7 @@ const bdeat_AttributeInfo *SequenceWithAnonymity::lookupAttributeInfo(int id)
 
 // CREATORS
 
-SequenceWithAnonymity::SequenceWithAnonymity(bslma_Allocator *basicAllocator)
+SequenceWithAnonymity::SequenceWithAnonymity(bslma::Allocator *basicAllocator)
 : d_choice2(basicAllocator)
 , d_choice1(basicAllocator)
 , d_choice(basicAllocator)
@@ -5315,7 +5314,7 @@ SequenceWithAnonymity::SequenceWithAnonymity(bslma_Allocator *basicAllocator)
 }
 
 SequenceWithAnonymity::SequenceWithAnonymity(const SequenceWithAnonymity& original,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : d_choice2(original.d_choice2, basicAllocator)
 , d_choice1(original.d_choice1, basicAllocator)
 , d_choice(original.d_choice, basicAllocator)
@@ -5623,9 +5622,9 @@ const bdeat_SelectionInfo *FeatureTestMessage::lookupSelectionInfo(int id)
 
 FeatureTestMessage::FeatureTestMessage(
     const FeatureTestMessage& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -6448,10 +6447,10 @@ const bdeat_SelectionInfo *Request::lookupSelectionInfo(int id)
 // CREATORS
 
 Request::Request(
-    const Request& original,
-    bslma_Allocator *basicAllocator)
+    const Request&    original,
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SIMPLE_REQUEST: {
@@ -6764,10 +6763,10 @@ const bdeat_SelectionInfo *Response::lookupSelectionInfo(int id)
 // CREATORS
 
 Response::Response(
-    const Response& original,
-    bslma_Allocator *basicAllocator)
+    const Response&   original,
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_RESPONSE_DATA: {

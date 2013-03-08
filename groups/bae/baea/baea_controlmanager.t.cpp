@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
                  << "=============" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             baea_ControlManager manager(&ta);
             manager.registerHandler("ECHO", "<text>",
@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
                  << "=====================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             using namespace bdef_PlaceHolders;
 
@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
                 << "==============================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
            using namespace bdef_PlaceHolders;
 
@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
                 << "==============" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
           using namespace bdef_PlaceHolders;
 

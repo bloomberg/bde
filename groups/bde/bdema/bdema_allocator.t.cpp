@@ -236,7 +236,7 @@ my_DoubleStack::my_DoubleStack(bdema_Allocator *basicAllocator)
 , d_length(0)
 , d_allocator_p(basicAllocator ? basicAllocator : &myA)
     // The above initialization expression is equivalent to 'basicAllocator
-    // ? basicAllocator : &bslma_NewDeleteAllocator::singleton()'.
+    // ? basicAllocator : &bslma::NewDeleteAllocator::singleton()'.
 {
     ASSERT(d_allocator_p);
     d_stack_p = (double *) d_allocator_p->allocate(d_size * sizeof *d_stack_p);
@@ -535,10 +535,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Using an allocator and placement new operator construct objects of
-        //   two different classes.  Invoke 'deleteObject' to delete constructed
-        //   objects and check that both destructor and 'deallocate' have been
-        //   called.  Repeat tests with a derived-class object with a virtual
-        //   destructor.  Test with null pointer.
+        //   two different classes.  Invoke 'deleteObject' to delete
+        //   constructed objects and check that both destructor and
+        //   'deallocate' have been called.  Repeat tests with a derived-class
+        //   object with a virtual destructor.  Test with null pointer.
         //
         // Testing:
         //   template<typename TYPE> deleteObject(const TYPE *)

@@ -224,6 +224,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -234,10 +238,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -273,7 +273,7 @@ class bael_Record {
 
     bdem_List               d_userFields;   // bytes used by user fields
 
-    bslma_Allocator        *d_allocator_p;  // allocator used to supply
+    bslma::Allocator       *d_allocator_p;  // allocator used to supply
                                             // memory; held but not own
 
     // FRIENDS
@@ -302,10 +302,10 @@ class bael_Record {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bael_Record,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bael_Record(bslma_Allocator *basicAllocator = 0);
+    explicit bael_Record(bslma::Allocator *basicAllocator = 0);
         // Create a log record having default values for its fixed fields and
         // its user-defined fields.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -313,7 +313,7 @@ class bael_Record {
 
     bael_Record(const bael_RecordAttributes&  fixedFields,
                 const bdem_List&              userFields,
-                bslma_Allocator              *basicAllocator = 0);
+                bslma::Allocator             *basicAllocator = 0);
         // Create a log record with fixed fields having the value of the
         // specified 'fixedFields' and user-defined fields having the value of
         // the specified 'userFields'.  Optionally specify a 'basicAllocator'
@@ -321,7 +321,7 @@ class bael_Record {
         // installed default allocator is used.
 
     bael_Record(const bael_Record&  original,
-                bslma_Allocator    *basicAllocator = 0);
+                bslma::Allocator   *basicAllocator = 0);
         // Create a log record having the value of the specified 'original'
         // log record.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -446,32 +446,32 @@ int bael_Record::maxSupportedVersion()
 
 // CREATORS
 inline
-bael_Record::bael_Record(bslma_Allocator *basicAllocator)
+bael_Record::bael_Record(bslma::Allocator *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(&d_allocator)
 , d_userFields(&d_allocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 bael_Record::bael_Record(const bael_RecordAttributes&  fixedFields,
                          const bdem_List&              userFields,
-                         bslma_Allocator              *basicAllocator)
+                         bslma::Allocator             *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(fixedFields, &d_allocator)
 , d_userFields(userFields, &d_allocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 bael_Record::bael_Record(const bael_Record&  original,
-                         bslma_Allocator    *basicAllocator)
+                         bslma::Allocator   *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(original.d_fixedFields, &d_allocator)
 , d_userFields(original.d_userFields, &d_allocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

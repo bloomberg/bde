@@ -116,8 +116,8 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -153,7 +153,8 @@ class bdema_CharArray {
     int   d_size;     // physical capacity of this array (in elements)
     int   d_length;   // logical length of this array (in elements)
 
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) memory allocator
+    bslma::Allocator *d_allocator_p;  // holds (but doesn't own) memory
+                                      // allocator
 
   private:
     // PRIVATE MANIPULATORS
@@ -194,13 +195,13 @@ class bdema_CharArray {
     };
 
     // CREATORS
-    bdema_CharArray(bslma_Allocator *basicAllocator = 0);
+    bdema_CharArray(bslma::Allocator *basicAllocator = 0);
     explicit
-    bdema_CharArray(int              initialLength,
-                    bslma_Allocator *basicAllocator = 0);
-    bdema_CharArray(int              initialLength,
-                    char             initialValue,
-                    bslma_Allocator *basicAllocator = 0);
+    bdema_CharArray(int               initialLength,
+                    bslma::Allocator *basicAllocator = 0);
+    bdema_CharArray(int               initialLength,
+                    char              initialValue,
+                    bslma::Allocator *basicAllocator = 0);
         // Create an in-place array.  By default, the array is empty.
         // Optionally specify the 'initialLength' of the array.  Array elements
         // are initialized with the specified 'initialValue', or to '\0' if
@@ -211,15 +212,15 @@ class bdema_CharArray {
         //
         // Note: The default constructor should be 'explicit', but since this
         // package is below 'bdealg', we depend on convertibility from
-        // 'bslma_Allocator*' for auto-detection of the 'UsesBdemaAllocator'
+        // 'bslma::Allocator*' for auto-detection of the 'UsesBdemaAllocator'
         // trait.
 
     explicit
-    bdema_CharArray(const InitialCapacity& numElements,
-                    bslma_Allocator       *basicAllocator = 0);
-    bdema_CharArray(const InitialCapacity& numElements,
-                    Hint                   sizingHint,
-                    bslma_Allocator       *basicAllocator = 0);
+    bdema_CharArray(const InitialCapacity&  numElements,
+                    bslma::Allocator       *basicAllocator = 0);
+    bdema_CharArray(const InitialCapacity&  numElements,
+                    Hint                    sizingHint,
+                    bslma::Allocator       *basicAllocator = 0);
         // Create an in-place array with sufficient initial capacity to
         // accommodate up to the specified 'numElements' values without
         // subsequent reallocation.  The address returned by the 'data()'
@@ -234,9 +235,9 @@ class bdema_CharArray {
         // installed default allocator is used.  The behavior is undefined
         // unless '0 <= numElements'.
 
-    bdema_CharArray(const char      *srcArray,
-                    int              numElements,
-                    bslma_Allocator *basicAllocator = 0);
+    bdema_CharArray(const char       *srcArray,
+                    int               numElements,
+                    bslma::Allocator *basicAllocator = 0);
         // Create an in-place array initialized with the specified
         // 'numElements' leading values from the specified 'srcArray'.
         // Optionally specify the 'basicAllocator' used to supply memory.  If
@@ -246,7 +247,7 @@ class bdema_CharArray {
         // 'numElements' values.
 
     bdema_CharArray(const bdema_CharArray&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create an in-place array initialized to the value of the specified
         // 'original' array.  Optionally specify the 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed

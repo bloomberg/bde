@@ -9,10 +9,9 @@
 #include <bdex_testinstream.h>                  // for testing only
 #include <bdex_testinstreamexception.h>         // for testing only
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bsls_platformutil.h>                  // for testing only
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -67,7 +66,7 @@ using bsl::flush;
 // [10] static int maxSupportedBdexVersion();
 //
 // CREATORS
-// [ 2] bdecs_Calendar(bslma_Allocator *basicAllocator = 0);
+// [ 2] bdecs_Calendar(bslma::Allocator *basicAllocator = 0);
 // [11] bdecs_Calendar(const bdet_Date& firstDate, lastDate, ba = 0);
 // [11] bdecs_Calendar(const bdecs_PackedCalendar& packedCalendar, ba = 0);
 // [ 7] bdecs_Calendar(const bdecs_Calendar& original, ba = 0);
@@ -223,7 +222,7 @@ static void aSsErT(int c, const char *s, int i)
         try {
 
 #define END_EXCEPTION_SAFE_TEST(x)                                         \
-        } catch (bslma_TestAllocatorException& e) {                        \
+        } catch (bslma::TestAllocatorException& e) {                       \
             if (veryVeryVerbose) cout << endl << "\t*** BEDMA_EXCEPTION: " \
                 << "alloc limit = " << bdemaExceptionCounter << ", "       \
                 << "last alloc size = " << e.numBytes() << " ***" << endl; \
@@ -854,11 +853,11 @@ bdecs_Calendar g(const char *spec)
 
         // DATA
         bsl::unordered_map<bsl::string, bdecs_PackedCalendar *>  d_map;
-        bslma_Allocator                                         *d_allocator_p;
+        bslma::Allocator                                        *d_allocator_p;
 
       public:
          // CREATORS
-        MyPackedCalendarCache(bslma_Allocator *basicAllocator = 0);
+        MyPackedCalendarCache(bslma::Allocator *basicAllocator = 0);
             // Create an empty 'MyPackedCalendarCache'.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
@@ -872,7 +871,7 @@ bdecs_Calendar g(const char *spec)
     };
 
     MyPackedCalendarCache::MyPackedCalendarCache(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
     : d_map(basicAllocator)
     {
     }
@@ -919,11 +918,11 @@ bdecs_Calendar g(const char *spec)
       public:
         // CREATORS
         MyCalendarCache(MyPackedCalendarCache *dataSource,
-                        bslma_Allocator       *basicAllocator = 0);
+                        bslma::Allocator      *basicAllocator = 0);
             // Create an empty 'MyCalendarCache' associated with the specified
             // 'dataSource'.  Optionally specify a 'basicAllocator' used to
-            // supply memory.  If 'basicAllocator' is 0, the currently installed
-            // default allocator is used.
+            // supply memory.  If 'basicAllocator' is 0, the currently
+            // installed default allocator is used.
 
         // ...
 
@@ -940,7 +939,7 @@ bdecs_Calendar g(const char *spec)
     };
 
     MyCalendarCache::MyCalendarCache(MyPackedCalendarCache *dataSource,
-                                     bslma_Allocator       *basicAllocator)
+                                     bslma::Allocator      *basicAllocator)
     : d_datasource_p(dataSource)
     , d_map(basicAllocator)
     {
@@ -1044,7 +1043,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 24: {
@@ -1936,7 +1935,7 @@ int main(int argc, char *argv[])
         //  Testing:
         //      BusinessDayConstIterator
         // --------------------------------------------------------------------
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         {
             if (verbose) cout << endl
@@ -2675,9 +2674,10 @@ int main(int argc, char *argv[])
         //       default and verify that memory is drawn from the allocator
         //       passed in and not from the default allocator.
         //     - In the presence of exceptions during memory allocations using
-        //       a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //       a 'bslma::TestAllocator' and varying its *allocation* *limit*.
         //     - Where the object is constructed entirely in static memory
-        //       (using a 'bslma_BufferAllocator') and never destroyed.
+        //       (using a 'bdema_BufferedSequentialAllocator') and never
+        //       destroyed.
         //
         //   We will use basic accessors to verify the first and last date of
         //   this object.  We will also verify that this object has no holiday
@@ -2686,9 +2686,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   bdecs_Calendar::bdecs_Calendar(const bdet_Date&,
         //                                  const bdet_Date&,
-        //                                  bslma_Allocator *)
+        //                                  bslma::Allocator *)
         //   bdecs_Calendar::bdecs_Calendar(const bdecs_PackedCalendar&,
-        //                                  bslma_Allocator *)
+        //                                  bslma::Allocator *)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2722,12 +2722,12 @@ int main(int argc, char *argv[])
                 bdet_Date dateLast (DLAST  / 10000, DLAST  / 100 % 100,
                                     DLAST  % 100);
 
-                bslma_TestAllocator da; // default allocator
-                const bslma_DefaultAllocatorGuard DAG(&da);
+                bslma::TestAllocator da; // default allocator
+                const bslma::DefaultAllocatorGuard DAG(&da);
                 {
                     // Testing bdecs_Calendar(const bdet_Date&,
                     //                        const bdet_Date&,
-                    //                        bslma_Allocator *).
+                    //                        bslma::Allocator *).
 
                     int blocks = da.numBlocksTotal();
                     const Obj X(dateFirst, dateLast);
@@ -2752,7 +2752,7 @@ int main(int argc, char *argv[])
                 }
                 {
                     // Testing bdecs_Calendar(const bdecs_PackedCalendar&,
-                    //                        bslma_Allocator *).
+                    //                        bslma::Allocator *).
 
                     int blocks = da.numBlocksTotal();
                     bdecs_PackedCalendar packedCal(dateFirst, dateLast);
@@ -2791,12 +2791,12 @@ int main(int argc, char *argv[])
                 bdet_Date dateLast (DLAST  / 10000, DLAST  / 100 % 100,
                                     DLAST  % 100);
 
-                bslma_TestAllocator da; // default allocator
-                const bslma_DefaultAllocatorGuard DAG(&da);
+                bslma::TestAllocator da; // default allocator
+                const bslma::DefaultAllocatorGuard DAG(&da);
                 {
                     // Testing bdecs_Calendar(const bdet_Date&,
                     //                        const bdet_Date&,
-                    //                        bslma_Allocator *).
+                    //                        bslma::Allocator *).
 
                     int blocks = testAllocator.numBlocksTotal();
                     int blocksDefault = da.numBlocksTotal();
@@ -2824,7 +2824,7 @@ int main(int argc, char *argv[])
                 }
                 {
                     // Testing bdecs_Calendar(const bdecs_PackedCalendar&,
-                    //                        bslma_Allocator *).
+                    //                        bslma::Allocator *).
 
                     int blocks = testAllocator.numBlocksTotal();
                     int blocksDefault = da.numBlocksTotal();
@@ -2867,7 +2867,7 @@ int main(int argc, char *argv[])
                                     DLAST  % 100);
                 // Testing bdecs_Calendar(const bdet_Date&,
                 //                        const bdet_Date&,
-                //                        bslma_Allocator *).
+                //                        bslma::Allocator *).
 
                 BEGIN_BSLMA_EXCEPTION_TEST {
                     Obj mX(dateFirst, dateLast, &testAllocator);
@@ -2888,7 +2888,7 @@ int main(int argc, char *argv[])
                 } END_BSLMA_EXCEPTION_TEST
 
                 // Testing bdecs_Calendar(const bdecs_PackedCalendar&,
-                //                        bslma_Allocator *).
+                //                        bslma::Allocator *).
 
                 BEGIN_BSLMA_EXCEPTION_TEST {
                     bdecs_PackedCalendar packedCal(dateFirst, dateLast,
@@ -2932,7 +2932,7 @@ int main(int argc, char *argv[])
 
                 // Testing bdecs_Calendar(const bdet_Date&,
                 //                        const bdet_Date&,
-                //                        bslma_Allocator *).
+                //                        bslma::Allocator *).
 
                 {
                     Obj *doNotDelete = new(a.allocate(sizeof(Obj)))
@@ -2955,7 +2955,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Testing bdecs_Calendar(const bdecs_PackedCalendar&,
-                //                        bslma_Allocator *).
+                //                        bslma::Allocator *).
 
                 {
                     bdecs_PackedCalendar *doNotDeletePackedCal =
@@ -3080,7 +3080,7 @@ int main(int argc, char *argv[])
         //   STREAM& bdexStreamOut(STREAM&, int) const
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Streaming Functionality" << endl
@@ -4003,8 +4003,8 @@ int main(int argc, char *argv[])
                     // uses the default allocator.  The allocator value of 'mY'
                     // should not be affected.
 
-                    bslma_TestAllocator da; // default allocator
-                    const bslma_DefaultAllocatorGuard DAG(&da);
+                    bslma::TestAllocator da; // default allocator
+                    const bslma::DefaultAllocatorGuard DAG(&da);
                     Obj mY;
                     gg(&mY, SPECS[i]);
                     int defaultBlocks = da.numBlocksTotal();
@@ -4037,7 +4037,7 @@ int main(int argc, char *argv[])
                     do {
                         try {
                             mX = Y;
-                        } catch (bslma_TestAllocatorException& e) {
+                        } catch (bslma::TestAllocatorException& e) {
                             LOOP2_ASSERT(i, j, isEqualWithCache(XX, X));
                             LOOP2_ASSERT(i, j, isEqualWithCache(YY, Y));
                             testAllocator.setAllocationLimit(
@@ -4052,7 +4052,7 @@ int main(int argc, char *argv[])
                     do {
                         try {
                             mY = Y;
-                        } catch (bslma_TestAllocatorException& e) {
+                        } catch (bslma::TestAllocatorException& e) {
                             LOOP2_ASSERT(i, j, isEqualWithCache(YY, Y));
                             testAllocator.setAllocationLimit(
                                                       ++bdemaExceptionCounter);
@@ -4075,7 +4075,7 @@ int main(int argc, char *argv[])
                     do {
                         try {
                             mX = Y.packedCalendar();
-                        } catch (bslma_TestAllocatorException& e) {
+                        } catch (bslma::TestAllocatorException& e) {
                             LOOP2_ASSERT(i, j, isEqualWithCache(XX, X));
                             LOOP2_ASSERT(i, j, isEqualWithCache(YY, Y));
                             testAllocator.setAllocationLimit(
@@ -4090,7 +4090,7 @@ int main(int argc, char *argv[])
                     do {
                         try {
                             mY = Y.packedCalendar();
-                        } catch (bslma_TestAllocatorException& e) {
+                        } catch (bslma::TestAllocatorException& e) {
                             LOOP2_ASSERT(i, j, isEqualWithCache(YY, Y));
                             testAllocator.setAllocationLimit(
                                                       ++bdemaExceptionCounter);
@@ -4210,7 +4210,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdecs_Calendar::bdecs_Calendar(const bdecs_Calendar&  original,
-        //                                  bslma_Allocator *basicAllocator)
+        //                                  bslma::Allocator *basicAllocator)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4235,9 +4235,9 @@ int main(int argc, char *argv[])
             gg(&mX, SPECS[i]);
             gg(&W, SPECS[i]);
 
-            bslma_TestAllocator da; // default allocator
-            const bslma_DefaultAllocatorGuard DAG(&da);
-            bslma_TestAllocator a;  // specified allocator
+            bslma::TestAllocator da; // default allocator
+            const bslma::DefaultAllocatorGuard DAG(&da);
+            bslma::TestAllocator a;  // specified allocator
             LOOP2_ASSERT(i, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             int blocks = a.numBlocksTotal();
             const Obj Y(X, &a);
@@ -5099,7 +5099,7 @@ int main(int argc, char *argv[])
         //     - with an allocator, in which case the object will allocate
         //       memory using the specified allocator.
         //     - in the presence of exceptions during memory allocations
-        //       using a 'bslma_TestAllocator' and varying its allocation
+        //       using a 'bslma::TestAllocator' and varying its allocation
         //       limit.
         //   Use 'length' to verify that the newly-created calendar is empty.
         //   Use 'numBlocksTotal' of the default allocator and the specified
@@ -5149,7 +5149,7 @@ int main(int argc, char *argv[])
         //   non-business days.
         //
         //  Testing:
-        //    bdecs_Calendar(bslma_Allocator *basicAllocator = 0)
+        //    bdecs_Calendar(bslma::Allocator *basicAllocator = 0)
         //    void addDay(const bdet_Date& date)
         //    void addWeekendDay(bdet_DayOfWeek::Day weekendDay)
         //    void addWeekendDaysTransition(date, weekendDays)
@@ -5172,8 +5172,8 @@ int main(int argc, char *argv[])
             // order to verify the default allocator is used when no allocator
             // is specified.
 
-            bslma_TestAllocator da; // default allocator
-            const bslma_DefaultAllocatorGuard DAG(&da);
+            bslma::TestAllocator da; // default allocator
+            const bslma::DefaultAllocatorGuard DAG(&da);
             const int previousTotal = da.numBlocksTotal();
             const Obj X, Y(0);
             ASSERT(0 == X.length());

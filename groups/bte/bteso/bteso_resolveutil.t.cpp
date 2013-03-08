@@ -35,13 +35,8 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_string.h>
-#include <bsl_vector.h>
-
-#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
-#include <strstrea.h>
-#else
 #include <bsl_strstream.h>
-#endif
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -212,7 +207,7 @@ int main(int argc, char *argv[])
     int errCode=0;
     bteso_SocketImpUtil::startup(&errCode);
     ASSERT(0 == errCode);
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // always the leading case.
         case 7: {
@@ -496,7 +491,7 @@ int main(int argc, char *argv[])
             #ifdef BSLS_PLATFORM_OS_UNIX
                 const char *applix[]  = { "86.0.0.32",
                                       #if !defined(BSLS_PLATFORM_OS_LINUX) \
-                                       && !defined(BDES_PLATFORM_OS_FREEBSD)
+                                       && !defined(BSLS_PLATFORM_OS_FREEBSD)
                                           "86.0.0.43",
                                           "87.0.0.36",
                                           "87.0.0.131",
@@ -505,7 +500,7 @@ int main(int argc, char *argv[])
                                         };
                 const char *soros[] = { "202.217.132.211",
                                     #if !defined(BSLS_PLATFORM_OS_LINUX) \
-                                     && !defined(BDES_PLATFORM_OS_FREEBSD)
+                                     && !defined(BSLS_PLATFORM_OS_FREEBSD)
                                         "202.217.132.212",
                                         "202.217.132.213",
                                     #endif
@@ -1012,7 +1007,7 @@ int main(int argc, char *argv[])
                 { L_,  "jlu123",     "tcp",            0,       0,     FAIL },
                 { L_,  "echo",       "tcp",     &errCode,       7,  SUCCESS },
                 { L_,  "echo",       "udp",            0,       7,  SUCCESS },
-              #if defined(BDES_PLATFORM_OS_FREEBSD)
+              #if defined(BSLS_PLATFORM_OS_FREEBSD)
                 { L_,  "echo",           0,            0,       4,  SUCCESS },
               #else
                 { L_,  "echo",           0,            0,       7,  SUCCESS },
@@ -1029,7 +1024,7 @@ int main(int argc, char *argv[])
                 { L_,  "syslog",     "udp",     &errCode,     514,  SUCCESS },
                 { L_,  "ingreslock", "tcp",     &errCode,    1524,  SUCCESS },
               #if !defined(BSLS_PLATFORM_OS_LINUX) \
-               && !defined(BDES_PLATFORM_OS_FREEBSD)
+               && !defined(BSLS_PLATFORM_OS_FREEBSD)
                 // These ports are not in the FreeBSD/Linux default
                 // /etc/services.
                 { L_,  "whois",      "tcp",     &errCode,      43,  SUCCESS },
@@ -1134,7 +1129,7 @@ int main(int argc, char *argv[])
 
             const char *applix[]  = { "86.0.0.32",
                                   #if !defined(BSLS_PLATFORM_OS_LINUX) \
-                                   && !defined(BDES_PLATFORM_OS_FREEBSD)
+                                   && !defined(BSLS_PLATFORM_OS_FREEBSD)
                                       "86.0.0.43",
                                       "87.0.0.36",
                                       "87.0.0.131",
@@ -1143,7 +1138,7 @@ int main(int argc, char *argv[])
                                     };
             const char *soros[] = { "202.217.132.211",
                                 #if !defined(BSLS_PLATFORM_OS_LINUX) \
-                                 && !defined(BDES_PLATFORM_OS_FREEBSD)
+                                 && !defined(BSLS_PLATFORM_OS_FREEBSD)
                                     "202.217.132.212",
                                     "202.217.132.213",
                                 #endif

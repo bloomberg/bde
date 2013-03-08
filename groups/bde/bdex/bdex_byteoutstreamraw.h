@@ -60,8 +60,8 @@ BDES_IDENT("$Id: $")
 // The supported types and required content are listed in the table below.
 // All of the fundamental types in the table may be output as scalar values or
 // as homogeneous arrays.  'bsl::string' is output as a logical scalar string.
-// Note that 'Int64' and 'Uint64' denote 'bsls_PlatformUtil::Int64' and
-// 'bsls_PlatformUtil::Uint64', which in turn are 'typedef' names for the
+// Note that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
+// 'bsls::Types::Uint64', which in turn are 'typedef' names for the
 // signed and unsigned 64-bit integer types, respectively, on the host
 // platform.
 //..
@@ -188,8 +188,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -282,42 +282,42 @@ class bdex_ByteOutStreamRaw {
 
                         // *** scalar integer values ***
 
-    bdex_ByteOutStreamRaw& putInt64(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStreamRaw& putInt64(bsls::Types::Int64 value);
         // Format as a signed integer the least significant 64 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_ByteOutStreamRaw& putUint64(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStreamRaw& putUint64(bsls::Types::Int64 value);
         // Format as an unsigned integer the least significant 64 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_ByteOutStreamRaw& putInt56(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStreamRaw& putInt56(bsls::Types::Int64 value);
         // Format as a signed integer the least significant 56 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_ByteOutStreamRaw& putUint56(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStreamRaw& putUint56(bsls::Types::Int64 value);
         // Format as an unsigned integer the least significant 56 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_ByteOutStreamRaw& putInt48(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStreamRaw& putInt48(bsls::Types::Int64 value);
         // Format as a signed integer the least significant 48 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_ByteOutStreamRaw& putUint48(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStreamRaw& putUint48(bsls::Types::Int64 value);
         // Format as an unsigned integer the least significant 48 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_ByteOutStreamRaw& putInt40(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStreamRaw& putInt40(bsls::Types::Int64 value);
         // Format as a signed integer the least significant 40 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_ByteOutStreamRaw& putUint40(bsls_PlatformUtil::Int64 value);
+    bdex_ByteOutStreamRaw& putUint40(bsls::Types::Int64 value);
         // Format as an unsigned integer the least significant 40 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
@@ -381,7 +381,7 @@ class bdex_ByteOutStreamRaw {
                         // *** arrays of integer values ***
 
     bdex_ByteOutStreamRaw&
-    putArrayInt64(const bsls_PlatformUtil::Int64 *array, int count);
+    putArrayInt64(const bsls::Types::Int64 *array, int count);
         // Format as an atomic sequence of signed integers the least
         // significant 64 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -389,7 +389,7 @@ class bdex_ByteOutStreamRaw {
         // unless 0 <= 'count'.
 
     bdex_ByteOutStreamRaw&
-    putArrayUint64(const bsls_PlatformUtil::Uint64 *array, int count);
+    putArrayUint64(const bsls::Types::Uint64 *array, int count);
         // Format as an atomic sequence of unsigned integers the least
         // significant 64 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -397,7 +397,7 @@ class bdex_ByteOutStreamRaw {
         // unless 0 <= 'count'.
 
     bdex_ByteOutStreamRaw&
-    putArrayInt56(const bsls_PlatformUtil::Int64 *array, int count);
+    putArrayInt56(const bsls::Types::Int64 *array, int count);
         // Format as an atomic sequence of signed integers the least
         // significant 56 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -405,7 +405,7 @@ class bdex_ByteOutStreamRaw {
         // unless 0 <= 'count'.
 
     bdex_ByteOutStreamRaw&
-    putArrayUint56(const bsls_PlatformUtil::Uint64 *array, int count);
+    putArrayUint56(const bsls::Types::Uint64 *array, int count);
         // Format as an atomic sequence of unsigned integers the least
         // significant 56 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -413,7 +413,7 @@ class bdex_ByteOutStreamRaw {
         // unless 0 <= 'count'.
 
     bdex_ByteOutStreamRaw&
-    putArrayInt48(const bsls_PlatformUtil::Int64 *array, int count);
+    putArrayInt48(const bsls::Types::Int64 *array, int count);
         // Format as an atomic sequence of signed integers the least
         // significant 48 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -421,7 +421,7 @@ class bdex_ByteOutStreamRaw {
         // unless 0 <= 'count'.
 
     bdex_ByteOutStreamRaw&
-    putArrayUint48(const bsls_PlatformUtil::Uint64 *array, int count);
+    putArrayUint48(const bsls::Types::Uint64 *array, int count);
         // Format as an atomic sequence of unsigned integers the least
         // significant 48 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -429,7 +429,7 @@ class bdex_ByteOutStreamRaw {
         // unless 0 <= 'count'.
 
     bdex_ByteOutStreamRaw&
-    putArrayInt40(const bsls_PlatformUtil::Int64 *array, int count);
+    putArrayInt40(const bsls::Types::Int64 *array, int count);
         // Format as an atomic sequence of signed integers the least
         // significant 40 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -437,7 +437,7 @@ class bdex_ByteOutStreamRaw {
         // unless 0 <= 'count'.
 
     bdex_ByteOutStreamRaw&
-    putArrayUint40(const bsls_PlatformUtil::Uint64 *array, int count);
+    putArrayUint40(const bsls::Types::Uint64 *array, int count);
         // Format as an atomic sequence of unsigned integers the least
         // significant 40 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -654,7 +654,7 @@ bdex_ByteOutStreamRaw& bdex_ByteOutStreamRaw::putVersion(int value)
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putInt64(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStreamRaw::putInt64(bsls::Types::Int64 value)
 {
     d_formatter.putInt64(value);
     return *this;
@@ -662,7 +662,7 @@ bdex_ByteOutStreamRaw::putInt64(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putUint64(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStreamRaw::putUint64(bsls::Types::Int64 value)
 {
     d_formatter.putUint64(value);
     return *this;
@@ -670,7 +670,7 @@ bdex_ByteOutStreamRaw::putUint64(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putInt56(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStreamRaw::putInt56(bsls::Types::Int64 value)
 {
     d_formatter.putInt56(value);
     return *this;
@@ -678,7 +678,7 @@ bdex_ByteOutStreamRaw::putInt56(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putUint56(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStreamRaw::putUint56(bsls::Types::Int64 value)
 {
     d_formatter.putUint56(value);
     return *this;
@@ -686,7 +686,7 @@ bdex_ByteOutStreamRaw::putUint56(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putInt48(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStreamRaw::putInt48(bsls::Types::Int64 value)
 {
     d_formatter.putInt48(value);
     return *this;
@@ -694,7 +694,7 @@ bdex_ByteOutStreamRaw::putInt48(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putUint48(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStreamRaw::putUint48(bsls::Types::Int64 value)
 {
     d_formatter.putUint48(value);
     return *this;
@@ -702,7 +702,7 @@ bdex_ByteOutStreamRaw::putUint48(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putInt40(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStreamRaw::putInt40(bsls::Types::Int64 value)
 {
     d_formatter.putInt40(value);
     return *this;
@@ -710,7 +710,7 @@ bdex_ByteOutStreamRaw::putInt40(bsls_PlatformUtil::Int64 value)
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putUint40(bsls_PlatformUtil::Int64 value)
+bdex_ByteOutStreamRaw::putUint40(bsls::Types::Int64 value)
 {
     d_formatter.putUint40(value);
     return *this;
@@ -798,8 +798,8 @@ bdex_ByteOutStreamRaw::putFloat32(float value)
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putArrayInt64(const bsls_PlatformUtil::Int64 *array,
-                                     int                             count)
+bdex_ByteOutStreamRaw::putArrayInt64(const bsls::Types::Int64 *array,
+                                     int                       count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -810,8 +810,8 @@ bdex_ByteOutStreamRaw::putArrayInt64(const bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putArrayUint64(const bsls_PlatformUtil::Uint64 *array,
-                                      int                              count)
+bdex_ByteOutStreamRaw::putArrayUint64(const bsls::Types::Uint64 *array,
+                                      int                        count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -822,8 +822,8 @@ bdex_ByteOutStreamRaw::putArrayUint64(const bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putArrayInt56(const bsls_PlatformUtil::Int64 *array,
-                                     int                             count)
+bdex_ByteOutStreamRaw::putArrayInt56(const bsls::Types::Int64 *array,
+                                     int                       count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -834,8 +834,8 @@ bdex_ByteOutStreamRaw::putArrayInt56(const bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putArrayUint56(const bsls_PlatformUtil::Uint64 *array,
-                                      int                              count)
+bdex_ByteOutStreamRaw::putArrayUint56(const bsls::Types::Uint64 *array,
+                                      int                        count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -846,8 +846,8 @@ bdex_ByteOutStreamRaw::putArrayUint56(const bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putArrayInt48(const bsls_PlatformUtil::Int64 *array,
-                                     int                             count)
+bdex_ByteOutStreamRaw::putArrayInt48(const bsls::Types::Int64 *array,
+                                     int                       count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -858,8 +858,8 @@ bdex_ByteOutStreamRaw::putArrayInt48(const bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putArrayUint48(const bsls_PlatformUtil::Uint64 *array,
-                                      int                              count)
+bdex_ByteOutStreamRaw::putArrayUint48(const bsls::Types::Uint64 *array,
+                                      int                        count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -870,8 +870,8 @@ bdex_ByteOutStreamRaw::putArrayUint48(const bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putArrayInt40(const bsls_PlatformUtil::Int64 *array,
-                                     int                             count)
+bdex_ByteOutStreamRaw::putArrayInt40(const bsls::Types::Int64 *array,
+                                     int                       count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -882,8 +882,8 @@ bdex_ByteOutStreamRaw::putArrayInt40(const bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteOutStreamRaw&
-bdex_ByteOutStreamRaw::putArrayUint40(const bsls_PlatformUtil::Uint64 *array,
-                                      int                              count)
+bdex_ByteOutStreamRaw::putArrayUint40(const bsls::Types::Uint64 *array,
+                                      int                        count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);

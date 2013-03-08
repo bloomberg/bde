@@ -2,8 +2,8 @@
 
 #include <bdex_instreamfunctions.h>
 
-#include <bsls_platform.h>           // for testing only
-#include <bsls_platformutil.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
@@ -33,11 +33,11 @@ using bsl::cerr;
 //      template <typename STREAM>
 //      STREAM& bdexStreamIn(STREAM& stream, TYPE& object, int version)
 //
-//  class bdex_InStreamFunctions<bsls_PlatformUtil::Int64>
+//  class bdex_InStreamFunctions<bsls::Types::Int64>
 //      template <typename STREAM>
 //      STREAM& bdexStreamIn(STREAM& stream, Int64& variable, int version)
 //
-//  class bdex_InStreamFunctions<bsls_PlatformUtil::Uint64>
+//  class bdex_InStreamFunctions<bsls::Types::Uint64>
 //      template <typename STREAM>
 //      STREAM& bdexStreamIn(STREAM& stream, Uint64& variable, int version)
 //
@@ -126,8 +126,8 @@ static void aSsErT(int c, const char *s, int i)
 //                   GLOBAL CONSTANTS/TYPEDEFS FOR TESTING
 //=============================================================================
 
-typedef bsls_PlatformUtil::Int64  Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 //=============================================================================
 //              Classes, functions, etc., needed for Usage Example
@@ -524,7 +524,7 @@ class my_TestInStream {
                                                return *this; }
 
 
-    typedef bsls_PlatformUtil::Uint64 Uint64;
+    typedef bsls::Types::Uint64 Uint64;
 
     my_TestInStream& getInt64(Int64 &value)   { d_fun = -64; return *this; }
     my_TestInStream& getUint64(Uint64 &value) { d_fun = +64; return *this; }
@@ -841,7 +841,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING bsls_PlatformUtil::Int64 VECTOR STREAM
+        // TESTING bsls::Types::Int64 VECTOR STREAM
         //
         // Plan:
         //
@@ -849,7 +849,7 @@ int main(int argc, char *argv[])
         //   bdex_InStreamFunctions<bsl::vector<Int64, ALLOC> >
         // --------------------------------------------------------------------
 
-        const bsls_PlatformUtil::Int64 DATA[] = {  // any arbitrary data array
+        const bsls::Types::Int64 DATA[] = {  // any arbitrary data array
             7,
             5,
             432,
@@ -877,8 +877,7 @@ int main(int argc, char *argv[])
             }
             const int buffer2Len = 2 + (size*sizeof(*DATA));
 
-            bsl::vector<bsls_PlatformUtil::Int64> p1, p2;  // two default
-                                                           // vectors
+            bsl::vector<bsls::Types::Int64> p1, p2;  // two default vectors
 
             my_InStream in1(buffer1, buffer1Len);  // without version
             ASSERT(in1);

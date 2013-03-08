@@ -73,7 +73,7 @@ BDES_IDENT("$Id: $")
 // with '0xc9', a non-ASCII 'e' with an accent over it:
 //..
 //  unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
-//
+//..
 // Then, we create a byte buffer to store the UTF-8 result of the translation
 // in, and variables to monitor counts of characters and bytes translated:
 //..

@@ -284,7 +284,7 @@ class baem_MetricsManager_PublisherRegistry {
     PublisherSet        d_generalPublishers;   // set of publishers publishing
                                                // for 'all' categories
 
-    bslma_Allocator    *d_allocator_p;         // allocator (held, not owned)
+    bslma::Allocator   *d_allocator_p;         // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     baem_MetricsManager_PublisherRegistry(
@@ -308,10 +308,10 @@ class baem_MetricsManager_PublisherRegistry {
 
     // PUBLIC TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_MetricsManager_PublisherRegistry,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    baem_MetricsManager_PublisherRegistry(bslma_Allocator *basicAllocator);
+    baem_MetricsManager_PublisherRegistry(bslma::Allocator *basicAllocator);
         // Create an empty publisher registry.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -431,10 +431,10 @@ class baem_MetricsManager_CallbackRegistry {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_MetricsManager_CallbackRegistry,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    baem_MetricsManager_CallbackRegistry(bslma_Allocator *basicAllocator = 0);
+    baem_MetricsManager_CallbackRegistry(bslma::Allocator *basicAllocator = 0);
         // Create an empty callback registry.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -699,11 +699,11 @@ void MapProctor<CONTAINER>::release()
                // -------------------------------------------
 
 baem_MetricsManager_PublisherRegistry::baem_MetricsManager_PublisherRegistry(
-                                              bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_specificPublishers(basicAllocator)
 , d_registry(basicAllocator)
 , d_generalPublishers(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -890,7 +890,7 @@ int baem_MetricsManager_PublisherRegistry::findSpecificPublishers(
 
 // CREATORS
 baem_MetricsManager_CallbackRegistry::baem_MetricsManager_CallbackRegistry(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_nextHandle(0)
 , d_callbacks(basicAllocator)
 , d_handles(basicAllocator)
@@ -984,7 +984,7 @@ int baem_MetricsManager_CallbackRegistry::findCallbacks(
                          // -------------------------
 
 // CREATORS
-baem_MetricsManager::baem_MetricsManager(bslma_Allocator *basicAllocator)
+baem_MetricsManager::baem_MetricsManager(bslma::Allocator *basicAllocator)
 : d_metricRegistry(basicAllocator)
 , d_collectors(&d_metricRegistry, basicAllocator)
 , d_callbacks(0)
@@ -993,7 +993,7 @@ baem_MetricsManager::baem_MetricsManager(bslma_Allocator *basicAllocator)
 , d_prevResetTimes(basicAllocator)
 , d_publishLock()
 , d_rwLock()
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_callbacks.load(
              new (*d_allocator_p) baem_MetricsManager_CallbackRegistry(

@@ -277,7 +277,7 @@ struct bdetu_Epoch {
 
   public:
     // TYPES
-    typedef bsls_Types::Int64 TimeT64;
+    typedef bsls::Types::Int64 TimeT64;
         // 'TimeT64' is an alias for a 64-bit integral type representing
         // seconds from the epoch in UTC.  Note that, in contrast with
         // 'bsl::time_t', this type can be used in conversions to and from
@@ -470,9 +470,9 @@ int bdetu_Epoch::convertToTimeT(bsl::time_t          *result,
         return 1;                                                     // RETURN
     }
 
-    bsls_Types::Int64 seconds = ((datetime - *s_epoch_p).totalMilliseconds()
+    bsls::Types::Int64 seconds = ((datetime - *s_epoch_p).totalMilliseconds()
                                               - datetime.millisecond()) / 1000;
-    if (bsls_Types::Uint64(seconds) > 0x7FFFFFFFULL) {              // 2^31 - 1
+    if (bsls::Types::Uint64(seconds) > 0x7FFFFFFFULL) {             // 2^31 - 1
         return 1;                                                   // OVERFLOW
     }
 

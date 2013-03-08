@@ -244,7 +244,7 @@ void bdeimp_BitwiseCopy<TYPE>::copy(TYPE *dstAddr, const TYPE *srcAddr)
     // The compiler thus provides and invokes an assignment operator, producing
     // a compiler-optimized bitwise copy.
 
-    typedef bsls_ObjectBuffer<TYPE> BitType;
+    typedef bsls::ObjectBuffer<TYPE> BitType;
 
     // The compiler will use the most efficient bit-wise copy instructions
     // available for assigning the memory at srcAddr to the memory at dstAddr.
@@ -259,7 +259,7 @@ void bdeimp_BitwiseCopy<TYPE>::swap(TYPE *addr1, TYPE *addr2)
     BSLS_ASSERT_SAFE(addr1);  BSLS_ASSERT_SAFE(addr2);
 
     // Object big enough to hold a 'TYPE', properly aligned.
-    bsls_ObjectBuffer<TYPE> temp;
+    bsls::ObjectBuffer<TYPE> temp;
 
     bdeimp_BitwiseCopy<TYPE>::copy(&temp.object(), addr1);
     bdeimp_BitwiseCopy<TYPE>::copy(addr1, addr2);

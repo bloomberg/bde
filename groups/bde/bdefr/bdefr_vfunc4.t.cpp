@@ -31,7 +31,7 @@ using namespace bsl;  // automatically added by script
 // 'decrement' method.  We will use a composition of the 'increment' and
 // 'decrement' functions to retrieve the value of 'd_count'.
 //
-// We will use the API provided by bslma_TestAllocator to verify that
+// We will use the API provided by bslma::TestAllocator to verify that
 // 'deleteObject' deallocates memory as expected.
 //
 // In order to test 'bdefr_Vfunc4' we have to implement a concrete class
@@ -41,7 +41,7 @@ using namespace bsl;  // automatically added by script
 // are called.
 //
 // We use the following abbreviations:
-//  'bA'      for 'bslma_Allocator'
+//  'bA'      for 'bslma::Allocator'
 //  'c_A1'    for 'const A1'
 //  'c_A1-N   for 'const A1, const A2, ... ,  const AN'
 //  'c_A1-N&' for 'const A1&, const A2&, ... , const AN&'
@@ -50,7 +50,7 @@ using namespace bsl;  // automatically added by script
 //  'c_D1-N&' for 'const D1&, const D2&, ... , const DN&'
 //
 //-----------------------------------------------------------------------------
-// [ 2] bdefr_Vfunc4<A1-4>(bslma_Allocator *ba);
+// [ 2] bdefr_Vfunc4<A1-4>(bslma::Allocator *ba);
 // [ 2] void increment();
 // [ 2] int decrement();
 // [ 2] void execute(c_A1-4&) const;
@@ -92,7 +92,7 @@ static int dtorUsageCounter = 0;
 template <class A1, class A2, class A3, class A4>
 class ConcreteDerivedClass : public bdefr_Vfunc4 <A1, A2, A3, A4> {
   public:
-    ConcreteDerivedClass(bslma_Allocator *basicAllocator)
+    ConcreteDerivedClass(bslma::Allocator *basicAllocator)
     : bdefr_Vfunc4<A1, A2, A3, A4>(basicAllocator) { }
 
     virtual void execute(const A1& argument1, const A2& argument2,
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
 
             typedef ConcreteDerivedClass<int, int, int, int> DerivedObj;
             typedef bdefr_Vfunc4<int, int, int, int> Obj;
-            bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+            bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 
             Obj *x = new(*myAllocator) DerivedObj(myAllocator);
             {
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
         //    5. 'dtor' is defined as a virtual method.
         //
         // Plan
-        //   1.   Create a class instance that uses a 'bslma_TestAllocator' to
+        //   1.   Create a class instance that uses a 'bslma::TestAllocator' to
         //        initialize 'd_allocator_p'.  Check the value of 'd_count'
         //        using global 'getCount' function.
         //   2.   Verify that 'd_count' equals '0' using 'getCount' function.
@@ -275,12 +275,12 @@ int main(int argc, char *argv[])
         //        'd_count' is >= '0'.
         //   3,5. Invoke 'deleteObject'.  (a) Verify that it destroys the
         //        object by calling its destructor.  (b) Verify that the
-        //        memory was freed by 'bslma_TestAllocator'.
+        //        memory was freed by 'bslma::TestAllocator'.
         //   4.   Invoke 'execute' method.  Verify that the global counter was
         //        incremented.
         //
         // Testing:
-        //   bdefr_Vfunc4<A1-4>(bslma_Allocator *ba);
+        //   bdefr_Vfunc4<A1-4>(bslma::Allocator *ba);
         //   void increment();
         //   int decrement();
         //   void execute(c_A1-4&) const;

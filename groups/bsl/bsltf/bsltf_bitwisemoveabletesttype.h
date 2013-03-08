@@ -72,6 +72,10 @@ BSLS_IDENT("$Id: $")
 //  Type defines bslmf::IsBitwiseMoveable.
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -131,16 +135,6 @@ class BitwiseMoveableTestType {
         // Return the value of the 'data' attribute of this object.
 };
 
-}
-
-// TRAITS
-namespace bslmf {
-template <> struct IsBitwiseMoveable<bsltf::BitwiseMoveableTestType>
-    : bsl::true_type {};
-}
-
-namespace bsltf {
-
 // FREE OPERATORS
 bool operator==(const BitwiseMoveableTestType& lhs,
                 const BitwiseMoveableTestType& rhs);
@@ -191,32 +185,52 @@ int BitwiseMoveableTestType::data() const
     return d_data;
 }
 
+}  // close package namespace
 
 // FREE OPERATORS
 inline
-bool operator==(const bsltf::BitwiseMoveableTestType& lhs,
-                const bsltf::BitwiseMoveableTestType& rhs)
+bool bsltf::operator==(const bsltf::BitwiseMoveableTestType& lhs,
+                       const bsltf::BitwiseMoveableTestType& rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const bsltf::BitwiseMoveableTestType& lhs,
-                const bsltf::BitwiseMoveableTestType& rhs)
+bool bsltf::operator!=(const bsltf::BitwiseMoveableTestType& lhs,
+                       const bsltf::BitwiseMoveableTestType& rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+// TRAITS
+namespace bslmf {
+template <>
+struct IsBitwiseMoveable<bsltf::BitwiseMoveableTestType>
+    : bsl::true_type {};
+}  // close namespace bslmf
+
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -50,7 +50,7 @@ BDES_IDENT("$Id: $")
 //..
 //   class ConcreteDerivedClass : public bdefr_Vfunc0 {
 //     public:
-//       ConcreteDerivedClass(bslma_Allocator *basicAllocator)
+//       ConcreteDerivedClass(bslma::Allocator *basicAllocator)
 //       : bdefr_Vfunc0(basicAllocator) { }
 //
 //       virtual void execute() const
@@ -115,7 +115,7 @@ BDES_IDENT("$Id: $")
 //
 //   typedef ConcreteDerivedClass DerivedObj;
 //   typedef bdefr_Vfunc0 Obj;
-//   bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+//   bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 //
 //   Obj *x = new(myAllocator) DerivedObj(myAllocator);
 //   {
@@ -162,8 +162,9 @@ class bdefr_Vfunc0 {
     // allows the derived classes to declare the destructor 'private', and
     // limit an object instantiation to the heap.
 
-    int d_count;                    // dumb data (number of active references)
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) memory allocator
+    int d_count;                     // dumb data (number of active references)
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) memory
+                                     // allocator
 
   private:
     bdefr_Vfunc0(const bdefr_Vfunc0&);                  // not implemented
@@ -185,7 +186,7 @@ class bdefr_Vfunc0 {
         // 'object' holds a valid memory allocator.
 
     // CREATORS
-    bdefr_Vfunc0(bslma_Allocator *basicAllocator);
+    bdefr_Vfunc0(bslma::Allocator *basicAllocator);
         // Create the base portion of a functor object that holds the specified
         // 'basicAllocator' and that has its reference count set to 0.
 
@@ -214,7 +215,7 @@ inline void bdefr_Vfunc0::deleteObject(bdefr_Vfunc0 *object)
 }
 
 // CREATORS
-inline bdefr_Vfunc0::bdefr_Vfunc0(bslma_Allocator *basicAllocator)
+inline bdefr_Vfunc0::bdefr_Vfunc0(bslma::Allocator *basicAllocator)
 : d_count(0)
 , d_allocator_p(basicAllocator)
 {

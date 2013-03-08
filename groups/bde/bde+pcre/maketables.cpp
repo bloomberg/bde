@@ -70,7 +70,7 @@ Returns:     pointer to the contiguous block of data
 const unsigned char *
 pcre_maketables(
 #if !defined(DFTABLES) && !defined(NO_BDEPCRE)
-                bslma_Allocator *allocator)
+                bslma::Allocator *allocator)
 #else
                 void)
 #endif

@@ -11,8 +11,8 @@
 #include <bdef_memfn.h>
 
 #include <bsl_cstdlib.h>
-#include <bsl_hash_map.h>
 #include <bsl_iostream.h>
+#include <bsl_unordered_map.h>
 #include <bsl_utility.h>
 
 using namespace BloombergLP;
@@ -205,7 +205,7 @@ class my_TimedSocketMultiplexer {
     };
 
   private:
-    typedef bsl::hash_map<bteso_Event, my_TimerInfo, bteso_EventHash>
+    typedef bsl::unordered_map<bteso_Event, my_TimerInfo, bteso_EventHash>
                                             EventTimeMap;
 
     EventTimeMap                            d_eventTimeMap;

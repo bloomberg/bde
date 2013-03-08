@@ -306,16 +306,16 @@ BDES_IDENT("$Id: $")
 #include <bdeut_stringref.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -350,13 +350,13 @@ class bdeut_StrTokenIter {
 
   public:
     // CREATORS
-    bdeut_StrTokenIter(const char      *input,
-                       const char      *softDelims,
-                       bslma_Allocator *basicAllocator = 0);
-    bdeut_StrTokenIter(const char      *input,
-                       const char      *softDelims,
-                       const char      *hardDelims,
-                       bslma_Allocator *basicAllocator = 0);
+    bdeut_StrTokenIter(const char       *input,
+                       const char       *softDelims,
+                       bslma::Allocator *basicAllocator = 0);
+    bdeut_StrTokenIter(const char       *input,
+                       const char       *softDelims,
+                       const char       *hardDelims,
+                       bslma::Allocator *basicAllocator = 0);
         // Create a token iterator for the specified 'input' string in which
         // each token is delimited by one or more (non-null) characters defined
         // in the specified 'softDelims' and the optionally-specified

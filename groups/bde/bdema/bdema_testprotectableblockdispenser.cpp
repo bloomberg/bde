@@ -9,7 +9,7 @@ BDES_IDENT_RCSID(bdema_testprotectableblockdispenser_cpp,"$Id$ $CSID$")
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <cstdio>                  // print messages
 #include <cstdlib>                 // abort
@@ -29,15 +29,15 @@ const unsigned int DEALLOCATED_MEMORY = 0xDEADF00D;  // used to identify memory
 const unsigned char SCRIBBLED_MEMORY = 0xA5;         // byte used to scribble
                                                      // deallocated memory
 
-unsigned int adler(const unsigned char          *data,
-                   bsls_PlatformUtil::size_type  length)
+unsigned int adler(const unsigned char    *data,
+                   bsls::Types::size_type  length)
     // A simple implementation of the Adler-32 algorithm.
 {
     static const int MOD_ADLER = 65521;
 
     unsigned int a = 1, b = 0;
     while (length > 0) {
-        bsls_PlatformUtil::size_type tlen = length > 5550 ? 5550 : length;
+        bsls::Types::size_type tlen = length > 5550 ? 5550 : length;
         length -= tlen;
         do {
             a += *data++;
@@ -52,8 +52,8 @@ unsigned int adler(const unsigned char          *data,
 }
 
 inline
-unsigned int checksum(const unsigned char          *data,
-                      bsls_PlatformUtil::size_type  length)
+unsigned int checksum(const unsigned char    *data,
+                      bsls::Types::size_type  length)
     // Return a simple checksum of the specified 'data' having the specified
     // 'length'.  Implementation Note: levelization rules prevent using 'bdede'
     // components from within this component.  Instead, this component defines
@@ -86,8 +86,8 @@ struct Header {
 union Align {
     // Maximally-aligned raw buffer big enough for a 'Header'.
 
-    Header                             d_object;
-    bsls_AlignmentUtil::MaxAlignedType d_alignment;
+    Header                              d_object;
+    bsls::AlignmentUtil::MaxAlignedType d_alignment;
 };
 
                         // ===========================
@@ -192,9 +192,8 @@ void printBadBlock(const Align                        *align,
 }
 
 inline
-bsls_PlatformUtil::size_type allocationSize(
-                                    bsls_PlatformUtil::size_type requestedSize,
-                                    bsls_PlatformUtil::size_type pageSize)
+bsls::Types::size_type allocationSize(bsls::Types::size_type requestedSize,
+                                      bsls::Types::size_type pageSize)
     // Return the size to allocate for the specified 'requestedSize' based on
     // the specified system 'pageSize'.
 {
@@ -244,8 +243,8 @@ bdema_TestProtectableBlockDispenser(int pageSize, bool verboseFlag)
 , d_lastDeallocateNumBytes(0)
 , d_lastAllocateAddress(0)
 , d_lastDeallocateAddress(0)
-, d_numAllocation(0)
-, d_numDeallocation(0)
+, d_numAllocations(0)
+, d_numDeallocations(0)
 , d_noAbortFlag(false)
 , d_quietFlag(false)
 , d_verboseFlag(verboseFlag)
@@ -277,7 +276,7 @@ bdema_TestProtectableBlockDispenser::~bdema_TestProtectableBlockDispenser()
 bdema_MemoryBlockDescriptor
 bdema_TestProtectableBlockDispenser::allocate(size_type numBytes)
 {
-    ++d_numAllocation;
+    ++d_numAllocations;
 
     d_lastAllocateNumBytes = numBytes;
     d_lastAllocateAddress  = 0; // Set to zero in case of premature returns.
@@ -286,7 +285,7 @@ bdema_TestProtectableBlockDispenser::allocate(size_type numBytes)
     if (0 <= d_allocationLimit) {
         --d_allocationLimit;
         if (0 > d_allocationLimit) {
-            throw bslma_TestAllocatorException(numBytes);
+            throw bslma::TestAllocatorException(numBytes);
         }
     }
 #endif
@@ -318,9 +317,9 @@ bdema_TestProtectableBlockDispenser::allocate(size_type numBytes)
                                 std::malloc(sizeof *align + actualNumBytes));
 
     // Ensure malloc returned maximally aligned memory.
-    BSLS_ASSERT(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
-                                      align,
-                                      bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT));
+    BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+                                     align,
+                                     bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
 
     align->d_object.d_bytes       = actualNumBytes;
     align->d_object.d_magicNumber = MAGIC_NUMBER;
@@ -351,16 +350,16 @@ bdema_TestProtectableBlockDispenser::allocate(size_type numBytes)
     d_lastAllocateNumBytes = actualNumBytes;
     d_lastAllocateAddress  = addr;
 
-    BSLS_ASSERT(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
-                                      addr,
-                                      bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT));
+    BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+                                     addr,
+                                     bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
     return bdema_MemoryBlockDescriptor(addr, actualNumBytes);
 }
 
 void bdema_TestProtectableBlockDispenser::deallocate(
                                       const bdema_MemoryBlockDescriptor& block)
 {
-    ++d_numDeallocation;
+    ++d_numDeallocations;
     d_lastDeallocateAddress = block.address();
     d_lastDeallocateNumBytes = 0;  // Set to zero in case of premature returns.
 

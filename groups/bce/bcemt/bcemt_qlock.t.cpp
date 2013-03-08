@@ -326,10 +326,10 @@ class Rand {
     }
 };
 
-void printMetrics(bsl::ostream&   out,
-                  const char      *name,
-                  bsl::size_t           numTotal,
-                  bsls_Stopwatch&  sw)
+void printMetrics(bsl::ostream&     out,
+                  const char       *name,
+                  bsl::size_t       numTotal,
+                  bsls::Stopwatch&  sw)
 {
     out << name
         << " NumIter="  << numTotal
@@ -1173,7 +1173,7 @@ int main(int argc, char *argv[])
         };
 
         {
-            bsls_Stopwatch sw;
+            bsls::Stopwatch sw;
             sw.start();
 
             CaseData5 data;
@@ -1208,7 +1208,7 @@ int main(int argc, char *argv[])
        }
 
        {
-            bsls_Stopwatch sw;
+            bsls::Stopwatch sw;
             sw.start();
 
             CaseData5 data;
@@ -1333,7 +1333,7 @@ int main(int argc, char *argv[])
         data.d_mutex = &mutex;
 
         {
-            bsls_Stopwatch sw;
+            bsls::Stopwatch sw;
             MyTask task3(testCase3, &data);
 
             sw.start();
@@ -1353,7 +1353,7 @@ int main(int argc, char *argv[])
 
        // repeat the same test with bcemt_mutex
        {
-            bsls_Stopwatch sw;
+            bsls::Stopwatch sw;
 
             MyTask task3a(testCase3a, &data);
 

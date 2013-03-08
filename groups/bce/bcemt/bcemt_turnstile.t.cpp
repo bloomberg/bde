@@ -8,9 +8,11 @@
 #include <bces_atomictypes.h>
 
 #include <bdef_bind.h>
-#include <bsls_stopwatch.h>
 #include <bdet_datetime.h>
 #include <bdetu_systemtime.h>
+
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_cmath.h>
 #include <bsl_cstdio.h>
@@ -35,7 +37,7 @@ using bsl::flush;
 //
 // The component under test has state, but not value.  State transitions must
 // be confirmed explicitly.  The timing functions can be verified to a
-// reasonable degree using the 'bsls_Stopwatch::elapsedTime()' function to
+// reasonable degree using the 'bsls::Stopwatch::elapsedTime()' function to
 // measure intervals.
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -45,12 +47,12 @@ using bsl::flush;
 // [ 1] ~bcemt_Turnstile();
 //
 // MANIPULATORS
-// [ 2] bsls_PlatformUtil::Int64 waitTurn();
+// [ 2] bsls::Types::Int64 waitTurn();
 // [ 3] void reset(double                   rate,
 //                 const bdet_TimeInterval& startTime = bdet_TimeInterval(0));
 //
 // ACCESSORS
-// [ 2] bsls_PlatformUtil::Int64 lagTime() const;
+// [ 2] bsls::Types::Int64 lagTime() const;
 //-----------------------------------------------------------------------------
 // [ 6] USAGE EXAMPLE
 // [ 1] BREATHING TEST
@@ -120,8 +122,8 @@ static bcemt_Mutex coutMutex;
 //=============================================================================
 //              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
-typedef bcemt_Turnstile          Obj;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bcemt_Turnstile    Obj;
+typedef bsls::Types::Int64 Int64;
 
 enum { USPS = 1000000 };  // microseconds per second
 
@@ -194,7 +196,7 @@ void processorWithTurnstile(
     // specified 'rate' (given in messages per second) for the specified
     // 'duration'.
 
-    bsls_Stopwatch  timer;
+    bsls::Stopwatch timer;
     bcemt_Turnstile turnstile(rate);
     double          elapsed = 0.0;
     int             numTurns = static_cast<int>(rate * duration);
@@ -221,10 +223,10 @@ void processorWithSleep(
     // specified 'rate' (given in messages per second) for the specified
     // 'duration'.
 
-    bsls_Stopwatch timer;
-    int            sleepInterval = static_cast<int>(1000000 / rate);  // usec
-    double         elapsed = 0.0;
-    int            numTurns = static_cast<int>(rate * duration);
+    bsls::Stopwatch timer;
+    int             sleepInterval = static_cast<int>(1000000 / rate);  // usec
+    double          elapsed = 0.0;
+    int             numTurns = static_cast<int>(rate * duration);
 
     ASSERT(static_cast<double>(numTurns) == rate * duration);  // integral
 
@@ -253,7 +255,7 @@ void heartbeat(
     // specified 'rate' (given in messages per second) for the specified
     // 'duration'.
 
-    bsls_Stopwatch  timer;
+    bsls::Stopwatch timer;
     timer.start();
     bcemt_Turnstile turnstile(rate);
 
@@ -293,7 +295,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma_TestAllocator' object where applicable.
+        //   objects with a 'bslma::TestAllocator' object where applicable.
         //   Additionally, replace all calls to 'assert' in the usage example
         //   with calls to 'ASSERT'.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
@@ -314,7 +316,7 @@ int main(int argc, char *argv[])
         const bsl::string MESSAGE = "1234567890";
         const bsl::size_t MSGLEN  = MESSAGE.length();
 
-        bsls_Stopwatch     timer;
+        bsls::Stopwatch    timer;
         bsl::ostringstream oss;
         timer.start();
         heartbeat(oss, MESSAGE, RATE, DURATION - EPSILON);
@@ -506,7 +508,7 @@ int main(int argc, char *argv[])
         const bdet_TimeInterval OFFSET(1.0);  // turnstile start offset (1 sec)
 
         const double WT   = 1.0 / RATE;    // max wait time for each turn
-        const Int64  WTUB = 
+        const Int64  WTUB =
            static_cast<Int64>(USPS * (WT + EPSILON));  // upper bound wait time
         const Int64  WTLB =
            static_cast<Int64>(USPS * (WT - EPSILON));  // lower bound wait time
@@ -627,8 +629,8 @@ int main(int argc, char *argv[])
         //   'waitTime' is 0, and the result of 'lagTime' is positive.
         //
         // Testing:
-        //   bsls_PlatformUtil::Int64 waitTurn();
-        //   bsls_PlatformUtil::Int64 lagTime() const;
+        //   bsls::Types::Int64 waitTurn();
+        //   bsls::Types::Int64 lagTime() const;
         // --------------------------------------------------------------------
 
         if (verbose) {

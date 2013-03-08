@@ -356,6 +356,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -370,10 +374,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
@@ -450,7 +450,7 @@ class bdem_List {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdem_List,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // TYPES
     class InitialMemory {
@@ -474,13 +474,13 @@ class bdem_List {
 
     // CREATORS
     explicit
-    bdem_List(bslma_Allocator                          *basicAllocator = 0);
+    bdem_List(bslma::Allocator                         *basicAllocator = 0);
     explicit
     bdem_List(bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
     bdem_List(bdem_AggregateOption::AllocationStrategy  allocationStrategy,
               const InitialMemory&                      initialMemorySize,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
         // Create a list of length 0.  Optionally specify a memory
         // 'allocationStrategy'.  If 'allocationStrategy' is not specified,
         // then 'BDEM_PASS_THROUGH' is used.  (The meanings of the various
@@ -499,16 +499,16 @@ class bdem_List {
 
     bdem_List(const bdem_ElemType::Type                *elementTypes,
               int                                       numElements,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
     bdem_List(const bdem_ElemType::Type                *elementTypes,
               int                                       numElements,
               bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
     bdem_List(const bdem_ElemType::Type                *elementTypes,
               int                                       numElements,
               bdem_AggregateOption::AllocationStrategy  allocationStrategy,
               const InitialMemory&                      initialMemorySize,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
         // Create a list having the specified 'numElements', whose types are
         // the same as those in the specified 'elementTypes', with each element
         // set to null and having its respective unset value (see
@@ -529,14 +529,14 @@ class bdem_List {
         // specified.
 
     bdem_List(const bsl::vector<bdem_ElemType::Type>&   elementTypes,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
     bdem_List(const bsl::vector<bdem_ElemType::Type>&   elementTypes,
               bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
     bdem_List(const bsl::vector<bdem_ElemType::Type>&   elementTypes,
               bdem_AggregateOption::AllocationStrategy  allocationStrategy,
               const InitialMemory&                      initialMemorySize,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
         // Create a list having the sequence of element types that is the same
         // as that of the specified 'elementTypes', with each element set to
         // null and having its respective unset value (see 'bdetu_unset').
@@ -556,23 +556,23 @@ class bdem_List {
         // specified.
 
     explicit bdem_List(const bdem_Row&                  original,
-                       bslma_Allocator                 *basicAllocator = 0);
+                       bslma::Allocator                *basicAllocator = 0);
     bdem_List(const bdem_List&                          original,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
     bdem_List(const bdem_Row&                           original,
               bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
     bdem_List(const bdem_Row&                           original,
               bdem_AggregateOption::AllocationStrategy  allocationStrategy,
               const InitialMemory&                      initialMemorySize,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
     bdem_List(const bdem_List&                          original,
               bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
     bdem_List(const bdem_List&                          original,
               bdem_AggregateOption::AllocationStrategy  allocationStrategy,
               const InitialMemory&                      initialMemorySize,
-              bslma_Allocator                          *basicAllocator = 0);
+              bslma::Allocator                         *basicAllocator = 0);
         // Create a list having the value of the specified 'original' object
         // (row or list).  Optionally specify a memory 'allocationStrategy'.
         // If 'allocationStrategy' is not specified, then 'BDEM_PASS_THROUGH'
@@ -620,7 +620,7 @@ class bdem_List {
     char& theModifiableChar(int index);
     short& theModifiableShort(int index);
     int& theModifiableInt(int index);
-    bsls_Types::Int64& theModifiableInt64(int index);
+    bsls::Types::Int64& theModifiableInt64(int index);
     float& theModifiableFloat(int index);
     double& theModifiableDouble(int index);
     bsl::string& theModifiableString(int index);
@@ -634,7 +634,7 @@ class bdem_List {
     bsl::vector<char>& theModifiableCharArray(int index);
     bsl::vector<short>& theModifiableShortArray(int index);
     bsl::vector<int>& theModifiableIntArray(int index);
-    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array(int index);
+    bsl::vector<bsls::Types::Int64>& theModifiableInt64Array(int index);
     bsl::vector<float>& theModifiableFloatArray(int index);
     bsl::vector<double>& theModifiableDoubleArray(int index);
     bsl::vector<bsl::string>& theModifiableStringArray(int index);
@@ -700,7 +700,7 @@ class bdem_List {
         // 'bdem_ElemType::BDEM_INT'.  Note that, if accessed, the value will
         // be the corresponding unset value for 'int' (see 'bdetu_unset').
 
-    void appendInt64(bsls_Types::Int64 value);
+    void appendInt64(bsls::Types::Int64 value);
         // Append to this list a non-null element of type
         // 'bdem_ElemType::BDEM_INT64' having the specified 'value'.
 
@@ -835,7 +835,7 @@ class bdem_List {
         // 'bdem_ElemType::BDEM_INT_ARRAY'.  Note that, if accessed, the array
         // will have a size of 0.
 
-    void appendInt64Array(const bsl::vector<bsls_Types::Int64>& value);
+    void appendInt64Array(const bsl::vector<bsls::Types::Int64>& value);
         // Append to this list a non-null element of type
         // 'bdem_ElemType::BDEM_INT64_ARRAY' having the specified 'value'.
 
@@ -1088,7 +1088,7 @@ class bdem_List {
         // '0 <= dstIndex <= length()'.  Note that, if accessed, the value will
         // be the corresponding unset value for 'int' (see 'bdetu_unset').
 
-    void insertInt64(int dstIndex, bsls_Types::Int64 value);
+    void insertInt64(int dstIndex, bsls::Types::Int64 value);
         // Insert into this list, at the specified 'dstIndex', a non-null
         // element of type 'bdem_ElemType::BDEM_INT64' having the specified
         // 'value'.  Each element having an index greater than or equal to
@@ -1310,8 +1310,8 @@ class bdem_List {
         // '0 <= dstIndex <= length()'.  Note that, if accessed, the array will
         // have a size of 0.
 
-    void insertInt64Array(int                                   dstIndex,
-                          const bsl::vector<bsls_Types::Int64>& value);
+    void insertInt64Array(int                                    dstIndex,
+                          const bsl::vector<bsls::Types::Int64>& value);
         // Insert into this list, at the specified 'dstIndex', a non-null
         // element of type 'bdem_ElemType::BDEM_INT64_ARRAY' having the
         // specified 'value'.  Each element having an index greater than or
@@ -1771,7 +1771,7 @@ class bdem_List {
     const char& theChar(int index) const;
     const short& theShort(int index) const;
     const int& theInt(int index) const;
-    const bsls_Types::Int64& theInt64(int index) const;
+    const bsls::Types::Int64& theInt64(int index) const;
     const float& theFloat(int index) const;
     const double& theDouble(int index) const;
     const bsl::string& theString(int index) const;
@@ -1785,7 +1785,7 @@ class bdem_List {
     const bsl::vector<char>& theCharArray(int index) const;
     const bsl::vector<short>& theShortArray(int index) const;
     const bsl::vector<int>& theIntArray(int index) const;
-    const bsl::vector<bsls_Types::Int64>& theInt64Array(int index) const;
+    const bsl::vector<bsls::Types::Int64>& theInt64Array(int index) const;
     const bsl::vector<float>& theFloatArray(int index) const;
     const bsl::vector<double>& theDoubleArray(int index) const;
     const bsl::vector<bsl::string>& theStringArray(int index) const;
@@ -1908,7 +1908,7 @@ int bdem_List::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-bdem_List::bdem_List(bslma_Allocator *basicAllocator)
+bdem_List::bdem_List(bslma::Allocator *basicAllocator)
 : d_listImp(bdem_AggregateOption::BDEM_PASS_THROUGH, basicAllocator)
 {
 }
@@ -1916,7 +1916,7 @@ bdem_List::bdem_List(bslma_Allocator *basicAllocator)
 inline
 bdem_List::bdem_List(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_listImp(allocationStrategy, basicAllocator)
 {
 }
@@ -1925,7 +1925,7 @@ inline
 bdem_List::bdem_List(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_listImp(allocationStrategy,
             bdem_ListImp::InitialMemory(initialMemorySize),
             basicAllocator)
@@ -1936,7 +1936,7 @@ bdem_List::bdem_List(
 inline
 bdem_List::bdem_List(const bdem_ElemType::Type *elementTypes,
                      int                        numElements,
-                     bslma_Allocator           *basicAllocator)
+                     bslma::Allocator          *basicAllocator)
 : d_listImp(elementTypes,
             numElements,
             bdem_ElemAttrLookup::lookupTable(),
@@ -1951,7 +1951,7 @@ bdem_List::bdem_List(
                   const bdem_ElemType::Type                *elementTypes,
                   int                                       numElements,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_listImp(elementTypes,
             numElements,
             bdem_ElemAttrLookup::lookupTable(),
@@ -1967,7 +1967,7 @@ bdem_List::bdem_List(
                   int                                       numElements,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_listImp(elementTypes,
             numElements,
             bdem_ElemAttrLookup::lookupTable(),
@@ -1980,7 +1980,8 @@ bdem_List::bdem_List(
 }
 
 inline
-bdem_List::bdem_List(const bdem_Row& original, bslma_Allocator *basicAllocator)
+bdem_List::bdem_List(const bdem_Row&   original,
+                     bslma::Allocator *basicAllocator)
 : d_listImp(reinterpret_cast<const bdem_RowData&>(original),
             bdem_AggregateOption::BDEM_PASS_THROUGH,
             basicAllocator)
@@ -1989,7 +1990,7 @@ bdem_List::bdem_List(const bdem_Row& original, bslma_Allocator *basicAllocator)
 
 inline
 bdem_List::bdem_List(const bdem_List&  original,
-                     bslma_Allocator  *basicAllocator)
+                     bslma::Allocator *basicAllocator)
 : d_listImp(reinterpret_cast<const bdem_ListImp&>(original),
             bdem_AggregateOption::BDEM_PASS_THROUGH,
             basicAllocator)
@@ -2000,7 +2001,7 @@ inline
 bdem_List::bdem_List(
                   const bdem_Row&                           original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_listImp(reinterpret_cast<const bdem_RowData&>(original),
             allocationStrategy,
             basicAllocator)
@@ -2012,7 +2013,7 @@ bdem_List::bdem_List(
                   const bdem_Row&                           original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_listImp(reinterpret_cast<const bdem_RowData&>(original),
             allocationStrategy,
             bdem_ListImp::InitialMemory(initialMemorySize),
@@ -2025,7 +2026,7 @@ inline
 bdem_List::bdem_List(
                   const bdem_List&                          original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_listImp(reinterpret_cast<const bdem_ListImp&>(original),
             allocationStrategy,
             basicAllocator)
@@ -2037,7 +2038,7 @@ bdem_List::bdem_List(
                   const bdem_List&                          original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_listImp(reinterpret_cast<const bdem_ListImp&>(original),
             allocationStrategy,
             bdem_ListImp::InitialMemory(initialMemorySize),
@@ -2119,12 +2120,12 @@ int& bdem_List::theModifiableInt(int index)
 }
 
 inline
-bsls_Types::Int64& bdem_List::theModifiableInt64(int index)
+bsls::Types::Int64& bdem_List::theModifiableInt64(int index)
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(     index < length());
 
-    return *static_cast<bsls_Types::Int64 *>(elemData(index));
+    return *static_cast<bsls::Types::Int64 *>(elemData(index));
 }
 
 inline
@@ -2245,13 +2246,13 @@ bsl::vector<int>& bdem_List::theModifiableIntArray(int index)
 }
 
 inline
-bsl::vector<bsls_Types::Int64>&
+bsl::vector<bsls::Types::Int64>&
 bdem_List::theModifiableInt64Array(int index)
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(     index < length());
 
-    return *static_cast<bsl::vector<bsls_Types::Int64> *>(elemData(index));
+    return *static_cast<bsl::vector<bsls::Types::Int64> *>(elemData(index));
 }
 
 inline
@@ -2427,7 +2428,7 @@ void bdem_List::appendNullInt64()
 }
 
 inline
-void bdem_List::appendInt64(bsls_Types::Int64 value)
+void bdem_List::appendInt64(bsls::Types::Int64 value)
 {
     insertInt64(length(), value);
 }
@@ -2602,7 +2603,7 @@ void bdem_List::appendNullInt64Array()
 
 inline
 void
-bdem_List::appendInt64Array(const bsl::vector<bsls_Types::Int64>& value)
+bdem_List::appendInt64Array(const bsl::vector<bsls::Types::Int64>& value)
 {
     insertInt64Array(length(), value);
 }
@@ -2924,7 +2925,7 @@ void bdem_List::insertNullInt64(int dstIndex)
 }
 
 inline
-void bdem_List::insertInt64(int dstIndex, bsls_Types::Int64 value)
+void bdem_List::insertInt64(int dstIndex, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
@@ -3213,8 +3214,8 @@ void bdem_List::insertNullInt64Array(int dstIndex)
 
 inline
 void
-bdem_List::insertInt64Array(int                                   dstIndex,
-                            const bsl::vector<bsls_Types::Int64>& value)
+bdem_List::insertInt64Array(int                                    dstIndex,
+                            const bsl::vector<bsls::Types::Int64>& value)
 {
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
@@ -3788,12 +3789,12 @@ const int& bdem_List::theInt(int index) const
 }
 
 inline
-const bsls_Types::Int64& bdem_List::theInt64(int index) const
+const bsls::Types::Int64& bdem_List::theInt64(int index) const
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(     index < length());
 
-    return *static_cast<const bsls_Types::Int64 *>(elemData(index));
+    return *static_cast<const bsls::Types::Int64 *>(elemData(index));
 }
 
 inline
@@ -3915,12 +3916,12 @@ const bsl::vector<int>& bdem_List::theIntArray(int index) const
 
 inline
 const
-bsl::vector<bsls_Types::Int64>& bdem_List::theInt64Array(int index) const
+bsl::vector<bsls::Types::Int64>& bdem_List::theInt64Array(int index) const
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(     index < length());
 
-    return *static_cast<const bsl::vector<bsls_Types::Int64> *>(
+    return *static_cast<const bsl::vector<bsls::Types::Int64> *>(
                                                               elemData(index));
 }
 

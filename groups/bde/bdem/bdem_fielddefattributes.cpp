@@ -48,11 +48,11 @@ const bdem_Descriptor *defaultValueDescriptor(bdem_ElemType::Type fieldType)
 
 // CREATORS
 bdem_FieldDefAttributes::bdem_FieldDefAttributes(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_elemType(bdem_ElemType::BDEM_VOID)
 , d_flags(DEFAULT_VALUE_IS_NULL_FLAG)
 , d_formattingMode(bdeat_FormattingMode::BDEAT_DEFAULT)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     // Note that 'defaultValueDescriptor' converts from array type to scalar,
     // and from aggregate to 'VOID'.
@@ -65,11 +65,11 @@ bdem_FieldDefAttributes::bdem_FieldDefAttributes(
 
 bdem_FieldDefAttributes::bdem_FieldDefAttributes(
                                            bdem_ElemType::Type  type,
-                                           bslma_Allocator     *basicAllocator)
+                                           bslma::Allocator    *basicAllocator)
 : d_elemType(type)
 , d_flags(DEFAULT_VALUE_IS_NULL_FLAG)
 , d_formattingMode(bdeat_FormattingMode::BDEAT_DEFAULT)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     // Note that 'defaultValueDescriptor' converts from array type to scalar,
     // and from aggregate to 'VOID'.
@@ -83,12 +83,12 @@ bdem_FieldDefAttributes::bdem_FieldDefAttributes(
 bdem_FieldDefAttributes::bdem_FieldDefAttributes(
                                          bdem_ElemType::Type  type,
                                          bool                 nullabilityFlag,
-                                         bslma_Allocator     *basicAllocator)
+                                         bslma::Allocator    *basicAllocator)
 : d_elemType(type)
 , d_flags((nullabilityFlag ? IS_NULLABLE_FLAG : 0) |
                                                     DEFAULT_VALUE_IS_NULL_FLAG)
 , d_formattingMode(bdeat_FormattingMode::BDEAT_DEFAULT)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     // Note that 'defaultValueDescriptor' converts from array type to scalar,
     // and from aggregate to 'VOID'.
@@ -103,12 +103,12 @@ bdem_FieldDefAttributes::bdem_FieldDefAttributes(
                                          bdem_ElemType::Type  type,
                                          bool                 nullabilityFlag,
                                          int                  formattingMode,
-                                         bslma_Allocator     *basicAllocator)
+                                         bslma::Allocator    *basicAllocator)
 : d_elemType(type)
 , d_flags((nullabilityFlag ? IS_NULLABLE_FLAG : 0) |
                                                     DEFAULT_VALUE_IS_NULL_FLAG)
 , d_formattingMode(formattingMode)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     // Note that 'defaultValueDescriptor' converts from array type to scalar,
     // and from aggregate to 'VOID'.
@@ -121,11 +121,11 @@ bdem_FieldDefAttributes::bdem_FieldDefAttributes(
 
 bdem_FieldDefAttributes::bdem_FieldDefAttributes(
                                 const bdem_FieldDefAttributes&  original,
-                                bslma_Allocator                *basicAllocator)
+                                bslma::Allocator               *basicAllocator)
 : d_elemType(original.d_elemType)
 , d_flags(original.d_flags)
 , d_formattingMode(original.d_formattingMode)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     // Note that 'defaultValueDescriptor' converts from array type to scalar,
     // and from aggregate to 'VOID'.

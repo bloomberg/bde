@@ -294,24 +294,24 @@ int main(int argc, char *argv[])
 #define NL "\n"
         //line lvl spl enumerator                     result
         //---- --- --- -----------------------------  ----------------------
-        { L_,   0,  4, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
-        { L_,   0,  4, Obj::BTEMT_CACHE_OVERFLOW,     "CACHE_OVERFLOW"NL     },
-        { L_,   0,  4, Obj::BTEMT_CACHE_HIGHWATER,    "CACHE_HIGHWATER"NL    },
-        { L_,   0,  4, Obj::BTEMT_READ_CHANNEL_DOWN,  "READ_CHANNEL_DOWN"NL  },
-        { L_,   0,  4, Obj::BTEMT_WRITE_CHANNEL_DOWN, "WRITE_CHANNEL_DOWN"NL },
-        { L_,   0,  4, Obj::BTEMT_ENQUEUE_HIGHWATER,  "ENQUEUE_HIGHWATER"NL  },
-        { L_,   0,  4, Obj::BTEMT_UNKNOWN_ID,         "UNKNOWN_ID"NL         },
+        { L_,   0,  4, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
+        { L_,   0,  4, Obj::BTEMT_CACHE_OVERFLOW,     "CACHE_OVERFLOW" NL    },
+        { L_,   0,  4, Obj::BTEMT_CACHE_HIGHWATER,    "CACHE_HIGHWATER" NL   },
+        { L_,   0,  4, Obj::BTEMT_READ_CHANNEL_DOWN,  "READ_CHANNEL_DOWN" NL },
+        { L_,   0,  4, Obj::BTEMT_WRITE_CHANNEL_DOWN, "WRITE_CHANNEL_DOWN" NL},
+        { L_,   0,  4, Obj::BTEMT_ENQUEUE_HIGHWATER,  "ENQUEUE_HIGHWATER" NL },
+        { L_,   0,  4, Obj::BTEMT_UNKNOWN_ID,         "UNKNOWN_ID" NL        },
         { L_,   0,  4, (Obj::Enum) 1,                 UNKNOWN_FORMAT NL      },
 
-        { L_,   0,  0, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
+        { L_,   0,  0, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
         { L_,   0, -1, Obj::BTEMT_SUCCESS,            "SUCCESS"              },
-        { L_,   0,  2, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
-        { L_,   1,  1, Obj::BTEMT_SUCCESS,            " SUCCESS"NL           },
-        { L_,   1,  2, Obj::BTEMT_SUCCESS,            "  SUCCESS"NL          },
-        { L_,  -1,  2, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
-        { L_,  -2,  1, Obj::BTEMT_SUCCESS,            "SUCCESS"NL            },
-        { L_,   2,  1, Obj::BTEMT_SUCCESS,            "  SUCCESS"NL          },
-        { L_,   1,  3, Obj::BTEMT_SUCCESS,            "   SUCCESS"NL         },
+        { L_,   0,  2, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
+        { L_,   1,  1, Obj::BTEMT_SUCCESS,            " SUCCESS" NL          },
+        { L_,   1,  2, Obj::BTEMT_SUCCESS,            "  SUCCESS" NL         },
+        { L_,  -1,  2, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
+        { L_,  -2,  1, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
+        { L_,   2,  1, Obj::BTEMT_SUCCESS,            "  SUCCESS" NL         },
+        { L_,   1,  3, Obj::BTEMT_SUCCESS,            "   SUCCESS" NL        },
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

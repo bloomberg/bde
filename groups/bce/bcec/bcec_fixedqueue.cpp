@@ -98,7 +98,7 @@ BDES_IDENT_RCSID(bcec_fixedqueue_cpp,"$Id$ $CSID$")
 // combined with the generation count of 'd_front'.  If this (atomic)
 // test-and-set is successful, 'tryPopFront' increments 'd_front', which, if
 // the end of the array has been reached, will effectively wrap to the front
-// of the array, and increment the generation count.  
+// of the array, and increment the generation count.
 //
 // The generation counts for 'd_front' and 'd_back' are independent, and are
 // used to avoid ABA problems when the back and front of the queue are near
@@ -146,9 +146,9 @@ void backoff(int *contentionCount, int backoffLevel)
 
 // CREATORS
 bcec_FixedQueue_IndexQueue::bcec_FixedQueue_IndexQueue(
-        int              capacity,
-        int              range,
-        bslma_Allocator *basicAllocator)
+        int               capacity,
+        int               range,
+        bslma::Allocator *basicAllocator)
 : d_indexBits(bdes_BitUtil::roundUpToBinaryPower(capacity) - 1)
 , d_numIndexBits(bdes_BitUtil::numSetOne(d_indexBits))
 , d_dataBits(

@@ -97,7 +97,7 @@ BDES_IDENT("$Id: $")
 // example.  First, define a 'PrintValue' function class:
 //..
 //  #include <bdeat_arrayfunctions.h>
-//  #include <bslmf_If.h>
+//  #include <bslmf::If.h>
 //
 //  #include <ostream>
 //
@@ -178,7 +178,7 @@ BDES_IDENT("$Id: $")
 //      int operator()(const TYPE& value)
 //      {
 //          typedef typename
-//          bslmf_If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
+//          bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
 //                   IsArrayType,
 //                   IsNotArrayType>::Type Toggle;
 //
@@ -240,7 +240,7 @@ BDES_IDENT("$Id: $")
 //      int operator()(const TYPE& value)
 //      {
 //          typedef typename
-//          bslmf_If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
+//          bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
 //                   IsArrayType,
 //                   IsNotArrayType>::Type Toggle;
 //
@@ -309,7 +309,7 @@ namespace bdeat_ArrayFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
-    bslmf_MetaInt<0> isArrayMetaFunction(const TYPE&);
+    bslmf::MetaInt<0> isArrayMetaFunction(const TYPE&);
         // This function can be overloaded to support partial specialization
         // (Sun5.2 compiler is unable to partially specialize the 'struct'
         // below).  Note that this function is has no definition and should not
@@ -330,11 +330,11 @@ namespace bdeat_ArrayFunctions {
             VALUE = 0
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isArrayMetaFunction(
-                                                   bslmf_TypeRep<TYPE>::rep()))
+                                                  bslmf::TypeRep<TYPE>::rep()))
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
 
-        typedef bslmf_MetaInt<VALUE> Type;
+        typedef bslmf::MetaInt<VALUE> Type;
     };
 
     // MANIPULATORS
@@ -411,7 +411,7 @@ namespace bdeat_ArrayFunctions {
 
     // META-FUNCTIONS
     template <typename TYPE, typename ALLOC>
-    struct IsArray<bsl::vector<TYPE, ALLOC> > : bslmf_MetaInt<1> {
+    struct IsArray<bsl::vector<TYPE, ALLOC> > : bslmf::MetaInt<1> {
     };
 
     template <typename TYPE, typename ALLOC>

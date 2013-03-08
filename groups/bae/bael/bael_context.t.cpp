@@ -3,7 +3,6 @@
 #include <bael_context.h>
 
 #include <bsls_platform.h>                      // for testing only
-#include <bsls_platformutil.h>                  // for testing only
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -46,7 +45,7 @@ using namespace bsl;  // automatically added by script
 // 'bael_Context' public interface:
 // [ 3] static bool isValid(cause, index, length);
 // [ 2] static int maxSupportedBdexVersion();
-// [ 1] bael_Context(bslma_Allocator *ba = 0);
+// [ 1] bael_Context(bslma::Allocator *ba = 0);
 // [ 3] bael_Context(cause, index, length, *ba = 0);
 // [ 1] bael_Context(const bael_Context& original, *ba = 0);
 // [ 1] ~bael_Context();
@@ -257,7 +256,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
@@ -953,7 +952,7 @@ int main(int argc, char *argv[])
         // Basic Attribute Test:
         //
         // Testing:
-        //   bael_Context(bslma_Allocator *ba = 0);
+        //   bael_Context(bslma::Allocator *ba = 0);
         //   bael_Context(const bael_Context& original, *ba = 0);
         //   ~bael_Context();
         //   bael_Context& operator=(const bael_Context& rhs);

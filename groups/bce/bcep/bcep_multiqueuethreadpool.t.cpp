@@ -57,9 +57,9 @@ using namespace BloombergLP;
 //                                int                    minThreads,
 //                                int                    maxThreads,
 //                                int                    maxIdleTime,
-//                                bslma_Allocator       *basicAllocator = 0);
-// [ 7] bcep_MultiQueueThreadPool(bcep_ThreadPool *threadPool,
-//                                bslma_Allocator *basicAllocator = 0);
+//                                bslma::Allocator      *basicAllocator = 0);
+// [ 7] bcep_MultiQueueThreadPool(bcep_ThreadPool  *threadPool,
+//                                bslma::Allocator *basicAllocator = 0);
 // [ 2] ~bcep_MultiQueueThreadPool();
 //
 // MANIPULATORS
@@ -181,7 +181,7 @@ void makeFunc(bdef_Function<void (*)()> * f, void (*fptr)()) {
     *f = fptr;
 }
 
-void makeFunc( bslma_Allocator *a
+void makeFunc( bslma::Allocator *a
              , bdef_Function<void (*)()> * f, void (*fptr)()) {
     *f = bdef_Function<void (*)()>(fptr, a);
 }
@@ -194,7 +194,7 @@ void makeFunc( bdef_Function<void (*)()> * f
 }
 
 template <typename A1>
-void makeFunc( bslma_Allocator * a
+void makeFunc( bslma::Allocator * a
              , bdef_Function<void (*)()> * f
              , void (*fptr)(A1)
              , A1 a1) {
@@ -210,7 +210,7 @@ void makeFunc( bdef_Function<void (*)()> * f
 }
 
 template <typename A1, typename A2>
-void makeFunc( bslma_Allocator * a
+void makeFunc( bslma::Allocator * a
              , bdef_Function<void (*)()> * f
              , void (*fptr)(A1, A2)
              , A1 a1
@@ -228,7 +228,7 @@ void makeFunc( bdef_Function<void (*)()> * f
 }
 
 template <typename A1, typename A2, typename A3>
-void makeFunc( bslma_Allocator * a
+void makeFunc( bslma::Allocator * a
              , bdef_Function<void (*)()> * f
              , void (*fptr)(A1, A2, A3)
              , A1 a1
@@ -248,7 +248,7 @@ void makeFunc( bdef_Function<void (*)()> * f
 }
 
 template <typename A1, typename A2, typename A3, typename A4>
-void makeFunc( bslma_Allocator * a
+void makeFunc( bslma::Allocator * a
              , bdef_Function<void (*)()> * f
              , void (*fptr)(A1, A2, A3, A4)
              , A1 a1
@@ -416,8 +416,8 @@ class my_SearchProfile {
 
   public:
     // CREATORS
-    my_SearchProfile(const char      *word,
-                     bslma_Allocator *basicAllocator = 0);
+    my_SearchProfile(const char       *word,
+                     bslma::Allocator *basicAllocator = 0);
         // Create a 'my_SearchProfile' with the specified 'word'.
         // Optionally specify a 'basicAllocator' used to supply memory.
         // If 'basicAllocator' is 0, the default memory allocator is used.
@@ -450,8 +450,8 @@ class my_SearchProfile {
 
 // CREATORS
 my_SearchProfile::my_SearchProfile(
-        const char      *word,
-        bslma_Allocator *basicAllocator)
+        const char       *word,
+        bslma::Allocator *basicAllocator)
 : d_word(basicAllocator)
 , d_fileSet(bsl::less<bsl::string>(), basicAllocator)
 {
@@ -520,9 +520,9 @@ void my_SearchCb(my_SearchProfile* profile, const char *file)
 
 static
 void fastSearch(const bsl::vector<bsl::string>& wordList,
-                const bsl::vector<bsl::string>& fileList,
-                bsl::set<bsl::string>&          resultSet,
-                bslma_Allocator                *basicAllocator = 0)
+                const bsl::vector<bsl::string>&  fileList,
+                bsl::set<bsl::string>&           resultSet,
+                bslma::Allocator                *basicAllocator = 0)
 {
     // Return the set of files, specified by 'fileList', containing
     // every word in the specified 'wordList', in the specified
@@ -565,8 +565,8 @@ void fastSearch(const bsl::vector<bsl::string>& wordList,
     for (ListType::const_iterator it = wordList.begin();
          it != wordList.end(); ++it)
     {
-        bslma_Allocator *allocator =
-                                  bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *allocator =
+                                  bslma::Default::allocator(basicAllocator);
 
         const bsl::string& word = *it;
         int                id = pool.createQueue();
@@ -575,7 +575,7 @@ void fastSearch(const bsl::vector<bsl::string>& wordList,
                                              my_SearchProfile(word.c_str(),
                                                               allocator);
 
-        bslma_RawDeleterProctor<my_SearchProfile, bslma_Allocator>
+        bslma::RawDeleterProctor<my_SearchProfile, bslma::Allocator>
                                                    deleter(profile, allocator);
 
         profileRegistry[word] = bsl::make_pair(id, profile);
@@ -620,7 +620,7 @@ void fastSearch(const bsl::vector<bsl::string>& wordList,
                               resultSet.begin(), resultSet.end(),
                               bsl::inserter(tmpSet, tmpSet.begin()));
         resultSet = tmpSet;
-        bslma_Default::allocator(basicAllocator)->deleteObjectRaw(profile);
+        bslma::Default::allocator(basicAllocator)->deleteObjectRaw(profile);
     }
 }
 
@@ -628,7 +628,7 @@ struct StressJob {
     int        d_x;
     int        d_y;
     static int s_count;
-    bslma_Allocator *d_allocator_p;    // held, not owned
+    bslma::Allocator *d_allocator_p;    // held, not owned
 
     void operator()() {
         int prod = d_x ^ d_y;
@@ -843,7 +843,7 @@ int main(int argc, char *argv[]) {
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma_TestAllocator' object where applicable.
+        //   objects with a 'bslma::TestAllocator' object where applicable.
         //   Additionally, replace all calls to 'assert' in the usage example
         //   with calls to 'ASSERT'.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
@@ -1804,7 +1804,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //    bcep_MultiQueueThreadPool(bcep_ThreadPool *threadPool,
-        //                              bslma_Allocator *basicAllocator = 0);
+        //                              bslma::Allocator *basicAllocator = 0);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2263,11 +2263,11 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   bcep_MultiQueueThreadPool(
-        //                          const bcemt_Attribute& threadAttributes,
-        //                          int                    minThreads,
-        //                          int                    maxThreads,
-        //                          int                    maxIdleTime,
-        //                          bslma_Allocator       *basicAllocator = 0);
+        //                         const bcemt_Attribute&  threadAttributes,
+        //                         int                     minThreads,
+        //                         int                     maxThreads,
+        //                         int                     maxIdleTime,
+        //                         bslma::Allocator       *basicAllocator = 0);
         //   ~bcep_MultiQueueThreadPool();
         //   int createQueue();
         //   int deleteQueue(int id, const bdef_Function<void (*)()>&

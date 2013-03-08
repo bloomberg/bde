@@ -920,9 +920,9 @@ int main(int argc, char *argv[])
     bael_LoggerManager& manager =
                    bael_LoggerManager::initSingleton(&observer, configuration);
 
-    bslma_TestAllocator allocator, defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
-    bslma_TestAllocator *Z = &allocator;
+    bslma::TestAllocator allocator, defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator *Z = &allocator;
 
     baetzo_TestLoader     testLoader(Z);
     baetzo_ZoneinfoCache  testCache(&testLoader, Z);
@@ -1341,7 +1341,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                          "\t'loadLocalTimePeriodForUtc' class method " << endl;
@@ -1476,7 +1477,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                              "\t'createLocalTimePeriod' class method " << endl;
@@ -1761,7 +1763,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\tCLASS METHOD 'initLocalTime'" << endl;
             {
@@ -2375,7 +2378,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                              "\t'resolveLocalTime' class method " << endl;
@@ -2587,7 +2591,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                              "\tCLASS METHOD 'convertUtcToLocalTime'" << endl;

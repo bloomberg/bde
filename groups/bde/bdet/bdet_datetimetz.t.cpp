@@ -346,7 +346,7 @@ if (veryVerbose) {
         // Set the assert handler to mute error coming from construction of an
         // invalid date.
 
-        bsls_Assert::setFailureHandler(&assertHandler);
+        bsls::Assert::setFailureHandler(&assertHandler);
 
         enum { MAX_TIMEZONE = 24 * 60 - 1,
                MTZ = MAX_TIMEZONE };

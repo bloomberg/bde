@@ -96,7 +96,7 @@ static void aSsErT(int c, const char *s, int i)
 // GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_Types::UintPtr UintPtr;
+typedef bsls::Types::UintPtr UintPtr;
 int verbose;
 int veryVerbose;
 
@@ -606,7 +606,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\tgetStackAddresses" << endl;
             {
@@ -695,7 +696,7 @@ int main(int argc, char *argv[])
         const int iterations = 100 * 1000;
 #endif
 
-        bsls_Stopwatch sw;
+        bsls::Stopwatch sw;
         TD::funcPtr = &baesu_StackAddressUtil::getStackAddresses;
 
         sw.start(true);

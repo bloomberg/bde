@@ -94,10 +94,10 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdes_Stopwatch    Obj;
+typedef bdes_Stopwatch     Obj;
 
-typedef bdes_TimeUtil     TU;
-typedef bsls_Types::Int64 Int64;
+typedef bdes_TimeUtil      TU;
+typedef bsls::Types::Int64 Int64;
 
 typedef double (Obj::*AccumulatedTimeMethod)() const;
 

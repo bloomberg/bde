@@ -1,15 +1,19 @@
 // bslmf_conditional.t.cpp                                            -*-C++-*-
 #include <bslmf_conditional.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
-#include <cstdio>     // 'printf'
-#include <cstdlib>    // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4181)  // 'const' applied to reference type
+#endif
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -17,12 +21,12 @@ using namespace std;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function, 'bsl::conditional', that
-// transforms to one of the two template parameter types based on its 'bool'
-// template parameter value.  Thus we need to ensure that the value returned by
-// this meta-functions is correct for each possible pair of types.
+// conditionally selects to one of its two template parameter types based on a
+// 'bool' (template parameter) value.  Thus, we need to ensure that the values
+// returned by this meta-function are correct for each possible set of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
+// PUBLIC TYPES
 // [ 1] bsl::conditional::type
 //
 // ----------------------------------------------------------------------------
@@ -124,6 +128,16 @@ typedef char ( & RA)[5];
     ASSERT_SAME_CV2(volatile TYPE1, TYPE2)                                    \
     ASSERT_SAME_CV2(const volatile TYPE1, TYPE2)
 
+#define ASSERT_SAME_FN_TYPE(TYPE1, TYPE2)                                     \
+    ASSERT((bsl::is_same<bsl::conditional<true,                               \
+                                          TYPE1,                              \
+                                          TYPE2>::type,                       \
+            TYPE1>::value));                                                  \
+    ASSERT((bsl::is_same<bsl::conditional<false,                              \
+                                          TYPE1,                              \
+                                          TYPE2>::type,                       \
+            TYPE2>::value));                                                  \
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -156,20 +170,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Conditional Type Transformation Based on Boolean Value
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to select between two types, 'int' and 'char', based on
-// 'bool' value.  If the 'bool' value is 'true', the 'int' type is returned;
-// otherwise the 'char' type is returned.
+///Example 1: Conditionally Select From Two Types
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to select between two types based on a 'bool' value.
 //
-// Now, we instantiate the 'bsl::conditional' template using 'int', 'char', and
-// each of the two 'bool' values.  We use the 'bsl::is_same' meta-function to
-// assert the 'type' static data member of each instantiation:
+// Now, we use 'bsl::conditional' to select between two types, 'int' and
+// 'char', with a 'bool' value.  When the 'bool' is 'true', we select 'int';
+// otherwise, we select 'char'.  We verify that our code behaves correctly by
+// asserting the result of 'bsl::conditional' with the expected type using
+// 'bsl::is_same':
 //..
     ASSERT(true ==
         (bsl::is_same<bsl::conditional<true,  int, char>::type, int >::value));
@@ -181,17 +194,21 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::conditional::type'
-        //   Ensure that the static data member 'type' of 'bsl::conditional'
-        //   instantiations has the correct value.
+        //   Ensure that each 'typedef' 'type' of 'bsl::conditional'
+        //   instantiations has the correct return value.
         //
         // Concerns:
-        //: 1 'conditional::type' correctly transforms to one of the two
-        //:   template parameter types when a 'true' or 'false' is set as its
-        //:   'bool' template parameter type value.
+        //: 1 'bsl::conditional' selects the first of its two (template
+        //:   parameter) types when the (template parameter) value 'COND' is
+        //:   'true'.
+        //:
+        //: 2 'bsl::conditional' selects the second of its two (template
+        //:   parameter) types when the (template parameter) value 'COND' is
+        //:   'false'.
         //
         // Plan:
         //   Instantiate 'bsl::conditional' with various types and verify that
-        //   the 'type' member is initialized properly.  (C-1)
+        //   the 'type' member is initialized properly.  (C-1..2)
         //
         // Testing:
         //   bsl::conditional::type
@@ -199,25 +216,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("bsl::conditional::type\n"
                             "======================\n");
-        // C-1
 
         ASSERT_SAME_CV(   int ,  char);
         ASSERT_SAME_CV(  void*,  Enum);
         ASSERT_SAME_CV(  Enum&, Class);
         ASSERT_SAME_CV( Class*, Union);
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-        // Disable tests for function types due to a bug in MSVC.
-#else
-        ASSERT_SAME_CV(     F ,    RF);
-        ASSERT_SAME_CV(    RF ,    PF);
-        ASSERT_SAME_CV(    PF ,   RPF);
-        ASSERT_SAME_CV(   RPF ,    Fi);
-        ASSERT_SAME_CV(    Fi ,   RFi);
-        ASSERT_SAME_CV(   RFi ,   FRi);
-        ASSERT_SAME_CV(   FRi ,  RFRi);
-        ASSERT_SAME_CV(  RFRi ,     A);
-#endif
+        ASSERT_SAME_FN_TYPE(     F ,    RF);
+        ASSERT_SAME_FN_TYPE(    RF ,    PF);
+        ASSERT_SAME_FN_TYPE(    PF ,   RPF);
+        ASSERT_SAME_FN_TYPE(   RPF ,    Fi);
+        ASSERT_SAME_FN_TYPE(    Fi ,   RFi);
+        ASSERT_SAME_FN_TYPE(   RFi ,   FRi);
+        ASSERT_SAME_FN_TYPE(   FRi ,  RFRi);
+        ASSERT_SAME_FN_TYPE(  RFRi ,     A);
 
         ASSERT_SAME_CV(     A ,    RA);
       } break;
@@ -235,10 +247,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

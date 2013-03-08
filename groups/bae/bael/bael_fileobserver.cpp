@@ -41,7 +41,7 @@ namespace BloombergLP {
 
 // CREATORS
 bael_FileObserver::bael_FileObserver(bael_Severity::Level  stdoutThreshold,
-                                     bslma_Allocator      *basicAllocator)
+                                     bslma::Allocator     *basicAllocator)
 : d_logFileFormatter(DEFAULT_LONG_FORMAT,
                      bdet_DatetimeInterval(0),
                      basicAllocator)
@@ -60,7 +60,7 @@ bael_FileObserver::bael_FileObserver(bael_Severity::Level  stdoutThreshold,
 
 bael_FileObserver::bael_FileObserver(bael_Severity::Level  stdoutThreshold,
                                      bool                  publishInLocalTime,
-                                     bslma_Allocator      *basicAllocator)
+                                     bslma::Allocator     *basicAllocator)
 : d_logFileFormatter(DEFAULT_LONG_FORMAT,
                      bdet_DatetimeInterval(0),
                      basicAllocator)

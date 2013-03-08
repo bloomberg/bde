@@ -2,7 +2,6 @@
 
 #include <bdeimp_strhash.h>
 
-#include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>     // 'bsl::atoi()'
@@ -829,7 +828,7 @@ int main(int argc, char *argv[]) {
         //
         // Plan:
         //   Perform a large number of hashes and measure the timing by a
-        //   'bsls_Stopwatch'.
+        //   'bsls::Stopwatch'.
         //
         // Testing:
         //   static int hash(char *string, int size);     CONCERN: timing
@@ -854,7 +853,7 @@ int main(int argc, char *argv[]) {
                 char c = TEXT[length + 1];
                 mText[length + 1] = '\0';
 
-                bsls_Stopwatch timer;
+                bsls::Stopwatch timer;
                 timer.start();
                 for (int i = 0; i < ITERATIONS; ++i) {
                     value += Obj::hash(TEXT, length);
@@ -880,7 +879,7 @@ int main(int argc, char *argv[]) {
                 char c = TEXT[length + 1];
                 mText[length + 1] = '\0';
 
-                bsls_Stopwatch timer;
+                bsls::Stopwatch timer;
                 timer.start();
                 for (int i = 0; i < ITERATIONS; ++i) {
                     value += Obj::hash(TEXT, length + 1, length);

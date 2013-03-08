@@ -578,8 +578,8 @@ void testPlaceHolder(
         A1 a1,  A2 a2,  A3 a3,   A4  a4,  A5  a5,  A6  a6,  A7  a7,
         A8 a8,  A9 a9,  A10 a10, A11 a11, A12 a12, A13 a13, A14 a14)
 {
-    bslma_TestAllocator  ta0;
-    bslma_Allocator    *Z0 = &ta0;
+    bslma::TestAllocator  ta0;
+    bslma::Allocator   *Z0 = &ta0;
 
     // This test code is taken from case 2 of 'bdef_bind_test14', with the
     // checks for allocation removed.
@@ -629,7 +629,7 @@ using namespace bdef_PlaceHolders;
 //..
 // we can bind the parameters of 'invocable' to the following arguments:
 //..
-    void bindTest(bslma_Allocator *allocator = 0) {
+    void bindTest(bslma::Allocator *allocator = 0) {
         bcef_BindUtil::bind(allocator,                 // allocator,
                             &invocable,                // bound object and
                             10, 14, (const char*)"p3") // bound arguments
@@ -656,7 +656,7 @@ using namespace bdef_PlaceHolders;
 //..
 // The creation of the binder is as follows:
 //..
-    void bindTest1(bslma_Allocator *allocator = 0) {
+    void bindTest1(bslma::Allocator *allocator = 0) {
         callBinder(bcef_BindUtil::bind(allocator,
                                        &invocable,
                                        _1, _2, someString));
@@ -680,7 +680,7 @@ using namespace bdef_PlaceHolders;
 // that argument one (10) of the binder is passed as parameter two
 // and argument two (14) is passed as (i.e., bound to) parameter one:
 //..
-    void bindTest2(bslma_Allocator *allocator = 0) {
+    void bindTest2(bslma::Allocator *allocator = 0) {
         callBinder(bcef_BindUtil::bind(allocator,
                                        &invocable,
                                        _2, _1, someString));
@@ -702,7 +702,7 @@ using namespace bdef_PlaceHolders;
         return (x > 0) ? x : -x;
     }
 
-    void bindTest3(bslma_Allocator *allocator = 0) {
+    void bindTest3(bslma::Allocator *allocator = 0) {
         using namespace bdef_PlaceHolders;
         ASSERT( 24 == bcef_BindUtil::bind(allocator, &test1, _1, _2)(10, 14) );
         ASSERT( 24 == bcef_BindUtil::bind(allocator, &test1, _1, 14)(10) );
@@ -759,7 +759,7 @@ using namespace bdef_PlaceHolders;
         ASSERT(14 == binder(identityFunctionWithSideEffects(10), 14));
     }
 
-    void bindTest4(bslma_Allocator *allocator = 0) {
+    void bindTest4(bslma::Allocator *allocator = 0) {
         marker = 0;
         callBinderWithSideEffects1(bcef_BindUtil::bind(allocator,
                                                        &singleArgumentFunction,
@@ -793,7 +793,7 @@ using namespace bdef_PlaceHolders;
         ASSERT(20 == RET2);
     }
 
-    void bindTest5(bslma_Allocator *allocator = 0) {
+    void bindTest5(bslma::Allocator *allocator = 0) {
         marker = 0;
         callBinderWithSideEffects2(bcef_BindUtil::bind(allocator,
                                                        &doubleArgumentFunction,
@@ -835,24 +835,24 @@ using namespace bdef_PlaceHolders;
 //..
     class MyString {
         // PRIVATE INSTANCE DATA
-        bslma_Allocator *d_allocator_p;
-        char            *d_string_p;
+        bslma::Allocator *d_allocator_p;
+        char             *d_string_p;
 
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(MyString,
-                                           bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         //CREATORS
-        MyString(const char *str, bslma_Allocator *allocator = 0)
-        : d_allocator_p(bslma_Default::allocator(allocator))
+        MyString(const char *str, bslma::Allocator *allocator = 0)
+        : d_allocator_p(bslma::Default::allocator(allocator))
         , d_string_p((char*)d_allocator_p->allocate(strlen(str)+1))
         {
             strcpy(d_string_p, str);
         }
 
-        MyString(MyString const& rhs, bslma_Allocator *allocator = 0)
-        : d_allocator_p(bslma_Default::allocator(allocator))
+        MyString(MyString const& rhs, bslma::Allocator *allocator = 0)
+        : d_allocator_p(bslma::Default::allocator(allocator))
         , d_string_p((char*)d_allocator_p->allocate(strlen(rhs)+1))
         {
             strcpy(d_string_p, rhs);
@@ -866,11 +866,11 @@ using namespace bdef_PlaceHolders;
         operator const char*() const { return d_string_p; }
     };
 //..
-// We will also use a 'bslma_TestAllocator' to keep track of the memory
+// We will also use a 'bslma::TestAllocator' to keep track of the memory
 // allocated:
 //..
     void bindTest6() {
-        bslma_TestAllocator allocator;
+        bslma::TestAllocator allocator;
         MyString myString((const char*)"p3", &allocator);
         const int NUM_ALLOCS = allocator.numAllocations();
 //..
@@ -878,8 +878,8 @@ using namespace bdef_PlaceHolders;
 // allocator guard, which will re-route any default allocation to the
 // 'defaultAllocator':
 //..
-        bslma_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        bslma::TestAllocator defaultAllocator;
+        bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
         const int NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 //..
 // We now create a binder object with allocator using 'bindA'.  If the bound
@@ -983,7 +983,7 @@ using namespace bdef_PlaceHolders;
         // Do something ...
     }
 
-    void myMainLoop(bslma_Allocator *allocator = 0)
+    void myMainLoop(bslma::Allocator *allocator = 0)
     {
         MyEventScheduler sched(bcef_BindUtil::bind(allocator,
                                                    &myCallback, _1, _2));
@@ -1002,7 +1002,7 @@ using namespace bdef_PlaceHolders;
         // Do something ...
     }
 
-    void myMainLoop2(bslma_Allocator *allocator = 0)
+    void myMainLoop2(bslma::Allocator *allocator = 0)
     {
         MyEventScheduler sched(bcef_BindUtil::bind(allocator,
                                                    &myCallbackWithUserArgs,
@@ -1021,7 +1021,7 @@ using namespace bdef_PlaceHolders;
         // Do something ...
     }
 
-    void myMainLoop3(bslma_Allocator *allocator = 0)
+    void myMainLoop3(bslma::Allocator *allocator = 0)
     {
         MyEventScheduler sched(bcef_BindUtil::bind(allocator,
                         &myCallbackWithUserArgsReordered, _1, 360, 3.14, _2));
@@ -1037,7 +1037,7 @@ using namespace bdef_PlaceHolders;
         // Do something ...
     }
 
-    void myMainLoop4(bslma_Allocator *allocator = 0)
+    void myMainLoop4(bslma::Allocator *allocator = 0)
     {
         MyEventScheduler sched(bcef_BindUtil::bind(allocator,
                                           &myCallbackThatDiscardsResult, _2));
@@ -1062,7 +1062,7 @@ using namespace bdef_PlaceHolders;
         }
     };
 
-    void myMainLoop5(bslma_Allocator *allocator = 0)
+    void myMainLoop5(bslma::Allocator *allocator = 0)
     {
         MyCallbackObject obj;
         MyEventScheduler sched(bcef_BindUtil::bind(allocator, obj, _1, _2));
@@ -1074,7 +1074,7 @@ using namespace bdef_PlaceHolders;
 // The following example reuses the 'MyCallbackObject' of the previous example,
 // but illustrates that it can be passed by reference as well as by value:
 //..
-    void myMainLoop6(bslma_Allocator *allocator = 0)
+    void myMainLoop6(bslma::Allocator *allocator = 0)
     {
         MyCallbackObject obj;
         MyEventScheduler sched(bcef_BindUtil::bind(allocator, &obj, _1, _2));
@@ -1097,7 +1097,7 @@ using namespace bdef_PlaceHolders;
         }
     };
 
-    void myMainLoop7(bslma_Allocator *allocator = 0)
+    void myMainLoop7(bslma::Allocator *allocator = 0)
     {
         MyStatefulObject obj;
         MyEventScheduler sched(bcef_BindUtil::bind(allocator,
@@ -1116,7 +1116,7 @@ using namespace bdef_PlaceHolders;
         return event;
     }
 
-    void myMainLoop8(bslma_Allocator *allocator = 0)
+    void myMainLoop8(bslma::Allocator *allocator = 0)
     {
         MyCallbackObject obj;
         MyEventScheduler sched(
@@ -1143,7 +1143,7 @@ using namespace bdef_PlaceHolders;
         }
     };
 
-    void myMainLoop9(bslma_Allocator *allocator = 0)
+    void myMainLoop9(bslma::Allocator *allocator = 0)
     {
         MyCallbackObjectWithoutResultType obj;
         MyEventScheduler sched(bcef_BindUtil::bindR<GlobalResultType>(
@@ -1158,7 +1158,7 @@ using namespace bdef_PlaceHolders;
 // function of section "Elementary construction and usage of 'bdef_Bind'
 // objects" above can be bound to 'printf':
 //..
-    void bindTest7(bslma_Allocator *allocator = 0)
+    void bindTest7(bslma::Allocator *allocator = 0)
     {
         using namespace BCEF_BIND_BREATHING_TEST; // for testing only
         const char* formatString = "Here it is: %d %d\n";
@@ -1245,24 +1245,24 @@ int main(int argc, char *argv[])
     // The slots are set when the corresponding function object or free
     // function is called the appropriate number of arguments.
 
-    bslma_TestAllocator allocator0(veryVeryVerbose);
-    bslma_TestAllocator allocator1(veryVeryVerbose);
-    bslma_TestAllocator allocator2(veryVeryVerbose);
+    bslma::TestAllocator allocator0(veryVeryVerbose);
+    bslma::TestAllocator allocator1(veryVeryVerbose);
+    bslma::TestAllocator allocator2(veryVeryVerbose);
 
-    bslma_TestAllocator *Z0 = &allocator0;
-    bslma_TestAllocator *Z1 = &allocator1;
-    bslma_TestAllocator *Z2 = &allocator2;
+    bslma::TestAllocator *Z0 = &allocator0;
+    bslma::TestAllocator *Z1 = &allocator1;
+    bslma::TestAllocator *Z2 = &allocator2;
 
-    bslma_DefaultAllocatorGuard allocGuard(Z0);
+    bslma::DefaultAllocatorGuard allocGuard(Z0);
     SlotsAlloc::setZ0(Z0);
     SlotsAlloc::setZ1(Z1);
     SlotsAlloc::setZ2(Z2);
 
-    const bslma_Allocator *ALLOC_SLOTS[NUM_SLOTS] = {
+    const bslma::Allocator *ALLOC_SLOTS[NUM_SLOTS] = {
         // 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14
           Z0, Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2,
     };
-    const bslma_Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {
+    const bslma::Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {
         // 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14
           Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0,
     };
@@ -1315,7 +1315,7 @@ int main(int argc, char *argv[])
                                           bdef_PlaceHolder<2>,
                                           int*> LIST;
             typedef int (*FUNC)(const int &, int &, int *);
-            bcef_BindWrapper<bslmf_Nil,FUNC,LIST> b(onMasterCommand,
+            bcef_BindWrapper<bslmf::Nil,FUNC,LIST> b(onMasterCommand,
                                                     LIST(_1, _2, &extra), Z0);
 
             int stream, prefix;
@@ -1405,7 +1405,7 @@ int main(int argc, char *argv[])
         //   3. That we respect the constness of arguments (within the
         //   limitations imposed by our handling of the forwarding problem).
         //   4. That we correctly respect volatile qualifications.  This is a
-        //   concern because the forwarding type invokes 'bslmf_RemoveCvq'.
+        //   concern because the forwarding type invokes 'bslmf::RemoveCvq'.
         //   5. That we can bind a function object with placeholders, and later
         //   invoke the binder resolving to two different overloads based on
         //   the type of the invocation arguments.
@@ -1553,7 +1553,7 @@ int main(int argc, char *argv[])
                                 // explicit.  When a bind is explicit, the
                                 // component will call 'operator(...)' using
                                 // the most efficient forwarding types (based
-                                // 'bslmf_ForwardingTypes').  By doing so, the
+                                // 'bslmf::ForwardingTypes').  By doing so, the
                                 // second argument will be mapped to an 'int',
                                 // which means the value will be copied.
 #endif
@@ -1923,9 +1923,9 @@ int main(int argc, char *argv[])
         // ------------------------------------------------------------------
         // TESTING TRAITS
         // Concern:
-        //   1. that the 'bslalg_TypeTraitUsesBslmaAllocator' traits is
+        //   1. that the 'bslalg::TypeTraitUsesBslmaAllocator' traits is
         //   correctly *NOT* detected for 'bcef_BindWrapper' objects.
-        //   2. that the 'bslalg_TypeTraitHasPointerSemantics' traits is
+        //   2. that the 'bslalg::TypeTraitHasPointerSemantics' traits is
         //   correctly detected for 'bcef_BindWrapper' objects.
         //
         // Testing:
@@ -1940,15 +1940,15 @@ int main(int argc, char *argv[])
             typedef NoAllocTestType *FUNC;
             typedef bdef_Bind_Tuple1<PH1> ListType;
 
-            ASSERT(0 == (bslalg_HasTrait<bcef_BindWrapper<bslmf_Nil,
+            ASSERT(0 == (bslalg::HasTrait<bcef_BindWrapper<bslmf::Nil,
                                                           FUNC,
                                                           ListType>,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
-            ASSERT(1 == (bslalg_HasTrait<bcef_BindWrapper<bslmf_Nil,
+            ASSERT(1 == (bslalg::HasTrait<bcef_BindWrapper<bslmf::Nil,
                                                           FUNC,
                                                           ListType>,
-                                 bslalg_TypeTraitHasPointerSemantics>::VALUE));
+                                bslalg::TypeTraitHasPointerSemantics>::VALUE));
         }
 
       } break;

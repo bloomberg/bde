@@ -168,7 +168,7 @@ typedef bdem_Descriptor                      Desc;
 typedef bdem_ElemType                        EType;
 typedef bdem_AggregateOption                 AggOption;
 
-typedef bsls_Types::Int64                    Int64;
+typedef bsls::Types::Int64                   Int64;
 
 typedef bdet_Datetime                        Datetime;
 typedef bdet_Date                            Date;
@@ -213,7 +213,7 @@ class FixedString {
 
     // Calculate buffer size so that object size equals desired footprint.
     enum {
-        BUFSIZE = FOOTPRINT - sizeof(bslma_Allocator*)
+        BUFSIZE = FOOTPRINT - sizeof(bslma::Allocator*)
     };
 
     // Make the string size uniform across platforms.
@@ -222,8 +222,8 @@ class FixedString {
                                                          : SMALL_STRING_BUFSIZE
     };
 
-    bslma_Allocator *d_alloc;
-    char             d_buffer[BUFSIZE];
+    bslma::Allocator *d_alloc;
+    char              d_buffer[BUFSIZE];
 
   public:
     enum { MAXLEN = STRING_BUFSIZE - 1 };
@@ -239,9 +239,9 @@ class FixedString {
     static int maxLength();
     static int maxSupportedBdexVersion();
 
-    explicit FixedString(bslma_Allocator *alloc = 0);
-    FixedString(const char* s, bslma_Allocator *alloc = 0);
-    FixedString(const FixedString& original, bslma_Allocator *alloc = 0);
+    explicit FixedString(bslma::Allocator *alloc = 0);
+    FixedString(const char* s, bslma::Allocator *alloc = 0);
+    FixedString(const FixedString& original, bslma::Allocator *alloc = 0);
     ~FixedString();
 
     FixedString& operator=(const FixedString& rhs);
@@ -251,7 +251,7 @@ class FixedString {
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
 
-    bslma_Allocator *get_allocator() const;
+    bslma::Allocator *get_allocator() const;
     const char* c_str() const;
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -322,7 +322,7 @@ int FixedString<FOOTPRINT, ALLOC_TRAIT>::maxSupportedBdexVersion()
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
-FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(bslma_Allocator *alloc)
+FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(bslma::Allocator *alloc)
 : d_alloc(alloc)
 {
     bsl::memset(d_buffer, 0, STRING_BUFSIZE);
@@ -330,8 +330,8 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(bslma_Allocator *alloc)
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
-FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const char      *s,
-                                                 bslma_Allocator *alloc)
+FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const char       *s,
+                                                 bslma::Allocator *alloc)
 : d_alloc(alloc)
 {
     bsl::strncpy(d_buffer, s, MAXLEN);
@@ -341,7 +341,7 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const char      *s,
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const FixedString&  original,
-                                                 bslma_Allocator    *alloc)
+                                                 bslma::Allocator   *alloc)
 : d_alloc(alloc)
 {
     bsl::memcpy(d_buffer, original.d_buffer, STRING_BUFSIZE);
@@ -382,7 +382,7 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::bdexStreamOut(STREAM& stream,
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
-bslma_Allocator *FixedString<FOOTPRINT, ALLOC_TRAIT>::get_allocator() const
+bslma::Allocator *FixedString<FOOTPRINT, ALLOC_TRAIT>::get_allocator() const
 {
     return d_alloc;
 }
@@ -460,7 +460,7 @@ namespace my_ElemTypes {
 #define BDEM_BASIC_DESCRIPTOR_INIT(T,ENUM)              \
     ENUM,                                               \
     sizeof(T),                                          \
-    bsls_AlignmentFromType<T >::VALUE,                  \
+    bsls::AlignmentFromType<T >::VALUE,                 \
     &bdem_FunctionTemplates::unsetConstruct<T >,        \
     &bdem_FunctionTemplates::copyConstruct<T >,         \
     &bdem_FunctionTemplates::destroy<T >,               \
@@ -491,7 +491,7 @@ const bdem_Descriptor my_LargeStringAllocDescriptor = {
 
 // Sample data values
 
-bslma_TestAllocator sampleAlloc;
+bslma::TestAllocator sampleAlloc;
 const SmallString SS_UNSET(&sampleAlloc);
 const SmallString SS_1("Bye world!", &sampleAlloc);
 const SmallString SS_2("Nice job.", &sampleAlloc);
@@ -832,7 +832,7 @@ int main(int argc, char *argv[])
         //   1. 'd_elemEnum == bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM'
         //   2. 'd_size == sizeof(bdem_ChoiceHeader)'
         //   3. 'd_alignment ==
-        //                    bsls_AlignmentFromType<bdem_ChoiceHeader>::VALUE'
+        //                   bsls::AlignmentFromType<bdem_ChoiceHeader>::VALUE'
         //   4. Function 'makeUnset' calls 'reset'.
         //   5. Function 'isUnset' returns true if object has a void
         //       selection.
@@ -856,7 +856,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM == Desc.d_elemEnum);
         ASSERT(sizeof(Obj)                           == Desc.d_size);
-        ASSERT(bsls_AlignmentFromType<Obj>::VALUE    == Desc.d_alignment);
+        ASSERT(bsls::AlignmentFromType<Obj>::VALUE   == Desc.d_alignment);
 
         static const struct TestRow {
             int         d_line;
@@ -1035,7 +1035,7 @@ int main(int argc, char *argv[])
                 const char *SPEC  = DATA[i].d_catalogSpec;
                 const int   LEN   = bsl::strlen(SPEC);
 
-                bslma_TestAllocator alloc(veryVeryVerbose);
+                bslma::TestAllocator alloc(veryVeryVerbose);
 
                 Catalog catalog(&alloc);
                 populateCatalog(&catalog, SPEC);
@@ -1173,12 +1173,12 @@ int main(int argc, char *argv[])
                     const void *VN    = getValueN(S);
                     void *rv1, *rv2;
 
-                    bslma_TestAllocator testAllocator(veryVeryVerbose);
+                    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
 
                     bdema_SequentialAllocator  seqAlloc(&testAllocator);
-                    bslma_Allocator           *alloc = &testAllocator;
+                    bslma::Allocator          *alloc = &testAllocator;
 
                     if (veryVerbose) { P(MODE); }
 
@@ -1449,7 +1449,7 @@ int main(int argc, char *argv[])
                     const int   LENGTH  = DATA[i].d_length;
                     const char *INPUT   = DATA[i].d_input;
 
-                    bslma_TestAllocator alloc(veryVeryVerbose);
+                    bslma::TestAllocator alloc(veryVeryVerbose);
 
                     if (veryVerbose) { P_(SPEC); P_(SPECIDX); P(LENGTH); }
 
@@ -1620,7 +1620,7 @@ int main(int argc, char *argv[])
                                         ? DATA[i].d_streamedIsNull
                                         : false;
 
-                    bslma_TestAllocator alloc(veryVeryVerbose);
+                    bslma::TestAllocator alloc(veryVeryVerbose);
 
                     Catalog catalog(&alloc);
                     populateCatalog(&catalog, SPEC);
@@ -1856,7 +1856,7 @@ int main(int argc, char *argv[])
                 const char *SPEC  = DATA[i].d_catalogSpec;
                 const int   LEN   = bsl::strlen(SPEC);
 
-                bslma_TestAllocator alloc(veryVeryVerbose);
+                bslma::TestAllocator alloc(veryVeryVerbose);
 
                 Catalog catalog(&alloc);
                 populateCatalog(&catalog, SPEC);
@@ -2028,7 +2028,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { bsl::cout << "Copy construct empty objects"
                                      << bsl::endl; }
         {
-            bslma_TestAllocator alloc1(veryVeryVerbose);
+            bslma::TestAllocator alloc1(veryVeryVerbose);
 
             Catalog catalog(&alloc1);
             populateCatalog(&catalog, "");
@@ -2101,7 +2101,7 @@ int main(int argc, char *argv[])
             const char *SPEC  = DATA[i].d_catalogSpec;
             const int   LEN   = bsl::strlen(SPEC);
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
 
             Catalog catalog(&alloc);
             populateCatalog(&catalog, SPEC);
@@ -2247,8 +2247,8 @@ int main(int argc, char *argv[])
                         const char S1 = SPEC1[j1];
                         const char S2 = SPEC2[j2];
 
-                        bslma_TestAllocator alloc1(veryVeryVerbose);
-                        bslma_TestAllocator alloc2(veryVeryVerbose);
+                        bslma::TestAllocator alloc1(veryVeryVerbose);
+                        bslma::TestAllocator alloc2(veryVeryVerbose);
 
                         if (veryVerbose) { P(SPEC1); P(SPEC2); }
 
@@ -2748,7 +2748,7 @@ int main(int argc, char *argv[])
                 ASSERT(0);
             }
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
 
             Catalog x1(&alloc);
             x1.push_back(getDescriptor(SPEC));
@@ -2894,9 +2894,9 @@ int main(int argc, char *argv[])
                 const char *SPEC  = DATA[i].d_catalogSpec;
                 const int   LEN   = bsl::strlen(SPEC);
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
                 bdema_SequentialAllocator  seqAlloc(&testAllocator);
-                bslma_Allocator           *alloc = &testAllocator;
+                bslma::Allocator          *alloc = &testAllocator;
 
                 if (veryVerbose) { P(MODE); }
 
@@ -3058,8 +3058,8 @@ int main(int argc, char *argv[])
             bsl::cout << "\nTesting 'populateCatalog' for a different length"
                       << " catalog" << bsl::endl;
 
-        bslma_TestAllocator  testAllocator;
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator;
+        bslma::Allocator     *Z = &testAllocator;
 
         for (int i = 0; i < NUM_SPECS; ++i) {
             const int   LINE = SPECS[i].d_line;
@@ -3178,22 +3178,22 @@ int main(int argc, char *argv[])
         ASSERT(LARGE_STRING_BUFSIZE - 1 == LargeStringAlloc::maxLength());
 
         if (veryVerbose) bsl::cout << "Testing traits" << bsl::endl;
-        ASSERT(! (bslalg_HasTrait<SmallString,
-                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        ASSERT(  (bslalg_HasTrait<SmallStringAlloc,
-                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<LargeString,
-                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        ASSERT(  (bslalg_HasTrait<LargeStringAlloc,
-                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<SmallString,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  (bslalg::HasTrait<SmallStringAlloc,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<LargeString,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  (bslalg::HasTrait<LargeStringAlloc,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
-        bslma_TestAllocator defAlloc;
-        bslma_DefaultAllocatorGuard defAllocGuard(&defAlloc);
+        bslma::TestAllocator defAlloc;
+        bslma::DefaultAllocatorGuard defAllocGuard(&defAlloc);
 
         if (veryVerbose) bsl::cout << "Testing constructors" << bsl::endl;
         int initialCount = SmallString::instanceCount();
         {
-            bslma_TestAllocator t1;
+            bslma::TestAllocator t1;
             SmallString w(&t1);
             ASSERT(&t1 == w.get_allocator());
             ASSERT(0 == bsl::strcmp("", w.c_str()));
@@ -3203,7 +3203,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(SmallString::instanceCount() == initialCount);
         {
-            bslma_TestAllocator t1;
+            bslma::TestAllocator t1;
 
             // ALPHABET2 is a longer than the longest SmallString.
             static const char ALPHABET2[] = "abcdefghijklmnopqrstuvwxyz"
@@ -3219,7 +3219,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defAlloc.numBytesInUse());
             ASSERT(0 == t1.numBytesInUse());
 
-            bslma_TestAllocator t2;
+            bslma::TestAllocator t2;
             SmallString x(w, &t2);
             ASSERT(&t2 == x.get_allocator());
             ASSERT(0 == bsl::strcmp(w.c_str(), x.c_str()));
@@ -3232,7 +3232,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) bsl::cout << "Testing assignment" << bsl::endl;
         {
-            bslma_TestAllocator t1;
+            bslma::TestAllocator t1;
             SmallString w(&t1);
             ASSERT(&t1 == w.get_allocator());
             ASSERT(0 == t1.numBytesInUse());
@@ -3274,7 +3274,7 @@ int main(int argc, char *argv[])
         {
             ASSERT(1 == SmallString::maxSupportedBdexVersion());
 
-            bdesb_MemOutStreamBuf osb(&bslma_NewDeleteAllocator::singleton());
+            bdesb_MemOutStreamBuf osb(&bslma::NewDeleteAllocator::singleton());
             bdex_TestOutStreamFormatter outStream(&osb);
 
             SS_UNSET.bdexStreamOut(outStream, 1);
@@ -3286,7 +3286,7 @@ int main(int argc, char *argv[])
             bdex_TestInStreamFormatter inStream(&isb);
             inStream.setSuppressVersionCheck(true);
 
-            bslma_TestAllocator t1;
+            bslma::TestAllocator t1;
             SmallString w(&t1), x(&t1), y(&t1);
             w.bdexStreamIn(inStream, 1);
             ASSERT(inStream);
@@ -3302,7 +3302,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) bsl::cout << "Testing printing" << bsl::endl;
         for (int i = 0; i < NUM_DATA; ++i)
         {
-            bdesb_MemOutStreamBuf osb(&bslma_NewDeleteAllocator::singleton());
+            bdesb_MemOutStreamBuf osb(&bslma::NewDeleteAllocator::singleton());
             bsl::ostream os(&osb);
             const SmallString& S = *DATA[i];
             os << S;
@@ -3347,7 +3347,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nBREATHING TEST"
                                << "\n==============" << bsl::endl;
 
-        bslma_TestAllocator t1;
+        bslma::TestAllocator t1;
 
         bdem_ChoiceHeader::DescriptorCatalog catalog(&t1);
         const int INT_IDX = catalog.size();

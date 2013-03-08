@@ -135,11 +135,11 @@ bool baetzo_Zoneinfo::DescriptorLess::operator()(
 
 // CREATORS
 baetzo_Zoneinfo::baetzo_Zoneinfo(const baetzo_Zoneinfo&  original,
-                                 bslma_Allocator        *basicAllocator)
+                                 bslma::Allocator       *basicAllocator)
 : d_identifier(original.d_identifier, basicAllocator)
 , d_descriptors(original.d_descriptors, basicAllocator)
 , d_transitions(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     TransitionConstIterator it  = original.d_transitions.begin();
     TransitionConstIterator end = original.d_transitions.end();

@@ -127,7 +127,7 @@ BDES_IDENT("$Id: $")
 //                                                       int numNodes)
 //  {
 //      return tableSize * sizeof(my_Node *) + numNodes * sizeof(my_Node)
-//                                    + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+//                                   + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 //  }
 //..
 // Note that, in case the allocated buffer is not aligned, the size calculation
@@ -204,13 +204,13 @@ BDES_IDENT("$Id: $")
 // default allocator, as we need only a single dynamic allocation, versus
 // dynamic allocations for every single node:
 //..
-//      bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+//      bslma::Allocator *alloc = bslma::Default::defaultAllocator();
 //      char *buffer = static_cast<char *>(alloc->allocate(MAX_SIZE));
 //..
-// We can use a 'bslma_DeallocatorGuard' to automatically deallocate the buffer
-// when the function ends:
+// We can use a 'bslma::DeallocatorGuard' to automatically deallocate the
+// buffer when the function ends:
 //..
-//      bslma_DeallocatorGuard<bslma_Allocator> guard(buffer, alloc);
+//      bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, alloc);
 //
 //      bdema_BufferManager bufferManager(buffer, MAX_SIZE);
 //      my_IntegerCountingHashTable table(length, &bufferManager);
@@ -251,8 +251,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {
@@ -278,7 +278,7 @@ class bdema_BufferManager {
 
     int   d_cursor;             // offset to next available byte in buffer
 
-    bsls_Alignment::Strategy
+    bsls::Alignment::Strategy
           d_alignmentStrategy;  // memory block alignment strategy
 
 
@@ -288,8 +288,8 @@ class bdema_BufferManager {
 
   public:
     // CREATORS
-    explicit bdema_BufferManager(bsls_Alignment::Strategy strategy =
-                                                 bsls_Alignment::BSLS_NATURAL);
+    explicit bdema_BufferManager(bsls::Alignment::Strategy strategy =
+                                                bsls::Alignment::BSLS_NATURAL);
         // Create a memory manager for allocating memory blocks.  Optionally
         // specify an alignment 'strategy' used to align allocated memory
         // blocks.  If 'strategy' is not specified, natural alignment is used.
@@ -297,10 +297,10 @@ class bdema_BufferManager {
         // memory until an external buffer is provided by calling the
         // 'replaceBuffer' method.
 
-    bdema_BufferManager(char                     *buffer,
-                        int                       bufferSize,
-                        bsls_Alignment::Strategy  strategy
-                                               = bsls_Alignment::BSLS_NATURAL);
+    bdema_BufferManager(char                      *buffer,
+                        int                        bufferSize,
+                        bsls::Alignment::Strategy  strategy
+                                              = bsls::Alignment::BSLS_NATURAL);
         // Create a memory manager for allocating memory blocks from the
         // specified external 'buffer' having the specified 'bufferSize' (in
         // bytes).  Optionally specify an alignment 'strategy' used to align
@@ -315,7 +315,7 @@ class bdema_BufferManager {
 #endif
 
     // MANIPULATORS
-    void *allocate(bsls_PlatformUtil::size_type size);
+    void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) on success, according to the alignment strategy
         // specified at construction, and 0 if the allocation request
@@ -415,7 +415,7 @@ class bdema_BufferManager {
 
 // CREATORS
 inline
-bdema_BufferManager::bdema_BufferManager(bsls_Alignment::Strategy strategy)
+bdema_BufferManager::bdema_BufferManager(bsls::Alignment::Strategy strategy)
 : d_buffer_p(0)
 , d_bufferSize(0)
 , d_cursor(0)
@@ -424,9 +424,9 @@ bdema_BufferManager::bdema_BufferManager(bsls_Alignment::Strategy strategy)
 }
 
 inline
-bdema_BufferManager::bdema_BufferManager(char                     *buffer,
-                                         int                       bufferSize,
-                                         bsls_Alignment::Strategy  strategy)
+bdema_BufferManager::bdema_BufferManager(char                      *buffer,
+                                         int                        bufferSize,
+                                         bsls::Alignment::Strategy  strategy)
 : d_buffer_p(buffer)
 , d_bufferSize(bufferSize)
 , d_cursor(0)
@@ -451,7 +451,7 @@ bdema_BufferManager::~bdema_BufferManager()
 
 // MANIPULATORS
 inline
-void *bdema_BufferManager::allocate(bsls_PlatformUtil::size_type size)
+void *bdema_BufferManager::allocate(bsls::Types::size_type size)
 {
     BSLS_ASSERT_SAFE(0 < size);
     BSLS_ASSERT_SAFE(d_buffer_p);

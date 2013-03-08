@@ -238,16 +238,16 @@ bdesb_OverflowMemOutStreamBuf::xsputn(const char_type *source,
 
 // CREATORS
 bdesb_OverflowMemOutStreamBuf::bdesb_OverflowMemOutStreamBuf(
-                                               char            *buffer,
-                                               int              size,
-                                               bslma_Allocator *basicAllocator)
+                                              char             *buffer,
+                                              int               size,
+                                              bslma::Allocator *basicAllocator)
 : d_dataLength(0)
 , d_initialBuffer_p(buffer)
 , d_initialBufferSize(size)
 , d_inOverflowBufferFlag(false)
 , d_overflowBuffer_p(0)
 , d_overflowBufferSize(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);

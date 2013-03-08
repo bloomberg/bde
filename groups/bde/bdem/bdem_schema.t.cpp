@@ -135,7 +135,7 @@ using namespace BloombergLP;
 // [ 2] void setEnumerationName(const char *name);
 // [ ?] STREAM& bdexStreamOut(STREAM& stream, int detailedVersion) const;
 // [ 4] const char *enumerationName() const;
-// [ 2] bslma_Allocator *writeOnceAllocator() const;
+// [ 2] bslma::Allocator *writeOnceAllocator() const;
 //
 // 'bdem_EnumerationDef' public interface:
 // [30] static bool areEquivalent(EnumerationDef& lhs, EnumerationDef& rhs);
@@ -163,7 +163,7 @@ using namespace BloombergLP;
 // [ 2] void setRecordName(const char *name);
 // [15] bdexStreamOut(STREAM& stream, int version, int minorVersion) const;
 // [ 4] const char *recordName() const;
-// [ 2] bslma_Allocator *writeOnceAllocator() const;
+// [ 2] bslma::Allocator *writeOnceAllocator() const;
 //
 // 'bdem_RecordDef' public interface:
 // [ 2] const FldDef *appendField(EType, const RecDef& c, *name=0);
@@ -192,7 +192,7 @@ using namespace BloombergLP;
 //
 // 'bdem_Schema' public interface:
 // [15] static int maxSupportedBdexVersion();
-// [ 2] bdem_Schema(bslma_Allocator *ba=0);
+// [ 2] bdem_Schema(bslma::Allocator *ba=0);
 // [12] bdem_Schema(const bdem_Schema& original, *ba=0);
 // [ 2] ~bdem_Schema();                // purify
 // [14] bdem_Schema& operator=(const bdem_Schema& rhs);
@@ -315,7 +315,7 @@ typedef bdeat_FormattingMode     Format;
 typedef bdex_TestInStream        In;
 typedef bdex_TestOutStream       Out;
 
-typedef bsls_Types::Int64        Int64;
+typedef bsls::Types::Int64       Int64;
 
 const int NUM_TYPES = EType::BDEM_NUM_TYPES;
 
@@ -1476,8 +1476,8 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 34: {
@@ -1532,7 +1532,7 @@ int main(int argc, char *argv[])
 //..
 // We start by creating an empty schema:
 //..
-    bslma_Allocator *allocator = bslma_Default::allocator();
+    bslma::Allocator *allocator = bslma::Default::allocator();
     bdem_Schema schema(allocator);
 //..
 // We create a new record definition "SALE" of type 'BDEM_SEQUENCE_RECORD',
@@ -1690,7 +1690,7 @@ if (veryVerbose)
 // the previous section.  We start by creating a 'bdem_Schema' object, and
 // adding an enumeration named "CREDIT_CARD_TYPE":
 //..
-    bslma_Allocator *allocator = bslma_Default::allocator();
+    bslma::Allocator *allocator = bslma::Default::allocator();
     bdem_Schema schema(allocator);
 
     bdem_EnumerationDef *ccTypeEnumDef =
@@ -2620,8 +2620,8 @@ if (veryVerbose)
         if (verbose) bsl::cout << "\nTesting Forward References"
                                << "\n==========================" << bsl::endl;
 
-        bslma_TestAllocator         guardedAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&guardedAlloc);
+        bslma::TestAllocator         guardedAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&guardedAlloc);
 
         const int NUM_REC = 3;
         {
@@ -2913,8 +2913,8 @@ if (veryVerbose)
                                   "\n========================="
                                << bsl::endl;
 
-        bslma_TestAllocator         guardedAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&guardedAlloc);
+        bslma::TestAllocator         guardedAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&guardedAlloc);
 
         const char ENUMNAMES[] = "*ea";
         const int NUM_ENUMNAMES = sizeof ENUMNAMES - 1;
@@ -2988,8 +2988,8 @@ if (veryVerbose)
                                   "\n====================================="
                                << bsl::endl;
 
-        bslma_TestAllocator         guardedAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&guardedAlloc);
+        bslma::TestAllocator         guardedAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&guardedAlloc);
 
         const RecType RECTYPES[] = {
             RecDef::BDEM_SEQUENCE_RECORD,
@@ -3132,8 +3132,8 @@ if (veryVerbose)
         if (verbose) bsl::cout << "\nTesting Field Ids"
                                   "\n=================" << bsl::endl;
 
-        bslma_TestAllocator         guardedAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&guardedAlloc);
+        bslma::TestAllocator         guardedAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&guardedAlloc);
 
         const EType::Type TYPE = EType::BDEM_INT;
         const RecDef *CONSTRAINT = 0;
@@ -3573,8 +3573,8 @@ if (veryVerbose)
                                   "\n================================="
                                << bsl::endl;
 
-        bslma_TestAllocator         guardedAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&guardedAlloc);
+        bslma::TestAllocator         guardedAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&guardedAlloc);
 
         if (verbose) bsl::cout << "\nTesting 'bdem' scalar and array types."
                                << bsl::endl;
@@ -3876,8 +3876,8 @@ if (veryVerbose)
             const int  FMT = 55;
             const bool N   = false;
 
-            bslma_TestAllocator         guardedAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&guardedAlloc);
+            bslma::TestAllocator         guardedAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&guardedAlloc);
 
             for (int ti = 0; ti < EType::BDEM_NUM_TYPES; ++ti) {
                 const EType::Type TYPE = (EType::Type)ti;
@@ -4661,8 +4661,8 @@ if (veryVerbose)
             const int NUM_NON_AGGREGATES = 28;
             int numNonAggregatesTested  = 0;
 
-            bslma_TestAllocator         guardedAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&guardedAlloc);
+            bslma::TestAllocator         guardedAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&guardedAlloc);
 
             for (int ti = 0; ti < EType::BDEM_NUM_TYPES; ++ti) {
                 const EType::Type TYPE = (EType::Type)ti;
@@ -4826,8 +4826,8 @@ if (veryVerbose)
             bsl::cout << "\nTesting that allocator is hooked up correctly."
                       << bsl::endl;
         {
-            bslma_TestAllocator         guardedAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&guardedAlloc);
+            bslma::TestAllocator         guardedAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&guardedAlloc);
 
                   FldSpec mF(EType::BDEM_STRING, 0, 0, false, Z);
             const FldSpec& F = mF;
@@ -4952,8 +4952,8 @@ if (veryVerbose)
             bsl::cout << "\nTesting that allocator is hooked up correctly."
                       << bsl::endl;
         {
-            bslma_TestAllocator         guardedAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&guardedAlloc);
+            bslma::TestAllocator         guardedAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&guardedAlloc);
 
             FldSpec mF(EType::BDEM_STRING, 0, Z);  const FldSpec& F = mF;
             ASSERT(0 == guardedAlloc.numBytesInUse());
@@ -5981,12 +5981,12 @@ if (veryVerbose)
               LOOP_ASSERT(LINE, X1 == R);
               LOOP_ASSERT(LINE, !(X1 != R));
 
-              const Obj X2(R, (bslma_Allocator *) 0);  // Null allocator.
+              const Obj X2(R, (bslma::Allocator *) 0);  // Null allocator.
               LOOP_ASSERT(LINE, X2 == R);
               LOOP_ASSERT(LINE, !(X2 != R));
 
               BEGIN_BSLMA_EXCEPTION_TEST {             // Test allocator.
-                bslma_TestAllocator testAllocator;
+                bslma::TestAllocator testAllocator;
 #ifdef BDE_BUILD_TARGET_EXC
                 testAllocator.setAllocationLimit(bslmaExceptionCounter);
 #endif
@@ -7549,9 +7549,10 @@ if (veryVerbose)
         //   1) Create a schema using the default constructor:
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //      a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //      a 'bslma::TestAllocator' and varying its *allocation* *limit*.
         //    - Where the object is constructed entirely in static memory
-        //      (using a 'bslma_BufferAllocator') and never destroyed.
+        //      (using a 'bdema_BufferedSequentialAllocator') and never
+        //      destroyed.
         //
         //   2) Create an empty schema, add an unnamed and a named record and
         //      enumeration, and let the schema go out of scope.
@@ -7596,7 +7597,7 @@ if (veryVerbose)
         //   int addEnumerator(const char *name, int id);
         //   void assignAlphabeticalIDs(int firstId = 0);
         //
-        //   bdem_Schema(bslma_Allocator *ba=0);
+        //   bdem_Schema(bslma::Allocator *ba=0);
         //   ~bdem_Schema();                   // purify
         //   bdem_RecordDef *createRecord(*name=0, type=BDEM_SEQUENCE_RECORD);
         //   bdem_EnumerationDef *createEnumeration(const char *name = 0);
@@ -7614,7 +7615,7 @@ if (veryVerbose)
         if (verbose) bsl::cout << "\tWithout passing in an allocator."
                                << bsl::endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             if (veryVerbose) { T_(); T_(); PS(X); }
             ASSERT(0 == X.numRecords());
             ASSERT(0 == X.numEnumerations());

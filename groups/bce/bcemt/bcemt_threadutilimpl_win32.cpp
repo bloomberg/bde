@@ -12,6 +12,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bcemt_threadattributes.h>
 
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_cstring.h>  // 'memcpy'
 

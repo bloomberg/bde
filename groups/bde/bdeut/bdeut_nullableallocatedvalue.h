@@ -149,8 +149,8 @@ class bdeut_NullableAllocatedValue {
     // This is a template for nullable values.
 
     // PRIVATE DATA MEMBERS
-    TYPE            *d_value_p;
-    bslma_Allocator *d_allocator_p;
+    TYPE             *d_value_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TYPES
@@ -163,21 +163,22 @@ class bdeut_NullableAllocatedValue {
                                    bdeu_HasPrintMethod);
 
     // CREATORS
-    explicit bdeut_NullableAllocatedValue(bslma_Allocator *basicAllocator = 0);
+    explicit bdeut_NullableAllocatedValue(
+                                         bslma::Allocator *basicAllocator = 0);
        // Create a nullable object with no value, and use the specified
        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
        // currently installed default allocator is used.
 
     bdeut_NullableAllocatedValue(
                 const bdeut_NullableAllocatedValue<TYPE>&  original,
-                bslma_Allocator                           *basicAllocator = 0);
+                bslma::Allocator                          *basicAllocator = 0);
         // Create a copy of the specified 'original' nullable object, and use
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    bdeut_NullableAllocatedValue(const TYPE&      value,
-                                 bslma_Allocator *basicAllocator = 0);
+    bdeut_NullableAllocatedValue(const TYPE&       value,
+                                 bslma::Allocator *basicAllocator = 0);
         // Create an nullable object with the specified 'value', and use the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator is used.
@@ -308,9 +309,9 @@ void swap(bdeut_NullableAllocatedValue<TYPE>& a,
 template <typename TYPE>
 inline
 bdeut_NullableAllocatedValue<TYPE>
-::bdeut_NullableAllocatedValue(bslma_Allocator *basicAllocator)
+::bdeut_NullableAllocatedValue(bslma::Allocator *basicAllocator)
 : d_value_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -319,9 +320,9 @@ inline
 bdeut_NullableAllocatedValue<TYPE>
 ::bdeut_NullableAllocatedValue(
                      const bdeut_NullableAllocatedValue<TYPE>&  original,
-                     bslma_Allocator                           *basicAllocator)
+                     bslma::Allocator                          *basicAllocator)
 : d_value_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (!original.isNull()) {
         makeValue(original.value());
@@ -331,10 +332,10 @@ bdeut_NullableAllocatedValue<TYPE>
 template <typename TYPE>
 inline
 bdeut_NullableAllocatedValue<TYPE>
-::bdeut_NullableAllocatedValue(const TYPE&      value,
-                               bslma_Allocator *basicAllocator)
+::bdeut_NullableAllocatedValue(const TYPE&       value,
+                               bslma::Allocator *basicAllocator)
 : d_value_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     makeValue(value);
 }
@@ -393,7 +394,7 @@ bdeut_NullableAllocatedValue<TYPE>
 
     if (!isNull() && !other.isNull()) {
         // swap typed values
-        bslalg_SwapUtil::swap(&this->value(), &other.value());
+        bslalg::SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
 
@@ -430,8 +431,8 @@ bdeut_NullableAllocatedValue<TYPE>
 
     TYPE *value = reinterpret_cast<TYPE*>(
                                         d_allocator_p->allocate(sizeof(TYPE)));
-    bslma_DeallocatorProctor<bslma_Allocator> proctor(value, d_allocator_p);
-    bslalg_ScalarPrimitives::copyConstruct(value, rhs, d_allocator_p);
+    bslma::DeallocatorProctor<bslma::Allocator> proctor(value, d_allocator_p);
+    bslalg::ScalarPrimitives::copyConstruct(value, rhs, d_allocator_p);
     proctor.release();
     d_value_p = value;
 
@@ -458,8 +459,8 @@ bdeut_NullableAllocatedValue<TYPE>
 
     TYPE *value = reinterpret_cast<TYPE*>(
                                         d_allocator_p->allocate(sizeof(TYPE)));
-    bslma_DeallocatorProctor<bslma_Allocator> proctor(value, d_allocator_p);
-    bslalg_ScalarPrimitives::defaultConstruct(value, d_allocator_p);
+    bslma::DeallocatorProctor<bslma::Allocator> proctor(value, d_allocator_p);
+    bslalg::ScalarPrimitives::defaultConstruct(value, d_allocator_p);
     proctor.release();
     d_value_p = value;
 

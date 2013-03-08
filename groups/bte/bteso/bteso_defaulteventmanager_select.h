@@ -143,16 +143,16 @@ BDES_IDENT("$Id: $")
 #include <bdet_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSL_HASH_MAP
-#include <bsl_hash_map.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_UNORDERED_MAP
+#include <bsl_unordered_map.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -179,17 +179,16 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
     };
 
   private:
-    typedef bsl::hash_map<bteso_Event,
-                          bteso_EventManager::Callback,
-                          bteso_EventHash>              EventMap;
+    typedef bsl::unordered_map<bteso_Event,
+                               bteso_EventManager::Callback,
+                               bteso_EventHash>              EventMap;
 
     // Due to the initialization dependency between 'd_eventsAllocator'
     // and 'd_events' their declaration order should always be as follows.
 
     bcema_PoolAllocator d_eventsAllocator;   // event map allocator
 
-    bsl::hash_map<bteso_Event, bteso_EventManager::Callback, bteso_EventHash>
-                        d_events;     // socket events and associated callbacks
+    EventMap            d_events;     // socket events and associated callbacks
 
     fd_set              d_readSet;    // set of descriptors monitored for
                                       // incoming data
@@ -232,10 +231,10 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
   public:
     // CREATORS
     explicit
-    bteso_DefaultEventManager(bslma_Allocator   *basicAllocator = 0);
+    bteso_DefaultEventManager(bslma::Allocator  *basicAllocator = 0);
     explicit
     bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric,
-                              bslma_Allocator   *basicAllocator = 0);
+                              bslma::Allocator  *basicAllocator = 0);
         // Create a 'select'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics

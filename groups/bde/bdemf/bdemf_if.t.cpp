@@ -19,7 +19,7 @@ using namespace bsl;  // automatically added by script
 // The component under test contains the simple meta-function 'bdemf_If'.  The
 // meta-function is tested by enumeration of all combinations of (1) 'true' and
 // 'false' conditions, and (2) defaulting of zero, one, or two of the type
-// arguments to 'bslmf_Nil'.
+// arguments to 'bslmf::Nil'.
 //-----------------------------------------------------------------------------
 // [ 1] bdemf_If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
 
@@ -57,7 +57,7 @@ static void aSsErT(int c, const char *s, int i) {
 namespace {
 
     // 'SizeOf' is a meta-function that returns the non-zero size of its type
-    // argument, or 0 for 'bslmf_Nil'.
+    // argument, or 0 for 'bslmf::Nil'.
 
     template <class T>
     struct SizeOf {
@@ -65,7 +65,7 @@ namespace {
     };
 
     template <>
-    struct SizeOf<bslmf_Nil> {
+    struct SizeOf<bslmf::Nil> {
         static const size_t VALUE = 0;
     };
 
@@ -124,7 +124,7 @@ namespace {
 namespace Deprecated {
 
     // 'SizeOf' is a meta-function that returns the non-zero size of its type
-    // argument, or 0 for 'bslmf_Nil'.
+    // argument, or 0 for 'bslmf::Nil'.
 
     template <class T>
     struct SizeOf {
@@ -132,7 +132,7 @@ namespace Deprecated {
     };
 
     template <>
-    struct SizeOf<bslmf_Nil> {
+    struct SizeOf<bslmf::Nil> {
         static const size_t VALUE = 0;
     };
 
@@ -196,10 +196,10 @@ namespace Deprecated {
 //..
     enum TypeCode { T_UNKNOWN = 0, T_CHAR = 1, T_INT = 2, T_NIL = 3 };
 
-    TypeCode whatType(char)      { return T_CHAR; }
-    TypeCode whatType(int)       { return T_INT; }
-    TypeCode whatType(bslmf_Nil) { return T_NIL; }
-    TypeCode whatType(...)       { return T_UNKNOWN; }
+    TypeCode whatType(char)       { return T_CHAR; }
+    TypeCode whatType(int)        { return T_INT; }
+    TypeCode whatType(bslmf::Nil) { return T_NIL; }
+    TypeCode whatType(...)        { return T_UNKNOWN; }
 //..
 
 //=============================================================================
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
      ASSERT(T_INT == whatType(LargerType()));
 //..
 // In the next example, the condition argument evaluates to false (zero).  In
-// this case, 'bdemf_If<...>::Type' evaluates to 'bslmf_Nil' since the third
+// this case, 'bdemf_If<...>::Type' evaluates to 'bslmf::Nil' since the third
 // template argument (the "else" type) is not explicitly specified:
 //..
      typedef bdemf_If<(sizeof(T2) > 1), int>::Type Type2;
@@ -262,14 +262,14 @@ int main(int argc, char *argv[])
         //   - That 'true' and 'false' conditions select the first and second
         //     type arguments, respectively.
         //   - That selected types that are not explicitly specified resolve to
-        //     the default 'bslmf_Nil' type.
+        //     the default 'bslmf::Nil' type.
         //
         // Plan:
         //   - Provide distinct type arguments with both 'true' and 'false'
         //     conditions and verify that the correct type is selected.
         //   - Repeat the tests such that:
-        //      1. The second type parameter (only) defaults to 'bslmf_Nil'.
-        //      2. Both type parameters default to 'bslmf_Nil'.
+        //      1. The second type parameter (only) defaults to 'bslmf::Nil'.
+        //      2. Both type parameters default to 'bslmf::Nil'.
         //
         // Testing:
         //   bdemf_If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>

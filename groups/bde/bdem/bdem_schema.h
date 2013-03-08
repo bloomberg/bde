@@ -200,7 +200,7 @@ BDES_IDENT("$Id: $")
 //..
 // We start by creating an empty schema:
 //..
-//  bslma_Allocator *allocator = bslma_Default::allocator();
+//  bslma::Allocator *allocator = bslma::Default::allocator();
 //  bdem_Schema schema(allocator);
 //..
 // We create a new record definition "SALE" of type 'BDEM_SEQUENCE_RECORD',
@@ -352,7 +352,7 @@ BDES_IDENT("$Id: $")
 // the previous section.  We start by creating a 'bdem_Schema' object, and
 // adding an enumeration named "CREDIT_CARD_TYPE":
 //..
-//  bslma_Allocator *allocator = bslma_Default::allocator();
+//  bslma::Allocator *allocator = bslma::Default::allocator();
 //  bdem_Schema schema(allocator);
 //
 //  bdem_EnumerationDef *ccTypeEnumDef =
@@ -783,7 +783,7 @@ class bdem_Schema {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdem_Schema,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -792,13 +792,13 @@ class bdem_Schema {
         // information on 'bdex' streaming of container types.)
 
     // CREATORS
-    bdem_Schema(bslma_Allocator *basicAllocator = 0);
+    bdem_Schema(bslma::Allocator *basicAllocator = 0);
         // Create an empty schema object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     bdem_Schema(const bdem_Schema&  original,
-                bslma_Allocator    *basicAllocator = 0);
+                bslma::Allocator   *basicAllocator = 0);
         // Create a schema having the value of the specified 'original' schema.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -859,7 +859,7 @@ class bdem_Schema {
         // containers.
 
     // ACCESSORS
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the address of the modifiable allocator supplied at
         // construction or, if no allocator was explicitly supplied, the
         // currently installed default allocator at the time the time of
@@ -1585,7 +1585,7 @@ STREAM& bdem_Schema::bdexStreamIn(STREAM& stream, int version)
 
 // ACCESSORS
 inline
-bslma_Allocator *bdem_Schema::allocator() const
+bslma::Allocator *bdem_Schema::allocator() const
 {
     // Get the allocator from the 'd_recordDefs' vector.
     return d_recordDefs.get_allocator().mechanism();

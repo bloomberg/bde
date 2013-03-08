@@ -72,7 +72,7 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatchCallbacks(
                                  currData.revents & (POLLIN | DEFAULT_MASK))) {
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                      cbEnd != (cbIt = d_callbacks.find(
-                                 bteso_Event(currData.fd, 
+                                 bteso_Event(currData.fd,
                                              bteso_EventType::BTESO_READ))))) {
                 (cbIt->second)();
                 ++numCallbacks;
@@ -81,7 +81,7 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatchCallbacks(
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 if (cbEnd != (cbIt = d_callbacks.find(
-                                bteso_Event(currData.fd, 
+                                bteso_Event(currData.fd,
                                             bteso_EventType::BTESO_ACCEPT)))) {
                     (cbIt->second)();
                     ++numCallbacks;
@@ -120,7 +120,7 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatchCallbacks(
 
 bteso_DefaultEventManager<bteso_Platform::POLLSET>::
 bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric,
-                          bslma_Allocator   *basicAllocator)
+                          bslma::Allocator  *basicAllocator)
 : d_ps(::pollset_create(-1))
 , d_fdCount(0)
 , d_callbacks(basicAllocator)

@@ -4,9 +4,10 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdepu_realparserimputil_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
 #include <bdes_bitutil.h>
-#include <bsls_platformutil.h>
+
+#include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_c_math.h>
 
@@ -18,8 +19,8 @@ BDES_IDENT_RCSID(bdepu_realparserimputil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-typedef bsls_PlatformUtil::Int64  Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 enum {
     BDEPU_SUCCESS = 0,

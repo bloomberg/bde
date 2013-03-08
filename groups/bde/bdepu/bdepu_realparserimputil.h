@@ -42,16 +42,16 @@ BDES_IDENT("$Id: $")
 //..
 // Second, do the conversion:
 //..
-//      int                       binSign;
-//      bsls_PlatformUtil::Uint64 binFrac;
-//      int                       binExp;
+//      int                 binSign;
+//      bsls::Types::Uint64 binFrac;
+//      int                 binExp;
 //      bdepu_RealParserImpUtil::
 //                 convertDoubleToBinary(&binSign, &binFrac, &binExp, initial);
 //..
 // Third, convert from binary representation to decimal representation:
 //..
-//      bsls_PlatformUtil::Uint64 decFrac;
-//      int                       decExp;
+//      bsls::Types::Uint64 decFrac;
+//      int                 decExp;
 //      bdepu_RealParserImpUtil::
 //                  convertBinaryToDecimal(&decFrac, &decExp, binFrac, binExp);
 //..
@@ -69,22 +69,15 @@ BDES_IDENT("$Id: $")
 //..
 // Note that obtaining the exact initial value is in general not guaranteed.
 
-
-
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
-
-
-
 namespace BloombergLP {
-
-
 
                         // =======================
                         // bdepu_RealParserImpUtil
@@ -99,34 +92,33 @@ struct bdepu_RealParserImpUtil {
 
     // PUBLIC METHODS
     static
-    void convertBinaryExponentToDecimal(bsls_PlatformUtil::Uint64 *decFrac,
-                                        int                       *decExp,
-                                        int                        binExp);
+    void convertBinaryExponentToDecimal(bsls::Types::Uint64 *decFrac,
+                                        int                 *decExp,
+                                        int                  binExp);
         // Load into the specified 'decFrac' and 'decExp' the conversion from
         // the specified binary representation 'binExp' to decimal
         // representation.
 
     static
-    void convertBinaryFractionToDecimalFraction(
-                                           bsls_PlatformUtil::Uint64 *decFrac,
-                                           bsls_PlatformUtil::Uint64  binFrac);
+    void convertBinaryFractionToDecimalFraction(bsls::Types::Uint64 *decFrac,
+                                                bsls::Types::Uint64  binFrac);
         // Load into the specified 'decFrac' the conversion from the specified
         // binary representation 'binFrac' to decimal representation.
 
     static
-    void convertBinaryToDecimal(bsls_PlatformUtil::Uint64 *decFrac,
-                                int                       *decExp,
-                                bsls_PlatformUtil::Uint64  binFrac,
-                                int                        binExp);
+    void convertBinaryToDecimal(bsls::Types::Uint64 *decFrac,
+                                int                 *decExp,
+                                bsls::Types::Uint64  binFrac,
+                                int                  binExp);
         // Load into the specified 'decFrac' and 'decExp' the conversion from
         // the specified binary representation 'binFrac' and 'binExp' to
         // decimal representation.
 
     static
-    int convertBinaryToDouble(double                    *value,
-                              int                        binSign,
-                              bsls_PlatformUtil::Uint64  binFrac,
-                              int                        binExp);
+    int convertBinaryToDouble(double              *value,
+                              int                  binSign,
+                              bsls::Types::Uint64  binFrac,
+                              int                  binExp);
         // Load into the specified 'value' the conversion from the specified
         // binary representation 'binSign', 'binFrac', and 'binExp' to the
         // standard (IEEE-754) 'double' representation.  Return 0 on success,
@@ -135,9 +127,9 @@ struct bdepu_RealParserImpUtil {
         // 0 <= binSign <= 1.
 
     static
-    int convertDecimalExponentToBinary(bsls_PlatformUtil::Uint64 *binFrac,
-                                       int                       *binExp,
-                                       int                        decExp);
+    int convertDecimalExponentToBinary(bsls::Types::Uint64 *binFrac,
+                                       int                 *binExp,
+                                       int                  decExp);
         // Load into the specified 'binFrac' and 'binExp' the conversion from
         // the specified decimal representation 'decExp' to binary
         // representation.  Return 0 on success and a non-zero value (with no
@@ -145,17 +137,16 @@ struct bdepu_RealParserImpUtil {
         // (i.e., if 'binExp' would not be a valid integer).
 
     static
-    void convertDecimalFractionToBinaryFraction(
-                                           bsls_PlatformUtil::Uint64 *binFrac,
-                                           bsls_PlatformUtil::Uint64  decFrac);
+    void convertDecimalFractionToBinaryFraction(bsls::Types::Uint64 *binFrac,
+                                                bsls::Types::Uint64  decFrac);
         // Load into the specified 'binFrac' the conversion from the specified
         // decimal representation 'decFrac' to binary representation.
 
     static
-    int convertDecimalToBinary(bsls_PlatformUtil::Uint64 *binFrac,
-                               int                       *binExp,
-                               bsls_PlatformUtil::Uint64  decFrac,
-                               int                        decExp);
+    int convertDecimalToBinary(bsls::Types::Uint64 *binFrac,
+                               int                 *binExp,
+                               bsls::Types::Uint64  decFrac,
+                               int                  decExp);
         // Load into the specified 'binFrac' and 'binExp' the conversion from
         // the specified decimal representation 'decFrac' and 'decExp' to
         // binary representation.  Return 0 on success and a non-zero value
@@ -163,10 +154,10 @@ struct bdepu_RealParserImpUtil {
         // possible (i.e., if 'binExp' would not be a valid integer).
 
     static
-    void convertDoubleToBinary(int                       *binSign,
-                               bsls_PlatformUtil::Uint64 *binFrac,
-                               int                       *binExp,
-                               double                     value);
+    void convertDoubleToBinary(int                 *binSign,
+                               bsls::Types::Uint64 *binFrac,
+                               int                 *binExp,
+                               double               value);
         // Load into the specified 'binSign', 'binFrac', and 'binExp' the
         // conversion from the specified standard (IEEE-754) 'double' 'value'
         // to binary representation.

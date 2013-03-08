@@ -4,8 +4,6 @@
 
 #include <bdet_time.h>
 
-#include <bsls_platformutil.h>           // for testing only
-
 #include <bdex_testinstream.h>           // for testing only
 #include <bdex_testoutstream.h>          // for testing only
 #include <bdex_testinstreamexception.h>  // for testing only

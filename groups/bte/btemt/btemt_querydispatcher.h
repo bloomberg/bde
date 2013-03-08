@@ -82,8 +82,12 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BTEMT_QUERY
@@ -108,10 +112,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -230,9 +230,9 @@ bsl::ostream& operator<<(bsl::ostream& os,
                          const btemt_QueryDispatcherEvent& rhs);
 
 class btemt_QueryDispatcher {
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
-    bslma_Allocator         *d_allocator_p;
+    bslma::Allocator        *d_allocator_p;
     bcep_ThreadPool          d_threadPool;
     btemt_QueryRouter       *d_queryRouter_p;// manages channel pool
 
@@ -430,7 +430,7 @@ class btemt_QueryDispatcher {
         const bcemt_Attribute& threadAttributes,
         const bdef_Function<void (*)(const btemt_QueryDispatcherEvent&)>&
             dispatcherEventFunctor,
-        bslma_Allocator *basicAllocator = 0);
+        bslma::Allocator *basicAllocator = 0);
        // The channel pool and thread pool are created and configured according
        // to 'config'.  'dispatcherEventFunctor' is cached and is invoked
        // every time a channel event occurs:
