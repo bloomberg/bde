@@ -77,13 +77,15 @@ struct OsUtil {
     static int getOsInfo(bsl::string *osName,
                          bsl::string *osVersion,
                          bsl::string *osPatch);
-    // Load the OS name, version and patch into the specified 'osName',
-    // 'osVersion' and 'osPatch' respectively. Return 0 on success and a
-    // non-zero value otherwise. On MS Windows systems 'osName' will be
-    // 'Windows', with 'osVersion' set to version, and 'osPatch' to Service
-    // Pack number. On Posix systems, 'osName', 'osVersion' and 'osPatch' will
-    // be set to 'sysname', 'release', and 'version', respectively, as returned
-    // by !uname(2)!.
+    // Load the operating system name, version name and patch name into the
+    // specified 'osName', 'osVersion' and 'osPatch' respectively. Return 0 on
+    // success and a non-zero value otherwise. On MS Windows systems 'osName'
+    // will be 'Windows', with 'osVersion' set to 'dwMajorVersion' concatenated
+    // with a dot and 'dwMinorVersion', and 'osPatch' will be set to
+    // 'szCSDVresion' (Service Pack name), as returned by !GetVersionEx!. On
+    // Posix systems, 'osName', 'osVersion' and 'osPatch' will be set to
+    // 'sysname', 'release', and 'version', respectively, as returned by
+    // !uname(2)!.
 };
 
 }  // close package namespace
