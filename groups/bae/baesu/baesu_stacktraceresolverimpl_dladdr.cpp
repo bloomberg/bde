@@ -17,6 +17,9 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_dladdr,"$Id$ $CSID$")
 
 #include <dlfcn.h>
 
+#if 1    // TBD: get using include file
+#include <cxxabi.h>
+#else
 // The following is an excerpt from '#include <cxxabi.h>'.  Unfortunately,
 // that include file defines a class 'type_info' that conflicts with one
 // defined in bsl so we can't include it here and we have to resort to an
@@ -25,25 +28,22 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_dladdr,"$Id$ $CSID$")
 namespace __cxxabiv1 {
   extern "C"  {
     // 3.4 Demangler API
-    extern char* __cxa_demangle(const char* mangled_name, 
+    extern char* __cxa_demangle(const char* mangled_name,
                                 char*       output_buffer,
-                                size_t*     length, 
+                                size_t*     length,
                                 int*        status);
   } // extern "C"
 } // namespace __cxxabiv1
 namespace abi = __cxxabiv1;
-
-//=============================================================================
-//           Debugging trace macros: 'eprintf' and 'zprintf'
-//=============================================================================
+#endif
 
 ///Implementation Notes:
 ///--------------------
 //
-// Given a pointer to some code, 'dladdr' will find t he closest symbol
-// before it.  'dladdr' populates a 'Dl_info' struct. which has the following
-// fields:
-//
+// Given an address in memory within a code segment 'dladdr' will find the
+// symbol for the close function that begins preceding it.  'dladdr' populates
+// a 'Dl_info' 'struct', which has the following fields:
+//..
 //   const char* dli_fname     The pathname of the shared object containing
 //                             the address.
 //
@@ -55,33 +55,35 @@ namespace abi = __cxxabiv1;
 //                             value less than or equal to addr.
 //
 //   void* dli_saddr           The value of the symbol returned in dli_sname.
+//..
+// Sometimes 'dladdr' may fail to find 'dli_fname' or 'dli_sname', in which
+// case those fields will point to "" or be 0.
 //
 // Where the memory for the strings comes from is unclear.  The man page does
 // not say anything about their needing to be freed, so they may point to some
 // data that was in-memory for other reasons.
 //
-// TBD: Does the memory for the char strings have to be freed?  Don't free
-// them at first but run valgrind or purify to determine if memory is being
-// leaked.
+// The memory pointed to by 'dli_fname' and 'dli_sname' is not dynamically
+// allocated and does not need to be freed -- this was verifid by running
+// the tests under valgrind on Darwin and observing that there were no memory
+// leaks.
 
 namespace BloombergLP {
 
-
 namespace {
-
 namespace Local {
 
 enum {
-    DEMANGLE_BUF_LEN= (32 * 1024) - 64  // length in bytes of
-                                        // 'd_demangleBuf_p'.  Make less than
-                                        // a power of 2 to avoid wasting a page
+    DEMANGLING_BUFFER_LENGTH = (32 * 1024) - 64   // length in bytes of
+                                                  // 'd_demangleBuf_p'.  Make
+                                                  // less than a power of 2 to
+                                                  // avoid wasting a page
 };
 
 typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr>
                                                             StackTraceResolver;
 
 }  // close namespace Local
-
 }  // close unnamed namespace
 
 // CREATORS
@@ -89,10 +91,11 @@ Local::StackTraceResolver::baesu_StackTraceResolverImpl(
                                      baesu_StackTrace *stackTrace,
                                      bool              demanglingPreferredFlag)
 : d_stackTrace_p(stackTrace)
-, d_demangle(demanglingPreferredFlag)
+, d_demangleFlag(demanglingPreferredFlag)
 , d_hbpAlloc()
 {
-    d_demangleBuf_p = (char *) d_hbpAlloc.allocate(Local::DEMANGLE_BUF_LEN);
+    d_demangleBuf_p = (char *) d_hbpAlloc.allocate(
+                                              Local::DEMANGLING_BUFFER_LENGTH);
 }
 
 Local::StackTraceResolver::~baesu_StackTraceResolverImpl()
@@ -101,7 +104,7 @@ Local::StackTraceResolver::~baesu_StackTraceResolverImpl()
 }
 
 // PRIVATE MANIPULATORS
-int Local::StackTraceResolver::resolveSymbol(baesu_StackTraceFrame *frame)
+int Local::StackTraceResolver::resolveFrame(baesu_StackTraceFrame *frame)
 {
     Dl_info info;
     bsl::memset(&info, 0, sizeof(info));
@@ -121,19 +124,13 @@ int Local::StackTraceResolver::resolveSymbol(baesu_StackTraceFrame *frame)
 
     frame->setLibraryFileName(info.dli_fname);
     frame->setMangledSymbolName(info.dli_sname);
-    frame->setOffsetFromSymbol((UintPtr) frame->address() -
-                                                     (UintPtr) info.dli_saddr);
+    frame->setOffsetFromSymbol((bsls::Types::UintPtr) frame->address() -
+                                        (bsls::Types::UintPtr) info.dli_saddr);
 
-    return setFrameSymbolName(frame);
-}
-
-int Local::StackTraceResolver::setFrameSymbolName(
-                                                  baesu_StackTraceFrame *frame)
-{
     int rc = 0;
     frame->setSymbolName("");
-    if (d_demangle) {
-        size_t length = Local::DEMANGLE_BUF_LEN;
+    if (d_demangleFlag) {
+        size_t length = Local::DEMANGLING_BUFFER_LENGTH;
         frame->setSymbolName(abi::__cxa_demangle(
                                             frame->mangledSymbolName().c_str(),
                                             d_demangleBuf_p,
@@ -150,7 +147,8 @@ int Local::StackTraceResolver::setFrameSymbolName(
 
         // '-2 == rc' if the symbol was not a properly mangled symbol.  It
         // turns out this is the case for 'main'.
-        rc = 0;
+
+        rc = -2 == rc : 0 : rc;
     }
 
     return rc;
@@ -164,10 +162,9 @@ int Local::StackTraceResolver::resolve(
     int retRc = 0;
     Local::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);
-    baesu_StackTrace& st = *stackTrace;
 
     for (int i = 0; i < st.length(); ++i) {
-        int rc = resolver.resolveSymbol(&st[i]);
+        int rc = resolver.resolveFrame(&(*stackTrace)[i]);
         retRc = rc ? rc : retRc;
     }
 

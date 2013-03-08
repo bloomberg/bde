@@ -26,9 +26,19 @@ using bsl::endl;
 
 //=============================================================================
 // TEST PLAN
+//
+// The component has only one public function, 'resolve'.  There are two ways
+// to test it:
+//: 1 supplying the stack trace with valid code address, and after resolution
+//:   we will confirm that the symbol names it has resolved are correct.
+//: 2 supplying the stack trace with a large number garbage addresses, to see
+//:   if any addresses cause undefined behavior such as a segfault or crash.
+//:   This is important because most of the work is being done by the 'dladdr'
+//:   function, which is supplied to us by the operating system, and for which
+//:   we have no source and over which we have no control.
 //-----------------------------------------------------------------------------
-// [ 1] resolve
-// [ 2] garbage test
+// [ 2] resolve maliciously chosen garbage code addresses
+// [ 1] resolve valid code addresses
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -212,7 +222,7 @@ static
 const char *safeBaseName(const char *str)
 {
     if (!str) {
-        return "";
+        return "";                                                    // RETURN
     }
 
     const char *ret = str;
@@ -250,24 +260,45 @@ UintPtr bigRand()
 void stuffRandomAddresses(baesu_StackTrace *stackTrace)
 {
     const UintPtr delta = (UintPtr) 1 << ((sizeof(UintPtr) - 1) * 8);
-    const int vecLength = 3 * 256 * 3 + 2048;
+    const int vecLength = 3 * 256 * 3 * 2;
 
-    stackTrace->resize(vecLength);
+    UintPtr values[vecLength];
 
     int vIndex = 0;
-    for (int i = -1; i <= 1; ++i) {
-        UintPtr u = i;
-        for (int j = 0; j < 256; ++j, u += delta) {
-            (*stackTrace)[vIndex++].setAddress((void *) u);
-            (*stackTrace)[vIndex++].setAddress((void *) ~u);
-            (*stackTrace)[vIndex++].setAddress((void *) -u);
-        }
+    UintPtr u = 0;
+    for (int j = 0; j < 256; ++j, u += delta, ++vIndex) {
+        values[vIndex] = u;
+    }
+    for (int j = 0; j < 256; ++j, ++vIndex) {
+        values[vIndex] = values[vIndex - 256] - 1;
+    }
+    for (int j = 0; j < 256; ++j, ++vIndex) {
+        values[vIndex] = values[vIndex - 512] + 1;
     }
 
-    ASSERT(vecLength - 2048 == vIndex);
+    const int three256 = 3 * 256;
+    ASSERT(three256 == vIndex);
+    for (int j = 0; j < three256; ++j, ++vIndex) {
+        values[vIndex] = ~values[vIndex - three256];
+    }
 
-    while (vIndex < vecLength) {
-        (*stackTrace)[vIndex++].setAddress((void *) bigRand());
+    const int six256 = 6 * 256;
+    ASSERT(six256 == vIndex);
+    for (int j = 0; j < six256; ++j, ++vIndex) {
+        values[vIndex] = - values[vIndex - six256];
+    }
+
+    const UintPtr hiMask = (UintPtr) 0xff << ((sizeof(UintPtr) - 1) * 8);
+    const UintPtr loMask = ~hiMask;
+
+    ASSERT(9 * 256 == vIndex);
+    for (int j = 0; vIndex < vecLength; j = (j + 1) & 0xff, ++vIndex) {
+        u = values[j] & hiMask;
+        values[vIndex] = u | (bigRand() & loMask);
+    }
+
+    for (int j = 0; j < vecLength; ++j) {
+        (*stackTrace)[j].setAddress((void) values[j]);
     }
 }
 
@@ -289,18 +320,22 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // GARBAGE TEST
         //
-        // Concerns: That the resolver won't segfault given garbage data.
+        // Concerns:
+        //   That the resolver won't segfault given garbage data.
         //
-        // Plan: seed a long stackTrace of StackTraceFrames with garbase
-        // addresses, then resolve the stackTrace, seeing if it segfaults or
-        // returns an error.  Then stream out the frames to see if any problems
-        // are encountered streaming out.
+        // Plan:
+        //   Seed a long stackTrace of StackTraceFrames with maliciously chosen
+        //   garbase addresses, then resolve the stackTrace, seeing if it
+        //   segfaults or fails an assert.  Then stream out the frames to see
+        //   if any problems are encountered streaming out.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Garbage Test\n"
                              "============\n";
 
-        baesu_StackTrace stackTrace;
+        bslma_TestAllocator ta;
+
+        baesu_StackTrace stackTrace(&ta);
         stuffRandomAddresses(&stackTrace);
 
         (void) Obj::resolve(&stackTrace, true);
@@ -313,7 +348,7 @@ int main(int argc, char *argv[])
 
         for (int vecIndex = 0; vecIndex < (int) stackTrace.length();
                                                              vecIndex += 128) {
-            bsl::ostringstream ss;
+            bsl::ostringstream ss(&ta);
 
             int vecIndexLim = bsl::min(vecIndex + 127,
                                        (int) stackTrace.length());
@@ -326,9 +361,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // baesu_StackTraceResolverImp<Dladdr> BREATHING TEST
         //
-        // Concerns: Exercise baesu_StackTrace basic functionality.
+        // Concerns:
+        //   That 'resolve' can corectly resolve code pointers into symbol
+        //   names
         //
-        // Plan: Call 'printStackTrace()' to print a stack trace.
+        // Plan:
+        //   Seed a 'baesu_StackTrace' object with several code pointers
+        //   pointeing into known functions, call 'resolve', and verify that
+        //   the data fields calculated are as they should be.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -347,24 +387,6 @@ int main(int argc, char *argv[])
             stackTrace[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
             stackTrace[1].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
 
-            // The optizer is just UNBELIEVABLY clever.  If you declare a
-            // routine inline, it is VERY aggressive about figuring out a way
-            // to inline it, even if you call it through a pointer.
-            // 'Obj::testFunc' is an inline routine, but we force it out of
-            // line by taking a function ptr to it.
-
-            UintPtr testFuncPtr = (UintPtr) &Obj::testFunc;
-
-            // If we now just called through it, the optimizer would inline the
-            // call.  So let's juggle (without actually changing it) a bit in a
-            // way the optizer can't possibly figure out:
-
-            testFuncPtr = foilOptimizer(testFuncPtr);
-
-            int testFuncLine = (* (int (*)()) testFuncPtr)();
-            ASSERT(testFuncLine < 2000);
-            stackTrace[2].setAddress(addFixedOffset(testFuncPtr));
-
             testFuncPtr = (UintPtr) &funcStaticInlineOne;
 
             // If we now just called through it, the optimizer would inline the
@@ -375,7 +397,7 @@ int main(int argc, char *argv[])
 
             int result = (* (int (*)(int)) testFuncPtr)(100);
             ASSERT(result > 10000);
-            stackTrace[3].setAddress(addFixedOffset(testFuncPtr));
+            stackTrace[2].setAddress(addFixedOffset(testFuncPtr));
 
 #if 0
             // TBD: This didn't work on ELF, it might work on Darwin.
@@ -393,10 +415,10 @@ int main(int argc, char *argv[])
                 int ints[] = { 0, 1 };
                 bsl::qsort(&ints, 2, sizeof(ints[0]), &phonyCompare);
             }
-            stackTrace[4].setAddress(addFixedOffset((UintPtr) &bsl::qsort));
+            stackTrace[3].setAddress(addFixedOffset((UintPtr) &bsl::qsort));
 #endif
 
-            stackTrace[4].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
+            stackTrace[3].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
 
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {
@@ -454,8 +476,6 @@ int main(int argc, char *argv[])
                              stackTrace[2].libraryFileName().c_str(), libName);
             GOOD_LIBNAME(safeCmp,
                              stackTrace[3].libraryFileName().c_str(), libName);
-            GOOD_LIBNAME(safeCmp,
-                             stackTrace[4].libraryFileName().c_str(), libName);
 #undef  GOOD_LIBNAME
 
             // frame[1] was pointing to a static, the ELF resolver should have
@@ -463,7 +483,7 @@ int main(int argc, char *argv[])
 
 #if 0
             for (int i = 0; i < stackTrace.length(); ++i) {
-                if (0 == i || 2 == i || 4 == i) {
+                if (0 == i || 3 == i) {
                     ASSERT(!stackTrace[i].isSourceFileNameKnown());
                     continue;
                 }
@@ -490,15 +510,13 @@ int main(int argc, char *argv[])
 
             SM(stackTrace[0].mangledSymbolName(), "funcGlobalOne");
             SM(stackTrace[1].mangledSymbolName(), "funcStaticOne");
-            SM(stackTrace[2].mangledSymbolName(), "testFunc");
-            SM(stackTrace[3].mangledSymbolName(), "funcStaticInlineOne");
-            SM(stackTrace[4].mangledSymbolName(), "resolve");
+            SM(stackTrace[2].mangledSymbolName(), "funcStaticInlineOne");
+            SM(stackTrace[3].mangledSymbolName(), "resolve");
 
             SM(stackTrace[0].symbolName(), "funcGlobalOne");
             SM(stackTrace[1].symbolName(), "funcStaticOne");
-            SM(stackTrace[2].symbolName(), "testFunc");
-            SM(stackTrace[3].symbolName(), "funcStaticInlineOne");
-            SM(stackTrace[4].symbolName(), "resolve");
+            SM(stackTrace[2].symbolName(), "funcStaticInlineOne");
+            SM(stackTrace[3].symbolName(), "resolve");
 
             if (demangle) {
 #undef  SM
@@ -510,12 +528,7 @@ int main(int argc, char *argv[])
                 SM(0, "funcGlobalOne(int)");
 //              SM(1, "funcStaticOne(int)");    // Darwin doesn't demangle
                                                 // statics
-                SM(2, "BloombergLP::"
-                      "baesu_StackTraceResolverImpl"
-                      "<BloombergLP::"
-                      "baesu_ObjectFileFormat::Dladdr>::"
-                      "testFunc()");
-//              SM(3, "funcStaticInlineOne(int)");    // Darwin doesn't
+//              SM(2, "funcStaticInlineOne(int)");    // Darwin doesn't
                                                       // demangle statics
                 const char *resName = "BloombergLP::"
                                       "baesu_StackTraceResolverImpl"
@@ -523,9 +536,9 @@ int main(int argc, char *argv[])
                                       "baesu_ObjectFileFormat::Dladdr>::"
                                       "resolve(";
                 int resNameLen = (int) bsl::strlen(resName);
-                const char *name4 = stackTrace[4].symbolName().c_str();
-                LOOP2_ASSERT(name4, resName,
-                                          safeCmp(name4, resName, resNameLen));
+                const char *name3 = stackTrace[3].symbolName().c_str();
+                LOOP2_ASSERT(name3, resName,
+                                          safeCmp(name3, resName, resNameLen));
                 break;
             }
 

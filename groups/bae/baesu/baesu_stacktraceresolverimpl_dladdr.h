@@ -20,18 +20,17 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a class,
 // 'baesu_StackTraceResolver<Dladdr>', that, given a vector of
-// 'baesu_StackTraceFrame's that have only their 'address' fields set, resolves
-// some of the other fields in those frames.  This resolver will work for any
-// platform that supports the 'dladdr' call.  At the time of this writing, it
-// is used only for the 'Mach-O' format used on Apple OSX.  Documents ar
-// available at:
-//: o 'http://en.wikipedia.org/wiki/Mach-O'
-//: o 'https://developer.apple.com/library/mac/#documentation/DeveloperTools/
-//:   Conceptual/MachORuntime/Reference/reference.html'
-//: o (which shortens to: 'http://bit.ly/M2yytE')
-// but you don't need to understand the OMF to understand this code, you just
-// need to understand the 'dladdr' routine ('man dladdr' on a apple machine)
-// and the 'abi::__cxa_demangle' routine, described in
+// 'baesu_StackTraceFrame' objects that have only their 'address' fields set,
+// resolves some of the other fields in those frames.  This resolver will work
+// for any platform that supports the 'dladdr' call (doc available via
+// 'man dladdr'.
+//
+// At the time of this writing, it is used for the operating systems based on
+// the Mach kernel, in particular Apple Mac OSX.
+//
+// In addition to 'dladdr', this code uses the 'abi::__cxa_demangle' function
+// supplied by the gnu and clang compilers for demangling.  Documentation can
+// be found:
 //: o /usr/include/cxxabi.h
 //: o 'http://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html'
 //
@@ -83,14 +82,8 @@ class baesu_StackTraceResolverImpl;
 template <>
 class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> {
     // This class provides a public static 'resolve' method that, given a
-    // vector of 'baesu_StackTraceFrame's that have only their 'address' fields
-    // set, resolves all other fields in those frames.
-
-    // TYPES
-    typedef bsls_Types::UintPtr UintPtr;    // 32 bit unsigned on 32 bit, 64
-                                            // bit unsigned on 64 bit, usually
-                                            // used for absolute offsets into a
-                                            // file
+    // vector of 'baesu_StackTraceFrame' objects that have only their 'address'
+    // fields set, resolves all other fields in those frames.
 
     // DATA
     baesu_StackTrace  *d_stackTrace_p;      // pointer to stack trace object.
@@ -101,9 +94,11 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> {
                                             // as many other fields of them as
                                             // possible.
 
-    char              *d_demangleBuf_p;     // scratch space for demangling
+    char              *d_demangleBuf_p;     // scratch space for demangling,
+                                            // length is 'DEMANGLE_BUF_LEN' in
+                                            // the imp file.
 
-    bool               d_demangle;          // whether we demangle names
+    bool               d_demangleFlag;      // whether we demangle names
 
     bdema_HeapBypassAllocator
                        d_hbpAlloc;          // heap bypass allocator -- owned
@@ -119,27 +114,23 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> {
     baesu_StackTraceResolverImpl(baesu_StackTrace *stackTrace,
                                  bool              demanglingPreferredFlag);
         // Create an stack trace reolver that can populate other fields of the
-        // specified '*stackTrace' object given previously populated 'address'
-        // fields.  Specify 'demangle', which indicates whether demangling of
-        // symbols is to occur.
+        // specified 'stackTrace' object given previously populated 'address'
+        // fields, and if the specified 'demanglingPreferredFlag' is 'true',
+        // attempt to demangle symbol names.
 
     ~baesu_StackTraceResolverImpl();
         // Destroy this object.
 
     // PRIVATE MANIPULATORS
-    int resolveSymbol(baesu_StackTraceFrame *frame);
-        // Resolve the symbol for the 'i'th frame of the stack trace.  Return 
-        // 0 on success and a non-zero value otherwise.  The behavior is
-        // undefined if 'i < 0' or 'i >= length' where length is the length of
-        // the stack trace object.
-
-    int setFrameSymbolName(baesu_StackTraceFrame *frame);
-        // Set the 'symbolName' field of the specified 'frame', which must
-        // already have the 'mangledSymbolName' field set, to the demangled
-        // version of the 'mangledSymbolName' field.  If 'd_demangle' is
-        // 'false' or we are otherwise unable to demangle, just set it to the
-        // same as 'mangledSymbolName'.  Return 0 on success and a non-zero
-        // value otherwise.
+    int resolveFrame(baesu_StackTraceFrame *frame);
+        // Given the specified 'frame' with all fields uninitializd other than
+        // the initialized 'address()' field, populate as many other fields as
+        // possible, currently the 'liberaryFileName()', 'mangledSymbolName()',
+        // 'offsetFromSymbol()', and 'symbolName()' fields.  If
+        // 'd_demangleFlag' is true, 'symbolName()' will be a demangled form of
+        // 'mangledSymbolName(), otherwise the two fields will be identical.
+        // Return 0 on success and a non-zero value if any problems were
+        // encountered.
 
   public:
     // CLASS METHODS
@@ -150,53 +141,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> {
         // 'demanglingPreferredFlag', to determine whether demangling is to
         // occur.  The behavior is undefined unless all the 'address' field in
         // '*stackTrace' are valid and other fields are invalid.
-
-    static
-    int testFunc();
-        // For testing only.  Do some random garbage and return a line number
-        // within this routine.
 };
-
-                         // ----------------------------------
-                         // class baesu_StackTraceResolverImpl
-                         // ----------------------------------
-
-inline
-int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr>::testFunc()
-{
-    // Do some random garbage to generate some code, then return a line number
-    // within this routine
-
-    int line = 0, lineCopy = 0;
-
-    for (int i = 0; true; ++i) {
-        BSLS_ASSERT_OPT(line == lineCopy);
-
-        const int loopGuard = 0x8edf0000;    // garbage with a lot of trailing
-                                             // 0's.
-        const int mask      = 0xa72c3dca;    // pure garbage
-
-        enum { LINE = __LINE__ };
-
-        for (int i = 0; !(i & loopGuard); ++i) {
-            line ^= (i & mask);
-        }
-
-        // The above loop will leave the value of 'line' unchanged.  See
-        // 'foilOptimizer' in the test driver.
-
-        BSLS_ASSERT_OPT(line == lineCopy);
-
-        if (line != 0) {
-            break;
-        }
-
-        line = LINE;
-        lineCopy = line;
-    }
-
-    return line;
-}
 
 #endif
 
