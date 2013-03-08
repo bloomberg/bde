@@ -7,10 +7,10 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a utility to resolve Mach-O symbols in a stack trace.
+//@PURPOSE: Provide utility resolving symbols in a stack trace using 'dladdr'.
 //
 //@CLASSES:
-//   baesu_StackTraceResolverImpl<Dladdr>: symbol resolution for Mach-O objects
+//   baesu_StackTraceResolverImpl<Dladdr>: symbol resolution using 'dladdr'
 //
 //@SEE_ALSO: baesu_stacktraceresolverimpl_elf,
 //           baesu_stacktraceresolverimpl_windows,
@@ -84,8 +84,7 @@ template <>
 class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> {
     // This class provides a public static 'resolve' method that, given a
     // vector of 'baesu_StackTraceFrame's that have only their 'address' fields
-    // set, resolves all other fields in those frames.  The Mach-O object file
-    // format is used on Apple Darwin platforms.
+    // set, resolves all other fields in those frames.
 
     // TYPES
     typedef bsls_Types::UintPtr UintPtr;    // 32 bit unsigned on 32 bit, 64

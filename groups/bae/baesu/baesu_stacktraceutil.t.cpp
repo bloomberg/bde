@@ -140,7 +140,7 @@ typedef baesu_StackTraceUtil           Util;
 
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
-           FORMAT_MACHO = 0 };
+           FORMAT_DLADDR = 0 };
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
     enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
@@ -152,19 +152,19 @@ typedef baesu_StackTraceUtil           Util;
 #   error unknown platform
 # endif
 
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO)
+#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
-           FORMAT_MACHO = 1 };
+           FORMAT_DLADDR = 1 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0,
            PLAT_DARWIN = 1 };
 #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0,
-           FORMAT_MACHO = 0 };
+           FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1,
            PLAT_DARWIN = 0 };
 #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1,
-           FORMAT_MACHO = 0 };
+           FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0,
            PLAT_DARWIN = 0 };
 #else
@@ -327,7 +327,7 @@ void testStackTrace(const baesu_StackTrace& st)
             LOOP2_ASSERT(i, offset, reachedMain || offset < maxOffset);
         }
 
-        if (!FORMAT_ELF && !FORMAT_MACHO && DEBUG_ON && !reachedMain) {
+        if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON && !reachedMain) {
             ASSERT(frame.isSourceFileNameKnown());
             ASSERT(frame.lineNumber() > 0);
         }
@@ -705,7 +705,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                                    !demangle || !bsl::strncmp(sn, match, len));
             LOOP2_ASSERT(sn, match,              bsl::strstr( sn, match));
 
-            if (!FORMAT_ELF && !FORMAT_MACHO && DEBUG_ON) {
+            if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON) {
                 // 'case_5_top' is global -- elf can't find source file names
                 // for globals
 
@@ -743,14 +743,14 @@ void case_5_top(bool demangle, bool useTestAllocator)
                 }
 
                 LOOP3_ASSERT(i, sn, match, bsl::strstr(sn, match));
-                if (demangle && !FORMAT_MACHO) {
+                if (demangle && !FORMAT_DLADDR) {
                     LOOP4_ASSERT(i, sn, match, len,
                                                 !bsl::strncmp(sn, match, len));
                 }
 
                 ++recursersFound;
 
-                if (!FORMAT_MACHO && DEBUG_ON) {
+                if (!FORMAT_DLADDR && DEBUG_ON) {
                     // 'case_5_bottom' is static, so the source file name will
                     // be known on elf, thus it will be known for all
                     // platforms other than Mach-O.
@@ -1496,7 +1496,7 @@ int main(int argc, char *argv[])
             lastAddress = thisAddress;
             lastOffset = offset;
 
-            if (DEBUG_ON && !FORMAT_ELF && !FORMAT_MACHO) {
+            if (DEBUG_ON && !FORMAT_ELF && !FORMAT_DLADDR) {
                 int lineNumber = frame.lineNumber();
                 LOOP3_ASSERT(i, lineNumber, lineNumbers[i],
                                                  lineNumber == lineNumbers[i]);
