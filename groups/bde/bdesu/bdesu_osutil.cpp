@@ -8,6 +8,17 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesu_osutil_cpp, "$Id$ $CSID$")
 
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+#include <windows.h>
+#include <process.h>
+#include <cstring>
+#else
+#include <unistd.h>
+#include <libgen.h>
+#include <sys/utsname.h>
+#endif
+
+
 namespace BloombergLP {
 namespace bdesu {
 
@@ -17,25 +28,18 @@ namespace bdesu {
 
 // CLASS METHODS
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-#include <windows.h>
-#include <process.h>
-#include <cstring>
 
 #define snprintf _snprintf
 
-int OsUtil::getOsInfo(bsl::string *osName_p,
-                            bsl::string *osVersion_p,
-                            bsl::string *osPatch_p)
+int OsUtil::getOsInfo(bsl::string *osName,
+                      bsl::string *osVersion,
+                      bsl::string *osPatch)
 {
-    BSLS_ASSERT(osName_p);
-    BSLS_ASSERT(osVersion_p);
-    BSLS_ASSERT(osPatch_p);
+    BSLS_ASSERT(osName);
+    BSLS_ASSERT(osVersion);
+    BSLS_ASSERT(osPatch);
 
-    bsl::string& osName    = *osName_p;
-    bsl::string& osVersion = *osVersion_p;
-    bsl::string& osPatch   = *osPatch_p;
-
-    osName = "Windows";
+    *osName = "Windows";
 
     OSVERSIONINFOEX osvi;
 
@@ -56,34 +60,30 @@ int OsUtil::getOsInfo(bsl::string *osName_p,
              "%d.%d",
              osvi.dwMajorVersion,
              osvi.dwMinorVersion);
-    osVersion = tmpBuf;
+    *osVersion = tmpBuf;
 
     // Service pack number
-    osPatch = osvi.szCSDVersion;
+    *osPatch = osvi.szCSDVersion;
     return 0;
 }
 
 #else
 
-#include <unistd.h>
-#include <libgen.h>
-#include <sys/utsname.h>
-
-int OsUtil::getOsInfo(bsl::string *osName_p,
-                            bsl::string *osVersion_p,
-                            bsl::string *osPatch_p)
+int OsUtil::getOsInfo(bsl::string *osName,
+                      bsl::string *osVersion,
+                      bsl::string *osPatch)
 {
-    BSLS_ASSERT(osName_p);
-    BSLS_ASSERT(osVersion_p);
-    BSLS_ASSERT(osPatch_p);
+    BSLS_ASSERT(osName);
+    BSLS_ASSERT(osVersion);
+    BSLS_ASSERT(osPatch);
 
     struct utsname unameInfo;
     if (-1 == uname(&unameInfo)) {
         return -1;
     }
-    *osName_p = unameInfo.sysname;
-    *osVersion_p = unameInfo.release;
-    *osPatch_p = unameInfo.version;
+    *osName = unameInfo.sysname;
+    *osVersion = unameInfo.release;
+    *osPatch = unameInfo.version;
     return 0;
 }
 

@@ -123,44 +123,6 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
-        // OS IDENTIFICATION
-        //   Ensure that the operating system is identified correctly.
-        //
-        // Concerns:
-        //: 1 The operating system is identified as defined in the contract.
-        //
-        // Plan:
-        //: 1 Verify OS Name is 'Windows' when built on MS Windows, and version
-        //    string is at least '4.0' (corresponding to Windows 95).
-        //: 2 On Posix systems verify that loaded 'name', 'version' and 'patch'
-        //    match sysname, release and version, respectively, as returned by
-        //    uname(2).
-        //
-        // Testing:
-        //   getOsInfo
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "OS IDENTIFICATION TEST" << endl
-                          << "==============" << endl;
-        bsl::string name;
-        bsl::string version;
-        bsl::string patch;
-        ASSERT(0 == Obj::getOsInfo(&name, &version, &patch));
-        #if defined(BDES_PLATFORM__OS_WINDOWS)
-            ASSERT("Windows" == name);
-            bsl::string minWindowsVersion("4.0");
-            ASSERT(minWindowsVersion <= version.c_str());
-        #else
-            struct utsname unameInfo;
-            ASSERT(0 == uname(&unameInfo));
-            ASSERT(name == unameInfo.sysname);
-            ASSERT(version == unameInfo.release);
-            ASSERT(patch == unameInfo.version);
-        #endif
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
         // Concerns:
@@ -179,13 +141,85 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
+        // The following example demonstrates using 'getOsInfo' to obtain
+        // information about the operating system at runtime and writing it to
+        // the console.
+
+        // First, we create strings for the operating system name ('osName'),
+        // version ('osVersion'), and patch ('osPatch'), and then call
+        // 'getOsInfo' to load these strings with values for the operating
+        // system the task is executing in:
+
+        bsl::string name;
+        bsl::string version;
+        bsl::string patch;
+        int rc = OsUtil::getOsInfo(&name, &version, &patch);
+        if (0 == rc) {
+            std::cout << "OS Name: " << name << "\n"
+                      << "Version: " << version << "\n"
+                      << "Patch:   " << patch << "\n";
+        } else {
+            std::cout << "Cannot determine OS name and version\n";
+        }
+
+        // Finally, the resulting console output on the
+        // Red Hat Enterprise Linux Server 5.5 would be
+        //..
+        // OS Name: Linux
+        // Version: 2.6.18-194.32.1.el5
+        // Patch:   #1 SMP Mon Dec 20 10:52:42 EST 2010
+        //..
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // OS IDENTIFICATION
+        //   Ensure that the operating system is identified correctly.
+        //
+        // Concerns:
+        //: 1 The operating system is identified as defined in the contract.
+        //
+        // Plan:
+        //: 1 Verify OS Name is 'Windows' when built on MS Windows, and the
+        //:   loaded version and patch match values returned by GetVersionEx().
+        //: 2 On Posix systems verify that loaded 'name', 'version' and 'patch'
+        //:   match sysname, release and version, respectively, as returned by
+        //:   uname(2).
+        //
+        // Testing:
+        //   getOsInfo
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "OS IDENTIFICATION TEST" << endl
+                          << "==============" << endl;
         bsl::string name;
         bsl::string version;
         bsl::string patch;
         ASSERT(0 == Obj::getOsInfo(&name, &version, &patch));
-        std::cout << name
-                  << "Version: " << version
-                  << " Patch: " << patch << "\n";
+        #if defined(BDES_PLATFORM__OS_WINDOWS)
+            ASSERT("Windows" == name);
+
+            OSVERSIONINFOEX osvi;
+            memset(&osvi, 0, sizeof(osvi));
+            osvi.dwOSVersionInfoSize = sizeof(osvi);
+            ASSERT(GetVersionEx(&osvi));
+
+            stringstream expectedVersion;
+            expectedVersion << osvi.dwMajorVersion
+                            << '.'
+                            << osvi.dwMinorVersion;
+            ASSERT(version == expectedVersion.str());
+
+            ASSERT(patch == osvi.szCSDVersion);
+        #else
+            struct utsname unameInfo;
+            ASSERT(0 == uname(&unameInfo));
+            ASSERT(name == unameInfo.sysname);
+            ASSERT(version == unameInfo.release);
+            ASSERT(patch == unameInfo.version);
+        #endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

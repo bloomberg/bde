@@ -14,23 +14,41 @@ BDES_IDENT("$Id: $")
 //
 //@SEE ALSO:
 //
-//@DESCRIPTION: This component provides a namespace, 'OsUtil'
-// containing utility functions for retrieving information about the runtime
-// operating system.
+//@DESCRIPTION: This component provides a namespace, 'OsUtil',
+// containing utility functions for retrieving information at runtime about the
+// operating system in which this task is running.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1:
-///- - - - - -
-// Display the operating system, version and patch on standard output:
+///Example 1: Display OS Name, Version and Patch Level
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates using 'getOsInfo' to obtain information
+// about the operating system at runtime and writing it to the console.
+//
+// First, we create strings for the operating system name ('osName'), version
+// ('osVersion'), and patch ('osPatch'), and then call 'getOsInfo' to load
+// these strings with values for the operating system the task is executing in:
 //..
 //  bsl::string name;
 //  bsl::string version;
 //  bsl::string patch;
-//  ASSERT(0 == getOsInfo(&name, &version, &patch);
-//  std::cout << name << "Version: " << version << " Patch: " << patch << "\n";
+//  int rc = OsUtil::getOsInfo(&name, &version, &patch);
+//  if (0 == rc) {
+//      std::cout << "OS Name: " << name << "\n"
+//                << "Version: " << version << "\n"
+//                << "Patch:   " << patch << "\n";
+//  } else {
+//      std::cout << "Cannot determine OS name and version\n";
+//  }
+//..
+// Finally, the resulting console output on the Red Hat Enterprise Linux Server
+// 5.5 would be
+//..
+// OS Name: Linux
+// Version: 2.6.18-194.32.1.el5
+// Patch:   #1 SMP Mon Dec 20 10:52:42 EST 2010
 //..
 
 #ifndef INCLUDED_BSL_STRING
