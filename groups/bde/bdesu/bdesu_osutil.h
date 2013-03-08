@@ -50,6 +50,12 @@ BDES_IDENT("$Id: $")
 // Version: 2.6.18-194.32.1.el5
 // Patch:   #1 SMP Mon Dec 20 10:52:42 EST 2010
 //..
+// On Windows 7 SP1, the display would be
+//..
+// OS Name: Windows
+// Version: 6.1
+// Patch:   Service Pack 1
+//..
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>

@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
             OSVERSIONINFOEX osvi;
             memset(&osvi, 0, sizeof(osvi));
             osvi.dwOSVersionInfoSize = sizeof(osvi);
-            ASSERT(GetVersionEx(&osvi));
+            ASSERT(GetVersionEx(reinterpret_cast<LPOSVERSIONINFO>(&osvi)));
 
             stringstream expectedVersion;
             expectedVersion << osvi.dwMajorVersion
