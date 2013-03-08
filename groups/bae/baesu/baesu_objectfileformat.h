@@ -99,17 +99,18 @@ namespace BloombergLP {
                         // ============================
 
 struct baesu_ObjectFileFormat {
-    // This 'struct' provides a namespace for object file format trait
-    // definitions, the 'Policy' trait, and within the code #defines are
-    // defined to drive conditional compilation in client components.
+    // This 'struct' is named 'ObjectFileFormat' for historical reasons, what
+    // it really determines is resolving strategy.  Linux, for example, can be
+    // resolved using either the 'Elf' or 'Dladdr' policies.  We choose 'Elf'
+    // for linux because that mode of resolving yields more information.
 
-    struct Elf {};        // format used on most Unix platforms
+    struct Elf {};        // resolve as elf object
 
-    struct Xcoff {};      // format used on some Unix platforms
+    struct Xcoff {};      // resolve as xcoff object
 
     struct Windows {};    // format used on Microsoft Windows platform
 
-    struct MachO {};      // format used on Apple platform
+    struct Dladdr {};     // resulve using the 'dladdr' call
 
     struct Dummy {};
 
@@ -132,8 +133,8 @@ struct baesu_ObjectFileFormat {
 
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
-    typedef MachO Policy;
-#   define BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO 1
+    typedef Dladdr Policy;
+#   define BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR 1
 
 #else
 

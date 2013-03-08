@@ -1,5 +1,5 @@
-// baesu_stacktraceresolverimpl_macho.t.cpp                           -*-C++-*-
-#include <baesu_stacktraceresolverimpl_macho.h>
+// baesu_stacktraceresolverimpl_dladdr.t.cpp                          -*-C++-*-
+#include <baesu_stacktraceresolverimpl_dladdr.h>
 
 #include <baesu_stacktrace.h>
 
@@ -16,7 +16,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -82,9 +82,9 @@ static void aSsErT(int c, const char *s, int i)
 // GLOBAL HELPER TYPES & CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::MachO> Obj;
-typedef baesu_StackTraceFrame                                       Frame;
-typedef bsls_Types::UintPtr                                         UintPtr;
+typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> Obj;
+typedef baesu_StackTraceFrame                                        Frame;
+typedef bsls_Types::UintPtr                                          UintPtr;
 
 //=============================================================================
 // GLOBAL HELPER VARIABLES FOR TESTING
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // baesu_StackTraceResolverImp<MachO> BREATHING TEST
+        // baesu_StackTraceResolverImp<Dladdr> BREATHING TEST
         //
         // Concerns: Exercise baesu_StackTrace basic functionality.
         //
@@ -332,8 +332,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                        "baesu_StackTraceResolverImpl<MachO> breathing test\n"
-                        "==================================================\n";
+                       "baesu_StackTraceResolverImpl<Dladdr> breathing test\n"
+                       "===================================================\n";
 
         // There seems to be a problem with taking a pointer to an function in
         // a shared library.  We'll leave the testing of symbols in shared
@@ -440,7 +440,7 @@ int main(int argc, char *argv[])
 
             const char *libName = stackTrace[0].libraryFileName().c_str();
             libName = safeBaseName(libName);
-            const char *thisLib = "baesu_stacktraceresolverimpl_macho.t";
+            const char *thisLib = "baesu_stacktraceresolverimpl_dladdr.t";
 #undef  GOOD_LIBNAME
 #define GOOD_LIBNAME(func, exp, match)                                        \
             LOOP3_ASSERT(#func, safeBaseName(exp), ng(match),                 \
@@ -477,7 +477,7 @@ int main(int argc, char *argv[])
                     }
 
                     LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
-                                  "baesu_stacktraceresolverimpl_macho.t.cpp"));
+                                 "baesu_stacktraceresolverimpl_dladdr.t.cpp"));
                 }
             }
 #endif
@@ -513,14 +513,14 @@ int main(int argc, char *argv[])
                 SM(2, "BloombergLP::"
                       "baesu_StackTraceResolverImpl"
                       "<BloombergLP::"
-                      "baesu_ObjectFileFormat::MachO>::"
+                      "baesu_ObjectFileFormat::Dladdr>::"
                       "testFunc()");
 //              SM(3, "funcStaticInlineOne(int)");    // Darwin doesn't
                                                       // demangle statics
                 const char *resName = "BloombergLP::"
                                       "baesu_StackTraceResolverImpl"
                                       "<BloombergLP::"
-                                      "baesu_ObjectFileFormat::MachO>::"
+                                      "baesu_ObjectFileFormat::Dladdr>::"
                                       "resolve(";
                 int resNameLen = (int) bsl::strlen(resName);
                 const char *name4 = stackTrace[4].symbolName().c_str();

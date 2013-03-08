@@ -7,8 +7,8 @@ BDES_IDENT_RCSID(baesu_stacktraceutil_cpp,"$Id$ $CSID$")
 #include <baesu_objectfileformat.h>
 #include <baesu_stackaddressutil.h>
 #include <baesu_stacktraceframe.h>
+#include <baesu_stacktraceresolverimpl_dladdr.h>
 #include <baesu_stacktraceresolverimpl_elf.h>
-#include <baesu_stacktraceresolverimpl_macho.h>
 #include <baesu_stacktraceresolverimpl_xcoff.h>
 #include <baesu_stacktraceresolverimpl_windows.h>
 

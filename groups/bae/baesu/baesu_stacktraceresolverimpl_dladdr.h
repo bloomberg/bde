@@ -1,6 +1,6 @@
-// baesu_stacktraceresolverimpl_macho.h                               -*-C++-*-
-#ifndef INCLUDED_BAESU_STACKTRACERESOLVERIMPL_MACHO
-#define INCLUDED_BAESU_STACKTRACERESOLVERIMPL_MACHO
+// baesu_stacktraceresolverimpl_dladdr.h                              -*-C++-*-
+#ifndef INCLUDED_BAESU_STACKTRACERESOLVERIMPL_DLADDR
+#define INCLUDED_BAESU_STACKTRACERESOLVERIMPL_DLADDR
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a utility to resolve Mach-O symbols in a stack trace.
 //
 //@CLASSES:
-//   baesu_StackTraceResolverImpl<MachO>: symbol resolution for Mach-O objects
+//   baesu_StackTraceResolverImpl<Dladdr>: symbol resolution for Mach-O objects
 //
 //@SEE_ALSO: baesu_stacktraceresolverimpl_elf,
 //           baesu_stacktraceresolverimpl_windows,
@@ -19,17 +19,18 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a class,
-// 'baesu_StackTraceResolver<MachO>', that, given a vector of
+// 'baesu_StackTraceResolver<Dladdr>', that, given a vector of
 // 'baesu_StackTraceFrame's that have only their 'address' fields set, resolves
-// some of the other fields in those frames.  The Mach-O object file format is
-// used on Apple platforms.  The Mach-O format is described by
-// documents at:
+// some of the other fields in those frames.  This resolver will work for any
+// platform that supports the 'dladdr' call.  At the time of this writing, it
+// is used only for the 'Mach-O' format used on Apple OSX.  Documents ar
+// available at:
 //: o 'http://en.wikipedia.org/wiki/Mach-O'
 //: o 'https://developer.apple.com/library/mac/#documentation/DeveloperTools/
 //:   Conceptual/MachORuntime/Reference/reference.html'
 //: o (which shortens to: 'http://bit.ly/M2yytE')
 // but you don't need to understand the OMF to understand this code, you just
-// need to understand the 'dladdr' routine ('man dladdr' on a apply machine)
+// need to understand the 'dladdr' routine ('man dladdr' on a apple machine)
 // and the 'abi::__cxa_demangle' routine, described in
 //: o /usr/include/cxxabi.h
 //: o 'http://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html'
@@ -70,17 +71,17 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO)
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 
 template <typename RESOLVER_POLICY>
 class baesu_StackTraceResolverImpl;
 
-      // =================================================================
-      // class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::MachO>
-      // =================================================================
+      // ==================================================================
+      // class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr>
+      // ==================================================================
 
 template <>
-class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::MachO> {
+class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> {
     // This class provides a public static 'resolve' method that, given a
     // vector of 'baesu_StackTraceFrame's that have only their 'address' fields
     // set, resolves all other fields in those frames.  The Mach-O object file
@@ -162,7 +163,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::MachO> {
                          // ----------------------------------
 
 inline
-int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::MachO>::testFunc()
+int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr>::testFunc()
 {
     // Do some random garbage to generate some code, then return a line number
     // within this routine

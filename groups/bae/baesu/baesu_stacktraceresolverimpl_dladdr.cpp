@@ -1,12 +1,12 @@
-// baesu_stacktraceresolverimpl_macho.cpp                             -*-C++-*-
-#include <baesu_stacktraceresolverimpl_macho.h>
+// baesu_stacktraceresolverimpl_dladdr.cpp                            -*-C++-*-
+#include <baesu_stacktraceresolverimpl_dladdr.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_macho_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_dladdr,"$Id$ $CSID$")
 
 #include <baesu_objectfileformat.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR
 
 #include <bdeu_string.h>
 
@@ -77,7 +77,7 @@ enum {
                                         // a power of 2 to avoid wasting a page
 };
 
-typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::MachO>
+typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr>
                                                             StackTraceResolver;
 
 }  // close namespace Local
