@@ -8,22 +8,21 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_dladdr,"$Id$ $CSID$")
 
 #ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR
 
+#include <bsl_cstring.h>
+
 #include <bdeu_string.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#include <bsl_cstring.h>
 
 #include <dlfcn.h>
 
-#if 1    // TBD: get using include file
-#include <cxxabi.h>
-#else
-// The following is an excerpt from '#include <cxxabi.h>'.  Unfortunately,
-// that include file defines a class 'type_info' that conflicts with one
-// defined in bsl so we can't include it here and we have to resort to an
-// extern.
+// The following is an excerpt from '#include <cxxabi.h>'.  Unfortunately, that
+// include file forward defines a class 'std::type_info' that conflicts with 
+// the one defined in bsl so we can't include it here and we have to resort to
+// an extern.  It looks like there's just no way to include 'cxxabi.h' on
+// Darwin and still compile.  Probably someone will fix it at some later date.
 
 namespace __cxxabiv1 {
   extern "C"  {
@@ -35,7 +34,6 @@ namespace __cxxabiv1 {
   } // extern "C"
 } // namespace __cxxabiv1
 namespace abi = __cxxabiv1;
-#endif
 
 ///Implementation Notes:
 ///--------------------
@@ -148,7 +146,7 @@ int Local::StackTraceResolver::resolveFrame(baesu_StackTraceFrame *frame)
         // '-2 == rc' if the symbol was not a properly mangled symbol.  It
         // turns out this is the case for 'main'.
 
-        rc = -2 == rc : 0 : rc;
+        rc = -2 == rc ? 0 : rc;
     }
 
     return rc;
@@ -163,7 +161,7 @@ int Local::StackTraceResolver::resolve(
     Local::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);
 
-    for (int i = 0; i < st.length(); ++i) {
+    for (int i = 0; i < stackTrace->length(); ++i) {
         int rc = resolver.resolveFrame(&(*stackTrace)[i]);
         retRc = rc ? rc : retRc;
     }

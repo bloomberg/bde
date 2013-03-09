@@ -264,6 +264,8 @@ void stuffRandomAddresses(baesu_StackTrace *stackTrace)
 
     UintPtr values[vecLength];
 
+    stackTrace->resize(vecLength);
+
     int vIndex = 0;
     UintPtr u = 0;
     for (int j = 0; j < 256; ++j, u += delta, ++vIndex) {
@@ -284,7 +286,7 @@ void stuffRandomAddresses(baesu_StackTrace *stackTrace)
 
     const int six256 = 6 * 256;
     ASSERT(six256 == vIndex);
-    for (int j = 0; j < six256; ++j, ++vIndex) {
+    for (int j = 0; j < three256; ++j, ++vIndex) {
         values[vIndex] = - values[vIndex - six256];
     }
 
@@ -298,7 +300,7 @@ void stuffRandomAddresses(baesu_StackTrace *stackTrace)
     }
 
     for (int j = 0; j < vecLength; ++j) {
-        (*stackTrace)[j].setAddress((void) values[j]);
+        (*stackTrace)[j].setAddress((void *) values[j]);
     }
 }
 
@@ -383,11 +385,11 @@ int main(int argc, char *argv[])
 
         for (bool demangle = false; true; demangle = true) {
             baesu_StackTrace stackTrace;
-            stackTrace.resize(5);
+            stackTrace.resize(4);
             stackTrace[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
             stackTrace[1].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
 
-            testFuncPtr = (UintPtr) &funcStaticInlineOne;
+            UintPtr testFuncPtr = (UintPtr) &funcStaticInlineOne;
 
             // If we now just called through it, the optimizer would inline the
             // call.  So let's juggle (without actually changing it) a bit in a
