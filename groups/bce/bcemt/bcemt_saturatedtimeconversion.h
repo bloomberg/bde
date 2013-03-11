@@ -196,9 +196,16 @@ class bcemt_SaturatedTimeConversion {
   public:
     // CLASS METHODS
 #ifdef BCES_PLATFORM_POSIX_THREADS
-    static void toTimeSpec(timespec *dst, const bdet_TimeInterval& src);
+    template <typename TIMESPEC>
+    static void toTimeSpec(TIMESPEC *dst, const bdet_TimeInterval& src);
         // Assign to the specified '*dst' the value that it can represent that
         // is the closest possible value to the value of the specified 'src'.
+        // This is a template function to also accommodate alternatively named
+        // timespec types such as 'mach_timespec_t' on Darwn.  The type
+        // 'TIMESPEC' must be a 'struct' containing an integral 'tv_sec'
+        // representing seconds, and 'tv_nsec' representing nanoseconds.  If
+        // both fields constain non-zero value, they will both have the same
+        // sign.
 
     static void toTimeT(bsl::time_t *dst, const bsls::Types::Int64 src);
         // Assign to the specified '*dst' the value that it can represent that
@@ -288,27 +295,37 @@ void bcemt_SaturatedTimeConversion::toTimeTImp(unsigned long long *dst,
 
 #ifdef BCES_PLATFORM_POSIX_THREADS
 
+template <typename TIMESPEC>
 inline
-void bcemt_SaturatedTimeConversion::toTimeSpec(timespec                 *dst,
+void bcemt_SaturatedTimeConversion::toTimeSpec(TIMESPEC                 *dst,
                                                const bdet_TimeInterval&  src)
 {
     enum { BILLION = 1000 * 1000 * 1000 };
 
+    dst->tv_sec = -1;
+    const bool secSigned = dst->tv_sec < 0;
+
     Int64 sec = src.seconds();
     toTimeTImp(&dst->tv_sec, sec);
-    Int64 tvSec = dst->tv_sec;
+    Int64 tvSec = dst->tv_sec;    // we want to compare 'tv_sec' to 'src',
+                                  // convert to an 'Int64' to avoid weirdness
+                                  // arising from compares with 'dst->tv_sec'
+                                  // which has an unknown type
 
-    timespec tm2;
-    tm2.tv_sec = -1;
-    if (tm2.tv_sec < 0) {
-        // dst->tv_sec is signed
+    if (secSigned) {
+#ifdef BDE_BUILD_TARGET_SAFE
+        // tv_nxec must also be signed
+
+        dst->tv_nsec = -1;
+        BSLS_ASSERT_SAFE(dst->tv_nsec < 0);
+#endif
 
         dst->tv_nsec = sec > tvSec ? BILLION - 1
                                    : sec < tvSec ? - (BILLION - 1)
                                                  : src.nanoseconds();
     }
     else {
-        // dst->tv_sec is unsigned.  Therefore, 'timespec' is not intended to
+        // dst->tv_sec is unsigned.  Therefore, 'TIMESPEC' is not intended to
         // represent a negative quantity, so dst->nsec should never be -ve.
         // Note that 'bdet_TimeInterval' guarantees that 'src.seconds()' and
         // 'src.nanoseconds()' will never have opposite signs.
@@ -352,7 +369,7 @@ void bcemt_SaturatedTimeConversion::toMillisec(DWORD                    *dst,
     }
     else {
         // 'sec < 2^32', therefore 'sec * 1000 + 999 < 2^63', so this will
-        // work.  We also know that 'sec >= 1', so 'nanoMilliSeconds() >= 0'.
+        // work.  We also know that 'sec >= 1', so 'nanoMilliSeconds >= 0'.
 
         toTimeTImp(dst, sec * 1000 + nanoMilliSeconds);
     }

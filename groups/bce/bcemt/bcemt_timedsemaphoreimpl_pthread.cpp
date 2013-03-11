@@ -5,6 +5,7 @@
 BDES_IDENT_RCSID(bcemt_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bcemt_muteximpl_pthread.h>   // for testing only
+#include <bcemt_saturatedtimeconversion.h>
 #include <bcemt_threadutil.h>
 
 #include <bdet_timeinterval.h>
@@ -35,19 +36,6 @@ int decrementIfPositive(bces_AtomicInt *a)
         i = *a;
     }
     return -1;
-}
-
-static
-int pthreadTimedWait(pthread_cond_t           *cond,
-                     pthread_mutex_t          *lock,
-                     const bdet_TimeInterval&  timeout)
-{
-    timespec ts;
-    ts.tv_sec  = static_cast<bsl::time_t>(timeout.seconds());
-    ts.tv_nsec = timeout.nanoseconds();
-    int status = pthread_cond_timedwait(cond, lock, &ts);
-
-    return 0 == status ? 0 : (ETIMEDOUT == status ? -1 : -2);
 }
 
            // -----------------------------------------------------
@@ -100,13 +88,16 @@ int bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::timedWait(
         return 0;                                                     // RETURN
     }
 
+    timespec ts;
+    bcemt_SaturatedTimeConversion::toTimeSpec(&ts, timeout);
+
     int ret = 0;
     pthread_mutex_lock(&d_lock);
     ++d_waiters;
     while (0 != decrementIfPositive(&d_resources)) {
-        const int status = pthreadTimedWait(&d_condition, &d_lock, timeout);
+        const int status = pthread_cond_timedwait(&d_condition, &d_lock, &ts);
         if (0 != status) {
-            BSLS_ASSERT(-1 == status);  // It is a timeout and not an error.
+            BSLS_ASSERT(ETIMEDOUT == status);    // timeout and not an error
             ret = 1;
             break;
         }
