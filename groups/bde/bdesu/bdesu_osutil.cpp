@@ -56,8 +56,7 @@ int OsUtil::getOsInfo(bsl::string *osName,
     }
 
     // Os version
-    char tmpBuf[1024];
-    bsl:ostringstream version;
+    bsl::ostringstream version;
     version << osvi.dwMajorVersion << '.' << osvi.dwMinorVersion;
     *osVersion = version.str();
 

@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
         bsl::string version;
         bsl::string patch;
         ASSERT(0 == Obj::getOsInfo(&name, &version, &patch));
-        #if defined(BDES_PLATFORM_OS_WINDOWS)
+	#ifdef BSLS_PLATFORM_OS_WINDOWS
             ASSERT("Windows" == name);
 
             OSVERSIONINFOEX osvi;
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
             osvi.dwOSVersionInfoSize = sizeof(osvi);
             ASSERT(GetVersionEx(reinterpret_cast<LPOSVERSIONINFO>(&osvi)));
 
-            stringstream expectedVersion;
+            ostringstream expectedVersion;
             expectedVersion << osvi.dwMajorVersion
                             << '.'
                             << osvi.dwMinorVersion;
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 
             ASSERT(patch == osvi.szCSDVersion);
         #else
-            struct utsname unameInfo;
+            utsname unameInfo;
             ASSERT(0 == uname(&unameInfo));
             ASSERT(name == unameInfo.sysname);
             ASSERT(version == unameInfo.release);
