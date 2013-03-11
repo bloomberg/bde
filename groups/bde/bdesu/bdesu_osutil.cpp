@@ -4,17 +4,19 @@
 #include <bdesu_processutil.h>
 
 #include <bsl_cstring.h>
+#include <bsl_sstream.h>
+
+#include <bsls_platform.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesu_osutil_cpp, "$Id$ $CSID$")
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #include <process.h>
 #include <cstring>
 #else
 #include <unistd.h>
-#include <libgen.h>
 #include <sys/utsname.h>
 #endif
 
@@ -27,7 +29,7 @@ namespace bdesu {
                         // -------------
 
 // CLASS METHODS
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 #define snprintf _snprintf
 
@@ -55,12 +57,9 @@ int OsUtil::getOsInfo(bsl::string *osName,
 
     // Os version
     char tmpBuf[1024];
-    snprintf(tmpBuf,
-             sizeof(tmpBuf),
-             "%d.%d",
-             osvi.dwMajorVersion,
-             osvi.dwMinorVersion);
-    *osVersion = tmpBuf;
+    bsl:ostringstream version;
+    version << osvi.dwMajorVersion << '.' << osvi.dwMinorVersion;
+    *osVersion = version.str();
 
     // Service pack number
     *osPatch = osvi.szCSDVersion;
@@ -77,7 +76,7 @@ int OsUtil::getOsInfo(bsl::string *osName,
     BSLS_ASSERT(osVersion);
     BSLS_ASSERT(osPatch);
 
-    struct utsname unameInfo;
+    utsname unameInfo;
     if (-1 == uname(&unameInfo)) {
         return -1;
     }

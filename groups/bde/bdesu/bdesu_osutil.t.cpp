@@ -2,6 +2,8 @@
 
 #include <bdesu_osutil.h>
 
+#include <bsls_platform.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -12,13 +14,12 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #include <process.h>
 #include <cstring>
 #else
 #include <unistd.h>
-#include <libgen.h>
 #include <sys/utsname.h>
 #endif
 
@@ -193,12 +194,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl
                           << "OS IDENTIFICATION TEST" << endl
-                          << "==============" << endl;
+                          << "======================" << endl;
         bsl::string name;
         bsl::string version;
         bsl::string patch;
         ASSERT(0 == Obj::getOsInfo(&name, &version, &patch));
-        #if defined(BDES_PLATFORM__OS_WINDOWS)
+        #if defined(BDES_PLATFORM_OS_WINDOWS)
             ASSERT("Windows" == name);
 
             OSVERSIONINFOEX osvi;
