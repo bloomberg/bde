@@ -1,6 +1,6 @@
 // bcemt_saturatedtimeconversion.h                                    -*-C++-*-
 #ifndef INCLUDED_BCEMT_SATURATEDTIMECONVERSION
-#define INCLUDED_BCEMT_oSATURATEDTIMECONVERSION
+#define INCLUDED_BCEMT_SATURATEDTIMECONVERSION
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
