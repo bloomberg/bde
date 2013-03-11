@@ -31,8 +31,6 @@ namespace bdesu {
 // CLASS METHODS
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-#define snprintf _snprintf
-
 int OsUtil::getOsInfo(bsl::string *osName,
                       bsl::string *osVersion,
                       bsl::string *osPatch)
@@ -49,10 +47,7 @@ int OsUtil::getOsInfo(bsl::string *osName,
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
     if (!GetVersionEx((OSVERSIONINFO *)&osvi)) {
-        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-        if (!GetVersionEx((OSVERSIONINFO *)&osvi)) {
-            return -1;
-        }
+        return -1;
     }
 
     // Os version

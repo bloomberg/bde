@@ -34,13 +34,17 @@ BDES_IDENT("$Id: $")
 //  bsl::string name;
 //  bsl::string version;
 //  bsl::string patch;
+//..
+// Then, we use the standard streams to write the operating system version
+// information to the console, or an error message of failure:
+//..
 //  int rc = OsUtil::getOsInfo(&name, &version, &patch);
 //  if (0 == rc) {
-//      std::cout << "OS Name: " << name << "\n"
+//      bsl::cout << "OS Name: " << name << "\n"
 //                << "Version: " << version << "\n"
 //                << "Patch:   " << patch << "\n";
 //  } else {
-//      std::cout << "Cannot determine OS name and version\n";
+//      bsl::cout << "Cannot determine OS name and version\n";
 //  }
 //..
 // Finally, the resulting console output on the Red Hat Enterprise Linux Server

@@ -156,12 +156,16 @@ int main(int argc, char *argv[])
         bsl::string version;
         bsl::string patch;
         int rc = OsUtil::getOsInfo(&name, &version, &patch);
+
+        // Then, we use the standard streams to write the operating system
+        // version information to the console, or an error message of failure:
+
         if (0 == rc) {
-            std::cout << "OS Name: " << name << "\n"
+            cout << "OS Name: " << name << "\n"
                       << "Version: " << version << "\n"
                       << "Patch:   " << patch << "\n";
         } else {
-            std::cout << "Cannot determine OS name and version\n";
+            cout << "Cannot determine OS name and version\n";
         }
 
         // Finally, the resulting console output on the
@@ -199,28 +203,28 @@ int main(int argc, char *argv[])
         bsl::string version;
         bsl::string patch;
         ASSERT(0 == Obj::getOsInfo(&name, &version, &patch));
-	#ifdef BSLS_PLATFORM_OS_WINDOWS
-            ASSERT("Windows" == name);
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        ASSERT("Windows" == name);
 
-            OSVERSIONINFOEX osvi;
-            memset(&osvi, 0, sizeof(osvi));
-            osvi.dwOSVersionInfoSize = sizeof(osvi);
-            ASSERT(GetVersionEx(reinterpret_cast<LPOSVERSIONINFO>(&osvi)));
+        OSVERSIONINFOEX osvi;
+        memset(&osvi, 0, sizeof(osvi));
+        osvi.dwOSVersionInfoSize = sizeof(osvi);
+        ASSERT(GetVersionEx(reinterpret_cast<LPOSVERSIONINFO>(&osvi)));
 
-            ostringstream expectedVersion;
-            expectedVersion << osvi.dwMajorVersion
-                            << '.'
-                            << osvi.dwMinorVersion;
-            ASSERT(version == expectedVersion.str());
+        ostringstream expectedVersion;
+        expectedVersion << osvi.dwMajorVersion
+                        << '.'
+                        << osvi.dwMinorVersion;
+        ASSERT(version == expectedVersion.str());
 
-            ASSERT(patch == osvi.szCSDVersion);
-        #else
-            utsname unameInfo;
-            ASSERT(0 == uname(&unameInfo));
-            ASSERT(name == unameInfo.sysname);
-            ASSERT(version == unameInfo.release);
-            ASSERT(patch == unameInfo.version);
-        #endif
+        ASSERT(patch == osvi.szCSDVersion);
+#else
+        utsname unameInfo;
+        ASSERT(0 == uname(&unameInfo));
+        ASSERT(name == unameInfo.sysname);
+        ASSERT(version == unameInfo.release);
+        ASSERT(patch == unameInfo.version);
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -261,7 +265,7 @@ int main(int argc, char *argv[])
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
