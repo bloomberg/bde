@@ -106,7 +106,7 @@ BDES_IDENT("$Id: $")
 //
 //  #include <IntegerStack.h>  // from bdema_protectableblockdispenser.h
 //  #include <bdema_testprotectableblockdispenser.h>
-//  #include <bdema_testallocatorexception.h>
+//  #include <bslma_testallocatorexception.h>
 //..
 // Specify a set of macros that will be used to test the exception neutrality
 // of the components under test.  Note that "\$" must be replaced by "\" in
@@ -131,7 +131,7 @@ BDES_IDENT("$Id: $")
 //         try {
 //
 // #define END_BDEMA_EXCEPTION_TEST                                          \$
-//         } catch (bslma_TestAllocatorException& e) {                       \$
+//         } catch (bslma::TestAllocatorException& e) {                      \$
 //             if (veryVerbose && bdemaExceptionLimit || veryVeryVerbose) {  \$
 //                 --bdemaExceptionLimit;                                    \$
 //                 cout << "(*** " << bdemaExceptionCounter << ')';          \$
@@ -294,8 +294,8 @@ class bdema_TestProtectableBlockDispenser :
     void *d_lastAllocateAddress;   // memory address of last allocated memory
     void *d_lastDeallocateAddress; // memory address of last deallocated memory
 
-    int d_numAllocation;           // cumulative # of allocation requests
-    int d_numDeallocation;         // cumulative # of deallocation requests
+    int d_numAllocations;          // cumulative # of allocation requests
+    int d_numDeallocations;        // cumulative # of deallocation requests
 
     bool d_noAbortFlag;            // whether to suppress the abort on error
     bool d_quietFlag;              // whether to suppress reporting hard errors
@@ -696,13 +696,13 @@ void *bdema_TestProtectableBlockDispenser::lastDeallocateAddress() const
 inline
 int bdema_TestProtectableBlockDispenser::numAllocations() const
 {
-    return d_numAllocation;
+    return d_numAllocations;
 }
 
 inline
 int bdema_TestProtectableBlockDispenser::numDeallocations() const
 {
-    return d_numDeallocation;
+    return d_numDeallocations;
 }
 
 inline

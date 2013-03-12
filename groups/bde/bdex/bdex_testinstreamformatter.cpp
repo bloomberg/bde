@@ -332,7 +332,7 @@ bdex_TestInStreamFormatter& bdex_TestInStreamFormatter::getVersion(
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getInt64(bsls_PlatformUtil::Int64& variable)
+bdex_TestInStreamFormatter::getInt64(bsls::Types::Int64& variable)
 {
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
@@ -355,7 +355,7 @@ bdex_TestInStreamFormatter::getInt64(bsls_PlatformUtil::Int64& variable)
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getUint64(bsls_PlatformUtil::Uint64& variable)
+bdex_TestInStreamFormatter::getUint64(bsls::Types::Uint64& variable)
 {
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
@@ -378,7 +378,7 @@ bdex_TestInStreamFormatter::getUint64(bsls_PlatformUtil::Uint64& variable)
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getInt56(bsls_PlatformUtil::Int64& variable)
+bdex_TestInStreamFormatter::getInt56(bsls::Types::Int64& variable)
 {
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
@@ -401,7 +401,7 @@ bdex_TestInStreamFormatter::getInt56(bsls_PlatformUtil::Int64& variable)
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getUint56(bsls_PlatformUtil::Uint64& variable)
+bdex_TestInStreamFormatter::getUint56(bsls::Types::Uint64& variable)
 {
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
@@ -424,7 +424,7 @@ bdex_TestInStreamFormatter::getUint56(bsls_PlatformUtil::Uint64& variable)
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getInt48(bsls_PlatformUtil::Int64& variable)
+bdex_TestInStreamFormatter::getInt48(bsls::Types::Int64& variable)
 {
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
@@ -447,7 +447,7 @@ bdex_TestInStreamFormatter::getInt48(bsls_PlatformUtil::Int64& variable)
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getUint48(bsls_PlatformUtil::Uint64& variable)
+bdex_TestInStreamFormatter::getUint48(bsls::Types::Uint64& variable)
 {
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
@@ -470,7 +470,7 @@ bdex_TestInStreamFormatter::getUint48(bsls_PlatformUtil::Uint64& variable)
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getInt40(bsls_PlatformUtil::Int64& variable)
+bdex_TestInStreamFormatter::getInt40(bsls::Types::Int64& variable)
 {
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
@@ -493,7 +493,7 @@ bdex_TestInStreamFormatter::getInt40(bsls_PlatformUtil::Int64& variable)
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getUint40(bsls_PlatformUtil::Uint64& variable)
+bdex_TestInStreamFormatter::getUint40(bsls::Types::Uint64& variable)
 {
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
@@ -794,8 +794,8 @@ bdex_TestInStreamFormatter::getFloat32(float& variable)
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                          int                       length)
+bdex_TestInStreamFormatter::getArrayInt64(bsls::Types::Int64 *array,
+                                          int                 length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -821,8 +821,8 @@ bdex_TestInStreamFormatter::getArrayInt64(bsls_PlatformUtil::Int64 *array,
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                           int                        length)
+bdex_TestInStreamFormatter::getArrayUint64(bsls::Types::Uint64 *array,
+                                           int                  length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -848,8 +848,8 @@ bdex_TestInStreamFormatter::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                          int                       length)
+bdex_TestInStreamFormatter::getArrayInt56(bsls::Types::Int64 *array,
+                                          int                 length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -875,8 +875,8 @@ bdex_TestInStreamFormatter::getArrayInt56(bsls_PlatformUtil::Int64 *array,
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                           int                        length)
+bdex_TestInStreamFormatter::getArrayUint56(bsls::Types::Uint64 *array,
+                                           int                  length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -902,8 +902,8 @@ bdex_TestInStreamFormatter::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                          int                       length)
+bdex_TestInStreamFormatter::getArrayInt48(bsls::Types::Int64 *array,
+                                          int                 length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -929,8 +929,8 @@ bdex_TestInStreamFormatter::getArrayInt48(bsls_PlatformUtil::Int64 *array,
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                           int                        length)
+bdex_TestInStreamFormatter::getArrayUint48(bsls::Types::Uint64 *array,
+                                           int                  length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -956,8 +956,8 @@ bdex_TestInStreamFormatter::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                          int                       length)
+bdex_TestInStreamFormatter::getArrayInt40(bsls::Types::Int64 *array,
+                                          int                 length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -983,8 +983,8 @@ bdex_TestInStreamFormatter::getArrayInt40(bsls_PlatformUtil::Int64 *array,
 }
 
 bdex_TestInStreamFormatter&
-bdex_TestInStreamFormatter::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                           int                        length)
+bdex_TestInStreamFormatter::getArrayUint40(bsls::Types::Uint64 *array,
+                                           int                  length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);

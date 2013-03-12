@@ -209,7 +209,7 @@ int
 pcre_get_substring_list(const char *subject, int *ovector, int stringcount,
   const char ***listptr
 #ifndef NO_BDEPCRE
-                       , bslma_Allocator *allocator)
+                       , bslma::Allocator *allocator)
 #else
                        )
 #endif
@@ -262,7 +262,7 @@ Returns:    nothing
 
 #ifndef NO_BDEPCRE
 void
-pcre_free_substring_list(const char **pointer, bslma_Allocator *allocator)
+pcre_free_substring_list(const char **pointer, bslma::Allocator *allocator)
 {
 allocator->deallocate(pointer);
 }
@@ -305,7 +305,7 @@ int
 pcre_get_substring(const char *subject, int *ovector, int stringcount,
   int stringnumber, const char **stringptr
 #ifndef NO_BDEPCRE
-                                          , bslma_Allocator *allocator)
+                                          , bslma::Allocator *allocator)
 #else
                                           )
 #endif
@@ -361,7 +361,7 @@ int
 pcre_get_named_substring(const pcre *code, const char *subject, int *ovector,
   int stringcount, const char *stringname, const char **stringptr
 #ifndef NO_BDEPCRE
-                 , bslma_Allocator *allocator)
+                 , bslma::Allocator *allocator)
 #else
                  )
 #endif
@@ -392,7 +392,7 @@ Returns:    nothing
 
 #ifndef NO_BDEPCRE
 void
-pcre_free_substring(const char *pointer, bslma_Allocator *allocator)
+pcre_free_substring(const char *pointer, bslma::Allocator *allocator)
 {
 allocator->deallocate(const_cast<char*>(pointer));
 }

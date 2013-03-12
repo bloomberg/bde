@@ -1,12 +1,14 @@
 // bslmf_integralconstant.t.cpp                                       -*-C++-*-
 
-#include "bslmf_integralconstant.h"
+#include <bslmf_integralconstant.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <climits>
+#include <bsls_bsltestutil.h>
 
-using namespace std;
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+using namespace BloombergLP;
 
 //=============================================================================
 //                             TEST PLAN
@@ -98,49 +100,20 @@ void aSsErT(int c, const char *s, int i) {
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                    \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                  \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\t"); \
-                printf("%s", #M ": "); dbg_print(M); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");     // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n")  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
-#define L_ __LINE__                        // current Line number
-#define T_ putchar('\t');                  // Print a tab (w/o newline)
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -156,40 +129,6 @@ struct DummyType
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-void dbg_print_char(int val)
-    // Print the specified integer 'val' as a signed char.  If called with an
-    // argument of unsigned char type, the promotion rules will cause it to
-    // be printed as a positive value.
-{
-    if (val < 0) {
-        printf("-");
-        val = -val;
-    }
-    if (' ' <= val && val < '\177')
-        printf("'%c'", val);  // Printable character
-    else
-        printf("'\\%o'", val);  // Unprintable character (print as octal)
-    fflush(stdout);
-}
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(char val) { dbg_print_char(val); }
-inline void dbg_print(unsigned char val) { dbg_print_char(val); }
-inline void dbg_print(signed char val) { dbg_print_char(val); }
-inline void dbg_print(short val) { printf("%hd", val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {printf("%hu", val); fflush(stdout);}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) { printf("%lu", val); fflush(stdout);}
-inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
-inline void dbg_print(unsigned long long val)
-    { printf("%llu", val); fflush(stdout);}
-inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(const char* val)
-    { printf("\"%s\"", val); fflush(stdout); }
 
 template <class A, class B>
 struct IsSameType
@@ -219,10 +158,10 @@ template <class T> inline bool isConst(const T&) { return true; }
 
 ///Usage
 ///-----
-// This section illustates intended usage of this component
+// This section illustrates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
-/// - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - -
 // The most common use of this structure is to perform compile-time function
 // dispatching based on a compile-time calculation.  Often the calculation is
 // nothing more than a simple predicate, allowing us to select one of two
@@ -235,25 +174,25 @@ template <class T> inline bool isConst(const T&) { return true; }
 // 'integral_constant<bool, false>', respectively.
 //..
       #include <bslmf_integralconstant.h>
-  
+
       template <class T>
       int doSomethingImp(T *t, bsl::true_type)
       {
           // slow, generic implementation
           // ...
           (void) t;
-          return 11; 
+          return 11;
       }
-  
+
       template <class T>
       int doSomethingImp(T *t, bsl::false_type)
       {
           // fast implementation that works only for some types of T
           // ...
           (void) t;
-          return 55; 
+          return 55;
       }
-  
+
       template <bool IsSlow, class T>
       int doSomething(T *t)
       {
@@ -264,17 +203,17 @@ template <class T> inline bool isConst(const T&) { return true; }
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not
 // legal.  The power of this approach is that the compiler will not attempt
-// semantic anlysis on the implementation that does not match the appropriate
+// semantic analysis on the implementation that does not match the appropriate
 // 'integral_constant' argument.
 //..
       int usageExample1()
       {
           int r;
-  
+
           int i;
           r = doSomething<false>(&i);   // select fast version for int
           ASSERT(55 == r);
-  
+
           double m;
           r = doSomething<true>(&m); // select slow version for double
           ASSERT(11 == r);
@@ -283,7 +222,7 @@ template <class T> inline bool isConst(const T&) { return true; }
       }
 //..
 ///Example 2: Base class for metafunctions
-/// - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - -
 // Hard-coding the value of an 'integral_constant' is not especially useful.
 // Rather, 'integral_constant' is typically used as the base class for
 // "metafunction" classes, classes that yield the value of compile-time
@@ -314,15 +253,15 @@ template <class T> inline bool isConst(const T&) { return true; }
           const bool isSlow = IsFloatingPoint<T>::value;
           return doSomethingImp(t, bsl::integral_constant<bool, isSlow>());
       }
-  
+
       int usageExample2()
       {
           int r;
-  
+
           int i;
           r = doSomething2(&i); // select fast version for int
           ASSERT(55 == r);
-  
+
           double m;
           r = doSomething2(&m); // select slow version for double
           ASSERT(11 == r);
@@ -337,7 +276,7 @@ template <class T> inline bool isConst(const T&) { return true; }
 
 template <class TYPE, TYPE VAL>
 void fullTest(const char TYPENAME[])
-    // Preform the full suite of tests on 'integral_constant' instantiated with
+    // Perform the full suite of tests on 'integral_constant' instantiated with
     // the specified 'TYPE' and 'VAL'.  The specified 'TYPENAME' string
     // contains a printable representation of the name of 'TYPE'.  This
     // function reads the global 'verbose' variable and (if an error is
@@ -347,7 +286,7 @@ void fullTest(const char TYPENAME[])
 {
     if (verbose) {
         printf("\nRun fullTest<%s, ", TYPENAME);
-        dbg_print(VAL);
+        bsls::debugprint(VAL);
         printf(">()\n");
     }
 
@@ -447,7 +386,7 @@ int main(int argc, char *argv[])
                            bsl::integral_constant<bool, false> >::VALUE));
         ASSERT((IsSameType<bsl::true_type,
                            bsl::integral_constant<bool, true> >::VALUE));
-        
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -468,7 +407,7 @@ int main(int argc, char *argv[])
         //: 6 'integral_constant<TYPE, VAL>' is copy constructible such that
         //:   the copy constructor has exactly the same behavior as the default
         //:   constructor (i.e., the argument to the copy constructor is
-        //:   ignored). 
+        //:   ignored).
         //:
         //: 7 'integral_constant<TYPE, VAL>' is assignable, though the
         //:   assignment operator has no effect.
@@ -532,7 +471,7 @@ int main(int argc, char *argv[])
         fullTest<signed char, 0>("signed char");
         fullTest<signed char, -128>("signed char");
         fullTest<signed char, 127>("signed char");
-        
+
         fullTest<short, -5>("short");
         fullTest<short, SHRT_MIN>("short");
         fullTest<short, SHRT_MAX>("short");
@@ -624,7 +563,7 @@ int main(int argc, char *argv[])
         ASSERT((! IsSameType<DummyType, int>::VALUE));
         ASSERT((! IsSameType<DummyType, char>::VALUE));
         ASSERT((  IsSameType<DummyType, DummyType>::VALUE));
-                             
+
         ASSERT((  IsSameType<               int,                int>::VALUE));
         ASSERT((! IsSameType<               int, const          int>::VALUE));
         ASSERT((! IsSameType<               int,       volatile int>::VALUE));
@@ -665,7 +604,7 @@ int main(int argc, char *argv[])
         ASSERT(  isConst(ci));
         ASSERT(! isConst(vi));
         ASSERT(  isConst(cvi));
-        
+
         ASSERT(! isConst(d));
         ASSERT(  isConst(D));
 
@@ -686,7 +625,7 @@ int main(int argc, char *argv[])
         //:   exists and can hold 'value', and that an object of
         //:   'integral_constant' can be constructed and is convertible to the
         //:   specified 'TYPE'.  (C-1)
-	//
+        //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
@@ -771,11 +710,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

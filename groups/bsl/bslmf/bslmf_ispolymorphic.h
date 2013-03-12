@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for polymorphic types.
+//@PURPOSE: Provide a compile-time check for determining polymorphic types.
 //
 //@CLASSES:
 //  bsl::is_polymorphic: standard meta-function for detecting polymorphic types
@@ -18,10 +18,10 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::is_polymorphic' and 'BloombergLP::bslmf::IsPolymorphic', both of which
 // may be used to query whether a type is a polymorphic class as defined in the
-// C++11 standard [class.virtual].  A class is polymorphic if it has virtual
-// functions.  Note that the destructor of such a class should *always* be
-// declared 'virtual'.  Therefore, another definition of polymorphic is whether
-// a class has a virtual destructor.
+// C++11 standard [class.virtual].  A class is polymorphic if it has at least
+// one virtual function.  Note that the destructor of such a class should
+// *always* be declared 'virtual'.  Therefore, another definition of
+// polymorphic is whether a class has a virtual destructor.
 //
 // 'bsl::is_polymorphic' has the same syntax as the 'is_polymorphic' template
 // defined in the C++11 standard [meta.unary.prop], while
@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 // exceptions:
 //
 //: 1 The compilation will fail if the meta-function is used to evaluate a
-//:   'union' type, unless the one of the following complier, which provides an
-//:   intrinsic operation to detect this specific trait, are used:
+//:   'union' type, unless one of the following compilers, which provide an
+//:   intrinsic operation to detect this specific trait, is used:
 //:     o gcc 4.3 or later
 //:     o Visual C++ 2008 or later
 //:
@@ -70,18 +70,20 @@ BSLS_IDENT("$Id: $")
 // 'MyDerivedClass':
 //..
 //  class MyClass {
+//    public:
 //      MyClass();
 //      virtual ~MyClass();  // makes 'MyClass' polymorphic
 //  };
 //
 //  class MyDerivedClass : public MyClass {
+//    public:
 //      MyDerivedClass();
-//      ~MyDerivedClass();
+//      virtual ~MyDerivedClass();
 //  };
 //..
 // Now, assert that the two types in the non-polymorphic hierarchy are not
-// polymorphic, and the two types in the polymorphic hierarchy are polymorphic
-// using 'bsl::is_polymorphic':
+// polymorphic, and that the two types in the polymorphic hierarchy are
+// polymorphic using 'bsl::is_polymorphic':
 //..
 //  assert(false == bsl::is_polymorphic<MyStruct          >::value);
 //  assert(false == bsl::is_polymorphic<MyStruct         *>::value);
@@ -94,43 +96,29 @@ BSLS_IDENT("$Id: $")
 //  assert(true  == bsl::is_polymorphic<MyDerivedClass&  >::value);
 //  assert(false == bsl::is_polymorphic<MyDerivedClass  *>::value);
 //..
-// Finally, note that the following class is detected as polymorphic by this
-// component, but should really have a virtual destructor ('gcc' issues a
-// warning for such infractions):
-//..
-//  class MyIncorrectPolymorphicClass {
-//
-//      MyIncorrectPolymorphicClass();
-//      ~MyIncorrectPolymorphicClass();
-//      virtual void virtualMethod();
-//  };
-//
-//  assert(1 == bslmf::IsPolymorphic<MyIncorrectPolymorphicClass&  >::value);
-//  assert(0 == bslmf::IsPolymorphic<MyIncorrectPolymorphicClass  *>::value);
-//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCLASS
-#include <bslmf_isclass.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISCLASS
+#include <bslmf_isclass.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
-#include <bslmf_removereference.h>
-#endif
-
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)\
@@ -139,7 +127,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bslmf {
 
                        // ========================
@@ -148,31 +135,32 @@ namespace bslmf {
 
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)
 
-// Use type traits intrinsics, where available, to give the correct answer for
-// the tricky cases where existing ABIs prevent programatic detection.
-template <typename TYPE>
+// Use type traits intrinsic, where available, to give the correct answer for
+// the tricky cases where existing ABIs prevent programmatic detection.
+template <class TYPE>
 struct IsPolymorphic_Imp {
     enum { Value = __is_polymorphic(TYPE) };
 };
 
 #else
 
-template <typename TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
+template <class TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
 struct IsPolymorphic_Imp {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE' is a (non-cv-qualified) polymorphic type.
     // This generic default template defines a static data member, 'Value',
     // that is set to 'false'.  A template specialization is provided (below)
-    // that has 'Value' set to 'true'.
+    // to handle the case where 'TYPE' is a class type that may be polymorphic.
 
     enum { Value = false };
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPolymorphic_Imp<TYPE, true> {
-     // This partial specialization of 'IsPolymorphic_Imp',for when the
-     // (template parameter) 'TYPE' is a (non-cv-qualified) polymorphic type,
-     // provides a static data member, 'Value', that is set to 'true'.
+     // This partial specialization of 'IsPolymorphic_Imp', for when the
+     // (template parameter) 'TYPE' is a (non-cv-qualified) class type,
+     // provides a static data member, 'Value', that is set to 'true' if 'TYPE'
+     // is polymorphic and 'false' otherwise.
 
     struct IsPoly : public TYPE {
         IsPoly();
@@ -197,7 +185,7 @@ struct IsPolymorphic_Imp<TYPE, true> {
 
 namespace bsl {
 
-template <typename TYPE>
+template <class TYPE>
 struct is_polymorphic
     : integral_constant<bool,
                         BloombergLP::bslmf::IsPolymorphic_Imp<
@@ -205,7 +193,7 @@ struct is_polymorphic
                         ::Value> {
     // This 'struct' template implements the 'is_polymorphic' meta-function
     // defined in the C++11 standard [meta.unary.prop] to determine if the
-    // (template parameter) 'TYPE' is a (possiblly cv-qualified) polymorphic
+    // (template parameter) 'TYPE' is a (possibly cv-qualified) polymorphic
     // type.  This 'struct' derives from 'bsl::true_type' if the 'TYPE' is a
     // polymorphic type, and 'bsl::false_type' otherwise.
 };
@@ -220,10 +208,10 @@ namespace bslmf {
                          // struct IsPolymorphic
                          // ====================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 'TYPE' is a (possiblly cv-qualified) polymorphic
+    // (template parameter) 'TYPE' is a (possibly cv-qualified) polymorphic
     // type.  This 'struct' derives from 'bsl::true_type' if the 'TYPE' is a
     // polymorphic type, and 'bsl::false_type' otherwise.
     //
@@ -250,11 +238,24 @@ struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

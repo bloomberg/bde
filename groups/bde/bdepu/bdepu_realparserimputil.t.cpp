@@ -72,8 +72,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64 Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -110,14 +110,14 @@ int main(int argc, char *argv[])
 
         double initial = 3.1415;
 
-        int                       binSign;
-        bsls_PlatformUtil::Uint64 binFrac;
-        int                       binExp;
+        int                 binSign;
+        bsls::Types::Uint64 binFrac;
+        int                 binExp;
            bdepu_RealParserImpUtil::
                    convertDoubleToBinary(&binSign, &binFrac, &binExp, initial);
 
-        bsls_PlatformUtil::Uint64 decFrac;
-        int                       decExp;
+        bsls::Types::Uint64 decFrac;
+        int                 decExp;
            bdepu_RealParserImpUtil::
                     convertBinaryToDecimal(&decFrac, &decExp, binFrac, binExp);
 

@@ -1,4 +1,4 @@
-// bslmf_isbitwisemoveable.h                  -*-C++-*-
+// bslmf_isbitwisemoveable.h                                          -*-C++-*-
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #define INCLUDED_BSLMF_ISBITWISEMOVEABLE
 
@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 // 'IsBitwiseMoveable<TYPE>' will inherit from 'true_type' if 'TYPE' is a
 // fundamental type, enumeration type, or pointer type.  Most user-defined
 // classes are are bitwise moveable, but generic code must assume that an
-// arbrary 'TYPE' is not bitwise-moveable, as bitwise moving a type that is
+// arbitrary 'TYPE' is not bitwise-moveable, as bitwise moving a type that is
 // not bitwise moveable is likely to result in a dangling pointer.  Thus, it
 // is necessary to explicitly associate the bitwise moveable trait with a
 // class (via template specialization or by use of the
@@ -58,8 +58,8 @@ BSLS_IDENT("$Id: $")
 //: o Its address is one of the salient attributes that comprise its value.
 //: o It contains a pointer that might (directly or indirectly) point to
 //:   itself or to one of its own members.  For example, a list implementation
-//:   that includes an embedded sentinal node such that the last node in the
-//:   list points back to the sentinal node within the list class object is
+//:   that includes an embedded sentinel node such that the last node in the
+//:   list points back to the sentinel node within the list class object is
 //:   not bitwise moveable.
 //: o Its constructor registers a pointer to itself in some static registry.
 //: o It contains a data member that is not bitwise moveable.
@@ -76,54 +76,59 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
-#include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
-#include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISENUM
-#include <bslmf_isenum.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include <bslmf_removecv.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISENUM
+#include <bslmf_isenum.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include <bslmf_isfundamental.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
 
-template <typename TYPE>
+template <class TYPE>
 struct IsBitwiseMoveable;
 
-template <typename TYPE>
+template <class TYPE>
 struct IsBitwiseMoveable_Imp
     : bsl::integral_constant<bool,
                             !bsl::is_reference<TYPE>::value
                          && (  bsl::is_trivially_copyable<TYPE>::value
-                            || DetectNestedTrait<TYPE, IsBitwiseMoveable>::value)>
+                            || DetectNestedTrait<TYPE,
+                                                 IsBitwiseMoveable>::value)>
 {};
 
                         // ========================
                         // struct IsBitwiseMoveable
                         // ========================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsBitwiseMoveable
    : IsBitwiseMoveable_Imp<typename bsl::remove_cv<TYPE>::type>::type
 {
@@ -141,11 +146,24 @@ struct IsBitwiseMoveable
 
 #endif // ! defined(INCLUDED_BSLMF_ISBITWISEMOVEABLE)
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -27,15 +27,15 @@ BSLMF_ASSERT(4 == sizeof(int));
                         // -------------------
 
 // CREATORS
-bdea_BitArray::bdea_BitArray(bslma_Allocator *basicAllocator)
+bdea_BitArray::bdea_BitArray(bslma::Allocator *basicAllocator)
 : d_array(basicAllocator)
 , d_length(0)
 {
     d_array.reserve(1);
 }
 
-bdea_BitArray::bdea_BitArray(int              initialLength,
-                             bslma_Allocator *basicAllocator)
+bdea_BitArray::bdea_BitArray(int               initialLength,
+                             bslma::Allocator *basicAllocator)
 : d_array(arraySize(initialLength), 0, basicAllocator)
 , d_length(initialLength)
 {
@@ -46,9 +46,9 @@ bdea_BitArray::bdea_BitArray(int              initialLength,
     }
 }
 
-bdea_BitArray::bdea_BitArray(int              initialLength,
-                             bool             value,
-                             bslma_Allocator *basicAllocator)
+bdea_BitArray::bdea_BitArray(int               initialLength,
+                             bool              value,
+                             bslma::Allocator *basicAllocator)
 : d_array(arraySize(initialLength), value ? ~0 : 0, basicAllocator)
 , d_length(initialLength)
 {
@@ -68,7 +68,7 @@ bdea_BitArray::bdea_BitArray(int              initialLength,
 }
 
 bdea_BitArray::bdea_BitArray(const InitialCapacity&  numBits,
-                             bslma_Allocator        *basicAllocator)
+                             bslma::Allocator       *basicAllocator)
 : d_array(basicAllocator)
 , d_length(0)
 {
@@ -80,7 +80,7 @@ bdea_BitArray::bdea_BitArray(const InitialCapacity&  numBits,
 
 bdea_BitArray::bdea_BitArray(const InitialCapacity&  numBits,
                              int                     initialLength,
-                             bslma_Allocator        *basicAllocator)
+                             bslma::Allocator       *basicAllocator)
 : d_array(basicAllocator)
 , d_length(0)
 {
@@ -95,7 +95,7 @@ bdea_BitArray::bdea_BitArray(const InitialCapacity&  numBits,
 bdea_BitArray::bdea_BitArray(const InitialCapacity&  numBits,
                              int                     initialLength,
                              bool                    value,
-                             bslma_Allocator        *basicAllocator)
+                             bslma::Allocator       *basicAllocator)
 : d_array(basicAllocator)
 , d_length(0)
 {
@@ -108,7 +108,7 @@ bdea_BitArray::bdea_BitArray(const InitialCapacity&  numBits,
 }
 
 bdea_BitArray::bdea_BitArray(const bdea_BitArray&  original,
-                             bslma_Allocator      *basicAllocator)
+                             bslma::Allocator     *basicAllocator)
 : d_array(original.d_array, basicAllocator)
 , d_length(original.d_length)
 {
@@ -316,8 +316,8 @@ void bdea_BitArray::swap(bdea_BitArray& other)
     // 'swap' is undefined for objects with non-equal allocators.
     BSLS_ASSERT(allocator() == other.allocator());
 
-    bslalg_SwapUtil::swap(&d_array, &other.d_array);
-    bslalg_SwapUtil::swap(&d_length, &other.d_length);
+    bslalg::SwapUtil::swap(&d_array, &other.d_array);
+    bslalg::SwapUtil::swap(&d_length, &other.d_length);
 }
 
 void bdea_BitArray::swap(int index1, int index2)

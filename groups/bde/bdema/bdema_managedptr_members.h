@@ -59,7 +59,7 @@ class bdema_ManagedPtr_Members {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdema_ManagedPtr_Members,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
   private:
     // PRIVATE TYPES

@@ -93,15 +93,15 @@ class TestEntityProcessor : public baenet_HttpEntityProcessor {
     // PRIVATE TYPES
 
     // PRIVATE DATA MEMBERS
-    bsl::ostream    *d_stream_p;
-    bslma_Allocator *d_allocator_p;
+    bsl::ostream     *d_stream_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // CREATORS
-    explicit TestEntityProcessor(bsl::ostream    *stream,
-                                 bslma_Allocator *basicAllocator = 0)
+    explicit TestEntityProcessor(bsl::ostream     *stream,
+                                 bslma::Allocator *basicAllocator = 0)
     : d_stream_p(stream)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 

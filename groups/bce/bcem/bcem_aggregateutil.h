@@ -66,7 +66,7 @@ BDES_IDENT("$Id: $")
 //..
 //  Manually create the bdem schema.
 //..
-//  bslma_Allocator *allocator = bslma_Default::defaultAllocator();
+//  bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 //
 //  bcema_SharedPtr<bdem_Schema> schema(new (*allocator) bdem_Schema());
 //

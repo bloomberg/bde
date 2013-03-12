@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $")
 //..
 ///Thread-safety
 ///-------------
-// This component depends on a 'bslma_Allocator' instance to supply memory.
+// This component depends on a 'bslma::Allocator' instance to supply memory.
 // The underlying interface also does some memory allocation through some other
 // means.  If the allocator is not thread enabled then the instances of this
 // component that use the same allocator instance will consequently not be
@@ -268,20 +268,20 @@ BDES_IDENT("$Id: $")
 #include <bteso_eventtype.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSL_HASH_MAP
-#include <bsl_hash_map.h>
+#ifndef INCLUDED_BSL_UNORDERED_MAP
+#include <bsl_unordered_map.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 #if defined(BSLS_PLATFORM_OS_AIX)
@@ -314,9 +314,9 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
     // mechanism.
 
     // PRIVATE TYPES
-    typedef bsl::hash_map<bteso_Event,
-                          bteso_EventManager::Callback,
-                          bteso_EventHash>              CallbackMap;
+    typedef bsl::unordered_map<bteso_Event,
+                               bteso_EventManager::Callback,
+                               bteso_EventHash>              CallbackMap;
 
     // DATA
     ::pollset_t                  d_ps;           // (integral) id of pollset
@@ -340,7 +340,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_DefaultEventManager,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
   private:
     // PRIVATE ACCESSOR
@@ -353,7 +353,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
     // CREATORS
     explicit
     bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric     = 0,
-                              bslma_Allocator   *basicAllocator = 0);
+                              bslma::Allocator  *basicAllocator = 0);
         // Create a 'pollset'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics

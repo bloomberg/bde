@@ -89,7 +89,7 @@ double dummyCallback(const bsl::string &value)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct MetricReporterTest : bsls_ProtocolTestImp<baea_MetricReporter> {
+struct MetricReporterTest : bsls::ProtocolTestImp<baea_MetricReporter> {
     int registerMetric(const baea_Metric&)               { return markDone(); }
     int setMetricCb(const char *, const char *, const MetricCb&)
                                                          { return markDone(); }
@@ -130,9 +130,9 @@ int main(int argc, char *argv[])
                           << "ALLOCATIONS TEST" << endl
                           << "================" << endl;
 
-        bslma_TestAllocator ta; bslma_TestAllocator *Z = &ta;
-        bslma_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::TestAllocator ta; bslma::TestAllocator *Z = &ta;
+        bslma::TestAllocator defaultAllocator;
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         ASSERT(0 == defaultAllocator.numBytesInUse());
 
@@ -169,14 +169,14 @@ int main(int argc, char *argv[])
         //   'baea_MetricReporter' defines a proper protocol class.
         //
         // Plan:
-        //   Use 'bsls_ProtocolTest' to verify general protocol class concerns
+        //   Use 'bsls::ProtocolTest' to verify general protocol class concerns
         //   for 'baea_MetricReporter' as well as each of its methods.
         //
         // Testing:
         //   class baea_MetricReporter
         // --------------------------------------------------------------------
 
-        bsls_ProtocolTest<MetricReporterTest> t(veryVerbose);
+        bsls::ProtocolTest<MetricReporterTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());

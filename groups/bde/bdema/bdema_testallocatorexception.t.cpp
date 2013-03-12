@@ -1,7 +1,8 @@
 // bdema_testallocatorexception.t.cpp -*-C++-*-
 
 #include <bdema_testallocatorexception.h>
-#include <bslma_allocator.h>              // for test purpose only
+
+#include <bslma_allocator.h>
 
 #include <cstring>     // memset()
 #include <cstdlib>     // atoi()
@@ -66,7 +67,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 // my_allocator.h
 
-class my_Allocator : public bslma_Allocator {
+class my_Allocator : public bslma::Allocator {
     int d_allocationLimit;
     // ...
 
@@ -105,14 +106,14 @@ class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
     int d_size;       // physical size of the 'd_array_p' array (elements)
     int d_length;     // logical length of the 'd_array_p' array (elements)
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) allocator
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) allocator
 
   private:
     void increaseSize(); // Increase the capacity by at least one element.
 
   public:
     // CREATORS
-    my_ShortArray(bslma_Allocator *basicAllocator = 0);
+    my_ShortArray(bslma::Allocator *basicAllocator = 0);
         // Create a empty array.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, global
         // operators 'new' and 'delete' are used.
@@ -130,7 +131,7 @@ enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_shortarray.cpp
 
-my_ShortArray::my_ShortArray(bslma_Allocator *basicAllocator)
+my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator)
@@ -169,7 +170,7 @@ inline void my_ShortArray::append(int value)
 
 inline static
 void reallocate(short **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified 'newSize'
     // using the specified 'basicAllocator', or, if 'basicAllocator' is 0,
     // global operators 'new' and 'delete'.  The specified 'length' number of

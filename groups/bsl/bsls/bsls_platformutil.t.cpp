@@ -73,6 +73,10 @@ static void aSsErT(int c, const char *s, int i)
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
+#define LOOP2_ASSERT(I,J,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n"; \
+               aSsErT(1, #X, __LINE__); }}
+
 //=============================================================================
 //                      SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -727,9 +731,9 @@ if (verbose)
         //     Since the size_type is generated, it is possible that the
         //     typedef statements concerned for those types were wrong.  We
         //     must ensure that:
-        //     - 'size_type' is a signed integer type
-        //     - a size_type is at least as wide as an int.
-        //     - a size_type can contain the difference between two pointers.
+        //     - 'size_type' has the same signed-ness as
+        //       'bsls::Types::size_type'
+        //     - a size_type is the same size as 'bsls::Types::size_type'
         //
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
@@ -746,24 +750,18 @@ if (verbose)
 
         typedef bsls::PlatformUtil Util;
 
-        // Must be at least as wide as an int.
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        ASSERT(sizeof(Util::size_type) >= sizeof(long int));
-#else
-        ASSERT(sizeof(Util::size_type) >= sizeof(int));
-#endif
+        // Must be the same size as 'bsls::Types::size_type'
+        LOOP2_ASSERT(
+                    sizeof(Util::size_type),
+                    sizeof(bsls::Types::size_type),
+                    sizeof(Util::size_type) == sizeof(bsls::Types::size_type));
 
-        // Must be convertible (without error or warning) from a difference of
-        // two pointers.  Use some arbitrary values for this.
-        Util::size_type zero     = std::ptrdiff_t(0);
-        Util::size_type minusOne = std::ptrdiff_t(-1);
-        Util::size_type posValue = std::ptrdiff_t(1048576);
-
-        // Must be signed.
-        ASSERT(0 == zero);
-        ASSERT(minusOne < 0);
-        ASSERT(0 <  posValue);
-
+        // Must have the same signed-ness as bsls::Types::size_type
+        bool isTypesSizeTypeSigned = ~bsls::Types::size_type(0) < 0;
+        bool isUtilSizeTypeSigned  =        ~Util::size_type(0) < 0;
+        LOOP2_ASSERT(isTypesSizeTypeSigned,
+                     isUtilSizeTypeSigned,
+                     isTypesSizeTypeSigned == isUtilSizeTypeSigned);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -889,11 +887,24 @@ int main(int argc, char *argv[])
 #endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

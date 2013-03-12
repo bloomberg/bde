@@ -154,6 +154,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -164,10 +168,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -203,8 +203,8 @@ class baetzo_LocalTimePeriod {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(baetzo_LocalTimePeriod,
-                                  bslalg_TypeTraitBitwiseMoveable,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                  bslalg::TypeTraitBitwiseMoveable,
+                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
     static bool isValidUtcStartAndEndTime(const bdet_Datetime& utcStartTime,
@@ -216,7 +216,7 @@ class baetzo_LocalTimePeriod {
         // 'false' otherwise.
 
     // CREATORS
-    explicit baetzo_LocalTimePeriod(bslma_Allocator *basicAllocator = 0);
+    explicit baetzo_LocalTimePeriod(bslma::Allocator *basicAllocator = 0);
         // Create a 'baetzo_LocalTimePeriod' object having the (default)
         // attribute values:
         //..
@@ -232,7 +232,7 @@ class baetzo_LocalTimePeriod {
                         const baetzo_LocalTimeDescriptor&  descriptor,
                         const bdet_Datetime&               utcStartTime,
                         const bdet_Datetime&               utcEndTime,
-                        bslma_Allocator                   *basicAllocator = 0);
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a 'baetzo_LocalTimePeriod' object having the specified
         // 'descriptor', 'utcStartTime', and 'utcEndTime' attribute values.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -244,7 +244,7 @@ class baetzo_LocalTimePeriod {
         // the 'isValidUtcStartAndEndTime' method.)
 
     baetzo_LocalTimePeriod(const baetzo_LocalTimePeriod&  original,
-                           bslma_Allocator               *basicAllocator = 0);
+                           bslma::Allocator              *basicAllocator = 0);
         // Create a 'baetzo_LocalTimePeriod' object with the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -283,7 +283,7 @@ class baetzo_LocalTimePeriod {
         // object was created with the same allocator as 'other'.
 
     // ACCESSORS
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
@@ -373,7 +373,8 @@ bool baetzo_LocalTimePeriod::isValidUtcStartAndEndTime(
 
 // CREATORS
 inline
-baetzo_LocalTimePeriod::baetzo_LocalTimePeriod(bslma_Allocator *basicAllocator)
+baetzo_LocalTimePeriod::baetzo_LocalTimePeriod(
+                                              bslma::Allocator *basicAllocator)
 : d_descriptor(basicAllocator)
 , d_utcStartTime()
 , d_utcEndTime()
@@ -385,7 +386,7 @@ baetzo_LocalTimePeriod::baetzo_LocalTimePeriod(
                              const baetzo_LocalTimeDescriptor&  descriptor,
                              const bdet_Datetime&               utcStartTime,
                              const bdet_Datetime&               utcEndTime,
-                             bslma_Allocator                   *basicAllocator)
+                             bslma::Allocator                  *basicAllocator)
 : d_descriptor(descriptor, basicAllocator)
 , d_utcStartTime(utcStartTime)
 , d_utcEndTime(utcEndTime)
@@ -396,7 +397,7 @@ baetzo_LocalTimePeriod::baetzo_LocalTimePeriod(
 inline
 baetzo_LocalTimePeriod::baetzo_LocalTimePeriod(
                                  const baetzo_LocalTimePeriod&  original,
-                                 bslma_Allocator               *basicAllocator)
+                                 bslma::Allocator              *basicAllocator)
 : d_descriptor(original.d_descriptor, basicAllocator)
 , d_utcStartTime(original.d_utcStartTime)
 , d_utcEndTime(original.d_utcEndTime)
@@ -447,14 +448,14 @@ void baetzo_LocalTimePeriod::swap(baetzo_LocalTimePeriod& other)
     // 'swap' is undefined for objects with non-equal allocators.
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bslalg_SwapUtil::swap(&d_descriptor,   &other.d_descriptor);
-    bslalg_SwapUtil::swap(&d_utcStartTime, &other.d_utcStartTime);
-    bslalg_SwapUtil::swap(&d_utcEndTime,   &other.d_utcEndTime);
+    bslalg::SwapUtil::swap(&d_descriptor,   &other.d_descriptor);
+    bslalg::SwapUtil::swap(&d_utcStartTime, &other.d_utcStartTime);
+    bslalg::SwapUtil::swap(&d_utcEndTime,   &other.d_utcEndTime);
 }
 
 // ACCESSORS
 inline
-bslma_Allocator *baetzo_LocalTimePeriod::allocator() const
+bslma::Allocator *baetzo_LocalTimePeriod::allocator() const
 {
     return d_descriptor.allocator();
 }

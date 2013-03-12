@@ -220,7 +220,7 @@ extern int   pcre_callout(pcre_callout_block *);
 extern pcre *pcre_compile(const char *, int, const char **,
               int *, const unsigned char *
 #ifndef NO_BDEPCRE
-                            , bslma_Allocator *allocator);
+                            , bslma::Allocator *allocator);
 #else
                             );
 #endif
@@ -232,19 +232,19 @@ extern int  pcre_copy_substring(const char *, int *, int, int,
 extern int  pcre_exec(const pcre *, const pcre_extra *,
               const char *, int, int, int, int *, int
 #ifndef NO_BDEPCRE
-                            , bslma_Allocator *allocator);
+                            , bslma::Allocator *allocator);
 #else
                             );
 #endif
 extern void pcre_free_substring(const char *
 #ifndef NO_BDEPCRE
-                            , bslma_Allocator *allocator);
+                            , bslma::Allocator *allocator);
 #else
                             );
 #endif
 extern void pcre_free_substring_list(const char **
 #ifndef NO_BDEPCRE
-                            , bslma_Allocator *allocator);
+                            , bslma::Allocator *allocator);
 #else
                             );
 #endif
@@ -253,7 +253,7 @@ extern int  pcre_fullinfo(const pcre *, const pcre_extra *, int,
 extern int  pcre_get_named_substring(const pcre *, const char *,
               int *, int,  const char *, const char **
 #ifndef NO_BDEPCRE
-                            , bslma_Allocator *allocator);
+                            , bslma::Allocator *allocator);
 #else
                             );
 #endif
@@ -261,27 +261,27 @@ extern int  pcre_get_stringnumber(const pcre *, const char *);
 extern int  pcre_get_substring(const char *, int *, int, int,
               const char **
 #ifndef NO_BDEPCRE
-                            , bslma_Allocator *allocator);
+                            , bslma::Allocator *allocator);
 #else
                             );
 #endif
 extern int  pcre_get_substring_list(const char *, int *, int,
               const char ***
 #ifndef NO_BDEPCRE
-                            , bslma_Allocator *allocator);
+                            , bslma::Allocator *allocator);
 #else
                             );
 #endif
 extern int  pcre_info(const pcre *, int *, int *);
 extern const unsigned char *pcre_maketables(
 #ifndef NO_BDEPCRE
-                            bslma_Allocator *allocator);
+                            bslma::Allocator *allocator);
 #else
                             void);
 #endif
 extern pcre_extra *pcre_study(const pcre *, int, const char **
 #ifndef NO_BDEPCRE
-                            , bslma_Allocator *allocator);
+                            , bslma::Allocator *allocator);
 #else
                             void);
 #endif

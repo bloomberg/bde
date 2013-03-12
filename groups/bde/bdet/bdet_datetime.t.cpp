@@ -1032,7 +1032,7 @@ if (verbose)
                 bdet_Date date2(DATE_DATA[di].d_year2, DATE_DATA[di].d_month2,
                       DATE_DATA[di].d_day2);
 
-                bsls_Types::Int64 dateDiff = date2 - date1;
+                bsls::Types::Int64 dateDiff = date2 - date1;
                 dateDiff = dateDiff * (24 * 60 * 60 * 1000);
 
                 for (int i = 0; i < NUM_TIME_DATA; ++i) {
@@ -1203,7 +1203,7 @@ if (verbose)
                                   INTERVAL_VALUES[j].d_seconds,
                                   INTERVAL_VALUES[j].d_msecs);
 
-                    const bsls_Types::Int64 INTERVAL_MSEC =
+                    const bsls::Types::Int64 INTERVAL_MSEC =
                                                          u.totalMilliseconds();
 
                     if (veryVerbose) { P(INTERVAL_MSEC); }
@@ -2819,7 +2819,8 @@ if (verbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\t'printToBuffer' method" << endl;
             {

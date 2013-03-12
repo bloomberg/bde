@@ -19,7 +19,7 @@ BDES_IDENT("$Id: $")
 //
 // Parsers convert textual representations of a type into an object of that
 // type.  There is a parse method for each of the following types: 'char',
-// 'short', 'int', 'bsls_PlatformUtil::Int64', 'float', 'double',
+// 'short', 'int', 'bsls::Types::Int64', 'float', 'double',
 // 'long double', 'bdet_Date', 'bdet_DateTz', 'bdet_Time', 'bdet_TimeTz',
 // 'bdet_Datetime', 'bdet_DatetimeTz', and several parse methods for
 // 'bsl::string'.
@@ -294,8 +294,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_LIMITS
@@ -659,10 +659,10 @@ struct bdepu_TypesParserImpUtil {
         //  'base'.
         //..
 
-    static int parseInt64(const char               **endPos,
-                          bsls_PlatformUtil::Int64  *result,
-                          const char                *inputString,
-                          int                        base = 10);
+    static int parseInt64(const char         **endPos,
+                          bsls::Types::Int64  *result,
+                          const char          *inputString,
+                          int                  base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming a valid <INT64> in the optionally specified
         // 'base' or in base 10 if 'base' is not specified, and place into the
@@ -910,27 +910,27 @@ struct bdepu_TypesParserImpUtil {
 
                          // *** GENERATING FUNCTIONS ***
 
-    static int generateShort     (char                     *buffer,
-                                  short                     value,
-                                  int                       bufferLength);
-    static int generateShort     (char                     *buffer,
-                                  short                     value,
-                                  int                       bufferLength,
-                                  int                       base);
-    static int generateInt       (char                     *buffer,
-                                  int                       value,
-                                  int                       bufferLength);
-    static int generateInt       (char                     *buffer,
-                                  int                       value,
-                                  int                       bufferLength,
-                                  int                       base);
-    static int generateInt64     (char                     *buffer,
-                                  bsls_PlatformUtil::Int64  value,
-                                  int                       bufferLength);
-    static int generateInt64     (char                     *buffer,
-                                  bsls_PlatformUtil::Int64  value,
-                                  int                       bufferLength,
-                                  int                       base);
+    static int generateShort     (char               *buffer,
+                                  short               value,
+                                  int                 bufferLength);
+    static int generateShort     (char               *buffer,
+                                  short               value,
+                                  int                 bufferLength,
+                                  int                 base);
+    static int generateInt       (char               *buffer,
+                                  int                 value,
+                                  int                 bufferLength);
+    static int generateInt       (char               *buffer,
+                                  int                 value,
+                                  int                 bufferLength,
+                                  int                 base);
+    static int generateInt64     (char               *buffer,
+                                  bsls::Types::Int64  value,
+                                  int                 bufferLength);
+    static int generateInt64     (char               *buffer,
+                                  bsls::Types::Int64  value,
+                                  int                 bufferLength,
+                                  int                 base);
         // Format the specified 'value' to the specified 'buffer' in the
         // optionally specified 'base', truncating (if necessary) to the
         // specified 'bufferLength'.  Return the length of the formatted string
@@ -965,21 +965,21 @@ struct bdepu_TypesParserImpUtil {
         // 'BDEPU_MAX_LONGDOUBLE_STRLEN10 + 1' is large enough to hold any
         // formatted string, including a null terminator.
 
-    static int generateShortRaw     (char                     *buffer,
-                                     short                     value);
-    static int generateShortRaw     (char                     *buffer,
-                                     short                     value,
-                                     int                       base);
-    static int generateIntRaw       (char                     *buffer,
-                                     int                       value);
-    static int generateIntRaw       (char                     *buffer,
-                                     int                       value,
-                                     int                       base);
-    static int generateInt64Raw     (char                     *buffer,
-                                     bsls_PlatformUtil::Int64  value);
-    static int generateInt64Raw     (char                     *buffer,
-                                     bsls_PlatformUtil::Int64  value,
-                                     int                       base);
+    static int generateShortRaw     (char               *buffer,
+                                     short               value);
+    static int generateShortRaw     (char               *buffer,
+                                     short               value,
+                                     int                 base);
+    static int generateIntRaw       (char               *buffer,
+                                     int                 value);
+    static int generateIntRaw       (char               *buffer,
+                                     int                 value,
+                                     int                 base);
+    static int generateInt64Raw     (char               *buffer,
+                                     bsls::Types::Int64  value);
+    static int generateInt64Raw     (char               *buffer,
+                                     bsls::Types::Int64  value,
+                                     int                 base);
         // Format the specified 'value' to the specified 'buffer' in the
         // optionally specified 'base'.  If 'base' is not specified, decimal
         // (i.e., 'base == 10') is used.  Return the number of characters
@@ -1077,9 +1077,9 @@ struct bdepu_TypesParserImpUtil {
         //
         // Warning: The generated value might vary across platforms.
 
-    static void generateInt64(bsl::vector<char>        *buffer,
-                              bsls_PlatformUtil::Int64  value,
-                              int                       base = 10);
+    static void generateInt64(bsl::vector<char>  *buffer,
+                              bsls::Types::Int64  value,
+                              int                 base = 10);
         // Format the specified 'value' in the optionally specified 'base' and
         // append the result to the specified 'buffer'.  Note that 'value' is
         // emitted in a form parsable by the corresponding 'parse' function.

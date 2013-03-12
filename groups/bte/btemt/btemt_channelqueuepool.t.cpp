@@ -494,7 +494,7 @@ void writeMessages(bcec_Queue<btemt_Message> *outgoingQueue,
                    int                        numMessages,
                    int                        msgLength,
                    char                       payloadChar,
-                   bslma_Allocator           *allocator)
+                   bslma::Allocator          *allocator)
 {
     bcema_PooledBufferChainFactory factory(msgLength, allocator);
     bcema_PooledBufferChain *chain = factory.allocate(msgLength);

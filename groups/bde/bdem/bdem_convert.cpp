@@ -157,7 +157,7 @@ int bdem_Convert::fromString(int *dstAddr, const char *srcValue)
     return BDEM_SUCCESS;
 }
 
-int bdem_Convert::fromString(bsls_Types::Int64 *dstAddr, const char *srcValue)
+int bdem_Convert::fromString(bsls::Types::Int64 *dstAddr, const char *srcValue)
 {
     if (0 == srcValue || '\0' == srcValue[0]) {
         // Null or empty string.  Do nothing.
@@ -367,7 +367,7 @@ int bdem_Convert::convert(bsl::string *dstAddr, int srcValue)
     return BDEM_SUCCESS;
 }
 
-int bdem_Convert::convert(bsl::string *dstAddr, bsls_Types::Int64 srcValue)
+int bdem_Convert::convert(bsl::string *dstAddr, bsls::Types::Int64 srcValue)
 {
     BSLS_ASSERT(dstAddr);
 

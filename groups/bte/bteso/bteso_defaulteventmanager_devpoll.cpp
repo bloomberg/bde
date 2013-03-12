@@ -44,10 +44,10 @@ namespace {
                                     // timeout to ioctl(fd, DP_POLL, ...)
     };
 
-typedef bsl::hash_map<bteso_Event,
-                      bteso_EventManager::Callback,
-                      bteso_EventHash>                     CallbackMap;
-typedef bsl::hash_map<int, int>                            EventmaskMap;
+typedef bsl::unordered_map<bteso_Event,
+                           bteso_EventManager::Callback,
+                           bteso_EventHash>              CallbackMap;
+typedef bsl::unordered_map<int, int>                     EventmaskMap;
 
 #if 0  // not used
 static void printPollFds(const pollfd *data, int length) {
@@ -131,7 +131,7 @@ inline int dispatchCallbacks(
 // CREATORS
 bteso_DefaultEventManager<bteso_Platform::DEVPOLL>::bteso_DefaultEventManager(
                                             bteso_TimeMetrics *timeMetric,
-                                            bslma_Allocator   *basicAllocator)
+                                            bslma::Allocator  *basicAllocator)
 : d_callbacks(basicAllocator)
 , d_timeMetric_p(timeMetric)
 , d_signaled(basicAllocator)

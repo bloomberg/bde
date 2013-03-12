@@ -827,7 +827,7 @@ struct bdex_InStreamMethodsUtil {
         // or using the 'bdex_InStreamFunctions' functions.
 
         const int isNotSpecialized =
-                    bslmf_IsConvertible<methodsClass *,
+                    bslmf::IsConvertible<methodsClass *,
                                         bdex_GenericInStreamMethods *>::VALUE;
 
         if (isNotSpecialized) {

@@ -129,11 +129,11 @@ class baem_PublicationScheduler_ClockData {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_PublicationScheduler_ClockData,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit baem_PublicationScheduler_ClockData(
-                                             bslma_Allocator *basicAllocator);
+                                             bslma::Allocator *basicAllocator);
         // Create a 'ClockData' object.  By default 'handle()' is invalid,
         // 'categories()' and 'nonDefaultCategories()' are empty, and
         // 'defaultClock()' is 'false'.
@@ -177,7 +177,7 @@ class baem_PublicationScheduler_ClockData {
 
 // CREATORS
 baem_PublicationScheduler_ClockData::baem_PublicationScheduler_ClockData(
-                                              bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_handle(bcep_TimerEventScheduler::BCEP_INVALID_HANDLE)
 , d_categories(basicAllocator)
 , d_default(false)
@@ -419,14 +419,14 @@ int baem_PublicationScheduler::cancelDefaultSchedule()
 baem_PublicationScheduler::baem_PublicationScheduler(
                                     baem_MetricsManager      *metricsManager,
                                     bcep_TimerEventScheduler *eventScheduler,
-                                    bslma_Allocator          *basicAllocator)
+                                    bslma::Allocator         *basicAllocator)
 : d_scheduler_p(eventScheduler)
 , d_manager_p(metricsManager)
 , d_categories(basicAllocator)
 , d_clocks(basicAllocator)
 , d_defaultInterval(INVALID_INTERVAL())
 , d_mutex()
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

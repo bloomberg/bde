@@ -62,7 +62,7 @@ using bsl::flush;
 //                                   TEST PLAN
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bael_AsyncFileObserver(bael_Severity::Level, bslma_Allocator)
+// [ 1] bael_AsyncFileObserver(bael_Severity::Level, bslma::Allocator)
 // [ 1] ~bael_AsyncFileObserver()
 //
 // MANIPULATORS
@@ -315,7 +315,7 @@ class LogRotationCallbackTester {
         int         d_status;
         bsl::string d_rotatedFileName;
 
-        explicit Rep(bslma_Allocator *allocator)
+        explicit Rep(bslma::Allocator *allocator)
         : d_invocations(0)
         , d_status(0)
         , d_rotatedFileName(allocator)
@@ -338,7 +338,7 @@ class LogRotationCallbackTester {
         UNINITIALIZED = INT_MIN
     };
 
-    explicit LogRotationCallbackTester(bslma_Allocator *allocator)
+    explicit LogRotationCallbackTester(bslma::Allocator *allocator)
         // Create a callback tester that will use the specified 'status' and
         // 'logFileName' to record the arguments to the function call
         // operator.  Set '*status' to 'UNINITIALIZED' and set '*logFileName'
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl << flush;
 
-    bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
+    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
       case 9: {
@@ -754,8 +754,10 @@ int main(int argc, char *argv[])
         removeFilesByPrefix(filename.c_str());
       } break;
       case 5: {
-#ifdef BSLS_PLATFORM_OS_UNIX
-        // don't run this if we're in the debugger because the debugger
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
+        // 'setrlimit' is not implemented on Cygwin.
+
+        // Don't run this if we're in the debugger because the debugger
         // stops and refuses to continue when we hit the file size limit.
 
         if (verbose) cerr << "Testing output when the stream fails"
@@ -837,6 +839,10 @@ int main(int argc, char *argv[])
 
             removeFilesByPrefix(stderrFN.c_str());
             removeFilesByPrefix(fn.c_str());
+        }
+#else
+        if (verbose) {
+            cout << "Skipping case 5 on Windows and Cygwin..." << endl;
         }
 #endif
       } break;
@@ -1595,7 +1601,7 @@ int main(int argc, char *argv[])
         //   compare it with the expected output.
         //
         // Testing:
-        //   bael_AsyncFileObserver(bael_Severity::Level, bslma_Allocator)
+        //   bael_AsyncFileObserver(bael_Severity::Level, bslma::Allocator)
         //   ~bael_AsyncFileObserver()
         //   void startPublicationThread()
         //   void shutdownPublicationThread();

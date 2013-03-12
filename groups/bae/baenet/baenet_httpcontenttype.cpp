@@ -171,7 +171,8 @@ const bdeat_AttributeInfo *baenet_HttpContentType::lookupAttributeInfo(int id)
 
 // CREATORS
 
-baenet_HttpContentType::baenet_HttpContentType(bslma_Allocator *basicAllocator)
+baenet_HttpContentType::baenet_HttpContentType(
+                                              bslma::Allocator *basicAllocator)
 : d_type(basicAllocator)
 , d_subType(basicAllocator)
 , d_charset(basicAllocator)
@@ -181,8 +182,9 @@ baenet_HttpContentType::baenet_HttpContentType(bslma_Allocator *basicAllocator)
 {
 }
 
-baenet_HttpContentType::baenet_HttpContentType(const baenet_HttpContentType& original,
-                                                       bslma_Allocator *basicAllocator)
+baenet_HttpContentType::baenet_HttpContentType(
+                                 const baenet_HttpContentType&  original,
+                                 bslma::Allocator              *basicAllocator)
 : d_type(original.d_type, basicAllocator)
 , d_subType(original.d_subType, basicAllocator)
 , d_charset(original.d_charset, basicAllocator)

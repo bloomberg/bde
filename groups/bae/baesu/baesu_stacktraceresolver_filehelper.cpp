@@ -42,10 +42,10 @@ baesu_StackTraceResolver_FileHelper::~baesu_StackTraceResolver_FileHelper()
 
 // ACCESSORS
 char *baesu_StackTraceResolver_FileHelper::loadString(
-                                         Offset           offset,
-                                         char            *scratchBuf,
-                                         int              scratchBufLength,
-                                         bslma_Allocator *basicAllocator) const
+                                        Offset            offset,
+                                        char             *scratchBuf,
+                                        int               scratchBufLength,
+                                        bslma::Allocator *basicAllocator) const
 {
     // We do not know the length of the string and we don't want to read a full
     // 'scratchBufLength' (typically > 32000) bytes every time we read a
@@ -91,7 +91,7 @@ char *baesu_StackTraceResolver_FileHelper::loadString(
     return bdeu_String::copy(scratchBuf, stringLen, basicAllocator);
 }
 
-bsls_Types::UintPtr baesu_StackTraceResolver_FileHelper::readBytes(
+bsls::Types::UintPtr baesu_StackTraceResolver_FileHelper::readBytes(
                                                          void    *buf,
                                                          UintPtr  numBytes,
                                                          Offset   offset) const

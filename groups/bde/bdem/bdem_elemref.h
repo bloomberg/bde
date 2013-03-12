@@ -214,7 +214,7 @@ BDES_IDENT("$Id: $")
 //..
 //  const int LENGTH = 7;
 //
-//  bsls_ObjectBuffer<bdem_ConstElemRef> rawSpaceForList[LENGTH];
+//  bsls::ObjectBuffer<bdem_ConstElemRef> rawSpaceForList[LENGTH];
 //
 //  bdem_ConstElemRef *list = reinterpret_cast<bdem_ConstElemRef *>
 //                                                          (rawSpaceForList);
@@ -324,7 +324,7 @@ BDES_IDENT("$Id: $")
 //                  *static_cast<const int *>(sequenceData[i])) return true;
 //            } break;
 //            case bdem_ElemType::BDEM_INT64: {
-//              typedef bsls_Types::Int64 Int64;
+//              typedef bsls::Types::Int64 Int64;
 //              if (*static_cast<const Int64 *>(dataValue) ==
 //                  *static_cast<const Int64 *>(sequenceData[i])) return true;
 //            } break;
@@ -535,7 +535,7 @@ class bdem_ConstElemRef {
     const char& theChar() const;
     const short& theShort() const;
     const int& theInt() const;
-    const bsls_Types::Int64& theInt64() const;
+    const bsls::Types::Int64& theInt64() const;
     const float& theFloat() const;
     const double& theDouble() const;
     const bsl::string& theString() const;
@@ -549,7 +549,7 @@ class bdem_ConstElemRef {
     const bsl::vector<char>& theCharArray() const;
     const bsl::vector<short>& theShortArray() const;
     const bsl::vector<int>& theIntArray() const;
-    const bsl::vector<bsls_Types::Int64>& theInt64Array() const;
+    const bsl::vector<bsls::Types::Int64>& theInt64Array() const;
     const bsl::vector<float>& theFloatArray() const;
     const bsl::vector<double>& theDoubleArray() const;
     const bsl::vector<bsl::string>& theStringArray() const;
@@ -762,7 +762,7 @@ class bdem_ElemRef : public bdem_ConstElemRef {
     char& theModifiableChar() const;
     short& theModifiableShort() const;
     int& theModifiableInt() const;
-    bsls_Types::Int64& theModifiableInt64() const;
+    bsls::Types::Int64& theModifiableInt64() const;
     float& theModifiableFloat() const;
     double& theModifiableDouble() const;
     bsl::string& theModifiableString() const;
@@ -776,7 +776,7 @@ class bdem_ElemRef : public bdem_ConstElemRef {
     bsl::vector<char>& theModifiableCharArray() const;
     bsl::vector<short>& theModifiableShortArray() const;
     bsl::vector<int>& theModifiableIntArray() const;
-    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array() const;
+    bsl::vector<bsls::Types::Int64>& theModifiableInt64Array() const;
     bsl::vector<float>& theModifiableFloatArray() const;
     bsl::vector<double>& theModifiableDoubleArray() const;
     bsl::vector<bsl::string>& theModifiableStringArray() const;
@@ -936,12 +936,12 @@ const int& bdem_ConstElemRef::theInt() const
 }
 
 inline
-const bsls_Types::Int64& bdem_ConstElemRef::theInt64() const
+const bsls::Types::Int64& bdem_ConstElemRef::theInt64() const
 {
     BSLS_ASSERT_SAFE(isBound());
     BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == d_descriptor_p->d_elemEnum);
 
-    return *(const bsls_Types::Int64 *)d_constData_p;
+    return *(const bsls::Types::Int64 *)d_constData_p;
 }
 
 inline
@@ -1068,13 +1068,13 @@ const bsl::vector<int>& bdem_ConstElemRef::theIntArray() const
 }
 
 inline
-const bsl::vector<bsls_Types::Int64>& bdem_ConstElemRef::theInt64Array() const
+const bsl::vector<bsls::Types::Int64>& bdem_ConstElemRef::theInt64Array() const
 {
     BSLS_ASSERT_SAFE(isBound());
     BSLS_ASSERT_SAFE(
                 bdem_ElemType::BDEM_INT64_ARRAY == d_descriptor_p->d_elemEnum);
 
-    return *(const bsl::vector<bsls_Types::Int64> *)d_constData_p;
+    return *(const bsl::vector<bsls::Types::Int64> *)d_constData_p;
 }
 
 inline
@@ -1391,13 +1391,13 @@ int& bdem_ElemRef::theModifiableInt() const
 }
 
 inline
-bsls_Types::Int64& bdem_ElemRef::theModifiableInt64() const
+bsls::Types::Int64& bdem_ElemRef::theModifiableInt64() const
 {
     BSLS_ASSERT_SAFE(isBound());
     BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == d_descriptor_p->d_elemEnum);
 
     clearNullnessBit();
-    return *(bsls_Types::Int64 *)d_data_p;
+    return *(bsls::Types::Int64 *)d_data_p;
 }
 
 inline
@@ -1537,14 +1537,14 @@ bsl::vector<int>& bdem_ElemRef::theModifiableIntArray() const
 }
 
 inline
-bsl::vector<bsls_Types::Int64>& bdem_ElemRef::theModifiableInt64Array() const
+bsl::vector<bsls::Types::Int64>& bdem_ElemRef::theModifiableInt64Array() const
 {
     BSLS_ASSERT_SAFE(isBound());
     BSLS_ASSERT_SAFE(
                 bdem_ElemType::BDEM_INT64_ARRAY == d_descriptor_p->d_elemEnum);
 
     clearNullnessBit();
-    return *(bsl::vector<bsls_Types::Int64> *)d_data_p;
+    return *(bsl::vector<bsls::Types::Int64> *)d_data_p;
 }
 
 inline

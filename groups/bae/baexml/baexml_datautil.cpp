@@ -26,7 +26,7 @@ namespace {
 int prepareAggregate(bcem_Aggregate                            *aggregate,
                      const char                                *elementName,
                      const bcema_SharedPtr<const bdem_Schema>&  schemaPtr,
-                     bslma_Allocator                           *basicAllocator)
+                     bslma::Allocator                          *basicAllocator)
 {
     const bdem_RecordDef *record = schemaPtr->lookupRecord(elementName);
 
@@ -65,7 +65,7 @@ bcema_SharedPtr<const bdem_Schema> parseSchema(
                                             baexml_Reader    *reader,
                                             baexml_ErrorInfo *errorInfo,
                                             bsl::ostream     *diagnosticStream,
-                                            bslma_Allocator  *allocator)
+                                            bslma::Allocator *allocator)
 {
     // Create a BDEM schema on the heap and keep it by shared pointer.
 
@@ -125,7 +125,7 @@ int baexml_DataUtil::createAggregateFromDocument(
                                      baexml_ValidatingReader *reader,
                                      baexml_ErrorInfo        *errorInfo,
                                      bsl::ostream            *diagnosticStream,
-                                     bslma_Allocator         *basicAllocator)
+                                     bslma::Allocator        *basicAllocator)
 {
     baexml_DecoderOptions decoderOptions;
     return createAggregateFromDocument(result, xmlData, xsdSchema, reader,
@@ -141,7 +141,7 @@ int baexml_DataUtil::createAggregateFromDocument(
                                      baexml_DecoderOptions   *decoderOptions,
                                      baexml_ErrorInfo        *errorInfo,
                                      bsl::ostream            *diagnosticStream,
-                                     bslma_Allocator         *basicAllocator)
+                                     bslma::Allocator        *basicAllocator)
 {
     bool oldFlag = reader->validationFlag();
 
@@ -184,7 +184,7 @@ int baexml_DataUtil::createAggregateFromDocument(
                                             baexml_Reader    *reader,
                                             baexml_ErrorInfo *errorInfo,
                                             bsl::ostream     *diagnosticStream,
-                                            bslma_Allocator  *basicAllocator)
+                                            bslma::Allocator *basicAllocator)
 {
     baexml_DecoderOptions decoderOptions;
     return createAggregateFromDocument(result, xmlData, xsdSchema, reader,
@@ -200,7 +200,7 @@ int baexml_DataUtil::createAggregateFromDocument(
                                        baexml_DecoderOptions *decoderOptions,
                                        baexml_ErrorInfo      *errorInfo,
                                        bsl::ostream          *diagnosticStream,
-                                       bslma_Allocator       *basicAllocator)
+                                       bslma::Allocator      *basicAllocator)
 {
     bcema_SharedPtr<const bdem_Schema> outSchemaPtr =
                                                   parseSchema(xsdSchema,
@@ -230,7 +230,7 @@ int baexml_DataUtil::createAggregateFromDocument(
                    baexml_Reader                             *reader,
                    baexml_ErrorInfo                          *errorInfo,
                    bsl::ostream                              *diagnosticStream,
-                   bslma_Allocator                           *basicAllocator)
+                   bslma::Allocator                          *basicAllocator)
 {
     baexml_DecoderOptions decoderOptions;
     return createAggregateFromDocument(result, xmlData, schema, reader,
@@ -246,7 +246,7 @@ int baexml_DataUtil::createAggregateFromDocument(
                    baexml_DecoderOptions                     *decoderOptions,
                    baexml_ErrorInfo                          *errorInfo,
                    bsl::ostream                              *diagnosticStream,
-                   bslma_Allocator                           *basicAllocator)
+                   bslma::Allocator                          *basicAllocator)
 {
 
     baexml_Decoder decoder(decoderOptions, reader, errorInfo,

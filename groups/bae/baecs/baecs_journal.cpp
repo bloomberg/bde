@@ -19,6 +19,7 @@
 
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_iomanip.h>
 
@@ -101,7 +102,7 @@ unsigned static calculateChecksum(const bcema_Blob *blob,
 }
 
 inline
-bsls_PlatformUtil::Int64 nowAsInt64GMT()
+bsls::Types::Int64 nowAsInt64GMT()
 {
     bdet_TimeInterval now;
     bdetu_SystemTime::loadSystemTimeDefault(&now);
@@ -109,7 +110,7 @@ bsls_PlatformUtil::Int64 nowAsInt64GMT()
 }
 
 inline
-bdet_Datetime int64ToDatetime(bsls_PlatformUtil::Int64 ns)
+bdet_Datetime int64ToDatetime(bsls::Types::Int64 ns)
 {
     bdet_Datetime result = bdetu_Epoch::epoch();
     result.addMilliseconds(ns / 1000000);
@@ -408,20 +409,18 @@ BSLMF_ASSERT(sizeof(baecs_JournalHeader::OnDisk)        == 256);
 struct baecs_Journal_SegmentHeader {
 
     // DATA
-    bsls_PlatformUtil::Int64  d_timestamp;    // timestamp of db update
-                                              // for a head record it also
-                                              // indicates creation time
+    bsls::Types::Int64    d_timestamp;    // timestamp of db update for a head
+                                          // record it also indicates creation
+                                          // time
 
-    bdeut_BigEndianUint32     d_reserved1;    // not in use now
-    bdeut_BigEndianUint32     d_headSegment;
-    bdeut_BigEndianUint32     d_nextSegment;
+    bdeut_BigEndianUint32 d_reserved1;    // not in use now
+    bdeut_BigEndianUint32 d_headSegment;
+    bdeut_BigEndianUint32 d_nextSegment;
 
-    bdeut_BigEndianUint32     d_size;         // size of the record in
-                                              // bytes
+    bdeut_BigEndianUint32 d_size;         // size of the record in bytes
 
-    bdeut_BigEndianUint32     d_checksum;     // for head only, debug mode
-                                              // only
-    bdeut_BigEndianUint32     d_reserved2;
+    bdeut_BigEndianUint32 d_checksum;     // for head only, debug mode only
+    bdeut_BigEndianUint32 d_reserved2;
 };
 
 BSLMF_ASSERT(sizeof(baecs_Journal_SegmentHeader) == 32);
@@ -486,17 +485,17 @@ BSLMF_ASSERT(sizeof(baecs_JournalPageHeader) == 112);
 
 // CREATORS
 baecs_Journal::baecs_Journal(baecs_MappingManager *mappingManager,
-                             bslma_Allocator      *allocator)
+                             bslma::Allocator     *allocator)
 : d_mappingManager_p(mappingManager)
 , d_fileSize(-1)
 , d_fd(bdesu_FileUtil::INVALID_FD)
-, d_pageSetHeaderHandles(bslma_Default::allocator(allocator))
-, d_pageHandles(bslma_Default::allocator(allocator))
+, d_pageSetHeaderHandles(bslma::Default::allocator(allocator))
+, d_pageHandles(bslma::Default::allocator(allocator))
 , d_dirtyListHandle(mappingManager->createDirtyList())
 , d_diskSpaceWarningThreshold(0)
 , d_diskSpaceErrorThreshold(0)
-, d_poolAllocator(bslma_Default::allocator(allocator))
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_poolAllocator(bslma::Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     BSLS_ASSERT(d_mappingManager_p != NULL);
     BSLS_ASSERT(d_dirtyListHandle);
@@ -1030,7 +1029,7 @@ int baecs_Journal::growJournal(bool init)
             d_pageWorkIndexes.push_back(0);
         }
         else {
-            bsls_PlatformUtil::Int64 tid[2];
+            bsls::Types::Int64 tid[2];
             if (ph[0]->getTransactionId(tid+0)) {
                 return 1;
             }
@@ -1127,7 +1126,7 @@ baecs_Journal::getPageHeader(unsigned page, bool makeDirty) const
         // TBD: think of how we can get rid of this lock?
         bcemt_LockGuard<bcemt_Mutex> lGuard(&d_workIndexLock);
 
-        bsls_PlatformUtil::Int64 ctid;
+        bsls::Types::Int64 ctid;
         if (ph[index]->getTransactionId(&ctid)) {
             BSLS_ASSERT(0); // this is not supposed to fail, transaction IDs
             // were recovered in growJournal
@@ -1138,7 +1137,7 @@ baecs_Journal::getPageHeader(unsigned page, bool makeDirty) const
 
             // TBD: why can't we just use pageWorkIndexes[i] instead of
             // selecting the valid copy again?
-            bsls_PlatformUtil::Int64 tid[2];
+            bsls::Types::Int64 tid[2];
             if (ph[0]->getTransactionId(tid+0)) {
                 BSLS_ASSERT(0); // this is not supposed to fail,
                 // transaction IDs were recovered in growJournal
@@ -2034,7 +2033,7 @@ bool baecs_Journal::isUnconfirmedRecord(
     return !isConfirmedRecord(handle);
 }
 
-bsls_PlatformUtil::Int64 baecs_Journal::getFileSize() const
+bsls::Types::Int64 baecs_Journal::getFileSize() const
 {
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
     baecs_Journal_ReadLockGuard guard(this);

@@ -208,7 +208,7 @@ class my_EchoClient {
                   bteso_TimerEventManager                      *manager,
                   int                                    maxConnections,
                   int                                       numMessages,
-                  bslma_Allocator *basicAllocator = 0);
+                  bslma::Allocator *basicAllocator = 0);
     ~my_EchoClient();
 
     //  MANIPULATORS
@@ -223,7 +223,7 @@ my_EchoClient::my_EchoClient(
         bteso_TimerEventManager                *manager,
         int                                     numConnections,
         int                                     numMessages,
-        bslma_Allocator                        *basicAllocator)
+        bslma::Allocator                       *basicAllocator)
 : d_allocator(factory, manager, basicAllocator)
 , d_connectTimeout(120, 0)
 , d_readTimeout(20.0)
@@ -1491,7 +1491,7 @@ int main(int argc, char *argv[])
                     P(hint);
                 }
 
-                bslma_TestAllocator   testAllocator(veryVeryVerbose);
+                bslma::TestAllocator   testAllocator(veryVeryVerbose);
                 testAllocator.setNoAbort(1);
 
                 bteso_InetStreamSocketFactory<bteso_IPv4Address>
@@ -1598,7 +1598,7 @@ int main(int argc, char *argv[])
                     P(hint);
                 }
 
-                bslma_TestAllocator   testAllocator;
+                bslma::TestAllocator   testAllocator;
                 testAllocator.setNoAbort(1);
 
                 bteso_InetStreamSocketFactory<bteso_IPv4Address>

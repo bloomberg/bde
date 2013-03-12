@@ -4,11 +4,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>      // 'printf'
-#include <cstdlib>     // 'atoi'
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -17,10 +16,10 @@ using namespace std;
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_fundamental'
 // and 'bslmf::IsFundamental', that determine whether a template parameter type
-// is a fundamental type.  Thus, we need to ensure that the value returned by
+// is a fundamental type.  Thus, we need to ensure that the values returned by
 // these meta-functions are correct for each possible category of types.  Since
-// the two meta-functions are functionally equivalent, we will use the same set
-// of types for both.
+// the two meta-functions are almost functionally equivalent except on
+// reference to fundamental types, we will use the same set of types for both.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -166,6 +165,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -174,14 +174,14 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are fundamental types.
 //
-// Now, we instantiate the 'bsl::is_fundamental' template for a couple of
+// Now, we instantiate the 'bsl::is_fundamental' template for several
 // non-fundamental and fundamental types, and assert the 'value' static data
 // member of each instantiation:
 //..
     ASSERT(true  == bsl::is_fundamental<int>::value);
     ASSERT(false == bsl::is_fundamental<int&>::value);
-    ASSERT(true  == bsl::is_fundamental<long long>::value);
-    ASSERT(false == bsl::is_fundamental<long long*>::value);
+    ASSERT(true  == bsl::is_fundamental<long long  >::value);
+    ASSERT(false == bsl::is_fundamental<long long *>::value);
 //..
       } break;
       case 2: {
@@ -192,16 +192,17 @@ int main(int argc, char *argv[])
         //   parameter) 'TYPE's has the correct value.
         //
         // Concerns:
-        //: 1 'IsFundamental::VALUE' is 'true' when 'TYPE' is a (possibly
+        //: 1 'IsFundamental::VALUE' is 1 when 'TYPE' is a (possibly
+        //:   cv-qualified) primitive type or reference to (possibly
         //:   cv-qualified) primitive type.
         //:
-        //: 2 'IsFundamental::VALUE' is 'false' when 'TYPE' is a (possibly
+        //: 2 'IsFundamental::VALUE' is 0 when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type.
         //:
-        //: 3 'IsFundamental::VALUE' is 'false' when 'TYPE' is a (possibly
+        //: 3 'IsFundamental::VALUE' is 0 when 'TYPE' is a (possibly
         //:   cv-qualified) pointer to a (possibly cv-qualified) type.
         //:
-        //: 4 'IsFundamental::VALUE' is 'false' when 'TYPE' is a (possibly
+        //: 4 'IsFundamental::VALUE' is 0 when 'TYPE' is a (possibly
         //:   cv-qualified) function type.
         //
         // Plan:
@@ -247,6 +248,36 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_SUFFIX(
                        bslmf::IsFundamental, VALUE, long long int,          1);
         TYPE_ASSERT_CVQ_SUFFIX(
+                       bslmf::IsFundamental, VALUE, unsigned long long int, 1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, char,                   1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, signed char,            1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, unsigned char,          1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, wchar_t,                1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, short int,              1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, unsigned short int,     1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, int,                    1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, unsigned int,           1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, long int,               1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, unsigned long int,      1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, float,                  1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, double,                 1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, long double,            1);
+        TYPE_ASSERT_CVQ_REF(
+                       bslmf::IsFundamental, VALUE, long long int,          1);
+        TYPE_ASSERT_CVQ_REF(
                        bslmf::IsFundamental, VALUE, unsigned long long int, 1);
 
         // C-2
@@ -323,7 +354,7 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_SUFFIX(
                    bslmf::IsFundamental, VALUE, MethodPtrTestType,          0);
 
-        // C-5
+        // C-4
         TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, int  (int),  0);
         TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, void (void), 0);
         TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, int  (void), 0);
@@ -339,7 +370,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'is_fundamental::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) primitive type.
+        //:   cv-qualified) primitive type, and 'false' when 'TYPE' is a
+        //:   reference to (possibly cv-qualified) primitive type.
         //:
         //: 2 'is_fundamental::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type.
@@ -394,6 +426,36 @@ int main(int argc, char *argv[])
                     bsl::is_fundamental, value, long long int,           true);
         TYPE_ASSERT_CVQ_SUFFIX(
                     bsl::is_fundamental, value, unsigned long long int,  true);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, char,                   false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, signed char,            false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, unsigned char,          false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, wchar_t,                false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, short int,              false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, unsigned short int,     false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, int,                    false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, unsigned int,           false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, long int,               false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, unsigned long int,      false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, float,                  false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, double,                 false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, long double,            false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, long long int,          false);
+        TYPE_ASSERT_CVQ_REF(
+                    bsl::is_fundamental, value, unsigned long long int, false);
 
         // C-2
         TYPE_ASSERT_CVQ_SUFFIX(
@@ -469,7 +531,7 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_SUFFIX(
                   bsl::is_fundamental, value, MethodPtrTestType,        false);
 
-        // C-5
+        // C-4
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, int  (int),  false);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, void (void), false);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, int  (void), false);
@@ -489,10 +551,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -1,6 +1,8 @@
 // bdeat_symbolicconverter.t.cpp                  -*-C++-*-
 
 #include <bdeat_symbolicconverter.h>
+
+#include <bslma_allocator.h>
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 
@@ -9,7 +11,6 @@
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
-#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -160,15 +161,15 @@ class ChoiceA {
 
   private:
     union {
-        bsls_ObjectBuffer< int > d_selection1;
+        bsls::ObjectBuffer< int > d_selection1;
             // TBD: provide annotation
-        bsls_ObjectBuffer< bsl::string > d_selection2;
+        bsls::ObjectBuffer< bsl::string > d_selection2;
             // TBD: provide annotation
     };
 
     int                 d_selectionId;
 
-    bslma_Allocator    *d_allocator_p;
+    bslma::Allocator   *d_allocator_p;
 
   public:
     // TYPES
@@ -220,13 +221,13 @@ class ChoiceA {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit ChoiceA(bslma_Allocator *basicAllocator = 0);
+    explicit ChoiceA(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'ChoiceA' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    ChoiceA(const ChoiceA& original, bslma_Allocator *basicAllocator = 0);
+    ChoiceA(const ChoiceA& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'ChoiceA' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -454,18 +455,18 @@ void ChoiceA::makeSelection2(const bsl::string& value)
 
 // CREATORS
 inline
-ChoiceA::ChoiceA(bslma_Allocator *basicAllocator)
+ChoiceA::ChoiceA(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 ChoiceA::ChoiceA(
     const ChoiceA& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -789,10 +790,10 @@ const bdeat_SelectionInfo *ChoiceA::lookupSelectionInfo(
              && bsl::toupper(name[8])=='N') {
                 switch(bsl::toupper(name[9])) {
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                      return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
                     } break;
                     case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                      return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
                     } break;
                 }
             }
@@ -965,15 +966,15 @@ class ChoiceB {
 
   private:
     union {
-        bsls_ObjectBuffer< bsl::string > d_selection2;
+        bsls::ObjectBuffer< bsl::string > d_selection2;
             // TBD: provide annotation
-        bsls_ObjectBuffer< int > d_selection1;
+        bsls::ObjectBuffer< int > d_selection1;
             // TBD: provide annotation
     };
 
     int                 d_selectionId;
 
-    bslma_Allocator    *d_allocator_p;
+    bslma::Allocator   *d_allocator_p;
 
   public:
     // TYPES
@@ -1025,13 +1026,13 @@ class ChoiceB {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit ChoiceB(bslma_Allocator *basicAllocator = 0);
+    explicit ChoiceB(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'ChoiceB' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    ChoiceB(const ChoiceB& original, bslma_Allocator *basicAllocator = 0);
+    ChoiceB(const ChoiceB& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'ChoiceB' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -1259,18 +1260,18 @@ void ChoiceB::makeSelection1(int value)
 
 // CREATORS
 inline
-ChoiceB::ChoiceB(bslma_Allocator *basicAllocator)
+ChoiceB::ChoiceB(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 ChoiceB::ChoiceB(
     const ChoiceB& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION2: {
@@ -1594,10 +1595,10 @@ const bdeat_SelectionInfo *ChoiceB::lookupSelectionInfo(
              && bsl::toupper(name[8])=='N') {
                 switch(bsl::toupper(name[9])) {
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                      return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
                     } break;
                     case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                      return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
                     } break;
                 }
             }
@@ -1777,21 +1778,21 @@ class CustomizedA {
         // the name of this class (i.e., "CustomizedA")
 
     // CREATORS
-    explicit CustomizedA(bslma_Allocator *basicAllocator = 0);
+    explicit CustomizedA(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedA' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    CustomizedA(const CustomizedA& original,
-                bslma_Allocator *basicAllocator = 0);
+    CustomizedA(const CustomizedA&  original,
+                bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedA' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    explicit CustomizedA(const bsl::string& value,
-                         bslma_Allocator *basicAllocator = 0);
+    explicit CustomizedA(const bsl::string&  value,
+                         bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedA' having the specified 'value'.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -1885,21 +1886,21 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedA& rhs);
 // CREATORS
 
 inline
-CustomizedA::CustomizedA(bslma_Allocator *basicAllocator)
+CustomizedA::CustomizedA(bslma::Allocator *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
-CustomizedA::CustomizedA(const CustomizedA& original,
-                         bslma_Allocator *basicAllocator)
+CustomizedA::CustomizedA(const CustomizedA&  original,
+                         bslma::Allocator   *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
-CustomizedA::CustomizedA(const bsl::string& value,
-                         bslma_Allocator *basicAllocator)
+CustomizedA::CustomizedA(const bsl::string&  value,
+                         bslma::Allocator   *basicAllocator)
 : d_value(value, basicAllocator)
 {
 }
@@ -2135,21 +2136,21 @@ class CustomizedB {
         // the name of this class (i.e., "CustomizedB")
 
     // CREATORS
-    explicit CustomizedB(bslma_Allocator *basicAllocator = 0);
+    explicit CustomizedB(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedB' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    CustomizedB(const CustomizedB& original,
-                bslma_Allocator *basicAllocator = 0);
+    CustomizedB(const CustomizedB&  original,
+                bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedB' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    explicit CustomizedB(const bsl::string& value,
-                         bslma_Allocator *basicAllocator = 0);
+    explicit CustomizedB(const bsl::string&  value,
+                         bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedB' having the specified 'value'.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -2243,21 +2244,21 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedB& rhs);
 // CREATORS
 
 inline
-CustomizedB::CustomizedB(bslma_Allocator *basicAllocator)
+CustomizedB::CustomizedB(bslma::Allocator *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
-CustomizedB::CustomizedB(const CustomizedB& original,
-                         bslma_Allocator *basicAllocator)
+CustomizedB::CustomizedB(const CustomizedB&  original,
+                         bslma::Allocator   *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
-CustomizedB::CustomizedB(const bsl::string& value,
-                         bslma_Allocator *basicAllocator)
+CustomizedB::CustomizedB(const bsl::string&  value,
+                         bslma::Allocator   *basicAllocator)
 : d_value(value, basicAllocator)
 {
 }
@@ -3252,13 +3253,13 @@ class SequenceA {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit SequenceA(bslma_Allocator *basicAllocator = 0);
+    explicit SequenceA(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceA' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    SequenceA(const SequenceA& original, bslma_Allocator *basicAllocator = 0);
+    SequenceA(const SequenceA& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceA' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -3422,18 +3423,19 @@ int SequenceA::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-SequenceA::SequenceA(bslma_Allocator *basicAllocator)
+SequenceA::SequenceA(bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 SequenceA::SequenceA(
     const SequenceA& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -3942,13 +3944,13 @@ class SequenceB {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit SequenceB(bslma_Allocator *basicAllocator = 0);
+    explicit SequenceB(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceB' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    SequenceB(const SequenceB& original, bslma_Allocator *basicAllocator = 0);
+    SequenceB(const SequenceB& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceB' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -4112,8 +4114,8 @@ int SequenceB::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-SequenceB::SequenceB(bslma_Allocator *basicAllocator)
-: d_attribute2(bslma_Default::allocator(basicAllocator))
+SequenceB::SequenceB(bslma::Allocator *basicAllocator)
+: d_attribute2(bslma::Default::allocator(basicAllocator))
 , d_attribute1()
 {
 }
@@ -4121,8 +4123,9 @@ SequenceB::SequenceB(bslma_Allocator *basicAllocator)
 inline
 SequenceB::SequenceB(
     const SequenceB& original,
-    bslma_Allocator *basicAllocator)
-: d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+    bslma::Allocator *basicAllocator)
+: d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 , d_attribute1(original.d_attribute1)
 {
 }
@@ -4642,13 +4645,13 @@ class Employee {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Employee(bslma_Allocator *basicAllocator = 0);
+    explicit Employee(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    Employee(const Employee& original, bslma_Allocator *basicAllocator = 0);
+    Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -4827,9 +4830,9 @@ int Employee::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Employee::Employee(bslma_Allocator *basicAllocator)
-: d_name(bslma_Default::allocator(basicAllocator))
-, d_dept(bslma_Default::allocator(basicAllocator))
+Employee::Employee(bslma::Allocator *basicAllocator)
+: d_name(bslma::Default::allocator(basicAllocator))
+, d_dept(bslma::Default::allocator(basicAllocator))
 , d_age()
 , d_salary()
 {
@@ -4837,10 +4840,10 @@ Employee::Employee(bslma_Allocator *basicAllocator)
 
 inline
 Employee::Employee(
-    const Employee& original,
-    bslma_Allocator *basicAllocator)
-: d_name(original.d_name, bslma_Default::allocator(basicAllocator))
-, d_dept(original.d_dept, bslma_Default::allocator(basicAllocator))
+    const Employee&   original,
+    bslma::Allocator *basicAllocator)
+: d_name(original.d_name, bslma::Default::allocator(basicAllocator))
+, d_dept(original.d_dept, bslma::Default::allocator(basicAllocator))
 , d_age(original.d_age)
 , d_salary(original.d_salary)
 {
@@ -5476,13 +5479,13 @@ class Trainee {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Trainee(bslma_Allocator *basicAllocator = 0);
+    explicit Trainee(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Trainee' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    Trainee(const Trainee& original, bslma_Allocator *basicAllocator = 0);
+    Trainee(const Trainee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Trainee' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -5653,9 +5656,9 @@ int Trainee::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Trainee::Trainee(bslma_Allocator *basicAllocator)
-: d_name(bslma_Default::allocator(basicAllocator))
-, d_dept(bslma_Default::allocator(basicAllocator))
+Trainee::Trainee(bslma::Allocator *basicAllocator)
+: d_name(bslma::Default::allocator(basicAllocator))
+, d_dept(bslma::Default::allocator(basicAllocator))
 , d_age()
 {
 }
@@ -5663,9 +5666,9 @@ Trainee::Trainee(bslma_Allocator *basicAllocator)
 inline
 Trainee::Trainee(
     const Trainee& original,
-    bslma_Allocator *basicAllocator)
-: d_name(original.d_name, bslma_Default::allocator(basicAllocator))
-, d_dept(original.d_dept, bslma_Default::allocator(basicAllocator))
+    bslma::Allocator *basicAllocator)
+: d_name(original.d_name, bslma::Default::allocator(basicAllocator))
+, d_dept(original.d_dept, bslma::Default::allocator(basicAllocator))
 , d_age(original.d_age)
 {
 }
@@ -6256,14 +6259,14 @@ class MixedSequence {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MixedSequence(bslma_Allocator *basicAllocator = 0);
+    explicit MixedSequence(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MixedSequence' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    MixedSequence(const MixedSequence& original,
-                  bslma_Allocator *basicAllocator = 0);
+    MixedSequence(const MixedSequence&  original,
+                  bslma::Allocator     *basicAllocator = 0);
         // Create an object of type 'MixedSequence' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -6467,28 +6470,32 @@ int MixedSequence::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MixedSequence::MixedSequence(bslma_Allocator *basicAllocator)
-: d_attribute1(bslma_Default::allocator(basicAllocator))
-, d_attribute2(bslma_Default::allocator(basicAllocator))
+MixedSequence::MixedSequence(bslma::Allocator *basicAllocator)
+: d_attribute1(bslma::Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
 , d_attribute3()
 , d_attribute4(static_cast<EnumerationA::Value>(0))
 , d_attribute5()
-, d_attribute6(bslma_Default::allocator(basicAllocator))
-, d_attribute7(bslma_Default::allocator(basicAllocator))
+, d_attribute6(bslma::Default::allocator(basicAllocator))
+, d_attribute7(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MixedSequence::MixedSequence(
-    const MixedSequence& original,
-    bslma_Allocator *basicAllocator)
-: d_attribute1(original.d_attribute1, bslma_Default::allocator(basicAllocator))
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+    const MixedSequence&  original,
+    bslma::Allocator     *basicAllocator)
+: d_attribute1(original.d_attribute1,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 , d_attribute3(original.d_attribute3)
 , d_attribute4(original.d_attribute4)
 , d_attribute5(original.d_attribute5)
-, d_attribute6(original.d_attribute6, bslma_Default::allocator(basicAllocator))
-, d_attribute7(original.d_attribute7, bslma_Default::allocator(basicAllocator))
+, d_attribute6(original.d_attribute6,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute7(original.d_attribute7,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 

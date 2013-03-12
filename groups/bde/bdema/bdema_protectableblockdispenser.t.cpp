@@ -433,8 +433,8 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
               // This structure is used to ensure the alignment of the header
               // information.
 
-              Header                             d_header;
-              bsls_AlignmentUtil::MaxAlignedType d_align;
+              Header                              d_header;
+              bsls::AlignmentUtil::MaxAlignedType d_align;
           };
 
           // The following constants are used for the header bytes.
@@ -461,9 +461,9 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
       , d_pageSize(pageSize)
       {
           std::memset(buffer, UNUSED_BUFFER_BYTE, bufferSize);
-          d_cursor += bsls_AlignmentUtil::calculateAlignmentOffset(
-                                       d_cursor,
-                                       bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+          d_cursor += bsls::AlignmentUtil::calculateAlignmentOffset(
+                                      d_cursor,
+                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
       }
 
       DummyProtectableBufferBlockDispenser::
@@ -484,7 +484,7 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
           }
           if (d_cursor + sizeWithHeader > d_buffer + d_size) {
               // Not enough free space in the buffer
-              bslma_Allocator::throwBadAlloc();
+              bslma::Allocator::throwBadAlloc();
           }
 
           char *cursor = d_cursor;
@@ -501,9 +501,9 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
           // update the cursor to the next empty buffer location and then
           // ensure the proper alignment of the next position.
           d_cursor += sizeWithHeader;
-          d_cursor += bsls_AlignmentUtil::calculateAlignmentOffset(
-                                       d_cursor,
-                                       bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+          d_cursor += bsls::AlignmentUtil::calculateAlignmentOffset(
+                                      d_cursor,
+                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
           // Return the block of memory starting after the header.
           return bdema_MemoryBlockDescriptor(
@@ -601,8 +601,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator         talloc;
-    bslma_DefaultAllocatorGuard guard(&talloc);
+    bslma::TestAllocator         talloc;
+    bslma::DefaultAllocatorGuard guard(&talloc);
 
     switch (test) { case 0:
       case 2: {

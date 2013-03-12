@@ -184,8 +184,8 @@ inline
 void baesu_StackTracePrintUtil_Test::printStackTraceToString(
                                                            bsl::string *string)
 {
-    bslma_Allocator *a = string->get_allocator().mechanism();
-    bslma_DefaultAllocatorGuard guard(a);
+    bslma::Allocator *a = string->get_allocator().mechanism();
+    bslma::DefaultAllocatorGuard guard(a);
 
     bsl::ostringstream os;
     baesu_StackTracePrintUtil::printStackTrace(os);

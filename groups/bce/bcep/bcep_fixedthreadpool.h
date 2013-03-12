@@ -320,8 +320,8 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
@@ -447,7 +447,7 @@ class bcep_FixedThreadPool {
     // CREATORS
     bcep_FixedThreadPool(int                    numThreads,
                          int                    maxNumPendingJobs,
-                         bslma_Allocator       *basicAllocator = 0);
+                         bslma::Allocator      *basicAllocator = 0);
         // Construct a thread pool with the specified 'numThread' number of
         // threads and a job queue of capacity sufficient to enqueue the
         // specified 'maxNumPendingJobs' without blocking.  Optionally specify
@@ -459,7 +459,7 @@ class bcep_FixedThreadPool {
     bcep_FixedThreadPool(const bcemt_Attribute& threadAttributes,
                          int                    numThreads,
                          int                    maxNumPendingJobs,
-                         bslma_Allocator       *basicAllocator = 0);
+                         bslma::Allocator      *basicAllocator = 0);
         // Construct a thread pool with the specified 'threadAttributes',
         // 'numThread' number of threads, and a job queue with capacity
         // sufficient to enqueue the specified 'maxNumPendingJobs' without

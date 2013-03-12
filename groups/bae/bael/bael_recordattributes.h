@@ -76,7 +76,7 @@ BDES_IDENT("$Id: $")
 //      bdetu_Epoch::convertFromTimeT(&now, time(0));
 //      attributes.setTimestamp(now);                // current time
 //      attributes.setProcessID(getpid());
-//      attributes.setThreadID((bsls_PlatformUtil::Uint64) pthread_self());
+//      attributes.setThreadID((bsls::Types::Uint64) pthread_self());
 //      attributes.setFileName(__FILE__);
 //      attributes.setLineNumber(__LINE__);
 //      attributes.setCategory(Category[2]);         // "Futures"
@@ -176,6 +176,14 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetime.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -196,14 +204,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STRINGREF
-#include <bslstl_stringref.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -231,7 +231,7 @@ class bael_RecordAttributes {
     // an object as both source and destination) is supported in all cases.
 
     // PRIVATE TYPES
-    typedef bsls_PlatformUtil::Uint64 Uint64;
+    typedef bsls::Types::Uint64 Uint64;
 
     // DATA
     bdet_Datetime    d_timestamp;    // creation date and time
@@ -268,21 +268,21 @@ class bael_RecordAttributes {
         // DEPRECATED: Replaced by the 'maxSupportedBdexVersion' method.
 
     // CREATORS
-    bael_RecordAttributes(bslma_Allocator *basicAllocator = 0);
+    bael_RecordAttributes(bslma::Allocator *basicAllocator = 0);
         // Create a record attributes object with all attributes having default
         // values.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    bael_RecordAttributes(const bdet_Datetime&      timestamp,
-                          int                       processID,
-                          bsls_PlatformUtil::Uint64 threadID,
-                          const char               *fileName,
-                          int                       lineNumber,
-                          const char               *category,
-                          int                       severity,
-                          const char               *message,
-                          bslma_Allocator          *basicAllocator = 0);
+    bael_RecordAttributes(const bdet_Datetime&  timestamp,
+                          int                   processID,
+                          bsls::Types::Uint64   threadID,
+                          const char           *fileName,
+                          int                   lineNumber,
+                          const char           *category,
+                          int                   severity,
+                          const char           *message,
+                          bslma::Allocator     *basicAllocator = 0);
         // Create a record attributes object having the specified 'timestamp',
         // 'processID', 'threadID', 'fileName', 'lineNumber', 'category',
         // 'severity' and 'message' values, respectively.  Optionally specify a
@@ -291,7 +291,7 @@ class bael_RecordAttributes {
         // undefined if any 'const char *' argument is null.
 
     bael_RecordAttributes(const bael_RecordAttributes&  original,
-                          bslma_Allocator              *basicAllocator = 0);
+                          bslma::Allocator             *basicAllocator = 0);
         // Create a record attributes object having the value of the specified
         // 'original' record attributes object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -337,7 +337,7 @@ class bael_RecordAttributes {
         // Set the severity attribute of this record attributes object to the
         // specified 'severity'.
 
-    void setThreadID(bsls_PlatformUtil::Uint64 threadID);
+    void setThreadID(bsls::Types::Uint64 threadID);
         // Set the threadID attribute of this record attributes object to the
         // specified 'threadID'.
 
@@ -371,7 +371,7 @@ class bael_RecordAttributes {
     const char *message() const;
         // Return the message attribute of this record attributes object.
 
-    bslstl_StringRef messageRef() const;
+    bslstl::StringRef messageRef() const;
         // Return a string reference providing non-modifiable access to the
         // message attribute of this record attributes object.  Note that the
         // returned string reference is not null-terminated, and may contain
@@ -383,7 +383,7 @@ class bael_RecordAttributes {
     int severity() const;
         // Return the severity attribute of this record attributes object.
 
-    bsls_PlatformUtil::Uint64 threadID() const;
+    bsls::Types::Uint64 threadID() const;
         // Return the threadID attribute of this record attributes object.
 
     const bdet_Datetime& timestamp() const;
@@ -512,7 +512,7 @@ void bael_RecordAttributes::setSeverity(int severity)
 }
 
 inline
-void bael_RecordAttributes::setThreadID(bsls_PlatformUtil::Uint64 threadID)
+void bael_RecordAttributes::setThreadID(bsls::Types::Uint64 threadID)
 {
     d_threadID = threadID;
 }
@@ -617,7 +617,7 @@ int bael_RecordAttributes::severity() const
 }
 
 inline
-bsls_PlatformUtil::Uint64 bael_RecordAttributes::threadID() const
+bsls::Types::Uint64 bael_RecordAttributes::threadID() const
 {
     return d_threadID;
 }

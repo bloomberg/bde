@@ -1,26 +1,24 @@
 // bslmf_removecv.t.cpp                                               -*-C++-*-
 #include <bslmf_removecv.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
-#include <cstdlib>
-#include <cstdio>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::atoi;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-functions, 'bsl::remove_cv', that
+// The component under test defines a meta-function, 'bsl::remove_cv', that
 // removes any top-level cv-qualifiers from a template parameter type.  Thus,
-// we need to ensure that the values returned by the meta-function is correct
+// we need to ensure that the values returned by the meta-function are correct
 // for each possible category of types.
 //
 // ----------------------------------------------------------------------------
@@ -71,7 +69,7 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::remove_volatile'.
+   // argument for the template parameter 'TYPE' of 'bsl::remove_cv'.
 };
 
 }  // close unnamed namespace
@@ -119,7 +117,7 @@ int main(int argc, char *argv[])
 //
 // First, we create two 'typedef's -- a 'const'-qualified and
 // 'volatile'-qualified type ('MyCvType') and the same type without the
-// cv-qualifier ('MyType'):
+// cv-qualifiers ('MyType'):
 //..
         typedef int                MyType;
         typedef const volatile int MyCvType;
@@ -137,13 +135,13 @@ int main(int argc, char *argv[])
         // 'bsl::remove_cv::type'
         //   Ensure that the 'typedef' 'type' of 'bsl::remove_cv'
         //   instantiations has the same type as the template parameter type
-        //   except has any top-level cv-qualifier removed.
+        //   except that it has any top-level cv-qualifiers removed.
         //
         // Concerns:
         //: 1 'bsl::remove_cv' leaves types that are not 'const'-qualified nor
         //:   'volatile'-qualified as-is.
         //:
-        //: 2 'bsl::remove_const' remove any top-level cv-qualifiers.
+        //: 2 'bsl::remove_cv' removes any top-level cv-qualifiers.
         //
         // Plan:
         //   Verify that 'bsl::remove_cv::type' has the correct type for each
@@ -160,7 +158,7 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_cv<int>::type, int>::value));
         ASSERT((is_same<remove_cv<int *>::type, int *>::value));
         ASSERT((is_same<remove_cv<TestType>::type, TestType>::value));
-        ASSERT((is_same<remove_volatile<int const volatile *>::type,
+        ASSERT((is_same<remove_cv<int const volatile *>::type,
                                                 int const volatile *>::value));
         // C-2
         ASSERT((is_same<remove_cv<int const>::type, int>::value));
@@ -189,11 +187,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

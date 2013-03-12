@@ -63,7 +63,7 @@ BDES_IDENT("$Id: $")
 // 'my_TimedSocketMultiplexer' uses the helper class 'my_TimerInfo' to store
 // the timer information associated with a socket/event pair (represented as a
 // 'bteso_Event') and internally maintains a mapping of 'bteso_Event' instances
-// to 'my_TimerInfo' instances (in a 'bsl::hash_map').
+// to 'my_TimerInfo' instances (in a 'bsl::unordered_map').
 //
 //..
 // class my_TimerInfo {
@@ -84,7 +84,7 @@ BDES_IDENT("$Id: $")
 //     my_TimerInfo();
 //         // Create a default 'my_TimerInfo' instance.  Note that such a
 //         // default constructor might be required, e.g., for values stored in
-//         // 'bsl::hash_map'.
+//         // 'bsl::unordered_map'.
 //
 //     my_TimerInfo(const bdet_TimeInterval&  expiryTime,
 //                  const bdet_TimeInterval&  period,
@@ -203,7 +203,7 @@ BDES_IDENT("$Id: $")
 //     };
 //
 //   private:
-//     typedef bsl::hash_map<bteso_Event, my_TimerInfo, bteso_EventHash>
+//     typedef bsl::unordered_map<bteso_Event, my_TimerInfo, bteso_EventHash>
 //                                             EventTimeMap;
 //
 //     EventTimeMap                            d_eventTimeMap;

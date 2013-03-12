@@ -16,8 +16,9 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_epoll_cpp,"$Id$ $CSID$")
 #include <bdetu_systemtime.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_utility.h>
 
@@ -192,7 +193,7 @@ int EventManagerName::dispatchImp(int                      flags,
                     // Calculate the time remaining in ms
 
                     bdet_TimeInterval curr_timeout(*timeout - now);
-                    bsls_PlatformUtil::Int64 totalMs =
+                    bsls::Types::Int64 totalMs =
                                              curr_timeout.totalMilliseconds();
                     BSLS_ASSERT(totalMs < INT_MAX);
                     epollTimeout = totalMs + 1; // totalMs is rounded down
@@ -272,12 +273,12 @@ EventManagerName::isSupported()
 
 // CREATORS
 EventManagerName::bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric,
-                                            bslma_Allocator   *basicAllocator)
+                                            bslma::Allocator  *basicAllocator)
 : d_epollFd(-1)
 , d_signaled(basicAllocator)
 , d_isInvokingCb(false)
 , d_timeMetric_p(timeMetric)
-, d_events(128, basicAllocator)
+, d_events(128, bsl::hash<int>(), bsl::equal_to<int>(), basicAllocator)
 , d_entriesBeingRemoved(basicAllocator)
 , d_numEvents(0)
 {

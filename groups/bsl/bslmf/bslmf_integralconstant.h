@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component describes a simple class template,
-// 'integral_constant', that is used to map an inteeger constant to a C++ type.
+// 'integral_constant', that is used to map an integer constant to a C++ type.
 // 'integral_constant<TYPE, VAL>' generates a unique type for each distinct
 // compile-time integral 'TYPE' and constant integer 'VAL' parameter.  That
 // is, instantiations with different integer types and values form distinct
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustates intended usage of this component
+// This section illustrates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not
 // legal.  The power of this approach is that the compiler will not attempt
-// semantic anlysis on the implementation that does not match the appropriate
+// semantic analysis on the implementation that does not match the appropriate
 // 'integral_constant' argument.
 //..
 //    int main()
@@ -143,6 +143,10 @@ BSLS_IDENT("$Id: $")
 //        return 0;
 //    }
 //..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 namespace BloombergLP {
 namespace bslmf {
@@ -248,11 +252,24 @@ bsl::integral_constant<bool, VAL>::operator bool() const
 
 #endif // ! defined(INCLUDED_BSLMF_INTEGRALCONSTANT)
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

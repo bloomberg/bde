@@ -176,9 +176,9 @@ BDES_IDENT("$Id: $")
 //
 //     public:
 //       // CREATORS
-//       FuncRep(const F&         procedure,
-//               const D1&        embeddedArg1,
-//               bslma_Allocator *basicAllocator)
+//       FuncRep(const F&          procedure,
+//               const D1&         embeddedArg1,
+//               bslma::Allocator *basicAllocator)
 //           // Create a representation for a function object (functor) taking
 //           // two arguments and returning 'void', using the specified
 //           // 'procedure' (i.e., free function, static member function, or
@@ -223,7 +223,7 @@ BDES_IDENT("$Id: $")
 //   // (1) Create the representation.
 //
 //   typedef void (*BpFun)(const MyGuiContext *, const MyGuiLocation&, int *);
-//   bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+//   bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 //
 //   int globalCounter = 0;
 //

@@ -4,9 +4,10 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdepu_realparserimputil_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
 #include <bdes_bitutil.h>
-#include <bsls_platformutil.h>
+
+#include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_c_math.h>
 
@@ -18,8 +19,8 @@ BDES_IDENT_RCSID(bdepu_realparserimputil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-typedef bsls_PlatformUtil::Int64  Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 enum {
     BDEPU_SUCCESS = 0,
@@ -223,14 +224,42 @@ int bdepu_RealParserImpUtil::convertBinaryToDouble(double *value,
 
     Uint64 tmp;
 
+    // We need 53 bits for the fractional component of a double (52 bits with
+    // the implicit leading 1).  Given that we 'binFrac' has 64 bits
+    // that may be used, we will shift it to the right 11 bits, and round the
+    // remaining value based on the 11 bits shifted off the end.
+
+    // Capture the low order 11 bits in 'frac' and then set them to 0 in
+    // 'binFrac'.
+
     int frac = (int)(binFrac & 0x7FF);
     binFrac = binFrac & ~0x7FFuLL;
-    //                               sixteen digit num
-    if (frac >= 0x400 && binFrac < 0xFFFFFFFFFFFFF800uLL) {
-        binFrac += 0x800;
+
+    // Test if 'frac' is greater-than or equal to half the maximum value of 11
+    // bits (0x400), and, if so, round 'binFrac' up.
+
+    if (frac >= 0x400) {
+        if (binFrac < 0xFFFFFFFFFFFFF800uLL) {
+            binFrac += 0x800;
+        }
+        else {
+            // Rounding up 'binFrac' would overflow the 52 bits we have
+            // available, so we will shift 'binFrac' to the right 1 more
+            // place, and increase the exponent.  Note though, that given
+            // the lower 11 bits of 'binFrac' were set to 0, there
+            // is only one possible value that can reach this else-clause,
+            // 'binFrac == 0xFFFFFFFFFFFFF800uLL' (so we can assign 'binFrac'
+            // to a constant rather than shift-and-mask its value).
+
+            binFrac = 0x8000000000000000uLL;
+            ++binExp;
+
+            if (binExp > 1023) {  // overflow
+                return BDEPU_FAILURE;                                 // RETURN
+            }
+        }
     }
 
-    //                            sixteen digit num
     binFrac = (binFrac >> 11) & 0x000FFFFFFFFFFFFFuLL;
     --binExp;
 

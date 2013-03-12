@@ -66,7 +66,7 @@ BDES_IDENT("$Id: $")
 //  short, unsigned short,
 //  int, unsigned int,
 //  long, unsigned long,
-//  bsls_Types::Int64, bsls_Types::Uint64,
+//  bsls::Types::Int64, bsls::Types::Uint64,
 //  float, double,
 //  const void *
 //..
@@ -474,7 +474,7 @@ BDES_IDENT("$Id: $")
 //      // Using chaining.
 //      {
 //          ExperimentalResult results[3][COLS];
-//          bsls_Stopwatch timer;
+//          bsls::Stopwatch timer;
 //
 //          timer.start();
 //          for (int n = INC, i = 0; n < 4*SIZE; n += INC, ++i) {
@@ -536,7 +536,7 @@ BDES_IDENT("$Id: $")
 //      // Using double hashing.
 //      {
 //          ExperimentalResult results[3][COLS];
-//          bsls_Stopwatch timer;
+//          bsls::Stopwatch timer;
 //
 //          timer.start();
 //          for (int n = INC/2, i = 0; n < SIZE; n += INC, ++i) {
@@ -637,10 +637,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>  // @DEPRECATED
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -664,8 +660,8 @@ struct bdeu_HashUtil {
     static unsigned int hash0(unsigned int key, int modulus);
     static unsigned int hash0(long key, int modulus);
     static unsigned int hash0(unsigned long key, int modulus);
-    static unsigned int hash0(bsls_Types::Int64 key, int modulus);
-    static unsigned int hash0(bsls_Types::Uint64 key, int modulus);
+    static unsigned int hash0(bsls::Types::Int64 key, int modulus);
+    static unsigned int hash0(bsls::Types::Uint64 key, int modulus);
     static unsigned int hash0(float key, int modulus);
     static unsigned int hash0(double key, int modulus);
     static unsigned int hash0(const void *key, int modulus);
@@ -719,8 +715,8 @@ struct bdeu_HashUtil {
     static unsigned int hash1(unsigned int key);
     static unsigned int hash1(long key);
     static unsigned int hash1(unsigned long key);
-    static unsigned int hash1(bsls_Types::Int64 key);
-    static unsigned int hash1(bsls_Types::Uint64 key);
+    static unsigned int hash1(bsls::Types::Int64 key);
+    static unsigned int hash1(bsls::Types::Uint64 key);
     static unsigned int hash1(float key);
     static unsigned int hash1(double key);
     static unsigned int hash1(const void *key);
@@ -741,8 +737,8 @@ struct bdeu_HashUtil {
     static unsigned int hash2(unsigned int key);
     static unsigned int hash2(long key);
     static unsigned int hash2(unsigned long key);
-    static unsigned int hash2(bsls_Types::Int64 key);
-    static unsigned int hash2(bsls_Types::Uint64 key);
+    static unsigned int hash2(bsls::Types::Int64 key);
+    static unsigned int hash2(bsls::Types::Uint64 key);
     static unsigned int hash2(float key);
     static unsigned int hash2(double key);
     static unsigned int hash2(const void *key);
@@ -778,7 +774,7 @@ unsigned int bdeu_HashUtil::hash0(int key, int modulus)
 }
 
 inline
-unsigned int bdeu_HashUtil::hash0(bsls_Types::Int64 key, int modulus)
+unsigned int bdeu_HashUtil::hash0(bsls::Types::Int64 key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
@@ -844,7 +840,7 @@ unsigned int bdeu_HashUtil::hash0(long key, int modulus)
         return bdeu_HashUtil::hash0((int)(unsigned long)key, modulus);
     }
     else {
-        return bdeu_HashUtil::hash0((bsls_Types::Int64)(unsigned long)key,
+        return bdeu_HashUtil::hash0((bsls::Types::Int64)(unsigned long)key,
                                     modulus);
     }
 }
@@ -858,16 +854,16 @@ unsigned int bdeu_HashUtil::hash0(unsigned long key, int modulus)
         return bdeu_HashUtil::hash0((int)key, modulus);
     }
     else {
-        return bdeu_HashUtil::hash0((bsls_Types::Int64)key, modulus);
+        return bdeu_HashUtil::hash0((bsls::Types::Int64)key, modulus);
     }
 }
 
 inline
-unsigned int bdeu_HashUtil::hash0(bsls_Types::Uint64 key, int modulus)
+unsigned int bdeu_HashUtil::hash0(bsls::Types::Uint64 key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return bdeu_HashUtil::hash0((bsls_Types::Int64)key, modulus);
+    return bdeu_HashUtil::hash0((bsls::Types::Int64)key, modulus);
 }
 
 inline
@@ -875,7 +871,7 @@ unsigned int bdeu_HashUtil::hash0(double key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    bsls_Types::Int64 *v = (bsls_Types::Int64 *)&key;
+    bsls::Types::Int64 *v = (bsls::Types::Int64 *)&key;
     return bdeu_HashUtil::hash0(*v, modulus);
 }
 
@@ -897,8 +893,8 @@ unsigned int bdeu_HashUtil::hash0(const void *key, int modulus)
         return bdeu_HashUtil::hash0(*v, modulus);
     }
     else {
-        const bsls_Types::Int64 *v =
-                                 (const bsls_Types::Int64 *)(const void *)&key;
+        const bsls::Types::Int64 *v =
+                                (const bsls::Types::Int64 *)(const void *)&key;
         return bdeu_HashUtil::hash0(*v, modulus);
     }
 }

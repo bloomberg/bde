@@ -117,6 +117,10 @@ BDES_IDENT("$Id: $ $CSID: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -131,10 +135,6 @@ BDES_IDENT("$Id: $ $CSID: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -163,8 +163,8 @@ class baet_LocalDatetime {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(baet_LocalDatetime,
-                                  bslalg_TypeTraitBitwiseMoveable,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                  bslalg::TypeTraitBitwiseMoveable,
+                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
 
@@ -176,7 +176,7 @@ class baet_LocalDatetime {
         // information on 'bdex' streaming of container types.)
 
     // CREATORS
-    explicit baet_LocalDatetime(bslma_Allocator *basicAllocator = 0);
+    explicit baet_LocalDatetime(bslma::Allocator *basicAllocator = 0);
         // Create a 'baet_LocalDatetime' object having the (default) attribute
         // values:
         //..
@@ -189,14 +189,14 @@ class baet_LocalDatetime {
 
     baet_LocalDatetime(const bdet_DatetimeTz&  datetimeTz,
                        const bdeut_StringRef&  timeZoneId,
-                       bslma_Allocator        *basicAllocator = 0);
+                       bslma::Allocator       *basicAllocator = 0);
         // Create a 'baet_LocalDatetime' object having the specified
         // 'datetimeTz' and 'timeZoneId' attribute values.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     baet_LocalDatetime(const baet_LocalDatetime&  original,
-                       bslma_Allocator           *basicAllocator = 0);
+                       bslma::Allocator          *basicAllocator = 0);
         // Create a 'baet_LocalDatetime' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -250,7 +250,7 @@ class baet_LocalDatetime {
 
                         // Aspects
 
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
@@ -336,7 +336,7 @@ int baet_LocalDatetime::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-baet_LocalDatetime::baet_LocalDatetime(bslma_Allocator *basicAllocator)
+baet_LocalDatetime::baet_LocalDatetime(bslma::Allocator *basicAllocator)
 : d_datetimeTz()
 , d_timeZoneId(basicAllocator)
 {
@@ -345,7 +345,7 @@ baet_LocalDatetime::baet_LocalDatetime(bslma_Allocator *basicAllocator)
 inline
 baet_LocalDatetime::baet_LocalDatetime(const bdet_DatetimeTz&  datetimeTz,
                                        const bdeut_StringRef&  timeZoneId,
-                                       bslma_Allocator        *basicAllocator)
+                                       bslma::Allocator       *basicAllocator)
 : d_datetimeTz(datetimeTz)
 , d_timeZoneId(timeZoneId.begin(), timeZoneId.end(), basicAllocator)
 {
@@ -354,7 +354,7 @@ baet_LocalDatetime::baet_LocalDatetime(const bdet_DatetimeTz&  datetimeTz,
 inline
 baet_LocalDatetime::baet_LocalDatetime(
                                      const baet_LocalDatetime&  original,
-                                     bslma_Allocator           *basicAllocator)
+                                     bslma::Allocator          *basicAllocator)
 : d_datetimeTz(original.d_datetimeTz)
 , d_timeZoneId(original.d_timeZoneId, basicAllocator)
 {
@@ -426,7 +426,7 @@ const bsl::string& baet_LocalDatetime::timeZoneId() const
                         // Aspects
 
 inline
-bslma_Allocator *baet_LocalDatetime::allocator() const
+bslma::Allocator *baet_LocalDatetime::allocator() const
 {
     return d_timeZoneId.get_allocator().mechanism();
 }

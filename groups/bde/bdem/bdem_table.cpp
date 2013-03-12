@@ -35,7 +35,7 @@ namespace BloombergLP {
 
 // CREATORS
 bdem_Table::bdem_Table(const bsl::vector<bdem_ElemType::Type>&  columnTypes,
-                       bslma_Allocator                         *basicAllocator)
+                       bslma::Allocator                        *basicAllocator)
 : d_tableImp(vectorData(columnTypes),
              columnTypes.size(),
              bdem_ElemAttrLookup::lookupTable(),
@@ -47,7 +47,7 @@ bdem_Table::bdem_Table(const bsl::vector<bdem_ElemType::Type>&  columnTypes,
 bdem_Table::bdem_Table(
                   const bsl::vector<bdem_ElemType::Type>&   columnTypes,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_tableImp(vectorData(columnTypes),
              columnTypes.size(),
              bdem_ElemAttrLookup::lookupTable(),
@@ -60,7 +60,7 @@ bdem_Table::bdem_Table(
                   const bsl::vector<bdem_ElemType::Type>&   columnTypes,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemory,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_tableImp(vectorData(columnTypes),
              columnTypes.size(),
              bdem_ElemAttrLookup::lookupTable(),
@@ -110,8 +110,8 @@ void bdem_Table::columnTypes(bsl::vector<bdem_ElemType::Type> *result) const
 // another.
 
 BSLMF_ASSERT(sizeof(bdem_Table) == sizeof(bdem_TableImp));
-BSLMF_ASSERT((int) bsls_AlignmentFromType<bdem_Table>::VALUE
-          == (int) bsls_AlignmentFromType<bdem_TableImp>::VALUE);
+BSLMF_ASSERT((int) bsls::AlignmentFromType<bdem_Table>::VALUE
+          == (int) bsls::AlignmentFromType<bdem_TableImp>::VALUE);
 
 }  // close namespace BloombergLP
 

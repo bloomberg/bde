@@ -6,7 +6,7 @@
 
 #include <bsls_platform.h>
 #include <bslma_testallocator.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 #include <bsl_vector.h>
 #include <bdet_datetime.h>
 #include <bdet_date.h>
@@ -44,7 +44,7 @@ using namespace bsl;  // automatically added by script
 //
 // We use the following abbreviations: (for documentation purposes only)
 //  'cchar'      for 'const char'
-//  'int64'      for 'bsls_PlatformUtil::Int64;
+//  'int64'      for 'bsls::Types::Int64;
 //  'bStr'       for 'bsl::string'
 //  'bDate'      for 'bdet_Date'
 //  'bDatez'     for 'bdet_DateTz'
@@ -55,7 +55,7 @@ using namespace bsl;  // automatically added by script
 //  'ArCh'       for 'bsl::vector<char>'
 //  'ArSh'       for 'bsl::vector<short>'
 //  'ArInt'      for 'bsl::vector<int>'
-//  'ArInt64'    for 'bsl::vector<bsls_PlatformUtil::Int64>'
+//  'ArInt64'    for 'bsl::vector<bsls::Types::Int64>'
 //  'ArFl'       for 'bsl::vector<float>'
 //  'ArDb'       for 'bsl::vector<double>'
 //  'ArStr'      for 'bsl::vector<bsl::string>'
@@ -252,7 +252,7 @@ void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64 Int64;
 
 #define GEN_RAW(FTYPE) generate##FTYPE##Raw
 #define GEN_ARRAY_RAW(FTYPE) generate##FTYPE##ArrayRaw
@@ -548,7 +548,7 @@ static const struct {
 };
 static const int NUM_EMPTY_ARRAY = sizeof EMPTY_ARRAY / sizeof *EMPTY_ARRAY;
 
-static bslma_TestAllocator *testAllocator_p;
+static bslma::TestAllocator *testAllocator_p;
 
 #define INVOKE_testParseErrorInput(TNAME, FNAME) \
     testParseErrorInput<TNAME>( \
@@ -1283,7 +1283,7 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     testAllocator_p = &testAllocator;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;

@@ -31,7 +31,7 @@ using bsl::atoi;
 //
 // CREATORS
 // [ 3] bdeut_NullableValue();
-// [ 3] bdeut_NullableValue(bslma_Allocator *basicAllocator);
+// [ 3] bdeut_NullableValue(bslma::Allocator *basicAllocator);
 // [ 6] bdeut_NullableValue(const bdeut_NullableValue& original);
 // [ 6] bdeut_NullableValue(const bdeut_NullableValue& original, *ba);
 // [ 9] bdeut_NullableValue(const TYPE& value);
@@ -234,8 +234,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator  testAllocator(testAllocatorVerbosity);
-    bslma_TestAllocator *ALLOC = &testAllocator;
+    bslma::TestAllocator  testAllocator(testAllocatorVerbosity);
+    bslma::TestAllocator *ALLOC = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
@@ -1361,7 +1361,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   typedef TYPE ValueType;
         //   bdeut_NullableValue();
-        //   bdeut_NullableValue(bslma_Allocator *basicAllocator);
+        //   bdeut_NullableValue(bslma::Allocator *basicAllocator);
         //   ~bdeut_NullableValue();
         //   TYPE& makeValue();
         //   TYPE& makeValue(const TYPE& rhs);

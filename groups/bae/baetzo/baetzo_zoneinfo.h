@@ -249,6 +249,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -279,10 +283,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -332,7 +332,7 @@ class baetzo_ZoneinfoTransition {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baetzo_ZoneinfoTransition,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
@@ -460,7 +460,7 @@ class baetzo_Zoneinfo {
                                         // to 'EDT'), ordered by the time the
                                         // transition occurred (or will occur)
 
-    bslma_Allocator    *d_allocator_p;  // allocator used to supply memory
+    bslma::Allocator   *d_allocator_p;  // allocator used to supply memory
                                         // (held, not owned)
 
     // FRIENDS
@@ -474,10 +474,10 @@ class baetzo_Zoneinfo {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baetzo_Zoneinfo,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit baetzo_Zoneinfo(bslma_Allocator *basicAllocator = 0);
+    explicit baetzo_Zoneinfo(bslma::Allocator *basicAllocator = 0);
         // Create a 'baetzo_Zoneinfo' object having the values:
         //..
         //  numTransitions() == 0
@@ -488,7 +488,7 @@ class baetzo_Zoneinfo {
         // used.
 
     baetzo_Zoneinfo(const baetzo_Zoneinfo&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a 'baetzo_Zoneinfo' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -518,7 +518,7 @@ class baetzo_Zoneinfo {
         // object was created with the same allocator as 'other'.
 
     // ACCESSORS
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
@@ -677,11 +677,11 @@ bool operator<(const baetzo_ZoneinfoTransition& lhs,
 
 // CREATORS
 inline
-baetzo_Zoneinfo::baetzo_Zoneinfo(bslma_Allocator *basicAllocator)
+baetzo_Zoneinfo::baetzo_Zoneinfo(bslma::Allocator *basicAllocator)
 : d_identifier(basicAllocator)
 , d_descriptors(basicAllocator)
 , d_transitions(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -713,7 +713,7 @@ void baetzo_Zoneinfo::swap(baetzo_Zoneinfo& other)
 
 // ACCESSORS
 inline
-bslma_Allocator *baetzo_Zoneinfo::allocator() const
+bslma::Allocator *baetzo_Zoneinfo::allocator() const
 {
     return d_allocator_p;
 }

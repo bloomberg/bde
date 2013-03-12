@@ -6,7 +6,7 @@
 
 #include <bslalg_typetraits.h>
 
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -369,14 +369,14 @@ int main(int argc, char *argv[])
         }
 
         {
-            bsls_PlatformUtil::Int64  mX = 77;
+            bsls::Types::Int64  mX = 77;
             ASSERT(0 != mX);
             bdeat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
-            bsls_PlatformUtil::Uint64  mX = 77;
+            bsls::Types::Uint64  mX = 77;
             ASSERT(0 != mX);
             bdeat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);

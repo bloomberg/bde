@@ -124,7 +124,7 @@ class ConcurrencyTest {
     bcep_FixedThreadPool    d_pool;
     bcemt_Barrier           d_barrier;
     baem_MetricDescription *d_description_p;
-    bslma_Allocator        *d_allocator_p;
+    bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -135,7 +135,7 @@ class ConcurrencyTest {
     // CREATORS
     ConcurrencyTest(int                      numThreads,
                     baem_MetricDescription  *description,
-                    bslma_Allocator         *basicAllocator)
+                    bslma::Allocator        *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_description_p(description)
@@ -154,7 +154,7 @@ class ConcurrencyTest {
 bcemt_Mutex m;
 void ConcurrencyTest::execute()
 {
-    bslma_Allocator *Z = d_allocator_p;
+    bslma::Allocator *Z = d_allocator_p;
     Obj *mX = d_description_p; const Obj *MX = mX;
 
     Format A(Z), B(Z), C(Z), D(Z), E(Z), F(Z);
@@ -233,9 +233,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator testAlloc; bslma_TestAllocator *Z = &testAlloc;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     Category cat_A("A"); const Category *CAT_A = &cat_A;
     Category cat_B("B"); const Category *CAT_B = &cat_B;
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
                                   << "================" << endl;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bcema_TestAllocator testAllocator;
 

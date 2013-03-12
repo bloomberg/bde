@@ -1,13 +1,15 @@
 // baem_integercollector.t.cpp  -*-C++-*-
 #include <baem_integercollector.h>
 
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-
 #include <bcema_testallocator.h>
 #include <bcemt_barrier.h>
 #include <bcep_fixedthreadpool.h>
 #include <bdef_bind.h>
+
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
+#include <bsls_types.h>
 
 #include <bsl_ostream.h>
 #include <bsl_cstring.h>
@@ -120,7 +122,7 @@ class ConcurrencyTest {
     bcep_FixedThreadPool   d_pool;
     bcemt_Barrier          d_barrier;
     baem_IntegerCollector *d_collector_p;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -130,8 +132,8 @@ class ConcurrencyTest {
 
     // CREATORS
     ConcurrencyTest(int                    numThreads,
-                 baem_IntegerCollector *collector,
-                 bslma_Allocator       *basicAllocator)
+                    baem_IntegerCollector *collector,
+                    bslma::Allocator      *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_collector_p(collector)
@@ -318,7 +320,7 @@ int main(int argc, char *argv[])
                                   << "================" << endl;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bcema_TestAllocator testAllocator;
         baem_IntegerCollector mX(METRIC_A);
@@ -491,10 +493,10 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             Obj mX(0); const Obj& MX = mX;
 
-            int                      count = 0;
-            bsls_PlatformUtil::Int64 total = 0;
-            int                      min   = VALUES[i].d_min;
-            int                      max   = VALUES[i].d_max;
+            int                count = 0;
+            bsls::Types::Int64 total = 0;
+            int                min   = VALUES[i].d_min;
+            int                max   = VALUES[i].d_max;
             for (int j = 0; j < NUM_VALUES; ++j) {
                 int idx = (i + j) % NUM_VALUES;
                 baem_MetricRecord r;
@@ -635,9 +637,9 @@ int main(int argc, char *argv[])
             ASSERT(Rec::DEFAULT_MIN == r1.min());
             ASSERT(Rec::DEFAULT_MAX == r1.max());
 
-            bsls_PlatformUtil::Int64 total = 0;
-            int                      min   = UPDATES[i];
-            int                      max   = UPDATES[i];
+            bsls::Types::Int64 total = 0;
+            int                min   = UPDATES[i];
+            int                max   = UPDATES[i];
             for (int j = 0; j < NUM_UPDATES; ++j) {
                 const int INDEX = (i + j) % NUM_UPDATES;
                 mX.update(UPDATES[INDEX]);

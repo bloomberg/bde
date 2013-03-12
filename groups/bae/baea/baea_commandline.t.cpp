@@ -20,6 +20,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_stdexcept.h>
@@ -42,7 +43,7 @@ using bsl::flush;
 //                                   --------
 // This is a somewhat large component with many classes.  The main class,
 // 'baea_CommandLine', has in-core value semantic and supports the
-// 'bslma_Allocator' memory model.  A slight complication is that there is an
+// 'bslma::Allocator' memory model.  A slight complication is that there is an
 // invalid state (unset value) and valid states (after 'parse' returns
 // successfully).  Nevertheless, we follow the usual value-semantic type test
 // driver, simplified from the fact that there are no manipulators (once
@@ -157,7 +158,7 @@ static void aSsErT(int c, const char *s, int i)
 //          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef baea_CommandLine           Obj;
+typedef baea_CommandLine                Obj;
 
 typedef baea_CommandLineConstraint      Constraint;
 typedef baea_CommandLineOccurrenceInfo  OccurrenceInfo;
@@ -169,8 +170,8 @@ typedef baea_CommandLineTypeInfo        TypeInfo;
 
 typedef bdem_ElemType                   ET;
 typedef bdem_ElemType::Type             BdemType;
-typedef bsls_PlatformUtil::Int64        Int64;
-typedef bsls_PlatformUtil::Uint64       Uint64;
+typedef bsls::Types::Int64              Int64;
+typedef bsls::Types::Uint64             Uint64;
 
 // ATTRIBUTES FOR 'baea_CommandLineOption'
 static const struct {
@@ -266,7 +267,7 @@ struct OptIntConstraint : public OptConstraint {
 } optIntConstraint;
 
 struct OptInt64Constraint : public OptConstraint {
-    bool operator()(const bsls_PlatformUtil::Int64 *, bsl::ostream&) const {
+    bool operator()(const bsls::Types::Int64 *, bsl::ostream&) const {
         return constraintValue;
     }
 } optInt64Constraint;
@@ -808,7 +809,7 @@ MATCH_OPTION_TYPE(ET::BDEM_BOOL,     bool)
 MATCH_OPTION_TYPE(ET::BDEM_CHAR,     char)
 MATCH_OPTION_TYPE(ET::BDEM_SHORT,    short)
 MATCH_OPTION_TYPE(ET::BDEM_INT,      int)
-MATCH_OPTION_TYPE(ET::BDEM_INT64,    bsls_PlatformUtil::Int64)
+MATCH_OPTION_TYPE(ET::BDEM_INT64,    bsls::Types::Int64)
 MATCH_OPTION_TYPE(ET::BDEM_FLOAT,    float)
 MATCH_OPTION_TYPE(ET::BDEM_DOUBLE,   double)
 MATCH_OPTION_TYPE(ET::BDEM_STRING,   bsl::string)
@@ -835,7 +836,7 @@ bool checkOptionType(TYPE *optionTypeValue)
 bool testCharConstraint(const char *, bsl::ostream&)           { return true; }
 bool testShortConstraint(const short *, bsl::ostream&)         { return true; }
 bool testIntConstraint(const int *, bsl::ostream&)             { return true; }
-bool testInt64Constraint(const bsls_PlatformUtil::Int64 *, bsl::ostream&)
+bool testInt64Constraint(const bsls::Types::Int64 *, bsl::ostream&)
                                                                { return true; }
 bool testFloatConstraint(const float *, bsl::ostream&)         { return true; }
 bool testDoubleConstraint(const double *, bsl::ostream&)       { return true; }
@@ -2746,7 +2747,7 @@ int main(int argc, const char *argv[])  {
                           << "Testing invalid option specs." << endl
                           << "=============================" << endl;
 
-        bsls_Assert::setFailureHandler(&throwInvalidSpec);
+        bsls::Assert::setFailureHandler(&throwInvalidSpec);
 
         if (verbose) cout << "\tTesting invalid tags." << endl;
 
@@ -3026,7 +3027,7 @@ int main(int argc, const char *argv[])  {
 
         typedef baea_CommandLine Obj;
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Building test data (once and for all).  Note that we do not use all
@@ -3286,14 +3287,14 @@ int main(int argc, const char *argv[])  {
         }
         }
 
-        bslma_TestAllocator defaultAllocator(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::TestAllocator defaultAllocator(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         if (verbose) cout << "\t\tPassing in an allocator." << endl
                            << "\t\t\tWith no exceptions." << endl;
 
         const bool HAS_BSLMA_ALLOCATOR_TRAIT =
-               bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+             bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 
         ASSERT(HAS_BSLMA_ALLOCATOR_TRAIT);
 
@@ -4448,7 +4449,7 @@ int main(int argc, const char *argv[])  {
 
         typedef baea_CommandLineOption Obj;
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // CASE 2 OF VALUE-SEMANTIC TEST DRIVER
@@ -4525,14 +4526,14 @@ int main(int argc, const char *argv[])  {
         }
         }
 
-        bslma_TestAllocator defaultAllocator(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::TestAllocator defaultAllocator(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         if (verbose) cout << "\t\tPassing in an allocator." << endl
                            << "\t\t\tWith no exceptions." << endl;
 
         const bool HAS_BSLMA_ALLOCATOR_TRAIT =
-               bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+             bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 
         ASSERT(HAS_BSLMA_ALLOCATOR_TRAIT);
 
@@ -5347,13 +5348,13 @@ int main(int argc, const char *argv[])  {
                           << "baea_CommandLineOptionInfo" << endl
                           << "==========================" << endl;
 
-        bslma_TestAllocator defaultAllocator(veryVeryVerbose);
+        bslma::TestAllocator defaultAllocator(veryVeryVerbose);
 
         bool linkedFlag;
         bsl::string defaultValue("default");
         bsl::string tagString("genericTag");
 
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         for (int i = 0; i < 10; ++i) {
 
@@ -5414,7 +5415,7 @@ int main(int argc, const char *argv[])  {
         //
         // Plan: This class has redundant manipulators and accessors, so we
         //   choose the primary manipulators to be:
-        //     - baea_CommandLineOccurrenceInfo(bslma_Allocator *allocator);
+        //     - baea_CommandLineOccurrenceInfo(bslma::Allocator *allocator);
         //     - operator=(.... *variable);
         //     - void setConstraint(
         //                 const baea_CommandLineConstraint::... & constraint);
@@ -5439,10 +5440,10 @@ int main(int argc, const char *argv[])  {
 
         typedef TypeInfo Obj;
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-        bslma_TestAllocator defaultAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator defaultAllocator(veryVeryVerbose);
 
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // CASE 2 OF VALUE-SEMANTIC TEST DRIVER
@@ -5545,7 +5546,7 @@ int main(int argc, const char *argv[])  {
                            << "\t\t\tWith no exceptions." << endl;
 
         const bool HAS_BSLMA_ALLOCATOR_TRAIT =
-               bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+             bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 
         ASSERT(HAS_BSLMA_ALLOCATOR_TRAIT);
 
@@ -5987,9 +5988,9 @@ int main(int argc, const char *argv[])  {
         //
         // Plan: This class has redundant manipulators and accessors, so we
         //   choose the primary manipulators to be:
-        //     - baea_CommandLineOccurrenceInfo(bslma_Allocator *allocator);
-        //     - baea_CommandLineOccurrenceInfo(OccurrenceType   type,
-        //                                      bslma_Allocator *allocator);
+        //     - baea_CommandLineOccurrenceInfo(bslma::Allocator *allocator);
+        //     - baea_CommandLineOccurrenceInfo(OccurrenceType    type,
+        //                                      bslma::Allocator *allocator);
         //     - void setDefaultValue(bdem_ConstElemRef value);
         //   and the primary accessors to be:
         //     - OccurrenceType occurrenceType() const;
@@ -6010,10 +6011,10 @@ int main(int argc, const char *argv[])  {
 
         typedef OccurrenceInfo  Obj;
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-        bslma_TestAllocator defaultAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator defaultAllocator(veryVeryVerbose);
 
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // CASE 2 OF VALUE-SEMANTIC TEST DRIVER
@@ -6062,7 +6063,7 @@ int main(int argc, const char *argv[])  {
                            << "\t\t\tWith no exceptions." << endl;
 
         const bool HAS_BSLMA_ALLOCATOR_TRAIT =
-               bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+             bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 
         ASSERT(HAS_BSLMA_ALLOCATOR_TRAIT);
 

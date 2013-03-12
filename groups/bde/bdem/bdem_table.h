@@ -683,6 +683,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -697,10 +701,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -757,7 +757,7 @@ class bdem_Table {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdem_Table,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // TYPES
     class InitialMemory {
@@ -781,13 +781,13 @@ class bdem_Table {
 
     // CREATORS
     explicit
-    bdem_Table(bslma_Allocator                          *basicAllocator = 0);
+    bdem_Table(bslma::Allocator                         *basicAllocator = 0);
     explicit
     bdem_Table(bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
     bdem_Table(bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                const InitialMemory&                      initialMemory,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
         // Create an empty table (having no rows and no columns).  Optionally
         // specify a memory 'allocationStrategy'.  If 'allocationStrategy' is
         // not specified, then 'BDEM_PASS_THROUGH' is used.  (The meanings of
@@ -806,16 +806,16 @@ class bdem_Table {
 
     bdem_Table(const bdem_ElemType::Type                 columnTypes[],
                int                                       numColumns,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
     bdem_Table(const bdem_ElemType::Type                 columnTypes[],
                int                                       numColumns,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
     bdem_Table(const bdem_ElemType::Type                 columnTypes[],
                int                                       numColumns,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                const InitialMemory&                      initialMemory,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
         // Create an empty table (having no rows) configured with the specified
         // 'numColumns' 'columnTypes'.  Optionally specify a memory
         // 'allocationStrategy'.  If 'allocationStrategy' is not specified,
@@ -834,14 +834,14 @@ class bdem_Table {
         // '0 <= initialMemorySize', if 'initialMemorySize' is specified.
 
     bdem_Table(const bsl::vector<bdem_ElemType::Type>&   columnTypes,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
     bdem_Table(const bsl::vector<bdem_ElemType::Type>&   columnTypes,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
     bdem_Table(const bsl::vector<bdem_ElemType::Type>&   columnTypes,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                const InitialMemory&                      initialMemory,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
         // Create an empty table (having no rows) configured with the specified
         // 'columnTypes'.  Optionally specify a memory 'allocationStrategy'.
         // If 'allocationStrategy' is not specified, then 'BDEM_PASS_THROUGH'
@@ -859,14 +859,14 @@ class bdem_Table {
         // is specified.
 
     bdem_Table(const bdem_Table&                         original,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
     bdem_Table(const bdem_Table&                         original,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
     bdem_Table(const bdem_Table&                         original,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                const InitialMemory&                      initialMemory,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
         // Create a table having the value of the specified 'original' table.
         // Optionally specify a memory 'allocationStrategy'.  If
         // 'allocationStrategy' is not specified, then 'BDEM_PASS_THROUGH' is
@@ -1094,7 +1094,7 @@ class bdem_Table {
     void setColumnChar(int columnIndex, char value);
     void setColumnShort(int columnIndex, short value);
     void setColumnInt(int columnIndex, int value);
-    void setColumnInt64(int columnIndex, bsls_Types::Int64 value);
+    void setColumnInt64(int columnIndex, bsls::Types::Int64 value);
     void setColumnFloat(int columnIndex, float value);
     void setColumnDouble(int columnIndex, double value);
     void setColumnString(int columnIndex, const char *value);
@@ -1109,8 +1109,9 @@ class bdem_Table {
     void setColumnCharArray(int columnIndex, const bsl::vector<char>& value);
     void setColumnShortArray(int columnIndex, const bsl::vector<short>& value);
     void setColumnIntArray(int columnIndex, const bsl::vector<int>& value);
-    void setColumnInt64Array(int                                   columnIndex,
-                             const bsl::vector<bsls_Types::Int64>& value);
+    void setColumnInt64Array(
+                            int                                    columnIndex,
+                            const bsl::vector<bsls::Types::Int64>& value);
     void setColumnFloatArray(int columnIndex, const bsl::vector<float>& value);
     void setColumnDoubleArray(int                        columnIndex,
                               const bsl::vector<double>& value);
@@ -1375,7 +1376,7 @@ int bdem_Table::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-bdem_Table::bdem_Table(bslma_Allocator *basicAllocator)
+bdem_Table::bdem_Table(bslma::Allocator *basicAllocator)
 : d_tableImp(bdem_AggregateOption::BDEM_PASS_THROUGH, basicAllocator)
 {
 }
@@ -1383,7 +1384,7 @@ bdem_Table::bdem_Table(bslma_Allocator *basicAllocator)
 inline
 bdem_Table::bdem_Table(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_tableImp(allocationStrategy, basicAllocator)
 {
 }
@@ -1392,7 +1393,7 @@ inline
 bdem_Table::bdem_Table(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemory,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_tableImp(allocationStrategy, initialMemory, basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 <= initialMemory);
@@ -1401,7 +1402,7 @@ bdem_Table::bdem_Table(
 inline
 bdem_Table::bdem_Table(const bdem_ElemType::Type  columnTypes[],
                        int                        numColumns,
-                       bslma_Allocator           *basicAllocator)
+                       bslma::Allocator          *basicAllocator)
 : d_tableImp(columnTypes,
              numColumns,
              bdem_ElemAttrLookup::lookupTable(),
@@ -1416,7 +1417,7 @@ bdem_Table::bdem_Table(
                  const bdem_ElemType::Type                 columnTypes[],
                  int                                       numColumns,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator)
+                 bslma::Allocator                         *basicAllocator)
 : d_tableImp(columnTypes,
              numColumns,
              bdem_ElemAttrLookup::lookupTable(),
@@ -1432,7 +1433,7 @@ bdem_Table::bdem_Table(
                   int                                       numColumns,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemory,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_tableImp(columnTypes,
              numColumns,
              bdem_ElemAttrLookup::lookupTable(),
@@ -1446,7 +1447,7 @@ bdem_Table::bdem_Table(
 
 inline
 bdem_Table::bdem_Table(const bdem_Table&  original,
-                       bslma_Allocator   *basicAllocator)
+                       bslma::Allocator  *basicAllocator)
 : d_tableImp(original.d_tableImp,
              bdem_AggregateOption::BDEM_PASS_THROUGH,
              basicAllocator)
@@ -1457,7 +1458,7 @@ inline
 bdem_Table::bdem_Table(
                   const bdem_Table&                         original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_tableImp(original.d_tableImp, allocationStrategy, basicAllocator)
 {
 }
@@ -1467,7 +1468,7 @@ bdem_Table::bdem_Table(
                   const bdem_Table&                         original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemory,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_tableImp(original.d_tableImp,
              allocationStrategy,
              initialMemory,
@@ -1737,7 +1738,7 @@ inline void bdem_Table::setColumnInt(int columnIndex, int value)
 }
 
 inline
-void bdem_Table::setColumnInt64(int columnIndex, bsls_Types::Int64 value)
+void bdem_Table::setColumnInt64(int columnIndex, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1874,8 +1875,8 @@ void bdem_Table::setColumnIntArray(int                     columnIndex,
 
 inline
 void bdem_Table::setColumnInt64Array(
-                             int                                   columnIndex,
-                             const bsl::vector<bsls_Types::Int64>& value)
+                            int                                    columnIndex,
+                            const bsl::vector<bsls::Types::Int64>& value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());

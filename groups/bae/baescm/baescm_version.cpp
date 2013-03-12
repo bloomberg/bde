@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baescm_version_cpp,"$Id$ $CSID$")
 
+#include <bdescm_patchversion.h> // BDESCM_PATCHVERSION_PATCH
+
 #include <baescm_versiontag.h>
 
 #include <bdescm_versiontag.h>
@@ -24,18 +26,18 @@ namespace BloombergLP {
                                              "." STRINGIFY(BCE_VERSION_MINOR) \
                                              "." STRINGIFY(REQUIRED_BCE_PATCH)
 
-#define BAE_VERSION_PATCH 0
+#define BAE_VERSION_PATCH BDESCM_PATCHVERSION_PATCH
 #define BAESCM_VERSION_STRING "BLP_LIB_BDE_BAE_" STRINGIFY(BAE_VERSION_MAJOR) \
                                              "." STRINGIFY(BAE_VERSION_MINOR) \
                                              "." STRINGIFY(BAE_VERSION_PATCH) \
                                              BDE_VERSION_RELEASETYPE
 
-const char *baescm_Version::d_ident = "$Id: "BAESCM_VERSION_STRING" $";
-const char *baescm_Version::d_what  = "@(#)"BAESCM_VERSION_STRING;
+const char *baescm_Version::d_ident = "$Id: " BAESCM_VERSION_STRING " $";
+const char *baescm_Version::d_what  = "@(#)" BAESCM_VERSION_STRING;
 
 const char *baescm_Version::d_version           = BAESCM_VERSION_STRING;
 const char *baescm_Version::d_dependencies      =
-                                 BDESCM_VERSION_STRING" "BCESCM_VERSION_STRING;
+                               BDESCM_VERSION_STRING " " BCESCM_VERSION_STRING;
 const char *baescm_Version::d_buildInfo         = "";
 const char *baescm_Version::d_timestamp         = "";
 const char *baescm_Version::d_sourceControlInfo = "";

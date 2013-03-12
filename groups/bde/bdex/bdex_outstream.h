@@ -182,8 +182,8 @@ BDES_IDENT("$Id: $")
 #include <bdex_outstreammethods.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -204,7 +204,7 @@ class bdex_OutStream {
     // representation.
     //
     // This protocol assumes that short integers are at least 16 bits, integers
-    // and floats are at least 32 bits, and 'bsls_PlatformUtil' "64-bit"
+    // and floats are at least 32 bits, and 'bsls::Types' "64-bit"
     // integers and doubles are at least 64 bits, but makes no other
     // internal-format or stream-format assumptions.  Note that concrete
     // streams following this protocol are free to publish specific formats
@@ -231,35 +231,35 @@ class bdex_OutStream {
 
                         // *** scalar integer values ***
 
-    virtual bdex_OutStream& putInt64(bsls_PlatformUtil::Int64 value) = 0;
+    virtual bdex_OutStream& putInt64(bsls::Types::Int64 value) = 0;
         // Format the least significant 64 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
 
-    virtual bdex_OutStream& putUint64(bsls_PlatformUtil::Int64 value) = 0;
+    virtual bdex_OutStream& putUint64(bsls::Types::Int64 value) = 0;
         // Format the least significant 64 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
 
-    virtual bdex_OutStream& putInt56(bsls_PlatformUtil::Int64 value) = 0;
+    virtual bdex_OutStream& putInt56(bsls::Types::Int64 value) = 0;
         // Format the least significant 56 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
 
-    virtual bdex_OutStream& putUint56(bsls_PlatformUtil::Int64 value) = 0;
+    virtual bdex_OutStream& putUint56(bsls::Types::Int64 value) = 0;
         // Format the least significant 56 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
 
-    virtual bdex_OutStream& putInt48(bsls_PlatformUtil::Int64 value) = 0;
+    virtual bdex_OutStream& putInt48(bsls::Types::Int64 value) = 0;
         // Format the least significant 48 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
 
-    virtual bdex_OutStream& putUint48(bsls_PlatformUtil::Int64 value) = 0;
+    virtual bdex_OutStream& putUint48(bsls::Types::Int64 value) = 0;
         // Format the least significant 48 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
 
-    virtual bdex_OutStream& putInt40(bsls_PlatformUtil::Int64 value) = 0;
+    virtual bdex_OutStream& putInt40(bsls::Types::Int64 value) = 0;
         // Format the least significant 40 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
 
-    virtual bdex_OutStream& putUint40(bsls_PlatformUtil::Int64 value) = 0;
+    virtual bdex_OutStream& putUint40(bsls::Types::Int64 value) = 0;
         // Format the least significant 40 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
 
@@ -320,56 +320,56 @@ class bdex_OutStream {
                         // *** arrays of integer values ***
 
     virtual bdex_OutStream&
-    putArrayInt64(const bsls_PlatformUtil::Int64 *array, int count) = 0;
+    putArrayInt64(const bsls::Types::Int64 *array, int count) = 0;
         // Format as an atomic sequence the least significant 64 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
         // The behavior is undefined unless 0 <= count.
 
     virtual bdex_OutStream&
-    putArrayUint64(const bsls_PlatformUtil::Uint64 *array, int count) = 0;
+    putArrayUint64(const bsls::Types::Uint64 *array, int count) = 0;
         // Format as an atomic sequence the least significant 64 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
         // The behavior is undefined unless 0 <= count.
 
     virtual bdex_OutStream&
-    putArrayInt56(const bsls_PlatformUtil::Int64 *array, int count) = 0;
+    putArrayInt56(const bsls::Types::Int64 *array, int count) = 0;
         // Format as an atomic sequence the least significant 56 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
         // The behavior is undefined unless 0 <= count.
 
     virtual bdex_OutStream&
-    putArrayUint56(const bsls_PlatformUtil::Uint64 *array, int count) = 0;
+    putArrayUint56(const bsls::Types::Uint64 *array, int count) = 0;
         // Format as an atomic sequence the least significant 56 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
         // The behavior is undefined unless 0 <= count.
 
     virtual bdex_OutStream&
-    putArrayInt48(const bsls_PlatformUtil::Int64 *array, int count) = 0;
+    putArrayInt48(const bsls::Types::Int64 *array, int count) = 0;
         // Format as an atomic sequence the least significant 48 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
         // The behavior is undefined unless 0 <= count.
 
     virtual bdex_OutStream&
-    putArrayUint48(const bsls_PlatformUtil::Uint64 *array, int count) = 0;
+    putArrayUint48(const bsls::Types::Uint64 *array, int count) = 0;
         // Format as an atomic sequence the least significant 48 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
         // The behavior is undefined unless 0 <= count.
 
     virtual bdex_OutStream&
-    putArrayInt40(const bsls_PlatformUtil::Int64 *array, int count) = 0;
+    putArrayInt40(const bsls::Types::Int64 *array, int count) = 0;
         // Format as an atomic sequence the least significant 40 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.
         // The behavior is undefined unless 0 <= count.
 
     virtual bdex_OutStream&
-    putArrayUint40(const bsls_PlatformUtil::Uint64 *array, int count) = 0;
+    putArrayUint40(const bsls::Types::Uint64 *array, int count) = 0;
         // Format as an atomic sequence the least significant 40 bits of each
         // of the specified 'count' leading entries in the specified 'array' to
         // this output stream and return a reference to this modifiable stream.

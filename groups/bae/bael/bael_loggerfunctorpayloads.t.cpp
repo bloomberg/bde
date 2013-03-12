@@ -5,8 +5,6 @@
 #include <bael_loggermanager.h>                 // for testing only
 #include <bael_testobserver.h>                  // for testing only
 
-#include <bsls_platformutil.h>                  // for testing only
-
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 

@@ -654,7 +654,7 @@ int main(int argc, char *argv[])
         //: 3
         //
         // Testing:
-        //   operator()(const char*, const char *) const
+        //   operator()(const T&) const
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTION CALL OPERATOR"
@@ -691,6 +691,21 @@ int main(int argc, char *argv[])
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+        // special test for hash<const char *>
+        const char STRING_1[] = "Hello World";
+        const char STRING_2[] = "Hello World";
+
+        const char *C_STRING_1 = STRING_1;
+        const char *C_STRING_2 = STRING_2;
+        ASSERT(C_STRING_1 != C_STRING_2);
+
+#if defined(BDE_OMIT_TRANSITIONAL) || defined(BSL_HASH_CSTRINGS_AS_POINTERS)
+        const ::bsl::hash<const char *> C_STRING_HASH =
+                                                   ::bsl::hash<const char *>();
+
+        ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
+#endif        
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -829,11 +844,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -7,8 +7,6 @@
 
 #include <bslalg_typetraits.h>
 
-#include <bsls_platformutil.h>
-
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>

@@ -64,7 +64,7 @@ BDES_IDENT("$Id: baem_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //
 // We start by creating a 'baem_MetricFormat' object:
 //..
-//  bslma_Allocator   *allocator = bslma_Default::allocator(0);
+//  bslma::Allocator  *allocator = bslma::Default::allocator(0);
 //  baem_MetricFormat  format(allocator);
 //..
 // Next we specify that average values should only be printed to two decimal
@@ -279,17 +279,17 @@ class baem_MetricFormat {
   public:
     // PUBLIC TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_MetricFormat,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    baem_MetricFormat(bslma_Allocator *basicAllocator = 0);
+    baem_MetricFormat(bslma::Allocator *basicAllocator = 0);
         // Create an empty metric format object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  Note that
         // 'formatSpec' will return 0 for all supplied publication types.
 
     baem_MetricFormat(const baem_MetricFormat&  original,
-                      bslma_Allocator          *basicAllocator = 0);
+                      bslma::Allocator         *basicAllocator = 0);
         // Create a metric format object having the same value as the specified
         // 'original' format.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -458,14 +458,14 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 
 // CREATORS
 inline
-baem_MetricFormat::baem_MetricFormat(bslma_Allocator *basicAllocator)
+baem_MetricFormat::baem_MetricFormat(bslma::Allocator *basicAllocator)
 : d_formatSpecs(basicAllocator)
 {
 }
 
 inline
 baem_MetricFormat::baem_MetricFormat(const baem_MetricFormat&  original,
-                                     bslma_Allocator          *basicAllocator)
+                                     bslma::Allocator         *basicAllocator)
 : d_formatSpecs(original.d_formatSpecs, basicAllocator)
 {
 }

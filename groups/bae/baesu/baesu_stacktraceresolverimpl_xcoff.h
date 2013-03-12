@@ -111,7 +111,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
                                           // implementation file
     struct LoadAuxInfosInfo;              // Internal -- fleshed out in the
                                           // implementation file
-    typedef bsls_Types::UintPtr UintPtr;  // 32 bit unsigned on 32 bit, 64 bit
+    typedef bsls::Types::UintPtr UintPtr; // 32 bit unsigned on 32 bit, 64 bit
                                           // unsigned on 64 bit, usually used
                                           // for absolute offsets into a file
 
@@ -169,7 +169,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
 
     char                  *d_symbolBuf_p;     // buffer for reading symbols
 
-    bsls_Types::IntPtr     d_virtualToPhysicalOffset;
+    bsls::Types::IntPtr    d_virtualToPhysicalOffset;
                                               // translation from an address
                                               // given in the file to an
                                               // address in memory for the
@@ -322,7 +322,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
         // has a single segment.
 
     // PRIVATE ACCESSORS
-    bslma_Allocator *allocator();
+    bslma::Allocator *allocator();
         // Return a pointer to this object's heap bypass allocator.
 
   public:
@@ -353,7 +353,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
 
 // PRIVATE ACCESSORS
 inline
-bslma_Allocator *baesu_StackTraceResolverImpl<
+bslma::Allocator *baesu_StackTraceResolverImpl<
                                     baesu_ObjectFileFormat::Xcoff>::allocator()
 {
     return &d_hbpAlloc;

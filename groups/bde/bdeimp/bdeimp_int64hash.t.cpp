@@ -2,7 +2,7 @@
 
 #include <bdeimp_int64hash.h>
 
-#include <bsls_platformutil.h>                  // for testing only
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -21,8 +21,8 @@ using namespace bsl;  // automatically added by script
 // (pure procedure) that computes a hash value for 'int64's.  The general plan
 // is that the method is tested against a set of tabulated test vectors.
 //-----------------------------------------------------------------------------
-// [ 1] static int hash(bsls_PlatformUtil::Int64, int);  CONCERN: value
-// [ 2] static int hash(bsls_PlatformUtil::Int64, int);  CONCERN: distribution
+// [ 1] static int hash(bsls::Types::Int64, int);  CONCERN: value
+// [ 2] static int hash(bsls::Types::Int64, int);  CONCERN: distribution
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
         //   Perform a large number of hashes and verifying the distribution.
         //
         // Testing:
-        //   int hash(bsls_PlatformUtil::Int64, int);  CONCERN: distribution
+        //   int hash(bsls::Types::Int64, int);  CONCERN: distribution
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
                  << "Testing 'hash'" << endl
                  << "==============" << endl;
 
-        if (verbose) cout << "\nTesting 'hash(bsls_PlatformUtil::Int64 value, "
+        if (verbose) cout << "\nTesting 'hash(bsls::Types::Int64 value, "
                           << "int size)' distribution." << endl;
         {
             { // test distribution for shifted bits
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
                 for (int k = 0; k <= 55; ++k) { // 64 - 9 bits for size of 257
                     for (i = 0; i < size; ++i) {
                         ++hit[bdeimp_Int64Hash::
-                                 hash(bsls_PlatformUtil::Int64(i) << k, size)];
+                                 hash(bsls::Types::Int64(i) << k, size)];
                     }
                     for (i = 0; i < size; ++i) {
                         LOOP2_ASSERT(k, i, k + 1 == hit[i]);
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
                         }
                         for (i = 0; i < m*size; ++i) {
                             ++hit[bdeimp_Int64Hash::
-                                      hash(bsls_PlatformUtil::Int64(i), size)];
+                                      hash(bsls::Types::Int64(i), size)];
                         }
                         for (i = 0; i < size; ++i) {
                             LOOP4_ASSERT(m, size, i, hit[i], m == hit[i]);
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
         //   Specifying a set of test vectors and verify the return value.
         //
         // Testing:
-        //   static int hash(bsls_PlatformUtil::Int64, int);  CONCERN: value
+        //   static int hash(bsls::Types::Int64, int);  CONCERN: value
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
                 const int                      VB    = DATA[ti].d_valueB;
                 const int                      SIZE  = DATA[ti].d_size;
                 const int                      EXP   = DATA[ti].d_exp;
-                const bsls_PlatformUtil::Int64 VALUE =
-                                     (bsls_PlatformUtil::Int64(VA) << 32) |
+                const bsls::Types::Int64 VALUE =
+                                     (bsls::Types::Int64(VA) << 32) |
                                      (VB & 0xFFFFFFFF);
 
                 if (veryVerbose) {

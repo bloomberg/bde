@@ -6,6 +6,7 @@
 
 #include <bdet_timeinterval.h>
 #include <bdef_bind.h>
+#include <bsls_atomic.h>
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 
@@ -67,7 +68,7 @@ static void aSsErT(int c, const char *s, int i) {
 typedef bcemt_Semaphore Obj;
 
 void waitAndSet(bcemt_Semaphore *obj,
-                bces_AtomicInt *val)
+                bsls::AtomicInt *val)
 {
     obj->wait();
     (*val) = 1;
@@ -102,7 +103,7 @@ int main(int argc, char *argv[])
         {
             Obj X;
             bcemt_ThreadUtil::Handle h;
-            bces_AtomicInt flag = 0;
+            bsls::AtomicInt flag;
             ASSERT(0 == bcemt_ThreadUtil::create(&h,
                                                bdef_BindUtil::bind(&waitAndSet,
                                                                    &X,

@@ -423,19 +423,19 @@ class bcem_AggregateRaw {
     template <typename VALUETYPE>
     int toEnum(bcem_ErrorAttributes *errorDescription,
                const VALUETYPE&      value,
-               bslmf_MetaInt<0>      direct) const;
+               bslmf::MetaInt<0>     direct) const;
     int toEnum(bcem_ErrorAttributes *errorDescription,
                const int&,
-               bslmf_MetaInt<0>      direct) const;
+               bslmf::MetaInt<0>     direct) const;
     int toEnum(bcem_ErrorAttributes *errorDescription,
                const char           *value,
-               bslmf_MetaInt<1>      direct) const;
+               bslmf::MetaInt<1>     direct) const;
     int toEnum(bcem_ErrorAttributes *errorDescription,
                const bsl::string&    value,
-               bslmf_MetaInt<1>      direct) const;
+               bslmf::MetaInt<1>     direct) const;
     int toEnum(bcem_ErrorAttributes     *errorDescription,
                const bdem_ConstElemRef&  value,
-               bslmf_MetaInt<1>          direct) const;
+               bslmf::MetaInt<1>         direct) const;
         // Set this enumeration to the specified 'value'.  The 'direct'
         // argument is to aid in template metaprogramming for overloading for
         // those types that can be directly processed and those that must first
@@ -446,7 +446,7 @@ class bcem_AggregateRaw {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bcem_AggregateRaw,
-                                  bslalg_TypeTraitBitwiseMoveable,
+                                  bslalg::TypeTraitBitwiseMoveable,
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS METHODS
@@ -612,7 +612,7 @@ class bcem_AggregateRaw {
     char asChar() const;
     short asShort() const;
     int asInt() const;
-    bsls_Types::Int64 asInt64() const;
+    bsls::Types::Int64 asInt64() const;
     float asFloat() const;
     double asDouble() const;
     bdet_Datetime asDatetime() const;
@@ -646,7 +646,7 @@ class bcem_AggregateRaw {
         // parameterized 'TOTYPE'.  Return an "unset" 'TOTYPE' value (see
         // 'bdetu_unset') unless this aggregate holds a scalar value that is
         // convertible to 'TOTYPE'.  'TOTYPE' shall be one of: 'bool', 'char',
-        // 'short', 'int', 'bsls_Types::Int64', 'float', 'double',
+        // 'short', 'int', 'bsls::Types::Int64', 'float', 'double',
         // 'bdet_Datetime', 'bdet_DatetimeTz', 'bdet_Date', 'bdet_DateTz',
         // 'bdet_Time', 'bdet_TimeTz'; or, unsigned versions of these.  But
         // note that if TOTYPE is unsigned, and this aggregate is not
@@ -1579,17 +1579,17 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
                               const VALUETYPE&      value) const
 {
     static const int IS_DIRECT =
-               bslmf_IsConvertible<VALUETYPE, const char*>::VALUE
-            || bslmf_IsConvertible<VALUETYPE, bsl::string>::VALUE
-            || bslmf_IsConvertible<VALUETYPE, const bdem_ConstElemRef&>::VALUE;
+              bslmf::IsConvertible<VALUETYPE, const char*>::VALUE
+           || bslmf::IsConvertible<VALUETYPE, bsl::string>::VALUE
+           || bslmf::IsConvertible<VALUETYPE, const bdem_ConstElemRef&>::VALUE;
 
-    return toEnum(errorDescription, value, bslmf_MetaInt<IS_DIRECT>());
+    return toEnum(errorDescription, value, bslmf::MetaInt<IS_DIRECT>());
 }
 
 template <typename VALUETYPE>
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
                               const VALUETYPE&      value,
-                              bslmf_MetaInt<0>      direct) const
+                              bslmf::MetaInt<0>     direct) const
 {
     int intVal;
     if (0 != bdem_Convert::convert(&intVal, value)) {
@@ -1609,7 +1609,7 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
 inline
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
                               const bsl::string&    value,
-                              bslmf_MetaInt<1>      direct) const
+                              bslmf::MetaInt<1>     direct) const
 {
     return toEnum(errorDescription, value.c_str(), direct);
 }
@@ -2536,7 +2536,7 @@ bcem_AggregateRaw_Util::visitArray(void                *array,
       case bdem_ElemType::BDEM_INT_ARRAY:
         return visitorObj((bsl::vector<int> *) array);
       case bdem_ElemType::BDEM_INT64_ARRAY:
-          return visitorObj((bsl::vector<bsls_Types::Int64> *) array);
+        return visitorObj((bsl::vector<bsls::Types::Int64> *) array);
       case bdem_ElemType::BDEM_FLOAT_ARRAY:
         return visitorObj((bsl::vector<float> *) array);
       case bdem_ElemType::BDEM_DOUBLE_ARRAY:
@@ -2830,7 +2830,7 @@ void bdeat_valueTypeReset(bcem_AggregateRaw_BdeatUtil::NullableAdapter *object)
 
 namespace bdeat_SequenceFunctions {
     // META-FUNCTIONS
-    bslmf_MetaInt<1> isSequenceMetaFunction(const bcem_AggregateRaw&);
+    bslmf::MetaInt<1> isSequenceMetaFunction(const bcem_AggregateRaw&);
 
     template <>
     struct IsSequence<bcem_AggregateRaw> {
@@ -3096,7 +3096,7 @@ int bdeat_typeCategoryAccessArray(const bcem_AggregateRaw& object,
     if (bdem_ElemType::isArrayType(object.dataType())) {
         return accessor(object, Tag());
     }
-    return accessor(object, bslmf_Nil());
+    return accessor(object, bslmf::Nil());
 }
 
 template <typename MANIPULATOR>
@@ -3118,7 +3118,7 @@ int bdeat_typeCategoryManipulateArray(bcem_AggregateRaw *object,
         return manipulator(object, Tag());
     }
 
-    return manipulator(object, bslmf_Nil());
+    return manipulator(object, bslmf::Nil());
 }
 
 template <typename MANIPULATOR>
@@ -3181,7 +3181,7 @@ int bdeat_typeCategoryManipulateSimple(bcem_AggregateRaw *object,
                              Tag());
       } break;
       default: {
-        result = manipulator(object, bslmf_Nil());
+        result = manipulator(object, bslmf::Nil());
       } break;
     }
 
@@ -3242,7 +3242,7 @@ int bdeat_typeCategoryAccessSimple(const bcem_AggregateRaw& object,
         result = accessor(object.asElemRef().theTimeTz(), Tag());
       } break;
       default: {
-        result = accessor(object, bslmf_Nil());
+        result = accessor(object, bslmf::Nil());
       } break;
     }
 

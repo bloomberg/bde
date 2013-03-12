@@ -300,6 +300,21 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
                           // ensure each block is correctly aligned
     };
 
+  public:
+    // TYPES
+    typedef VALUE ValueType;
+        // Alias for the parameterized type 'VALUE'.
+
+    typedef typename Types::AllocatorType AllocatorType;
+        // Alias for the allocator type for a
+        // 'bsls::AlignmentUtil::MaxAlignedType'.
+
+    typedef typename Types::AllocatorTraits AllocatorTraits;
+        // Alias for the allocator traits for the parameterized
+        // 'ALLOCATOR'.
+
+    typedef typename AllocatorTraits::size_type size_type;
+
   private:
     // DATA
     Chunk *d_chunkList_p;     // linked list of "chunks" of memory
@@ -315,7 +330,7 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
 
   private:
     // PRIVATE MANIPULATORS
-    Block *allocateChunk(std::size_t size);
+    Block *allocateChunk(size_type size);
         // Allocate a chunk of memory with at least the specified 'size' number
         // of usable bytes and add the chunk to the chunk list.  Return the
         // address of the usable portion of the memory.
@@ -324,19 +339,6 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         // Dynamically allocate a new chunk using the pool's underlying growth
         // strategy, and use the chunk to replenish the free memory list of
         // this pool.
-
-  public:
-    // TYPES
-    typedef VALUE ValueType;
-        // Alias for the parameterized type 'VALUE'.
-
-    typedef typename Types::AllocatorType AllocatorType;
-        // Alias for the allocator type for a
-        // 'bsls::AlignmentUtil::MaxAlignedType'.
-
-    typedef typename Types::AllocatorTraits AllocatorTraits;
-        // Alias for the allocator traits for the parameterized
-        // 'ALLOCATOR'.
 
   public:
     // CREATORS
@@ -367,7 +369,7 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         // is non-zero, was allocated by this pool, and has not already been
         // deallocated.
 
-    void reserve(std::size_t numBlocks);
+    void reserve(size_type numBlocks);
         // Dynamically allocate a new chunk containing the specified
         // 'numBlocks' number of blocks, and use the chunk to replenish the
         // free memory list of this pool.  The behavior is undefined unless
@@ -409,13 +411,13 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
 // PRIVATE MANIPULATORS
 template <class VALUE, class ALLOCATOR>
 typename SimplePool<VALUE, ALLOCATOR>::Block *
-SimplePool<VALUE, ALLOCATOR>::allocateChunk(std::size_t size)
+SimplePool<VALUE, ALLOCATOR>::allocateChunk(size_type size)
 {
     // Determine the number of bytes we want to allocate and compute the number
     // of 'MaxAlignedType' needed to contain those bytes.
 
-    std::size_t numBytes = sizeof (Chunk) + size;
-    std::size_t numMaxAlignedType =
+    size_type numBytes = static_cast<size_type>(sizeof(Chunk)) + size;
+    size_type numMaxAlignedType =
                        (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
                      / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
@@ -524,11 +526,12 @@ void SimplePool<VALUE, ALLOCATOR>::quickSwapExchangeAllocators(
 }
 
 template <class VALUE, class ALLOCATOR>
-void SimplePool<VALUE, ALLOCATOR>::reserve(std::size_t numBlocks)
+void SimplePool<VALUE, ALLOCATOR>::reserve(size_type numBlocks)
 {
     BSLS_ASSERT(0 < numBlocks);
 
-    Block *begin = allocateChunk(numBlocks * sizeof(Block));
+    Block *begin = allocateChunk(
+                            numBlocks * static_cast<size_type>(sizeof(Block)));
     Block *end   = begin + numBlocks - 1;
 
     for (Block *p = begin; p < end; ++p) {
@@ -565,11 +568,24 @@ void SimplePool<VALUE, ALLOCATOR>::release()
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

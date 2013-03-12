@@ -20,11 +20,11 @@ namespace BloombergLP {
 // CREATORS
 bael_AttributeContainerList::bael_AttributeContainerList(
                            const bael_AttributeContainerList&  original,
-                           bslma_Allocator                    *basicAllocator)
+                           bslma::Allocator                   *basicAllocator)
 : d_head_p(0)
 , d_free_p(0)
 , d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     Node **prevNextAddr = &d_head_p;
     for (iterator it = original.begin(); it != original.end(); ++it) {

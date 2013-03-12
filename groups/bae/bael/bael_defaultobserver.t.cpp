@@ -10,7 +10,6 @@
 #include <bdetu_datetime.h>                    // for testing only
 
 #include <bsls_platform.h>                     // for testing only
-#include <bsls_platformutil.h>                 // for testing only
 
 #include <bslma_testallocator.h>               // for testing only
 #include <bslma_testallocatorexception.h>      // for testing only
@@ -132,7 +131,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {

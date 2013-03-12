@@ -71,7 +71,7 @@ BDES_IDENT("$Id: $")
 // 'baetzo_Zoneinfo' object to be considered Well-Formed (see
 // 'isWellFormed'):
 //..
-//  bsls_Types::Int64 firstTime = bdetu_Epoch::convertToTimeT64(
+//  bsls::Types::Int64 firstTime = bdetu_Epoch::convertToTimeT64(
 //                                                     bdet_Datetime(1, 1, 1));
 //  newYorkZoneinfo.addTransition(firstTime, est);
 //  londonZoneinfo.addTransition(firstTime, gmt);
@@ -169,6 +169,10 @@ BDES_IDENT("$Id: $")
 #include <bces_atomictypes.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -183,10 +187,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -234,7 +234,7 @@ class baetzo_ZoneinfoCache {
 
     mutable bcemt_RWMutex  d_lock;         // cache access synchronization
 
-    bslma_Allocator       *d_allocator_p;  // allocator (held, not owned)
+    bslma::Allocator      *d_allocator_p;  // allocator (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -244,11 +244,11 @@ class baetzo_ZoneinfoCache {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baetzo_ZoneinfoCache,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit baetzo_ZoneinfoCache(baetzo_Loader   *loader,
-                                  bslma_Allocator *basicAllocator = 0);
+    explicit baetzo_ZoneinfoCache(baetzo_Loader    *loader,
+                                  bslma::Allocator *basicAllocator = 0);
         // Create an empty cache of time-zone information that will use the
         // specified 'loader' to populate the cache, as-needed, with time zone
         // information.  Optionally specify a 'basicAllocator' used to supply
@@ -313,11 +313,11 @@ bool baetzo_ZoneinfoCache::CStringLess::operator()(const char *lhs,
 
 // CREATORS
 inline
-baetzo_ZoneinfoCache::baetzo_ZoneinfoCache(baetzo_Loader   *loader,
-                                           bslma_Allocator *basicAllocator)
+baetzo_ZoneinfoCache::baetzo_ZoneinfoCache(baetzo_Loader    *loader,
+                                           bslma::Allocator *basicAllocator)
 : d_cache(basicAllocator)
 , d_loader_p(loader)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT_SAFE(0 != loader);
 }

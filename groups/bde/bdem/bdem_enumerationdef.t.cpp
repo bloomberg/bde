@@ -89,11 +89,11 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 namespace BloombergLP {
-  
+
 class bdem_Schema {
         // Dummy type.
 };
-  
+
 }
 
 //=============================================================================
@@ -141,26 +141,26 @@ int main(int argc, char *argv[])
 // directly, but obtain one from a 'bdem_Schema'.  For the purpose of this
 // usage example, we define a dummy stand-in type for 'bdem_Schema'.  This
 // type is used in name-only by 'bdem_EnumerationDef', so its definition is
-// not necessary: 
+// not necessary:
 //..
 //  namespace BloombergLP {
-//  
+//
 //  class bdem_Schema {
 //      // Dummy type.
 //  };
-//  
+//
 //  }
 //..
 // Now we create an enumeration definition with an index of 0, and a name of
 // "COLOR", that will contain an enumeration of color identifiers (e.g., red,
 // green, blue):
 //..
-    bslma_Allocator           *allocator = bslma_Default::allocator(); 
+    bslma::Allocator          *allocator = bslma::Default::allocator();
     bdema_SequentialAllocator  seqAllocator(allocator);
     bdem_Schema                dummySchema;
 //
     bdem_EnumerationDef colorEnumDef(&dummySchema, 0, "COLOR", &seqAllocator);
-//.. 
+//..
 //
 ///Manipulating and Accessing a 'bdem_EnumerationDef'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
     int blueId  = colorEnumDef.addEnumerator("BLUE");
 //..
 // We verify that the IDs of the new values:
-//..    
+//..
     ASSERT(3 == colorEnumDef.numEnumerators());
     ASSERT(2 == colorEnumDef.maxId());
 
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 // the name supplied, respectively.  Note that this can be used to iterate
 // over the elements of an enumeration definition, either in ID or name
 // order.  Each call to 'nextLargerId' and 'nextLargerName' has 'O(log(N))'
-// complexity (where 'N' is the number of enumerators). 
+// complexity (where 'N' is the number of enumerators).
 //
 // The next larger ID in 'colorEnumDef' after 0 is 1 ("GREEN"):
 //..
@@ -249,8 +249,7 @@ int main(int argc, char *argv[])
     ASSERT(0  == bsl::strcmp("YELLOW", enumerator.first));
     ASSERT(-5 == enumerator.second);
 //..
-    
-           
+
     } break;
       case 1: {
         // --------------------------------------------------------------------

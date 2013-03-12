@@ -506,14 +506,14 @@ class bcep_ThreadPool {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcep_ThreadPool,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     bcep_ThreadPool(const bcemt_Attribute&  threadAttributes,
                     int                     minThreads,
                     int                     maxThreads,
                     int                     maxIdleTime,
-                    bslma_Allocator        *basicAllocator=0);
+                    bslma::Allocator       *basicAllocator=0);
         // Construct a thread pool with the specified 'threadAttributes',
         // 'minThread' minimum number of threads, 'maxThreads' maximum number
         // of threads, and 'maxIdleTime' maximum idle time (in milliseconds),

@@ -204,12 +204,12 @@ BDES_IDENT("$Id: $")
 #include <bteso_ipv4address.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
 #endif
 
 namespace BloombergLP {
@@ -234,7 +234,7 @@ class btesos_TcpTimedChannel : public btesc_TimedChannel {
     int                                    d_readBufferOffset;
     int                                    d_readBufferedStartPointer;
         // the index of the first unconsumed data in 'd_readBuffer'
-    bslma_Allocator                       *d_allocator_p;
+    bslma::Allocator                      *d_allocator_p;
 
   private: // not implemented
     btesos_TcpTimedChannel(const btesos_TcpTimedChannel&);
@@ -250,7 +250,7 @@ class btesos_TcpTimedChannel : public btesc_TimedChannel {
     // CREATORS
     btesos_TcpTimedChannel(
                    bteso_StreamSocket<bteso_IPv4Address> *socket,
-                   bslma_Allocator                       *basicAllocator = 0);
+                   bslma::Allocator                      *basicAllocator = 0);
         // Create a timed channel attached to the specified stream-oriented
         // 'socket'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default

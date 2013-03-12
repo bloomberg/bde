@@ -18,10 +18,9 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 #include <bdeu_string.h>
 
 #include <bslma_default.h>
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
-#include <bsls_alignmentutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -561,7 +560,7 @@ enum {
 typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>
                                                             StackTraceResolver;
 
-typedef bsls_Types::UintPtr UintPtr;
+typedef bsls::Types::UintPtr UintPtr;
 
 }  // close namespace Local
 
@@ -715,7 +714,7 @@ int Local::StackTraceResolver::findArchiveMember(const char *memberName)
 
     if (memcmp(&archiveHeader, AIAMAGBIG, SAIAMAG)) {
         eprintf("Bad archive header magic number: 0x%llx\n",
-                                      * (bsls_Types::Uint64 *) &archiveHeader);
+                                     * (bsls::Types::Uint64 *) &archiveHeader);
         return -1;                                                    // RETURN
     }
 
@@ -735,7 +734,7 @@ int Local::StackTraceResolver::findArchiveMember(const char *memberName)
         if (d_helper->readExact(&memberHeader, sizeof(ar_hdr), curOffset)) {
             return -1;                                                // RETURN
         }
-        bsls_Types::IntPtr nameLength = parseNumber(memberHeader.ar_namlen);
+        bsls::Types::IntPtr nameLength = parseNumber(memberHeader.ar_namlen);
         if (nameLength >= Local::SCRATCH_BUF_LEN) {
             return -1;                                                // RETURN
         }

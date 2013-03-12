@@ -325,9 +325,10 @@ BDES_IDENT("$Id: $")
 // The 'bdecs_HashTable2' class treats individual buckets as value-semantic
 // types.  The type of the buckets depends on the 'KEY' and 'VALUE' parameters
 // used to instantiate the 'bdecs_HashTable2' template.  If the 'VALUE'
-// parameter is 'bslmf_Nil', then the type of the buckets is 'KEY'.  Otherwise,
-// the type of the buckets is 'bsl::pair<KEY, VALUE>'.  For convenience, we
-// will refer to the bucket type as 'Bucket' throughout this documentation.
+// parameter is 'bslmf::Nil', then the type of the buckets is 'KEY'.
+// Otherwise, the type of the buckets is 'bsl::pair<KEY, VALUE>'.  For
+// convenience, we will refer to the bucket type as 'Bucket' throughout this
+// documentation.
 //
 // The 'bdecs_HashTable2' class reserves two distinct values from 'Bucket's
 // value-space to represent a "null" bucket and a "removed" bucket.  These
@@ -561,6 +562,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -583,10 +588,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>  // @DEPRECATED
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -621,10 +622,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 
 namespace BloombergLP {
 
@@ -639,7 +636,7 @@ struct bdecs_HashTable2DefaultHash2;
           // ========================================================
 
 template <typename KEY,
-          typename VALUE  = bslmf_Nil,
+          typename VALUE  = bslmf::Nil,
           typename TRAITS = bdecs_HashTable2DefaultTraits,
           typename HASH1  = bdecs_HashTable2DefaultHash1,
           typename HASH2  = bdecs_HashTable2DefaultHash2>
@@ -649,7 +646,7 @@ class bdecs_HashTable2 {
     // used to compute the number of buckets (capacity) in this object.  Also,
     // two hash functions may optionally be specified at construction time.
     // Elements can be inserted using the 'insert' method.  If the 'VALUE'
-    // parameter is not 'bslmf_Nil', then both key and value must be supplied
+    // parameter is not 'bslmf::Nil', then both key and value must be supplied
     // to the 'insert' method.  Otherwise, only the key should be supplied.
     // The 'find' method can be used to lookup elements by a specified key.
     // The optional 'TRAITS' parameter can be used to classify "null" and
@@ -658,34 +655,34 @@ class bdecs_HashTable2 {
 
   public:
     // TYPES
-    typedef bsls_Types::Int64 Handle;
+    typedef bsls::Types::Int64 Handle;
         // Data type to handle elements in the double-hashed table.  This value
         // is guaranteed to be between 0 and the capacity of the hash table.
 
   private:
     // PRIVATE TYPES
     typedef typename
-    bslmf_If<bslmf_IsSame<bslmf_Nil, VALUE>::VALUE,
+    bslmf::If<bslmf::IsSame<bslmf::Nil, VALUE>::VALUE,
              KEY, bsl::pair<KEY, VALUE> >::Type Bucket;
         // Type of the element stored in this object.  If the 'VALUE' parameter
-        // is 'bslmf_Nil', then 'Bucket' is of type 'KEY', otherwise 'Bucket'
+        // is 'bslmf::Nil', then 'Bucket' is of type 'KEY', otherwise 'Bucket'
         // is of type 'bsl::pair<KEY, VALUE>'.
 
-    typedef bslalg_ConstructorProxy<HASH1> Hash1CP;
+    typedef bslalg::ConstructorProxy<HASH1> Hash1CP;
         // Constructor proxy for 'HASH1'.
 
-    typedef bslalg_ConstructorProxy<HASH2> Hash2CP;
+    typedef bslalg::ConstructorProxy<HASH2> Hash2CP;
         // Constructor proxy for 'HASH2'.
 
     // DATA
     bsl::vector<Bucket> d_buckets;        // array of buckets
-    bsls_Types::Int64   d_capacityHint;   // capacity hint
+    bsls::Types::Int64  d_capacityHint;   // capacity hint
     Hash1CP             d_hashFunctor1;   // first hash function
     Hash2CP             d_hashFunctor2;   // second hash function
-    bsls_Types::Int64   d_maxChain;       // maximum chain length
-    bsls_Types::Int64   d_numCollisions;  // number of collisions
-    bsls_Types::Int64   d_numElements;    // number of elements
-    bsls_Types::Int64   d_totalChain;     // total chain length
+    bsls::Types::Int64  d_maxChain;       // maximum chain length
+    bsls::Types::Int64  d_numCollisions;  // number of collisions
+    bsls::Types::Int64  d_numElements;    // number of elements
+    bsls::Types::Int64  d_totalChain;     // total chain length
 
     // NOT IMPLEMENTED
     bdecs_HashTable2(const bdecs_HashTable2&);
@@ -699,10 +696,10 @@ class bdecs_HashTable2 {
         // 'bsl::pair<KEY, VALUE>', then 'bucket.first' is returned.
 
     // PRIVATE MANIPULATORS
-    void loadElementAt(Handle            *handle,
-                       bsls_Types::Int64  index,
-                       const Bucket&      element,
-                       bsls_Types::Int64  chainLength);
+    void loadElementAt(Handle             *handle,
+                       bsls::Types::Int64  index,
+                       const Bucket&       element,
+                       bsls::Types::Int64  chainLength);
         // Load the specified 'element' into the bucket with the specified
         // 'index'; load a handle to the element in the specified 'handle';
         // update chain statistics with the specified 'chainLength'.
@@ -713,11 +710,11 @@ class bdecs_HashTable2 {
         // and false otherwise.
 
     // PRIVATE ACCESSORS
-    void findImp(bool              *isKeyFound,
-                 bsls_Types::Int64 *index,
-                 bsls_Types::Int64 *chainLength,
-                 bsls_Types::Int64 *removedIndex,
-                 const KEY&         key) const;
+    void findImp(bool               *isKeyFound,
+                 bsls::Types::Int64 *index,
+                 bsls::Types::Int64 *chainLength,
+                 bsls::Types::Int64 *removedIndex,
+                 const KEY&          key) const;
         // Implement the double-hash algorithm to find a bucket with the
         // specified 'key'; load true into the specified 'isKeyFound' if the an
         // element with the specified 'key' is found, and false otherwise; load
@@ -733,11 +730,11 @@ class bdecs_HashTable2 {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdecs_HashTable2,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bdecs_HashTable2(bsls_Types::Int64  capacityHint,
-                              bslma_Allocator   *basicAllocator = 0);
+    explicit bdecs_HashTable2(bsls::Types::Int64  capacityHint,
+                              bslma::Allocator   *basicAllocator = 0);
         // Create a double-hash table using the specified 'capacityHint'; use
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -751,10 +748,10 @@ class bdecs_HashTable2 {
         // hash function, and 'HASH2' will be used as the second hash
         // function.
 
-    bdecs_HashTable2(bsls_Types::Int64  capacityHint,
-                     const HASH1&       hashFunctor1,
-                     const HASH2&       hashFunctor2,
-                     bslma_Allocator   *basicAllocator = 0);
+    bdecs_HashTable2(bsls::Types::Int64  capacityHint,
+                     const HASH1&        hashFunctor1,
+                     const HASH2&        hashFunctor2,
+                     bslma::Allocator   *basicAllocator = 0);
         // Create a double-hash table with the specified 'capacityHint'; use
         // the specified 'hashFunctor1' as the first hash function; use the
         // specified 'hashFunctor2' as the second hash function; use the
@@ -779,7 +776,7 @@ class bdecs_HashTable2 {
         // unless 'key' does not evaluate to a "null" or "removed" bucket, as
         // defined by the parameterized 'TRAITS' (see the component-level
         // documentation for more details).  Note that this method will fail to
-        // compile unless the 'VALUE' parameter is 'bslmf_Nil'.
+        // compile unless the 'VALUE' parameter is 'bslmf::Nil'.
 
     bool insert(Handle *handle, const KEY& key, const VALUE& value);
         // Insert an element with the specified 'key' and the specified 'value'
@@ -789,7 +786,7 @@ class bdecs_HashTable2 {
         // to a "null" or "removed" bucket, as defined by the parameterized
         // 'TRAITS' (see the component-level documentation for more details).
         // This method will fail to compile unless the 'VALUE' parameter is not
-        // 'bslmf_Nil'.
+        // 'bslmf::Nil'.
 
     void remove(const Handle& handle);
         // Remove the element identified by the specified 'handle' from this
@@ -800,15 +797,15 @@ class bdecs_HashTable2 {
         // Return the reference to the modifiable value of the element
         // identified by the specified 'handle'.  The behavior is undefined
         // unless 'handle' is valid.  Note that this method will fail to
-        // compile unless the 'VALUE' parameter is not 'bslmf_Nil'.
+        // compile unless the 'VALUE' parameter is not 'bslmf::Nil'.
 
     // ACCESSORS
-    bsls_Types::Int64 capacity() const;
+    bsls::Types::Int64 capacity() const;
         // Return the maximum number of elements that can be stored in this
         // object.  Note that this value is computed based on the capacity hint
         // used upon construction.
 
-    bsls_Types::Int64 capacityHint() const;
+    bsls::Types::Int64 capacityHint() const;
         // Return the capacity hint that was used to determine the capacity of
         // this object.
 
@@ -822,23 +819,23 @@ class bdecs_HashTable2 {
         // identified by the specified 'handle'.  The behavior is undefined
         // unless 'handle' is valid.
 
-    bsls_Types::Int64 maxChain() const;
+    bsls::Types::Int64 maxChain() const;
         // Return the maximum chain length encountered by this object.
 
-    bsls_Types::Int64 numCollisions() const;
+    bsls::Types::Int64 numCollisions() const;
         // Return the number of collisions encountered by this object.
 
-    bsls_Types::Int64 size() const;
+    bsls::Types::Int64 size() const;
         // Return the number of elements stored in this object.
 
-    bsls_Types::Int64 totalChain() const;
+    bsls::Types::Int64 totalChain() const;
         // Return the total chain length encountered by this object.
 
     const VALUE& value(const Handle& handle) const;
         // Return the reference to the non-modifiable value of the element
         // identified by the specified 'handle'.  The behavior is undefined
         // unless 'handle' is valid.  Note that this method will fail to
-        // compile unless the 'VALUE' parameter is not 'bslmf_Nil'.
+        // compile unless the 'VALUE' parameter is not 'bslmf::Nil'.
 };
 
                     // ====================================
@@ -976,7 +973,7 @@ struct bdecs_HashTable2_ImpUtil {
                                                    // in the test driver
 
     // CLASS METHODS
-    static unsigned int hashSize(bsls_Types::Int64 hint);
+    static unsigned int hashSize(bsls::Types::Int64 hint);
         // Return the hash size based on the specified 'hint'.
 };
 
@@ -1014,10 +1011,10 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 void bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::loadElementAt(
-                                                Handle            *handle,
-                                                bsls_Types::Int64  index,
-                                                const Bucket&      element,
-                                                bsls_Types::Int64  chainLength)
+                                               Handle             *handle,
+                                               bsls::Types::Int64  index,
+                                               const Bucket&       element,
+                                               bsls::Types::Int64  chainLength)
 {
     BSLS_ASSERT(handle);
 
@@ -1046,8 +1043,8 @@ bool bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insertElement(
         return false;
     }
 
-    bool              isKeyFound;
-    bsls_Types::Int64 nullIndex, chainLength, removedIndex;
+    bool               isKeyFound;
+    bsls::Types::Int64 nullIndex, chainLength, removedIndex;
 
     findImp(&isKeyFound, &nullIndex, &chainLength, &removedIndex,
             keyFromBucket(element));
@@ -1073,11 +1070,11 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 void bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
-                                               bool              *isKeyFound,
-                                               bsls_Types::Int64 *index,
-                                               bsls_Types::Int64 *chainLength,
-                                               bsls_Types::Int64 *removedIndex,
-                                               const KEY&         key) const
+                                              bool               *isKeyFound,
+                                              bsls::Types::Int64 *index,
+                                              bsls::Types::Int64 *chainLength,
+                                              bsls::Types::Int64 *removedIndex,
+                                              const KEY&          key) const
 {
     BSLS_ASSERT(isKeyFound);
     BSLS_ASSERT(index);
@@ -1091,7 +1088,7 @@ void bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
 
     unsigned int capacity = static_cast<unsigned int>(d_buckets.size());
 
-    bsls_Types::Int64 bucketIndex = d_hashFunctor1.object()(key) % capacity;
+    bsls::Types::Int64 bucketIndex = d_hashFunctor1.object()(key) % capacity;
 
     if (TRAITS::isNull(d_buckets[(size_type)bucketIndex])) {
         *isKeyFound = false;
@@ -1108,7 +1105,7 @@ void bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
         return;
     }
 
-    bsls_Types::Int64 increment = (d_hashFunctor2.object()(key)
+    bsls::Types::Int64 increment = (d_hashFunctor2.object()(key)
                                                          % (capacity - 1)) + 1;
                                              // must be between [1, capacity-1]
 
@@ -1144,8 +1141,8 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::bdecs_HashTable2(
-                                             bsls_Types::Int64  capacityHint,
-                                             bslma_Allocator   *basicAllocator)
+                                            bsls::Types::Int64  capacityHint,
+                                            bslma::Allocator   *basicAllocator)
 : d_buckets(bdecs_HashTable2_ImpUtil::hashSize(capacityHint), Bucket(),
             basicAllocator)
 , d_capacityHint(capacityHint)
@@ -1169,10 +1166,10 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::bdecs_HashTable2(
-                                             bsls_Types::Int64  capacityHint,
-                                             const HASH1&       hashFunctor1,
-                                             const HASH2&       hashFunctor2,
-                                             bslma_Allocator   *basicAllocator)
+                                            bsls::Types::Int64  capacityHint,
+                                            const HASH1&        hashFunctor1,
+                                            const HASH2&        hashFunctor2,
+                                            bslma::Allocator   *basicAllocator)
 : d_buckets(bdecs_HashTable2_ImpUtil::hashSize(capacityHint), Bucket(),
             basicAllocator)
 , d_capacityHint(capacityHint)
@@ -1211,7 +1208,7 @@ bool bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
 {
     BSLS_ASSERT_SAFE(handle);
 
-    BSLMF_ASSERT((bslmf_IsSame<bslmf_Nil, VALUE>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
 
     return insertElement(handle, key);
 }
@@ -1227,7 +1224,7 @@ bool bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
 {
     BSLS_ASSERT_SAFE(handle);
 
-    BSLMF_ASSERT((!bslmf_IsSame<bslmf_Nil, VALUE>::VALUE));
+    BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
 
     return insertElement(handle, bsl::make_pair(key, value));
 }
@@ -1256,7 +1253,7 @@ VALUE& bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
                                                           const Handle& handle)
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
-    BSLMF_ASSERT((!bslmf_IsSame<bslmf_Nil, VALUE>::VALUE));
+    BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
 
     BSLS_ASSERT_SAFE(!TRAITS::isNull   (d_buckets[(size_type)handle]));
     BSLS_ASSERT_SAFE(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
@@ -1269,7 +1266,7 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 inline
-bsls_Types::Int64
+bsls::Types::Int64
 bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::capacity() const
 {
     return d_buckets.size();
@@ -1279,7 +1276,7 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 inline
-bsls_Types::Int64
+bsls::Types::Int64
 bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::capacityHint() const
 {
     return d_capacityHint;
@@ -1295,8 +1292,8 @@ bool bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::find(
 {
     BSLS_ASSERT_SAFE(handle);
 
-    bool              isKeyFound;
-    bsls_Types::Int64 chainLength, removedIndex;
+    bool               isKeyFound;
+    bsls::Types::Int64 chainLength, removedIndex;
 
     findImp(&isKeyFound, handle, &chainLength, &removedIndex, key);
 
@@ -1321,7 +1318,7 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 inline
-bsls_Types::Int64
+bsls::Types::Int64
 bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::maxChain() const
 {
     return d_maxChain;
@@ -1331,7 +1328,7 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 inline
-bsls_Types::Int64
+bsls::Types::Int64
 bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::numCollisions() const
 {
     return d_numCollisions;
@@ -1341,7 +1338,7 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 inline
-bsls_Types::Int64
+bsls::Types::Int64
 bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::size() const
 {
     return d_numElements;
@@ -1351,7 +1348,7 @@ template <typename KEY, typename VALUE, typename TRAITS,
                                         typename HASH1,
                                         typename HASH2>
 inline
-bsls_Types::Int64
+bsls::Types::Int64
 bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::totalChain() const
 {
     return d_totalChain;
@@ -1365,7 +1362,7 @@ const VALUE& bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
                                                     const Handle& handle) const
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
-    BSLMF_ASSERT((!bslmf_IsSame<bslmf_Nil, VALUE>::VALUE));
+    BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
 
     BSLS_ASSERT_SAFE(!TRAITS::isNull   (d_buckets[(size_type)handle]));
     BSLS_ASSERT_SAFE(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
@@ -1409,9 +1406,9 @@ inline
 bool bdecs_HashTable2DefaultTraits::isNull(const BUCKET& bucket)
 {
     enum {
-        BDECS_IS_POD = bslalg_HasTrait<
-                           BUCKET,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+        BDECS_IS_POD = bslalg::HasTrait<
+                          BUCKET,
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
     BSLMF_ASSERT(BDECS_IS_POD);
@@ -1450,9 +1447,9 @@ void bdecs_HashTable2DefaultTraits::setToNull(BUCKET *bucket)
     BSLS_ASSERT_SAFE(bucket);
 
     enum {
-        BDECS_IS_POD = bslalg_HasTrait<
-                           BUCKET,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+        BDECS_IS_POD = bslalg::HasTrait<
+                          BUCKET,
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
     BSLMF_ASSERT(BDECS_IS_POD);
@@ -1494,9 +1491,9 @@ inline
 bool bdecs_HashTable2DefaultTraits::isRemoved(const BUCKET& bucket)
 {
     enum {
-        BDECS_IS_POD = bslalg_HasTrait<
-                           BUCKET,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+        BDECS_IS_POD = bslalg::HasTrait<
+                          BUCKET,
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
     BSLMF_ASSERT(BDECS_IS_POD);
@@ -1543,9 +1540,9 @@ void bdecs_HashTable2DefaultTraits::setToRemoved(BUCKET *bucket)
     BSLS_ASSERT_SAFE(bucket);
 
     enum {
-        BDECS_IS_POD = bslalg_HasTrait<
-                           BUCKET,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+        BDECS_IS_POD = bslalg::HasTrait<
+                          BUCKET,
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
     BSLMF_ASSERT(BDECS_IS_POD);

@@ -188,9 +188,9 @@ class bcec_SkipList_PoolManager {
     void deallocate(Pool *pool, void *node);
 
   public:
-    explicit bcec_SkipList_PoolManager(int             *objectSizes,
-                                       int              numPools,
-                                       bslma_Allocator *basicAllocator);
+    explicit bcec_SkipList_PoolManager(int              *objectSizes,
+                                       int               numPools,
+                                       bslma::Allocator *basicAllocator);
     ~bcec_SkipList_PoolManager();
 
     void *allocate(int level);
@@ -338,9 +338,9 @@ void bcec_SkipList_PoolManager::initPool(
 }
 
 bcec_SkipList_PoolManager::bcec_SkipList_PoolManager(
-    int             *objectSizes,
-    int              numPools,
-    bslma_Allocator *basicAllocator)
+    int              *objectSizes,
+    int               numPools,
+    bslma::Allocator *basicAllocator)
 : d_blockList(basicAllocator)
 {
     BSLS_ASSERT(numPools > 0);
@@ -387,9 +387,9 @@ void bcec_SkipList_PoolUtil::deallocate(PoolManager *poolManager, void *node)
 }
 
 bcec_SkipList_PoolManager *bcec_SkipList_PoolUtil::createPoolManager(
-    int             *objectSizes,
-    int              numPools,
-    bslma_Allocator *basicAllocator)
+    int              *objectSizes,
+    int               numPools,
+    bslma::Allocator *basicAllocator)
 {
     return new (*basicAllocator) PoolManager(objectSizes,
                                              numPools,
@@ -397,8 +397,8 @@ bcec_SkipList_PoolManager *bcec_SkipList_PoolUtil::createPoolManager(
 }
 
 void bcec_SkipList_PoolUtil::deletePoolManager(
-    bslma_Allocator *basicAllocator,
-    PoolManager     *poolManager)
+    bslma::Allocator *basicAllocator,
+    PoolManager      *poolManager)
 {
     basicAllocator->deleteObject(poolManager);
 }

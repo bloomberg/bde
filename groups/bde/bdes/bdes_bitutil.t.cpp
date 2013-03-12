@@ -37,180 +37,180 @@ using namespace bsl;  // automatically added by script
 // [ 3] enum { BITS_PER_BYTE = 8 };
 // [ 3] enum { BITS_PER_WORD = BITS_PER_BYTE * WORD_SIZE };
 // [14] void andEqual(int *dInt, int dIdx, int boolVal)
-// [14] void andEqual64(bsls_Types::Int64 *dInt, int dIdx, int boolVal)
+// [14] void andEqual64(bsls::Types::Int64 *dInt, int dIdx, int boolVal)
 // [27] void andEqual(int *dInt, int dIdx, int sInt, int nBits)
-// [27] void andEqual64(bsls_Types::Int64 *dInt, int dIdx,
-//                      bsls_Types::Int64 sInt, int nBits)
+// [27] void andEqual64(bsls::Types::Int64 *dInt, int dIdx,
+//                      bsls::Types::Int64 sInt, int nBits)
 // [27] void andEqual(int *dInt, int dIdx, int sInt, int sIdx, int nBits)
-// [27] void andEqual64(bsls_Types::Int64 *dInt, int dIdx,
-//                      bsls_Types::Int64 sInt, int sIdx, int nBits)
+// [27] void andEqual64(bsls::Types::Int64 *dInt, int dIdx,
+//                      bsls::Types::Int64 sInt, int sIdx, int nBits)
 // [ 4] int eqMask(int index)
-// [ 4] bsls_Types::Int64 eqMask64(int index)
+// [ 4] bsls::Types::Int64 eqMask64(int index)
 // [ 7] int extractZero(int sInt, int sIdx, int nBits)
-// [ 7] bsls_Types::Int64 extractZero64(
-//                          bsls_Types::Int64 sInt, int sIdx, int nBits)
+// [ 7] bsls::Types::Int64 extractZero64(
+//                          bsls::Types::Int64 sInt, int sIdx, int nBits)
 // [26] int extractZero(int sInt, int sIdx, int nBits, int offset)
-// [26] bsls_Types::Int64 extractZero64(bsls_Types::Int64 sInt,
+// [26] bsls::Types::Int64 extractZero64(bsls::Types::Int64 sInt,
 //                                             int sIdx, int nBits, int offset)
 // [ 7] int extractOne(int sInt, int sIdx, int nBits)
-// [ 7] bsls_Types::Int64 extractOne64(bsls_Types::Int64 sInt,
+// [ 7] bsls::Types::Int64 extractOne64(bsls::Types::Int64 sInt,
 //                                            int sIdx, int nBits)
 // [26] int extractOne(int sInt, int sIdx, int nBits, int offset)
-// [26] bsls_Types::Int64 extractOne64(bsls_Types::Int64 sInt,
+// [26] bsls::Types::Int64 extractOne64(bsls::Types::Int64 sInt,
 //                                            int sIdx, int nBits, int offset)
 // [32] int find0AtLargestIndex(int srcInteger)
-// [32] int find0AtLargestIndex64(bsls_Types::Int64 srcInteger)
+// [32] int find0AtLargestIndex64(bsls::Types::Int64 srcInteger)
 // [32] int find1AtLargestIndex(int srcInteger)
-// [32] int find1AtLargestIndex64(bsls_Types::Int64 srcInteger)
+// [32] int find1AtLargestIndex64(bsls::Types::Int64 srcInteger)
 // [32] int find0AtSmallestIndex(int srcInteger)
-// [32] int find0AtSmallestIndex64(bsls_Types::Int64 srcInteger)
+// [32] int find0AtSmallestIndex64(bsls::Types::Int64 srcInteger)
 // [32] int find1AtSmallestIndex(int srcInteger)
-// [32] int find1AtSmallestIndex64(bsls_Types::Int64 srcInteger)
+// [32] int find1AtSmallestIndex64(bsls::Types::Int64 srcInteger)
 // [33] int find0AtLargestIndexGE(int srcInteger, int srcIndex)
-// [33] int find0AtLargestIndexGE64(bsls_Types::Int64 srcInteger, int srcIndex)
+// [33] int find0AtLargestIndexGE64(bsls::Types::Int64 srcInteger,int srcIndex)
 // [33] int find0AtLargestIndexGT(int srcInteger, int srcIndex)
-// [33] int find0AtLargestIndexGT64(bsls_Types::Int64 srcInteger, int srcIndex)
+// [33] int find0AtLargestIndexGT64(bsls::Types::Int64 srcInteger,int srcIndex)
 // [33] int find0AtLargestIndexLE(int srcInteger, int srcIndex)
-// [33] int find0AtLargestIndexLE64(bsls_Types::Int64 srcInteger, int srcIndex)
+// [33] int find0AtLargestIndexLE64(bsls::Types::Int64 srcInteger,int srcIndex)
 // [33] int find0AtLargestIndexLT(int srcInteger, int srcIndex)
-// [33] int find0AtLargestIndexLT64(bsls_Types::Int64 srcInteger, int srcIndex)
+// [33] int find0AtLargestIndexLT64(bsls::Types::Int64 srcInteger,int srcIndex)
 // [34] int find1AtLargestIndexGE(int srcInteger, int srcIndex)
-// [34] int find1AtLargestIndexGE64(bsls_Types::Int64 srcInteger, int srcIndex)
+// [34] int find1AtLargestIndexGE64(bsls::Types::Int64 srcInteger,int srcIndex)
 // [34] int find1AtLargestIndexGT(int srcInteger, int srcIndex)
-// [34] int find1AtLargestIndexGT64(bsls_Types::Int64 srcInteger, int srcIndex)
+// [34] int find1AtLargestIndexGT64(bsls::Types::Int64 srcInteger,int srcIndex)
 // [34] int find1AtLargestIndexLE(int srcInteger, int srcIndex)
-// [34] int find1AtLargestIndexLE64(bsls_Types::Int64 srcInteger, int srcIndex)
+// [34] int find1AtLargestIndexLE64(bsls::Types::Int64 srcInteger,int srcIndex)
 // [34] int find1AtLargestIndexLT(int srcInteger, int srcIndex)
-// [34] int find1AtLargestIndexLT64(bsls_Types::Int64 srcInteger, int srcIndex)
+// [34] int find1AtLargestIndexLT64(bsls::Types::Int64 srcInteger,int srcIndex)
 // [35] int find0AtSmallestIndexGE(int srcInteger, int srcIndex)
-// [35] int find0AtSmallestIndexGE64(bsls_Types::Int64 srcInteger,
+// [35] int find0AtSmallestIndexGE64(bsls::Types::Int64 srcInteger,
 //                                                                int srcIndex)
 // [35] int find0AtSmallestIndexGT(int srcInteger, int srcIndex)
-// [35] int find0AtSmallestIndexGT64(bsls_Types::Int64 srcInteger,
+// [35] int find0AtSmallestIndexGT64(bsls::Types::Int64 srcInteger,
 //                                                                int srcIndex)
 // [35] int find0AtSmallestIndexLE(int srcInteger, int srcIndex)
-// [35] int find0AtSmallestIndexLE64(bsls_Types::Int64 srcInteger,
+// [35] int find0AtSmallestIndexLE64(bsls::Types::Int64 srcInteger,
 //                                                                int srcIndex)
 // [35] int find0AtSmallestIndexLT(int srcInteger, int srcIndex)
-// [35] int find0AtSmallestIndexLT64(bsls_Types::Int64 srcInteger,
+// [35] int find0AtSmallestIndexLT64(bsls::Types::Int64 srcInteger,
 //                                                                int srcIndex)
 // [36] int find1AtSmallestIndexGE(int srcInteger, int srcIndex)
-// [36] int find1AtSmallestIndexGE64(bsls_Types::Int64 srcInteger,
+// [36] int find1AtSmallestIndexGE64(bsls::Types::Int64 srcInteger,
 //                                                                int srcIndex)
 // [36] int find1AtSmallestIndexGT(int srcInteger, int srcIndex)
-// [36] int find1AtSmallestIndexGT64(bsls_Types::Int64 srcInteger,
+// [36] int find1AtSmallestIndexGT64(bsls::Types::Int64 srcInteger,
 //                                                                int srcIndex)
 // [36] int find1AtSmallestIndexLE(int srcInteger, int srcIndex)
-// [36] int find1AtSmallestIndexLE64(bsls_Types::Int64 srcInteger,
+// [36] int find1AtSmallestIndexLE64(bsls::Types::Int64 srcInteger,
 //                                                                int srcIndex)
 // [36] int find1AtSmallestIndexLT(int srcInteger, int srcIndex)
-// [36] int find1AtSmallestIndexLT64(bsls_Types::Int64 srcInteger,
+// [36] int find1AtSmallestIndexLT64(bsls::Types::Int64 srcInteger,
 //                                                                int srcIndex)
 // [ 4] int geMask(int index)
-// [ 4] bsls_Types::Int64 geMask(int index)
+// [ 4] bsls::Types::Int64 geMask(int index)
 // [ 4] int gtMask(int index)
-// [ 4] bsls_Types::Int64 gtMask(int index)
+// [ 4] bsls::Types::Int64 gtMask(int index)
 // [10] void insertZero(int *dInt, int dIdx, int nBits)
-// [10] void insertZero64(bsls_Types::Int64 *dInt, int dIdx, int nBits)
+// [10] void insertZero64(bsls::Types::Int64 *dInt, int dIdx, int nBits)
 // [10] void insertOne(int *dInt, int dIdx, int nBits)
-// [10] void insertOne64(bsls_Types::Int64 *dInt, int dIdx, int nBits)
+// [10] void insertOne64(bsls::Types::Int64 *dInt, int dIdx, int nBits)
 // [25] void insertValue(int *dInt, int dIdx, int sInt, int nBits)
-// [25] void insertValue(bsls_Types::Int64 *dInt, int dIdx,
-//                       bsls_Types::Int64 sInt, int nBits)
+// [25] void insertValue(bsls::Types::Int64 *dInt, int dIdx,
+//                       bsls::Types::Int64 sInt, int nBits)
 // [21] void insertValueUpTo(int *dInt, int nBits, int sInt)
-// [21] void insertValueUpTo64(bsls_Types::Int64 *dInt, int nBits,
-//                             bsls_Types::Int64 sInt)
+// [21] void insertValueUpTo64(bsls::Types::Int64 *dInt, int nBits,
+//                             bsls::Types::Int64 sInt)
 // [ 8] int isAnySetZero(int sInt)
-// [ 8] int isAnySetZero64(bsls_Types::Int64 sInt)
+// [ 8] int isAnySetZero64(bsls::Types::Int64 sInt)
 // [ 8] int isAnySetOne(int sInt)
-// [ 8] int isAnySetOne64(bsls_Types::Int64 sInt)
+// [ 8] int isAnySetOne64(bsls::Types::Int64 sInt)
 // [23] int isSetZero(int sInt, int sIdx)
-// [23] int isSetZero64(bsls_Types::Int64 sInt, int sIdx)
+// [23] int isSetZero64(bsls::Types::Int64 sInt, int sIdx)
 // [23] int isSetOne(int sInt, int sIdx)
-// [23] int isSetOne64(bsls_Types::Int64 sInt, int sIdx)
+// [23] int isSetOne64(bsls::Types::Int64 sInt, int sIdx)
 // [ 4] int leMask(int index)
-// [ 4] bsls_Types::Int64 leMask64(int index)
+// [ 4] bsls::Types::Int64 leMask64(int index)
 // [ 4] int ltMask(int index)
-// [ 4] bsls_Types::Int64 ltMask64(int index)
+// [ 4] bsls::Types::Int64 ltMask64(int index)
 // [ 5] int zeroMask(int index, int nBits)
-// [ 5] bsls_Types::Int64 maskZero64(int index, int nBits)
+// [ 5] bsls::Types::Int64 maskZero64(int index, int nBits)
 // [ 5] int oneMask(int index, int nBits)
-// [ 5] bsls_Types::Int64 maskOne64(int index, int nBits)
+// [ 5] bsls::Types::Int64 maskOne64(int index, int nBits)
 // [17] void minusEqual(int *dInt, int dIdx, int boolVal)
-// [17] void minusEqual64(bsls_Types::Int64 *dInt, int dIdx, int boolVal)
+// [17] void minusEqual64(bsls::Types::Int64 *dInt, int dIdx, int boolVal)
 // [30] void minusEqual(int *dInt, int dIdx, int sInt, int nBits)
-// [30] void minusEqual64(bsls_Types::Int64 *dInt, int dIdx,
-//                        bsls_Types::Int64 sInt, int nBits)
+// [30] void minusEqual64(bsls::Types::Int64 *dInt, int dIdx,
+//                        bsls::Types::Int64 sInt, int nBits)
 // [30] void minusEqual(int *dInt, int dIdx, int sInt, int sIdx, int nBits)
-// [30] void minusEqual64(bsls_Types::Int64 *dInt, int dIdx,
-//                        bsls_Types::Int64 sInt, int sIdx, int nBits)
+// [30] void minusEqual64(bsls::Types::Int64 *dInt, int dIdx,
+//                        bsls::Types::Int64 sInt, int sIdx, int nBits)
 // [ 4] int neMask(int index)
-// [ 4] bsls_Types::Int64 neMask64(int index)
+// [ 4] bsls::Types::Int64 neMask64(int index)
 // [24] int numSetZero(int sInt)
-// [24] int numSetZero64(bsls_Types::Int64 sInt)
+// [24] int numSetZero64(bsls::Types::Int64 sInt)
 // [24] int numSetOne(int sInt)
-// [24] int numSetOne64(bsls_Types::Int64 sInt)
+// [24] int numSetOne64(bsls::Types::Int64 sInt)
 // [15] void orEqual(int *dInt, int dIdx, int boolVal)
-// [15] void orEqual64(bsls_Types::Int64 *dInt, int dIdx, int boolVal)
+// [15] void orEqual64(bsls::Types::Int64 *dInt, int dIdx, int boolVal)
 // [28] void orEqual(int *dInt, int dIdx, int sInt, int nBits)
-// [28] void orEqual64(bsls_Types::Int64 *dInt, int dIdx,
-//                     bsls_Types::Int64 sInt, int nBits)
+// [28] void orEqual64(bsls::Types::Int64 *dInt, int dIdx,
+//                     bsls::Types::Int64 sInt, int nBits)
 // [28] void orEqual(int *dInt, int dIdx, int sInt, int sIdx, int nBits)
-// [28] void orEqual64(bsls_Types::Int64 *dInt, int dIdx,
-//                     bsls_Types::Int64 sInt, int sIdx, int nBits)
+// [28] void orEqual64(bsls::Types::Int64 *dInt, int dIdx,
+//                     bsls::Types::Int64 sInt, int sIdx, int nBits)
 // [30] void print(ostream& output, int sInt)
 // [ 6] int rangeZero(int sInt, int sIdx, int nBits)
-// [ 6] bsls_Types::Int64 rangeZero64(bsls_Types::Int64 sInt,
+// [ 6] bsls::Types::Int64 rangeZero64(bsls::Types::Int64 sInt,
 //                                           int sIdx, int nBits)
 // [ 6] int rangeOne(int sInt, int sIdx, int nBits)
-// [ 6] bsls_Types::Int64 rangeOne64(bsls_Types::Int64 sInt,
+// [ 6] bsls::Types::Int64 rangeOne64(bsls::Types::Int64 sInt,
 //                                          int sIdx, int nBits)
 // [12] void removeZero(int *dInt, int dIdx, int nBits)
-// [12] void removeZero64(bsls_Types::Int64 *dInt, int dIdx, int nBits)
+// [12] void removeZero64(bsls::Types::Int64 *dInt, int dIdx, int nBits)
 // [12] void removeOne(int *dInt, int dIdx, int nBits)
-// [12] void removeOne64(bsls_Types::Int64 *dInt, int dIdx, int nBits)
+// [12] void removeOne64(bsls::Types::Int64 *dInt, int dIdx, int nBits)
 // [ 9] void replaceZero(int *dInt, int dIdx, int nBits)
-// [ 9] void replaceZero64(bsls_Types::Int64 *dInt, int dIdx, int nBits)
+// [ 9] void replaceZero64(bsls::Types::Int64 *dInt, int dIdx, int nBits)
 // [ 9] void replaceOne(int *dInt, int dIdx, int nBits)
-// [ 9] void replaceOne64(bsls_Types::Int64 *dInt, int dIdx, int nBits)
+// [ 9] void replaceOne64(bsls::Types::Int64 *dInt, int dIdx, int nBits)
 // [19] void replaceBitZero(int *dInt, int dIdx)
-// [19] void replaceBitZero64(bsls_Types::Int64 *dInt, int dIdx)
+// [19] void replaceBitZero64(bsls::Types::Int64 *dInt, int dIdx)
 // [19] void replaceBitOne(int *dInt, int dIdx)
-// [19] void replaceBitOne64(bsls_Types::Int64 *dInt, int dIdx)
+// [19] void replaceBitOne64(bsls::Types::Int64 *dInt, int dIdx)
 // [20] void replaceBitValue(int *dInt, int dIdx, int sInt)
-// [20] void replaceBitValue64(bsls_Types::Int64 *dInt, int dIdx, int sInt)
+// [20] void replaceBitValue64(bsls::Types::Int64 *dInt, int dIdx, int sInt)
 // [22] void replaceValue(int *dInt, int dIdx, int sInt, int nBits)
-// [22] void replaceValue64(bsls_Types::Int64 *dInt, int dIdx,
+// [22] void replaceValue64(bsls::Types::Int64 *dInt, int dIdx,
 //                          int sInt, int nBits)
 // [18] void replaceValueUpTo(int *dInt, int dIdx, int sInt)
-// [18] void replaceValueUpTo64(bsls_Types::Int64 *dInt, int dIdx, int sInt)
+// [18] void replaceValueUpTo64(bsls::Types::Int64 *dInt, int dIdx, int sInt)
 // [ 9] int setZero(int sInt, int sIdx, int nBits)
-// [ 9] int setZero64(bsls_Types::Int64 sInt, int sIdx, int nBits)
+// [ 9] int setZero64(bsls::Types::Int64 sInt, int sIdx, int nBits)
 // [ 9] int setOne(int sInt, int sIdx, int nBits)
-// [ 9] int setOne64(bsls_Types::Int64 sInt, int sIdx, int nBits)
+// [ 9] int setOne64(bsls::Types::Int64 sInt, int sIdx, int nBits)
 // [19] int setBitZero(int sInt, int sIdx)
-// [19] int setBitZero64(bsls_Types::Int64 sInt, int sIdx)
+// [19] int setBitZero64(bsls::Types::Int64 sInt, int sIdx)
 // [19] int setBitOne(int sInt, int sIdx)
-// [19] int setBitOne64(bsls_Types::Int64 sInt, int sIdx)
+// [19] int setBitOne64(bsls::Types::Int64 sInt, int sIdx)
 // [20] int setBitValue(int sInt, int sIdx, int value)
-// [20] int setBitValue64(bsls_Types::Int64 sInt, int sIdx, int value)
+// [20] int setBitValue64(bsls::Types::Int64 sInt, int sIdx, int value)
 // [22] int setValue(int sInt, int sIdx, int value, int nBits)
-// [22] int setValue(bsls_Types::Int64 sInt, int sIdx,
-//                   bsls_Types::Int64 value, int nBits)
+// [22] int setValue(bsls::Types::Int64 sInt, int sIdx,
+//                   bsls::Types::Int64 value, int nBits)
 // [18] int setValueUpTo(int sInt, int sIdx, int value)
-// [18] int setValueUpTo(bsls_Types::Int64 sInt, int sIdx, int value)
+// [18] int setValueUpTo(bsls::Types::Int64 sInt, int sIdx, int value)
 // [11] void toggle(int *dInt, int dIdx, int nBits)
-// [11] void toggle64(bsls_Types::Int64 *dInt, int dIdx, int nBits)
+// [11] void toggle64(bsls::Types::Int64 *dInt, int dIdx, int nBits)
 // [13] void toggleBit(int *dInt, int dIdx)
-// [13] void toggleBit64(bsls_Types::Int64 *dInt, int dIdx)
+// [13] void toggleBit64(bsls::Types::Int64 *dInt, int dIdx)
 // [16] void xorEqual(int *dInt, int dIdx, int boolVal)
-// [16] void xorEqual64(bsls_Types::Int64 *dInt, int dIdx, int boolVal)
+// [16] void xorEqual64(bsls::Types::Int64 *dInt, int dIdx, int boolVal)
 // [29] void xorEqual(int *dInt, int dIdx, int sInt, int nBits)
-// [29] void xorEqual64(bsls_Types::Int64 *dInt, int dIdx,
-//                      bsls_Types::Int64 sInt, int nBits)
+// [29] void xorEqual64(bsls::Types::Int64 *dInt, int dIdx,
+//                      bsls::Types::Int64 sInt, int nBits)
 // [29] void xorEqual(int *dInt, int dIdx, int sInt, int sIdx, int nBits)
-// [29] void xorEqual64(bsls_Types::Int64 *dInt, int dIdx,
-//                      bsls_Types::Int64 sInt, int sIdx, int nBits)
+// [29] void xorEqual64(bsls::Types::Int64 *dInt, int dIdx,
+//                      bsls::Types::Int64 sInt, int sIdx, int nBits)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TEST GENERATOR FUNCTION: int g(const char *spec)
@@ -275,10 +275,10 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdes_BitUtil       Util;
+typedef bdes_BitUtil        Util;
 
-typedef bsls_Types::Int64  Int64;
-typedef bsls_Types::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 const static Uint64 uint64Max = (Uint64) -1;
 const static Int64  int64Max  = (Int64) (uint64Max / 2);
@@ -770,7 +770,7 @@ static void performanceTest() {
                       << "================" << endl;
 
     enum { MAX_ITER = 10* 1000 * 1000 };
-    bsls_Stopwatch timer;
+    bsls::Stopwatch timer;
     int x = 0;
 
     if (verbose) cout << "\tRaw loop (no-op)" << endl
@@ -1505,10 +1505,10 @@ void testUsage()
 //..
 // 'sizeInBits' will return the size of an object in bits, rather than bytes:
 //..
-    char              thisChar   = 0;
-    short             thisShort  = 0;
-    int               thisInt    = 0;
-    bsls_Types::Int64 thisBigInt = 0;
+    char               thisChar   = 0;
+    short              thisShort  = 0;
+    int                thisInt    = 0;
+    bsls::Types::Int64 thisBigInt = 0;
 
     ASSERT( 8 == bdes_BitUtil::sizeInBits(thisChar));
     ASSERT(16 == bdes_BitUtil::sizeInBits(thisShort));
@@ -2065,7 +2065,7 @@ void testH(int test)
         // Testing:
         //   int find1AtSmallestIndexGE(int srcInteger, int srcIndex)
         //   int find1AtSmallestIndexGE64(
-        //                   bsls_Types::Int64 srcInteger, int srcIndex)
+        //                   bsls::Types::Int64 srcInteger, int srcIndex)
         //   int find1AtSmallestIndexGT(int srcInteger, int srcIndex)
         //   int find1AtSmallestIndexGT64(
         //                   bsls_PlatfromUtil::Int64 srcInteger, int srcIndex)
@@ -5276,14 +5276,14 @@ void testF29()
         //
         // Testing:
         //   void xorEqual(int *dInt, int dIdx, int sInt, int nBits);
-        //   void xorEqual64(bsls_Types::Int64 *dInt,
+        //   void xorEqual64(bsls::Types::Int64 *dInt,
         //                   int dIdx,
-        //                   bsls_Types::Int64 sInt,
+        //                   bsls::Types::Int64 sInt,
         //                   int nBits);
         //   void xorEqual(int *dInt, int dIdx, int sInt, int sIdx, int nBits);
-        //   void xorEqual64(bsls_Types::Int64 *dInt,
+        //   void xorEqual64(bsls::Types::Int64 *dInt,
         //                   int dIdx,
-        //                   bsls_Types::Int64 sInt,
+        //                   bsls::Types::Int64 sInt,
         //                   int sIdx,
         //                   int nBits);
         // --------------------------------------------------------------------
@@ -6757,11 +6757,11 @@ void testF28()
         //
         // Testing:
         //   void orEqual(int *dInt, int dIdx, int sInt, int nBits);
-        //   void orEqual64(bsls_Types::Int64 *dInt, int dIdx,
-        //                  bsls_Types::Int64 sInt, int nBits);
+        //   void orEqual64(bsls::Types::Int64 *dInt, int dIdx,
+        //                  bsls::Types::Int64 sInt, int nBits);
         //   void orEqual(int *dInt, int dIdx, int sInt, int sIdx, int nBits);
-        //   void orEqual64(bsls_Types::Int64 *dInt, int dIdx,
-        //                  bsls_Types::Int64 sInt, int sIdx,
+        //   void orEqual64(bsls::Types::Int64 *dInt, int dIdx,
+        //                  bsls::Types::Int64 sInt, int sIdx,
         //                  int nBits);
         // --------------------------------------------------------------------
 
@@ -8377,14 +8377,14 @@ void testF27()
         //
         // Testing:
         //   void andEqual(int *dInt, int dIdx, int sInt, int nBits);
-        //   void andEqual64(bsls_Types::Int64 *dInt,
+        //   void andEqual64(bsls::Types::Int64 *dInt,
         //                   int dIdx,
-        //                   bsls_Types::Int64 sInt,
+        //                   bsls::Types::Int64 sInt,
         //                   int nBits);
         //   void andEqual(int *dInt, int dIdx, int sInt, int sIdx, int nBits);
-        //   void andEqual64(bsls_Types::Int64 *dInt,
+        //   void andEqual64(bsls::Types::Int64 *dInt,
         //                   int dIdx,
-        //                   bsls_Types::Int64 sInt,
+        //                   bsls::Types::Int64 sInt,
         //                   int sIdx,
         //                   int nBits);
         // --------------------------------------------------------------------
@@ -10400,9 +10400,9 @@ void testE25()
         //
         // Testing:
         //   void insertValue(int *dInt, int dIdx, int sInt, int nBits);
-        //   void insertValue64(bsls_Types::Int64 *dInt,
+        //   void insertValue64(bsls::Types::Int64 *dInt,
         //                      int dIdx,
-        //                      bsls_Types::Int64 sInt,
+        //                      bsls::Types::Int64 sInt,
         //                      int nBits);
         // --------------------------------------------------------------------
 
@@ -11064,9 +11064,9 @@ void testE24()
         //
         // Testing:
         //   int numSetZero(  int sInt);
-        //   int numSetZero64(bsls_Types::Int64 sInt);
+        //   int numSetZero64(bsls::Types::Int64 sInt);
         //   int numSetOne(   int sInt);
-        //   int numSetOne64( bsls_Types::Int64 sInt);
+        //   int numSetOne64( bsls::Types::Int64 sInt);
         // --------------------------------------------------------------------
 
         const int BYTE_MAX = 255;      // maximum unsigned byte value
@@ -11188,9 +11188,9 @@ void testE23()
         //
         // Testing:
         //   bool isSetZero(int sInt, int sIdx);
-        //   bool isSetZero64(bsls_Types::Int64 sInt, int sIdx);
+        //   bool isSetZero64(bsls::Types::Int64 sInt, int sIdx);
         //   bool isSetOne(int sInt, int sIdx);
-        //   bool isSetOne64(bsls_Types::Int64 sInt, int sIdx);
+        //   bool isSetOne64(bsls::Types::Int64 sInt, int sIdx);
         //   bool isSet0(int sInt, int sIdx);
         //   bool isSet1(int sInt, int sIdx);
         // --------------------------------------------------------------------
@@ -11360,14 +11360,14 @@ void testE22()
         //
         // Testing:
         //   int setValue(int sInt, int sIdx, int value, int nBits);
-        //   int setValue64(bsls_Types::Int64 sInt,
+        //   int setValue64(bsls::Types::Int64 sInt,
         //                  int sIdx,
-        //                  bsls_Types::Int64 value,
+        //                  bsls::Types::Int64 value,
         //                  int nBits);
         //   void replaceValue(int *dInt, int dIdx, int sInt, int nBits);
-        //   void replaceValue64(bsls_Types::Int64 *dInt,
+        //   void replaceValue64(bsls::Types::Int64 *dInt,
         //                       int dIdx,
-        //                       bsls_Types::Int64 sInt,
+        //                       bsls::Types::Int64 sInt,
         //                       int nBits);
         // --------------------------------------------------------------------
 
@@ -12040,9 +12040,9 @@ void testE21()
         //
         // Testing:
         //   void insertValueUpTo(int *dInt, int nBits, int sInt);
-        //   void insertValueUpTo(bsls_Types::Int64 *dInt,
+        //   void insertValueUpTo(bsls::Types::Int64 *dInt,
         //                        int nBits,
-        //                        bsls_Types::Int64 sInt);
+        //                        bsls::Types::Int64 sInt);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -12372,11 +12372,11 @@ void testD20()
         //
         // Testing:
         //   int setBitValue(int sInt, int sIdx, int value);
-        //   bsls_Types::Int64 setBitValue(
-        //       bsls_Types::Int64 srcInteger, int srcIndex, int value);
+        //   bsls::Types::Int64 setBitValue(
+        //       bsls::Types::Int64 srcInteger, int srcIndex, int value);
         //   int setBitValue(int sInt, int sIdx, int value);
         //   void replaceBitValue(int *dInt, int dIdx, int value);
-        //   void replaceBitValue64(bsls_Types::Int64 *dstInteger,
+        //   void replaceBitValue64(bsls::Types::Int64 *dstInteger,
         //                          int dstIndex,
         //                          int value);
         // --------------------------------------------------------------------
@@ -13178,7 +13178,7 @@ void testD17()
         //
         // Testing:
         //   void minusEqual(int *dInt, int dIdx, int booleanValue);
-        //   void minusEqual64(bsls_Types::Int64 *dInt, int dIdx,
+        //   void minusEqual64(bsls::Types::Int64 *dInt, int dIdx,
         //                     int booleanValue);
         // --------------------------------------------------------------------
 
@@ -13485,7 +13485,7 @@ void testD16()
         //
         // Testing:
         //   void xorEqual(int *dInt, int dIdx, int booleanValue);
-        //   void xorEqual64(bsls_Types::Int64 *dInt,
+        //   void xorEqual64(bsls::Types::Int64 *dInt,
         //                   int dIdx, int booleanValue);
         // --------------------------------------------------------------------
 
@@ -13813,7 +13813,7 @@ void testC(int test)
         //
         // Testing:
         //   void orEqual(int *dInt, int dIdx, int booleanValue);
-        //   void orEqual64(bsls_Types::Int64 *dInt,
+        //   void orEqual64(bsls::Types::Int64 *dInt,
         //                  int dIdx, int booleanValue);
         // --------------------------------------------------------------------
 
@@ -14416,7 +14416,7 @@ void testC(int test)
         //
         // Testing:
         //   void toggleBit(int *dInt, int dIdx);
-        //   void toggleBit64(bsls_Types::Int64 *dInt, int dIdx);
+        //   void toggleBit64(bsls::Types::Int64 *dInt, int dIdx);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -14749,16 +14749,16 @@ void testC(int test)
             { L_,  DSTB,  3, 7,g64("0000000110100"),g64("11111110..0110100") },
             { L_,  DSTB,  3, 8,g64("0000000011100"),g64("111111110..011100") },
 
-        { L_,DSTC,34, 4,g64("0110110100"FW_01),g64("11110..0110110100"FW_01) },
-        { L_,DSTC,34, 5,g64("0011011000"FW_01),g64("111110..011011000"FW_01) },
-        { L_,DSTC,34, 6,g64("0001101100"FW_01),g64("1111110..01101100"FW_01) },
-        { L_,DSTC,34, 7,g64("0000110100"FW_01),g64("11111110..0110100"FW_01) },
-        { L_,DSTC,34, 8,g64("0000011000"FW_01),g64("111111110..011000"FW_01) },
-        { L_,DSTC,35, 4,g64("0110110100"FW_01),g64("11110..0110110100"FW_01) },
-        { L_,DSTC,35, 5,g64("0011011100"FW_01),g64("111110..011011100"FW_01) },
-        { L_,DSTC,35, 6,g64("0001101100"FW_01),g64("1111110..01101100"FW_01) },
-        { L_,DSTC,35, 7,g64("0000110100"FW_01),g64("11111110..0110100"FW_01) },
-        { L_,DSTC,35, 8,g64("0000011100"FW_01),g64("111111110..011100"FW_01) }
+      { L_,DSTC,34, 4,g64("0110110100" FW_01),g64("11110..0110110100" FW_01) },
+      { L_,DSTC,34, 5,g64("0011011000" FW_01),g64("111110..011011000" FW_01) },
+      { L_,DSTC,34, 6,g64("0001101100" FW_01),g64("1111110..01101100" FW_01) },
+      { L_,DSTC,34, 7,g64("0000110100" FW_01),g64("11111110..0110100" FW_01) },
+      { L_,DSTC,34, 8,g64("0000011000" FW_01),g64("111111110..011000" FW_01) },
+      { L_,DSTC,35, 4,g64("0110110100" FW_01),g64("11110..0110110100" FW_01) },
+      { L_,DSTC,35, 5,g64("0011011100" FW_01),g64("111110..011011100" FW_01) },
+      { L_,DSTC,35, 6,g64("0001101100" FW_01),g64("1111110..01101100" FW_01) },
+      { L_,DSTC,35, 7,g64("0000110100" FW_01),g64("11111110..0110100" FW_01) },
+      { L_,DSTC,35, 8,g64("0000011100" FW_01),g64("111111110..011100" FW_01) }
         };
         const int NUM_DATA_B = sizeof DATA_B / sizeof *DATA_B;
 
@@ -14802,7 +14802,7 @@ void testC(int test)
         //
         // Testing:
         //   void toggle(int *dInt, int dIdx, int nBits);
-        //   void toggle64(bsls_Types::Int64 *dInt,
+        //   void toggle64(bsls::Types::Int64 *dInt,
         //                 int dIdx,
         //                 int nBits);
         // --------------------------------------------------------------------
@@ -15505,16 +15505,16 @@ void testB(int test)
             { L_,   DSTB,  3,  7,g64("1100000000100"),g64("1101111111100") },
             { L_,   DSTB,  3,  8,g64("1100000000100"),g64("1111111111100") },
 
-          { L_,DSTC,34,4,g64("1101101000000"FW_01),g64("1101101111100"FW_01) },
-          { L_,DSTC,34,5,g64("1101100000000"FW_01),g64("1101101111100"FW_01) },
-          { L_,DSTC,34,6,g64("1101100000000"FW_01),g64("1101111111100"FW_01) },
-          { L_,DSTC,34,7,g64("1101000000000"FW_01),g64("1101111111100"FW_01) },
-          { L_,DSTC,34,8,g64("1100000000000"FW_01),g64("1101111111100"FW_01) },
-          { L_,DSTC,35,4,g64("1101100000100"FW_01),g64("1101101111100"FW_01) },
-          { L_,DSTC,35,5,g64("1101100000100"FW_01),g64("1101111111100"FW_01) },
-          { L_,DSTC,35,6,g64("1101000000100"FW_01),g64("1101111111100"FW_01) },
-          { L_,DSTC,35,7,g64("1100000000100"FW_01),g64("1101111111100"FW_01) },
-          { L_,DSTC,35,8,g64("1100000000100"FW_01),g64("1111111111100"FW_01) },
+        { L_,DSTC,34,4,g64("1101101000000" FW_01),g64("1101101111100" FW_01) },
+        { L_,DSTC,34,5,g64("1101100000000" FW_01),g64("1101101111100" FW_01) },
+        { L_,DSTC,34,6,g64("1101100000000" FW_01),g64("1101111111100" FW_01) },
+        { L_,DSTC,34,7,g64("1101000000000" FW_01),g64("1101111111100" FW_01) },
+        { L_,DSTC,34,8,g64("1100000000000" FW_01),g64("1101111111100" FW_01) },
+        { L_,DSTC,35,4,g64("1101100000100" FW_01),g64("1101101111100" FW_01) },
+        { L_,DSTC,35,5,g64("1101100000100" FW_01),g64("1101111111100" FW_01) },
+        { L_,DSTC,35,6,g64("1101000000100" FW_01),g64("1101111111100" FW_01) },
+        { L_,DSTC,35,7,g64("1100000000100" FW_01),g64("1101111111100" FW_01) },
+        { L_,DSTC,35,8,g64("1100000000100" FW_01),g64("1111111111100" FW_01) },
         };
         const int NUM_DATA_B = sizeof DATA_B / sizeof *DATA_B;
 
@@ -16317,17 +16317,17 @@ void testA(int test)
         //
         // Testing:
         //   int eqMask(int index);
-        //   bsls_Types::Int64 eqMask64(int index);
+        //   bsls::Types::Int64 eqMask64(int index);
         //   int neMask(int index);
-        //   bsls_Types::Int64 neMask64(int index);
+        //   bsls::Types::Int64 neMask64(int index);
         //   int geMask(int index);
-        //   bsls_Types::Int64 geMask64(int index);
+        //   bsls::Types::Int64 geMask64(int index);
         //   int gtMask(int index);
-        //   bsls_Types::Int64 gtMask64(int index);
+        //   bsls::Types::Int64 gtMask64(int index);
         //   int leMask(int index);
-        //   bsls_Types::Int64 leMask64(int index);
+        //   bsls::Types::Int64 leMask64(int index);
         //   int ltMask(int index);
-        //   bsls_Types::Int64 ltMask64(int index);
+        //   bsls::Types::Int64 ltMask64(int index);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -16636,32 +16636,32 @@ void testA(int test)
                 { L_, "1..11.",             G_MULTIPLE_RANGES       },
 
                 { L_, FW_0,                 0                       },
-                { L_, FW_0"0",              G_TOO_MANY_BITS         },
-                { L_, FW_0"1",              G_TOO_MANY_BITS         },
-                { L_, "0"FW_0,              G_TOO_MANY_BITS         },
-                { L_, "1"FW_0,              G_TOO_MANY_BITS         },
+                { L_, FW_0 "0",             G_TOO_MANY_BITS         },
+                { L_, FW_0 "1",             G_TOO_MANY_BITS         },
+                { L_, "0" FW_0,             G_TOO_MANY_BITS         },
+                { L_, "1" FW_0,             G_TOO_MANY_BITS         },
 
                 { L_, FW_1,                 -1                      },
-                { L_, FW_1"0",              G_TOO_MANY_BITS         },
-                { L_, FW_1"1",              G_TOO_MANY_BITS         },
-                { L_, "0"FW_1,              G_TOO_MANY_BITS         },
-                { L_, "1"FW_1,              G_TOO_MANY_BITS         },
+                { L_, FW_1 "0",             G_TOO_MANY_BITS         },
+                { L_, FW_1 "1",             G_TOO_MANY_BITS         },
+                { L_, "0" FW_1,             G_TOO_MANY_BITS         },
+                { L_, "1" FW_1,             G_TOO_MANY_BITS         },
 
-                { L_, "1..1"FW_0,           0                       },
-                { L_, HW_0"1..1"HW_0,       0                       },
-                { L_, FW_0"1..1",           0                       },
+                { L_, "1..1" FW_0,          0                       },
+                { L_, HW_0 "1..1" HW_0,     0                       },
+                { L_, FW_0 "1..1",          0                       },
 
-                { L_, "1..1"FW_0"0",        G_TOO_MANY_BITS         },
-                { L_, HW_0"1..1"HW_0"0",    G_TOO_MANY_BITS         },
-                { L_, "0"FW_0"1..1",        G_TOO_MANY_BITS         },
+                { L_, "1..1" FW_0 "0",      G_TOO_MANY_BITS         },
+                { L_, HW_0 "1..1" HW_0 "0", G_TOO_MANY_BITS         },
+                { L_, "0" FW_0 "1..1",      G_TOO_MANY_BITS         },
 
-                { L_, "0..0"FW_1,           -1                      },
-                { L_, HW_1"0..0"HW_1,       -1                      },
-                { L_, FW_1"0..0",           -1                      },
+                { L_, "0..0" FW_1,          -1                      },
+                { L_, HW_1 "0..0" HW_1,     -1                      },
+                { L_, FW_1 "0..0",          -1                      },
 
-                { L_, "0..0"FW_1"0",        G_TOO_MANY_BITS         },
-                { L_, HW_1"0..0"HW_1"1",    G_TOO_MANY_BITS         },
-                { L_, "1"FW_1"0..0",        G_TOO_MANY_BITS         },
+                { L_, "0..0" FW_1 "0",      G_TOO_MANY_BITS         },
+                { L_, HW_1 "0..0" HW_1"1",  G_TOO_MANY_BITS         },
+                { L_, "1" FW_1 "0..0",      G_TOO_MANY_BITS         },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -16820,32 +16820,32 @@ void testA(int test)
                 { L_, "1..11.",             G_MULTIPLE_RANGES       },
 
                 { L_, SW_0,                 0                       },
-                { L_, SW_0"0",              G_TOO_MANY_BITS         },
-                { L_, SW_0"1",              G_TOO_MANY_BITS         },
-                { L_, "0"SW_0,              G_TOO_MANY_BITS         },
-                { L_, "1"SW_0,              G_TOO_MANY_BITS         },
+                { L_, SW_0 "0",             G_TOO_MANY_BITS         },
+                { L_, SW_0 "1",             G_TOO_MANY_BITS         },
+                { L_, "0" SW_0,             G_TOO_MANY_BITS         },
+                { L_, "1" SW_0,             G_TOO_MANY_BITS         },
 
                 { L_, SW_1,                 -1                      },
-                { L_, SW_1"0",              G_TOO_MANY_BITS         },
-                { L_, SW_1"1",              G_TOO_MANY_BITS         },
-                { L_, "0"SW_1,              G_TOO_MANY_BITS         },
-                { L_, "1"SW_1,              G_TOO_MANY_BITS         },
+                { L_, SW_1 "0",             G_TOO_MANY_BITS         },
+                { L_, SW_1 "1",             G_TOO_MANY_BITS         },
+                { L_, "0" SW_1,             G_TOO_MANY_BITS         },
+                { L_, "1" SW_1,             G_TOO_MANY_BITS         },
 
-                { L_, "1..1"SW_0,           0                       },
-                { L_, FW_0"1..1"FW_0,       0                       },
-                { L_, SW_0"1..1",           0                       },
+                { L_, "1..1" SW_0,          0                       },
+                { L_, FW_0 "1..1" FW_0,     0                       },
+                { L_, SW_0 "1..1",          0                       },
 
-                { L_, "1..1"SW_0"0",        G_TOO_MANY_BITS         },
-                { L_, FW_0"1..1"FW_0"0",    G_TOO_MANY_BITS         },
-                { L_, "0"SW_0"1..1",        G_TOO_MANY_BITS         },
+                { L_, "1..1" SW_0"0",       G_TOO_MANY_BITS         },
+                { L_, FW_0 "1..1" FW_0 "0", G_TOO_MANY_BITS         },
+                { L_, "0" SW_0"1..1",       G_TOO_MANY_BITS         },
 
-                { L_, "0..0"SW_1,           -1                      },
-                { L_, FW_1"0..0"FW_1,       -1                      },
-                { L_, SW_1"0..0",           -1                      },
+                { L_, "0..0" SW_1,          -1                      },
+                { L_, FW_1 "0..0" FW_1,     -1                      },
+                { L_, SW_1 "0..0",          -1                      },
 
-                { L_, "0..0"SW_1"0",        G_TOO_MANY_BITS         },
-                { L_, FW_1"0..0"FW_1"1",    G_TOO_MANY_BITS         },
-                { L_, "1"SW_1"0..0",        G_TOO_MANY_BITS         },
+                { L_, "0..0" SW_1 "0",      G_TOO_MANY_BITS         },
+                { L_, FW_1 "0..0" FW_1 "1", G_TOO_MANY_BITS         },
+                { L_, "1" SW_1 "0..0",      G_TOO_MANY_BITS         },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

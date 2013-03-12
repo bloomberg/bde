@@ -63,11 +63,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
-
 namespace BloombergLP {
 namespace bslstl {
 
@@ -80,8 +75,8 @@ struct IteratorUtil {
     // iterator ranges.
 
     template <class InputIterator>
-    static native_std::size_t insertDistance(InputIterator first,
-                                             InputIterator last);
+    static typename bsl::iterator_traits<InputIterator>::difference_type
+    insertDistance(InputIterator first, InputIterator last);
         // Return 0 if the (template parameter) type 'InputIterator' is limited
         // to the standard input-iterator category, otherwise return the number
         // of elements that is reachable from the specified 'first' to (but not
@@ -103,8 +98,8 @@ struct IteratorUtil {
                     // ------------------
 
 template <class InputIterator>
-native_std::size_t IteratorUtil::insertDistance(InputIterator first,
-                                                InputIterator last)
+typename bsl::iterator_traits<InputIterator>::difference_type
+IteratorUtil::insertDistance(InputIterator first, InputIterator last)
 {
     struct impl {
         // This local class provides a utility to estimate the maximum
@@ -112,16 +107,18 @@ native_std::size_t IteratorUtil::insertDistance(InputIterator first,
         // operation on a standard container, by performing tag dispatch
         // on the iterator's category type.
 
-        static native_std::size_t calc(InputIterator, // first
-                                       InputIterator, // last
-                                       native_std::input_iterator_tag)
+        static
+        typename bsl::iterator_traits<InputIterator>::difference_type
+        calc(InputIterator, InputIterator, native_std::input_iterator_tag)
         {
             return 0;
         }
 
-        static native_std::size_t calc(InputIterator first,
-                                       InputIterator last,
-                                       native_std::forward_iterator_tag)
+        static
+        typename bsl::iterator_traits<InputIterator>::difference_type
+        calc(InputIterator first,
+             InputIterator last,
+             native_std::forward_iterator_tag)
         {
             return bsl::distance(first, last);
         }
@@ -137,11 +134,24 @@ native_std::size_t IteratorUtil::insertDistance(InputIterator first,
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -76,12 +76,12 @@ BDES_IDENT("$Id: $")
 #include <bces_atomicutil.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
 #endif
 
 namespace BloombergLP {
@@ -128,9 +128,9 @@ class bteso_TimeMetrics {
     };
 
     // CREATORS
-    bteso_TimeMetrics(int              numCategories,
-                      int              initialCategory,
-                      bslma_Allocator *basicAllocator = 0);
+    bteso_TimeMetrics(int               numCategories,
+                      int               initialCategory,
+                      bslma::Allocator *basicAllocator = 0);
         // Create a metrics that distinguishes between the specified
         // 'numCategories' different categories having the specified
         // 'initialCategory'.  Optionally specify a 'basicAllocator' used to

@@ -2,7 +2,7 @@
 
 #include <bdemf_isenum.h>
 
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
         ASSERT(! bdemf_IsEnum<unsigned long>::VALUE);
         ASSERT(! bdemf_IsEnum<long long>::VALUE);
         ASSERT(! bdemf_IsEnum<unsigned long long>::VALUE);
-        ASSERT(! bdemf_IsEnum<bsls_PlatformUtil::Int64>::VALUE);
-        ASSERT(! bdemf_IsEnum<bsls_PlatformUtil::Uint64>::VALUE);
+        ASSERT(! bdemf_IsEnum<bsls::Types::Int64>::VALUE);
+        ASSERT(! bdemf_IsEnum<bsls::Types::Uint64>::VALUE);
         ASSERT(! bdemf_IsEnum<float>::VALUE);
         ASSERT(! bdemf_IsEnum<double>::VALUE);
         ASSERT(! bdemf_IsEnum<long double>::VALUE);

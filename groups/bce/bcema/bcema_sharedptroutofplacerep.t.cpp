@@ -96,14 +96,15 @@ static void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 enum { TEST_ALLOCATOR_DELETER =
-  bcema_SharedPtrOutofplaceRep_DeleterDiscriminator<bslma_Allocator*>::VALUE };
+   bcema_SharedPtrOutofplaceRep_DeleterDiscriminator<bslma::Allocator *>::VALUE
+};
 
 // TEST IMPLEMENTATION (defined below)
 class MyTestObject;
 class MyAllocTestDeleter;
 
 // TYPEDEFS
-typedef bcema_SharedPtrOutofplaceRep<MyTestObject, bslma_Allocator *> Obj;
+typedef bcema_SharedPtrOutofplaceRep<MyTestObject, bslma::Allocator *> Obj;
 typedef MyTestObject TObj;
 typedef void (*DeleteFunction)(MyTestObject *);
 
@@ -175,26 +176,26 @@ void myDeleteFunction(MyTestObject *object) {
 
 class MyAllocTestDeleter {
     // This class provides a prototypical function-like deleter that takes a
-    // 'bslma_Allocator' at construction.  It is used to check that the
+    // 'bslma::Allocator' at construction.  It is used to check that the
     // allocator used to construct the representation is passed correctly to
     // the deleter.
 
     // DATA
-    bslma_Allocator *d_allocator_p;
-    bslma_Allocator *d_deleter_p;
-    void            *d_someMemory;
+    bslma::Allocator *d_allocator_p;
+    bslma::Allocator *d_deleter_p;
+    void             *d_someMemory;
 
   public:
     BSLALG_DECLARE_NESTED_TRAITS(MyAllocTestDeleter,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
   public:
     // CREATORS
-    MyAllocTestDeleter(bslma_Allocator *deleter,
-                       bslma_Allocator *basicAllocator = 0);
+    MyAllocTestDeleter(bslma::Allocator *deleter,
+                       bslma::Allocator *basicAllocator = 0);
 
     MyAllocTestDeleter(MyAllocTestDeleter const&  orig,
-                       bslma_Allocator           *basicAllocator = 0);
+                       bslma::Allocator          *basicAllocator = 0);
 
     ~MyAllocTestDeleter();
 
@@ -210,9 +211,9 @@ class MyAllocTestDeleter {
                           // ------------------------
 
 // CREATORS
-MyAllocTestDeleter::MyAllocTestDeleter(bslma_Allocator *deleter,
-                                   bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+MyAllocTestDeleter::MyAllocTestDeleter(bslma::Allocator *deleter,
+                                       bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_deleter_p(deleter)
 {
     d_someMemory = d_allocator_p->allocate(13);
@@ -220,8 +221,8 @@ MyAllocTestDeleter::MyAllocTestDeleter(bslma_Allocator *deleter,
 
 MyAllocTestDeleter::MyAllocTestDeleter(
                                      MyAllocTestDeleter const&  original,
-                                     bslma_Allocator           *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                     bslma::Allocator          *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_deleter_p(original.d_deleter_p)
 {
     d_someMemory = d_allocator_p->allocate(13);
@@ -254,7 +255,7 @@ void MyAllocTestDeleter::operator()(TYPE *ptr) const
 class MyTestFactory {
   public:
     // MANIPULATORS
-    MyTestObject *createObject(bslma_Allocator *basicAllocator = 0) {
+    MyTestObject *createObject(bslma::Allocator *basicAllocator = 0) {
         // Create a 'MyTestObject' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator is used.
@@ -281,7 +282,8 @@ class MySharedDatetime {
 
   public:
     // CREATORS
-    MySharedDatetime(bdet_Datetime* ptr, bslma_Allocator* basicAllocator = 0);
+    MySharedDatetime(bdet_Datetime    *ptr,
+                     bslma::Allocator *basicAllocator = 0);
     MySharedDatetime(const MySharedDatetime& original);
     ~MySharedDatetime();
 
@@ -302,11 +304,11 @@ class MySharedDatetime {
                               // MySharedDatetime
                               // ----------------
 
-MySharedDatetime::MySharedDatetime(bdet_Datetime *ptr,
-                                   bslma_Allocator* basicAllocator)
+MySharedDatetime::MySharedDatetime(bdet_Datetime    *ptr,
+                                   bslma::Allocator *basicAllocator)
 {
     d_ptr_p = ptr;
-    d_rep_p = bcema_SharedPtrOutofplaceRep<bdet_Datetime, bslma_Allocator*>::
+    d_rep_p = bcema_SharedPtrOutofplaceRep<bdet_Datetime, bslma::Allocator *>::
                         makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 }
 
@@ -404,36 +406,36 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bcema_SharedPtrOutofplaceRep(
-        //                    TYPE            *ptr,
-        //                    const DELETER&   deleter,
-        //                    bslma_Allocator *basicAllocator,
-        //                    bslmf_MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
+        //                   TYPE             *ptr,
+        //                   const DELETER&    deleter,
+        //                   bslma::Allocator *basicAllocator,
+        //                   bslmf::MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
         //   bcema_SharedPtrOutofplaceRep(
-        //                      TYPE            *ptr,
-        //                      const DELETER&   deleter,
-        //                      bslma_Allocator *basicAllocator,
-        //                      bslmf_MetaInt<DeleterType::BCEMA_FACTORY_PTR>);
+        //                     TYPE             *ptr,
+        //                     const DELETER&    deleter,
+        //                     bslma::Allocator *basicAllocator,
+        //                     bslmf::MetaInt<DeleterType::BCEMA_FACTORY_PTR>);
         //   bcema_SharedPtrOutofplaceRep(
-        //               TYPE            *ptr,
-        //               const DELETER&   deleter,
-        //               bslma_Allocator *basicAllocator,
-        //               bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>);
+        //              TYPE             *ptr,
+        //              const DELETER&    deleter,
+        //              bslma::Allocator *basicAllocator,
+        //              bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>);
         //   bcema_SharedPtrOutofplaceRep(
-        //            TYPE            *ptr,
-        //            const DELETER&   deleter,
-        //            bslma_Allocator *basicAllocator,
-        //            bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>);
+        //           TYPE             *ptr,
+        //           const DELETER&    deleter,
+        //           bslma::Allocator *basicAllocator,
+        //           bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>);
         //   bcema_SharedPtrOutofplaceRep<TYPE, DELETER> * makeOutofplaceRep(
         //                                TYPE             *ptr,
-        //                                const DELETER&   deleter,
-        //                                bslma_Allocator *basicAllocator = 0);
+        //                                const DELETER&    deleter,
+        //                                bslma::Allocator *basicAllocator=0);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "Testing Constructors and Destructor" << endl
                           << "===================================" << endl;
 
         if (verbose) cout << endl
-                          << "Testing bslma_Allocator Deleter" << endl
+                          << "Testing bslma::AllocatorDeleter" << endl
                           << "-------------------------------" << endl;
 
         {
@@ -672,14 +674,14 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bcema_SharedPtrOutofplaceRep(
-        //                    TYPE            *ptr,
-        //                    const DELETER&   deleter,
-        //                    bslma_Allocator *basicAllocator,
-        //                    bslmf_MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
+        //                   TYPE             *ptr,
+        //                   const DELETER&    deleter,
+        //                   bslma::Allocator *basicAllocator,
+        //                   bslmf::MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
         //   bcema_SharedPtrOutofplaceRep<TYPE, DELETER> * makeOutofplaceRep(
         //                                TYPE             *ptr,
-        //                                const DELETER&   deleter,
-        //                                bslma_Allocator *basicAllocator = 0);
+        //                                const DELETER&    deleter,
+        //                                bslma::Allocator *basicAllocator=0);
         //   void disposeObject();
         //   void disposeRep();
         //   void *originalPtr() const;

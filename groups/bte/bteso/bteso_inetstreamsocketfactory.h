@@ -41,7 +41,7 @@ BDES_IDENT("$Id: $")
 //
 ///Thread-safety
 ///-------------
-// The classes provided by this component depend on a 'bslma_Allocator'
+// The classes provided by this component depend on a 'bslma::Allocator'
 // instance to supply memory.  If the allocator is not thread enabled then the
 // instances of this component that use the same allocator instance will
 // consequently not be thread safe.  Otherwise, this component provides the
@@ -205,12 +205,12 @@ class bteso_InetStreamSocketFactory : public bteso_StreamSocketFactory<ADDRESS>
     // TCP-based stream socket objects of type
     // 'bteso_InetStreamSocket<ADDRESS>'.
 
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) object
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) object
 
   public:
     // CREATORS
     explicit bteso_InetStreamSocketFactory(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create a stream socket factory.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -269,11 +269,11 @@ class bteso_InetStreamSocket : public bteso_StreamSocket<ADDRESS> {
     // DATA
     bteso_SocketHandle::Handle d_handle;
 
-    bslma_Allocator           *d_allocator_p; // holds (but doesn't own) object
+    bslma::Allocator          *d_allocator_p; // holds (but doesn't own) object
 
     // PRIVATE CREATORS
-    bteso_InetStreamSocket(bteso_SocketHandle::Handle handle,
-                           bslma_Allocator           *allocator);
+    bteso_InetStreamSocket(bteso_SocketHandle::Handle  handle,
+                           bslma::Allocator           *allocator);
         // Create a stream socket attached to the specified socket 'handle'
         // that uses the specified 'allocator' to supply memory.  If
         // 'allocator' is 0, the currently installed default allocator is used.
@@ -565,7 +565,7 @@ class bteso_InetStreamSocket_AutoCloseSocket {
 template <class ADDRESS>
 bteso_InetStreamSocket<ADDRESS>::bteso_InetStreamSocket(
                                          bteso_SocketHandle::Handle  handle,
-                                         bslma_Allocator            *allocator)
+                                         bslma::Allocator           *allocator)
 : d_handle(handle)
 , d_allocator_p(allocator)
 {
@@ -1244,8 +1244,8 @@ bteso_SocketHandle::Handle bteso_InetStreamSocket<ADDRESS>::handle() const
 template <class ADDRESS>
 inline
 bteso_InetStreamSocketFactory<ADDRESS>::bteso_InetStreamSocketFactory(
-                                               bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     bteso_SocketImpUtil::startup();
 }

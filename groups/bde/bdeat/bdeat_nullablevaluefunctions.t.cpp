@@ -250,7 +250,7 @@ class PrintValue {
     int operator()(const TYPE& value)
     {
         typedef typename
-        bslmf_If<
+        bslmf::If<
             bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
             IsNullableValueType,
             IsNotNullableValueType>::Type Toggle;
@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == Obj::IsNullableValue<bdeut_NullableValue<int> >::VALUE);
 
         typedef Obj::ValueType<bdeut_NullableValue<int> >::Type ValueType;
-        ASSERT(1 == (bslmf_IsSame<ValueType, int>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<ValueType, int>::VALUE));
 
       } break;
       case 1: {

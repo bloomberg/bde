@@ -29,9 +29,9 @@ baexml_Encoder::MemOutStream::~MemOutStream()
 
 baexml_Encoder::baexml_Encoder(
                    const baexml_EncoderOptions *options,
-                   bslma_Allocator             *basicAllocator)
+                   bslma::Allocator            *basicAllocator)
 : d_options       (options)
-, d_allocator     (bslma_Default::allocator(basicAllocator))
+, d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
 , d_severity      (baexml_ErrorInfo::BAEXML_NO_ERROR)
 , d_errorStream   (0)
@@ -43,9 +43,9 @@ baexml_Encoder::baexml_Encoder(
                    const baexml_EncoderOptions *options,
                    bsl::ostream                *errorStream,
                    bsl::ostream                *warningStream,
-                   bslma_Allocator             *basicAllocator)
+                   bslma::Allocator            *basicAllocator)
 : d_options       (options)
-, d_allocator     (bslma_Default::allocator(basicAllocator))
+, d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
 , d_severity      (baexml_ErrorInfo::BAEXML_NO_ERROR)
 , d_errorStream   (errorStream)

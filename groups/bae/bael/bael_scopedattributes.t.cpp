@@ -7,9 +7,11 @@
 #include <bdex_testinstream.h>                  // for testing only
 #include <bdex_testoutstream.h>                 // for testing only
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
@@ -107,8 +109,8 @@ int veryVeryVerbose;
                   case 1: // int
                     return lhs.value().the<int>() < rhs.value().the<int>();
                   case 2: // int64
-                    return lhs.value().the<bsls_PlatformUtil::Int64>()
-                        <  rhs.value().the<bsls_PlatformUtil::Int64>();
+                    return lhs.value().the<bsls::Types::Int64>()
+                        <  rhs.value().the<bsls::Types::Int64>();
                  case 3: // string
                    return lhs.value().the<bsl::string>()
                        <  rhs.value().the<bsl::string>();
@@ -125,7 +127,7 @@ int veryVeryVerbose;
 
       public:
         // CREATORS
-        AttributeSet(bslma_Allocator *basicAllocator = 0);
+        AttributeSet(bslma::Allocator *basicAllocator = 0);
             // Create this attribute set.
 
         virtual ~AttributeSet();
@@ -158,7 +160,7 @@ int veryVeryVerbose;
 // operations on an 'bsl::set'.
 //..
     inline
-    AttributeSet::AttributeSet(bslma_Allocator *basicAllocator)
+    AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
     : d_set(AttributeComparator(), basicAllocator)
     {
     }

@@ -14,7 +14,6 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -272,7 +271,7 @@ void zprintf(const char *, ...)
 // from those found in the .h files (mostly 'elf.h').  The following
 // transformations have been done on the definitions found in the .h file --
 // typedefs to fundamental types have been resolved (some that are equivalent
-// to 'bsls_Types::UintPtr' have been translated to 'UintPtr') and the names
+// to 'bsls::Types::UintPtr' have been translated to 'UintPtr') and the names
 // given for the structs are the names of typedefs to them in the namespace
 // 'Local' within this file.  Significantly, data members not used in this
 // source file are ommitted.
@@ -531,7 +530,7 @@ struct Local::StackTraceResolver::CurrentSegment {
     // resolving symbols within one at a time.
 
     // TYPES
-    typedef bsls_Types::UintPtr
+    typedef bsls::Types::UintPtr
                    UintPtr;             // 32 bit unsigned on 32 bit, 64 bit
                                         // unsigned on 64 bit, usually used for
                                         // absolute offsets into a file
@@ -588,7 +587,7 @@ struct Local::StackTraceResolver::CurrentSegment {
                                         // '*resolver.d_stackTrace_p'
 
     // CREATORS
-    CurrentSegment(int numFrames, bslma_Allocator *basicAllocator);
+    CurrentSegment(int numFrames, bslma::Allocator *basicAllocator);
         // Create this 'Seg' object, using the specified 'basicAllocator'
         // to allocate the arrays 'd_framePtrs_p' and 'd_addresses_p' to
         // have the specified 'numFrames' elements, initialize
@@ -606,8 +605,8 @@ struct Local::StackTraceResolver::CurrentSegment {
 
 // CREATORS
 Local::StackTraceResolver::CurrentSegment::CurrentSegment(
-                                               int              numFrames,
-                                               bslma_Allocator *basicAllocator)
+                                              int               numFrames,
+                                              bslma::Allocator *basicAllocator)
 : d_helper_p(0)
 , d_framePtrs_p(0)
 , d_addresses_p(0)

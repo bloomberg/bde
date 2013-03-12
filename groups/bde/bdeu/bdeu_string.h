@@ -113,16 +113,16 @@ struct bdeu_String {
         // 'true' if 'lhsString' and 'rhsString' are equal up to a case
         // conversion, and 'false' otherwise.
 
-    static char *copy(const char *string, bslma_Allocator *basicAllocator);
+    static char *copy(const char *string, bslma::Allocator *basicAllocator);
         // Create a null-terminated copy of the specified 'string', using the
         // specified 'basicAllocator' to supply memory, and return the address
         // of the newly-created modifiable string.  The string that is returned
         // is owned by the caller.  The behavior is undefined unless
         // 'basicAllocator' is non-null.
 
-    static char *copy(const char      *string,
-                      int              length,
-                      bslma_Allocator *basicAllocator);
+    static char *copy(const char       *string,
+                      int               length,
+                      bslma::Allocator *basicAllocator);
         // Create a null-terminated copy of the specified 'string' having the
         // specified 'length' (in bytes), using the specified 'basicAllocator'
         // to supply memory, and return the address of the newly-created
@@ -132,7 +132,7 @@ struct bdeu_String {
         // null-terminated and may contain null ('\0') characters.
 
     static char *copy(const bsl::string&  string,
-                      bslma_Allocator    *basicAllocator);
+                      bslma::Allocator   *basicAllocator);
         // Create a null-terminated copy of the specified 'string', using the
         // specified 'basicAllocator' to supply memory, and return the address
         // of the newly-created modifiable string.  The string that is returned
@@ -379,7 +379,7 @@ bool bdeu_String::areEqualCaseless(const bsl::string& lhsString,
 }
 
 inline
-char *bdeu_String::copy(const char *string, bslma_Allocator *basicAllocator)
+char *bdeu_String::copy(const char *string, bslma::Allocator *basicAllocator)
 {
     BSLS_ASSERT_SAFE(string);
     BSLS_ASSERT_SAFE(basicAllocator);
@@ -391,7 +391,7 @@ char *bdeu_String::copy(const char *string, bslma_Allocator *basicAllocator)
 
 inline
 char *bdeu_String::copy(const bsl::string&  string,
-                        bslma_Allocator    *basicAllocator)
+                        bslma::Allocator   *basicAllocator)
 {
     BSLS_ASSERT_SAFE(basicAllocator);
 

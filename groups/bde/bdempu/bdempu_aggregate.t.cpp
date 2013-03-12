@@ -11,6 +11,8 @@
 
 #include <bdetu_unset.h>
 
+#include <bsls_types.h>
+
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -245,7 +247,7 @@ int main(int argc, char *argv[])
 
         typedef bdem_Table T;
 
-        typedef bsls_PlatformUtil::Int64 Int64;
+        typedef bsls::Types::Int64 Int64;
 
         const char X_CHAR = 'a';
         const short X_SHORT = 1;
@@ -422,7 +424,7 @@ int main(int argc, char *argv[])
         z3.appendRow(zList);
 
         zList.removeAll();
-        zList.appendInt64(bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue());
+        zList.appendInt64(bdetu_Unset<bsls::Types::Int64>::unsetValue());
         columnTypeArray.clear();
         columnTypeArray.push_back(bdem_ElemType::BDEM_INT64);
         z4.reset(&columnTypeArray.front(), columnTypeArray.size());
@@ -1934,7 +1936,7 @@ int main(int argc, char *argv[])
                  << "===========================" << endl;
 
         typedef bdem_List T;
-        typedef bsls_PlatformUtil::Int64 Int64;
+        typedef bsls::Types::Int64 Int64;
 
         const char X_CHAR = 'a';
         const short X_SHORT = 1;

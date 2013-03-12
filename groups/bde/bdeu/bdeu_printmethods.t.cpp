@@ -454,46 +454,46 @@ class TestType_PrintMethod {
 class TestType_PrintMethod_STLIterators {
     // This type is used for testing the trait detection meta-function.  This
     // type declares 'bdeu_TypeTraitHasPrintMethod' and
-    // 'bslalg_TypeTraitHasStlIterators'.  Note that the traits just need to be
-    // declared but the functionality does not need to be implemented, because
-    // they will not be used at run-time.
+    // 'bslalg::TypeTraitHasStlIterators'.  Note that the traits just need to
+    // be declared but the functionality does not need to be implemented,
+    // because they will not be used at run-time.
 };
 
 class TestType_PrintMethod_Pair {
     // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bdeu_TypeTraitHasPrintMethod' and 'bslalg_TypeTraitPair'.
-    // Note that the traits just need to be declared but the functionality does
-    // not need to be implemented, because they will not be used at run-time in
-    // this test driver.
+    // type declares 'bdeu_TypeTraitHasPrintMethod' and
+    // 'bslalg::TypeTraitPair'.  Note that the traits just need to be declared
+    // but the functionality does not need to be implemented, because they will
+    // not be used at run-time in this test driver.
 };
 
 class TestType_PrintMethod_STLIterators_Pair {
     // This type is used for testing the trait detection meta-function.  This
     // type declares 'bdeu_TypeTraitHasPrintMethod',
-    // 'bslalg_TypeTraitHasStlIterators', and 'bslalg_TypeTraitPair'.  Note
+    // 'bslalg::TypeTraitHasStlIterators', and 'bslalg::TypeTraitPair'.  Note
     // that the traits just need to be declared but the functionality does not
     // need to be implemented, because they will not be used at run-time.
 };
 
 class TestType_STLIterators {
     // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bslalg_TypeTraitHasStlIterators'.  Note that the traits
+    // type declares 'bslalg::TypeTraitHasStlIterators'.  Note that the traits
     // just need to be declared but the functionality does not need to be
     // implemented, because they will not be used at run-time.
 };
 
 class TestType_STLIterators_Pair {
     // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bslalg_TypeTraitHasStlIterators' and
-    // 'bslalg_TypeTraitPair'.  Note that the traits just need to be declared
+    // type declares 'bslalg::TypeTraitHasStlIterators' and
+    // 'bslalg::TypeTraitPair'.  Note that the traits just need to be declared
     // but the functionality does not need to be implemented, because they will
     // not be used at run-time.
 };
 
 class TestType_Pair {
     // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bslalg_TypeTraitPair'.  Note that the traits just need to
-    // be declared but the functionality does not need to be implemented,
+    // type declares 'bslalg::TypeTraitPair'.  Note that the traits just need
+    // to be declared but the functionality does not need to be implemented,
     // because they will not be used at run-time.
 };
 

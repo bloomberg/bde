@@ -1,19 +1,16 @@
 // bslmf_removepointer.t.cpp                                          -*-C++-*-
 #include <bslmf_removepointer.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::atoi;
 
 //=============================================================================
 //                                TEST PLAN
@@ -78,10 +75,10 @@ struct TestType {
 
 void funcWithDefaultArg(int arg = 0);
 
-template <typename TYPE>
+template <class TYPE>
 void testFuncPtrType(TYPE)
     // Removing a pointer from some function pointer types can be problematic
-    // for some compilers (e.g. AIX xlC).
+    // for some compilers (e.g., AIX xlC).
 {
     // First remove the pointer from the function pointer type and make sure it
     // compiles.
@@ -90,7 +87,7 @@ void testFuncPtrType(TYPE)
     // Now add the pointer back and verify that we end up with the same type,
     // unless on a compiler that where removing the pointer didn't produce the
     // expected result.
-#if !defined(BSLS_PLATFORM_CMP_AIX)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
     ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
 #endif
 }
@@ -197,14 +194,6 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_pointer<int>::type, int>::value));
         ASSERT((is_same<remove_pointer<int *&>::type, int *&>::value));
 
-        printf("*: %d\n",
-               is_same<bslmf::RemovePointer_Imp<int * const volatile>::Type,
-                       int * const volatile>::value);
-
-        printf("*: %d\n",
-               is_same<bslmf::RemovePointer_Imp<int * const volatile>::Type,
-                       int>::value);
-
         // Test removing a pointer from some function pointer types.
         testFuncPtrType(&funcWithDefaultArg);
 
@@ -223,10 +212,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

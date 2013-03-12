@@ -97,7 +97,7 @@ inline
 // CREATORS
 btesos_TcpConnector::btesos_TcpConnector(
                  bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
-                 bslma_Allocator                              *basicAllocator)
+                 bslma::Allocator                             *basicAllocator)
 : d_pool(ARENA_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_factory_p(factory)
@@ -109,9 +109,9 @@ btesos_TcpConnector::btesos_TcpConnector(
 btesos_TcpConnector::btesos_TcpConnector(
                  bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
                  int                                           numElements,
-                 bslma_Allocator                              *basicAllocator)
+                 bslma::Allocator                             *basicAllocator)
 : d_pool(ARENA_SIZE,
-         bsls_BlockGrowth::BSLS_CONSTANT,
+         bsls::BlockGrowth::BSLS_CONSTANT,
          numElements,
          basicAllocator)
 , d_channels(basicAllocator)

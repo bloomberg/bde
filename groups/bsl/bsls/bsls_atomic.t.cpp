@@ -354,12 +354,93 @@ void joinThread(thread_t thr)
 #endif
 }
 
+void sleepSeconds(int sec)
+{
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    Sleep(sec * 1000);
+#else
+    sleep(sec);
+#endif
+}
+
+
+struct TestLoopParameters
+{
+    typedef void (*TestFunc)(TestLoopParameters *);
+
+    bsls::AtomicInt d_cancel;
+    bsls::AtomicInt d_iterations;
+    TestFunc        d_testFunc;
+};
+
+void petersonsLockLoopTest(TestLoopParameters *params)
+{
+    LockData<bsls::AtomicInt64> ld;
+    PetersonsLockSeqCst<bsls::AtomicInt64> lock(0, ld);
+
+    for (; !params->d_cancel; ++params->d_iterations) {
+        Guard<PetersonsLockSeqCst<bsls::AtomicInt64> > guard(lock);
+    }
+}
+
+void sharedCountLoopTest(TestLoopParameters *params)
+{
+    bsls::AtomicInt count;
+
+    for (; !params->d_cancel; ++params->d_iterations) {
+        count.storeRelease(10);
+
+        while (count.loadAcquire() != 0) {
+            count.addAcqRel(-1);
+        }
+    }
+}
+
+void *runTestingLoop(void *arg)
+    // Run a simulation of the memory ordering test case to determine the
+    // number of iterations for the real test.
+{
+    TestLoopParameters *params = static_cast<TestLoopParameters *>(arg);
+    params->d_testFunc(params);
+
+    return 0;
+}
+
+void *runObserverLoop(void *arg)
+    // Observe changes in shared state for more accurate memory ordering test
+    // simulation.
+{
+    TestLoopParameters *params = static_cast<TestLoopParameters *>(arg);
+
+    while (!params->d_cancel && params->d_iterations >= 0)
+    {
+    }
+
+    return 0;
+}
+
+int getTestCaseIterations(TestLoopParameters::TestFunc testFunc)
+    // Return a reasonable experimentally determined number of iterations for
+    // the memory ordering test case.
+{
+    TestLoopParameters params;
+    params.d_testFunc = testFunc;
+    thread_t loopThr = createThread(&runTestingLoop, &params);
+    thread_t obsvThr = createThread(&runObserverLoop, &params);
+
+    sleepSeconds(5);  // this makes the real test run for a couple of minutes
+
+    params.d_cancel = 1;
+    joinThread(loopThr);
+    joinThread(obsvThr);
+
+    return params.d_iterations;
+}
+
 
 template <template <class> class LOCK, class INT>
-void testCaseMemOrder()
+void testCaseMemOrder(int iterations)
 {
-    int iterations = 10000000;
-
     LockData<INT> lockData;
     LOCK<INT> lock0(0, lockData);
     LOCK<INT> lock1(1, lockData);
@@ -379,7 +460,8 @@ void testCaseMemOrder()
 
 void testSharedCountWrite(int& data,
                           bsls::AtomicInt& shared,
-                          bsls::AtomicInt& done)
+                          bsls::AtomicInt& done,
+                          int)
 {
     while (!done.loadRelaxed()) {
         while (shared.loadRelaxed() > 1) {
@@ -391,9 +473,10 @@ void testSharedCountWrite(int& data,
 
 void testSharedCountRead(int& data,
                          bsls::AtomicInt& shared,
-                         bsls::AtomicInt& done)
+                         bsls::AtomicInt& done,
+                         int iterations)
 {
-    for (int i = 0; i < 10000000; ++i) {
+    for (int i = 0; i < iterations; ++i) {
         shared.storeRelease(10);
 
         while (shared.loadRelaxed() != 1) {
@@ -413,22 +496,25 @@ void testSharedCountRead(int& data,
 
 struct SharedCountThreadParam
 {
-    typedef void (*ThreadFunc)(int&, bsls::AtomicInt&, bsls::AtomicInt&);
+    typedef void (*ThreadFunc)(int&, bsls::AtomicInt&, bsls::AtomicInt&, int);
 
     SharedCountThreadParam(int& data,
                            bsls::AtomicInt& shared,
                            bsls::AtomicInt& done,
-                           ThreadFunc func)
+                           ThreadFunc func,
+                           int iterations)
         : d_data(data)
         , d_shared(shared)
         , d_done(done)
         , d_func(func)
+        , d_iterations(iterations)
     {}
 
     int&             d_data;
     bsls::AtomicInt& d_shared;
     bsls::AtomicInt& d_done;
     ThreadFunc       d_func;
+    int              d_iterations;
 };
 
 void *testSharedCountThreadFunc(void *arg)
@@ -436,23 +522,28 @@ void *testSharedCountThreadFunc(void *arg)
     SharedCountThreadParam *param
         = reinterpret_cast<SharedCountThreadParam *>(arg);
 
-    param->d_func(param->d_data, param->d_shared, param->d_done);
+    param->d_func(param->d_data,
+                  param->d_shared,
+                  param->d_done,
+                  param->d_iterations);
     return 0;
 }
 
-void testCaseSharedPtr()
+void testCaseSharedPtr(int iterations)
 {
     bsls::AtomicInt shared;
     bsls::AtomicInt done;
     int data = 0;
 
     SharedCountThreadParam paramReader(data, shared, done,
-                                       &testSharedCountRead);
+                                       &testSharedCountRead,
+                                       iterations);
     thread_t thrReader = createThread(&testSharedCountThreadFunc,
                                       &paramReader);
 
     SharedCountThreadParam paramWriter(data, shared, done,
-                                       &testSharedCountWrite);
+                                       &testSharedCountWrite,
+                                       iterations);
     thread_t thrWriter = createThread(&testSharedCountThreadFunc,
                                       &paramWriter);
 
@@ -552,8 +643,8 @@ template <class INSTANCE>
 class my_CountedHandleRep {
 
     // DATA
-    bsls::AtomicInt  d_count;        // number of active references
     INSTANCE        *d_instance_p;   // address of managed instance
+    bsls::AtomicInt  d_count;        // number of active references
 
     // FRIENDS
     friend class my_CountedHandle<INSTANCE>;
@@ -1030,7 +1121,11 @@ int main(int argc, char *argv[])
                  << "\n================================================"
                  << endl;
 
-        testCaseSharedPtr();
+        int iterations = getTestCaseIterations(sharedCountLoopTest);
+        if (veryVerbose) cout << "\tRunning the test loop for "
+                              << iterations << " iterations" << endl;
+
+        testCaseSharedPtr(iterations);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1056,21 +1151,25 @@ int main(int argc, char *argv[])
                           << "\n=================================="
                           << endl;
 
-        if (verbose) cout << "\tTesting sequencial consistency" << endl;
+        int iterations = getTestCaseIterations(petersonsLockLoopTest);
+        if (veryVerbose) cout << "\tRunning the test loop for "
+                              << iterations << " iterations" << endl;
+
+        if (verbose) cout << "\tTesting sequential consistency" << endl;
 
         if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
-        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt>();
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt>(iterations);
 
         if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
-        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt64>();
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt64>(iterations);
 
         if (verbose) cout << "\tTesting acquire/release" << endl;
 
         if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
-        testCaseMemOrder<PetersonsLock, bsls::AtomicInt>();
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt>(iterations);
 
         if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
-        testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>();
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>(iterations);
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2316,11 +2415,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

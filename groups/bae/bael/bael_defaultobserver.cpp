@@ -50,7 +50,7 @@ void bael_DefaultObserver::publish(const bael_Record&  record,
               << fixedFields.lineNumber()              << ' '
               << fixedFields.category()                << ' ';
 
-    bslstl_StringRef message = fixedFields.messageRef();
+    bslstl::StringRef message = fixedFields.messageRef();
     d_stream->write(message.data(), message.length());
 
     *d_stream << ' ';

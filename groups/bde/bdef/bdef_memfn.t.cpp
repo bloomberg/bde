@@ -681,28 +681,28 @@ bsl::ostream& operator<<(bsl::ostream& stream, const InplaceTestObj& rhs)
 template <class TYPE>
 class TestPtrWrapper {
 
-    TYPE            **d_objPtr_p;
-    bslma_Allocator  *d_allocator_p;
+    TYPE             **d_objPtr_p;
+    bslma::Allocator  *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(TestPtrWrapper,
-                                  bslalg_TypeTraitHasPointerSemantics,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                  bslalg::TypeTraitHasPointerSemantics,
+                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestPtrWrapper(TYPE *objPtr, bslma_Allocator *allocator = 0)
+    TestPtrWrapper(TYPE *objPtr, bslma::Allocator *allocator = 0)
     : d_objPtr_p(0)
-    , d_allocator_p(bslma_Default::allocator(allocator))
+    , d_allocator_p(bslma::Default::allocator(allocator))
     {
         d_objPtr_p = (TYPE **)d_allocator_p->allocate(sizeof(TYPE *));
         *d_objPtr_p = objPtr;
     }
 
     TestPtrWrapper(const TestPtrWrapper&  original,
-                   bslma_Allocator       *allocator = 0)
+                   bslma::Allocator      *allocator = 0)
     : d_objPtr_p(0)
-    , d_allocator_p(bslma_Default::allocator(allocator))
+    , d_allocator_p(bslma::Default::allocator(allocator))
     {
         d_objPtr_p = (TYPE **)d_allocator_p->allocate(sizeof(TYPE *));
         *d_objPtr_p = *original.d_objPtr_p;
@@ -898,7 +898,7 @@ int globalVerbose = 0;
 //                              TEST CASES
 //-----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
-void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)   
+void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
 DEFINE_TEST_CASE(10) {
         // --------------------------------------------------------------------
@@ -993,7 +993,7 @@ DEFINE_TEST_CASE(8) {
         //
         // Concern:
         //   1. that classes which have pointer-like semantics (as
-        //      indicated by the 'bslalg_TypeTraitHasPointerSemantics') are
+        //      indicated by the 'bslalg::TypeTraitHasPointerSemantics') are
         //      treated properly and that 'const'-correctness is respected.
         //   2. that if such classes take 'bdema' allocators, the copy stored
         //      inside the 'bdef_MemFnInstance' object is propagated the
@@ -1018,9 +1018,9 @@ DEFINE_TEST_CASE(8) {
             cout << "\nTESTING INSTANCES WITH POINTER SEMANTICS."
                  << "\n=========================================" << endl;
 
-        bslma_TestAllocator da(veryVeryVerbose);
-        bslma_TestAllocator ta(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&da);
+        bslma::TestAllocator da(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
 
         static const TestArg1 V1(1);
 
@@ -1083,7 +1083,7 @@ DEFINE_TEST_CASE(8) {
             const int NUM_DEFAULT_ALLOCS = da.numAllocations();
             const int NUM_ALLOCS         = ta.numAllocations();
 
-            MemFnType mG(mF, (bslma_Allocator*)&ta);  const MemFnType& G = mG;
+            MemFnType mG(mF, (bslma::Allocator*)&ta);  const MemFnType& G = mG;
             ASSERT(1 == G(V1));
 
             ASSERT(NUM_DEFAULT_ALLOCS == da.numAllocations());
@@ -1111,7 +1111,7 @@ DEFINE_TEST_CASE(8) {
             const int NUM_DEFAULT_ALLOCS = da.numAllocations();
             const int NUM_ALLOCS         = ta.numAllocations();
 
-            MemFnType mG(mF, (bslma_Allocator*)&ta);  const MemFnType& G = mG;
+            MemFnType mG(mF, (bslma::Allocator*)&ta);  const MemFnType& G = mG;
             ASSERT(1 == G(V1));
 
             ASSERT(NUM_DEFAULT_ALLOCS == da.numAllocations());
@@ -1142,7 +1142,7 @@ DEFINE_TEST_CASE(8) {
             const int NUM_DEFAULT_ALLOCS = da.numAllocations();
             const int NUM_ALLOCS         = ta.numAllocations();
 
-            MemFnType mG(mF, (bslma_Allocator*)&ta);  const MemFnType& G = mG;
+            MemFnType mG(mF, (bslma::Allocator*)&ta);  const MemFnType& G = mG;
             ASSERT(1 == G(V1));
 
             ASSERT(NUM_DEFAULT_ALLOCS == da.numAllocations());
@@ -2718,7 +2718,7 @@ DEFINE_TEST_CASE(1) {
         bdef_MemFn<int (TestObject::*)(int)> f1(&TestObject::test1);
         f1(x,10);
 
-        typedef bslmf_MemberFunctionPointerTraits<int (TestObject::*)(int)>
+        typedef bslmf::MemberFunctionPointerTraits<int (TestObject::*)(int)>
                                                                         Traits;
 
         TestObject *t = (Traits::ClassType*)0;
@@ -2756,7 +2756,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER)                                                     \

@@ -309,7 +309,7 @@ int bdem_Schema::bdexMinorVersion() const
 }
 
 // CREATORS
-bdem_Schema::bdem_Schema(bslma_Allocator *basicAllocator)
+bdem_Schema::bdem_Schema(bslma::Allocator *basicAllocator)
 : d_writeOnceAlloc(basicAllocator)
 , d_recordDefs(basicAllocator)
 , d_recordNames(bdem_Schema_NameCompare(), basicAllocator)
@@ -319,7 +319,7 @@ bdem_Schema::bdem_Schema(bslma_Allocator *basicAllocator)
 }
 
 bdem_Schema::bdem_Schema(const bdem_Schema&  original,
-                         bslma_Allocator    *basicAllocator)
+                         bslma::Allocator   *basicAllocator)
 : d_writeOnceAlloc(basicAllocator)
 , d_recordDefs(basicAllocator)
 , d_recordNames(bdem_Schema_NameCompare(), basicAllocator)

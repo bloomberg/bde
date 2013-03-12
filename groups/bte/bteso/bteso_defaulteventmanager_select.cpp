@@ -206,7 +206,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
 
 // CREATORS
 bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_eventsAllocator(basicAllocator)
 , d_events(&d_eventsAllocator)
 , d_numRead(0)
@@ -226,7 +226,7 @@ bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
 
 bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
                                              bteso_TimeMetrics *timeMetric,
-                                             bslma_Allocator   *basicAllocator)
+                                             bslma::Allocator  *basicAllocator)
 : d_eventsAllocator(basicAllocator)
 , d_events(&d_eventsAllocator)
 , d_numRead(0)

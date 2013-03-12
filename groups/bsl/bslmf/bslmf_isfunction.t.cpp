@@ -3,11 +3,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -99,6 +98,11 @@ typedef void (*FunctionPtrTestType) ();
 
 typedef void VoidRetNoParamFunctionTestType();
     // This function type having 'void' return type and no parameters is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_function'.
+
+typedef void VoidRetParamFunctionTestType(int);
+    // This function type having 'void' return type and two 'int' parameters is
     // intended to be used for testing as the template parameter 'TYPE' of
     // 'bsl::is_function'.
 
@@ -212,8 +216,8 @@ int main(int argc, char *argv[])
         //: 3 'is_function::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) pointer or pointer-to-member type.
         //:
-        //: 4 'is_function::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) function type.
+        //: 4 'is_function::value' is 'true' when 'TYPE' is a function type.
+        //:   Note that cv-qualified is irrelevant for a function type.
         //
         // Plan:
         //   Verify that 'bsl::is_function::value' has the correct value for
@@ -272,16 +276,16 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(bsl::is_function, FunctionPtrTestType,      false);
 
         // C-4
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int  (int),  true);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (void), true);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int  (void), true);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (int),  true);
-        TYPE_ASSERT_CVQ_PREFIX(
-                       bsl::is_function, VoidRetNoParamFunctionTestType, true);
-        TYPE_ASSERT_CVQ_PREFIX(
-                       bsl::is_function, IntRetNoParamFunctionTestType,  true);
-        TYPE_ASSERT_CVQ_PREFIX(
-                       bsl::is_function, IntRetParamFunctionTestType,    true);
+        ASSERT(true == bsl::is_function<int  (int)>::value);
+        ASSERT(true == bsl::is_function<void (void)>::value);
+        ASSERT(true == bsl::is_function<int  (void)>::value);
+        ASSERT(true == bsl::is_function<void (int)>::value);
+
+        ASSERT(true == bsl::is_function<IntRetParamFunctionTestType>::value);
+        ASSERT(
+              true == bsl::is_function<VoidRetNoParamFunctionTestType>::value);
+        ASSERT(true == bsl::is_function<IntRetNoParamFunctionTestType>::value);
+        ASSERT(true == bsl::is_function<VoidRetParamFunctionTestType>::value);
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -297,10 +301,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

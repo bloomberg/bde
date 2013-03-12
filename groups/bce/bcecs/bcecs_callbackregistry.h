@@ -356,7 +356,7 @@ class bcecs_CallbackRegistry {
                                            CallbackWrapperPool;
 
     // INSTANCE DATA
-    bslma_Allocator      *d_allocator_p;     // memory allocator (held)
+    bslma::Allocator     *d_allocator_p;     // memory allocator (held)
 
     CallbackWrapperPool   d_pool;            // pool of callback wrappers
 
@@ -375,19 +375,19 @@ class bcecs_CallbackRegistry {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcecs_CallbackRegistry,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bcecs_CallbackRegistry(const CATEGORY_COMPARATOR& categoryComparator,
-                           const CALLBACK_COMPARATOR& callbackComparator,
-                           bslma_Allocator           *basicAllocator = 0);
+    bcecs_CallbackRegistry(const CATEGORY_COMPARATOR&  categoryComparator,
+                           const CALLBACK_COMPARATOR&  callbackComparator,
+                           bslma::Allocator           *basicAllocator = 0);
         // Create a 'bcecs_CallbackRegistry' using the specified
         // 'categoryComparator' and 'callbackComparator' predicates to define
         // a partial ordering on categories and callback IDs respectively.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the default memory allocator is used.
 
-    bcecs_CallbackRegistry(bslma_Allocator *basicAllocator = 0);
+    bcecs_CallbackRegistry(bslma::Allocator *basicAllocator = 0);
         // Create a 'bcecs_CallbackRegistry'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the default memory allocator is used.
@@ -594,10 +594,10 @@ bcecs_CallbackRegistry<EVENT,
                        CALLBACK_ID,
                        CATEGORY_COMPARATOR,
                        CALLBACK_COMPARATOR>::bcecs_CallbackRegistry(
-        const CATEGORY_COMPARATOR& categoryComparator,
-        const CALLBACK_COMPARATOR& callbackComparator,
-        bslma_Allocator           *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+        const CATEGORY_COMPARATOR&  categoryComparator,
+        const CALLBACK_COMPARATOR&  callbackComparator,
+        bslma::Allocator           *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_registry(categoryComparator, basicAllocator)
 , d_callbackComparator(callbackComparator)
 {
@@ -615,8 +615,8 @@ bcecs_CallbackRegistry<EVENT,
                        CALLBACK_ID,
                        CATEGORY_COMPARATOR,
                        CALLBACK_COMPARATOR>::bcecs_CallbackRegistry(
-        bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_registry(CATEGORY_COMPARATOR(), basicAllocator)
 , d_callbackComparator(CALLBACK_COMPARATOR())
 {

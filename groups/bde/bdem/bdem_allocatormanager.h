@@ -48,8 +48,8 @@ BDES_IDENT("$Id: $")
 #include <bdem_aggregateoption.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -82,10 +82,10 @@ class bdem_AllocatorManager {
     bdem_AggregateOption::AllocationStrategy
                              d_allocationStrategy;   // allocation strategy
 
-    bslma_Allocator         *d_internalAllocator_p;  // internally-managed
+    bslma::Allocator        *d_internalAllocator_p;  // internally-managed
                                                      // allocator (owned)
 
-    bslma_Allocator         *d_allocator_p;          // memory allocator (held,
+    bslma::Allocator        *d_allocator_p;          // memory allocator (held,
                                                      // not owned)
 
   private:
@@ -97,11 +97,11 @@ class bdem_AllocatorManager {
     // CREATORS
     bdem_AllocatorManager(
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_AllocatorManager(
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                  int                                       initialMemorySize,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create an allocator manager based on the specified
         // 'allocationStrategy'.  Optionally specify an 'initialMemorySize' (in
         // bytes) that is preallocated in order to satisfy allocation requests
@@ -120,7 +120,7 @@ class bdem_AllocatorManager {
         // no effect.
 
     // MANIPULATORS
-    bslma_Allocator *internalAllocator();
+    bslma::Allocator *internalAllocator();
         // Return the address of the internal allocator of this allocator
         // manager.  The address is distinct from that returned by
         // 'originalAllocator' if the allocation strategy supplied at
@@ -130,7 +130,7 @@ class bdem_AllocatorManager {
         // all memory allocations from this allocator manager generally should
         // be made from the allocator that is returned by this method.
 
-    bslma_Allocator *originalAllocator();
+    bslma::Allocator *originalAllocator();
         // Return the address of the allocator supplied at construction of this
         // allocator manager, or the address of the default allocator that was
         // in effect at the time of construction if no allocator was supplied.
@@ -162,13 +162,13 @@ class bdem_AllocatorManager {
 
 // MANIPULATORS
 inline
-bslma_Allocator *bdem_AllocatorManager::internalAllocator()
+bslma::Allocator *bdem_AllocatorManager::internalAllocator()
 {
     return d_internalAllocator_p;
 }
 
 inline
-bslma_Allocator *bdem_AllocatorManager::originalAllocator()
+bslma::Allocator *bdem_AllocatorManager::originalAllocator()
 {
     return d_allocator_p;
 }

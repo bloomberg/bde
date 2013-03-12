@@ -30,8 +30,9 @@
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bsls_stopwatch.h>
 #include <bsls_platform.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bdef_bind.h>
 #include <bdef_function.h>
@@ -131,8 +132,8 @@ using namespace bdef_PlaceHolders;
 //
 // CLASS 'btemt_ChannelPool_MessageUtil'
 // [26] btemt_ChannelPool_IovecArray<>
-// [26] bsls_PlatformUtil::Int64 IovecArray<>::length() const;
-// [26] static bsls_PlatformUtil::Int64 length(...);
+// [26] bsls::Types::Int64 IovecArray<>::length() const;
+// [26] static bsls::Types::Int64 length(...);
 // [26] static int write(bteso_StreamSocket<bteso_IPv4Address> *, ... )
 // [26] static int loadIovec(btes_Iovec *, ... );
 // [26] static int loadBlob(bcema_Blob *, ... );
@@ -253,11 +254,11 @@ void printVector(const bsl::vector<TYPE>& vec, const char *name)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-typedef btemt_ChannelPool         Obj;
-typedef bteso_SocketOptUtil       SockOpt;
-typedef bteso_SocketOptions       SocketOptions;
-typedef bteso_LingerOptions       LingerOptions;
-typedef bsls_PlatformUtil::Uint64 ThreadId;
+typedef btemt_ChannelPool   Obj;
+typedef bteso_SocketOptUtil SockOpt;
+typedef bteso_SocketOptions SocketOptions;
+typedef bteso_LingerOptions LingerOptions;
+typedef bsls::Types::Uint64 ThreadId;
 
 const ThreadId NULL_THREAD_ID = (ThreadId) (long long) -1;
 
@@ -292,7 +293,7 @@ void makeNull(bdef_Function<void (*)(A1, A2, A3)> * f) {
 }
 
 template <typename A1, typename A2, typename A3>
-void makeNull(bslma_Allocator * a, bdef_Function<void (*)(A1, A2, A3)> * f) {
+void makeNull(bslma::Allocator *a, bdef_Function<void (*)(A1, A2, A3)> * f) {
     *f = bdef_Function<void (*)(A1, A2, A3)>(NullFn3<A1, A2, A3>(), a);
 }
 
@@ -302,17 +303,17 @@ void makeNull(bdef_Function<void (*)(A1, A2, A3, A4)> * f) {
 }
 
 template <typename A1, typename A2, typename A3, typename A4>
-void makeNull(bslma_Allocator * a, bdef_Function<void (*)(A1, A2, A3, A4)> * f)
+void makeNull(bslma::Allocator *a, bdef_Function<void (*)(A1, A2, A3, A4)> * f)
 {
     *f = bdef_Function<void (*)(A1, A2, A3, A4)>(NullFn4<A1, A2, A3, A4>(), a);
 }
 
 struct my_ChannelEvent {
-    bdet_TimeInterval          d_when;
-    bcemt_ThreadUtil::Handle   d_thread;
-    bsls_PlatformUtil::Uint64  d_threadId;
-    btemt_ChannelMsg           d_data;
-    void                      *d_context;
+    bdet_TimeInterval         d_when;
+    bcemt_ThreadUtil::Handle  d_thread;
+    bsls::Types::Uint64       d_threadId;
+    btemt_ChannelMsg          d_data;
+    void                     *d_context;
 };
 
 bsl::ostream& operator<<(bsl::ostream& s, const my_ChannelEvent& event) {
@@ -326,10 +327,10 @@ bsl::ostream& operator<<(bsl::ostream& s, const my_ChannelEvent& event) {
 }
 
 struct my_PoolEvent {
-    bdet_TimeInterval         d_when;
-    bcemt_ThreadUtil::Handle  d_thread;
-    bsls_PlatformUtil::Uint64 d_threadId;
-    btemt_PoolMsg             d_data;
+    bdet_TimeInterval        d_when;
+    bcemt_ThreadUtil::Handle d_thread;
+    bsls::Types::Uint64      d_threadId;
+    btemt_PoolMsg            d_data;
 };
 
 bsl::ostream& operator<<(bsl::ostream& s, const my_PoolEvent& event) {
@@ -407,13 +408,12 @@ class ChannelPoolStateCbTester {
         int                 d_channelId;   // channel id for the state callback
         int                 d_sourceId;    // source id for the state callback
         int                 d_state;       // state for the state callback
-        bsls_PlatformUtil::Uint64
-                            d_threadId;    // thread id for the state callback
+        bsls::Types::Uint64 d_threadId;    // thread id for the state callback
 
-        ChannelState(int                       channelId,
-                     int                       sourceId,
-                     int                       state,
-                     bsls_PlatformUtil::Uint64 threadId)
+        ChannelState(int                 channelId,
+                     int                 sourceId,
+                     int                 state,
+                     bsls::Types::Uint64 threadId)
         : d_channelId(channelId)
         , d_sourceId(sourceId)
         , d_state(state)
@@ -499,7 +499,7 @@ class ChannelPoolStateCbTester {
     // CREATORS
     ChannelPoolStateCbTester(
                      const btemt_ChannelPoolConfiguration&  config,
-                     bslma_Allocator                       *basicAllocator = 0)
+                     bslma::Allocator                      *basicAllocator = 0)
         // Initialize a channel pool state callback tester using the specified
         // 'config'.  This object will manage an underlying
         // 'btemt_ChannelPool', configured with 'config', and will report any
@@ -511,7 +511,7 @@ class ChannelPoolStateCbTester {
     , d_mutex()
     , d_condition()
     {
-        bslma_Allocator *ma = bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ma = bslma::Default::allocator(basicAllocator);
         btemt_ChannelPool::ChannelStateChangeCallback channelCb(
                bdef_MemFnUtil::memFn( &ChannelPoolStateCbTester::channelStateCb
                                     , this)
@@ -532,7 +532,7 @@ class ChannelPoolStateCbTester {
                const btemt_ChannelPoolConfiguration&       config,
                btemt_ChannelPool::DataReadCallback         dataCb,
                btemt_ChannelPool::PoolStateChangeCallback  poolCb,
-               bslma_Allocator                            *basicAllocator = 0)
+               bslma::Allocator                           *basicAllocator = 0)
         // Initialize a channel pool state callback tester using the specified
         // 'config', 'dataCb', and 'poolCb'.  This object will manage an
         // underlying 'btemt_ChannelPool', configured with 'config', and will
@@ -544,7 +544,7 @@ class ChannelPoolStateCbTester {
     , d_mutex()
     , d_condition()
     {
-        bslma_Allocator *ma = bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ma = bslma::Default::allocator(basicAllocator);
         btemt_ChannelPool::ChannelStateChangeCallback channelCb(
                bdef_MemFnUtil::memFn( &ChannelPoolStateCbTester::channelStateCb
                                     , this)
@@ -602,9 +602,9 @@ class ChannelPoolStateCbTester {
 
 };
 
-void populateMessage(bcema_Blob      *msg,
-                     int              length,
-                     bslma_Allocator *allocator)
+void populateMessage(bcema_Blob       *msg,
+                     int               length,
+                     bslma::Allocator *allocator)
     // Populate the specified 'msg' with a buffer of the specified 'length'
     // containing arbitrary data (starting at -1 (0xFF) and decreasing by 1 per
     // element) using the specified 'allocator' to supply memory;
@@ -863,7 +863,7 @@ void *readData(void *data)
     const int BUF_SIZE = 1000 * 100;
     char buffer[BUF_SIZE];
 
-    bsls_Types::Uint64 br = 0;
+    bsls::Types::Uint64 br = 0;
     while (1) {
         int rc = socket->read(buffer, BUF_SIZE);
         if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
@@ -1740,7 +1740,7 @@ class ReadServer
     int                d_port;         // well-known port for service requests
     string             d_data;
     int                d_expDataSize;
-    bslma_Allocator   *d_allocator_p;
+    bslma::Allocator  *d_allocator_p;
     btemt_ChannelPool *d_cp_p;
     bcemt_Mutex       *d_coutMutex;
 
@@ -1765,7 +1765,7 @@ class ReadServer
     ReadServer(bcemt_Mutex                           *coutMutex,
                int                                    expDataSize,
                const btemt_ChannelPoolConfiguration&  channelPoolConfig,
-               bslma_Allocator                       *allocator = 0);
+               bslma::Allocator                      *allocator = 0);
         // Create a server object which accepts connections
         // on localhost at the specified by 'port' and uses the specified
         // 'useBlobForDataReads' to decide if 'bcema_Blob' or
@@ -1803,11 +1803,11 @@ ReadServer::ReadServer(
         bcemt_Mutex                           *coutMutex,
         int                                    expDataSize,
         const btemt_ChannelPoolConfiguration&  channelPoolConfig,
-        bslma_Allocator                       *allocator)
+        bslma::Allocator                      *allocator)
 : d_port(0)
 , d_data(allocator)
 , d_expDataSize(expDataSize)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 , d_coutMutex(coutMutex)
 {
     btemt_ChannelPool::PoolStateChangeCallback poolCb(
@@ -2001,7 +2001,7 @@ class ReadServer
     int        d_port;           // well-known port for service requests
     const bool d_useBlobForDataReads;
 
-    bslma_Allocator         *d_allocator_p;
+    bslma::Allocator        *d_allocator_p;
     btemt_ChannelPool       *d_cp_p;
     ChannelMap               d_channelMap;
     mutable bcemt_Mutex      d_channelMapMutex;
@@ -2037,7 +2037,7 @@ class ReadServer
     ReadServer(bcemt_Mutex       *coutMutex,
                int                port,
                bool               useBlobForDataReads,
-               bslma_Allocator   *allocator = 0);
+               bslma::Allocator  *allocator = 0);
         // Create a server object which accepts connections
         // on localhost at the specified by 'port' and uses the specified
         // 'useBlobForDataReads' to decide if 'bcema_Blob' or
@@ -2078,10 +2078,10 @@ ReadServer::ReadServer(
         bcemt_Mutex       *coutMutex,
         int                port,
         bool               useBlobForDataReads,
-        bslma_Allocator   *allocator)
+        bslma::Allocator  *allocator)
 : d_port(port)
 , d_useBlobForDataReads(useBlobForDataReads)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 , d_coutMutex(coutMutex)
 {
     btemt_ChannelPoolConfiguration cpc;
@@ -2799,7 +2799,7 @@ void testIovecArray()
     typedef btemt_ChannelPool_MessageUtil     Helper;
     typedef btemt_ChannelPool_IovecArray<IOVEC> IovecArray;
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
 
     // A series of dummy addresses used for this test
     char bufferA, bufferB, bufferC;
@@ -2980,7 +2980,7 @@ class TestCase25ConcurrencyTest {
                          int                                    channelId,
                          bteso_StreamSocket<bteso_IPv4Address> *clientSocket,
                          int                                    numThreads,
-                         bslma_Allocator                       *allocator = 0);
+                         bslma::Allocator                      *allocator = 0);
 
     void run();
         // Run 'executeTest' on multiple threads.
@@ -2992,7 +2992,7 @@ TestCase25ConcurrencyTest::TestCase25ConcurrencyTest(
                           int                                    channelId,
                           bteso_StreamSocket<bteso_IPv4Address> *clientSocket,
                           int                                    numThreads,
-                          bslma_Allocator                       *allocator)
+                          bslma::Allocator                      *allocator)
 : d_pool_p(pool)
 , d_channelId(channelId)
 , d_clientSocket_p(clientSocket)
@@ -3012,7 +3012,7 @@ void TestCase25ConcurrencyTest::executeTest()
 
     int rc = 0, totalBytesWritten = 0;
     bcema_Blob oneByteMsg;
-    populateMessage(&oneByteMsg, 1, bslma_Default::allocator(0));
+    populateMessage(&oneByteMsg, 1, bslma::Default::allocator(0));
 
     d_barrier.wait();
 
@@ -3099,7 +3099,7 @@ void testCase25ConcurrencyTest(btemt_ChannelPool *pool,
 
     int rc = 0, totalBytesWritten = 0;
     bcema_Blob oneByteMsg;
-    populateMessage(&oneByteMsg, 1, bslma_Default::allocator(0));
+    populateMessage(&oneByteMsg, 1, bslma::Default::allocator(0));
 
     barrier->wait();
 
@@ -3383,7 +3383,7 @@ struct case22ThreadInfo {
     char                            d_write;
     bcema_PooledBufferChainFactory *d_factory_p;
     int                             d_messageLength;
-    bslma_Allocator                *d_allocator_p;
+    bslma::Allocator               *d_allocator_p;
 };
 
 extern "C" {
@@ -3503,7 +3503,8 @@ void * case22Thread(void * arg)
         MTLOOP_ASSERT(retCode,
                        0 == retCode ||  // o.k.
                       -2 == retCode ||  // reached high-watermark
-                      -3 == retCode);   // channel down or unknown
+                      -3 == retCode ||  // channel down
+                      -5 == retCode);   // channel unknown
 
         if (veryVerbose) {
             if (0 == retCode) {
@@ -3956,9 +3957,9 @@ void runTestCase22(char                                         *progname,
         if (verbose) {
             MTCOUT << "\tShutting down channel pool:" << MTFLUSH;
 
-            bsls_PlatformUtil::Int64 numBytesRead;
-            bsls_PlatformUtil::Int64 numBytesWritten;
-            bsls_PlatformUtil::Int64 numBytesRequestedToBeWritten;
+            bsls::Types::Int64 numBytesRead;
+            bsls::Types::Int64 numBytesWritten;
+            bsls::Types::Int64 numBytesRequestedToBeWritten;
 
             X.totalBytesRead(&numBytesRead);
             X.totalBytesWritten(&numBytesWritten);
@@ -4009,38 +4010,39 @@ class bteso_SslLikeStreamSocket : public bteso_StreamSocket<ADDRESS> {
 
   private:
     // PRIVATE DATA MEMBERS
-    bteso_StreamSocket<ADDRESS> *d_socket_p;   // held, not owned
+    bteso_StreamSocket<ADDRESS>
+                     *d_socket_p;              // held, not owned
 
-    int              d_bufferSize;            // internal buffers size
+    int               d_bufferSize;            // internal buffers size
 
-    char            *d_readBuffer;            // internal read buffer (owned)
+    char             *d_readBuffer;            // internal read buffer (owned)
 
-    int              d_readBytesAvailable;    // number of data bytes in
-                                              // internal read buffer
+    int               d_readBytesAvailable;    // number of data bytes in
+                                               // internal read buffer
 
-    int              d_maxReadBytesAvailable; // number of data bytes that
-                                              // should be read until the
-                                              // read limit is reached (or
-                                              // -1 if there is no read limit)
+    int               d_maxReadBytesAvailable; // number of data bytes that
+                                               // should be read until the
+                                               // read limit is reached (or
+                                               // -1 if there is no read limit)
 
-    char            *d_writeBuffer;           // internal write buffer (owned)
+    char             *d_writeBuffer;           // internal write buffer (owned)
 
-    int              d_writeOffset;           // offset for next write
+    int               d_writeOffset;           // offset for next write
 
-    int              d_maxWriteBytes;         // maximum number of bytes this
-                                              // socket will accept for write
-                                              // until write limit is reached
-                                              // (or -1 if there is no write
-                                              // limit)
+    int               d_maxWriteBytes;         // maximum number of bytes this
+                                               // socket will accept for write
+                                               // until write limit is reached
+                                               // (or -1 if there is no write
+                                               // limit)
 
-    bslma_Allocator *d_allocator_p;           // held, not owned
+    bslma::Allocator *d_allocator_p;           // held, not owned
 
     friend class bteso_SslLikeStreamSocketFactory<ADDRESS>;
 
     // CREATORS
     bteso_SslLikeStreamSocket(int                          internalBufferSize,
                               bteso_StreamSocket<ADDRESS> *socket,
-                              bslma_Allocator             *allocator);
+                              bslma::Allocator            *allocator);
         // Create a ssl-like stream socket wrapper around the specified
         // 'socket' that uses the specified 'allocator' to supply memory.  If
         // 'allocator' is 0, the currently installed default allocator is used.
@@ -4224,13 +4226,13 @@ class bteso_SslLikeStreamSocketFactory
     // TCP-based OpenSsl-like stream socket objects of type
     // 'bteso_SslLikeStreamSocket<ADDRESS>'.
 
-    int              d_bufferSize;  // used to allocate ssl-like sockets
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) object
+    int               d_bufferSize;  // used to allocate ssl-like sockets
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) object
 
     public:
     // CREATORS
-    bteso_SslLikeStreamSocketFactory(int              internalBufferSize,
-                                     bslma_Allocator *basicAllocator = 0);
+    bteso_SslLikeStreamSocketFactory(int               internalBufferSize,
+                                     bslma::Allocator *basicAllocator = 0);
         // Create a stream socket factory for ssl-like sockets with an internal
         // buffer of the specified 'internalBufferSize'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -4323,12 +4325,12 @@ template <class ADDRESS>
 bteso_SslLikeStreamSocket<ADDRESS>::bteso_SslLikeStreamSocket(
         int                          internalBufferSize,
         bteso_StreamSocket<ADDRESS> *socket,
-        bslma_Allocator             *basicAllocator)
+        bslma::Allocator            *basicAllocator)
 : d_socket_p(socket)
 , d_bufferSize(internalBufferSize)
 , d_readBytesAvailable(0)
 , d_writeOffset(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     bsl::auto_ptr<char> readBuffer((char *)d_allocator_p->
                                                        allocate(d_bufferSize));
@@ -4664,11 +4666,11 @@ int bteso_SslLikeStreamSocket<ADDRESS>::socketOption(int *result,
 // CREATORS
 template <class ADDRESS>
 bteso_SslLikeStreamSocketFactory<ADDRESS>::bteso_SslLikeStreamSocketFactory(
-        int              internalBufferSize,
-        bslma_Allocator *basicAllocator)
+        int               internalBufferSize,
+        bslma::Allocator *basicAllocator)
 : bteso_InetStreamSocketFactory<ADDRESS>(basicAllocator)
 , d_bufferSize(internalBufferSize)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -5715,16 +5717,16 @@ void case10MyClockCallback(my_ClockState     *state,
 }
 
 static
-void case10ChannelStateCallback(int                         channelId,
-                                int                         sourceId,
-                                int                         state,
-                                void                       *arg,
+void case10ChannelStateCallback(int                  channelId,
+                                int                  sourceId,
+                                int                  state,
+                                void                *arg,
                                 // additional parameters below:
-                                int                        *channelId1,
-                                bsls_PlatformUtil::Uint64  *threadId1,
-                                int                        *channelId2,
-                                bsls_PlatformUtil::Uint64  *threadId2,
-                                int                         veryVerbose)
+                                int                 *channelId1,
+                                bsls::Types::Uint64 *threadId1,
+                                int                 *channelId2,
+                                bsls::Types::Uint64 *threadId2,
+                                int                  veryVerbose)
 {
     ASSERT(channelId1 && threadId1);
     ASSERT(channelId2 && threadId1);
@@ -5766,14 +5768,14 @@ void case10ChannelStateCallback(int                         channelId,
 namespace TEST_CASE_9_NAMESPACE {
 
 struct case9ThreadInfo {
-    bcemt_Barrier   *d_barrier;
-    bces_AtomicInt  *d_threadCount;
-    Obj             *d_channelPool_p;
-    int              d_channelId;
-    int              d_write;
-    int              d_bufferAlloc;
-    int              d_totalAlloc;
-    bslma_Allocator *d_allocator_p;
+    bcemt_Barrier    *d_barrier;
+    bces_AtomicInt   *d_threadCount;
+    Obj              *d_channelPool_p;
+    int               d_channelId;
+    int               d_write;
+    int               d_bufferAlloc;
+    int               d_totalAlloc;
+    bslma::Allocator *d_allocator_p;
 };
 
 struct case9ThreadInfo2 {
@@ -5784,7 +5786,7 @@ struct case9ThreadInfo2 {
     int                             d_write;
     int                             d_bufferAlloc;
     int                             d_totalAlloc;
-    bslma_Allocator                *d_allocator_p;
+    bslma::Allocator               *d_allocator_p;
     bcema_PooledBufferChainFactory *d_factory_p;
 };
 
@@ -6027,7 +6029,7 @@ struct case9ReadInfo {
     bces_AtomicInt     *d_threadCount;
     int                 d_bufferAlloc;
     int                 d_totalAlloc;
-    bslma_Allocator    *d_allocator_p;
+    bslma::Allocator   *d_allocator_p;
 };
 
 extern "C" {
@@ -6367,7 +6369,7 @@ void runTestCase9(char                                         *progname,
                                        bteso_SocketOptUtil::BTESO_TCPLEVEL,
                                        1, SERVER_ID));
 
-        ASSERT(-3 == mX.write(31312313, (btes_Iovec*)NULL, 0));
+        ASSERT(-5 == mX.write(31312313, (btes_Iovec*)NULL, 0));
         bcema_PooledBufferChainFactory bufferFactory(BUFFER_ALLOC, &ta);
 
         if (veryVerbose)
@@ -7131,7 +7133,7 @@ struct my_LocalCallback {
     }
 };
 
-int usageExample1(bslma_Allocator *allocator) {
+int usageExample1(bslma::Allocator *allocator) {
     my_LocalCallback testCb;
     btemt_ChannelPoolConfiguration config;
     config.setMaxThreads(2);
@@ -7220,7 +7222,7 @@ class vlm_EchoServer
 
     int    d_port;           // well-known port for service requests
 
-    bslma_Allocator                  *d_allocator_p;
+    bslma::Allocator                 *d_allocator_p;
     bcema_PooledBufferChainFactory   *d_pbcFactory_p;
     btemt_ChannelPool                *d_cp_p;
 
@@ -7237,7 +7239,7 @@ private:
 public:
     // CREATORS
     vlm_EchoServer(int                port,
-                   bslma_Allocator   *allocator = 0);
+                   bslma::Allocator  *allocator = 0);
         // Create a server object which accepts connections
         // on localhost at the specified by 'port'.  The server
         // uses the specified 'allocator' for internal memory
@@ -7265,9 +7267,9 @@ public:
 
 vlm_EchoServer::vlm_EchoServer(
         int                port,
-        bslma_Allocator   *allocator)
+        bslma::Allocator  *allocator)
 : d_port(port)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     enum { BUFSIZE = 1 << 10 };    // 1K buffers
     d_pbcFactory_p = new(*d_allocator_p)
@@ -7403,7 +7405,7 @@ class my_QueueProcessor {
 
     btemt_ChannelPoolConfiguration d_config;          // pool's configuration
     btemt_ChannelPool             *d_channelPool_p;   // managed pool
-    bslma_Allocator               *d_allocator_p;     // memory manager
+    bslma::Allocator              *d_allocator_p;     // memory manager
     bcemt_Mutex                   *d_coutLock_p;
     bcec_Queue<btemt_DataMsg>     *d_incomingQueue_p;
     bcec_Queue<btemt_DataMsg>     *d_outgoingQueue_p;
@@ -7425,7 +7427,7 @@ class my_QueueProcessor {
                       bcec_Queue<btemt_DataMsg> *outgoingQueue,
                       bcemt_Mutex *coutLock,
                       int portNumber, int numConnections,
-                      bslma_Allocator *basicAllocator = 0);
+                      bslma::Allocator *basicAllocator = 0);
 
     ~my_QueueProcessor();
         // Destroy this server.
@@ -7456,8 +7458,8 @@ my_QueueProcessor::my_QueueProcessor(bcec_Queue<btemt_DataMsg> *incomingQueue,
                                      bcemt_Mutex               *coutLock ,
                                      int                        portNumber,
                                      int                        numConnections,
-                                     bslma_Allocator           *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                     bslma::Allocator          *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_coutLock_p(coutLock)
 , d_incomingQueue_p(incomingQueue)
 , d_outgoingQueue_p(outgoingQueue)
@@ -7636,7 +7638,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         // DATA
         btemt_ChannelPoolConfiguration d_config;        // pool's configuration
         btemt_ChannelPool             *d_channelPool_p; // managed pool
-        bslma_Allocator               *d_allocator_p;   // memory manager
+        bslma::Allocator              *d_allocator_p;   // memory manager
         bcemt_Mutex                   *d_coutLock_p;    // synchronize 'cout'
 
       private:
@@ -7686,10 +7688,10 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         my_EchoServer& operator=(const my_EchoServer&);
 
       public:
-        my_EchoServer(bcemt_Mutex     *coutLock,
-                      int              portNumber,
-                      int              numConnections,
-                      bslma_Allocator *basicAllocator = 0);
+        my_EchoServer(bcemt_Mutex      *coutLock,
+                      int               portNumber,
+                      int               numConnections,
+                      bslma::Allocator *basicAllocator = 0);
             // Create an echo server that listens for incoming connections on
             // the specified 'portNumber' managing up to the specified
             // 'numConnections' simultaneous connections.  The echo server
@@ -7710,11 +7712,11 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
 // the channel pool is created, configured, and started.  The listening port
 // is established:
 //..
-    my_EchoServer::my_EchoServer(bcemt_Mutex     *coutLock,
-                                 int              portNumber,
-                                 int              numConnections,
-                                 bslma_Allocator *basicAllocator)
-    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+    my_EchoServer::my_EchoServer(bcemt_Mutex      *coutLock,
+                                 int               portNumber,
+                                 int               numConnections,
+                                 bslma::Allocator *basicAllocator)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
     , d_coutLock_p(coutLock) {
         d_config.setMaxThreads(4);
         d_config.setMaxConnections(numConnections);
@@ -7850,7 +7852,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
 namespace USAGE_EXAMPLE_M1_NAMESPACE {
 
 static void
-generateMessage(btemt_DataMsg& msg, bslma_Allocator *basicAllocator = 0) {
+generateMessage(btemt_DataMsg& msg, bslma::Allocator *basicAllocator = 0) {
     bcema_PooledBufferChain *chain = msg.data();
     bdet_TimeInterval now = bdetu_SystemTime::now();
     bdex_ByteOutStream stream(basicAllocator);
@@ -7872,7 +7874,7 @@ class my_QueueClient {
     };
     btemt_ChannelPoolConfiguration d_config;          // pool's configuration
     btemt_ChannelPool             *d_channelPool_p;   // managed pool
-    bslma_Allocator               *d_allocator_p;     // memory manager
+    bslma::Allocator              *d_allocator_p;     // memory manager
     bcemt_Mutex                   *d_coutLock_p;
     bcec_Queue<btemt_DataMsg>     *d_incomingQueue_p;
     bcec_Queue<btemt_DataMsg>     *d_outgoingQueue_p;
@@ -7899,7 +7901,7 @@ class my_QueueClient {
                       int                        portNumber,
                       int                        numConnections,
                       const btemt_DataMsg&       initialMessage,
-                      bslma_Allocator           *basicAllocator = 0);
+                      bslma::Allocator          *basicAllocator = 0);
 
     ~my_QueueClient();
         // Destroy this server.
@@ -7934,8 +7936,8 @@ my_QueueClient::my_QueueClient(bcec_Queue<btemt_DataMsg> *incomingQueue,
                                int                        portNumber,
                                int                        numConnections,
                                const btemt_DataMsg&       initialMessage,
-                               bslma_Allocator           *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                               bslma::Allocator          *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_coutLock_p(coutLock)
 , d_incomingQueue_p(incomingQueue)
 , d_outgoingQueue_p(outgoingQueue)
@@ -8194,7 +8196,7 @@ class TestDriver {
 
     static void testCase38();
         // Test that 'disableRead' when called from dispatcher thread stops
-        // reading from the socket. 
+        // reading from the socket.
 
     static void testCase37();
         // Test usage example 3.
@@ -10840,7 +10842,7 @@ void TestDriver::testCase27()
 
             bool timeoutShouldOccur = 0.0 != READ_TIMEOUT;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
 
             // Test whether the timeout callback is registed for initial read.
@@ -10945,13 +10947,13 @@ void TestDriver::testCase26()
         //                               const btemt_ChannelPool_IovecArray& );
         //   const IOVEC *iovecs() const;
         //   int numIovecs() const;
-        //   bsls_PlatformUtil::Int64 length() const;
+        //   bsls::Types::Int64 length() const;
         //
         //  btemt_ChannelPool_MessageUtil
         //  -----------------------------
-        //   static bsls_PlatformUtil::Int64 length(const IovecArray<IOVEC>& );
-        //   static bsls_PlatformUtil::Int64 length(const btemt_DataMsg& );
-        //   static bsls_PlatformUtil::Int64 length(const bcema_Blob& );
+        //   static bsls::Types::Int64 length(const IovecArray<IOVEC>& );
+        //   static bsls::Types::Int64 length(const btemt_DataMsg& );
+        //   static bsls::Types::Int64 length(const bcema_Blob& );
         //   static int write(bteso_StreamSocket<bteso_IPv4Address> *,
         //                   btes_Iovec                            *,
         //                   const IovecArray<IOVEC>&               );
@@ -13310,7 +13312,7 @@ void TestDriver::testCase14()
                                         512, channelId));
 
             char buffer[1024];
-            bsls_PlatformUtil::Int64 clientBytesWritten = 0;
+            bsls::Types::Int64 clientBytesWritten = 0;
             while(!fail) {
                 ASSERT(sizeof(buffer) == channel.write(0, buffer,
                                                        sizeof(buffer),0));
@@ -13328,10 +13330,10 @@ void TestDriver::testCase14()
             bcemt_ThreadUtil::microSleep(200 * 1000);
             LOOP_ASSERT(X.numChannels(), 1 == X.numChannels());
 
-            bsls_PlatformUtil::Int64 clientBytesRead = 0;
-            bsls_PlatformUtil::Int64 bytesWritten;
-            bsls_PlatformUtil::Int64 bytesRequestedToBeWritten;
-            bsls_PlatformUtil::Int64 bytesRead;
+            bsls::Types::Int64 clientBytesRead = 0;
+            bsls::Types::Int64 bytesWritten;
+            bsls::Types::Int64 bytesRequestedToBeWritten;
+            bsls::Types::Int64 bytesRead;
             do {
                 LOOP_ASSERT(X.numChannels(), 1 == X.numChannels());
 
@@ -13368,7 +13370,7 @@ void TestDriver::testCase14()
                 // Test consistency.  We cannot use '==' since we're racing
                 // against the channel thread.
 
-                bsls_PlatformUtil::Int64 temp;
+                bsls::Types::Int64 temp;
                 X.totalBytesRead(&temp);
                 ASSERT(temp >= bytesRead);
                 X.totalBytesWritten(&temp);
@@ -13397,7 +13399,7 @@ void TestDriver::testCase14()
             LOOP2_ASSERT(bytesWritten, clientBytesWritten,
                                            bytesWritten == clientBytesWritten);
 
-            bsls_PlatformUtil::Int64 temp, temp2, temp3;
+            bsls::Types::Int64 temp, temp2, temp3;
             X.totalBytesRead(&temp);
             ASSERT(temp == bytesRead);
             X.totalBytesWritten(&temp);
@@ -13455,10 +13457,10 @@ void TestDriver::testCase14()
             bcemt_ThreadUtil::microSleep(200 * 1000);
             ASSERT(1 == X.numChannels());
 
-            bsls_PlatformUtil::Int64 oldBytesWritten = bytesWritten;
-            bsls_PlatformUtil::Int64 oldBytesRequestedToBeWritten =
+            bsls::Types::Int64 oldBytesWritten = bytesWritten;
+            bsls::Types::Int64 oldBytesRequestedToBeWritten =
                                                     bytesRequestedToBeWritten;
-            bsls_PlatformUtil::Int64 oldBytesRead = bytesRead;
+            bsls::Types::Int64 oldBytesRead = bytesRead;
             clientBytesRead = 0;
             bytesWritten = 0;
             bytesRequestedToBeWritten = 0;
@@ -13499,7 +13501,7 @@ void TestDriver::testCase14()
                 // Test consistency.  We cannot use '==' since we're racing
                 // against the channel thread.
 
-                bsls_PlatformUtil::Int64 temp;
+                bsls::Types::Int64 temp;
                 X.totalBytesRead(&temp);
                 ASSERT(temp >= bytesRead);
                 X.totalBytesWritten(&temp);
@@ -13536,7 +13538,7 @@ void TestDriver::testCase14()
                            oldBytesRequestedToBeWritten);
 
             // Reset functions
-            bsls_PlatformUtil::Int64 old;
+            bsls::Types::Int64 old;
 
             X.totalBytesRead(&old);
             mX.totalBytesReadReset(&temp);
@@ -13640,7 +13642,7 @@ void TestDriver::testCase14()
                 // Test consistency.  We cannot use '==' since we're racing
                 // against the channel thread.
 
-                bsls_PlatformUtil::Int64 temp;
+                bsls::Types::Int64 temp;
                 X.totalBytesRead(&temp);
                 ASSERT(temp >= bytesRead);
                 X.totalBytesWritten(&temp);

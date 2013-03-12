@@ -83,9 +83,9 @@ bool bdeu_String::areEqualCaseless(const char *lhsString,
     return true;
 }
 
-char *bdeu_String::copy(const char      *string,
-                        int              length,
-                        bslma_Allocator *basicAllocator)
+char *bdeu_String::copy(const char       *string,
+                        int               length,
+                        bslma::Allocator *basicAllocator)
 {
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);

@@ -123,7 +123,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-static const bsls_Types::Int64 FIRST_TRANSITION =
+static const bsls::Types::Int64 FIRST_TRANSITION =
               bdetu_Epoch::convertToTimeT64(bdet_Datetime(1, 1, 1));
 // DATA
 const char unsigned NEW_YORK_DATA[] = {

@@ -92,7 +92,7 @@ BDES_IDENT_RCSID(bdef_function_cpp,"$Id$ $CSID$")
 //..
 //      if (isAllocator<FUNC>::VALUE) {
 //          // Code that would be valid only if 'FUNC' is convertible to
-//          // 'bslma_Allocator *'.
+//          // 'bslma::Allocator *'.
 //      } else {
 //          // Code that would be valid only if 'FUNC' is invocable in a way
 //          // compatible with the 'PROTOTYPE'.
@@ -103,8 +103,8 @@ BDES_IDENT_RCSID(bdef_function_cpp,"$Id$ $CSID$")
 //
 // Special care was taken to ensure that multiple dispatch was avoided, by
 // collapsing all the compile-time decisions into a single (enumerated) list of
-// possibilities.  Branching was performed by using an extra 'bslmf_Tag<VALUE>'
-// argument for overload resolution.
+// possibilities.  Branching was performed by using an extra
+// 'bslmf::Tag<VALUE>' argument for overload resolution.
 //
 ///Const-correctness:
 ///------------------
@@ -198,9 +198,9 @@ namespace BloombergLP {
 
 // CREATORS
 bdef_Function_Rep::bdef_Function_Rep(const bdef_Function_Rep&  original,
-                                     bslma_Allocator          *allocator)
+                                     bslma::Allocator         *allocator)
 : d_manager_p(original.d_manager_p)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     if (d_manager_p) {
         (void)(*d_manager_p)(this,

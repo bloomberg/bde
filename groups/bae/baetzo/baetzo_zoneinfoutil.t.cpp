@@ -279,15 +279,15 @@ int main(int argc, char *argv[])
     bael_LoggerManager&             manager =
                    bael_LoggerManager::initSingleton(&observer, configuration);
 
-    bslma_TestAllocator defaultAllocator;  // To be used to make sure the
-                                           // allocator is always passed down
-                                           // where necessary.
+    bslma::TestAllocator defaultAllocator;  // To be used to make sure the
+                                            // allocator is always passed down
+                                            // where necessary.
 
-    bslma_TestAllocator testAllocator;
-    bslma_TestAllocator *Z = &testAllocator;  // To be used to allocate
-                                              // everything in this code.
+    bslma::TestAllocator  testAllocator;
+    bslma::TestAllocator *Z = &testAllocator;  // To be used to allocate
+                                               // everything in this code.
 
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     const bdetu_Epoch::TimeT64 MIN_DATETIME = toTimeT(bdet_Datetime(1, 1, 1));
     const bdetu_Epoch::TimeT64 MAX_DATETIME =
@@ -1125,7 +1125,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             bdet_Datetime   time(2010, 1, 1);
@@ -1407,7 +1408,8 @@ int main(int argc, char *argv[])
             }
         }
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             bdet_Datetime   time(2010, 1, 1);
@@ -1804,9 +1806,9 @@ int main(int argc, char *argv[])
             }
 
             struct {
-                int                d_line;
-                const char        *d_value;
-                bsls_Types::Int64  d_expectedResult;
+                int                 d_line;
+                const char         *d_value;
+                bsls::Types::Int64  d_expectedResult;
             } DATA[] = {
                 { L_,     "00:00:00.000",        0 },
                 { L_,    " 00:00:00.000",        0 },
@@ -1824,11 +1826,11 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE   = DATA[i].d_line;
-                const char              *VALUE  = DATA[i].d_value;
-                const bsls_Types::Int64  RESULT = DATA[i].d_expectedResult;
+                const int                 LINE   = DATA[i].d_line;
+                const char               *VALUE  = DATA[i].d_value;
+                const bsls::Types::Int64  RESULT = DATA[i].d_expectedResult;
 
-                bsls_Types::Int64 result = toOffsetInMilliseconds(VALUE);
+                bsls::Types::Int64 result = toOffsetInMilliseconds(VALUE);
                 LOOP_ASSERT(LINE, RESULT == result);
             }
         }
@@ -1846,9 +1848,9 @@ int main(int argc, char *argv[])
             Tz tz(Z); const Tz& TZ = tz;
             addTransitions(&tz, DATA, NUM_DATA);
 
-            bsls_Types::Int64 T0 = toTimeT(bdet_Datetime(1, 1, 1));
-            bsls_Types::Int64 T1 = toTimeT(bdet_Datetime(2, 3, 4, 5, 6, 7));
-            bsls_Types::Int64 T2 = toTimeT(bdet_Datetime(4, 5, 6, 7, 8, 9));
+            bsls::Types::Int64 T0 = toTimeT(bdet_Datetime(1, 1, 1));
+            bsls::Types::Int64 T1 = toTimeT(bdet_Datetime(2, 3, 4, 5, 6, 7));
+            bsls::Types::Int64 T2 = toTimeT(bdet_Datetime(4, 5, 6, 7, 8, 9));
 
             TzIt it = TZ.beginTransitions();
             ASSERT(T0    == it->utcTime());

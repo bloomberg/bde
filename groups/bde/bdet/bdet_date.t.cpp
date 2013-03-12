@@ -10,8 +10,6 @@
 #include <bdex_testinstreamexception.h>  // for testing only
 #include <bdex_testoutstream.h>          // for testing only
 
-#include <bsls_platformutil.h>           // for testing only
-
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
 #include <bsl_iostream.h>

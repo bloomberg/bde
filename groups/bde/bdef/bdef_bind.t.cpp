@@ -79,7 +79,7 @@ using namespace bsl;  // automatically added by script
 // object.
 //
 // Our test plan proceeds by checking that the traits are set up so that
-// allocators know about 'bdef_Bind' using the 'bdema_allocator' propagation
+// allocators know about 'bdef_Bind' using the 'bslma::Allocator' protocol
 // (case 2).  Then we test the mix of placeholders and bound arguments (case
 // 3).  We also test the additional concerns about passing 'bdef_bind'
 // objects as parameters to the various 'bdef_BindUtil::bind", 'bindA' and
@@ -1072,24 +1072,24 @@ using namespace bdef_PlaceHolders;
 //..
     class MyString {
         // PRIVATE INSTANCE DATA
-        bslma_Allocator *d_allocator_p;
-        char            *d_string_p;
+        bslma::Allocator *d_allocator_p;
+        char             *d_string_p;
 
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(MyString,
-                                           bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         //CREATORS
-        MyString(const char *str, bslma_Allocator *allocator = 0)
-        : d_allocator_p(bslma_Default::allocator(allocator))
+        MyString(const char *str, bslma::Allocator *allocator = 0)
+        : d_allocator_p(bslma::Default::allocator(allocator))
         , d_string_p((char*)d_allocator_p->allocate(1 + strlen(str)))
         {
             strcpy(d_string_p, str);
         }
 
-        MyString(MyString const& rhs, bslma_Allocator *allocator = 0)
-        : d_allocator_p(bslma_Default::allocator(allocator))
+        MyString(MyString const& rhs, bslma::Allocator *allocator = 0)
+        : d_allocator_p(bslma::Default::allocator(allocator))
         , d_string_p((char*)d_allocator_p->allocate(1 + strlen(rhs)))
         {
             strcpy(d_string_p, rhs);
@@ -1103,11 +1103,11 @@ using namespace bdef_PlaceHolders;
         operator const char*() const { return d_string_p; }
     };
 //..
-// We will also use a 'bslma_TestAllocator' to keep track of the memory
+// We will also use a 'bslma::TestAllocator' to keep track of the memory
 // allocated:
 //..
     void bindTest6() {
-        bslma_TestAllocator allocator;
+        bslma::TestAllocator allocator;
         MyString myString((const char*)"p3", &allocator);
         const int NUM_ALLOCS = allocator.numAllocations();
 //..
@@ -1115,8 +1115,8 @@ using namespace bdef_PlaceHolders;
 // allocator guard, which will re-route any default allocation to the
 // 'defaultAllocator':
 //..
-        bslma_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        bslma::TestAllocator defaultAllocator;
+        bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
         const int NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 //..
 // We now create a binder object with allocator using 'bindA'.  If the bound
@@ -1458,22 +1458,22 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
     // function is called with the appropriate number of arguments. */        \
                                                                               \
     const int NO_ALLOC_SLOTS[][NUM_SLOTS]= {                                  \
-        /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  NumArgs */ \
-        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 0 */ \
-        { -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 1 */ \
-        { -1,  1,  2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 2 */ \
-        { -1,  1,  2,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 3 */ \
-        { -1,  1,  2,  3,  4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 4 */ \
-        { -1,  1,  2,  3,  4,  5, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 5 */ \
-        { -1,  1,  2,  3,  4,  5,  6, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 6 */ \
-        { -1,  1,  2,  3,  4,  5,  6,  7, -1, -1, -1, -1, -1, -1, -1, }, /* 7 */ \
-        { -1,  1,  2,  3,  4,  5,  6,  7,  8, -1, -1, -1, -1, -1, -1, }, /* 8 */ \
-        { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1, }, /* 9 */ \
-        { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, -1, -1, -1, -1, }, /* 10*/ \
-        { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, -1, -1, -1, }, /* 11*/ \
-        { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, -1, -1, }, /* 12*/ \
-        { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, -1, }, /* 13*/ \
-        { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, }, /* 14*/ \
+     /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  NumArgs */ \
+     { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 0 */ \
+     { -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 1 */ \
+     { -1,  1,  2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 2 */ \
+     { -1,  1,  2,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 3 */ \
+     { -1,  1,  2,  3,  4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 4 */ \
+     { -1,  1,  2,  3,  4,  5, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 5 */ \
+     { -1,  1,  2,  3,  4,  5,  6, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 6 */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7, -1, -1, -1, -1, -1, -1, -1, }, /* 7 */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8, -1, -1, -1, -1, -1, -1, }, /* 8 */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1, }, /* 9 */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, -1, -1, -1, -1, }, /* 10*/ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, -1, -1, -1, }, /* 11*/ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, -1, -1, }, /* 12*/ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, -1, }, /* 13*/ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, }, /* 14*/ \
     };                                                                        \
     const int NO_ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                           \
           -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
@@ -1487,44 +1487,44 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
     // function is called the appropriate number of arguments. */             \
                                                                               \
                                                                               \
-    bslma_TestAllocator allocator0(veryVeryVerbose);                          \
-    bslma_TestAllocator allocator1(veryVeryVerbose);                          \
-    bslma_TestAllocator allocator2(veryVeryVerbose);                          \
+    bslma::TestAllocator allocator0(veryVeryVerbose);                         \
+    bslma::TestAllocator allocator1(veryVeryVerbose);                         \
+    bslma::TestAllocator allocator2(veryVeryVerbose);                         \
                                                                               \
-    bslma_TestAllocator *Z0 = &allocator0;                                    \
-    bslma_TestAllocator *Z1 = &allocator1;                                    \
-    bslma_TestAllocator *Z2 = &allocator2;                                    \
+    bslma::TestAllocator *Z0 = &allocator0;                                   \
+    bslma::TestAllocator *Z1 = &allocator1;                                   \
+    bslma::TestAllocator *Z2 = &allocator2;                                   \
                                                                               \
-    bslma_DefaultAllocatorGuard allocGuard(Z0);                               \
+    bslma::DefaultAllocatorGuard allocGuard(Z0);                              \
     SlotsAlloc::setZ0(Z0);                                                    \
     SlotsAlloc::setZ1(Z1);                                                    \
     SlotsAlloc::setZ2(Z2);                                                    \
                                                                               \
-    const bslma_Allocator *ALLOC_SLOTS[][NUM_SLOTS] = {                       \
-        /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  NumArgs */ \
-        { Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 0 */ \
-        { Z0, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 1 */ \
-        { Z0, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 2 */ \
-        { Z0, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 3 */ \
-        { Z0, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 4 */ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 5 */ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 6 */ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 7 */ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 8 */ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, }, /* 9 */ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, }, /* 10*/ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, }, /* 11*/ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, }, /* 12*/ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, }, /* 13*/ \
-        { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, }, /* 14*/ \
+    const bslma::Allocator *ALLOC_SLOTS[][NUM_SLOTS] = {                      \
+     /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  NumArgs */ \
+     { Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 0 */ \
+     { Z0, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 1 */ \
+     { Z0, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 2 */ \
+     { Z0, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 3 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 4 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 5 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 6 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 7 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 8 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, }, /* 9 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, }, /* 10*/ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, }, /* 11*/ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, }, /* 12*/ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, }, /* 13*/ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, }, /* 14*/ \
     };                                                                        \
-    const bslma_Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                 \
+    const bslma::Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                \
           Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0,         \
     };                                                                        \
                                                                               \
-    /* Values that do take an allocator (default allocator is used, which means \
-    // we must perform the initialization *after* the allocator guard, hence in \
-    // main). */                                                              \
+    /* Values that do take an allocator (default allocator is used, which     \
+    // means we must perform the initialization *after* the allocator guard,  \
+    // hence in main). */                                                     \
                                                                               \
     const AllocTestArg1  V1(1),     NV1(-1);                                  \
     const AllocTestArg2  V2(20),    NV2(-20);                                 \
@@ -1580,7 +1580,7 @@ DEFINE_TEST_CASE(7) {
                                           bdef_PlaceHolder<2>,
                                           int*> LIST;
             typedef int (*FUNC)(const int &, int &, int *);
-            bdef_Bind<bslmf_Nil,FUNC,LIST> b(&onMasterCommand,
+            bdef_Bind<bslmf::Nil,FUNC,LIST> b(&onMasterCommand,
                                              LIST(_1, _2, &extra));;
 
             // Make sure the binder works properly.
@@ -1676,7 +1676,7 @@ DEFINE_TEST_CASE(5) {
         //   3. That we respect the constness of arguments (within the
         //   limitations imposed by our handling of the forwarding problem).
         //   4. That we correctly respect volatile qualifications.  This is a
-        //   concern because the forwarding type invokes 'bslmf_RemoveCvq'.
+        //   concern because the forwarding type invokes 'bslmf::RemoveCvq'.
         //   5. That we can bind a function object with placeholders, and later
         //   invoke the binder resolving to two different overloads based on
         //   the type of the invocation arguments.
@@ -1832,7 +1832,7 @@ DEFINE_TEST_CASE(5) {
                                 // explicit.  When a bind is explicit, the
                                 // component will call 'operator(...)' using
                                 // the most efficient forwarding types (based
-                                // 'bslmf_ForwardingTypes').  By doing so, the
+                                // 'bslmf::ForwardingTypes').  By doing so, the
                                 // second argument will be mapped to an 'int',
                                 // which means the value will be copied.
 #endif
@@ -3119,7 +3119,7 @@ DEFINE_TEST_CASE(2) {
         // ------------------------------------------------------------------
         // TESTING TRAITS
         // Concern:
-        //   that the 'bslalg_TypeTraitUsesBslmaAllocator' traits is correctly
+        //   that the 'bslalg::TypeTraitUsesBslmaAllocator' traits is correctly
         //   detected for 'bdef_Bind' objects, in their two implementations.
         //
         // Plan:
@@ -3140,8 +3140,9 @@ DEFINE_TEST_CASE(2) {
             typedef NoAllocTestType *FUNC;
             typedef bdef_Bind_Tuple1<PH1> ListType;
 
-            ASSERT(1 == (bslalg_HasTrait<bdef_Bind<bslmf_Nil, FUNC, ListType>,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+            ASSERT(1 ==
+                       (bslalg::HasTrait<bdef_Bind<bslmf::Nil, FUNC, ListType>,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
         }
       }
 

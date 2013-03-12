@@ -12,7 +12,7 @@
 #include <bdex_byteoutstream.h>          // for testing only
 #include <bdex_byteinstream.h>           // for testing only
 
-#include <bsls_platformutil.h>           // for testing only
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
@@ -47,7 +47,7 @@ using namespace bsl;  // automatically added by script
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] bdet_TimeInterval();
-// [12] bdet_TimeInterval(bsls_PlatformUtil::Int64 seconds, int nanosecs);
+// [12] bdet_TimeInterval(bsls::Types::Int64 seconds, int nanosecs);
 // [12] bdet_TimeInterval(double seconds);
 // [ 8] bdet_TimeInterval(const bdet_TimeInterval& original);
 // [ 2] ~bdet_TimeInterval();
@@ -58,17 +58,17 @@ using namespace bsl;  // automatically added by script
 // [16] bdet_TimeInterval& operator+=(double rhs);
 // [16] bdet_TimeInterval& operator-=(const bdet_TimeInterval& rhs);
 // [16] bdet_TimeInterval& operator-=(double rhs);
-// [15] bdet_TimeInterval& addSeconds(bsls_PlatformUtil::Int64 seconds);
+// [15] bdet_TimeInterval& addSeconds(bsls::Types::Int64 seconds);
 // [15] bdet_TimeInterval& addMilliseconds(Int64 milliseconds);
 // [15] bdet_TimeInterval& addMicroseconds(Int64 microseconds);
 // [15] bdet_TimeInterval& addNanoseconds(Int64 nanoseconds);
 // [15] void addInterval(Int64 seconds, int nanoseconds);
-// [ 2] void setInterval(bsls_PlatformUtil::Int64 seconds, int nanoseconds);
+// [ 2] void setInterval(bsls::Types::Int64 seconds, int nanoseconds);
 // ACCESSORS
-// [ 4] bsls_PlatformUtil::Int64 seconds() const;
+// [ 4] bsls::Types::Int64 seconds() const;
 // [ 4] int nanoseconds() const;
-// [ 5] bsls_PlatformUtil::Int64 totalMilliseconds() const;
-// [ 5] bsls_PlatformUtil::Int64 totalMicroseconds() const;
+// [ 5] bsls::Types::Int64 totalMilliseconds() const;
+// [ 5] bsls::Types::Int64 totalMicroseconds() const;
 // [ 5] double totalSecondsAsDouble() const;
 // [11] int maxSupportedBdexVersion() const;
 // FREE OPERATORS
@@ -156,10 +156,10 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdet_TimeInterval        Obj;
-typedef bdex_TestInStream        In;
-typedef bdex_TestOutStream       Out;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bdet_TimeInterval  Obj;
+typedef bdex_TestInStream  In;
+typedef bdex_TestOutStream Out;
+typedef bsls::Types::Int64 Int64;
 
 const int NANOSECS_PER_SEC = 1000000000;
 
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
 
             // 'double' as left operand
             for (int i = 0; i < 1; i++) {
-                const int LINE  = VALUES[i].d_lineNum;
+                const int LINE    = VALUES[i].d_lineNum;
                 const int I_SECS  = VALUES[i].d_secs;
                 const int I_NSECS = VALUES[i].d_nsecs;
                 double x = I_SECS + (double)I_NSECS / NANOSECS_PER_SEC;
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
 
             // 'double' as right operand
             for (int i = 0; i < 1; i++) {
-                const int LINE  = VALUES[i].d_lineNum;
+                const int LINE    = VALUES[i].d_lineNum;
                 const int I_SECS  = VALUES[i].d_secs;
                 const int I_NSECS = VALUES[i].d_nsecs;
                 x.setInterval(I_SECS, I_NSECS);
@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
         //   methods and use the (tested) 'addInterval' method as an oracle.
         //
         // Testing:
-        //   bdet_TimeInterval& addSeconds(bsls_PlatformUtil::Int64 seconds);
+        //   bdet_TimeInterval& addSeconds(bsls::Types::Int64 seconds);
         //   bdet_TimeInterval& addMilliseconds(Int64 milliseconds);
         //   bdet_TimeInterval& addMicroseconds(Int64 microseconds);
         //   bdet_TimeInterval& addNanoseconds(Int64 nanoseconds);
@@ -679,8 +679,7 @@ int main(int argc, char *argv[])
                 Obj x(REF), y(REF);  const Obj &X = x, &Y = y;
                 if (veryVerbose) { T_();  P_(X); }
 
-                x.addNanoseconds(bsls_PlatformUtil::Int64(arg)
-                                                           * NANOSECS_PER_SEC);
+                x.addNanoseconds(bsls::Types::Int64(arg) * NANOSECS_PER_SEC);
                 y.addInterval(arg, 0);
                 if (veryVerbose) { P_(X);  P_(Y);  P(arg) }
 
@@ -827,7 +826,7 @@ int main(int argc, char *argv[])
         //   and compare against the expected values.
         //
         // Testing
-        //   bdet_TimeInterval(bsls_PlatformUtil::Int64 secs, int nanosecs);
+        //   bdet_TimeInterval(bsls::Types::Int64 secs, int nanosecs);
         //   bdet_TimeInterval(double seconds);
         // --------------------------------------------------------------------
 
@@ -1153,7 +1152,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t\tGood stream (for control)." << endl;
         {
             Out out;
-            out.putInt64((bsls_PlatformUtil::Int64)SB);
+            out.putInt64((bsls::Types::Int64)SB);
             out.putInt32(NSB);
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -1171,7 +1170,7 @@ int main(int argc, char *argv[])
             const char version = 0; // too small ('version' must be >= 1)
 
             Out out;
-            out.putInt64((bsls_PlatformUtil::Int64)SB);
+            out.putInt64((bsls::Types::Int64)SB);
             out.putInt32(NSB);
 
             const char *const OD  = out.data();
@@ -1190,7 +1189,7 @@ int main(int argc, char *argv[])
             const char version = 5; // too large (current versions all = 1)
 
             Out out;
-            out.putInt64((bsls_PlatformUtil::Int64)SB);
+            out.putInt64((bsls::Types::Int64)SB);
             out.putInt32(NSB);
 
             const char *const OD  = out.data();
@@ -1208,7 +1207,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t\t\tseconds pos., nanoseconds neg." <<endl;
         {
             Out out;
-            out.putInt64((bsls_PlatformUtil::Int64)1);
+            out.putInt64((bsls::Types::Int64)1);
             out.putInt32(-1);
 
             const char *const OD  = out.data();
@@ -1224,7 +1223,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t\t\tseconds neg., nanoseconds pos." <<endl;
         {
             Out out;
-            out.putInt64((bsls_PlatformUtil::Int64)-1);
+            out.putInt64((bsls::Types::Int64)-1);
             out.putInt32(1);
 
             const char *const OD  = out.data();
@@ -1337,9 +1336,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Assignment u = V." << endl;
         {
             static const struct {
-                int                      d_lineNum;
-                bsls_PlatformUtil::Int64 d_secs;
-                int                      d_nsecs;
+                int                d_lineNum;
+                bsls::Types::Int64 d_secs;
+                int                d_nsecs;
             } VALUES[] = {
                 //line     secs       nanosecs
                 //----     ----       --------
@@ -1431,9 +1430,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting copy constructor." << endl;
         {
             static const struct {
-                int                      d_lineNum;
-                bsls_PlatformUtil::Int64 d_secs;
-                int                      d_nsecs;
+                int                d_lineNum;
+                bsls::Types::Int64 d_secs;
+                int                d_nsecs;
             } VALUES[] = {
                 //line     secs       nanosecs
                 //----     ----       --------
@@ -1493,9 +1492,9 @@ int main(int argc, char *argv[])
             "\nCompare each pair of values (u, v) in S X S." << endl;
 
         static const struct {
-            int                      d_lineNum;
-            bsls_PlatformUtil::Int64 d_secs;
-            int                      d_nsecs;
+            int                d_lineNum;
+            bsls::Types::Int64 d_secs;
+            int                d_nsecs;
         } VALUES[] = {
             //line     secs       nanosecs
             //----     ----       --------
@@ -1583,10 +1582,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
         {
             static const struct {
-                int                      d_lineNum;   // source line number
-                bsls_PlatformUtil::Int64 d_seconds;  // second field value
-                int                      d_nsecs;    // nanosecond field value
-                const char               *d_fmt_p;   // expected output format
+                int                 d_lineNum;  // source line number
+                bsls::Types::Int64  d_seconds;  // second field value
+                int                 d_nsecs;    // nanosecond field value
+                const char         *d_fmt_p;    // expected output format
             } DATA[] = {
                 //line     secs        nsecs        output format
                 //---- ------------   ---------   ---------------------------
@@ -1604,10 +1603,10 @@ int main(int argc, char *argv[])
             const char *CTRL_BUF = mCtrlBuf; // Used for extra character check.
 
             for (int di = 0; di < NUM_DATA;  ++di) {
-                const int                      LINE    = DATA[di].d_lineNum;
-                const bsls_PlatformUtil::Int64 SECONDS = DATA[di].d_seconds;
-                const int                      NSECS   = DATA[di].d_nsecs;
-                const char *const              FMT     = DATA[di].d_fmt_p;
+                const int                LINE    = DATA[di].d_lineNum;
+                const bsls::Types::Int64 SECONDS = DATA[di].d_seconds;
+                const int                NSECS   = DATA[di].d_nsecs;
+                const char *const        FMT     = DATA[di].d_fmt_p;
 
                 char buf[SIZE];
                 memcpy(buf, CTRL_BUF, SIZE); // Preset buf to 'unset' values.
@@ -1645,8 +1644,8 @@ int main(int argc, char *argv[])
         //   of the accessors returns the expected value.
         //
         // Testing:
-        //   bsls_PlatformUtil::Int64 totalMilliseconds() const;
-        //   bsls_PlatformUtil::Int64 totalMicroseconds() const;
+        //   bsls::Types::Int64 totalMilliseconds() const;
+        //   bsls::Types::Int64 totalMicroseconds() const;
         //   double totalSecondsAsDouble() const;
         // --------------------------------------------------------------------
 
@@ -1657,10 +1656,10 @@ int main(int argc, char *argv[])
                              "\n============================" << endl;
         {
             static const struct {
-                int                      d_lineNum;
-                bsls_PlatformUtil::Int64 d_secs;
-                int                      d_nsecs;
-                bsls_PlatformUtil::Int64 d_expect;
+                int                d_lineNum;
+                bsls::Types::Int64 d_secs;
+                int                d_nsecs;
+                bsls::Types::Int64 d_expect;
             } VALUES[] = {
               //line                secs    nanosecs         result expected
               //----   -----------------   ---------   ---------------------
@@ -1680,7 +1679,7 @@ int main(int argc, char *argv[])
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 SECS = VALUES[i].d_secs;
+                const bsls::Types::Int64 SECS = VALUES[i].d_secs;
                 const int NSECS = VALUES[i].d_nsecs;
                 const int LINE  = VALUES[i].d_lineNum;
 
@@ -1701,10 +1700,10 @@ int main(int argc, char *argv[])
                              "\n============================" << endl;
         {
             static const struct {
-                int                      d_lineNum;
-                bsls_PlatformUtil::Int64 d_secs;
-                int                      d_nsecs;
-                bsls_PlatformUtil::Int64 d_expect;
+                int                d_lineNum;
+                bsls::Types::Int64 d_secs;
+                int                d_nsecs;
+                bsls::Types::Int64 d_expect;
             } VALUES[] = {
               //line              secs    nanosecs        result expected
               //----   ---------------   ---------  ---------------------
@@ -1724,7 +1723,7 @@ int main(int argc, char *argv[])
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 SECS = VALUES[i].d_secs;
+                const bsls::Types::Int64 SECS = VALUES[i].d_secs;
                 const int LINE  = VALUES[i].d_lineNum;
                 const int NSECS = VALUES[i].d_nsecs;
 
@@ -1745,10 +1744,10 @@ int main(int argc, char *argv[])
                              "\n===============================" << endl;
         {
             static const struct {
-                int                      d_lineNum;
-                bsls_PlatformUtil::Int64 d_secs;
-                int                      d_nsecs;
-                double                   d_expect;
+                int                d_lineNum;
+                bsls::Types::Int64 d_secs;
+                int                d_nsecs;
+                double             d_expect;
             } VALUES[] = {
               //line              secs    nanosecs            result expected
               //----   ---------------   ---------   ------------------------
@@ -1766,7 +1765,7 @@ int main(int argc, char *argv[])
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 SECS = VALUES[i].d_secs;
+                const bsls::Types::Int64 SECS = VALUES[i].d_secs;
                 const int LINE  = VALUES[i].d_lineNum;
                 const int NSECS = VALUES[i].d_nsecs;
 
@@ -1795,7 +1794,7 @@ int main(int argc, char *argv[])
         //   of the direct accessors returns the expected value.
         //
         // Testing:
-        //   bsls_PlatformUtil::Int64 seconds() const;
+        //   bsls::Types::Int64 seconds() const;
         //   int nanoseconds() const;
         // --------------------------------------------------------------------
 
@@ -1803,9 +1802,9 @@ int main(int argc, char *argv[])
                           << "\n=======================" << endl;
         {
             static const struct {
-                int                      d_lineNum;
-                bsls_PlatformUtil::Int64 d_secs;
-                int                      d_nsecs;
+                int                d_lineNum;
+                bsls::Types::Int64 d_secs;
+                int                d_nsecs;
             } VALUES[] = {
                 //line          secs                 nanosecs
                 //----  -------------------------    ---------
@@ -1820,7 +1819,7 @@ int main(int argc, char *argv[])
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 SECS = VALUES[i].d_secs;
+                const bsls::Types::Int64 SECS = VALUES[i].d_secs;
                 const int LINE  = VALUES[i].d_lineNum;
                 const int NSECS = VALUES[i].d_nsecs;
 
@@ -1866,7 +1865,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bdet_TimeInterval();
         //   ~bdet_TimeInterval();
-        //   void setInterval(bsls_PlatformUtil::Int64 secs, int nanoseconds);
+        //   void setInterval(bsls::Types::Int64 secs, int nanoseconds);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Primary Manipulator"

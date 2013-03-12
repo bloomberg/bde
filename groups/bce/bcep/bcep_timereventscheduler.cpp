@@ -217,8 +217,8 @@ void bcep_TimerEventScheduler::yieldToDispatcher()
 
 // CREATORS
 bcep_TimerEventScheduler::bcep_TimerEventScheduler(
-                                               bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockDataAllocator(sizeof(bcep_TimerEventScheduler::ClockData),
                        basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
@@ -236,8 +236,8 @@ bcep_TimerEventScheduler::bcep_TimerEventScheduler(
 
 bcep_TimerEventScheduler::bcep_TimerEventScheduler(
                 const bcep_TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                bslma_Allocator                             *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                bslma::Allocator                            *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockDataAllocator(sizeof(bcep_TimerEventScheduler::ClockData),
                        basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
@@ -254,10 +254,10 @@ bcep_TimerEventScheduler::bcep_TimerEventScheduler(
 }
 
 bcep_TimerEventScheduler::bcep_TimerEventScheduler(
-                                               int              numEvents,
-                                               int              numClocks,
-                                               bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                              int               numEvents,
+                                              int               numClocks,
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockDataAllocator(sizeof(bcep_TimerEventScheduler::ClockData),
                        basicAllocator)
 , d_eventTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numEvents)),
@@ -281,8 +281,8 @@ bcep_TimerEventScheduler::bcep_TimerEventScheduler(
                 int                                          numEvents,
                 int                                          numClocks,
                 const bcep_TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                bslma_Allocator                             *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                bslma::Allocator                            *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockDataAllocator(sizeof(bcep_TimerEventScheduler::ClockData),
                        basicAllocator)
 , d_eventTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numEvents)),

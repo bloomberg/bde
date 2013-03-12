@@ -89,7 +89,7 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-typedef bsls_Stopwatch bdes_Stopwatch;
+typedef bsls::Stopwatch bdes_Stopwatch;
     // The 'class' provides an accumulator for the system, user, and wall times
     // of the current process.  A stopwatch can be in either the STOPPED
     // (initial) state or the RUNNING state.  It potentially tracks three

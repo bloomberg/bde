@@ -13,7 +13,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bcema_Deleter: protocol class for deleting objects
 //
-//@SEE_ALSO: bdema_allocator
+//@SEE_ALSO: bslma_allocator
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -30,7 +30,7 @@ BDES_IDENT("$Id: $")
 // given 'basicAllocator'.  Note that we assume that 'my_Obj' does not require
 // an allocator for any of its members:
 //..
-//  void f(bslma_Allocator *basicAllocator)
+//  void f(bslma::Allocator *basicAllocator)
 //  {
 //      my_Obj *object = new(*basicAllocator) my_Obj;
 //..

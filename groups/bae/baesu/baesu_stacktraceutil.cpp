@@ -126,8 +126,8 @@ int baesu_StackTraceUtil::loadStackTraceFromStack(
 
     void **addresses = (void **)
                      result->allocator()->allocate(maxFrames * sizeof(void *));
-    bslma_DeallocatorGuard<bslma_Allocator> guard(addresses,
-                                                  result->allocator());
+    bslma::DeallocatorGuard<bslma::Allocator> guard(addresses,
+                                                   result->allocator());
 
 #if !defined(BSLS_PLATFORM_OS_CYGWIN)
     int numAddresses = baesu_StackAddressUtil::getStackAddresses(addresses,
@@ -183,7 +183,7 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
         stream << "+0x" << stackTraceFrame.offsetFromSymbol();
     }
     if (stackTraceFrame.isAddressKnown()) {
-        stream << " at 0x" << (bsls_Types::UintPtr) stackTraceFrame.address();
+        stream << " at 0x" << (bsls::Types::UintPtr) stackTraceFrame.address();
     }
     stream.flags(save);
 

@@ -145,7 +145,7 @@ class bcefi_Vfunc4Null : public bcefr_Vfunc4<A1, A2, A3, A4> {
 
   public:
     // CREATORS
-    bcefi_Vfunc4Null(bslma_Allocator *basicAllocator);
+    bcefi_Vfunc4Null(bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments, returning 'void', and performing no operation.
 };
@@ -162,7 +162,7 @@ class bcefi_Vfunc4F4 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // static member function, or functor) taking no additional arguments.
 
     // DATA
-    bslalg_ConstructorProxy<F> d_f;  // function pointer (or functor)
+    bslalg::ConstructorProxy<F> d_f;  // function pointer (or functor)
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4F4(const bcefi_Vfunc4F4<F, A1, A2, A3, A4>&);
@@ -184,7 +184,7 @@ class bcefi_Vfunc4F4 : public bcefr_Vfunc4<A1, A2, A3, A4> {
 
   public:
     // CREATORS
-    bcefi_Vfunc4F4(F procedure, bslma_Allocator *basicAllocator);
+    bcefi_Vfunc4F4(F procedure, bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking no
@@ -206,8 +206,8 @@ class bcefi_Vfunc4F5 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // argument, and that argument's corresponding value.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4F5(const bcefi_Vfunc4F5<F, A1, A2, A3, A4, D1>&);
@@ -232,7 +232,7 @@ class bcefi_Vfunc4F5 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // CREATORS
     bcefi_Vfunc4F5(F                procedure,
                    const D1&        embeddedArg1,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -255,9 +255,9 @@ class bcefi_Vfunc4F6 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4F6(const bcefi_Vfunc4F6<F, A1, A2, A3, A4, D1, D2>&);
@@ -283,7 +283,7 @@ class bcefi_Vfunc4F6 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     bcefi_Vfunc4F6(F                procedure,
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -307,10 +307,10 @@ class bcefi_Vfunc4F7 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
-    bslalg_ConstructorProxy<D3> d_d3;  // third embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<D3> d_d3;  // third embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4F7(const bcefi_Vfunc4F7<F, A1, A2, A3, A4, D1, D2, D3>&);
@@ -337,7 +337,7 @@ class bcefi_Vfunc4F7 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -362,11 +362,11 @@ class bcefi_Vfunc4F8 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   //function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
-    bslalg_ConstructorProxy<D3> d_d3;  // third embedded argument
-    bslalg_ConstructorProxy<D4> d_d4;  // fourth embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   //function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<D3> d_d3;  // third embedded argument
+    bslalg::ConstructorProxy<D4> d_d4;  // fourth embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4F8(const bcefi_Vfunc4F8<F, A1, A2, A3, A4, D1, D2, D3, D4>&);
@@ -394,7 +394,7 @@ class bcefi_Vfunc4F8 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -420,12 +420,12 @@ class bcefi_Vfunc4F9 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
-    bslalg_ConstructorProxy<D3> d_d3;  // third embedded argument
-    bslalg_ConstructorProxy<D4> d_d4;  // fourth embedded argument
-    bslalg_ConstructorProxy<D5> d_d5;  // fifth embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<D3> d_d3;  // third embedded argument
+    bslalg::ConstructorProxy<D4> d_d4;  // fourth embedded argument
+    bslalg::ConstructorProxy<D5> d_d5;  // fifth embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4F9(
@@ -455,7 +455,7 @@ class bcefi_Vfunc4F9 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
                    const D5&        embeddedArg5,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -478,8 +478,8 @@ class bcefi_Vfunc4C4 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // member functions taking no additional arguments.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
-    C                            d_m;    // const member function pointer
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
+    C                             d_m;    // const member function pointer
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4C4(const bcefi_Vfunc4C4<OBJ, C, A1, A2, A3, A4>&);
@@ -503,7 +503,7 @@ class bcefi_Vfunc4C4 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // CREATORS
     bcefi_Vfunc4C4(const OBJ&       object,
                    C                method,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking no additional
@@ -524,9 +524,9 @@ class bcefi_Vfunc4C5 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // argument's corresponding value.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
-    C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
+    C                             d_m;    // const member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4C5(const bcefi_Vfunc4C5<OBJ, C, A1, A2, A3, A4, D1>&);
@@ -552,7 +552,7 @@ class bcefi_Vfunc4C5 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     bcefi_Vfunc4C5(const OBJ&       object,
                    C                method,
                    const D1&        embeddedArg1,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking one additional
@@ -575,10 +575,10 @@ class bcefi_Vfunc4C6 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
-    C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
+    C                             d_m;    // const member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4C6(const bcefi_Vfunc4C6<OBJ, C, A1, A2, A3, A4, D1, D2>&);
@@ -605,7 +605,7 @@ class bcefi_Vfunc4C6 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    C                method,
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking three additional
@@ -629,11 +629,11 @@ class bcefi_Vfunc4C7 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
-    C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;   // third embedded argument
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
+    C                             d_m;    // const member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;   // third embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4C7(const bcefi_Vfunc4C7<OBJ, C, A1, A2, A3, A4, D1, D2, D3>&);
@@ -661,7 +661,7 @@ class bcefi_Vfunc4C7 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking three additional
@@ -686,12 +686,12 @@ class bcefi_Vfunc4C8 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
-    C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;   // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;   // fourth embedded argument
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
+    C                             d_m;    // const member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;   // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;   // fourth embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4C8(
@@ -721,7 +721,7 @@ class bcefi_Vfunc4C8 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking four additional
@@ -746,13 +746,13 @@ class bcefi_Vfunc4C9 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
-    C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;   // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;   // fourth embedded argument
-    bslalg_ConstructorProxy<D5>  d_d5;   // fifth embedded argument
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
+    C                             d_m;    // const member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;   // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;   // fourth embedded argument
+    bslalg::ConstructorProxy<D5>  d_d5;   // fifth embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4C9(
@@ -783,7 +783,7 @@ class bcefi_Vfunc4C9 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
                    const D5&        embeddedArg5,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking five additional
@@ -832,7 +832,7 @@ class bcefi_Vfunc4M4 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // CREATORS
     bcefi_Vfunc4M4(OBJ             *object,
                    M                method,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -854,9 +854,9 @@ class bcefi_Vfunc4M5 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // additional trailing argument, and that argument's corresponding value.
 
     // DATA
-    OBJ                         *d_obj_p;  // object
-    M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
+    OBJ                          *d_obj_p;  // object
+    M                             d_m;      // member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4M5(const bcefi_Vfunc4M5<OBJ, M, A1, A2, A3, A4, D1>&);
@@ -882,7 +882,7 @@ class bcefi_Vfunc4M5 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     bcefi_Vfunc4M5(OBJ             *object,
                    M                method,
                    const D1&        embeddedArg1,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -908,10 +908,10 @@ class bcefi_Vfunc4M6 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // values.
 
     // DATA
-    OBJ                         *d_obj_p;  // object
-    M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;     // second embedded argument
+    OBJ                          *d_obj_p;  // object
+    M                             d_m;      // member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;     // second embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4M6(const bcefi_Vfunc4M6<OBJ, M, A1, A2, A3, A4, D1, D2>&);
@@ -938,7 +938,7 @@ class bcefi_Vfunc4M6 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    M                method,
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -963,11 +963,11 @@ class bcefi_Vfunc4M7 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // values.
 
     // DATA
-    OBJ                         *d_obj_p;  // object
-    M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;     // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;     // third embedded argument
+    OBJ                          *d_obj_p;  // object
+    M                             d_m;      // member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;     // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;     // third embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4M7(const bcefi_Vfunc4M7<OBJ, M, A1, A2, A3, A4, D1, D2, D3>&);
@@ -995,7 +995,7 @@ class bcefi_Vfunc4M7 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning void, using the specified object address
         // and the specified ('const' or non-'const') 'method' of 'object'
@@ -1022,12 +1022,12 @@ class bcefi_Vfunc4M8 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // values.
 
     // DATA
-    OBJ                         *d_obj_p;  // object
-    M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;     // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;     // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;     // fourth embedded argument
+    OBJ                          *d_obj_p;  // object
+    M                             d_m;      // member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;     // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;     // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;     // fourth embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4M8(
@@ -1057,7 +1057,7 @@ class bcefi_Vfunc4M8 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -1084,13 +1084,13 @@ class bcefi_Vfunc4M9 : public bcefr_Vfunc4<A1, A2, A3, A4> {
     // values.
 
     // DATA
-    OBJ                         *d_obj_p;  // object
-    M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;     // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;     // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;     // fourth embedded argument
-    bslalg_ConstructorProxy<D5>  d_d5;     // fifth embedded argument
+    OBJ                          *d_obj_p;  // object
+    M                             d_m;      // member function pointer
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;     // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;     // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;     // fourth embedded argument
+    bslalg::ConstructorProxy<D5>  d_d5;     // fifth embedded argument
 
     // NOT IMPLEMENTED
     bcefi_Vfunc4M9(
@@ -1121,7 +1121,7 @@ class bcefi_Vfunc4M9 : public bcefr_Vfunc4<A1, A2, A3, A4> {
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
                    const D5&        embeddedArg5,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking four
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -1143,7 +1143,7 @@ class bcefi_Vfunc4M9 : public bcefr_Vfunc4<A1, A2, A3, A4> {
 template <class A1, class A2, class A3, class A4>
 inline
 bcefi_Vfunc4Null<A1, A2, A3, A4>::bcefi_Vfunc4Null(
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 {
 }
@@ -1171,7 +1171,7 @@ template <class F, class A1, class A2, class A3, class A4>
 inline
 bcefi_Vfunc4F4<F, A1, A2, A3, A4>::bcefi_Vfunc4F4(
                                              F                procedure,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_f(procedure, basicAllocator)
 {
@@ -1203,7 +1203,7 @@ inline
 bcefi_Vfunc4F5<F, A1, A2, A3, A4, D1>::bcefi_Vfunc4F5(
                                              F                procedure,
                                              const D1&        embeddedArg1,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1237,7 +1237,7 @@ bcefi_Vfunc4F6<F, A1, A2, A3, A4, D1, D2>::bcefi_Vfunc4F6(
                                              F                procedure,
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1276,7 +1276,7 @@ bcefi_Vfunc4F7<F, A1, A2, A3, A4, D1, D2, D3>::bcefi_Vfunc4F7(
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1319,7 +1319,7 @@ bcefi_Vfunc4F8<F, A1, A2, A3, A4, D1, D2, D3, D4>::bcefi_Vfunc4F8(
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1365,7 +1365,7 @@ bcefi_Vfunc4F9<F, A1, A2, A3, A4, D1, D2, D3, D4, D5>::bcefi_Vfunc4F9(
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1408,7 +1408,7 @@ inline
 bcefi_Vfunc4C4<OBJ, C, A1, A2, A3, A4>::bcefi_Vfunc4C4(
                                              const OBJ&       object,
                                              C                method,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1442,7 +1442,7 @@ bcefi_Vfunc4C5<OBJ, C, A1, A2, A3, A4, D1>::bcefi_Vfunc4C5(
                                              const OBJ&       object,
                                              C                method,
                                              const D1&        embeddedArg1,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1480,7 +1480,7 @@ bcefi_Vfunc4C6<OBJ, C, A1, A2, A3, A4, D1, D2>::bcefi_Vfunc4C6(
                                              C                method,
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1523,7 +1523,7 @@ bcefi_Vfunc4C7<OBJ, C, A1, A2, A3, A4, D1, D2, D3>::bcefi_Vfunc4C7(
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1569,7 +1569,7 @@ bcefi_Vfunc4C8<OBJ, C, A1, A2, A3, A4, D1, D2, D3, D4>::bcefi_Vfunc4C8(
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1619,7 +1619,7 @@ bcefi_Vfunc4C9<OBJ, C, A1, A2, A3, A4, D1, D2, D3, D4, D5>::bcefi_Vfunc4C9(
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1664,7 +1664,7 @@ inline
 bcefi_Vfunc4M4<OBJ, M, A1, A2, A3, A4>::bcefi_Vfunc4M4(
                                              OBJ             *object,
                                              M                method,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -1697,7 +1697,7 @@ bcefi_Vfunc4M5<OBJ, M, A1, A2, A3, A4, D1>::bcefi_Vfunc4M5(
                                              OBJ             *object,
                                              M                method,
                                              const D1&        embeddedArg1,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -1734,7 +1734,7 @@ bcefi_Vfunc4M6<OBJ, M, A1, A2, A3, A4, D1, D2>::bcefi_Vfunc4M6(
                                              M                method,
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -1776,7 +1776,7 @@ bcefi_Vfunc4M7<OBJ, M, A1, A2, A3, A4, D1, D2, D3>::bcefi_Vfunc4M7(
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -1820,7 +1820,7 @@ bcefi_Vfunc4M8<OBJ, M, A1, A2, A3, A4, D1, D2, D3, D4>::bcefi_Vfunc4M8(
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -1867,7 +1867,7 @@ bcefi_Vfunc4M9<OBJ, M, A1, A2, A3, A4, D1, D2, D3, D4, D5>::bcefi_Vfunc4M9(
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc4<A1, A2, A3, A4>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)

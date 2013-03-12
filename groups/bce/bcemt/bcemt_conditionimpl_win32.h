@@ -132,7 +132,7 @@ class bcemt_ConditionImpl<bces_Platform::Win32Threads> {
 // CREATORS
 inline
 bcemt_ConditionImpl<bces_Platform::Win32Threads>::bcemt_ConditionImpl()
-: d_waitSluice(&bslma_MallocFreeAllocator::singleton())
+: d_waitSluice(&bslma::MallocFreeAllocator::singleton())
 {
     // We use the malloc/free allocator singleton so as not to produce "noise"
     // in any tests involving the global allocator or global new/delete.

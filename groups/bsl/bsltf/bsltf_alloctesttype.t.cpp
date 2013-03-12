@@ -1,23 +1,26 @@
 // bsltf_alloctesttype.t.cpp                                          -*-C++-*-
 #include <bsltf_alloctesttype.h>
 
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
 #include <climits>
+#include <new>
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <cstring>
+#include <string.h>
 
-#include <new>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
@@ -253,14 +256,16 @@ int main(int argc, char *argv[]) {
             new (arr) Obj();
             arr[0].~Obj();
 
+#if defined(BDE_BUILD_TARGET_EXC)
+            if (verbose) printf("\nNegative Testing.\n");
             {
-                bsls::AssertFailureHandlerGuard hG(
-                                              bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 new (arr) Obj();
-                std::memmove(arr+1, arr, sizeof(Obj));
+                memmove(arr+1, arr, sizeof(Obj));
                 ASSERT_OPT_FAIL(arr[1].~Obj());
             }
+#endif
 
             scratch.deallocate(reinterpret_cast<void*>(arr));
         }
@@ -1097,7 +1102,7 @@ int main(int argc, char *argv[]) {
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                  } break;
+                  } return testStatus;                                // RETURN
                 }
 
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
@@ -1119,7 +1124,7 @@ int main(int argc, char *argv[]) {
                       } break;
                       default: {
                         ASSERTV(CONFIG, !"Bad allocator config.");
-                      } break;
+                      } return testStatus;                            // RETURN
                     }
                     ASSERTV(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
@@ -1202,7 +1207,7 @@ int main(int argc, char *argv[]) {
         //:   violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' atrribute 'D', 'A',
+        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
         //:   the the boundary values.
         //:
@@ -1229,7 +1234,7 @@ int main(int argc, char *argv[]) {
         //:     (C-2..4)
         //:
         //:   4 Use the appropriate test allocators to verify that the
-        //:     approporiate amount of memory is allocated by the default
+        //:     appropriate amount of memory is allocated by the default
         //:     constructor.  (C-9)
         //:
         //:   5 Use the individual (as yet unproven) salient attribute
@@ -1278,7 +1283,6 @@ int main(int argc, char *argv[]) {
             switch (CONFIG) {
               case 'a': {
                 objAllocatorPtr = &da;
-
               } break;
               case 'b': {
                 objAllocatorPtr = &da;
@@ -1288,7 +1292,7 @@ int main(int argc, char *argv[]) {
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
-              } break;
+              } return testStatus;                                    // RETURN
             }
 
             bslma::TestAllocator&  oa = *objAllocatorPtr;
@@ -1310,7 +1314,7 @@ int main(int argc, char *argv[]) {
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                  } break;
+                  } return testStatus;                                // RETURN
                 }
                 ASSERTV(CONFIG, tam.isInUseUp());
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
@@ -1425,11 +1429,24 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -276,11 +276,19 @@ class bdec_Queue {
 
   private:
     // DATA
-    T               *d_array_p;// dynamically allocated array (d_size elements)
-    int              d_size;   // physical capacity of this array (in elements)
-    int              d_front;  // index of element before first stored element
-    int              d_back;   // index of element past last stored element
-    bslma_Allocator *d_allocator_p; // holds (but not own) memory allocator
+    T                *d_array_p;      // dynamically allocated array ('d_size'
+                                      // elements)
+
+    int               d_size;         // physical capacity of this array (in
+                                      // elements)
+
+    int               d_front;        // index of element before first stored
+                                      // element
+
+    int               d_back;         // index of element past last stored
+                                      // element
+
+    bslma::Allocator *d_allocator_p;  // holds (but not own) memory allocator
 
   private:
     // PRIVATE MANIPULATORS
@@ -361,12 +369,12 @@ class bdec_Queue {
         // '0 <= srcFront < srcSize', and '0 <= srcBack < srcSize'.  Note that
         // aliasing is not handled properly.
 
-    int increaseSizeImp(T               **addrArray,
-                        int              *front,
-                        int              *back,
-                        int               newSize,
-                        int               size,
-                        bslma_Allocator  *allocator);
+    int increaseSizeImp(T                **addrArray,
+                        int               *front,
+                        int               *back,
+                        int                newSize,
+                        int                size,
+                        bslma::Allocator  *allocator);
         // Increase the physical capacity of the queue represented by the
         // specified 'addrArray' to specified 'newSize' from the specified
         // 'size'.  Return the new size of the queue.  This function copies the
@@ -384,7 +392,7 @@ class bdec_Queue {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdec_Queue,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitUsesBslmaAllocator,
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS METHODS
@@ -402,13 +410,13 @@ class bdec_Queue {
 
     // CREATORS
     explicit
-    bdec_Queue(bslma_Allocator *basicAllocator = 0);
+    bdec_Queue(bslma::Allocator *basicAllocator = 0);
     explicit
-    bdec_Queue(unsigned int  initialLength,
-               bslma_Allocator *basicAllocator = 0);
-    bdec_Queue(int              initialLength,
-               const T&         initialValue,
-               bslma_Allocator *basicAllocator = 0);
+    bdec_Queue(unsigned int      initialLength,
+               bslma::Allocator *basicAllocator = 0);
+    bdec_Queue(int               initialLength,
+               const T&          initialValue,
+               bslma::Allocator *basicAllocator = 0);
         // Create an in-place queue.  By default, the queue is empty.
         // Optionally specify the 'initialLength' of the queue.  Queue elements
         // are initialized with the specified 'initialValue', or to 0.0 if
@@ -419,7 +427,7 @@ class bdec_Queue {
 
     explicit
     bdec_Queue(const InitialCapacity&  numElements,
-               bslma_Allocator        *basicAllocator = 0);
+               bslma::Allocator       *basicAllocator = 0);
         // Create an in-place queue with sufficient initial capacity to
         // accommodate up to the specified 'numElements' values without
         // subsequent reallocation.  A valid reference returned by the
@@ -430,9 +438,9 @@ class bdec_Queue {
         // the currently installed default allocator is used.  The behavior is
         // undefined unless '0 <= numElements'.
 
-    bdec_Queue(const T         *srcArray,
-               int              numElements,
-               bslma_Allocator *basicAllocator = 0);
+    bdec_Queue(const T          *srcArray,
+               int               numElements,
+               bslma::Allocator *basicAllocator = 0);
         // Create an in-place queue initialized with the specified
         // 'numElements' leading values from the specified 'srcArray'.
         // Optionally specify the 'basicAllocator' used to supply memory.  If
@@ -442,7 +450,7 @@ class bdec_Queue {
         // 'numElements' values.
 
     bdec_Queue(const bdec_Queue<T>&  original,
-               bslma_Allocator      *basicAllocator = 0);
+               bslma::Allocator     *basicAllocator = 0);
         // Create an in-place queue initialized to the value of the specified
         // 'original' queue.  Optionally specify the 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -1076,12 +1084,12 @@ void bdec_Queue<T>::copyData(T       *dstArray,
 }
 
 template <class T>
-int bdec_Queue<T>::increaseSizeImp(T               **addrArray,
-                                   int              *front,
-                                   int              *back,
-                                   int               newSize,
-                                   int               size,
-                                   bslma_Allocator  *allocator)
+int bdec_Queue<T>::increaseSizeImp(T                **addrArray,
+                                   int               *front,
+                                   int               *back,
+                                   int                newSize,
+                                   int                size,
+                                   bslma::Allocator  *allocator)
 {
     T *array = (T *)allocator->allocate(newSize * sizeof **addrArray);
 
@@ -1132,20 +1140,20 @@ int bdec_Queue<T>::maxSupportedVersion()
 
 // CREATORS
 template <class T>
-bdec_Queue<T>::bdec_Queue(bslma_Allocator *basicAllocator)
+bdec_Queue<T>::bdec_Queue(bslma::Allocator *basicAllocator)
 : d_size(BDEC_INITIAL_SIZE)
 , d_front(BDEC_INITIAL_SIZE - 1)
 , d_back(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);
 }
 
 template <class T>
-bdec_Queue<T>::bdec_Queue(unsigned int     initialLength,
-                          bslma_Allocator *basicAllocator)
+bdec_Queue<T>::bdec_Queue(unsigned int      initialLength,
+                          bslma::Allocator *basicAllocator)
 : d_back(initialLength)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_size = calculateSufficientSize(initialLength, BDEC_INITIAL_SIZE);
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);
@@ -1161,11 +1169,11 @@ bdec_Queue<T>::bdec_Queue(unsigned int     initialLength,
 }
 
 template <class T>
-bdec_Queue<T>::bdec_Queue(int              initialLength,
-                          const T&         initialValue,
-                          bslma_Allocator *basicAllocator)
+bdec_Queue<T>::bdec_Queue(int               initialLength,
+                          const T&          initialValue,
+                          bslma::Allocator *basicAllocator)
 : d_back(initialLength)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_size = calculateSufficientSize(initialLength, BDEC_INITIAL_SIZE);
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);
@@ -1181,21 +1189,21 @@ bdec_Queue<T>::bdec_Queue(int              initialLength,
 
 template <class T>
 bdec_Queue<T>::bdec_Queue(const InitialCapacity&  numElements,
-                          bslma_Allocator        *basicAllocator)
+                          bslma::Allocator       *basicAllocator)
 : d_size(numElements.d_i + BDEC_EXTRA_CAPACITY) // to hold the empty positions
 , d_front(numElements.d_i + BDEC_EXTRA_CAPACITY - 1)
 , d_back(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);
 }
 
 template <class T>
-bdec_Queue<T>::bdec_Queue(const T         *srcArray,
-                          int              numElements,
-                          bslma_Allocator *basicAllocator)
+bdec_Queue<T>::bdec_Queue(const T          *srcArray,
+                          int               numElements,
+                          bslma::Allocator *basicAllocator)
 : d_back(numElements)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_size = calculateSufficientSize(numElements, BDEC_INITIAL_SIZE);
     d_front = d_size - 1;
@@ -1210,8 +1218,8 @@ bdec_Queue<T>::bdec_Queue(const T         *srcArray,
 
 template <class T>
 bdec_Queue<T>::bdec_Queue(const bdec_Queue<T>&  original,
-                          bslma_Allocator      *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                          bslma::Allocator     *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_size = calculateSufficientSize(original.length(), BDEC_INITIAL_SIZE);
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);

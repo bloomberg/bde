@@ -32,7 +32,7 @@ using bsl::flush;
 // TBD: Overview
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bcep_ThreadMultiplexor(int, int, bslma_Allocator*);
+// [ 1] bcep_ThreadMultiplexor(int, int, bslma::Allocator *);
 // [ 1] ~bcep_ThreadMultiplexor();
 //
 // MANIPULATORS
@@ -137,7 +137,7 @@ class TestQueue {
     TestQueue(int                   maxProcessors,
               int                   queueCapacity,
               bcep_FixedThreadPool *threadPool,
-              bslma_Allocator      *basicAllocator = 0);
+              bslma::Allocator     *basicAllocator = 0);
 
     ~TestQueue();
 
@@ -155,7 +155,7 @@ class TestQueue {
 TestQueue::TestQueue(int                   maxProcessors,
                      int                   queueCapacity,
                      bcep_FixedThreadPool *threadPool,
-                     bslma_Allocator      *basicAllocator)
+                     bslma::Allocator     *basicAllocator)
 : d_threadPool_p(threadPool)
 , d_multiplexor(maxProcessors,
                 queueCapacity,
@@ -321,7 +321,7 @@ public:
    // CREATORS
    JobQueue(int                   maxProcessors,
             bcep_FixedThreadPool *threadPool,
-            bslma_Allocator      *basicAllocator = 0);
+            bslma::Allocator     *basicAllocator = 0);
      // Create a job queue that executes jobs in the specified
      // 'threadPool' using no more than the specified 'maxProcessors'.
      // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -342,7 +342,7 @@ public:
 // CREATORS
 JobQueue::JobQueue(int                   maxProcessors,
                    bcep_FixedThreadPool *threadPool,
-                   bslma_Allocator      *basicAllocator)
+                   bslma::Allocator     *basicAllocator)
 : d_threadPool_p(threadPool)
 , d_multiplexor (maxProcessors,
                  threadPool->queueCapacity(),
@@ -363,7 +363,7 @@ int JobQueue::processJob(const JobQueue::Job& job)
                                 job));
 }
 
-int usageExample(bslma_Allocator *allocator)
+int usageExample(bslma::Allocator *allocator)
 {
     enum {
         NUM_THREADS   = 5,   // total number of threads

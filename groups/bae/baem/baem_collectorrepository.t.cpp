@@ -42,7 +42,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2]  baem_CollectorRepository(baem_MetricRegistry *,
-//                                bslma_Allocator     *);
+//                                bslma::Allocator    *);
 // [ 2]  ~baem_CollectorRepository();
 // MANIPULATORS
 // [ 7]  void collect(bsl::vector<baem_MetricRecord> *, const baem_Category *);
@@ -197,7 +197,7 @@ class ThreadTester {
     bcep_FixedThreadPool      d_pool;
     bcemt_Barrier             d_barrier;
     baem_CollectorRepository *d_repository_p;
-    bslma_Allocator          *d_allocator_p;
+    bslma::Allocator         *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -208,7 +208,7 @@ class ThreadTester {
     // CREATORS
     ThreadTester(int                       numThreads,
                  baem_CollectorRepository *repository,
-                 bslma_Allocator          *basicAllocator)
+                 bslma::Allocator         *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_repository_p(repository)
@@ -410,9 +410,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
 // from the repository.  We start by creating creating a repository and
 // looking up 2 collectors and 2 integer collectors.
 //..
-    bslma_Allocator     *allocator = bslma_Default::allocator(0);
+    bslma::Allocator    *allocator = bslma::Default::allocator(0);
     baem_MetricRegistry  metricRegistry(allocator);
     baem_CollectorRepository repository(&metricRegistry, allocator);
 
@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
                                   << "================" << endl;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bcema_TestAllocator      testAllocator;
         baem_MetricRegistry      registry(&testAllocator);;
@@ -1251,7 +1251,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   baem_CollectorRepository(baem_MetricRegistry *,
-        //                            bslma_Allocator     *);
+        //                            bslma::Allocator    *);
         //   ~baem_CollectorRepository();
         //   bcema_SharedPtr<baem_Collector>
         //                          addCollector(const baem_MetricId& );

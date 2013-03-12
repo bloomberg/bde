@@ -85,7 +85,7 @@ void bdema_Pool::replenish()
                                                     d_chunkSize,
                                                     0));
 
-    if (bsls_BlockGrowth::BSLS_GEOMETRIC == d_growthStrategy
+    if (bsls::BlockGrowth::BSLS_GEOMETRIC == d_growthStrategy
      && d_chunkSize < d_maxBlocksPerChunk) {
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
@@ -100,25 +100,25 @@ void bdema_Pool::replenish()
 }
 
 // CREATORS
-bdema_Pool::bdema_Pool(int blockSize, bslma_Allocator *basicAllocator)
+bdema_Pool::bdema_Pool(int blockSize, bslma::Allocator *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_freeList_p(0)
 , d_blockList(basicAllocator)
 {
     BSLS_ASSERT(1 <= blockSize);
 
     d_internalBlockSize = bsl::max(static_cast<int>(sizeof(Link)),
-                      roundUp(blockSize, bsls_AlignmentFromType<Link>::VALUE));
+                     roundUp(blockSize, bsls::AlignmentFromType<Link>::VALUE));
 }
 
-bdema_Pool::bdema_Pool(int                         blockSize,
-                       bsls_BlockGrowth::Strategy  growthStrategy,
-                       bslma_Allocator            *basicAllocator)
+bdema_Pool::bdema_Pool(int                          blockSize,
+                       bsls::BlockGrowth::Strategy  growthStrategy,
+                       bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
-, d_chunkSize(bsls_BlockGrowth::BSLS_CONSTANT == growthStrategy
+, d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
               ? MAX_CHUNK_SIZE : INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
 , d_growthStrategy(growthStrategy)
@@ -128,15 +128,15 @@ bdema_Pool::bdema_Pool(int                         blockSize,
     BSLS_ASSERT(1 <= blockSize);
 
     d_internalBlockSize = bsl::max(static_cast<int>(sizeof(Link)),
-                      roundUp(blockSize, bsls_AlignmentFromType<Link>::VALUE));
+                     roundUp(blockSize, bsls::AlignmentFromType<Link>::VALUE));
 }
 
-bdema_Pool::bdema_Pool(int                         blockSize,
-                       bsls_BlockGrowth::Strategy  growthStrategy,
-                       int                         maxBlocksPerChunk,
-                       bslma_Allocator            *basicAllocator)
+bdema_Pool::bdema_Pool(int                          blockSize,
+                       bsls::BlockGrowth::Strategy  growthStrategy,
+                       int                          maxBlocksPerChunk,
+                       bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
-, d_chunkSize(bsls_BlockGrowth::BSLS_CONSTANT == growthStrategy
+, d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
               ? maxBlocksPerChunk : INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
 , d_growthStrategy(growthStrategy)
@@ -147,7 +147,7 @@ bdema_Pool::bdema_Pool(int                         blockSize,
     BSLS_ASSERT(1 <= maxBlocksPerChunk);
 
     d_internalBlockSize = bsl::max(static_cast<int>(sizeof(Link)),
-                      roundUp(blockSize, bsls_AlignmentFromType<Link>::VALUE));
+                     roundUp(blockSize, bsls::AlignmentFromType<Link>::VALUE));
 }
 
 bdema_Pool::~bdema_Pool()

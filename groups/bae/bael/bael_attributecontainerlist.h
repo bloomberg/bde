@@ -94,16 +94,16 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -230,10 +230,10 @@ class bael_AttributeContainerList {
     typedef bael_AttributeContainerList_Node Node;
 
     // DATA
-    Node            *d_head_p;       // head of the linked list of elements
-    Node            *d_free_p;       // head of the free store
-    int              d_length;       // length of the list
-    bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+    Node             *d_head_p;       // head of the linked list of elements
+    Node             *d_free_p;       // head of the free store
+    int               d_length;       // length of the list
+    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
   public:
     // PUBLIC TYPES
@@ -241,14 +241,14 @@ class bael_AttributeContainerList {
         // An iterator over this list.
 
     // CREATORS
-    bael_AttributeContainerList(bslma_Allocator *basicAllocator = 0);
+    bael_AttributeContainerList(bslma::Allocator *basicAllocator = 0);
         // Create an empty container list.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     bael_AttributeContainerList(
                        const bael_AttributeContainerList&  original,
-                       bslma_Allocator                    *basicAllocator = 0);
+                       bslma::Allocator                   *basicAllocator = 0);
         // Create a container list having the same value as the specified
         // 'original'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -440,11 +440,11 @@ bool bael_AttributeContainerListIterator::valid() const
 // CREATORS
 inline
 bael_AttributeContainerList::bael_AttributeContainerList(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_head_p(0)
 , d_free_p(0)
 , d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

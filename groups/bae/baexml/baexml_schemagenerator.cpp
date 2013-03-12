@@ -21,7 +21,7 @@ BDES_IDENT_RCSID(baexml_schemagenerator_cpp,"$Id$ $CSID$")
 #include <bdeat_formattingmode.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstring.h>     // 'strchr', etc.
 #include <bsl_cstdio.h>      // 'sprintf'
@@ -242,7 +242,7 @@ void getDefaultValue(bsl::string *defaultValue, const bdem_FieldDef& field)
         }
       } break;
       case bdem_ElemType::BDEM_INT64: {
-        typedef bsls_PlatformUtil::Int64 Int64;
+        typedef bsls::Types::Int64 Int64;
         baexml_TypesPrintUtil::print(stream,
                                      field.defaultValue().theInt64(),
                                      formattingMode);

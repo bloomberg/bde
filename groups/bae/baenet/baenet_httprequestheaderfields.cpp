@@ -1,4 +1,4 @@
-// baenet_httprequestheaderfields.cpp   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
+// baenet_httprequestheaderfields.cpp  -*-C++-*-  GENERATED FILE -- DO NOT EDIT
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baenet_httprequestheaderfields_cpp,"$Id$ $CSID$ $CCId$")
 #include <baenet_httprequestheaderfields.h>
@@ -535,7 +535,8 @@ const bdeat_AttributeInfo *
 
 // CREATORS
 
-baenet_HttpRequestHeaderFields::baenet_HttpRequestHeaderFields(bslma_Allocator *basicAllocator)
+baenet_HttpRequestHeaderFields::baenet_HttpRequestHeaderFields(
+                                              bslma::Allocator *basicAllocator)
 : d_accept(basicAllocator)
 , d_acceptCharset(basicAllocator)
 , d_acceptEncoding(basicAllocator)
@@ -558,8 +559,9 @@ baenet_HttpRequestHeaderFields::baenet_HttpRequestHeaderFields(bslma_Allocator *
 {
 }
 
-baenet_HttpRequestHeaderFields::baenet_HttpRequestHeaderFields(const baenet_HttpRequestHeaderFields& original,
-                                                                       bslma_Allocator *basicAllocator)
+baenet_HttpRequestHeaderFields::baenet_HttpRequestHeaderFields(
+                         const baenet_HttpRequestHeaderFields&  original,
+                         bslma::Allocator                      *basicAllocator)
 : d_accept(original.d_accept, basicAllocator)
 , d_acceptCharset(original.d_acceptCharset, basicAllocator)
 , d_acceptEncoding(original.d_acceptEncoding, basicAllocator)
@@ -589,7 +591,8 @@ baenet_HttpRequestHeaderFields::~baenet_HttpRequestHeaderFields()
 // MANIPULATORS
 
 baenet_HttpRequestHeaderFields&
-baenet_HttpRequestHeaderFields::operator=(const baenet_HttpRequestHeaderFields& rhs)
+baenet_HttpRequestHeaderFields::operator=(
+                                     const baenet_HttpRequestHeaderFields& rhs)
 {
     if (this != &rhs) {
         d_accept = rhs.d_accept;
