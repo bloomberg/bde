@@ -10,6 +10,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslstl_iterator.h>           // for testing only
 #include <bslstl_stdexceptutil.h>
 
+#include <bslma_mallocfreeallocator.h>
+
 #include <bsls_nativestd.h>
 
 #include <algorithm>         // 'lower_bound'
@@ -141,6 +143,20 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
 
     *capacity = Impl::roundToMax(newCapacity);
     return result;
+}
+
+bslma::Allocator *HashTable_ImpDetails::incidentalAllocator()
+{
+    // Note that this function is deliberately defined out-of-line in the .cpp
+    // file, rather than as an inline function in the .h file, due to problems
+    // raised by #including <bslma_mallocfree.h> directly in the header for
+    // (much) higher level code that, for historical reasons, defines 'malloc'
+    // and 'free' as macros in order to remap them to shared memory.  The
+    // simplest solution is to simply isolate our use of the malloc-free
+    // allocator to this .cpp file, which is built without those strange
+    // configuration macros installed.
+
+    return &bslma::MallocFreeAllocator::singleton();
 }
 
 }  // close package namespace
