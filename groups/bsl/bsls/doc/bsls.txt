@@ -117,7 +117,7 @@
 :      Provide byte-order manipulation macros.
 :
 : 'bsls_compilerfeatures':
-:      Provide macros to identify compiler support for C++0x features.
+:      Provide macros to identify compiler support for C++11 features.
 :
 : 'bsls_exceptionutil':
 :      Provide simplified exception constructs for non-exception builds.

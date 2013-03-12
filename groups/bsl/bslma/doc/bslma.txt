@@ -27,11 +27,12 @@
 
   5. bslma_autodeallocator
      bslma_autodestructor
-     bslma_defaultallocatorguard
      bslma_deallocatorguard
-     bslma_destructorguard
-     bslma_rawdeleterguard
      bslma_deallocatorproctor
+     bslma_defaultallocatorguard
+     bslma_destructorguard
+     bslma_exceptionguard
+     bslma_rawdeleterguard
      bslma_rawdeleterproctor
 
   4. bslma_default
@@ -39,7 +40,6 @@
 
   3. bslma_mallocfreeallocator
      bslma_newdeleteallocator
-     bslma_usesbslmaallocator
      bslma_testallocatorexception
      bslma_usesbslmaallocator
 
@@ -82,6 +82,9 @@
 :
 : 'bslma_destructorproctor':
 :      Provide a proctor to conditionally manage an object.
+:
+: 'bslma_exceptionguard':
+:      Provide a check that objects throwing exceptions do not change.
 :
 : 'bslma_mallocfreeallocator':
 :      Provide malloc/free adaptor to 'bslma::Allocator' protocol.

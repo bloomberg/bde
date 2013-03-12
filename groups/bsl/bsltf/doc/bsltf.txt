@@ -13,25 +13,29 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsltf' package currently has 14 components having 3 levels of physical
+ The 'bsltf' package currently has 18 components having 3 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
 ..
-  3. bsltf_testvaluesarray
+  3. bsltf_convertiblevaluewrapper
+     bsltf_testvaluesarray
 
   2. bsltf_templatetestfacility
 
   1. bsltf_allocbitwisemoveabletesttype
      bsltf_alloctesttype
      bsltf_bitwisemoveabletesttype
+     bsltf_degeneratefunctor
      bsltf_enumeratedtesttype
+     bsltf_evilbooleantype
      bsltf_nonassignabletesttype
      bsltf_noncopyconstructibletesttype
      bsltf_nondefaultconstructibletesttype
      bsltf_nonequalcomparabletesttype
      bsltf_nontypicaloverloadstesttype
      bsltf_simpletesttype
+     bsltf_stdstatefulallocator
      bsltf_stdtestallocator
      bsltf_uniontesttype
 ..
@@ -47,14 +51,23 @@
 : 'bsltf_bitwisemoveabletesttype':
 :      Provide a bitwise-moveable test class.
 :
+: 'bsltf_convertiblevaluewrapper':
+:      Provide a wrapper class, convertible to a supplied value.
+:
+: 'bsltf_degeneratefunctor':
+:      Provide an awkward type to adapt a user-supplied functor.
+:
 : 'bsltf_enumeratedtesttype':
 :      Provide an enumerated test type.
+:
+: 'bsltf_evilbooleantype':
+:      Provide the most awkward type that is convertible to 'bool'.
 :
 : 'bsltf_nonassignabletesttype':
 :      Provide an attribute class to which can not be assigned.
 :
 : 'bsltf_noncopyconstructibletesttype':
-:      Provide an attribute class that is not copy constructable.
+:      Provide an attribute class that is not copy constructible.
 :
 : 'bsltf_nondefaultconstructibletesttype':
 :      Provide an attribute class that is not default constructible.
@@ -67,6 +80,9 @@
 :
 : 'bsltf_simpletesttype':
 :      Provide a non-allocating test class without type traits.
+:
+: 'bsltf_stdstatefulallocator':
+:      Provide a minimal standard compliant allocator.
 :
 : 'bsltf_stdtestallocator':
 :      Provide a minimal standard compliant allocator.
