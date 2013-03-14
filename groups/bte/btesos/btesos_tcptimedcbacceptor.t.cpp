@@ -163,7 +163,7 @@ class my_EchoServer {
     bdef_Function<void (*)(btesc_TimedCbChannel*, int)>
                                 d_allocateFunctor;
 
-    bslma_Allocator            *d_allocator_p;
+    bslma::Allocator           *d_allocator_p;
     char                        d_buffer[READ_SIZE];
 
     void allocateCb(btesc_TimedCbChannel *channel, int status);
@@ -184,9 +184,10 @@ class my_EchoServer {
         operator=(const my_EchoServer&);    // Not implemented.
   public:
     // CREATORS
-    my_EchoServer(bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
-                  bteso_TimerEventManager                     *manager,
-                  bslma_Allocator                            *basicAllocator);
+    my_EchoServer(
+                 bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
+                 bteso_TimerEventManager                      *manager,
+                 bslma::Allocator                             *basicAllocator);
     ~my_EchoServer();
 
     //  MANIPULATORS
@@ -198,7 +199,7 @@ class my_EchoServer {
 my_EchoServer::my_EchoServer(
         bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
         bteso_TimerEventManager                      *manager,
-        bslma_Allocator                              *basicAllocator)
+        bslma::Allocator                             *basicAllocator)
 : d_allocator(factory, manager, basicAllocator)
 , d_acceptTimeout(120, 0)
 , d_readTimeout(5, 0)
@@ -868,8 +869,8 @@ static void *threadToConnect(void *arg)
     // number of connections to be established.
 {
     ASSERT(arg);
-    // Since 'bslma_TestAllocator' is not thread-safe, the helper thread
-    // can't share the 'factory' (which uses a 'bslma_TestAllocator' object)
+    // Since 'bslma::TestAllocator' is not thread-safe, the helper thread
+    // can't share the 'factory' (which uses a 'bslma::TestAllocator' object)
     // and so we have to instantiate another factory object for the helper
     // thread.
     bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
@@ -881,9 +882,9 @@ static void *threadToConnect(void *arg)
         PT(info.d_sleepTime);
     }
     bcemt_ThreadUtil::microSleep(info.d_sleepTime);
-    // bdema_testAllocator is not thread-safe, so need to provide a new one
+    // bslma::TestAllocator is not thread-safe, so need to provide a new one
     // for the thread.
-    bslma_TestAllocator threadTestAllocator;
+    bslma::TestAllocator threadTestAllocator;
 
     bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *>
                                           clients(&threadTestAllocator);
@@ -938,7 +939,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     testAllocator.setNoAbort(1);
     bteso_InetStreamSocketFactory<bteso_IPv4Address> factory(&testAllocator);
 
@@ -1052,7 +1053,7 @@ int main(int argc, char *argv[])
           if (verbose) cout << "\nTesting Usage Example: Echo Server"
                             << "\n==================================" << endl;
           {
-                bslma_TestAllocator testAllocator;
+                bslma::TestAllocator testAllocator;
                 testAllocator.setNoAbort(1);
 
                 bteso_InetStreamSocketFactory<bteso_IPv4Address>

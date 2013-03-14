@@ -9,7 +9,6 @@
 #include <bdex_testoutstream.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>

@@ -11,6 +11,7 @@
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -75,12 +76,28 @@ typedef bcemt_ThreadUtil    Obj;
 
 int verbose;
 int veryVerbose;
+int veryVeryVerbose;
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr)      BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr)      BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_FAIL_RAW(expr)  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
+#define ASSERT_PASS_RAW(expr)  BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
+
+#if !defined(BSLS_PLATFORM_OS_CYGWIN)
+    const int MIN_GUARD_SIZE = 0;
+#else
+    const int MIN_GUARD_SIZE = 1;
+#endif
 
 //=============================================================================
 //                  GLOBAL FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-bsls_Types::IntPtr intPtrAbs(bsls_Types::IntPtr a)
+bsls::Types::IntPtr intPtrAbs(bsls::Types::IntPtr a)
 {
     return a >= 0 ? a : -a;
 }
@@ -175,21 +192,27 @@ namespace MULTIPRIORITY_USAGE_TEST_CASE {
 struct MostUrgentThreadFunctor {
     void operator()() const
     {
-        bsl::printf("Most urgent\n");
+        if (verbose) {
+            bsl::printf("Most urgent\n");
+        }
     }
 };
 
 struct FairlyUrgentThreadFunctor {
     void operator()() const
     {
-        bsl::printf("Fairly urgent\n");
+        if (verbose) {
+            bsl::printf("Fairly urgent\n");
+        }
     }
 };
 
 struct LeastUrgentThreadFunctor {
     void operator()() const
     {
-        bsl::printf("Least urgent\n");
+        if (verbose) {
+            bsl::printf("Least urgent\n");
+        }
     }
 };
 
@@ -257,12 +280,12 @@ void *configurationTestFunction(void *stackToUse)
 {
     BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
-    func.d_stackToUse = (int) (bsls_Types::IntPtr) stackToUse;
+    func.d_stackToUse = (int) (bsls::Types::IntPtr) stackToUse;
     func.s_success   = false;
 
     func();
 
-    ASSERT(func.d_stackToUse == (int) (bsls_Types::IntPtr) stackToUse);
+    ASSERT(func.d_stackToUse == (int) (bsls::Types::IntPtr) stackToUse);
     ASSERT(func.s_success);
 
     return 0;
@@ -310,7 +333,7 @@ void *callCppFunction(void *function)
 template <int BUFFER_SIZE>
 void testStackSize()
 {
-#ifdef BSLS_PLATFORM_OS_UNIX
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
     // In test cases -2 and -4, Linux was crashing about 4K away from the stack
     // in 32 & 64 bit.  All other unix platforms were running past the end of
     // the stack without crashing.
@@ -325,7 +348,7 @@ void testStackSize()
 
     bcemt_ThreadAttributes attr;
     attr.setStackSize(BUFFER_SIZE + FUDGE_FACTOR);
-    attr.setGuardSize(0);
+    attr.setGuardSize(MIN_GUARD_SIZE);
 
     Obj::Handle handle;
 
@@ -628,7 +651,7 @@ extern "C" void *secondClearanceTest(void *vStackSize)
     growth = stackGrowthIsNegative(&c) ? -10 : 10;
 
     static int stackSize;
-    stackSize = (int) (bsls_Types::IntPtr) vStackSize;
+    stackSize = (int) (bsls::Types::IntPtr) vStackSize;
 
     static char *pc;
     pc = &c;
@@ -654,10 +677,109 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING: sleepUntil
+        //
+        // Note that this is a system-call wrapper, and this test is intended
+        // to ensure the system call is correctly called by the 
+        // 'bcem_threadutil'.  This test specifically does *not* test the
+        // accuracy of the underlying system call.  Also note that
+        // due to the nature of the system call, testing values at the upper
+        // bound of the valid range is not reasonable.  Test case -5, has been
+        // created and run by hand to verify (slightly) longer time periods.
+        //
+        // Concerns:
+        //: 1 'sleepUntil' suspends the current thread until the indicated
+        //:    time in the future (within some reasonable limit).
+        //: 
+        //: 2 'sleepUntil' does not suspend the current thread (or suspends it
+        //:    very briefly), for the current time, or times in the past.
+        //:
+        //: 3  QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Call 'sleepUntil' for a series of values less than a second in
+        //:   the future, and verify that system time after sleeping is within
+        //:   a reasonable range of the expected target time. (C-1)
+        //:
+        //: 2 Call 'sleepUntil' for a value in the past, and verify that
+        //:   the function returns to the caller in a reasonably small amount
+        //:   of time. (C-2)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid time-interval values. (using the
+        //:   'BSLS_ASSERTTEST_*' macros (C-3)
+        //
+        // Testing:
+        //   void sleepUntil(const bdet_TimeInterval& );        
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl 
+                 << "CLASS METHOD 'sleepUntil'" << endl
+                 << "=========================" << endl;
+        }
+
+        if (veryVerbose) {
+            cout << "sleepUntil for times in the future" << endl;
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            if (veryVeryVerbose) {
+                cout << "sleepUntil for " << i * 100 << "ms" << endl;
+            }
+
+            bdet_TimeInterval expectedTime = bdetu_SystemTime::now();
+            
+            expectedTime.addMilliseconds(i * 100);
+            
+            Obj::sleepUntil(expectedTime);
+            
+            bdet_TimeInterval actualTime = bdetu_SystemTime::now();
+            
+            ASSERT(actualTime >= expectedTime);
+            LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                        (actualTime - expectedTime).totalMilliseconds() < 50);
+        }
+
+        if (veryVerbose) {
+            cout << "sleepUntil for times in the past" << endl;
+        }
+        {
+            bdet_TimeInterval expectedTime = bdetu_SystemTime::now();
+                      
+            Obj::sleepUntil(expectedTime - bdet_TimeInterval(1));
+            
+            bdet_TimeInterval actualTime = bdetu_SystemTime::now();
+            
+            ASSERT(actualTime >= expectedTime);
+            LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                        (actualTime - expectedTime).totalMilliseconds() < 50);
+            
+        }
+        if (verbose) { 
+            cout << "Negative Testing." << endl;
+        }
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            // Note that we must use 'RAW' handlers as the assertions are
+            // generated by implementation components.
+
+            ASSERT_PASS(Obj::sleepUntil(bdet_TimeInterval(0)));
+            ASSERT_FAIL_RAW(Obj::sleepUntil(bdet_TimeInterval(-1, 0)));
+            ASSERT_FAIL_RAW(Obj::sleepUntil(bdet_TimeInterval(0, -1)));
+            ASSERT_FAIL_RAW(Obj::sleepUntil(bdet_TimeInterval(253402300800LL,
+                                                              0)));
+        }
+    }  break;
       case 11: {
         // --------------------------------------------------------------------
         // Usgae Example 3: MULTIPLE PRIORITY THREADS
@@ -677,12 +799,14 @@ int main(int argc, char *argv[])
         //   at all.  This is just to demonstrate the interface.
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM_OS_HPUX
-        // Spawning threads fails on HPUX if 'inheritSchedule != true'.
+#if defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+        // Spawning threads fails on HP-UX and Cygwin unless
+        // 'inheritSchedule == true'.
 
-        if (1) break;
-#endif
-
+        if (verbose) {
+            cout << "Skipping case 11 on HP-UX and Cygwin..." << endl;
+        }
+#else
         using namespace MULTIPRIORITY_USAGE_TEST_CASE;
 
         enum { NUM_THREADS = 3 };
@@ -714,6 +838,7 @@ int main(int argc, char *argv[])
             int rc = bcemt_ThreadUtil::join(handles[i]);
             ASSERT(0 == rc);
         }
+#endif
       }  break;
       case 10: {
         // --------------------------------------------------------------------
@@ -777,9 +902,9 @@ int main(int argc, char *argv[])
         if (verbose) Q(Test C function with no attributes);
         {
             int rc = bcemt_ThreadUtil::create(
-                                     &handle,
-                                     &configurationTestFunction,
-                                     (void *) (bsls_Types::IntPtr) stackToUse);
+                                    &handle,
+                                    &configurationTestFunction,
+                                    (void *) (bsls::Types::IntPtr) stackToUse);
             ASSERT(0 == rc);
 
             rc = bcemt_ThreadUtil::join(handle);
@@ -790,10 +915,10 @@ int main(int argc, char *argv[])
         {
             bcemt_ThreadAttributes attr;
             int rc = bcemt_ThreadUtil::create(
-                                     &handle,
-                                     attr,
-                                     &configurationTestFunction,
-                                     (void *) (bsls_Types::IntPtr) stackToUse);
+                                    &handle,
+                                    attr,
+                                    &configurationTestFunction,
+                                    (void *) (bsls::Types::IntPtr) stackToUse);
             ASSERT(0 == rc);
 
             rc = bcemt_ThreadUtil::join(handle);
@@ -833,17 +958,29 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(loPri, minPri, loPri == minPri);
 
             const int midPri = Obj::convertToSchedulingPriority(POLICY, 0.5);
+#if !defined(BSLS_PLATFORM_OS_CYGWIN)
             LOOP2_ASSERT(midPri, minPri, midPri >= minPri);
             LOOP2_ASSERT(midPri, maxPri, midPri <= maxPri);
+#else
+            LOOP2_ASSERT(midPri, minPri, midPri <= minPri);
+            LOOP2_ASSERT(midPri, maxPri, midPri >= maxPri);
+#endif
 
             const int hiPri =  Obj::convertToSchedulingPriority(POLICY, 1.0);
             LOOP2_ASSERT(hiPri, maxPri, hiPri == maxPri);
 
             if (hiPri != loPri) {
-                LOOP2_ASSERT(hiPri, loPri, hiPri >= loPri + 2);
+#if !defined(BSLS_PLATFORM_OS_CYGWIN)
+                LOOP2_ASSERT(hiPri,  loPri, hiPri >= loPri + 2);
 
                 LOOP2_ASSERT(midPri, hiPri, midPri < hiPri);
                 LOOP2_ASSERT(midPri, loPri, midPri > loPri);
+#else
+                LOOP2_ASSERT(hiPri,  loPri, hiPri <= loPri + 2);
+
+                LOOP2_ASSERT(midPri, hiPri, midPri > hiPri);
+                LOOP2_ASSERT(midPri, loPri, midPri < loPri);
+#endif
             }
             else {
 #if !defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -1051,14 +1188,16 @@ int main(int argc, char *argv[])
         ASSERT((void *) 2 == Obj::getSpecific(parentKey));
 
         bcemt_ThreadUtil::Handle handle;
-        bcemt_ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(true));
+        rc = bcemt_ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(true));
+        ASSERT(0 == rc);
         bcemt_ThreadUtil::join(handle);
 
-#ifdef BCES_PLATFORM_POSIX_THREADS
+#if defined(BCES_PLATFORM_POSIX_THREADS) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         ASSERT(3 == TC::terminated);
 #else
         ASSERT(2 == TC::terminated);
 #endif
+
         ASSERT(parentKey != TC::childKey1);
         ASSERT(Obj::selfId() != TC::childId);
 
@@ -1359,7 +1498,7 @@ int main(int argc, char *argv[])
         int clearanceTestStackSize = bsl::atoi(argv[2]);
         P(clearanceTestStackSize);
         attr.setStackSize(clearanceTestStackSize);
-        attr.setGuardSize(0);
+        attr.setGuardSize(MIN_GUARD_SIZE);
 
         clearanceTestAllocaSize = 0;
         clearanceTestState = CLEARANCE_TEST_START;
@@ -1432,7 +1571,7 @@ int main(int argc, char *argv[])
         printf("stackSize = %d\n", stackSize);
 
         attr.setStackSize(stackSize);
-        attr.setGuardSize(0);
+        attr.setGuardSize(MIN_GUARD_SIZE);
 
         bcemt_ThreadUtil::Handle handle;
         int rc = bcemt_ThreadUtil::create(&handle,
@@ -1442,6 +1581,57 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         rc = bcemt_ThreadUtil::join(handle);
       }  break;
+      case -5: {
+        // --------------------------------------------------------------------
+        // TESTING: sleepUntil (Longer duration)
+        //
+        // Note that this test case is intended to be run manually, and is an 
+        // extension to test case 2 that tests for longer durations than should
+        // be run in a typical build cycle.
+        //
+        // Concerns:
+        //: 1 'sleepUntil' suspends the current thread until the indicated
+        //:    time in the future (within some reasonable limit).  For
+        //:    times > 1s in the future.
+        //
+        // Plan:
+        //: 1 Call 'sleepUntil' for a series of values less than a second in
+        //:   the future, and verify that system time after sleeping is within
+        //:   a reasonable range of the expected target time. (C-1)
+        //
+        // Testing:
+        //   void sleepUntil(const bdet_TimeInterval& );        
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl 
+                 << "CLASS METHOD 'sleepUntil'" << endl
+                 << "=========================" << endl;
+        }
+
+        if (veryVerbose) {
+            cout << "sleepUntil for times in the future" << endl;
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            if (veryVeryVerbose) {
+                cout << "sleepUntil for " << i * 30 << "s" << endl;
+            }
+
+            bdet_TimeInterval expectedTime = bdetu_SystemTime::now();
+            
+            expectedTime.addSeconds(i * 30);
+            
+            Obj::sleepUntil(expectedTime);
+            
+            bdet_TimeInterval actualTime = bdetu_SystemTime::now();
+            
+            ASSERT(actualTime >= expectedTime);
+            LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                        (actualTime - expectedTime).totalMilliseconds() < 50);
+        }
+        
+    }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

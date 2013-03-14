@@ -16,7 +16,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: John Lakos (jlakos)
 //
-//@DESCRIPTION: This component implements the 'bdema_Allocator' protocol that
+//@DESCRIPTION: This component implements the 'bslma::Allocator' protocol that
 // bypasses global operators 'new' and 'delete', instead calling the 'C'
 // library functions 'malloc' and 'free' directly.  If exceptions are enabled,
 // this allocator can be configured to throw an exception after the number of
@@ -36,7 +36,7 @@ BDES_IDENT("$Id: $")
 //                               |          setVerbose/isVerbose
 //                               |          setAllocationLimit/allocationLimit
 //                               V
-//                      ( bdema_Allocator )
+//                      ( bslma::Allocator )
 //                                          allocate
 //                                          deallocate
 //..
@@ -89,7 +89,7 @@ BDES_IDENT("$Id: $")
 ///USAGE
 ///-----
 // The 'bdema_TestAllocator' object defined in this component can be used to
-// test other objects that take a 'bdema_Allocator' (e.g., at construction).
+// test other objects that take a 'bslma::Allocator' (e.g., at construction).
 // The following code example illustrates how to verify that an object under
 // test (e.g., 'my_ShortArray') is exception neutral.
 //
@@ -232,7 +232,7 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-typedef bslma_TestAllocator bdema_TestAllocator;
+typedef bslma::TestAllocator bdema_TestAllocator;
     // This class provides an allocator that DOES NOT USE global operators
     // 'new' or 'delete' at all, but instead uses 'malloc' and 'free' directly.
     // This allocator object also tracks the number of blocks (and bytes) that

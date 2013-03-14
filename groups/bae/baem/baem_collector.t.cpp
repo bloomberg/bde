@@ -121,7 +121,7 @@ class ConcurrencyTest {
     bcep_FixedThreadPool   d_pool;
     bcemt_Barrier          d_barrier;
     baem_Collector        *d_collector_p;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -130,9 +130,9 @@ class ConcurrencyTest {
   public:
 
     // CREATORS
-    ConcurrencyTest(int              numThreads,
-                 baem_Collector  *collector,
-                 bslma_Allocator *basicAllocator)
+    ConcurrencyTest(int               numThreads,
+                    baem_Collector   *collector,
+                    bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_collector_p(collector)
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
                                   << "================" << endl;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bcema_TestAllocator testAllocator;
         baem_Collector mX(METRIC_A);

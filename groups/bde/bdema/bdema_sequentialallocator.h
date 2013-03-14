@@ -17,7 +17,7 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a concrete mechanism,
-// 'bdema_SequentialAllocator', that implements the 'bslma_ManagedAllocator'
+// 'bdema_SequentialAllocator', that implements the 'bdema_ManagedAllocator'
 // protocol and efficiently allocates heterogeneous memory blocks (of varying,
 // user-specified sizes) from a dynamically-allocated internal buffer:
 //..
@@ -30,13 +30,13 @@ BDES_IDENT("$Id: $")
 //                |         truncate
 //                V
 //    ,----------------------.
-//   ( bslma_ManagedAllocator )
+//   ( bdema_ManagedAllocator )
 //    `----------------------'
 //                |        release
 //                V
-//       ,----------------.
-//      (  bslma_Allocator )
-//       `----------------'
+//       ,-----------------.
+//      (  bslma::Allocator )
+//       `-----------------'
 //                       allocate
 //                       deallocate
 //..
@@ -50,10 +50,10 @@ BDES_IDENT("$Id: $")
 //
 // The main difference between a 'bdema_SequentialAllocator' and a
 // 'bdema_SequentialPool' is that, very often, a 'bdema_SequentialAllocator' is
-// managed through a 'bslma_Allocator' pointer.  Hence, every call to the
+// managed through a 'bslma::Allocator' pointer.  Hence, every call to the
 // 'allocate' method invokes a virtual function call, which is slower than
 // invoking the non-virtual 'allocate' method on a 'bdema_SequentialPool'.
-// However, since 'bslma_Allocator *' is widely used across BDE interfaces,
+// However, since 'bslma::Allocator *' is widely used across BDE interfaces,
 // 'bdema_SequentialAllocator' is more general purposed than a
 // 'bdema_SequentialPool'.
 //
@@ -96,21 +96,21 @@ BDES_IDENT("$Id: $")
 ///-----
 // Allocators are often supplied, at construction, to objects requiring
 // dynamically-allocated memory.  For example, consider the following
-// 'my_DoubleStack' class whose constructor takes a 'bslma_Allocator':
+// 'my_DoubleStack' class whose constructor takes a 'bslma::Allocator':
 //..
 //  // my_doublestack.h
 //  // ...
 //
-//  class bslma_Allocator;
+//  class bslma::Allocator;
 //
 //  class my_DoubleStack {
 //      // This class implements a stack that stores 'double' values.
 //
 //      // DATA
-//      double          *d_stack_p;      // dynamically-allocated array
-//      int              d_size;         // physical capacity of stack
-//      int              d_length;       // next available index in stack
-//      bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+//      double           *d_stack_p;      // dynamically-allocated array
+//      int               d_size;         // physical capacity of stack
+//      int               d_length;       // next available index in stack
+//      bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 //
 //    private:
 //      // PRIVATE MANIPULATORS
@@ -119,7 +119,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_DoubleStack(bslma_Allocator *basicAllocator = 0);
+//      my_DoubleStack(bslma::Allocator *basicAllocator = 0);
 //          // Create a stack that stores 'double'.  Optionally specify
 //          // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
 //          // the currently installed default allocator is used.
@@ -164,10 +164,10 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //  // CREATORS
-//  my_DoubleStack::my_DoubleStack(bslma_Allocator *basicAllocator)
+//  my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
 //  : d_size(1)
 //  , d_length(0)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      d_stack_p = static_cast<double *>(
 //                        d_allocator_p->allocate(d_size * sizeof *d_stack_p));
@@ -206,12 +206,16 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BDEMA_MANAGEDALLOCATOR
+#include <bdema_managedallocator.h>
+#endif
+
 #ifndef INCLUDED_BDEMA_SEQUENTIALPOOL
 #include <bdema_sequentialpool.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
-#include <bslma_managedallocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENT
@@ -226,12 +230,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_blockgrowth.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {
@@ -240,8 +240,8 @@ namespace BloombergLP {
                       // class bdema_SequentialAllocator
                       // ===============================
 
-class bdema_SequentialAllocator : public bslma_ManagedAllocator {
-    // This class implements the 'bslma_ManagedAllocator' protocol to provide
+class bdema_SequentialAllocator : public bdema_ManagedAllocator {
+    // This class implements the 'bdema_ManagedAllocator' protocol to provide
     // a fast allocator that dispenses heterogeneous blocks of memory (of
     // varying, user-specified sizes) from a sequence of dynamically-allocated
     // buffers.  Memory for the internal buffers is supplied by an (optional)
@@ -264,16 +264,17 @@ class bdema_SequentialAllocator : public bslma_ManagedAllocator {
   public:
     // CREATORS
     explicit bdema_SequentialAllocator(
-                              bslma_Allocator             *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     explicit bdema_SequentialAllocator(
-                              bsls_BlockGrowth::Strategy   growthStrategy,
-                              bslma_Allocator             *basicAllocator = 0);
+                             bsls::BlockGrowth::Strategy   growthStrategy,
+                             bslma::Allocator             *basicAllocator = 0);
     explicit bdema_SequentialAllocator(
-                              bsls_Alignment::Strategy     alignmentStrategy,
-                              bslma_Allocator             *basicAllocator = 0);
-    bdema_SequentialAllocator(bsls_BlockGrowth::Strategy   growthStrategy,
-                              bsls_Alignment::Strategy     alignmentStrategy,
-                              bslma_Allocator             *basicAllocator = 0);
+                             bsls::Alignment::Strategy     alignmentStrategy,
+                             bslma::Allocator             *basicAllocator = 0);
+    bdema_SequentialAllocator(
+                             bsls::BlockGrowth::Strategy   growthStrategy,
+                             bsls::Alignment::Strategy     alignmentStrategy,
+                             bslma::Allocator             *basicAllocator = 0);
         // Create a sequential allocator for allocating memory blocks from a
         // sequence of dynamically-allocated buffers.  Optionally specify a
         // 'basicAllocator' used to supply memory for the dynamically-allocated
@@ -286,18 +287,18 @@ class bdema_SequentialAllocator : public bslma_ManagedAllocator {
         // that no limit is imposed on the size of the internal buffers when
         // geometric growth is used.
 
-    explicit bdema_SequentialAllocator(int                initialSize,
-                                       bslma_Allocator   *basicAllocator = 0);
-    bdema_SequentialAllocator(int                         initialSize,
-                              bsls_BlockGrowth::Strategy  growthStrategy,
-                              bslma_Allocator            *basicAllocator = 0);
-    bdema_SequentialAllocator(int                         initialSize,
-                              bsls_Alignment::Strategy    alignmentStrategy,
-                              bslma_Allocator            *basicAllocator = 0);
-    bdema_SequentialAllocator(int                         initialSize,
-                              bsls_BlockGrowth::Strategy  growthStrategy,
-                              bsls_Alignment::Strategy    alignmentStrategy,
-                              bslma_Allocator            *basicAllocator = 0);
+    explicit bdema_SequentialAllocator(int                 initialSize,
+                                       bslma::Allocator   *basicAllocator = 0);
+    bdema_SequentialAllocator(int                          initialSize,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
+    bdema_SequentialAllocator(int                          initialSize,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
+    bdema_SequentialAllocator(int                          initialSize,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
         // Create a sequential allocator for allocating memory blocks from a
         // sequence of dynamically-allocated buffers, of which the initial
         // buffer has the specified 'initialSize' (in bytes).  Optionally
@@ -317,22 +318,22 @@ class bdema_SequentialAllocator : public bslma_ManagedAllocator {
         // implementation-defined value.
 
 
-    bdema_SequentialAllocator(int                         initialSize,
-                              int                         maxBufferSize,
-                              bslma_Allocator            *basicAllocator = 0);
-    bdema_SequentialAllocator(int                         initialSize,
-                              int                         maxBufferSize,
-                              bsls_BlockGrowth::Strategy  growthStrategy,
-                              bslma_Allocator            *basicAllocator = 0);
-    bdema_SequentialAllocator(int                         initialSize,
-                              int                         maxBufferSize,
-                              bsls_Alignment::Strategy    alignmentStrategy,
-                              bslma_Allocator            *basicAllocator = 0);
-    bdema_SequentialAllocator(int                         initialSize,
-                              int                         maxBufferSize,
-                              bsls_BlockGrowth::Strategy  growthStrategy,
-                              bsls_Alignment::Strategy    alignmentStrategy,
-                              bslma_Allocator            *basicAllocator = 0);
+    bdema_SequentialAllocator(int                          initialSize,
+                              int                          maxBufferSize,
+                              bslma::Allocator            *basicAllocator = 0);
+    bdema_SequentialAllocator(int                          initialSize,
+                              int                          maxBufferSize,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
+    bdema_SequentialAllocator(int                          initialSize,
+                              int                          maxBufferSize,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
+    bdema_SequentialAllocator(int                          initialSize,
+                              int                          maxBufferSize,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
         // Create a sequential allocator for allocating memory blocks from a
         // sequence of dynamically-allocated buffers, of which the initial
         // buffer has the specified 'initialSize' (in bytes), and the buffer
@@ -356,7 +357,7 @@ class bdema_SequentialAllocator : public bslma_ManagedAllocator {
         // allocator is released.
 
     // MANIPULATORS
-    virtual void *allocate(bsls_PlatformUtil::size_type size);
+    virtual void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes).  If 'size' is 0, no memory is allocated and 0 is
         // returned.  If the allocation request exceeds the remaining free
@@ -365,7 +366,7 @@ class bdema_SequentialAllocator : public bslma_ManagedAllocator {
         // allocate memory from the new buffer.  The behavior is undefined
         // unless '0 <= size'.
 
-    void *allocateAndExpand(bsls_PlatformUtil::size_type *size);
+    void *allocateAndExpand(bsls::Types::size_type *size);
         // Return the address of a contiguous block of memory of at least the
         // specified '*size' (in bytes), and load the actual amount of memory
         // allocated into '*size'.  If '*size' is 0, return 0 with no effect.
@@ -421,40 +422,40 @@ class bdema_SequentialAllocator : public bslma_ManagedAllocator {
 // CREATORS
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(bslma_Allocator *basicAllocator)
+bdema_SequentialAllocator(bslma::Allocator *basicAllocator)
 : d_sequentialPool(basicAllocator)
 {
 }
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(bsls_BlockGrowth::Strategy  growthStrategy,
-                          bslma_Allocator            *basicAllocator)
+bdema_SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
+                          bslma::Allocator            *basicAllocator)
 : d_sequentialPool(growthStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(bsls_Alignment::Strategy  alignmentStrategy,
-                          bslma_Allocator          *basicAllocator)
+bdema_SequentialAllocator(bsls::Alignment::Strategy  alignmentStrategy,
+                          bslma::Allocator          *basicAllocator)
 : d_sequentialPool(alignmentStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(bsls_BlockGrowth::Strategy  growthStrategy,
-                          bsls_Alignment::Strategy    alignmentStrategy,
-                          bslma_Allocator            *basicAllocator)
+bdema_SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
+                          bsls::Alignment::Strategy    alignmentStrategy,
+                          bslma::Allocator            *basicAllocator)
 : d_sequentialPool(growthStrategy, alignmentStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(int              initialSize,
-                          bslma_Allocator *basicAllocator)
+bdema_SequentialAllocator(int               initialSize,
+                          bslma::Allocator *basicAllocator)
 : d_sequentialPool(initialSize, basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 < initialSize);
@@ -462,9 +463,9 @@ bdema_SequentialAllocator(int              initialSize,
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(int                         initialSize,
-                          bsls_BlockGrowth::Strategy  growthStrategy,
-                          bslma_Allocator            *basicAllocator)
+bdema_SequentialAllocator(int                          initialSize,
+                          bsls::BlockGrowth::Strategy  growthStrategy,
+                          bslma::Allocator            *basicAllocator)
 : d_sequentialPool(initialSize, growthStrategy, basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 < initialSize);
@@ -472,9 +473,9 @@ bdema_SequentialAllocator(int                         initialSize,
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(int                       initialSize,
-                          bsls_Alignment::Strategy  alignmentStrategy,
-                          bslma_Allocator          *basicAllocator)
+bdema_SequentialAllocator(int                        initialSize,
+                          bsls::Alignment::Strategy  alignmentStrategy,
+                          bslma::Allocator          *basicAllocator)
 : d_sequentialPool(initialSize, alignmentStrategy, basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 < initialSize);
@@ -482,10 +483,10 @@ bdema_SequentialAllocator(int                       initialSize,
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(int                         initialSize,
-                          bsls_BlockGrowth::Strategy  growthStrategy,
-                          bsls_Alignment::Strategy    alignmentStrategy,
-                          bslma_Allocator            *basicAllocator)
+bdema_SequentialAllocator(int                          initialSize,
+                          bsls::BlockGrowth::Strategy  growthStrategy,
+                          bsls::Alignment::Strategy    alignmentStrategy,
+                          bslma::Allocator            *basicAllocator)
 : d_sequentialPool(initialSize,
                    growthStrategy,
                    alignmentStrategy,
@@ -496,9 +497,9 @@ bdema_SequentialAllocator(int                         initialSize,
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(int              initialSize,
-                          int              maxBufferSize,
-                          bslma_Allocator *basicAllocator)
+bdema_SequentialAllocator(int               initialSize,
+                          int               maxBufferSize,
+                          bslma::Allocator *basicAllocator)
 : d_sequentialPool(initialSize, maxBufferSize, basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 < initialSize);
@@ -507,10 +508,10 @@ bdema_SequentialAllocator(int              initialSize,
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(int                         initialSize,
-                          int                         maxBufferSize,
-                          bsls_BlockGrowth::Strategy  growthStrategy,
-                          bslma_Allocator            *basicAllocator)
+bdema_SequentialAllocator(int                          initialSize,
+                          int                          maxBufferSize,
+                          bsls::BlockGrowth::Strategy  growthStrategy,
+                          bslma::Allocator            *basicAllocator)
 : d_sequentialPool(initialSize, maxBufferSize, growthStrategy, basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 < initialSize);
@@ -519,10 +520,10 @@ bdema_SequentialAllocator(int                         initialSize,
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(int                       initialSize,
-                          int                       maxBufferSize,
-                          bsls_Alignment::Strategy  alignmentStrategy,
-                          bslma_Allocator          *basicAllocator)
+bdema_SequentialAllocator(int                        initialSize,
+                          int                        maxBufferSize,
+                          bsls::Alignment::Strategy  alignmentStrategy,
+                          bslma::Allocator          *basicAllocator)
 : d_sequentialPool(initialSize,
                    maxBufferSize,
                    alignmentStrategy,
@@ -534,11 +535,11 @@ bdema_SequentialAllocator(int                       initialSize,
 
 inline
 bdema_SequentialAllocator::
-bdema_SequentialAllocator(int                         initialSize,
-                          int                         maxBufferSize,
-                          bsls_BlockGrowth::Strategy  growthStrategy,
-                          bsls_Alignment::Strategy    alignmentStrategy,
-                          bslma_Allocator            *basicAllocator)
+bdema_SequentialAllocator(int                          initialSize,
+                          int                          maxBufferSize,
+                          bsls::BlockGrowth::Strategy  growthStrategy,
+                          bsls::Alignment::Strategy    alignmentStrategy,
+                          bslma::Allocator            *basicAllocator)
 : d_sequentialPool(initialSize,
                    maxBufferSize,
                    growthStrategy,

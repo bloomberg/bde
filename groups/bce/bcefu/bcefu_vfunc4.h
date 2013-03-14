@@ -98,21 +98,21 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4Null<A1, A2, A3, A4>(ba));
     }
 
     template <class A1, class A2, class A3, class A4>
-    static void makeNull(bslma_Allocator *basicAllocator,
+    static void makeNull(bslma::Allocator *basicAllocator,
                          bcef_Vfunc4<A1, A2, A3, A4> *handle)
         // Initialize the specified four-argument empty functor 'handle'.
         // Optionally specify, as the *first* argument, a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-             bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+             bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4Null<A1, A2, A3, A4>(ba));
     }
@@ -125,13 +125,13 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0 or
         // unspecified, the currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F4<F, A1, A2, A3, A4>(function, ba));
     }
 
     template <class F, class A1, class A2, class A3, class A4>
-    static void makeF(bslma_Allocator *basicAllocator,
+    static void makeF(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       F                function)
         // Initialize the specified four-argument functor 'handle' by embedding
@@ -140,8 +140,8 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0 or
         // unspecified, the currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-             bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+             bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
              new(*ba) bcefi_Vfunc4F4<F, A1, A2, A3, A4>(function, ba));
     }
@@ -157,14 +157,14 @@ struct bcefu_Vfunc4 {
         // memory.  If 'basicAllocator' is 0 or unspecified, the currently
         // installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F5<F, A1, A2, A3, A4, D1> (
                 function, embeddedArg1, ba));
     }
 
     template <class F, class A1, class A2, class A3, class A4, class D1>
-    static void makeF(bslma_Allocator *basicAllocator,
+    static void makeF(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       F                function,
                       const D1&        embeddedArg1)
@@ -175,8 +175,8 @@ struct bcefu_Vfunc4 {
         // memory.  If 'basicAllocator' is 0 or unspecified, the currently
         // installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F5<F, A1, A2, A3, A4, D1> (
                 function, embeddedArg1, ba));
@@ -195,7 +195,7 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
 
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F6<F, A1, A2, A3, A4, D1, D2>
@@ -204,7 +204,7 @@ struct bcefu_Vfunc4 {
 
     template <class F, class A1, class A2, class A3, class A4,
               class D1, class D2>
-    static void makeF(bslma_Allocator *basicAllocator,
+    static void makeF(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       F                function,
                       const D1&        embeddedArg1,
@@ -216,8 +216,8 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
 
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F6<F, A1, A2, A3, A4, D1, D2>
@@ -238,7 +238,7 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F7<F, A1, A2, A3, A4, D1, D2, D3>
                 (function, embeddedArg1, embeddedArg2, embeddedArg3, ba));
@@ -246,7 +246,7 @@ struct bcefu_Vfunc4 {
 
     template <class F, class A1, class A2, class A3, class A4, class D1,
               class D2, class D3>
-    static void makeF(bslma_Allocator *basicAllocator,
+    static void makeF(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       F                function,
                       const D1&        embeddedArg1,
@@ -259,8 +259,8 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F7<F, A1, A2, A3, A4, D1, D2, D3>
                 (function, embeddedArg1, embeddedArg2, embeddedArg3, ba));
@@ -281,7 +281,7 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F8<F, A1, A2, A3, A4, D1, D2, D3, D4>
                 (function, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -290,7 +290,7 @@ struct bcefu_Vfunc4 {
 
     template <class F, class A1, class A2, class A3, class A4, class D1,
               class D2, class D3, class D4>
-    static void makeF(bslma_Allocator *basicAllocator,
+    static void makeF(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       F                function,
                       const D1&        embeddedArg1,
@@ -304,8 +304,8 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F8<F, A1, A2, A3, A4, D1, D2, D3, D4>
                 (function, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -328,7 +328,7 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F9<F, A1, A2, A3, A4, D1, D2, D3, D4, D5>
                 (function, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -337,7 +337,7 @@ struct bcefu_Vfunc4 {
 
     template <class F, class A1, class A2, class A3, class A4, class D1,
               class D2, class D3, class D4, class D5>
-    static void makeF(bslma_Allocator *basicAllocator,
+    static void makeF(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       F                function,
                       const D1&        embeddedArg1,
@@ -352,8 +352,8 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4F9<F, A1, A2, A3, A4, D1, D2, D3, D4, D5>
                 (function, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -369,14 +369,14 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0 or
         // unspecified, the currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C4<OBJ, C, A1, A2, A3, A4>(
                 object, method, ba));
     }
 
     template <class OBJ, class C, class A1, class A2, class A3, class A4>
-    static void makeC(bslma_Allocator *basicAllocator,
+    static void makeC(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       const OBJ&       object,
                       C                method)
@@ -386,8 +386,8 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0 or
         // unspecified, the currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C4<OBJ, C, A1, A2, A3, A4>(
                 object, method, ba));
@@ -406,7 +406,7 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' is 0 or unspecified, the currently installed
         // default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C5<OBJ, C, A1, A2, A3, A4, D1>(
                 object, method, embeddedArg1, ba));
@@ -414,7 +414,7 @@ struct bcefu_Vfunc4 {
 
     template <class OBJ, class C, class A1, class A2, class A3, class A4,
               class D1>
-    static void makeC(bslma_Allocator *basicAllocator,
+    static void makeC(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       const OBJ&       object,
                       C                method,
@@ -426,8 +426,8 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' is 0 or unspecified, the currently installed
         // default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C5<OBJ, C, A1, A2, A3, A4, D1>(
                 object, method, embeddedArg1, ba));
@@ -447,7 +447,7 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C6<OBJ, C, A1, A2, A3, A4, D1, D2>(
                 object, method, embeddedArg1, embeddedArg2, ba));
@@ -455,7 +455,7 @@ struct bcefu_Vfunc4 {
 
     template <class OBJ, class C, class A1, class A2, class A3, class A4,
               class D1, class D2>
-    static void makeC(bslma_Allocator *basicAllocator,
+    static void makeC(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       const OBJ&       object,
                       C                method,
@@ -468,8 +468,8 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C6<OBJ, C, A1, A2, A3, A4, D1, D2>(
                 object, method, embeddedArg1, embeddedArg2, ba));
@@ -490,7 +490,7 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C7<OBJ, C, A1, A2, A3, A4, D1, D2, D3>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3, ba));
@@ -498,7 +498,7 @@ struct bcefu_Vfunc4 {
 
     template <class OBJ, class C, class A1, class A2, class A3, class A4,
               class D1, class D2, class D3>
-    static void makeC(bslma_Allocator *basicAllocator,
+    static void makeC(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       const OBJ&       object,
                       C                method,
@@ -512,8 +512,8 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C7<OBJ, C, A1, A2, A3, A4, D1, D2, D3>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3, ba));
@@ -535,7 +535,7 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C8<OBJ, C, A1, A2, A3, A4, D1, D2, D3, D4>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -544,7 +544,7 @@ struct bcefu_Vfunc4 {
 
     template <class OBJ, class C, class A1, class A2, class A3, class A4,
               class D1, class D2, class D3, class D4>
-    static void makeC(bslma_Allocator *basicAllocator,
+    static void makeC(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       const OBJ&       object,
                       C                method,
@@ -559,8 +559,8 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4C8<OBJ, C, A1, A2, A3, A4, D1, D2, D3, D4>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -584,7 +584,7 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
            new(*ba) bcefi_Vfunc4C9<OBJ, C, A1, A2, A3, A4, D1, D2, D3, D4, D5>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -593,7 +593,7 @@ struct bcefu_Vfunc4 {
 
     template <class OBJ, class C, class A1, class A2, class A3, class A4,
               class D1, class D2, class D3, class D4, class D5>
-    static void makeC(bslma_Allocator *basicAllocator,
+    static void makeC(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       const OBJ&       object,
                       C                method,
@@ -609,8 +609,8 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
            new(*ba) bcefi_Vfunc4C9<OBJ, C, A1, A2, A3, A4, D1, D2, D3, D4, D5>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -626,14 +626,14 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0 or
         // unspecified, the currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4M4<OBJ, M, A1, A2, A3, A4>(
                 object, method, ba));
     }
 
     template <class OBJ, class M, class A1, class A2, class A3, class A4>
-    static void makeM(bslma_Allocator *basicAllocator,
+    static void makeM(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       OBJ             *object,
                       M                method)
@@ -643,8 +643,8 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0 or
         // unspecified, the currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4M4<OBJ, M, A1, A2, A3, A4>(
                 object, method, ba));
@@ -663,7 +663,7 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' is 0 or unspecified, the currently installed
         // default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4M5<OBJ, M, A1, A2, A3, A4, D1>(
                 object, method, embeddedArg1, ba));
@@ -671,7 +671,7 @@ struct bcefu_Vfunc4 {
 
     template <class OBJ, class M, class A1, class A2, class A3, class A4,
               class D1>
-    static void makeM(bslma_Allocator *basicAllocator,
+    static void makeM(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       OBJ             *object,
                       M                method,
@@ -683,8 +683,8 @@ struct bcefu_Vfunc4 {
         // 'basicAllocator' is 0 or unspecified, the currently installed
         // default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4M5<OBJ, M, A1, A2, A3, A4, D1>(
                 object, method, embeddedArg1, ba));
@@ -704,7 +704,7 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4M6<OBJ, M, A1, A2, A3, A4, D1, D2>(
                 object, method, embeddedArg1, embeddedArg2, ba));
@@ -712,7 +712,7 @@ struct bcefu_Vfunc4 {
 
     template <class OBJ, class M, class A1, class A2, class A3, class A4,
               class D1, class D2>
-    static void makeM(bslma_Allocator *basicAllocator,
+    static void makeM(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       OBJ             *object,
                       M                method,
@@ -725,8 +725,8 @@ struct bcefu_Vfunc4 {
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
         new(*ba) bcefi_Vfunc4M6<OBJ, M, A1, A2, A3, A4, D1, D2>(
             object, method, embeddedArg1, embeddedArg2, ba));
@@ -747,7 +747,7 @@ static void makeM(bcef_Vfunc4<A1, A2, A3, A4> *handle,
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4M7<OBJ, M, A1, A2, A3, A4, D1, D2, D3>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3, ba));
@@ -755,7 +755,7 @@ static void makeM(bcef_Vfunc4<A1, A2, A3, A4> *handle,
 
     template <class OBJ, class M, class A1, class A2, class A3, class A4,
               class D1, class D2, class D3>
-    static void makeM(bslma_Allocator *basicAllocator,
+    static void makeM(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       OBJ             *object,
                       M                method,
@@ -769,8 +769,8 @@ static void makeM(bcef_Vfunc4<A1, A2, A3, A4> *handle,
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4M7<OBJ, M, A1, A2, A3, A4, D1, D2, D3>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3, ba));
@@ -792,7 +792,7 @@ static void makeM(bcef_Vfunc4<A1, A2, A3, A4> *handle,
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4M8<OBJ, M, A1, A2, A3, A4, D1, D2, D3, D4>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -801,7 +801,7 @@ static void makeM(bcef_Vfunc4<A1, A2, A3, A4> *handle,
 
     template <class OBJ, class M, class A1, class A2, class A3, class A4,
               class D1, class D2, class D3, class D4>
-    static void makeM(bslma_Allocator *basicAllocator,
+    static void makeM(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       OBJ             *object,
                       M                method,
@@ -816,8 +816,8 @@ static void makeM(bcef_Vfunc4<A1, A2, A3, A4> *handle,
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
             new(*ba) bcefi_Vfunc4M8<OBJ, M, A1, A2, A3, A4, D1, D2, D3, D4>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -841,7 +841,7 @@ static void makeM(bcef_Vfunc4<A1, A2, A3, A4> *handle,
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba = bslma_Default::defaultAllocator();
+        bslma::Allocator *ba = bslma::Default::defaultAllocator();
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
            new(*ba) bcefi_Vfunc4M9<OBJ, M, A1, A2, A3, A4, D1, D2, D3, D4, D5>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3,
@@ -850,7 +850,7 @@ static void makeM(bcef_Vfunc4<A1, A2, A3, A4> *handle,
 
     template <class OBJ, class M, class A1, class A2, class A3, class A4,
               class D1, class D2, class D3, class D4, class D5>
-    static void makeM(bslma_Allocator *basicAllocator,
+    static void makeM(bslma::Allocator *basicAllocator,
                       bcef_Vfunc4<A1, A2, A3, A4> *handle,
                       OBJ             *object,
                       M                method,
@@ -866,8 +866,8 @@ static void makeM(bcef_Vfunc4<A1, A2, A3, A4> *handle,
         // to supply memory.  If 'basicAllocator' is 0 or unspecified, the
         // currently installed default allocator is used.
     {
-        bslma_Allocator *ba =
-                           bslma_Default::allocator(basicAllocator);
+        bslma::Allocator *ba =
+                           bslma::Default::allocator(basicAllocator);
         *handle = bcef_Vfunc4<A1, A2, A3, A4>(
            new(*ba) bcefi_Vfunc4M9<OBJ, M, A1, A2, A3, A4, D1, D2, D3, D4, D5>(
                 object, method, embeddedArg1, embeddedArg2, embeddedArg3,

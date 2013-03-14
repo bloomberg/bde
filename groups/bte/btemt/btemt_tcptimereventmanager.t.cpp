@@ -14,12 +14,14 @@
 #include <bcemt_barrier.h>
 #include <bces_atomictypes.h>
 
-#include <bslma_testallocatorexception.h>       // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bsls_stopwatch.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocatorexception.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
+
 #include <bdetu_systemtime.h>
 #include <bdet_time.h>
 #include <bdetu_systemtime.h>
@@ -214,7 +216,7 @@ extern "C" void *monitorThread(void *arg)
 
 extern "C" void * case100EntryPoint(void *arg)
 {
-    int j = (int)(bsls_PlatformUtil::IntPtr)arg;
+    int j = (int)(bsls::Types::IntPtr)arg;
     printf("Thread %d has started\n", j);
 
     btemt_TcpTimerEventManager& em = *pEventManager;
@@ -317,7 +319,7 @@ static void producer(bcec_Queue<int>            *workQueue,
 }
 
 // ----------------------------------------------------------------------------
-bslma_Allocator *testAllocator_p;
+bslma::Allocator *testAllocator_p;
 static void dummyFunction(void) {
 
 }
@@ -348,7 +350,7 @@ void *registerThread(void *arg)
 
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         bteso_SocketHandle::Handle fd = testPairs[i].observedFd();
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         const bteso_TimerEventManager::Callback callback(&dummyFunction, &ta);
         if (veryVerbose) {
             printf("Thread %d: Iteration (O) %d\n",
@@ -367,7 +369,7 @@ void *registerThread(void *arg)
 
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         bteso_SocketHandle::Handle fd = testPairs[i].controlFd();
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         const bteso_TimerEventManager::Callback callback(&dummyFunction, &ta);
         mX->registerSocketEvent(fd,
                                 bteso_EventType::BTESO_READ, callback);
@@ -397,7 +399,7 @@ void *registerThread(void *arg)
                 0 == defaultAllocator.numBytesInUse());
 
 
-    bsls_Stopwatch watch;
+    bsls::Stopwatch watch;
     watch.start();
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         testPairs[i].~bteso_EventManagerTestPair();
@@ -425,7 +427,7 @@ void *deregisterThread(void *arg)
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         LOOP_ASSERT(i, testPairs[i].isValid());
     }
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         bteso_SocketHandle::Handle fd = testPairs[i].observedFd();
         const bteso_TimerEventManager::Callback callback(&dummyFunction, &ta);
@@ -807,8 +809,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(soFar, soFar < DELTA);
 
             for (int i = 0; i < NUM_TIMERS; ++i) {
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 const int rc = mX.rescheduleTimer(
                                               ids[i],
@@ -858,9 +860,9 @@ int main(int argc, char *argv[])
           //           state).
           //
           // Testing:
-          //  btemt_TcpTimerEventManager(Hint , bool, bslma_Allocator *);
+          //  btemt_TcpTimerEventManager(Hint , bool, bslma::Allocator*);
           //  btemt_TcpTimerEventManager(bteso_EventManager  *,
-          //                             bslma_Allocator     *);
+          //                             bslma::Allocator    *);
           //  bool hasTimeMetrics() const;
           // ----------------------------------------------------------------
 
@@ -1149,7 +1151,7 @@ int main(int argc, char *argv[])
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            bslma_DefaultAllocatorGuard dag(&defaultAllocator);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bcemt_ThreadUtil::create(&workers[i],
@@ -1185,7 +1187,7 @@ int main(int argc, char *argv[])
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            bslma_DefaultAllocatorGuard dag(&defaultAllocator);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bcemt_ThreadUtil::create(&workers[i],
@@ -1242,7 +1244,7 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            bslma_DefaultAllocatorGuard dag(&defaultAllocator);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bcemt_ThreadUtil::create(&workers[i],
@@ -1284,7 +1286,7 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            bslma_DefaultAllocatorGuard dag(&defaultAllocator);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bcemt_ThreadUtil::create(&workers[i],
@@ -1339,7 +1341,7 @@ int main(int argc, char *argv[])
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            bslma_DefaultAllocatorGuard dag(&defaultAllocator);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bcemt_ThreadUtil::create(&workers[i],
@@ -1375,7 +1377,7 @@ int main(int argc, char *argv[])
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            bslma_DefaultAllocatorGuard dag(&defaultAllocator);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bcemt_ThreadUtil::create(&workers[i],
@@ -1449,8 +1451,8 @@ int main(int argc, char *argv[])
                          << " timers." << endl;
                 }
 
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                     LOOP_ASSERT(i, 0 == mX.disable());
@@ -1559,7 +1561,7 @@ int main(int argc, char *argv[])
             bcemt_Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
-            bslma_DefaultAllocatorGuard dag(&defaultAllocator);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bcemt_ThreadUtil::create(&workers[i],
@@ -1600,7 +1602,7 @@ int main(int argc, char *argv[])
             bcemt_Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
-            bslma_DefaultAllocatorGuard dag(&defaultAllocator);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bcemt_ThreadUtil::create(&workers[i],
@@ -1659,8 +1661,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
 
@@ -1676,8 +1678,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.disable());
 
@@ -1693,8 +1695,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 ==  mX.isEnabled());
 
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
                 LOOP_ASSERT(i, 1 == mX.isEnabled());
@@ -1712,8 +1714,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
                 LOOP_ASSERT(i, 1 == mX.isEnabled());
@@ -1732,8 +1734,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
 

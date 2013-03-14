@@ -14,7 +14,6 @@
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
-#include <bsls_platformutil.h>                  // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -37,7 +36,7 @@ using namespace bsl;  // automatically added by script
 // We must ensure that the component behaves correctly as both a container
 // of Observers and a relayer of records and contexts.
 //-----------------------------------------------------------------------------
-// [ 2] bael_MultiplexObserver(bslma_Allocator *ba = 0);
+// [ 2] bael_MultiplexObserver(bslma::Allocator *ba = 0);
 // [ 2] ~bael_MultiplexObserver();
 // [ 4] void publish(const bael_Record& rec, const bael_Context& ctxt);
 // [ 5] void publish(const bcema_SharedPtr<const bael_Record>& rec,
@@ -218,8 +217,8 @@ class TestAsyncObserver : public bael_Observer {
 
   public:
     // CREATORS
-    explicit TestAsyncObserver(bsl::ostream&    stream,
-                               bslma_Allocator *basicAllocator = 0);
+    explicit TestAsyncObserver(bsl::ostream&     stream,
+                               bslma::Allocator *basicAllocator = 0);
 
     virtual ~TestAsyncObserver();
 
@@ -241,8 +240,8 @@ class TestAsyncObserver : public bael_Observer {
 
 // CREATORS
 inline
-TestAsyncObserver::TestAsyncObserver(bsl::ostream&    stream,
-                                     bslma_Allocator *basicAllocator)
+TestAsyncObserver::TestAsyncObserver(bsl::ostream&     stream,
+                                     bslma::Allocator *basicAllocator)
 : d_stream(stream)
 , d_record(basicAllocator)
 , d_context(basicAllocator)
@@ -308,8 +307,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
-    bslma_TestAllocator *Z = &testAllocator;
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator *Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -1203,10 +1202,10 @@ int main(int argc, char *argv[])
         //
         //   To address concern 2, allow each object to leave scope, so that
         //   the destructor asserts internal object invariants appropriately.
-        //   Use a 'bslma_TestAllocator' to verify memory usage.
+        //   Use a 'bslma::TestAllocator' to verify memory usage.
         //
         // Testing:
-        //   bael_MultiplexObserver(bslma_Allocator *ba = 0);
+        //   bael_MultiplexObserver(bslma::Allocator *ba = 0);
         //   ~bael_MultiplexObserver();
         // --------------------------------------------------------------------
 

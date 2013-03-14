@@ -1,13 +1,16 @@
 // bael_predicate.t.cpp    -*-C++-*-
 #include <bael_predicate.h>
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
 #include <bdex_instreamfunctions.h>             // for testing only
 #include <bdex_outstreamfunctions.h>            // for testing only
 #include <bdex_testinstream.h>                  // for testing only
 #include <bdex_testinstreamexception.h>         // for testing only
 #include <bdex_testoutstream.h>                 // for testing only
+
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+
+#include <bsls_types.h>
 
 #include <bsl_climits.h>
 #include <bsl_iostream.h>
@@ -99,11 +102,11 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bael_Predicate Obj;
+typedef bael_Predicate        Obj;
 typedef bael_Attribute::Value Value;
-typedef bsls_PlatformUtil::Int64 Int64;
-typedef bdex_TestInStream  In;
-typedef bdex_TestOutStream Out;
+typedef bsls::Types::Int64    Int64;
+typedef bdex_TestInStream     In;
+typedef bdex_TestOutStream    Out;
 
 #define VA_NAME   ""
 #define VA_VALUE  0
@@ -229,7 +232,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -294,13 +297,13 @@ int main(int argc, char *argv[])
                           << endl;
 
         static const struct {
-            int                d_line;       // line number
-            const char        *d_name;       // attribute name
-            int                d_type;       // type of attribute value
-            bsls_Types::Int64  d_ivalue;     // integer attribute value
-            const char        *d_svalue;     // string attribute value
-            int                d_hashSize;   // hashtable size
-            int                d_hashValue;  // expected hash value
+            int                 d_line;       // line number
+            const char         *d_name;       // attribute name
+            int                 d_type;       // type of attribute value
+            bsls::Types::Int64  d_ivalue;     // integer attribute value
+            const char         *d_svalue;     // string attribute value
+            int                 d_hashSize;   // hashtable size
+            int                 d_hashValue;  // expected hash value
         } HDATA[] = {
             ///line  name  type  ivalue   svalue  hsize       hash value
             ///----  ----  ----  ------   ------  -----       ----------

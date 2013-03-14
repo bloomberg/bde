@@ -153,18 +153,18 @@ BDES_IDENT("$Id: $")
 // class TestResourcePool : public bcecs_ResourcePool<int> {
 //     // Test implementation of the 'bcecs_ResourcePool' protocol.
 //
-//     bool                      d_valid;              // valid state
-//     int                       d_allocated;          // number of allocated
-//                                                     // resources
-//     int                       d_maxResources;       // max number of
-//                                                     // resources that can be
-//                                                     // allocated (0 means no
-//                                                     // max)
-//     bsl::vector<int*>         d_allocatedPointers;  // list of allocated
-//                                                     // pointers
-//     bdef_Function<void (*)()> d_resCb;              // resource ready cb
-//     mutable bcemt_Mutex       d_lock;               // lock
-//     bslma_Allocator          *d_allocator_p;        // (held)
+//     bool                       d_valid;              // valid state
+//     int                        d_allocated;          // number of allocated
+//                                                      // resources
+//     int                        d_maxResources;       // max number of
+//                                                      // resources that can
+                                                        // be allocated (0
+                                                        // means no max)
+//     bsl::vector<int*>          d_allocatedPointers;  // list of allocated
+//                                                      // pointers
+//     bdef_Function<void (*)()>  d_resCb;              // resource ready cb
+//     mutable bcemt_Mutex        d_lock;               // lock
+//     bslma::Allocator          *d_allocator_p;        // (held)
 //
 //   private:
 //     // not implemented
@@ -177,7 +177,7 @@ BDES_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     explicit TestResourcePool(bslma_Allocator *basicAllocator = 0);
+//     explicit TestResourcePool(bslma::Allocator *basicAllocator = 0);
 //         // Create a new 'TestResourcePool'.
 //
 //     virtual ~TestResourcePool();
@@ -241,11 +241,11 @@ BDES_IDENT("$Id: $")
 // }
 //
 // // CREATORS
-// TestResourcePool::TestResourcePool(bslma_Allocator* basicAllocator)
+// TestResourcePool::TestResourcePool(bslma::Allocator *basicAllocator)
 // : d_valid(true)
 // , d_allocated(0)
 // , d_maxResources(0)
-// , d_allocator_p(bslma_Default::allocator(basicAllocator))
+// , d_allocator_p(bslma::Default::allocator(basicAllocator))
 // {
 // }
 //
@@ -382,6 +382,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -404,10 +408,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -522,7 +522,7 @@ class bcecs_FailoverResource {
                 typename bcecs_ResourcePool<TYPE>::Handle  handle,
                          bcecs_ResourcePool<TYPE>         *pool,
                          int                               poolPriority,
-                         bslma_Allocator                  *basicAllocator = 0);
+                         bslma::Allocator                 *basicAllocator = 0);
         // Create a 'bcecs_FailoverResource' object containing the specified
         // 'ptr' obtained from the specified 'pool' registered in the set at
         // the specified 'poolPriority'.  Optionally specify
@@ -535,15 +535,15 @@ class bcecs_FailoverResource {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcecs_FailoverResource,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     bcecs_FailoverResource();
         // Create a 'bcecs_FailoverResource' object having the default value.
 
     bcecs_FailoverResource(
-                       const bcecs_FailoverResource<TYPE>& original,
-                       bslma_Allocator                    *basicAllocator = 0);
+                      const bcecs_FailoverResource<TYPE>&  original,
+                      bslma::Allocator                    *basicAllocator = 0);
         // Create a Resource having the same value as the specified 'original'
         // object.
 
@@ -607,7 +607,7 @@ class bcecs_FailoverSet {
     bcemt_TimedSemaphore                 d_sem;          // synchronization sem
     bcemt_Mutex                          d_registerLock; // lock for
                                                          // 'registerPool'
-    bslma_Allocator                     *d_allocator_p;  // allocator (held)
+    bslma::Allocator                    *d_allocator_p;  // allocator (held)
 
   private:
     // not implemented
@@ -624,10 +624,10 @@ class bcecs_FailoverSet {
 
   public:
     BSLALG_DECLARE_NESTED_TRAITS(bcecs_FailoverSet,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bcecs_FailoverSet(bslma_Allocator *basicAllocator = 0);
+    explicit bcecs_FailoverSet(bslma::Allocator *basicAllocator = 0);
         // Create a new 'bcecs_FailoverSet'.  Optionally specified
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -700,7 +700,7 @@ bcecs_FailoverResource<TYPE>::bcecs_FailoverResource(
                       typename bcecs_ResourcePool<TYPE>::Handle handle,
                                bcecs_ResourcePool<TYPE>        *pool,
                                int                              poolPriority,
-                               bslma_Allocator                 *basicAllocator)
+                               bslma::Allocator                *basicAllocator)
 : d_ptr(ptr, basicAllocator)
 , d_handle(handle)
 , d_pool_p(pool)
@@ -729,7 +729,7 @@ bcecs_FailoverResource<TYPE>::bcecs_FailoverResource()
 template <typename TYPE>
 bcecs_FailoverResource<TYPE>::bcecs_FailoverResource(
                                   const bcecs_FailoverResource&  original,
-                                  bslma_Allocator               *)
+                                  bslma::Allocator              *)
 : d_ptr(original.d_ptr)
 , d_handle(original.d_handle)
 , d_pool_p(original.d_pool_p)
@@ -876,9 +876,9 @@ int bcecs_FailoverSet<TYPE>::tryGetResourceImpl(
 
 // CREATORS
 template <typename TYPE>
-bcecs_FailoverSet<TYPE>::bcecs_FailoverSet(bslma_Allocator *basicAllocator)
+bcecs_FailoverSet<TYPE>::bcecs_FailoverSet(bslma::Allocator *basicAllocator)
 : d_poolIndex(bsl::less<int>(), basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -985,8 +985,9 @@ void bcecs_FailoverSet<TYPE>::registerPool(
     if (d_poolIndex.end() == it) {
         bcecs_RoundRobin<PoolType *> *rr = new (*d_allocator_p)
             bcecs_RoundRobin<PoolType *>(d_allocator_p);
-        bslma_RawDeleterProctor<bcecs_RoundRobin<PoolType *>, bslma_Allocator>
-            deleterProctor(rr, d_allocator_p);
+        bslma::RawDeleterProctor<bcecs_RoundRobin<PoolType *>,
+                                 bslma::Allocator>
+                                             deleterProctor(rr, d_allocator_p);
         d_poolIndex[priority] = rr;
         deleterProctor.release();
     }

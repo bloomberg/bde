@@ -75,18 +75,18 @@ bsl::ostream& printChoiceItem(const void    *obj,
 // CLASS DATA
 const bdem_Descriptor bdem_ChoiceHeader::d_choiceItemAttr =
 {
-    bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM,             // element enumeration
-    sizeof(bdem_ChoiceHeader),                         // size
-    bsls_AlignmentFromType<bdem_ChoiceHeader>::VALUE,  // alignment
-    0,                                                 // unsetConstruct,
-    0,                                                 // copyConstruct
-    0,                                                 // destroy
-    0,                                                 // assign
-    0,                                                 // move
-    &makeChoiceItemUnset,                              // makeUnset
-    &isChoiceItemUnset,                                // isUnset
-    &areChoiceItemsEqual,                              // areEqual
-    &printChoiceItem                                   // print
+    bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM,              // element enumeration
+    sizeof(bdem_ChoiceHeader),                          // size
+    bsls::AlignmentFromType<bdem_ChoiceHeader>::VALUE,  // alignment
+    0,                                                  // unsetConstruct,
+    0,                                                  // copyConstruct
+    0,                                                  // destroy
+    0,                                                  // assign
+    0,                                                  // move
+    &makeChoiceItemUnset,                               // makeUnset
+    &isChoiceItemUnset,                                 // isUnset
+    &areChoiceItemsEqual,                               // areEqual
+    &printChoiceItem                                    // print
 };
 
 // CREATORS
@@ -167,8 +167,8 @@ void *bdem_ChoiceHeader::makeSelection(int index)
         // Allocate new memory and protect it from leaking on exception.
 
         dataPtr = allocator()->allocate(descriptorPtr->d_size);
-        bslma_DeallocatorProctor<bslma_Allocator> autoDealloc(dataPtr,
-                                                              allocator());
+        bslma::DeallocatorProctor<bslma::Allocator> autoDealloc(dataPtr,
+                                                                allocator());
 
         // Construct an unset value, which *can* throw.
 
@@ -215,7 +215,7 @@ void *bdem_ChoiceHeader::makeSelection(int index, const void *value)
         // 'bdem' types are bit-wise moveable.  If an exception is thrown, the
         // original contents of 'd_selectionBuf' is left unchanged.
 
-        bsls_AlignedBuffer<sizeof d_selectionBuf> temp;
+        bsls::AlignedBuffer<sizeof d_selectionBuf> temp;
         descriptorPtr->copyConstruct(&temp,
                                      value,
                                      d_allocMode,
@@ -242,8 +242,8 @@ void *bdem_ChoiceHeader::makeSelection(int index, const void *value)
         // Allocate new memory and protect it from leaking on exception.
 
         dataPtr = allocator()->allocate(descriptorPtr->d_size);
-        bslma_DeallocatorProctor<bslma_Allocator> autoDealloc(dataPtr,
-                                                              allocator());
+        bslma::DeallocatorProctor<bslma::Allocator> autoDealloc(dataPtr,
+                                                                allocator());
 
         // Construct a copy of 'value', which *can* throw.
 

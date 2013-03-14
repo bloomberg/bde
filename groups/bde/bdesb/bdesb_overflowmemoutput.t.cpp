@@ -48,9 +48,9 @@ using namespace bsl;  // automatically added by script
 //   used for the overflow buffer.  This is the only constructor, so our set of
 //   primary constructors will be:
 //
-//    o bdesb_OverflowMemOutput(char            *initialBuffer,
-//                              int              initialBufferSize,
-//                              bslma_Allocator *basicAllocator = 0);
+//    o bdesb_OverflowMemOutput(char             *initialBuffer,
+//                              int               initialBufferSize,
+//                              bslma::Allocator *basicAllocator = 0);
 //
 // Primary Manipulators:
 //   We can bring a 'bdesb_OverflowMemOutput' to any achievable white-box state
@@ -92,9 +92,9 @@ using namespace bsl;  // automatically added by script
 //                            int_type c = bsl::streambuf::traits_type::eof());
 //
 // CREATORS
-// [ 3] bdesb_OverflowMemOutput(char            *buffer,
-//                              int              size,
-//                              bslma_Allocator *basicAllocator = 0);
+// [ 3] bdesb_OverflowMemOutput(char             *buffer,
+//                              int               size,
+//                              bslma::Allocator *basicAllocator = 0);
 //
 // MANIPULATORS
 // [ 4] int_type overflow(int_type insertionChar = traits_type::eof());
@@ -259,7 +259,7 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
         // DATA
         char                    *d_buffer;       // initial buffer (owned)
         bdesb_OverflowMemOutput *d_streamBuf;    // stream buffer (owned)
-        bslma_Allocator         *d_allocator_p;  // allocator (held, not owned)
+        bslma::Allocator        *d_allocator_p;  // allocator (held, not owned)
 
         // FRIENDS
         friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
@@ -271,10 +271,10 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(my_CapitalizingStream,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        my_CapitalizingStream(bslma_Allocator *allocator = 0);
+        my_CapitalizingStream(bslma::Allocator *allocator = 0);
             // Create a stream that capitalizes everything.
 
         ~my_CapitalizingStream();
@@ -306,8 +306,8 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
     #include <bsl_algorithm.h>
 
     my_CapitalizingStream::my_CapitalizingStream(
-                                               bslma_Allocator *basicAllocator)
-    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_buffer = reinterpret_cast<char*>(
                                   d_allocator_p->allocate(STREAMBUF_CAPACITY));
@@ -355,7 +355,7 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
 //..
 // Given the above two functions, we can now write 'main', as follows:
 //..
-    void usageExample(int verbose, bslma_Allocator *allocator)
+    void usageExample(int verbose, bslma::Allocator *allocator)
     {
         my_CapitalizingStream cs(allocator);
         cs << "Hello" << ' ' << "world." << '\0';
@@ -446,7 +446,7 @@ int main(int argc, char *argv[])
                           << "GROW TEST" << endl
                           << "=========" << endl;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             if (verbose) cout << "\nTesting grow." << endl;
             int start = 0;
@@ -672,7 +672,7 @@ int main(int argc, char *argv[])
                  << "==================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             typedef bdesb_OverflowMemOutput Obj;
             const int EOF_VAL = bsl::streambuf::traits_type::eof();
@@ -915,7 +915,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   A capitalizing stream.
         // --------------------------------------------------------------------
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
@@ -971,7 +971,7 @@ int main(int argc, char *argv[])
         //                    bsl::ios_base::openmode which = bsl::ios_base::in
         //                                               | bsl::ios_base::out);
         // --------------------------------------------------------------------
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "SEEKOFF/SEEKPOS TESTS" << endl
@@ -1156,7 +1156,7 @@ int main(int argc, char *argv[])
                           << "PUT STRING TEST" << endl
                           << "===============" << endl;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             if (verbose) cout << "\nTesting sputn." << endl;
 
@@ -1503,7 +1503,7 @@ int main(int argc, char *argv[])
         //   const char *initialBuffer() const;
         //   const char *overflowBuffer() const;
         // --------------------------------------------------------------------
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "PRIMARY MANIPULATORS/BASIC ACCESSORS" << endl
@@ -1768,11 +1768,11 @@ int main(int argc, char *argv[])
         //   - Brute-Force Implementation Technique
         //
         // Testing:
-        //   bdesb_OverflowMemOutput(char            *buffer,
-        //                           int              size,
-        //                           bslma_Allocator *basicAllocator = 0)
+        //   bdesb_OverflowMemOutput(char             *buffer,
+        //                           int               size,
+        //                           bslma::Allocator *basicAllocator = 0)
         // --------------------------------------------------------------------
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "PRIMARY CONSTRUCTOR" << endl
@@ -1889,7 +1889,7 @@ int main(int argc, char *argv[])
                           << "'bdesb_OverflowMemOutput'."
                           << endl;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             char buffer[INITIAL_BUFSIZE];
             bdesb_OverflowMemOutput mSB(buffer, INITIAL_BUFSIZE, &ta);

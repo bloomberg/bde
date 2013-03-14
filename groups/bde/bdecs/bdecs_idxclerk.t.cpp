@@ -57,7 +57,7 @@ using namespace bsl;  // automatically added by script
 //
 // which together, in conjunction with the default constructor,
 //
-//  o bdecs_IdxClerk(bslma_Allocator *ba = 0);
+//  o bdecs_IdxClerk(bslma::Allocator *ba = 0);
 //
 // are sufficient to attain any achievable state.
 //
@@ -82,7 +82,7 @@ using namespace bsl;  // automatically added by script
 // unmodified 'bdecs_IdxClerk' to one of a suitable subset of arbitrary values
 // sufficient for thorough testing.
 //
-// Finally, we will make heavy use of the 'bslma_TestAllocator' to ensure that
+// Finally, we will make heavy use of the 'bslma::TestAllocator' to ensure that
 // (1) object memory is not leaked (i.e., is returned upon object destruction),
 // (2) any local memory comes from (and is returned to) the default allocator
 //     within the scope of a single method invocation,
@@ -102,8 +102,8 @@ using namespace bsl;  // automatically added by script
 // [10] static int maxSupportedBdexVersion();
 //
 // CREATORS
-// [ 2] bdecs_IdxClerk(bslma_Allocator *ba = 0);
-// [ 8] bdecs_IdxClerk(const bdecs_IdxClerk&, bslma_Allocator *ba = 0);
+// [ 2] bdecs_IdxClerk(bslma::Allocator *ba = 0);
+// [ 8] bdecs_IdxClerk(const bdecs_IdxClerk&, bslma::Allocator *ba = 0);
 //          // The use of default allocator is tested indirectly through return
 //          // by value from 'g'.
 // [ 2] ~bdecs_IdxClerk();
@@ -157,7 +157,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] int ggg(Obj *object, const char *spec, int vF = 1);
 // [ 3] bdecs_IdxClerk& gg(bdecs_IdxClerk *object, const char *spec);
 // [ 8] bdecs_IdxClerk   g(const char *spec);
-// [ 7] bdecs_IdxClerk(const bdecs_IdxClerk&, bslma_Allocator *ba);
+// [ 7] bdecs_IdxClerk(const bdecs_IdxClerk&, bslma::Allocator *ba);
 // [  ] CONCERN: Object memory is never leaked by the index clerk.
 // [  ] CONCERN: Any function-local memory comes from the default allocator.
 //==========================================================================
@@ -538,19 +538,19 @@ int main(int argc, char *argv[])
     // three test allocators.
 
     // Object Test Allocator.
-    bslma_TestAllocator objectAllocator("Object Allocator",
-                                        veryVeryVeryVerbose);
+    bslma::TestAllocator objectAllocator("Object Allocator",
+                                         veryVeryVeryVerbose);
 
     // Default Test Allocator.
-    bslma_TestAllocator defaultAllocator("Default Allocator",
-                                         veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("Default Allocator",
+                                          veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     // Global Test Allocator.
-    bslma_TestAllocator  globalAllocator("Global Allocator",
+    bslma::TestAllocator globalAllocator("Global Allocator",
                                          veryVeryVeryVerbose);
-    bslma_Allocator *originalGlobalAllocator =
-                           bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::Allocator *originalGlobalAllocator =
+                          bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // zero is always the leading case
       case 15: {
@@ -819,34 +819,34 @@ int main(int argc, char *argv[])
     //----  ----    ----------  ------  ------------------------------------
 
     // No decommissioned indices.
-    { L_,   ",1",      0,       -2,     "[ (1) ]"                           },
-    { L_,   ",1",      0,       -1,     "[ (1) ]"                           },
-    { L_,   ",1",      0,        0,     "[" NL "(1)" NL "]"NL               },
-    { L_,   ",1",      0,        1,     "[" NL " (1)" NL "]"NL              },
-    { L_,   ",1",      0,        2,     "[" NL "  (1)" NL "]"NL             },
-    { L_,   ",1",      1,        1,     " [" NL "  (1)" NL " ]"NL           },
-    { L_,   ",1",      1,        2,     "  [" NL "    (1)" NL "  ]"NL       },
-    { L_,   ",1",      2,        1,     "  [" NL "   (1)" NL "  ]"NL        },
-    { L_,   ",1",      2,        2,     "    [" NL "      (1)" NL "    ]"NL },
-    { L_,   ",1",     -1,        1,     "[" NL "  (1)" NL " ]"NL            },
-    { L_,   ",1",     -1,        2,     "[" NL "    (1)" NL "  ]"NL         },
+    { L_,   ",1",      0,       -2,     "[ (1) ]"                            },
+    { L_,   ",1",      0,       -1,     "[ (1) ]"                            },
+    { L_,   ",1",      0,        0,     "[" NL "(1)" NL "]" NL               },
+    { L_,   ",1",      0,        1,     "[" NL " (1)" NL "]" NL              },
+    { L_,   ",1",      0,        2,     "[" NL "  (1)" NL "]" NL             },
+    { L_,   ",1",      1,        1,     " [" NL "  (1)" NL " ]" NL           },
+    { L_,   ",1",      1,        2,     "  [" NL "    (1)" NL "  ]" NL       },
+    { L_,   ",1",      2,        1,     "  [" NL "   (1)" NL "  ]" NL        },
+    { L_,   ",1",      2,        2,     "    [" NL "      (1)" NL "    ]" NL },
+    { L_,   ",1",     -1,        1,     "[" NL "  (1)" NL " ]" NL            },
+    { L_,   ",1",     -1,        2,     "[" NL "    (1)" NL "  ]" NL         },
 
     // Have decommissioned indices.
-    { L_,   "135,6",   0,       -2,     "[ 1 3 5 (6) ]"                     },
-    { L_,   "135,6",   0,       -1,     "[ 1 3 5 (6) ]"                     },
-    { L_,   "135,6",   0,        0,     "[" NL "135(6)" NL "]"NL            },
-    { L_,   "135,6",   0,        1,     "[" NL " 1 3 5 (6)" NL "]"NL        },
-    { L_,   "135,6",   0,        2,     "[" NL "  1  3  5  (6)" NL "]"NL    },
-    { L_,   "135,6",   1,        1,     " [" NL "  1  3  5  (6)" NL " ]"NL  },
+    { L_,   "135,6",   0,       -2,     "[ 1 3 5 (6) ]"                      },
+    { L_,   "135,6",   0,       -1,     "[ 1 3 5 (6) ]"                      },
+    { L_,   "135,6",   0,        0,     "[" NL "135(6)" NL "]" NL            },
+    { L_,   "135,6",   0,        1,     "[" NL " 1 3 5 (6)" NL "]" NL        },
+    { L_,   "135,6",   0,        2,     "[" NL "  1  3  5  (6)" NL "]" NL    },
+    { L_,   "135,6",   1,        1,     " [" NL "  1  3  5  (6)" NL " ]" NL  },
     { L_,   "135,6",   1,        2,
-                               "  [" NL "    1    3    5    (6)" NL "  ]"NL },
+                               "  [" NL "    1    3    5    (6)" NL "  ]" NL },
     { L_,   "135,6",   2,        1,
-                                   "  [" NL "   1   3   5   (6)" NL "  ]"NL },
+                                   "  [" NL "   1   3   5   (6)" NL "  ]" NL },
     { L_,   "135,6",   2,        2,
-                   "    [" NL "      1      3      5      (6)" NL "    ]"NL },
+                   "    [" NL "      1      3      5      (6)" NL "    ]" NL },
     { L_,   "135,6",  -1,        1,     "[" NL "  1  3  5  (6)" NL " ]"  NL },
     { L_,   "135,6",  -1,        2,
-                                 "[" NL "    1    3    5    (6)" NL "  ]"NL },
+                                 "[" NL "    1    3    5    (6)" NL "  ]" NL },
             };
 #undef NL
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1172,7 +1172,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tOn incomplete (but otherwise valid) data."
                           << endl;
         {
-            bslma_Allocator *Z = &objectAllocator;  // for brevity
+            bslma::Allocator *Z = &objectAllocator;  // for brevity
 
             // Testing incomplete (but otherwise valid) data.
             const Obj W1(VA, Z), X1(VB, Z), Y1(VC, Z);
@@ -1579,7 +1579,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdecs_IdxClerk g(const char *spec);
-        //   bdecs_IdxClerk(const bdecs_IdxClerk&, bslma_Allocator *ba = 0);
+        //   bdecs_IdxClerk(const bdecs_IdxClerk&, bslma::Allocator *ba = 0);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1670,7 +1670,7 @@ int main(int argc, char *argv[])
         //   same value as W.
         //
         // Testing:
-        //   bdecs_IdxClerk(const bdecs_IdxClerk&, bslma_Allocator *ba);
+        //   bdecs_IdxClerk(const bdecs_IdxClerk&, bslma::Allocator *ba);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2336,7 +2336,7 @@ int main(int argc, char *argv[])
         //      memory is supplied by only the default allocator.
         //
         // Testing:
-        //   bdecs_IdxClerk(bslma_Allocator *ba);
+        //   bdecs_IdxClerk(bslma::Allocator *ba);
         //   ~bdecs_IdxClerk();
         //   int getIndex(void);
         //   void putIndex(int index);
@@ -3007,7 +3007,7 @@ int main(int argc, char *argv[])
         ASSERT(safe || 0 == defaultAllocator.numBlocksTotal());
         ASSERT(0 == globalAllocator.numBlocksTotal());
 
-        if (verbose) cout << "\nTesting default 'bslma_Allocator' argument."
+        if (verbose) cout << "\nTesting default 'bslma::Allocator' argument."
                           << endl;
 
         int currentTestAllocatorUsage = objectAllocator.numBlocksTotal();
@@ -3271,7 +3271,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    bslma_Default::setGlobalAllocator(originalGlobalAllocator);
+    bslma::Default::setGlobalAllocator(originalGlobalAllocator);
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

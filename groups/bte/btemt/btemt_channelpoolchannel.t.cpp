@@ -30,12 +30,8 @@
 
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_iostream.h>
-
-#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
-#include <strstrea.h>
-#else
 #include <bsl_strstream.h>
-#endif
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -266,7 +262,7 @@ class my_Server {
     bcema_PoolAllocator             d_spAllocator;        // smart pointers
                                                           // allocators
 
-    bslma_Allocator                *d_allocator_p;        // memory
+    bslma::Allocator               *d_allocator_p;        // memory
                                                           // allocator
                                                           // (held)
 
@@ -300,12 +296,12 @@ class my_Server {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(my_Server,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     my_Server(const btemt_ChannelPoolConfiguration&  config,
               bool                                   useBlobForDataReads,
-              bslma_Allocator                       *basicAllocator = 0);
+              bslma::Allocator                      *basicAllocator = 0);
         // Construct this server configured by the specified 'config' and
         // if 'useBlobForDataReads' is 'true' use 'bcema_Blob' for data
         // reads, and if it is 'false' then use 'bcema_PooledBufferChain'
@@ -723,7 +719,7 @@ void my_Server::blobBasedReadCb(int        *numNeeded,
 my_Server::my_Server(
                 const btemt_ChannelPoolConfiguration&  config,
                 bool                                   useBlobForDataReads,
-                bslma_Allocator                       *basicAllocator)
+                bslma::Allocator                      *basicAllocator)
 : d_config(config)
 , d_channelMap(basicAllocator)
 , d_channelPool_p(0)
@@ -732,7 +728,7 @@ my_Server::my_Server(
 , d_bufferChainFactory(config.maxIncomingMessageSize(), basicAllocator)
 , d_blobBufferFactory(config.maxIncomingMessageSize(), basicAllocator)
 , d_spAllocator(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     btemt_ChannelPool::ChannelStateChangeCallback channelStateFunctor(
             bdef_MemFnUtil::memFn(&my_Server::channelStateCb, this)
@@ -909,7 +905,7 @@ int main(int argc, char *argv[])
             btemt_ChannelPool cp(channelCb, dataCb, poolCb, config, &ca);
 
             bcema_TestAllocator ta(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard dag(&ta);
+            bslma::DefaultAllocatorGuard dag(&ta);
 
             Obj mX(0, &cp, &pbbf, &pa, &ca);  const Obj& X = mX;
 

@@ -88,7 +88,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct PublisherTest : bsls_ProtocolTestImp<baem_Publisher> {
+struct PublisherTest : bsls::ProtocolTestImp<baem_Publisher> {
     void publish(const baem_MetricSample&)  { markDone(); }
 };
 
@@ -250,9 +250,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator testAllocator, defaultAllocator;
-    bslma_Allocator *Z = &testAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator testAllocator, defaultAllocator;
+    bslma::Allocator *Z = &testAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
                           << endl << "======================="
                           << endl;
 
-        bsls_ProtocolTest<PublisherTest> t(veryVerbose);
+        bsls::ProtocolTest<PublisherTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());

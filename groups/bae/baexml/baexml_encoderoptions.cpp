@@ -492,7 +492,7 @@ const bdeat_AttributeInfo *baexml_EncoderOptions::lookupAttributeInfo(int id)
 
 // CREATORS
 
-baexml_EncoderOptions::baexml_EncoderOptions(bslma_Allocator *basicAllocator)
+baexml_EncoderOptions::baexml_EncoderOptions(bslma::Allocator *basicAllocator)
 : d_objectNamespace(basicAllocator)
 , d_schemaLocation(basicAllocator)
 , d_tag(basicAllocator)
@@ -510,8 +510,9 @@ baexml_EncoderOptions::baexml_EncoderOptions(bslma_Allocator *basicAllocator)
 {
 }
 
-baexml_EncoderOptions::baexml_EncoderOptions(const baexml_EncoderOptions& original,
-                                                     bslma_Allocator *basicAllocator)
+baexml_EncoderOptions::baexml_EncoderOptions(
+                                         const baexml_EncoderOptions& original,
+                                         bslma::Allocator *basicAllocator)
 : d_objectNamespace(original.d_objectNamespace, basicAllocator)
 , d_schemaLocation(original.d_schemaLocation, basicAllocator)
 , d_tag(original.d_tag, basicAllocator)

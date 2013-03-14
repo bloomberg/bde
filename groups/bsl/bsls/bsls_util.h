@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      BitReference(char *byteptr = 0, int bitpos = 0)
+//      BitReference(char *byteptr = 0, int bitpos = 0)             // IMPLICIT
 //      : d_byte_p(byteptr)
 //      , d_bitpos(bitpos)
 //      {
@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      BitPointer(char *byteptr = 0, int bitpos = 0)
+//      BitPointer(char *byteptr = 0, int bitpos = 0)               // IMPLICIT
 //      : d_byte_p(byteptr)
 //      , d_bitpos(bitpos)
 //      {
@@ -121,6 +121,19 @@ namespace BloombergLP {
 
 namespace bsls {
 
+template <class TYPE>
+struct Util_Identity {
+    // This class template provides an easy way to alias a function pointer
+    // type when used as the return type of a function.  The syntax for a
+    // function returning a function pointer is otherwise quite obscure, and
+    // difficult to read.  As we want to return function pointers taking
+    // parameters and returning a result specified by template parameters
+    // below, it is not possible to define a simple typedef to the function
+    // type outside the function template itself.
+
+    typedef TYPE type;  // alias of the template parameter 'TYPE'.
+};
+
                                  // ===========
                                  // struct Util
                                  // ===========
@@ -140,6 +153,18 @@ struct Util {
         // section [specialized.addressof] (20.6.12.1) of the C++11 standard,
         // except that function types, which are not object types, are
         // supported by 'std::addressof' in C++11.
+
+    template <class RESULT>
+    static
+    typename Util_Identity<RESULT()>::type *addressOf(RESULT (&fn)());
+    template <class RESULT, class ARG>
+    static
+    typename Util_Identity<RESULT(ARG)>::type *addressOf(RESULT (&fn)(ARG));
+    template <class RESULT, class ARG1, class ARG2>
+    static
+    typename Util_Identity<RESULT(ARG1, ARG2)>::type *addressOf(
+                                                     RESULT (&fn)(ARG1, ARG2));
+        // Return the address of the specified function 'fn'.
 };
 
 }  // close package namespace
@@ -186,6 +211,30 @@ BSLS_TYPE *Util::addressOf(BSLS_TYPE& obj)
             const_cast<char *>(&reinterpret_cast<const volatile char&>(obj))));
 }
 
+template <class RESULT>
+inline
+typename Util_Identity<RESULT()>::type *
+Util::addressOf(RESULT (&fn)())
+{
+    return fn;
+}
+
+template <class RESULT, class ARG>
+inline
+typename Util_Identity<RESULT(ARG)>::type *
+Util::addressOf(RESULT (&fn)(ARG))
+{
+    return fn;
+}
+
+template <class RESULT, class ARG1, class ARG2>
+inline
+typename Util_Identity<RESULT(ARG1, ARG2)>::type *
+Util::addressOf(RESULT (&fn)(ARG1, ARG2))
+{
+    return fn;
+}
+
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
@@ -201,11 +250,24 @@ typedef bsls::Util bsls_Util;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

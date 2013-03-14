@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baem_integercollector_cpp,"$Id$ $CSID$")
 
+#include <bsls_types.h>
+
 #include <bsl_climits.h>
 
 namespace BloombergLP {
@@ -19,10 +21,10 @@ const int baem_IntegerCollector::DEFAULT_MAX = INT_MIN;
 // MANIPULATORS
 void baem_IntegerCollector::loadAndReset(baem_MetricRecord *record)
 {
-    int                      count;
-    bsls_PlatformUtil::Int64 total;
-    int                      min;
-    int                      max;
+    int                count;
+    bsls::Types::Int64 total;
+    int                min;
+    int                max;
     {
         bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
         count = d_count;
@@ -50,10 +52,10 @@ void baem_IntegerCollector::loadAndReset(baem_MetricRecord *record)
 // ACCESSORS
 void baem_IntegerCollector::load(baem_MetricRecord *record) const
 {
-    int                      count;
-    bsls_PlatformUtil::Int64 total;
-    int                      min;
-    int                      max;
+    int                count;
+    bsls::Types::Int64 total;
+    int                min;
+    int                max;
 
     {
         bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);

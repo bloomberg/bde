@@ -39,6 +39,10 @@ bool areEqual(const char* string1, int length1,
 // will break compilation, which is why an overload for 'bdef_Function' is
 // necessary.
 
+                     // ----------------------------------
+                     // class baea_SerializableObjectProxy
+                     // ----------------------------------
+
 // PRIVATE CLASS METHODS
 int baea_SerializableObjectProxy::manipulateContainedElement(
             baea_SerializableObjectProxy                          *proxy,
@@ -130,21 +134,41 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
             info.d_elementLoader(proxy, *this, (*attrInfo)->id());
             return 0;                                                 // RETURN
         }
-        if ((*attrInfo)->formattingMode() 
+        if ((*attrInfo)->formattingMode()
             & bdeat_FormattingMode::BDEAT_UNTAGGED) {
             untaggedAttrInfo = *attrInfo;
+
+            // If this UNTAGGED element is a Choice, it may contain 
+            // a selection having 'elementName' (this is called an 
+            // "anonymous Choice").  Testing whether this is the case
+            // requires populating 'proxy' to represent this element.  
+
+            info.d_elementLoader(proxy, *this, untaggedAttrInfo->id());
+            if (proxy->d_objectInfo.is<ChoiceDecodeInfo>() &&
+                proxy->choiceHasSelection(elementName, elementNameLength)) {
+                // This is indeed an anonymous Choice having a selection 
+                // with 'elementName', and 'proxy' is already populated to 
+                // represent it.  
+                *attrInfo = untaggedAttrInfo;
+                return 0;                                             // RETURN
+            }
         }
     }
 
     if (untaggedAttrInfo) {
-        // maybe an anonymous choice having a selection with this name?
-        
+        // The preceding loop finds any UNTAGGED ("anonymous") Choice element
+        // having a selection named 'elementName'.  If there is no such Choice,
+        // and no ordinary element having the name, but there is an UNTAGGED
+        // Nullable element, it might hold an anonymous Choice with the 
+        // necessary selection.  It's not possible to test this, so 
+        // optimistically give the UNTAGGED Nullable element back to the 
+        // decoder to attempt to decode into it.  
+
         info.d_elementLoader(proxy, *this, untaggedAttrInfo->id());
-        if (proxy->d_objectInfo.is<ChoiceDecodeInfo>() &&
-            proxy->choiceHasSelection(elementName, elementNameLength)) {
-            // We don't need to "make" the selection here
+
+        if (proxy->d_objectInfo.is<NullableDecodeInfo>()) {
             *attrInfo = untaggedAttrInfo;
-            return 0;                                                 // RETURN
+            return 0;                                                // RETURN
         }
     }
     return -1;
@@ -220,11 +244,22 @@ int baea_SerializableObjectProxy::enumFromString(const char *value, int length)
                                                              length);
 }
 
+void baea_SerializableObjectProxy::makeNull()
+{
+    BSLS_ASSERT(d_objectInfo.is<NullableDecodeInfo>());
+    const NullableDecodeInfo& info = d_objectInfo.the<NullableDecodeInfo>();
+    if (0 != info.d_fetcher(d_object_p)) {
+        info.d_nullToggler(d_object_p);
+    }
+}
+
 void baea_SerializableObjectProxy::makeValue()
 {
     BSLS_ASSERT(d_objectInfo.is<NullableDecodeInfo>());
-
-    d_objectInfo.the<NullableDecodeInfo>().d_valueMaker(d_object_p);
+    const NullableDecodeInfo& info = d_objectInfo.the<NullableDecodeInfo>();
+    if (0 == info.d_fetcher(d_object_p)) {
+        info.d_nullToggler(d_object_p);
+    }
 }
 
 // 'load' implementations
@@ -261,7 +296,7 @@ void baea_SerializableObjectProxy::loadSimple(int* value)
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
-void baea_SerializableObjectProxy::loadSimple(bsls_Types::Int64* value)
+void baea_SerializableObjectProxy::loadSimple(bsls::Types::Int64* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
@@ -285,7 +320,7 @@ void baea_SerializableObjectProxy::loadSimple(unsigned int* value)
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
-void baea_SerializableObjectProxy::loadSimple(bsls_Types::Uint64* value)
+void baea_SerializableObjectProxy::loadSimple(bsls::Types::Uint64* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
@@ -464,12 +499,12 @@ void baea_SerializableObjectProxy::loadNullableForEncoding(
 void baea_SerializableObjectProxy::loadNullableForDecoding(
             void                                                 *object,
             baea_SerializableObjectProxyFunctions::Loader         loader,
-            baea_SerializableObjectProxyFunctions::ValueMaker     valueMaker,
+            baea_SerializableObjectProxyFunctions::NullToggler    nullToggler,
             baea_SerializableObjectProxyFunctions::ObjectFetcher  valueFetcher)
 {
     d_object_p = object;
     d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
-    NullableDecodeInfo info = { valueMaker, valueFetcher, loader };
+    NullableDecodeInfo info = { nullToggler, valueFetcher, loader };
     new (d_objectInfoArena.buffer()) ObjectInfo(info);
 }
 
@@ -627,22 +662,43 @@ bool baea_SerializableObjectProxy::sequenceHasAttribute(
         {
             return true;                                              // RETURN
         }
-        if (info.d_attributeInfo_p[i].formattingMode() 
+        if (info.d_attributeInfo_p[i].formattingMode()
             & bdeat_FormattingMode::BDEAT_UNTAGGED) {
+
             untaggedAttributeId = info.d_attributeInfo_p[i].id();
+
+            baea_SerializableObjectProxy untaggedInfo;
+
+            // If this UNTAGGED element is a Choice, it may contain 
+            // a selection having 'elementName' (this is called an 
+            // "anonymous Choice").  Testing whether this is the case
+            // requires populating a temporary proxy object to represent 
+            // this element.  
+
+            info.d_elementLoader(&untaggedInfo, *this, untaggedAttributeId);
+            if (untaggedInfo.d_objectInfo.is<ChoiceDecodeInfo>() &&
+                untaggedInfo.choiceHasSelection(name, nameLength)) {
+                return true; // RETURN
+            }
         }
     }
 
     if (0 <= untaggedAttributeId) {
-        // maybe an anonymous choice having a selection with this name?
-        
+
+        // The preceding loop finds any UNTAGGED ("anonymous") Choice element
+        // having a selection named 'elementName'.  If there is no such Choice,
+        // and no ordinary element having the name, but there is an UNTAGGED
+        // Nullable element, it might hold an anonymous Choice with the 
+        // necessary selection.  It's not possible to test this, so 
+        // optimistically answer that this Sequence contains the element 
+        // because the element might be inside a Choice in this Nullable.  
+
         baea_SerializableObjectProxy untaggedInfo;
         info.d_elementLoader(&untaggedInfo, *this, untaggedAttributeId);
-        if (untaggedInfo.d_objectInfo.is<ChoiceDecodeInfo>()) {
-            return untaggedInfo.choiceHasSelection(name, nameLength); // RETURN
+
+        if (untaggedInfo.d_objectInfo.is<NullableDecodeInfo>()) {
+            return true;                                             // RETURN
         }
-        // otherwise -- it's UNTAGGED but not a Choice?  Don't know what
-        // that is but it's not what we're looking for
     }
     return false;
 }

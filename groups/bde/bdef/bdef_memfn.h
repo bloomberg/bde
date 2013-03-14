@@ -221,19 +221,19 @@ struct bdef_MemFn_Dereference {
     // the result of '*OBJECT' is returned, where 'OBJECT' is the pointer or
     // object reference.
 
-    static inline OBJTYPE& derefImp(OBJTYPE& obj, bslmf_MetaInt<0> *)
+    static inline OBJTYPE& derefImp(OBJTYPE& obj, bslmf::MetaInt<0> *)
     {
         return obj;
     }
 
     template <class TYPE>
-    static inline OBJTYPE& derefImp(TYPE& obj, bslmf_MetaInt<1> *)
+    static inline OBJTYPE& derefImp(TYPE& obj, bslmf::MetaInt<1> *)
     {
         return *obj;
     }
 
     template <class TYPE>
-    static inline OBJTYPE& derefImp(const TYPE& obj, bslmf_MetaInt<1> *)
+    static inline OBJTYPE& derefImp(const TYPE& obj, bslmf::MetaInt<1> *)
     {
         return *obj;
     }
@@ -241,21 +241,21 @@ struct bdef_MemFn_Dereference {
     template <class TYPE>
     static inline OBJTYPE& deref(TYPE& obj)
     {
-        enum { VALUE = bslmf_IsPointer<TYPE>::VALUE
-                    || bslalg_HasTrait<TYPE,
-                                 bslalg_TypeTraitHasPointerSemantics>::VALUE };
+        enum { VALUE = bslmf::IsPointer<TYPE>::VALUE
+                    || bslalg::HasTrait<TYPE,
+                                bslalg::TypeTraitHasPointerSemantics>::VALUE };
 
-        return derefImp(obj, (bslmf_MetaInt<VALUE> *)0);
+        return derefImp(obj, (bslmf::MetaInt<VALUE> *)0);
     }
 
     template <class TYPE>
     static inline OBJTYPE& deref(const TYPE& obj)
     {
-        enum { VALUE = bslmf_IsPointer<TYPE>::VALUE
-                    || bslalg_HasTrait<TYPE,
-                                 bslalg_TypeTraitHasPointerSemantics>::VALUE };
+        enum { VALUE = bslmf::IsPointer<TYPE>::VALUE
+                    || bslalg::HasTrait<TYPE,
+                                bslalg::TypeTraitHasPointerSemantics>::VALUE };
 
-        return derefImp(obj, (bslmf_MetaInt<VALUE> *)0);
+        return derefImp(obj, (bslmf::MetaInt<VALUE> *)0);
     }
 };
 
@@ -274,7 +274,7 @@ class bdef_MemFn {
     // specified depending on 'PROTOTYPE'.
 
     // PRIVATE TYPES
-    typedef bslmf_MemberFunctionPointerTraits<PROTOTYPE> Traits;
+    typedef bslmf::MemberFunctionPointerTraits<PROTOTYPE> Traits;
 
     // ASSERTIONS
     BSLMF_ASSERT(Traits::IS_MEMBER_FUNCTION_PTR);  // otherwise none of the
@@ -307,34 +307,34 @@ class bdef_MemFn {
 
   private:
     // PRIVATE TYPES
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 1, Args>::TypeOrDefault>::Type A1;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 2, Args>::TypeOrDefault>::Type A2;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 3, Args>::TypeOrDefault>::Type A3;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 4, Args>::TypeOrDefault>::Type A4;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 5, Args>::TypeOrDefault>::Type A5;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 6, Args>::TypeOrDefault>::Type A6;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 7, Args>::TypeOrDefault>::Type A7;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 8, Args>::TypeOrDefault>::Type A8;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 9, Args>::TypeOrDefault>::Type A9;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<10, Args>::TypeOrDefault>::Type A10;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<11, Args>::TypeOrDefault>::Type A11;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<12, Args>::TypeOrDefault>::Type A12;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<13, Args>::TypeOrDefault>::Type A13;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<14, Args>::TypeOrDefault>::Type A14;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 1, Args>::TypeOrDefault>::Type A1;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 2, Args>::TypeOrDefault>::Type A2;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 3, Args>::TypeOrDefault>::Type A3;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 4, Args>::TypeOrDefault>::Type A4;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 5, Args>::TypeOrDefault>::Type A5;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 6, Args>::TypeOrDefault>::Type A6;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 7, Args>::TypeOrDefault>::Type A7;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 8, Args>::TypeOrDefault>::Type A8;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 9, Args>::TypeOrDefault>::Type A9;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<10, Args>::TypeOrDefault>::Type A10;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<11, Args>::TypeOrDefault>::Type A11;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<12, Args>::TypeOrDefault>::Type A12;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<13, Args>::TypeOrDefault>::Type A13;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<14, Args>::TypeOrDefault>::Type A14;
         // 'AN', for 'N' from 1 up to 14, is an alias for the type of the 'N'th
         // argument in the 'Args' list.
 
@@ -346,7 +346,7 @@ class bdef_MemFn {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_MemFn,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     explicit
@@ -769,10 +769,10 @@ class bdef_MemFnInstance {
     // fourteen additional arguments may be specified depending on the
     // 'PROTOTYPE'.  Note that whether 'INSTANCE' is a pointer or a reference
     // is determined by whether it has pointer semantics or not (as determined
-    // by the 'bslalg_TypeTraitHasPointerSemantics' type trait).
+    // by the 'bslalg::TypeTraitHasPointerSemantics' type trait).
 
     // PRIVATE TYPES
-    typedef bslmf_MemberFunctionPointerTraits<PROTOTYPE> Traits;
+    typedef bslmf::MemberFunctionPointerTraits<PROTOTYPE> Traits;
 
   public:
     // TYPES
@@ -803,53 +803,53 @@ class bdef_MemFnInstance {
 
   private:
     // PRIVATE TYPES
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 1, Args>::TypeOrDefault>::Type A1;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 2, Args>::TypeOrDefault>::Type A2;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 3, Args>::TypeOrDefault>::Type A3;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 4, Args>::TypeOrDefault>::Type A4;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 5, Args>::TypeOrDefault>::Type A5;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 6, Args>::TypeOrDefault>::Type A6;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 7, Args>::TypeOrDefault>::Type A7;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 8, Args>::TypeOrDefault>::Type A8;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf< 9, Args>::TypeOrDefault>::Type A9;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<10, Args>::TypeOrDefault>::Type A10;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<11, Args>::TypeOrDefault>::Type A11;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<12, Args>::TypeOrDefault>::Type A12;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<13, Args>::TypeOrDefault>::Type A13;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<14, Args>::TypeOrDefault>::Type A14;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 1, Args>::TypeOrDefault>::Type A1;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 2, Args>::TypeOrDefault>::Type A2;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 3, Args>::TypeOrDefault>::Type A3;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 4, Args>::TypeOrDefault>::Type A4;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 5, Args>::TypeOrDefault>::Type A5;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 6, Args>::TypeOrDefault>::Type A6;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 7, Args>::TypeOrDefault>::Type A7;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 8, Args>::TypeOrDefault>::Type A8;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf< 9, Args>::TypeOrDefault>::Type A9;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<10, Args>::TypeOrDefault>::Type A10;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<11, Args>::TypeOrDefault>::Type A11;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<12, Args>::TypeOrDefault>::Type A12;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<13, Args>::TypeOrDefault>::Type A13;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<14, Args>::TypeOrDefault>::Type A14;
         // 'AN', for 'N' from 1 up to 14, is an alias for the type of the 'N'th
         // argument in the 'Args' list.
 
     // DATA
-    PROTOTYPE                         d_func_p;  // pointer to member function
+    PROTOTYPE                          d_func_p;  // pointer to member function
 
-    bslalg_ConstructorProxy<INSTANCE> d_obj;     // object instance, or pointer
-                                                 // to such
+    bslalg::ConstructorProxy<INSTANCE> d_obj;     // object instance, or
+                                                  // pointer to such
 
     // PRIVATE ACCESSORS
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_MemFnInstance,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bdef_MemFnInstance(PROTOTYPE        func,
-                       const INSTANCE&  object,
-                       bslma_Allocator *basicAllocator = 0);
+    bdef_MemFnInstance(PROTOTYPE         func,
+                       const INSTANCE&   object,
+                       bslma::Allocator *basicAllocator = 0);
         // Create a member function pointer wrapper around the specified 'func'
         // member function pointer of the parameterized 'PROTOTYPE', that is
         // invokable on the specified 'object' instance of the parameterized
@@ -858,7 +858,7 @@ class bdef_MemFnInstance {
         // allocator is used.
 
     bdef_MemFnInstance(const bdef_MemFnInstance&  original,
-                       bslma_Allocator           *basicAllocator = 0);
+                       bslma::Allocator          *basicAllocator = 0);
         // Create a member function pointer wrapper around the same member
         // function and instance pointed to by the specified 'original' object.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -967,20 +967,20 @@ template <class PROTOTYPE, class INSTANCE>
 inline
 bdef_MemFnInstance<PROTOTYPE, INSTANCE>::bdef_MemFnInstance(
         const bdef_MemFnInstance<PROTOTYPE, INSTANCE>&  original,
-        bslma_Allocator                                *basicAllocator)
+        bslma::Allocator                               *basicAllocator)
 : d_func_p(original.d_func_p)
-, d_obj(original.d_obj, bslma_Default::allocator(basicAllocator))
+, d_obj(original.d_obj, bslma::Default::allocator(basicAllocator))
 {
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 bdef_MemFnInstance<PROTOTYPE, INSTANCE>::bdef_MemFnInstance(
-                                               PROTOTYPE        func,
-                                               const INSTANCE&  obj,
-                                               bslma_Allocator *basicAllocator)
+                                              PROTOTYPE         func,
+                                              const INSTANCE&   obj,
+                                              bslma::Allocator *basicAllocator)
 : d_func_p(func)
-, d_obj(obj, bslma_Default::allocator(basicAllocator))
+, d_obj(obj, bslma::Default::allocator(basicAllocator))
 {
 }
 

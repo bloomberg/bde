@@ -138,13 +138,13 @@ btemt_ChannelQueuePool::btemt_ChannelQueuePool(
         bcec_Queue<btemt_Message>             *outgoingQueue,
         ParseMessagesCallback                  callback,
         const btemt_ChannelPoolConfiguration&  parameters,
-        bslma_Allocator                       *basicAllocator)
+        bslma::Allocator                      *basicAllocator)
 : d_incomingQueue_p(incomingQueue)
 , d_outgoingQueue_p(outgoingQueue)
 , d_userCallback(callback)
 , d_minIncomingMessageSize(parameters.minIncomingMessageSize())
 , d_workTimeout(5.0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_channelCbFunctor
         = btemt_ChannelPool::ChannelStateChangeCallback(

@@ -248,8 +248,8 @@ BDES_IDENT("$Id: $")
 #include <bdema_managedptr.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -413,7 +413,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
                                                   // events of
                                                   // 'd_controlChannel_p')
 
-    bslma_Allocator           *d_allocator_p;     // memory allocator (held,
+    bslma::Allocator          *d_allocator_p;     // memory allocator (held,
                                                   // not owned)
 
     // NOT IMPLEMENTED
@@ -435,23 +435,23 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
   public:
     // CREATORS
     explicit
-    btemt_TcpTimerEventManager(bslma_Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
     explicit
-    btemt_TcpTimerEventManager(bool             collectTimeMetrics,
-                               bslma_Allocator *basicAllocator = 0);
-    btemt_TcpTimerEventManager(bool             collectTimeMetrics,
-                               bool             poolTimerMemory,
-                               bslma_Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager(bool              collectTimeMetrics,
+                               bslma::Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager(bool              collectTimeMetrics,
+                               bool              poolTimerMemory,
+                               bslma::Allocator *basicAllocator = 0);
     explicit
-    btemt_TcpTimerEventManager(Hint             registrationHint,
-                               bslma_Allocator *basicAllocator = 0);
-    btemt_TcpTimerEventManager(Hint             registrationHint,
-                               bool             collectTimeMetrics,
-                               bslma_Allocator *basicAllocator = 0);
-    btemt_TcpTimerEventManager(Hint             registrationHint,
-                               bool             collectTimeMetrics,
-                               bool             poolTimerMemory,
-                               bslma_Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager(Hint              registrationHint,
+                               bslma::Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager(Hint              registrationHint,
+                               bool              collectTimeMetrics,
+                               bslma::Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager(Hint              registrationHint,
+                               bool              collectTimeMetrics,
+                               bool              poolTimerMemory,
+                               bslma::Allocator *basicAllocator = 0);
         // Create an event manager.  Optionally specify a 'registrationHint'
         // (*DEPRECATED* and ignored).  Optionally specify 'collectTimeMetrics'
         // indicating whether this event manager should collect timing metrics.
@@ -470,7 +470,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
         // be started explicitly).
 
     btemt_TcpTimerEventManager(bteso_EventManager  *rawEventManager,
-                               bslma_Allocator     *basicAllocator = 0);
+                               bslma::Allocator    *basicAllocator = 0);
         // Create an event manager with timer support that uses the
         // specified 'rawEventManager' to monitor for socket events.
         // Optionally specify a 'basicAllocator' used to supply memory.  If

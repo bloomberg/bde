@@ -110,12 +110,12 @@ class FunctorRep : public bdefr_Vfunc0 {
 
   public:
     // CREATORS
-    inline FunctorRep(F                procedure,
-                      const D1&        embeddedArg1,
-                      const D2&        embeddedArg2,
-                      const D3&        embeddedArg3,
-                      const D4&        embeddedArg4,
-                      bslma_Allocator *basicAllocator);
+    inline FunctorRep(F                 procedure,
+                      const D1&         embeddedArg1,
+                      const D2&         embeddedArg2,
+                      const D3&         embeddedArg3,
+                      const D4&         embeddedArg4,
+                      bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking one
         // argument and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -137,12 +137,12 @@ class FunctorRep : public bdefr_Vfunc0 {
 
 template <class F, class D1, class D2, class D3, class D4>
 inline FunctorRep<F, D1, D2, D3, D4>::FunctorRep(
-                                             F                procedure,
-                                             const D1&        embeddedArg1,
-                                             const D2&        embeddedArg2,
-                                             const D3&        embeddedArg3,
-                                             const D4&        embeddedArg4,
-                                             bslma_Allocator *basicAllocator)
+                                             F                 procedure,
+                                             const D1&         embeddedArg1,
+                                             const D2&         embeddedArg2,
+                                             const D3&         embeddedArg3,
+                                             const D4&         embeddedArg4,
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc0(basicAllocator)
 , d_f(procedure)
 , d_d1(embeddedArg1)
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
         //        'operator const void *() const'.
         //    2b. N/A.
         //    3b. Check the reference counter using the 'getCount' function.
-        //        Assign 'Obj1' to 'Obj3'.  Using 'bslma_TestAllocator' verify
+        //        Assign 'Obj1' to 'Obj3'.  Using 'bslma::TestAllocator' verify
         //        that the memory allocated for 'R' was deallocated.
         //
         //   Create an object 'Obj1' using the default constructor.
@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
         //        operator()() const'
         //    2f. N/A.
         //    3f. Check the reference counter using the 'getCount' function.
-        //        Using 'bslma_TestAllocator', test that memory was not freed
+        //        Using 'bslma::TestAllocator', test that memory was not freed
         //        and then allocated again.
         //
         // Testing:

@@ -203,6 +203,10 @@ BDES_IDENT("$Id: $")
 #include <bcemt_readerwriterlock.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -229,10 +233,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>       // for 'bsl::strcmp'
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -281,12 +281,12 @@ class bael_Category {
 
   private:
     // PRIVATE CREATORS
-    bael_Category(const char      *categoryName,
-                  int              recordLevel,
-                  int              passLevel,
-                  int              triggerLevel,
-                  int              triggerAllLevel,
-                  bslma_Allocator *basicAllocator = 0);
+    bael_Category(const char       *categoryName,
+                  int               recordLevel,
+                  int               passLevel,
+                  int               triggerLevel,
+                  int               triggerAllLevel,
+                  bslma::Allocator *basicAllocator = 0);
         // Create a category having the specified 'categoryName' and the
         // specified 'recordLevel', 'passLevel', 'triggerLevel', and
         // 'triggerAllLevel' threshold values, respectively.  Optionally
@@ -496,7 +496,7 @@ class bael_CategoryManager {
     mutable bcemt_ReaderWriterLock  d_registryLock;  // ensuring MT-safety of
                                                      // category map
 
-    bslma_Allocator                *d_allocator_p;   // memory allocator (held,
+    bslma::Allocator               *d_allocator_p;   // memory allocator (held,
                                                      // not owned)
 
   private:
@@ -522,7 +522,7 @@ class bael_CategoryManager {
 
   public:
     // CREATORS
-    bael_CategoryManager(bslma_Allocator *basicAllocator = 0);
+    bael_CategoryManager(bslma::Allocator *basicAllocator = 0);
         // Create a category manager.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
@@ -893,11 +893,11 @@ bool bael_CategoryManager::StringLess::operator()(const char *lhs,
 
 // CREATORS
 inline
-bael_CategoryManager::bael_CategoryManager(bslma_Allocator *basicAllocator)
+bael_CategoryManager::bael_CategoryManager(bslma::Allocator *basicAllocator)
 : d_registry(StringLess(), basicAllocator)
-, d_ruleSet(bslma_Default::allocator(basicAllocator))
+, d_ruleSet(bslma::Default::allocator(basicAllocator))
 , d_categories(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

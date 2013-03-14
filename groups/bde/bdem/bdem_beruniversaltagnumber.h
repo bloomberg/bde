@@ -52,7 +52,7 @@ BDES_IDENT("$Id: $")
 //                                     DEC              BDEM_BER_INT
 //  [unsigned] long                    DEFAULT          BDEM_BER_INT
 //                                     DEC              BDEM_BER_INT
-//  bsls_Types::[Uint64|Int64]         DEFAULT          BDEM_BER_INT
+//  bsls::Types::[Uint64|Int64]        DEFAULT          BDEM_BER_INT
 //                                     DEC              BDEM_BER_INT
 //  float                              DEFAULT          BDEM_BER_REAL
 //  double                             DEFAULT          BDEM_BER_REAL
@@ -348,9 +348,10 @@ class bdem_BerUniversalTagNumber_Imp {
 
     TagVal select(const unsigned long& object, bdeat_TypeCategory::Simple);
 
-    TagVal select(const bsls_Types::Int64& object, bdeat_TypeCategory::Simple);
+    TagVal select(const bsls::Types::Int64& object,
+                  bdeat_TypeCategory::Simple);
 
-    TagVal select(const bsls_Types::Uint64& object,
+    TagVal select(const bsls::Types::Uint64& object,
                   bdeat_TypeCategory::Simple);
 
     TagVal select(const float& object, bdeat_TypeCategory::Simple);
@@ -403,7 +404,7 @@ class bdem_BerUniversalTagNumber_Imp {
     // FUNCTOR OPERATORS
     template <typename TYPE>
     inline
-    TagVal operator()(const TYPE&, bslmf_Nil)
+    TagVal operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT(0 && "Invalid type category");
         return TagVal(-1);
@@ -714,7 +715,7 @@ bdem_BerUniversalTagNumber_Imp::select(const unsigned long&,
 
 inline
 bdem_BerUniversalTagNumber::Value
-bdem_BerUniversalTagNumber_Imp::select(const bsls_Types::Int64&,
+bdem_BerUniversalTagNumber_Imp::select(const bsls::Types::Int64&,
                                        bdeat_TypeCategory::Simple)
 {
     BSLS_ASSERT_SAFE(
@@ -726,7 +727,7 @@ bdem_BerUniversalTagNumber_Imp::select(const bsls_Types::Int64&,
 
 inline
 bdem_BerUniversalTagNumber::Value
-bdem_BerUniversalTagNumber_Imp::select(const bsls_Types::Uint64&,
+bdem_BerUniversalTagNumber_Imp::select(const bsls::Types::Uint64&,
                                        bdeat_TypeCategory::Simple)
 {
     BSLS_ASSERT_SAFE(
@@ -831,12 +832,12 @@ bdem_BerUniversalTagNumber::Value
 bdem_BerUniversalTagNumber_Imp::select(const bdeut_Variant2<TYPE, TYPETZ>&,
                                        bdeat_TypeCategory::Simple)
 {
-    BSLMF_ASSERT((bslmf_IsSame<bdet_Date, TYPE>::VALUE
-               && bslmf_IsSame<bdet_DateTz, TYPETZ>::VALUE)
-              || (bslmf_IsSame<bdet_Time, TYPE>::VALUE
-               && bslmf_IsSame<bdet_TimeTz, TYPETZ>::VALUE)
-              || (bslmf_IsSame<bdet_Datetime, TYPE>::VALUE
-               && bslmf_IsSame<bdet_DatetimeTz, TYPETZ>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<bdet_Date, TYPE>::VALUE
+               && bslmf::IsSame<bdet_DateTz, TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdet_Time, TYPE>::VALUE
+               && bslmf::IsSame<bdet_TimeTz, TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdet_Datetime, TYPE>::VALUE
+               && bslmf::IsSame<bdet_DatetimeTz, TYPETZ>::VALUE));
 
     return selectForDateAndTimeTypes();
 }

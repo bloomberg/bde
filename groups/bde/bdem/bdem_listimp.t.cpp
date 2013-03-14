@@ -6,6 +6,8 @@
 #include <bdem_functiontemplates.h>
 #include <bdem_properties.h>
 
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bdetu_unset.h>
 #include <bdex_testinstream.h>                // for testing only
 #include <bdex_testoutstream.h>               // for testing only
@@ -13,10 +15,12 @@
 
 #include <bslma_testallocator.h>              // for testing only
 #include <bslma_testallocatorexception.h>     // for testing only
-#include <bslma_bufferallocator.h>              // for testing only
+
 #include <bslmf_isconvertible.h>
+
 #include <bsls_platform.h>
 #include <bsls_types.h>
+
 #include <bdetu_unset.h>
 #include <bdex_testinstream.h>                // for testing only
 #include <bdex_testoutstream.h>               // for testing only
@@ -73,10 +77,10 @@ using namespace bsl;  // automatically added by script
 //  'SO'      for 'bdem_DescriptorStreamOut<STREAM>'
 //  'SI'      for 'bdem_DescriptorStreamIn<STREAM>'
 //-----------------------------------------------------------------------------
-// [ 6] bdem_ListImp(AS, bslma_Allocator);
-// [ 6] bdem_ListImp(ET, int, D *const [], AS, bslma_Allocator);
-// [ 6] bdem_ListImp(const bdem_RowData&, AS, bslma_Allocator);
-// [ 6] bdem_ListImp(const bdem_ListImp&, AS, bslma_Allocator);
+// [ 6] bdem_ListImp(AS, bslma::Allocator);
+// [ 6] bdem_ListImp(ET, int, D *const [], AS, bslma::Allocator);
+// [ 6] bdem_ListImp(const bdem_RowData&, AS, bslma::Allocator);
+// [ 6] bdem_ListImp(const bdem_ListImp&, AS, bslma::Allocator);
 // [ 2] void *insertElement(int, const void *, D *);
 // [ 2] int length() const;
 // [ 2] ET elemType(int) const;
@@ -108,7 +112,7 @@ using namespace bsl;  // automatically added by script
 // [ 7] streamInList(void *, STREAM&,int , const SI *, const D *const[]);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] BOOTSTRAP: bdem_ListImp(AS, bslma_Allocator *);
+// [ 2] BOOTSTRAP: bdem_ListImp(AS, bslma::Allocator *);
 //=============================================================================
 //            STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -175,7 +179,7 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-typedef bsls_Types::Int64  Int64;
+typedef bsls::Types::Int64 Int64;
 
 typedef bdex_TestInStream  In;
 typedef bdex_TestOutStream Out;
@@ -249,7 +253,7 @@ bdem_DescriptorStreamIn<In> STREAMIN_TABLE[] = {
     &bdem_FunctionTemplates::streamInFundamental<short,In>,
     &bdem_FunctionTemplates::streamInFundamental<int,In>,
     &bdem_FunctionTemplates::
-    streamInFundamental<bsls_Types::Int64,In>,
+    streamInFundamental<bsls::Types::Int64,In>,
     &bdem_FunctionTemplates::streamInFundamental<float,In>,
     &bdem_FunctionTemplates::streamInFundamental<double,In>,
     &bdem_FunctionTemplates::streamInFundamental<bsl::string,In>,
@@ -259,7 +263,7 @@ bdem_DescriptorStreamIn<In> STREAMIN_TABLE[] = {
     &bdem_FunctionTemplates::streamInArray<char,In>,
     &bdem_FunctionTemplates::streamInArray<short,In>,
     &bdem_FunctionTemplates::streamInArray<int,In>,
-    &bdem_FunctionTemplates::streamInArray<bsls_Types::Int64,In>,
+    &bdem_FunctionTemplates::streamInArray<bsls::Types::Int64,In>,
     &bdem_FunctionTemplates::streamInArray<float,In>,
     &bdem_FunctionTemplates::streamInArray<double,In>,
     &bdem_FunctionTemplates::streamInArray<bsl::string,In>,
@@ -274,7 +278,7 @@ bdem_DescriptorStreamOut<Out> STREAMOUT_TABLE[] = {
     &bdem_FunctionTemplates::streamOutFundamental<short,Out>,
     &bdem_FunctionTemplates::streamOutFundamental<int,Out>,
     &bdem_FunctionTemplates::
-    streamOutFundamental<bsls_Types::Int64,Out>,
+    streamOutFundamental<bsls::Types::Int64,Out>,
     &bdem_FunctionTemplates::streamOutFundamental<float,Out>,
     &bdem_FunctionTemplates::streamOutFundamental<double,Out>,
     &bdem_FunctionTemplates::streamOutFundamental<bsl::string,Out>,
@@ -284,7 +288,7 @@ bdem_DescriptorStreamOut<Out> STREAMOUT_TABLE[] = {
     &bdem_FunctionTemplates::streamOutArray<char,Out>,
     &bdem_FunctionTemplates::streamOutArray<short,Out>,
     &bdem_FunctionTemplates::streamOutArray<int,Out>,
-    &bdem_FunctionTemplates::streamOutArray<bsls_Types::Int64,Out>,
+    &bdem_FunctionTemplates::streamOutArray<bsls::Types::Int64,Out>,
     &bdem_FunctionTemplates::streamOutArray<float,Out>,
     &bdem_FunctionTemplates::streamOutArray<double,Out>,
     &bdem_FunctionTemplates::streamOutArray<bsl::string,Out>,
@@ -359,13 +363,13 @@ bool isEqual(const ET::Type elemType,
     return rv;
 }
 
-int replaceLoop(Obj &o, bslma_TestAllocator &a, int veryVerbose) {
+int replaceLoop(Obj &o, bslma::TestAllocator &a, int veryVerbose) {
 
     int hwm = a.numBytesInUse();
 
     for (int index = 0; index < 64; index++) {
         if (index % 2) {  // INT64
-            bsls_Types::Int64 index64 = index;
+            bsls::Types::Int64 index64 = index;
             bdem_ConstElemRef cer(&index64, EDA[3]);
             o.replaceElement(0, cer);
         }
@@ -391,21 +395,21 @@ int replaceLoop(Obj &o, bslma_TestAllocator &a, int veryVerbose) {
     return hwm;
 }
 
-void testConstructorAllocationPT(Obj *list, bslma_TestAllocator& testAlloc) {
+void testConstructorAllocationPT(Obj *list, bslma::TestAllocator& testAlloc) {
     // Determine if the allocator the specified 'list' was created with is used
     // correctly.  This method assumes that 'list' uses
     // 'bdem_AggregateOption::BDEM_PASS_THROUGH' as its
     // 'bdem_AggregateOption::AllocationStrategy' and tests that
     // 'numBytesInUse()' gets decremented after a 'remove()' and 'compact()'.
 
-    bslma_Allocator *alloc = &testAlloc;
+    bslma::Allocator *alloc = &testAlloc;
 
     int numBytes = testAlloc.numBytesInUse();
     {
         // Create a vector of doubles that uses a different allocator instance
         // then the one that was used to create 'list'.
-        bslma_TestAllocator testAlloc2(veryVeryVerbose);
-        bslma_Allocator *alloc2 = &testAlloc2;
+        bslma::TestAllocator testAlloc2(veryVeryVerbose);
+        bslma::Allocator *alloc2 = &testAlloc2;
         LOOP_ASSERT(testAlloc2.numBytesInUse(),
                     0 == testAlloc2.numBytesInUse());
         bsl::vector<double> da(alloc2);
@@ -447,7 +451,7 @@ void testConstructorAllocationPT(Obj *list, bslma_TestAllocator& testAlloc) {
                  numBytes > testAlloc.numBytesInUse());
 }
 
-void testConstructorAllocationWM(Obj *list, bslma_TestAllocator& testAlloc) {
+void testConstructorAllocationWM(Obj *list, bslma::TestAllocator& testAlloc) {
     // Determine if the allocator the specified 'list' was created with is used
     // correctly.  This method assumes that 'list' uses
     // 'bdem_AggregateOption::WRITE_MANY' as its
@@ -455,7 +459,7 @@ void testConstructorAllocationWM(Obj *list, bslma_TestAllocator& testAlloc) {
     // 'numBytesInUse()' does not gets decremented after a 'remove()' and
     // 'compact()'.
 
-    bslma_Allocator *alloc = &testAlloc;
+    bslma::Allocator *alloc = &testAlloc;
 
     bsl::vector<double> da;
     list->insertElement(0, &da, EDA[ET::BDEM_DOUBLE_ARRAY]);
@@ -497,21 +501,21 @@ int main(int argc, char *argv[])
         // Plan: It suffices to assert that the traits is defined.  One way is
         //   by using 'BSLALG_DECLARE_NESTED_TRAITS' and another is by sniffing
         //   that there is an implicit conversion construction from
-        //   'bslma_Allocator*'.  We also want to discourage the second way, as
-        //   that constructor should be made explicit.
+        //   'bslma::Allocator*'.  We also want to discourage the second way,
+        //   as that constructor should be made explicit.
         //
         // Testing:
         //   bdema allocator model
-        //   correct declaration of bslalg_TypeTraitUsesBslmaAllocator
+        //   correct declaration of bslalg::TypeTraitUsesBslmaAllocator
         // --------------------------------------------------------------------
         if (verbose) cout << endl << "Testing allocator traits"
                           << endl << "========================" << endl;
 
         typedef bdem_ListImp Obj;
 
-        ASSERT((0 == bslmf_IsConvertible<bslma_Allocator*, Obj>::VALUE));
+        ASSERT((0 == bslmf::IsConvertible<bslma::Allocator*, Obj>::VALUE));
         ASSERT((1 ==
-             bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+           bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
       } break;
       case 11: {
@@ -538,11 +542,11 @@ int main(int argc, char *argv[])
                           << endl << "========================================"
                           << endl;
 
-        bslma_TestAllocator allocator;
+        bslma::TestAllocator allocator;
         Obj mX(PT, &allocator);
         mX.insertElement(0, &INT_VALUE1, EDA[2]);
         // mX.insertElement(1, &INT_VALUE1, EDA[3]);
-        const bsls_Types::Int64 INT64_VALUE1 = INT_VALUE1;
+        const bsls::Types::Int64 INT64_VALUE1 = INT_VALUE1;
         mX.insertElement(1, &INT64_VALUE1, EDA[3]);
 
         if (veryVerbose)
@@ -586,7 +590,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing 'replaceElement'"
                           << endl << "=======================" << endl;
 
-        bslma_TestAllocator allocator;
+        bslma::TestAllocator allocator;
         Obj mX(PT, &allocator);
         mX.insertElement(0, &INT_VALUE1, EDA[2]);
 
@@ -628,7 +632,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'BDEM_WRITE_ONCE'" << endl;
         {
-            bslma_TestAllocator allocator;
+            bslma::TestAllocator allocator;
             bdem_ListImp mX(bdem_AggregateOption::BDEM_WRITE_ONCE, &allocator);
 
             const int BEFORE_SIZE = allocator.numBytesInUse();
@@ -641,7 +645,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'BDEM_WRITE_MANY'" << endl;
         {
-            bslma_TestAllocator allocator;
+            bslma::TestAllocator allocator;
             bdem_ListImp mX(WM, &allocator);
 
             const int BEFORE_SIZE = allocator.numBytesInUse();
@@ -680,7 +684,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 bdem_ListImp mX(bdem_AggregateOption::BDEM_WRITE_ONCE,
                                 bdem_ListImp::InitialMemory(SIZE),
@@ -691,7 +695,7 @@ int main(int argc, char *argv[])
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 bdem_ListImp mX(WM,
                                 bdem_ListImp::InitialMemory(SIZE),
@@ -706,7 +710,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 const ET::Type CHAR = ET::BDEM_CHAR;
 
@@ -722,7 +726,7 @@ int main(int argc, char *argv[])
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 const ET::Type CHAR = ET::BDEM_CHAR;
 
@@ -742,12 +746,12 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_RowLayout rowLayout(&allocator);
 
                 const int SIZE = 128;
                 char memory[SIZE];
-                bslma_BufferAllocator ba(memory, SIZE);
+                bdema_BufferedSequentialAllocator ba(memory, SIZE);
                 bdem_RowData rowData(&rowLayout, PT, &ba);
 
                 const int startSize = allocator.numBytesInUse();
@@ -762,12 +766,12 @@ int main(int argc, char *argv[])
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_RowLayout rowLayout(&allocator);
 
                 const int SIZE = 128;
                 char memory[SIZE];
-                bslma_BufferAllocator ba(memory, SIZE);
+                bdema_BufferedSequentialAllocator ba(memory, SIZE);
                 bdem_RowData rowData(&rowLayout, WM, &ba);
 
                 const int startSize = allocator.numBytesInUse();
@@ -786,7 +790,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_ListImp original(bdem_AggregateOption::BDEM_PASS_THROUGH,
                                       &allocator);
 
@@ -802,7 +806,7 @@ int main(int argc, char *argv[])
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_ListImp original(bdem_AggregateOption::BDEM_PASS_THROUGH,
                                       &allocator);
 
@@ -1413,7 +1417,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_PASS_THROUGH" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
@@ -1430,7 +1434,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_WRITE_MANY" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
@@ -1451,7 +1455,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_PASS_THROUGH" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
@@ -1468,7 +1472,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_WRITE_MANY" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
@@ -1489,7 +1493,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_PASS_THROUGH" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
@@ -1506,7 +1510,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_WRITE_MANY" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
@@ -1527,7 +1531,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_PASS_THROUGH" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
@@ -1545,7 +1549,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_WRITE_MANY" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
@@ -1567,14 +1571,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_PASS_THROUGH" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
             bdem_RowLayout rowLayout(&testAlloc);
             const int SIZE = 128;
             char memory[SIZE];
-            bslma_BufferAllocator ba(memory, SIZE);
+            bdema_BufferedSequentialAllocator ba(memory, SIZE);
             RowData rh(&rowLayout, PT, &ba);
             Obj *list = new Obj(rh, PT, &testAlloc);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
@@ -1589,14 +1593,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_WRITE_MANY" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
             bdem_RowLayout rowLayout(&testAlloc);
             const int SIZE = 128;
             char memory[SIZE];
-            bslma_BufferAllocator ba(memory, SIZE);
+            bdema_BufferedSequentialAllocator ba(memory, SIZE);
             RowData rh(&rowLayout, WM, &ba);
             Obj *list = new Obj(rh, WM, &testAlloc);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
@@ -1615,15 +1619,15 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_PASS_THROUGH" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
             bdem_RowLayout rowLayout(&alloc);
             const int SIZE = 128;
             char memory[SIZE];
-            bslma_BufferAllocator ba(memory, SIZE);
+            bdema_BufferedSequentialAllocator ba(memory, SIZE);
             RowData rh(&rowLayout, PT, &ba);
             Obj *list = new Obj(rh, PT, Obj::InitialMemory(2), &testAlloc);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
@@ -1638,14 +1642,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_WRITE_MANY" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
             bdem_RowLayout rowLayout(&testAlloc);
             const int SIZE = 128;
             char memory[SIZE];
-            bslma_BufferAllocator ba(memory, SIZE);
+            bdema_BufferedSequentialAllocator ba(memory, SIZE);
             RowData rh(&rowLayout, WM, &ba);
             Obj *list = new Obj(rh, WM, Obj::InitialMemory(2), &testAlloc);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
@@ -1664,11 +1668,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_PASS_THROUGH" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
             Obj li(PT, &alloc);
             Obj *list = new Obj(li, PT, &testAlloc);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
@@ -1683,11 +1687,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\ttesting BDEM_WRITE_MANY" << endl;
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
                         0 == testAlloc.numBytesInUse());
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
             Obj li(WM, &alloc);
             Obj *list = new Obj(li, WM, &testAlloc);
             LOOP_ASSERT(testAlloc.numBytesInUse(),
@@ -1755,8 +1759,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- assignment operators" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             Obj ref0(PT, alloc);
             ref0.insertElement(0, &INT_VALUE1, EDA[2]);
@@ -1788,8 +1792,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- insertElements" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             Obj ref0(PT, alloc);
             ref0.insertElement(0, &STRING_VALUE1, EDA[6]);
@@ -1831,8 +1835,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- insertNullElement" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             void *p;
             Obj list(PT, alloc);
@@ -1864,8 +1868,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- insertNullElements" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             Obj list(PT, alloc);
             const ET::Type  etas[] = { ETA[6], ETA[2], ETA[6] };
@@ -1909,8 +1913,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- insertNullElement" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             void *p;
             Obj list(PT, alloc); const Obj& L = list;
@@ -1989,8 +1993,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- insertNullElements" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             Obj list(PT, alloc); const Obj& L = list;
             const ET::Type  etas[] = { ETA[6], ETA[2], ETA[6] };
@@ -2046,8 +2050,8 @@ int main(int argc, char *argv[])
 
         {
             {
-                bslma_TestAllocator testAlloc(veryVeryVerbose);
-                bslma_Allocator *alloc = &testAlloc;
+                bslma::TestAllocator testAlloc(veryVeryVerbose);
+                bslma::Allocator *alloc = &testAlloc;
 
                 // one element - swap element with itself
                 Obj ref(PT, alloc);
@@ -2061,8 +2065,8 @@ int main(int argc, char *argv[])
             }
 
             {
-                bslma_TestAllocator testAlloc(veryVeryVerbose);
-                bslma_Allocator *alloc = &testAlloc;
+                bslma::TestAllocator testAlloc(veryVeryVerbose);
+                bslma::Allocator *alloc = &testAlloc;
 
                 // two elements
                 Obj ref(PT, alloc);
@@ -2084,8 +2088,8 @@ int main(int argc, char *argv[])
             }
 
             {
-                bslma_TestAllocator testAlloc(veryVeryVerbose);
-                bslma_Allocator *alloc = &testAlloc;
+                bslma::TestAllocator testAlloc(veryVeryVerbose);
+                bslma::Allocator *alloc = &testAlloc;
 
                 // three elements
                 Obj ref(PT, alloc);
@@ -2111,8 +2115,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- replaceElement" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             Obj ref0(PT, alloc);
             ref0.insertElement(0, &STRING_VALUE2, EDA[6]);
@@ -2268,8 +2272,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- resetElement" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             Obj ref0(PT, alloc);
             ref0.insertNullElement(0, EDA[2]);
@@ -2319,8 +2323,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- reset" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             // reset
             Obj ref0(PT, alloc);
@@ -2351,8 +2355,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- remove*" << endl;
 
         {
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             Obj ref0(PT, alloc);
             Obj ref1(PT, alloc);
@@ -2464,8 +2468,8 @@ int main(int argc, char *argv[])
                                  "  INT 3"                      "\n"
                                  "}"                            "\n";
 
-            bslma_TestAllocator testAlloc(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAlloc;
+            bslma::TestAllocator testAlloc(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAlloc;
 
             Obj list(PT, alloc);
             list.insertElement(0, &INT_VALUE1, EDA[2]);
@@ -2563,7 +2567,7 @@ int main(int argc, char *argv[])
         //   returns 0.
         //
         // Testing:
-        //   BOOTSTRAP: bdem_ListImp(AS allocMode, bslma_Allocator *alloc = 0);
+        //   BOOTSTRAP: bdem_ListImp(AS allocMode, bslma::Allocator *alloc=0);
         //   void *insertElement(int dstIndex, const void *value, D *elemAttr);
         //   int length() const;
         //   bdem_ElemType::Type elemType(int index) const;
@@ -2580,8 +2584,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t- constructor bootstrap" << endl;
 
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
-            bslma_Allocator *alloc = &testAllocator;
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
+            bslma::Allocator *alloc = &testAllocator;
 
             ASSERT(0 == testAllocator.numBytesInUse());
 

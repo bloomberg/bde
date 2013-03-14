@@ -9,7 +9,7 @@
 #include <bdet_time.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -218,24 +218,25 @@ class ScalarData {
   private:
     typedef bdem_ElemType::Type Type;
     typedef bdem_ElemType       Et;
-    Type                                    d_type;
+
+    Type               d_type;
 //    union { // can't use union for non-builtin types
-        char                                d_char;
-        short                               d_short;
-        int                                 d_int;
-        bsls_PlatformUtil::Int64            d_int64;
-        float                               d_float;
-        double                              d_double;
-        bsl::string                         d_string;
-        bdet_Datetime                       d_datetime;
-        bdet_Date                           d_date;
-        bdet_Time                           d_time;
+    char               d_char;
+    short              d_short;
+    int                d_int;
+    bsls::Types::Int64 d_int64;
+    float              d_float;
+    double             d_double;
+    bsl::string        d_string;
+    bdet_Datetime      d_datetime;
+    bdet_Date          d_date;
+    bdet_Time          d_time;
 //    };
   public:
     ScalarData(char c) : d_type(Et::BDEM_CHAR), d_char(c) {}
     ScalarData(short s) : d_type(Et::BDEM_SHORT), d_short(s) {}
     ScalarData(int i) : d_type(Et::BDEM_INT), d_int(i) {}
-    ScalarData(bsls_PlatformUtil::Int64 i)
+    ScalarData(bsls::Types::Int64 i)
         : d_type(Et::BDEM_INT64), d_int64(i) {}
     ScalarData(float f) : d_type(Et::BDEM_FLOAT), d_float(f) {}
     ScalarData(double d) : d_type(Et::BDEM_DOUBLE), d_double(d) {}
@@ -258,7 +259,7 @@ class ScalarData {
         // corresponding to the d_type.
     friend bsl::ostream& operator<<(bsl::ostream& os, const ScalarData& data);
         // Output only ScalarData of type short, int,
-        // bsls_PlatformUtil::Int64, float, double.  Other types result in
+        // bsls::Types::Int64, float, double.  Other types result in
         // undefined behavior
 };
 
@@ -1010,9 +1011,9 @@ int main(int argc, char *argv[])
               { L_, "Int", (int)0, "0" },
               { L_, "Int", (int)INT_MAX, 0 },
               { L_, "Int", (int)INT_MIN, 0 },
-              { L_, "Int64", (bsls_PlatformUtil::Int64)0, 0 },
-              { L_, "Int64", (bsls_PlatformUtil::Int64)LONG_MAX, 0 },
-              { L_, "Int64", (bsls_PlatformUtil::Int64)LONG_MIN, 0 },
+              { L_, "Int64", (bsls::Types::Int64)0, 0 },
+              { L_, "Int64", (bsls::Types::Int64)LONG_MAX, 0 },
+              { L_, "Int64", (bsls::Types::Int64)LONG_MIN, 0 },
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
               { L_, "Float", (float)0.000000000314159, "3.14159e-010" },

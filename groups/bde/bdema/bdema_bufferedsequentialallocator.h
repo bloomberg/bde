@@ -18,7 +18,7 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a concrete mechanism,
 // 'bdema_BufferedSequentialAllocator', that implements the
-// 'bslma_ManagedAllocator' protocol to very efficiently allocate heterogeneous
+// 'bdema_ManagedAllocator' protocol to very efficiently allocate heterogeneous
 // memory blocks (of varying, user-specified sizes) from an external buffer
 // supplied at construction:
 //..
@@ -29,13 +29,13 @@ BDES_IDENT("$Id: $")
 //                   |
 //                   V
 //       ,----------------------.
-//      ( bslma_ManagedAllocator )
+//      ( bdema_ManagedAllocator )
 //       `----------------------'
 //                   |        release
 //                   V
-//          ,----------------.
-//         (  bslma_Allocator )
-//          `----------------'
+//          ,-----------------.
+//         (  bslma::Allocator )
+//          `-----------------'
 //                            allocate
 //                            deallocate
 //..
@@ -66,7 +66,7 @@ BDES_IDENT("$Id: $")
 //
 // The main difference between a 'bdema_BufferedSequentialAllocator' and a
 // 'bdema_BufferedSequentialPool' is that, very often, the allocator is
-// maintained through a 'bslma_Allocator' pointer - hence, every call to
+// maintained through a 'bslma::Allocator' pointer - hence, every call to
 // 'allocate' is a virtual function call, which is slower than invoking
 // 'allocate' with the pool directly.  However, the allocator interface is much
 // more widely accepted across objects, and hence more general purpose.
@@ -111,9 +111,9 @@ BDES_IDENT("$Id: $")
 // implementation of 'bsl::vector'.
 //
 // To avoid alignment issues described in the "Warning" section (above), we can
-// create a 'bsls_AlignedBuffer':
+// create a 'bsls::AlignedBuffer':
 //..
-//      bsls_AlignedBuffer<SIZE> bufferStorage;
+//      bsls::AlignedBuffer<SIZE> bufferStorage;
 //
 //      bdema_BufferedSequentialAllocator alloc(bufferStorage.buffer(), SIZE);
 //
@@ -176,8 +176,8 @@ BDES_IDENT("$Id: $")
 #include <bdema_bufferedsequentialpool.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
-#include <bslma_managedallocator.h>
+#ifndef INCLUDED_BDEMA_MANAGEDALLOCATOR
+#include <bdema_managedallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENT
@@ -192,8 +192,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -202,8 +202,8 @@ namespace BloombergLP {
                     // class bdema_BufferedSequentialAllocator
                     // =======================================
 
-class bdema_BufferedSequentialAllocator : public bslma_ManagedAllocator {
-    // This class implements the 'bslma_ManagedAllocator' protocol to provide
+class bdema_BufferedSequentialAllocator : public bdema_ManagedAllocator {
+    // This class implements the 'bdema_ManagedAllocator' protocol to provide
     // a fast allocator that dispenses heterogeneous blocks of memory (of
     // varying, user-specified sizes) from an external buffer whose address and
     // size (in bytes) are supplied at construction.  If an allocation request
@@ -229,25 +229,25 @@ class bdema_BufferedSequentialAllocator : public bslma_ManagedAllocator {
   public:
     // CREATORS
     bdema_BufferedSequentialAllocator(
-                               char                       *buffer,
-                               int                         size,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialAllocator(
-                               char                       *buffer,
-                               int                         size,
-                               bsls_BlockGrowth::Strategy  growthStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialAllocator(
-                               char                       *buffer,
-                               int                         size,
-                               bsls_Alignment::Strategy    alignmentStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialAllocator(
-                               char                       *buffer,
-                               int                         size,
-                               bsls_BlockGrowth::Strategy  growthStrategy,
-                               bsls_Alignment::Strategy    alignmentStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
         // Create a buffered sequential allocator for allocating memory blocks
         // from the specified external 'buffer' having the specified 'size' (in
         // bytes).  Optionally specify a 'growthStrategy' used to control
@@ -263,29 +263,29 @@ class bdema_BufferedSequentialAllocator : public bslma_ManagedAllocator {
         // bytes of memory in 'buffer' can be used for allocation.
 
     bdema_BufferedSequentialAllocator(
-                               char                       *buffer,
-                               int                         size,
-                               int                         maxBufferSize,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              int                          maxBufferSize,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialAllocator(
-                               char                       *buffer,
-                               int                         size,
-                               int                         maxBufferSize,
-                               bsls_BlockGrowth::Strategy  growthStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              int                          maxBufferSize,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialAllocator(
-                               char                       *buffer,
-                               int                         size,
-                               int                         maxBufferSize,
-                               bsls_Alignment::Strategy    alignmentStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              int                          maxBufferSize,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialAllocator(
-                               char                       *buffer,
-                               int                         size,
-                               int                         maxBufferSize,
-                               bsls_BlockGrowth::Strategy  growthStrategy,
-                               bsls_Alignment::Strategy    alignmentStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              int                          maxBufferSize,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
         // Create a buffered sequential allocator for allocating memory blocks
         // from the specified external 'buffer' having the specified 'size' (in
         // bytes), or from an internal buffer (after the external 'buffer' is
@@ -308,7 +308,7 @@ class bdema_BufferedSequentialAllocator : public bslma_ManagedAllocator {
         // from this allocator is released.
 
     // MANIPULATORS
-    virtual void *allocate(bsls_Types::size_type size);
+    virtual void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
         // construction.  If 'size' is 0, no memory is allocated and 0 is
@@ -343,84 +343,84 @@ class bdema_BufferedSequentialAllocator : public bslma_ManagedAllocator {
 // CREATORS
 inline
 bdema_BufferedSequentialAllocator::bdema_BufferedSequentialAllocator(
-                                 char            *buffer,
-                                 int              size,
-                                 bslma_Allocator *basicAllocator)
+                                 char             *buffer,
+                                 int               size,
+                                 bslma::Allocator *basicAllocator)
 : d_pool(buffer, size, basicAllocator)
 {
 }
 
 inline
 bdema_BufferedSequentialAllocator::bdema_BufferedSequentialAllocator(
-                                 char                       *buffer,
-                                 int                         size,
-                                 bsls_BlockGrowth::Strategy  growthStrategy,
-                                 bslma_Allocator            *basicAllocator)
+                                 char                        *buffer,
+                                 int                          size,
+                                 bsls::BlockGrowth::Strategy  growthStrategy,
+                                 bslma::Allocator            *basicAllocator)
 : d_pool(buffer, size, growthStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_BufferedSequentialAllocator::bdema_BufferedSequentialAllocator(
-                                 char                     *buffer,
-                                 int                       size,
-                                 bsls_Alignment::Strategy  alignmentStrategy,
-                                 bslma_Allocator          *basicAllocator)
+                                 char                      *buffer,
+                                 int                        size,
+                                 bsls::Alignment::Strategy  alignmentStrategy,
+                                 bslma::Allocator          *basicAllocator)
 : d_pool(buffer, size, alignmentStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_BufferedSequentialAllocator::bdema_BufferedSequentialAllocator(
-                                 char                       *buffer,
-                                 int                         size,
-                                 bsls_BlockGrowth::Strategy  growthStrategy,
-                                 bsls_Alignment::Strategy    alignmentStrategy,
-                                 bslma_Allocator            *basicAllocator)
+                                char                        *buffer,
+                                int                          size,
+                                bsls::BlockGrowth::Strategy  growthStrategy,
+                                bsls::Alignment::Strategy    alignmentStrategy,
+                                bslma::Allocator            *basicAllocator)
 : d_pool(buffer, size, growthStrategy, alignmentStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_BufferedSequentialAllocator::bdema_BufferedSequentialAllocator(
-                                 char            *buffer,
-                                 int              size,
-                                 int              maxBufferSize,
-                                 bslma_Allocator *basicAllocator)
+                                 char             *buffer,
+                                 int               size,
+                                 int               maxBufferSize,
+                                 bslma::Allocator *basicAllocator)
 : d_pool(buffer, size, maxBufferSize, basicAllocator)
 {
 }
 
 inline
 bdema_BufferedSequentialAllocator::bdema_BufferedSequentialAllocator(
-                                 char                       *buffer,
-                                 int                         size,
-                                 int                         maxBufferSize,
-                                 bsls_BlockGrowth::Strategy  growthStrategy,
-                                 bslma_Allocator            *basicAllocator)
+                                 char                        *buffer,
+                                 int                          size,
+                                 int                          maxBufferSize,
+                                 bsls::BlockGrowth::Strategy  growthStrategy,
+                                 bslma::Allocator            *basicAllocator)
 : d_pool(buffer, size, maxBufferSize, growthStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_BufferedSequentialAllocator::bdema_BufferedSequentialAllocator(
-                                 char                     *buffer,
-                                 int                       size,
-                                 int                       maxBufferSize,
-                                 bsls_Alignment::Strategy  alignmentStrategy,
-                                 bslma_Allocator          *basicAllocator)
+                                 char                      *buffer,
+                                 int                        size,
+                                 int                        maxBufferSize,
+                                 bsls::Alignment::Strategy  alignmentStrategy,
+                                 bslma::Allocator          *basicAllocator)
 : d_pool(buffer, size, maxBufferSize, alignmentStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_BufferedSequentialAllocator::bdema_BufferedSequentialAllocator(
-                                 char                       *buffer,
-                                 int                         size,
-                                 int                         maxBufferSize,
-                                 bsls_BlockGrowth::Strategy  growthStrategy,
-                                 bsls_Alignment::Strategy    alignmentStrategy,
-                                 bslma_Allocator            *basicAllocator)
+                                char                        *buffer,
+                                int                          size,
+                                int                          maxBufferSize,
+                                bsls::BlockGrowth::Strategy  growthStrategy,
+                                bsls::Alignment::Strategy    alignmentStrategy,
+                                bslma::Allocator            *basicAllocator)
 : d_pool(buffer,
          size,
          maxBufferSize,

@@ -89,8 +89,8 @@ class btesos_TcpCbAcceptor_Reg {
     // This class stores a callback, and allows to invoke it.
 
     union {
-        char                               d_callbackArena[ARENA_SIZE];
-        bsls_AlignmentUtil::MaxAlignedType d_align;  // for alignment
+        char                                d_callbackArena[ARENA_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;  // for alignment
     } d_cb;                                      // callback storage arena
 
     int d_isTimedChannel;  // true if the channel is timed
@@ -169,14 +169,14 @@ btesos_TcpCbAcceptor_Reg::~btesos_TcpCbAcceptor_Reg()
             (bdef_Function<void (*)(btesc_TimedCbChannel*, int)> *)
                 (void *) d_cb.d_callbackArena;
 
-        bslalg_ScalarDestructionPrimitives::destroy(cb);
+        bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
     else {
         bdef_Function<void (*)(btesc_CbChannel*, int)> *cb =
             (bdef_Function<void (*)(btesc_CbChannel*, int)> *)
                 (void *) d_cb.d_callbackArena;
 
-        bslalg_ScalarDestructionPrimitives::destroy(cb);
+        bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
 }
 
@@ -342,7 +342,7 @@ void btesos_TcpCbAcceptor::deallocateCb(btesc_CbChannel *channel)
 btesos_TcpCbAcceptor::btesos_TcpCbAcceptor(
         bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
         bteso_TimerEventManager                      *manager,
-        bslma_Allocator                              *basicAllocator)
+        bslma::Allocator                             *basicAllocator)
 : d_callbackPool(sizeof(btesos_TcpCbAcceptor_Reg), basicAllocator)
 , d_channelPool(CHANNEL_SIZE, basicAllocator)
 , d_callbacks(basicAllocator)
@@ -364,10 +364,10 @@ btesos_TcpCbAcceptor::btesos_TcpCbAcceptor(
         bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
         bteso_TimerEventManager                      *manager,
         int                                           numElements,
-        bslma_Allocator                              *basicAllocator)
+        bslma::Allocator                             *basicAllocator)
 : d_callbackPool(sizeof(btesos_TcpCbAcceptor_Reg), basicAllocator)
 , d_channelPool(CHANNEL_SIZE,
-                bsls_BlockGrowth::BSLS_CONSTANT,
+                bsls::BlockGrowth::BSLS_CONSTANT,
                 numElements,
                 basicAllocator)
 , d_callbacks(basicAllocator)

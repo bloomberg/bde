@@ -61,9 +61,9 @@ class baem_CollectorRepository_Collectors {
         // templatized type 'COLLECTOR'.
 
     // DATA
-    COLLECTOR        d_defaultCollector;  // default collector
-    CollectorSet     d_addedCollectors;   // added collectors
-    bslma_Allocator *d_allocator_p;       // allocator (held, not owned)
+    COLLECTOR         d_defaultCollector;  // default collector
+    CollectorSet      d_addedCollectors;   // added collectors
+    bslma::Allocator *d_allocator_p;       // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     baem_CollectorRepository_Collectors(
@@ -74,12 +74,12 @@ class baem_CollectorRepository_Collectors {
   public:
     // PUBLIC TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_CollectorRepository_Collectors,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     baem_CollectorRepository_Collectors(
                                      const baem_MetricId&  metricId,
-                                     bslma_Allocator      *basicAllocator = 0);
+                                     bslma::Allocator     *basicAllocator = 0);
         // Create a 'baem_CollectorRepository_Collectors' object to hold
         // objects of the templatized type 'COLLECTOR' for the specified
         // 'metricId'.   Optionally specify a 'basicAllocator' used to supply
@@ -145,10 +145,10 @@ class baem_CollectorRepository_Collectors {
 template <typename COLLECTOR>
 baem_CollectorRepository_Collectors<COLLECTOR>::
 baem_CollectorRepository_Collectors(const baem_MetricId&  metricId,
-                                    bslma_Allocator      *basicAllocator)
+                                    bslma::Allocator     *basicAllocator)
 : d_defaultCollector(metricId)
 , d_addedCollectors(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -271,12 +271,12 @@ class baem_CollectorRepository_MetricCollectors {
   public:
     // PUBLIC TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_CollectorRepository_MetricCollectors,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     baem_CollectorRepository_MetricCollectors(
                                     const baem_MetricId&  id,
-                                    bslma_Allocator      *basicAllocator = 0);
+                                    bslma::Allocator     *basicAllocator = 0);
         // Create a 'baem_CollectorRepository_MetricCollectors' object to hold
         // collector and integer collector objects for the specified
         // 'metricId'.   Optionally specify a 'basicAllocator' used to supply
@@ -338,7 +338,7 @@ class baem_CollectorRepository_MetricCollectors {
 inline
 baem_CollectorRepository_MetricCollectors::
 baem_CollectorRepository_MetricCollectors(const baem_MetricId&  id,
-                                          bslma_Allocator      *basicAllocator)
+                                          bslma::Allocator     *basicAllocator)
 : d_collectors(id, basicAllocator)
 , d_intCollectors(id, basicAllocator)
 {

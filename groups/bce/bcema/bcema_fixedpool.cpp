@@ -74,21 +74,21 @@ void *bcema_FixedPool::allocateNew()
 }
 
 // CREATORS
-bcema_FixedPool::bcema_FixedPool(int              objectSize,
-                                 int              poolSize,
-                                 bslma_Allocator *basicAllocator)
+bcema_FixedPool::bcema_FixedPool(int               objectSize,
+                                 int               poolSize,
+                                 bslma::Allocator *basicAllocator)
 : d_freeList(0)
 , d_sizeMask(bdes_BitUtil::roundUpToBinaryPower(poolSize + 1) - 1)
-, d_nodes(poolSize, bslma_Default::allocator(basicAllocator))
+, d_nodes(poolSize, bslma::Default::allocator(basicAllocator))
 , d_dataOffset(bsl::max((int)sizeof(Node),
-                   bsls_AlignmentUtil::calculateAlignmentFromSize(objectSize)))
+                  bsls::AlignmentUtil::calculateAlignmentFromSize(objectSize)))
 , d_nodeSize(
           (objectSize + d_dataOffset + d_dataOffset - 1) & ~(d_dataOffset - 1))
-, d_nodePool(d_nodeSize, bslma_Default::allocator(basicAllocator))
+, d_nodePool(d_nodeSize, bslma::Default::allocator(basicAllocator))
 , d_numNodes(0)
 , d_objectSize(objectSize)
 , d_backoffLevel(DEFAULT_BACKOFF_LEVEL)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < objectSize);
     BSLS_ASSERT(0 < poolSize);
@@ -96,10 +96,10 @@ bcema_FixedPool::bcema_FixedPool(int              objectSize,
 
     BSLS_ASSERT(d_dataOffset >= (int)sizeof(Node));
     BSLS_ASSERT(d_dataOffset >=
-                   bsls_AlignmentUtil::calculateAlignmentFromSize(objectSize));
+                  bsls::AlignmentUtil::calculateAlignmentFromSize(objectSize));
     BSLS_ASSERT(d_nodeSize >= objectSize + d_dataOffset);
     BSLS_ASSERT(d_dataOffset <=
-                   bsls_AlignmentUtil::calculateAlignmentFromSize(d_nodeSize));
+                  bsls::AlignmentUtil::calculateAlignmentFromSize(d_nodeSize));
 }
 
 bcema_FixedPool::~bcema_FixedPool()

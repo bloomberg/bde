@@ -248,8 +248,8 @@ int main(int argc, char *argv[])
 
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    bcema_TestAllocator         da(veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&da);
+    bcema_TestAllocator          da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&da);
 
     baem_DefaultMetricsManagerScopedGuard metricsManagerGuard(bsl::cout);
     baem_MetricsManager *dmm = baem_DefaultMetricsManager::instance();

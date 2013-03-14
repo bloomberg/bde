@@ -57,7 +57,7 @@ void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
     BSLS_ASSERT(result);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    bsls_PlatformUtil::Uint64 t;
+    bsls::Types::Uint64 t;
     GetSystemTimeAsFileTime((FILETIME*)&t);
     t -= 116444736000000000ll; // windows epoch -> unix epoch
     result->setInterval(t / 10000000, (t % 10000000) * 100);

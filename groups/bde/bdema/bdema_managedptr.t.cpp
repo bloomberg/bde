@@ -206,7 +206,7 @@ typedef bdema_ManagedPtr<void> VObj;
 //                         HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 // The 'bsls_IsPolymorphic' trait does not work correctly on the following two
-// platforms, which causes 'bslma_DeleterHelper' to dispatch to an
+// platforms, which causes 'bslma::DeleterHelper' to dispatch to an
 // implementation that cannot compile.
 #if !defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_HP)
 #define BDEMA_TESTVIRTUALINHERITANCE
@@ -542,9 +542,9 @@ template<class BDEMA_TYPE>
 class AllocatorDeleter
 {
     // This class provides a 'bdema_ManagedPtr' deleter that does *not* derive
-    // from 'bslma_Allocator'.
+    // from 'bslma::Allocator'.
   public:
-      static void deleter(BDEMA_TYPE *ptr, bslma_Allocator *alloc) {
+      static void deleter(BDEMA_TYPE *ptr, bslma::Allocator *alloc) {
           BSLS_ASSERT_SAFE(0 != ptr);
           BSLS_ASSERT_SAFE(0 != alloc);
 
@@ -598,7 +598,7 @@ typedef bdema_ManagedPtr<char> ChObj;
 //                    FILE-STATIC FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-static void myTestDeleter(TObj *object, bslma_TestAllocator *allocator)
+static void myTestDeleter(TObj *object, bslma::TestAllocator *allocator)
 {
     allocator->deleteObject(object);
     if (g_verbose) {
@@ -607,7 +607,7 @@ static void myTestDeleter(TObj *object, bslma_TestAllocator *allocator)
 }
 
 static bdema_ManagedPtr<MyTestObject>
-returnManagedPtr(int *numDels, bslma_TestAllocator *allocator)
+returnManagedPtr(int *numDels, bslma::TestAllocator *allocator)
 {
     MyTestObject *p = new (*allocator) MyTestObject(numDels);
     bdema_ManagedPtr<MyTestObject> ret(p, allocator);
@@ -615,7 +615,7 @@ returnManagedPtr(int *numDels, bslma_TestAllocator *allocator)
 }
 
 static bdema_ManagedPtr<MyDerivedObject>
-returnDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
+returnDerivedPtr(int *numDels, bslma::TestAllocator *allocator)
 {
     MyDerivedObject *p = new (*allocator) MyDerivedObject(numDels);
     bdema_ManagedPtr<MyDerivedObject> ret(p, allocator);
@@ -623,7 +623,7 @@ returnDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
 }
 
 static bdema_ManagedPtr<MySecondDerivedObject>
-returnSecondDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
+returnSecondDerivedPtr(int *numDels, bslma::TestAllocator *allocator)
 {
     MySecondDerivedObject *p = new (*allocator) MySecondDerivedObject(numDels);
     bdema_ManagedPtr<MySecondDerivedObject> ret(p, allocator);
@@ -648,10 +648,10 @@ void validateManagedState(unsigned int                   LINE,
     //   TYPE *ptr() const;
     //   const bdema_ManagedPtrDeleter& deleter() const;
 
-    bslma_TestAllocatorMonitor gam(dynamic_cast<bslma_TestAllocator*>
-                                           (bslma_Default::globalAllocator()));
-    bslma_TestAllocatorMonitor dam(dynamic_cast<bslma_TestAllocator*>
-                                          (bslma_Default::defaultAllocator()));
+    bslma::TestAllocatorMonitor gam(dynamic_cast<bslma::TestAllocator*>
+                                          (bslma::Default::globalAllocator()));
+    bslma::TestAllocatorMonitor dam(dynamic_cast<bslma::TestAllocator*>
+                                         (bslma::Default::defaultAllocator()));
 
     if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
@@ -664,7 +664,7 @@ void validateManagedState(unsigned int                   LINE,
         if (g_veryVerbose) cout << "\tNegative testing\n";
 
         {
-            bsls_AssertTestHandlerGuard guard;
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_SAFE_FAIL(*obj);
             ASSERT_SAFE_FAIL(obj.deleter());
@@ -708,10 +708,10 @@ void validateManagedState(unsigned int                   LINE,
     //   void *ptr() const;
     //   const bdema_ManagedPtrDeleter& deleter() const;
 
-    bslma_TestAllocatorMonitor gam(dynamic_cast<bslma_TestAllocator*>
-                                           (bslma_Default::globalAllocator()));
-    bslma_TestAllocatorMonitor dam(dynamic_cast<bslma_TestAllocator*>
-                                          (bslma_Default::defaultAllocator()));
+    bslma::TestAllocatorMonitor gam(dynamic_cast<bslma::TestAllocator*>
+                                          (bslma::Default::globalAllocator()));
+    bslma::TestAllocatorMonitor dam(dynamic_cast<bslma::TestAllocator*>
+                                         (bslma::Default::defaultAllocator()));
 
     if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
@@ -723,7 +723,7 @@ void validateManagedState(unsigned int                   LINE,
         if (g_veryVerbose) cout << "\tNegative testing\n";
 
         {
-            bsls_AssertTestHandlerGuard guard;
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_SAFE_FAIL(obj.deleter());
         }
@@ -767,10 +767,10 @@ void validateManagedState(unsigned int                        LINE,
     //   const void *ptr() const;
     //   const bdema_ManagedPtrDeleter& deleter() const;
 
-    bslma_TestAllocatorMonitor gam(dynamic_cast<bslma_TestAllocator*>
-                                           (bslma_Default::globalAllocator()));
-    bslma_TestAllocatorMonitor dam(dynamic_cast<bslma_TestAllocator*>
-                                          (bslma_Default::defaultAllocator()));
+    bslma::TestAllocatorMonitor gam(dynamic_cast<bslma::TestAllocator*>
+                                          (bslma::Default::globalAllocator()));
+    bslma::TestAllocatorMonitor dam(dynamic_cast<bslma::TestAllocator*>
+                                         (bslma::Default::defaultAllocator()));
 
     if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
@@ -782,7 +782,7 @@ void validateManagedState(unsigned int                        LINE,
         if (g_veryVerbose) cout << "\tNegative testing\n";
 
         {
-            bsls_AssertTestHandlerGuard guard;
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_SAFE_FAIL(obj.deleter());
         }
@@ -889,8 +889,8 @@ void validateManagedState(unsigned int                        LINE,
 //
 // The second factory argument should be tested with:
 //: o '0' literal
-//: o 'bslma_Allocator *'
-//: o 'ta' to test the specific 'bslma_TestAllocator' derived factory type
+//: o 'bslma::Allocator *'
+//: o 'ta' to test the specific 'bslma::TestAllocator' derived factory type
 //: 0 SOME OTHER FACTORY TYPE NOT DERIVED FROM BSLMA_TESTALLOCATOR [NOT TESTED]
 //
 // The 'deleter' argument will be tested with each of:
@@ -918,33 +918,35 @@ void validateManagedState(unsigned int                        LINE,
 //:       -------  ----     -----
 //:             -  (none)   use default (if any)
 //:             0  Fnull    null pointer literal
-//:         bslma  Fbsl    'bslma_TestAllocator' factory cast to 'bslma_Allocator *'
-//:          Test  Ftst    'bslma_TestAllocator' factory
-//:       default  Fdflt    default allocator, passed as 'bslma_Allocator *'
-
+//:         bslma  Fbsl     'bslma::TestAllocator' cast to 'bslma::Allocator *'
+//:          Test  Ftst     'bslma::TestAllocator' factory
+//:       default  Fdflt    default allocator, passed as 'bslma::Allocator *'
+//:
 //: [No const factory support by default, but can 'deleter' support this?]
-//: [Probably only through the deprecated interface, and no code can do this yet?]
+//: [Probably only through the deprecated interface, and no code can do this
+//: yet?]
 //:
 //: Scenarios to consider:
 //: "V(V* V*)" can hide many casting opportunities inside the function body.
 //: This implies we may have many scenarios to test inside this one case, or
-//: we may want to pick the most representative single case.  In fact two cases
-//: dominate our analysis, "V(bslma_Allocator, Base)", and "V(actual, actual)".
-//: The former can be explicitly coded up as a non-template function.  The
-//: latter is already implemented as 'bdema_ManagedPtr_FactoryDeleter'.  Note
-//: that there is a third category of deleter, where the deleter function acts
-//: only on the 'object' parameter and ignores the 'factory'.  This is an
-//: important case, as we must support '0' literals and null pointers for
-//: factories based on existing code.  We can test this case with a deleter
-//: that assumes the object was allocated using the default allocator.  This
-//: gives us our 3 test scenarios for "V(V*,V*)".
+//: we may want to pick the most representative single case.  In fact, two
+//: cases dominate our analysis, "V(bslma::Allocator, Base)", and "V(actual,
+//: actual)".  The former can be explicitly coded up as a non-template
+//: function.  The latter is already implemented as
+//: 'bdema_ManagedPtr_FactoryDeleter'.  Note that there is a third category of
+//: deleter, where the deleter function acts only on the 'object' parameter and
+//: ignores the 'factory'.  This is an important case, as we must support '0'
+//: literals and null pointers for factories based on existing code.  We can
+//: test this case with a deleter that assumes the object was allocated using
+//: the default allocator.  This gives us our 3 test scenarios for "V(V*,V*)".
 //: The "V(V*,B*)" and "V(V*,D*)" cases could be tricky if the first "V*"
 //: parameter is thought to be a type-erased factory that is cast back
 //: internally.  We believe there are such cases in existing code, so must be
 //: supported - we cannot assume the initial "V*" factory argument is ignored
 //: by the deleter.  Here we will test just two forms, 'D' ignoring the factory
 //: argument and using the default allocator to destroy the 'object', and 'B'
-//: which destroys the 'object' by casting the 'factory' to 'bslma_Allocator*'.
+//: which destroys the 'object' by casting the 'factory' to
+//: 'bslma::Allocator*'.
 //:
 //:      Deleter  Code   Value
 //:      -------  ----   -----
@@ -972,7 +974,7 @@ void validateManagedState(unsigned int                        LINE,
 //: Possible values of X:
 //: o V void
 //: o B blsma_Allocator
-//: o T bslma_TestAllocator
+//: o T bslma::TestAllocator
 //:
 //: Possible values of Y:
 //: o V void
@@ -1042,7 +1044,7 @@ struct TestLoadArgs {
                                 // value is 'load'ed or destructor run.
     bool d_useDefault;          // Set to true if the test uses the default
                                 // allocator
-    bslma_TestAllocator *d_ta;  // pointer to a test allocator whose lifetime
+    bslma::TestAllocator *d_ta; // pointer to a test allocator whose lifetime
                                 // will outlast the function call
     unsigned int d_config;      // Valid values are 0-3.
                                 // The low-bit represents whether to pass a
@@ -1133,9 +1135,9 @@ struct Fdflt;
 
 // Policy implementations
 struct Fbsl {
-    typedef bslma_Allocator FactoryType;
+    typedef bslma::Allocator FactoryType;
 
-    static FactoryType *factory(bslma_TestAllocator *f) {
+    static FactoryType *factory(bslma::TestAllocator *f) {
         return f;
     }
 
@@ -1144,9 +1146,9 @@ struct Fbsl {
 };
 
 struct Ftst {
-    typedef bslma_TestAllocator FactoryType;
+    typedef bslma::TestAllocator FactoryType;
 
-    static FactoryType *factory(bslma_TestAllocator *f) {
+    static FactoryType *factory(bslma::TestAllocator *f) {
         return f;
     }
 
@@ -1155,10 +1157,10 @@ struct Ftst {
 };
 
 struct Fdflt {
-    typedef bslma_Allocator FactoryType;
+    typedef bslma::Allocator FactoryType;
 
-    static FactoryType *factory(bslma_TestAllocator *) {
-        return bslma_Default::defaultAllocator();
+    static FactoryType *factory(bslma::TestAllocator *) {
+        return bslma::Default::defaultAllocator();
     }
 
     enum { USE_DEFAULT = true };
@@ -1190,7 +1192,7 @@ struct DObjFac {
         else {
             // Use default allocator as the deleter,
             // ignore the passed factory pointer
-            bslma_Allocator *pDa = bslma_Default::defaultAllocator();
+            bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(object);
         }
     }
@@ -1217,7 +1219,7 @@ struct DObjVoid {
         else {
             // Use default allocator as the deleter,
             // ignore the passed factory pointer
-            bslma_Allocator *pDa = bslma_Default::defaultAllocator();
+            bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(object);
         }
     }
@@ -1269,7 +1271,7 @@ struct DVoidFac {
         else {
             // Use default allocator as the deleter,
             // ignore the passed factory pointer
-            bslma_Allocator *pDa = bslma_Default::defaultAllocator();
+            bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(obj);
         }
     }
@@ -1297,7 +1299,7 @@ struct DVoidVoid {
         else {
             // Use default allocator as the deleter,
             // ignore the passed factory pointer
-            bslma_Allocator *pDa = bslma_Default::defaultAllocator();
+            bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(obj);
         }
     }
@@ -1432,13 +1434,13 @@ void doConstructObject(int callLine, int testLine, int index,
         validateManagedState(L_, testObject, 0, del);
     }
     else {
-        bslma_Allocator& da = *bslma_Default::defaultAllocator();
+        bslma::Allocator& da = *bslma::Default::defaultAllocator();
         pO = new(da)ObjectType(&deleteCount);
         args->d_useDefault = true;
 
         bdema_ManagedPtr<POINTER_TYPE> testObject(pO);
 
-        typedef bdema_ManagedPtr_FactoryDeleter<ObjectType,bslma_Allocator>
+        typedef bdema_ManagedPtr_FactoryDeleter<ObjectType,bslma::Allocator>
                                                                   DeleterClass;
         const bdema_ManagedPtrDeleter del(TestUtil::stripPointerType(pO),
                                           &da,
@@ -1468,7 +1470,7 @@ void doConstructOnullFactory(int callLine, int testLine, int index,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
 
     const bdema_ManagedPtrDeleter del;
@@ -1505,7 +1507,7 @@ void doConstructObjectFactory(int callLine, int testLine, int,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
     FactoryType *pF = nullFactory
@@ -1539,7 +1541,7 @@ void doConstructObjectFactory(int callLine, int testLine, int,
             args->d_useDefault = true;
         }
 
-        bsls_AssertTestHandlerGuard guard;
+        bsls::AssertTestHandlerGuard guard;
 
         ASSERT_SAFE_FAIL_RAW(
                             bdema_ManagedPtr<POINTER_TYPE> testObject(pO, pF));
@@ -1589,7 +1591,7 @@ void doConstructObjectFactoryDzero(int callLine, int testLine, int,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
     FactoryType *pF = nullFactory
@@ -1616,7 +1618,7 @@ void doConstructObjectFactoryDzero(int callLine, int testLine, int,
         }
         const int expectedCount = ObjectPolicy::DELETE_DELTA;
 
-        bsls_AssertTestHandlerGuard guard;
+        bsls::AssertTestHandlerGuard guard;
 
         ASSERT_SAFE_FAIL_RAW(
                     bdema_ManagedPtr<POINTER_TYPE> testObject(pO, pF, nullFn));
@@ -1668,7 +1670,7 @@ void doConstructObjectFactoryDeleter(int callLine, int testLine, int index,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
     FactoryType *pF = nullFactory
@@ -1740,7 +1742,7 @@ void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
     FactoryType *pF = nullFactory
@@ -1812,7 +1814,7 @@ void doConstructObjectFnullDeleter(int callLine, int testLine, int index,
     int deleteCount = 0;
     ObjectType *pO = 0;
     if (!nullObject) {
-        bslma_Allocator *pA = bslma_Default::defaultAllocator();
+        bslma::Allocator *pA = bslma::Default::defaultAllocator();
         pO = new(*pA)ObjectType(&deleteCount);
         args->d_useDefault  = true;
     }
@@ -1942,7 +1944,7 @@ void doLoadObject(int callLine, int testLine, int index,
         args->d_deleteDelta = 0;
     }
     else {
-        bslma_Allocator& da = *bslma_Default::defaultAllocator();
+        bslma::Allocator& da = *bslma::Default::defaultAllocator();
         pO = new(da)ObjectType(&args->d_deleteCount);
         args->d_useDefault = true;
 
@@ -2061,7 +2063,7 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
         if (g_veryVerbose) cout << "\tNegative testing null factory pointer\n";
 
         {
-            bsls_AssertTestHandlerGuard guard;
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_SAFE_FAIL(args->d_p->load(pO, pF));
 
@@ -2148,7 +2150,7 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
         if (g_veryVerbose) cout << "\tNegative testing null factory pointer\n";
 
         {
-            bsls_AssertTestHandlerGuard guard;
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_SAFE_FAIL(args->d_p->load(pO, pF, nullFn));
             ASSERT_SAFE_FAIL(args->d_p->load(pO,  0, nullFn));
@@ -2314,7 +2316,7 @@ void doLoadObjectFnullDeleter(int callLine, int testLine, int index,
 
     ObjectType *pO = 0;
     if (!nullObject) {
-        bslma_Allocator *pA = bslma_Default::defaultAllocator();
+        bslma::Allocator *pA = bslma::Default::defaultAllocator();
         pO = new(*pA)ObjectType(&args->d_deleteCount);
         args->d_useDefault  = true;
         args->d_deleteDelta = ObjectPolicy::DELETE_DELTA;
@@ -2488,19 +2490,19 @@ void testConstructors(int callLine,
     // used the default allocator.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator* ga = dynamic_cast<bslma_TestAllocator *>
-                                            (bslma_Default::globalAllocator());
+    bslma::TestAllocator* ga = dynamic_cast<bslma::TestAllocator *>
+                                           (bslma::Default::globalAllocator());
 
-    bslma_TestAllocator* da = dynamic_cast<bslma_TestAllocator *>
-                                           (bslma_Default::defaultAllocator());
+    bslma::TestAllocator* da = dynamic_cast<bslma::TestAllocator *>
+                                          (bslma::Default::defaultAllocator());
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         for (unsigned config = 0; config != TEST_ARRAY[i].configs(); ++config)
         {
             TestCtorArgs args = { false, config };
 
-            bslma_TestAllocatorMonitor gam(ga);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma::TestAllocatorMonitor gam(ga);
+            bslma::TestAllocatorMonitor dam(da);
 
             args.d_useDefault = false;
 
@@ -2543,25 +2545,25 @@ void testLoadOps(int callLine,
     // used the default allocator.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
-                                           (*bslma_Default::globalAllocator());
+    bslma::TestAllocator& ga = dynamic_cast<bslma::TestAllocator&>
+                                          (*bslma::Default::globalAllocator());
 
-    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
-                                          (*bslma_Default::defaultAllocator());
+    bslma::TestAllocator& da = dynamic_cast<bslma::TestAllocator&>
+                                         (*bslma::Default::defaultAllocator());
 
     TestLoadArgs<TEST_TARGET> args = {};
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
                                                                    ++configI) {
-            bslma_TestAllocatorMonitor gam(&ga);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&ga);
+            bslma::TestAllocatorMonitor dam(&da);
 
             args.d_useDefault = false;
             args.d_config = configI;
 
             {
-                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
                 ASSERT(0 == p.ptr());
 
@@ -2586,10 +2588,10 @@ void testLoadOps(int callLine,
             for (int j = 0; j != TEST_ARRAY_SIZE; ++j) {
                 for (unsigned configJ = 0; configJ != TEST_ARRAY[j].configs();
                                                                    ++configJ) {
-                    bslma_TestAllocatorMonitor dam2(&da);
+                    bslma::TestAllocatorMonitor dam2(&da);
 
-                    bslma_TestAllocator ta("TestLoad 2",
-                                           g_veryVeryVeryVerbose);
+                    bslma::TestAllocator ta("TestLoad 2",
+                                            g_veryVeryVeryVerbose);
 
                     TestPointer p;
                     ASSERT(0 == p.ptr());
@@ -2676,11 +2678,11 @@ void testLoadAliasOps1(int callLine,
     // memory when destroyed by leaving scope.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
-                                           (*bslma_Default::globalAllocator());
+    bslma::TestAllocator& ga = dynamic_cast<bslma::TestAllocator&>
+                                          (*bslma::Default::globalAllocator());
 
-    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
-                                          (*bslma_Default::defaultAllocator());
+    bslma::TestAllocator& da = dynamic_cast<bslma::TestAllocator&>
+                                         (*bslma::Default::defaultAllocator());
 
     int aliasDeleterCount = 0;
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
@@ -2688,15 +2690,15 @@ void testLoadAliasOps1(int callLine,
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
                                                                    ++configI) {
-            bslma_TestAllocatorMonitor gam(&ga);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&ga);
+            bslma::TestAllocatorMonitor dam(&da);
 
             TestLoadArgs<TEST_TARGET> args = {};
             args.d_useDefault = false;
             args.d_config = configI;
 
             {
-                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
                 ASSERT(0 == p.ptr());
 
@@ -2709,9 +2711,9 @@ void testLoadAliasOps1(int callLine,
 
                 // Check that no more memory is allocated or freed.
                 // All operations from here are effectively 'mode' operations.
-                bslma_TestAllocatorMonitor gam2(&ga);
-                bslma_TestAllocatorMonitor dam2(&da);
-                bslma_TestAllocatorMonitor tam2(&ta);
+                bslma::TestAllocatorMonitor gam2(&ga);
+                bslma::TestAllocatorMonitor dam2(&da);
+                bslma::TestAllocatorMonitor tam2(&ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
                 if (g_veryVerbose) cout <<
@@ -2719,7 +2721,7 @@ void testLoadAliasOps1(int callLine,
 
                 TestPointer pAlias;
                 if (0 == p.ptr()) {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
@@ -2728,7 +2730,7 @@ void testLoadAliasOps1(int callLine,
                     LOOP_ASSERT(pAlias.ptr(), 0 == pAlias.ptr());
                 }
                 else {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
@@ -2797,11 +2799,11 @@ void testLoadAliasOps2(int callLine,
     // behavior.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
-                                           (*bslma_Default::globalAllocator());
+    bslma::TestAllocator& ga = dynamic_cast<bslma::TestAllocator&>
+                                          (*bslma::Default::globalAllocator());
 
-    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
-                                          (*bslma_Default::defaultAllocator());
+    bslma::TestAllocator& da = dynamic_cast<bslma::TestAllocator&>
+                                         (*bslma::Default::defaultAllocator());
 
     TestLoadArgs<TEST_TARGET> args = {};
 
@@ -2813,14 +2815,14 @@ void testLoadAliasOps2(int callLine,
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
                                                                    ++configI) {
-            bslma_TestAllocatorMonitor gam(&ga);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&ga);
+            bslma::TestAllocatorMonitor dam(&da);
 
             args.d_useDefault = false;
             args.d_config = configI;
 
             {
-                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
                 ASSERT(0 == p.ptr());
 
@@ -2833,9 +2835,9 @@ void testLoadAliasOps2(int callLine,
 
                 // Check that no more memory is allocated or freed.
                 // All operations from here are effectively 'mode' operations.
-                bslma_TestAllocatorMonitor gam2(&ga);
-                bslma_TestAllocatorMonitor dam2(&da);
-                bslma_TestAllocatorMonitor tam2(&ta);
+                bslma::TestAllocatorMonitor gam2(&ga);
+                bslma::TestAllocatorMonitor dam2(&da);
+                bslma::TestAllocatorMonitor tam2(&ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
                 if (g_veryVerbose) cout <<
@@ -2848,7 +2850,7 @@ void testLoadAliasOps2(int callLine,
                 TestPointer pAlias2;
 
                 if (0 == p.ptr()) {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
@@ -2857,7 +2859,7 @@ void testLoadAliasOps2(int callLine,
                     LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
                 }
                 else {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
@@ -2926,26 +2928,26 @@ void testLoadAliasOps3(int callLine,
     // that all managed objects have been correctly disposed of.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
-                                           (*bslma_Default::globalAllocator());
+    bslma::TestAllocator& ga = dynamic_cast<bslma::TestAllocator&>
+                                          (*bslma::Default::globalAllocator());
 
-    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
-                                          (*bslma_Default::defaultAllocator());
+    bslma::TestAllocator& da = dynamic_cast<bslma::TestAllocator&>
+                                         (*bslma::Default::defaultAllocator());
 
     int aliasDeleterCount = 0;
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         for (int j = 0; j != TEST_ARRAY_SIZE; ++j) {
-            bslma_TestAllocatorMonitor gam(&ga);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&ga);
+            bslma::TestAllocatorMonitor dam(&da);
 
             TestLoadArgs<TEST_TARGET> args = {};
             args.d_useDefault = false;
             args.d_config = 0;  // We need only test a fully defined pointer,
                                 // there are no concerns about null arguments.
             {
-                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
                 ASSERT(0 == p.ptr());
 
@@ -2963,9 +2965,9 @@ void testLoadAliasOps3(int callLine,
 
                 // Check that no more memory is allocated or freed.
                 // All operations from here are effectively 'move' operations.
-                bslma_TestAllocatorMonitor gam2(&ga);
-                bslma_TestAllocatorMonitor dam2(&da);
-                bslma_TestAllocatorMonitor tam2(&ta);
+                bslma::TestAllocatorMonitor gam2(&ga);
+                bslma::TestAllocatorMonitor dam2(&da);
+                bslma::TestAllocatorMonitor tam2(&ta);
 
                 TestPointer pAlias;
                 pAlias.loadAlias(p, &aliasTarget);
@@ -3043,19 +3045,19 @@ void testConstructors(int callLine,
     // used the default allocator.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator* ga = dynamic_cast<bslma_TestAllocator *>
-                                            (bslma_Default::globalAllocator());
+    bslma::TestAllocator* ga = dynamic_cast<bslma::TestAllocator *>
+                                           (bslma::Default::globalAllocator());
 
-    bslma_TestAllocator* da = dynamic_cast<bslma_TestAllocator *>
-                                           (bslma_Default::defaultAllocator());
+    bslma::TestAllocator* da = dynamic_cast<bslma::TestAllocator *>
+                                          (bslma::Default::defaultAllocator());
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         for (unsigned config = 0; config != TEST_ARRAY[i].configs(); ++config)
         {
             TestCtorArgs args = { false, config};
 
-            bslma_TestAllocatorMonitor gam(ga);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma::TestAllocatorMonitor gam(ga);
+            bslma::TestAllocatorMonitor dam(da);
 
             args.d_useDefault = false;
 
@@ -3086,11 +3088,11 @@ void testLoadAliasOps1(int callLine,
     // memory when destroyed by leaving scope.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
-                                           (*bslma_Default::globalAllocator());
+    bslma::TestAllocator& ga = dynamic_cast<bslma::TestAllocator&>
+                                          (*bslma::Default::globalAllocator());
 
-    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
-                                          (*bslma_Default::defaultAllocator());
+    bslma::TestAllocator& da = dynamic_cast<bslma::TestAllocator&>
+                                         (*bslma::Default::defaultAllocator());
 
     int aliasDeleterCount = 0;
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
@@ -3098,15 +3100,15 @@ void testLoadAliasOps1(int callLine,
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
                                                                    ++configI) {
-            bslma_TestAllocatorMonitor gam(&ga);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&ga);
+            bslma::TestAllocatorMonitor dam(&da);
 
             TestLoadArgs<TEST_TARGET> args = {};
             args.d_useDefault = false;
             args.d_config = configI;
 
             {
-                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
                 ASSERT(0 == p.ptr());
 
@@ -3119,9 +3121,9 @@ void testLoadAliasOps1(int callLine,
 
                 // Check that no more memory is allocated or freed.
                 // All operations from here are effectively 'mode' operations.
-                bslma_TestAllocatorMonitor gam2(&ga);
-                bslma_TestAllocatorMonitor dam2(&da);
-                bslma_TestAllocatorMonitor tam2(&ta);
+                bslma::TestAllocatorMonitor gam2(&ga);
+                bslma::TestAllocatorMonitor dam2(&da);
+                bslma::TestAllocatorMonitor tam2(&ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
                 if (g_veryVerbose)
@@ -3129,7 +3131,7 @@ void testLoadAliasOps1(int callLine,
 
                 TestPointer pAlias;
                 if (0 == p.ptr()) {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
@@ -3138,7 +3140,7 @@ void testLoadAliasOps1(int callLine,
                     LOOP_ASSERT(pAlias.ptr(), 0 == pAlias.ptr());
                 }
                 else {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
@@ -3209,11 +3211,11 @@ void testLoadAliasOps2(int callLine,
     // behavior.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
-                                           (*bslma_Default::globalAllocator());
+    bslma::TestAllocator& ga = dynamic_cast<bslma::TestAllocator&>
+                                          (*bslma::Default::globalAllocator());
 
-    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
-                                          (*bslma_Default::defaultAllocator());
+    bslma::TestAllocator& da = dynamic_cast<bslma::TestAllocator&>
+                                         (*bslma::Default::defaultAllocator());
 
     TestLoadArgs<TEST_TARGET> args = {};
 
@@ -3225,14 +3227,14 @@ void testLoadAliasOps2(int callLine,
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
                                                                    ++configI) {
-            bslma_TestAllocatorMonitor gam(&ga);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&ga);
+            bslma::TestAllocatorMonitor dam(&da);
 
             args.d_useDefault = false;
             args.d_config = configI;
 
             {
-                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
                 ASSERT(0 == p.ptr());
 
@@ -3245,9 +3247,9 @@ void testLoadAliasOps2(int callLine,
 
                 // Check that no more memory is allocated or freed.
                 // All operations from here are effectively 'mode' operations.
-                bslma_TestAllocatorMonitor gam2(&ga);
-                bslma_TestAllocatorMonitor dam2(&da);
-                bslma_TestAllocatorMonitor tam2(&ta);
+                bslma::TestAllocatorMonitor gam2(&ga);
+                bslma::TestAllocatorMonitor dam2(&da);
+                bslma::TestAllocatorMonitor tam2(&ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
                 if (g_veryVerbose)
@@ -3260,7 +3262,7 @@ void testLoadAliasOps2(int callLine,
                 TestPointer pAlias2;
 
                 if (0 == p.ptr()) {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
@@ -3269,7 +3271,7 @@ void testLoadAliasOps2(int callLine,
                     LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
                 }
                 else {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
@@ -3340,26 +3342,26 @@ void testLoadAliasOps3(int callLine,
     // that all managed objects have been correctly disposed of.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
-                                           (*bslma_Default::globalAllocator());
+    bslma::TestAllocator& ga = dynamic_cast<bslma::TestAllocator&>
+                                          (*bslma::Default::globalAllocator());
 
-    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
-                                          (*bslma_Default::defaultAllocator());
+    bslma::TestAllocator& da = dynamic_cast<bslma::TestAllocator&>
+                                         (*bslma::Default::defaultAllocator());
 
     int aliasDeleterCount = 0;
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         for (int j = 0; j != TEST_ARRAY_SIZE; ++j) {
-            bslma_TestAllocatorMonitor gam(&ga);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&ga);
+            bslma::TestAllocatorMonitor dam(&da);
 
             TestLoadArgs<TEST_TARGET> args = {};
             args.d_useDefault = false;
             args.d_config = 0;  // We need only test a fully defined pointer,
                                 // there are no concerns about null arguments.
             {
-                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
                 ASSERT(0 == p.ptr());
 
@@ -3377,9 +3379,9 @@ void testLoadAliasOps3(int callLine,
 
                 // Check that no more memory is allocated or freed.
                 // All operations from here are effectively 'move' operations.
-                bslma_TestAllocatorMonitor gam2(&ga);
-                bslma_TestAllocatorMonitor dam2(&da);
-                bslma_TestAllocatorMonitor tam2(&ta);
+                bslma::TestAllocatorMonitor gam2(&ga);
+                bslma::TestAllocatorMonitor dam2(&da);
+                bslma::TestAllocatorMonitor tam2(&ta);
 
                 TestPointer pAlias;
                 pAlias.loadAlias(p, &aliasTarget);
@@ -5491,7 +5493,7 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 // Here we add additional test cases for the deliberately awkward 'composite'
 // case, which does not use a virtual destructor.  Note that we cannot test
 // this on the couple of platforms where we get the wrong answer from the
-// 'bslmf_IsPolymorphic' type trait, as the workaround makes the 'Base' class
+// 'bslmf::IsPolymorphic' type trait, as the workaround makes the 'Base' class
 // ambigious.
 #if defined(BDEMA_TESTVIRTUALINHERITANCE)
 static const TestPolicy<Base> TEST_POLICY_BASE0_ARRAY[] = {
@@ -5640,7 +5642,7 @@ namespace USAGE_EXAMPLES {
 //..
     bdema_ManagedPtr<Shape> makeShape(Shapes::VALUES kind, double dimension)
     {
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bdema_ManagedPtr<Shape> result;
         switch (kind) {
             case Shapes::SHAPE_CIRCLE : {
@@ -5682,11 +5684,11 @@ namespace USAGE_EXAMPLES {
 // default allocator each time.  Note that when we do this, we pass the user's
 // allocator to the 'bdema_ManagedPtr' object as the "factory".
 //..
-    bdema_ManagedPtr<Shape> makeShape(Shapes::VALUES   kind,
-                                      double           dimension,
-                                      bslma_Allocator *allocator)
+    bdema_ManagedPtr<Shape> makeShape(Shapes::VALUES    kind,
+                                      double            dimension,
+                                      bslma::Allocator *allocator)
     {
-        bslma_Allocator *alloc = bslma_Default::allocator(allocator);
+        bslma::Allocator *alloc = bslma::Default::allocator(allocator);
         bdema_ManagedPtr<Shape> result;
         switch (kind) {
         case Shapes::SHAPE_CIRCLE : {
@@ -5707,7 +5709,7 @@ namespace USAGE_EXAMPLES {
 //..
     void testShapesToo()
     {
-        bslma_TestAllocator ta("object");
+        bslma::TestAllocator ta("object");
 
         bdema_ManagedPtr<Shape> shape =
                                      makeShape(Shapes::SHAPE_CIRCLE, 1.0, &ta);
@@ -5760,7 +5762,7 @@ namespace USAGE_EXAMPLES {
     const double END_QUOTE = -1;
 
     bdema_ManagedPtr<double>
-    getFirstQuoteLargerThan(double threshold, bslma_Allocator *allocator)
+    getFirstQuoteLargerThan(double threshold, bslma::Allocator *allocator)
     {
         ASSERT( END_QUOTE < 0 && 0 <= threshold );
 //..
@@ -5799,7 +5801,7 @@ namespace USAGE_EXAMPLES {
 //..
     int aliasExample()
     {
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         bdema_ManagedPtr<double> result = getFirstQuoteLargerThan(16.00, &ta);
         ASSERT(*result > 16.00);
         ASSERT(1 == ta.numBlocksInUse());
@@ -5850,8 +5852,8 @@ namespace USAGE_EXAMPLES {
 //..
     class CountedFactory {
         // DATA
-        int              d_count;
-        bslma_Allocator *d_allocator;
+        int               d_count;
+        bslma::Allocator *d_allocator;
 
         // NOT IMPLEMENTED
         CountedFactory(const CountedFactory&);
@@ -5859,7 +5861,7 @@ namespace USAGE_EXAMPLES {
 
       public:
         // CREATORS
-        explicit CountedFactory(bslma_Allocator *alloc = 0);
+        explicit CountedFactory(bslma::Allocator *alloc = 0);
             // Create a 'CountedFactory' object which uses the supplied
             // allocator 'alloc'.
 
@@ -5894,9 +5896,9 @@ namespace USAGE_EXAMPLES {
 //..
 // Next, we define the operations declared by the class.
 //..
-    CountedFactory::CountedFactory(bslma_Allocator *alloc)
+    CountedFactory::CountedFactory(bslma::Allocator *alloc)
     : d_count(0)
-    , d_allocator(bslma_Default::allocator(alloc))
+    , d_allocator(bslma::Default::allocator(alloc))
     {
     }
 
@@ -5935,7 +5937,7 @@ namespace USAGE_EXAMPLES {
 // Next, we declare a test allocator, and an object of our 'CountedFactory' type
 // using that allocator.
 //..
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         CountedFactory cf(&ta);
 //..
 // Then, we open a new local scope and declare an array of managed pointers.
@@ -6004,10 +6006,10 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 //..
 // If the statements:
 //..
-        bslma_TestAllocator localDefaultTa;
-        bslma_TestAllocator localTa;
+        bslma::TestAllocator localDefaultTa;
+        bslma::TestAllocator localTa;
 
-        bslma_DefaultAllocatorGuard guard(&localDefaultTa);
+        bslma::DefaultAllocatorGuard guard(&localDefaultTa);
 
         int numdels = 0;
 
@@ -6130,7 +6132,7 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 //=============================================================================
 //                  DRQS 30670366
 //-----------------------------------------------------------------------------
-namespace DRQS_30670366_NAMESPACE { 
+namespace DRQS_30670366_NAMESPACE {
 
 
 void testDeleter(int *expectedCookieValue, void *cookie)
@@ -6156,11 +6158,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator da("default", veryVeryVeryVerbose);
-    bslma_Default::setDefaultAllocator(&da);
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&da);
 
     switch (test) { case 0:
       case 21: {
@@ -6176,16 +6178,16 @@ int main(int argc, char *argv[])
         //   Replicated the .
         //
         // Testing:
-        //   
+        //
         // --------------------------------------------------------------------
         using namespace DRQS_30670366_NAMESPACE;
         if (verbose) cout << "\nDRQS 30670366"
                           << "\n-------------" << endl;
-          
+
         {
             int cookie = 100;
-            bdema_ManagedPtr<int> test(&cookie, 
-                                       (void *)&cookie, 
+            bdema_ManagedPtr<int> test(&cookie,
+                                       (void *)&cookie,
                                        &testDeleter);
         }
         {
@@ -6223,8 +6225,8 @@ int main(int argc, char *argv[])
 
             bool castSucceeded;
 
-            bslma_TestAllocator ta("object", veryVeryVeryVerbose);
-            bslma_TestAllocatorMonitor tam(&ta);
+            bslma::TestAllocator ta("object", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
 
             processPolymorphicObject(returnManagedPtr(&numdels, &ta),
                                                                &castSucceeded);
@@ -6323,8 +6325,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tConfirm the deleter can be registered with "
                              "a managed pointer\n";
 
-        bslma_TestAllocatorMonitor gam(&globalAllocator);
-        bslma_TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor gam(&globalAllocator);
+        bslma::TestAllocatorMonitor dam(&da);
 
         int x;
         int y;
@@ -6375,8 +6377,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tConfirm the deleter can be registered with "
                              "a managed pointer\n";
 
-        bslma_TestAllocatorMonitor gam(&globalAllocator);
-        bslma_TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor gam(&globalAllocator);
+        bslma::TestAllocatorMonitor dam(&da);
 
         int x;
         int y;
@@ -6504,7 +6506,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         {
-            bsls_Types::Int64 numDeallocation = da.numDeallocation();
+            bsls::Types::Int64 numDeallocations = da.numDeallocations();
             numDeletes = 0;
             {
                 SS *p = new (da) SS(&numDeletes);
@@ -6516,7 +6518,7 @@ int main(int argc, char *argv[])
                 ASSERT(!strcmp(&(*s).d_buf[5], "meow"));
                 ASSERT(!strcmp(&s->d_buf[5],   "meow"));
             }
-            ASSERT(da.numDeallocation() == numDeallocation + 1);
+            ASSERT(da.numDeallocations() == numDeallocations + 1);
         }
 #endif
 
@@ -6752,7 +6754,7 @@ int main(int argc, char *argv[])
        case 13: {
         // --------------------------------------------------------------------
         // TESTING SWAP
-        // 
+        //
         // Concerns:
         //   Test swap functions.
         //
@@ -6856,8 +6858,8 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            bslma_TestAllocator ta1("object1", veryVeryVeryVerbose);
-            bslma_TestAllocator ta2("object2", veryVeryVeryVerbose);
+            bslma::TestAllocator ta1("object1", veryVeryVeryVerbose);
+            bslma::TestAllocator ta2("object2", veryVeryVeryVerbose);
 
             TObj *p =  new (ta1) MyTestObject(&numDeletes);
             TObj *p2 = new (ta2) MyTestObject(&numDeletes);
@@ -6879,8 +6881,8 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            bslma_TestAllocator ta1("object1", veryVeryVeryVerbose);
-            bslma_TestAllocator ta2("object2", veryVeryVeryVerbose);
+            bslma::TestAllocator ta1("object1", veryVeryVeryVerbose);
+            bslma::TestAllocator ta2("object2", veryVeryVeryVerbose);
 
             int * p3 = new (ta2) int;
             *p3 = 42;
@@ -7082,7 +7084,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 
-        bsls_Types::Int64 numDeallocation = da.numDeallocation();
+        bsls::Types::Int64 numDeallocations = da.numDeallocations();
         numDeletes = 0;
         {
             SS *p = new (da) SS(&numDeletes);
@@ -7093,15 +7095,15 @@ int main(int argc, char *argv[])
             SSObj s(p);
             ChObj c(pc);
 
-            ASSERT(da.numDeallocation() == numDeallocation);
+            ASSERT(da.numDeallocations() == numDeallocations);
             c.loadAlias(s, &p->d_buf[5]);
-            ASSERT(da.numDeallocation() == numDeallocation + 1);
+            ASSERT(da.numDeallocations() == numDeallocations + 1);
 
             ASSERT(!s); // should not be testing operator! until test 13
 
             ASSERT(!std::strcmp(c.ptr(), "meow"));
         }
-        ASSERT(da.numDeallocation() == numDeallocation + 2);
+        ASSERT(da.numDeallocations() == numDeallocations + 2);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -7154,7 +7156,7 @@ int main(int argc, char *argv[])
 
         using namespace CREATORS_TEST_NAMESPACE;
 
-        bslma_TestAllocator ta("object", veryVeryVeryVerbose);
+        bslma::TestAllocator ta("object", veryVeryVeryVerbose);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -7162,8 +7164,8 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
         {
-            bslma_TestAllocatorMonitor gam(&globalAllocator);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&globalAllocator);
+            bslma::TestAllocatorMonitor dam(&da);
 
             int numDeletes = 0;
 
@@ -7250,8 +7252,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tbdema_ManagedPtr(bdema_ManagedPtr &donor)\n";
 
         {
-            bslma_TestAllocatorMonitor gam(&globalAllocator);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&globalAllocator);
+            bslma::TestAllocatorMonitor dam(&da);
 
             g_deleteCount = 0;
             int numDeletes = 0;
@@ -7545,7 +7547,7 @@ int main(int argc, char *argv[])
 
         using namespace CREATORS_TEST_NAMESPACE;
 
-        bslma_TestAllocator ta("object", veryVeryVeryVerbose);
+        bslma::TestAllocator ta("object", veryVeryVeryVerbose);
 
         if (verbose) cout << "\tTest valid pointer passed to void*\n";
 
@@ -7553,11 +7555,11 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             {
                 const int *p = new (da) const int(0);
 
-                bslma_TestAllocatorMonitor dam2(&da);
+                bslma::TestAllocatorMonitor dam2(&da);
                 bdema_ManagedPtr<const int> o(p);
 
                 ASSERT(o.ptr() == p);
@@ -7572,11 +7574,11 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tint -> const int conversion\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             {
                 int *p = new (da) int;
 
-                bslma_TestAllocatorMonitor dam2(&da);
+                bslma::TestAllocatorMonitor dam2(&da);
                 bdema_ManagedPtr<const int> o(p);
 
                 ASSERT(o.ptr() == p);
@@ -7596,7 +7598,7 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
         {
-            bslma_TestAllocatorMonitor tam(&ta);
+            bslma::TestAllocatorMonitor tam(&ta);
 
             MyTestObject obj(&numDeletes);
             Obj o(&obj, 0, &templateNilDelete<MyTestObject>);
@@ -7651,7 +7653,7 @@ int main(int argc, char *argv[])
             bdema_ManagedPtr<int> x(&i, 0);
             bdema_ManagedPtr<int> y( 0, 0);
 
-            bslma_Allocator * pNullAlloc = 0;
+            bslma::Allocator * pNullAlloc = 0;
             bdema_ManagedPtr<int> z(0, pNullAlloc);
         }
 #endif
@@ -7663,7 +7665,7 @@ int main(int argc, char *argv[])
             bdema_ManagedPtr<const int> x(&i, 0);
             bdema_ManagedPtr<int> y( 0, 0);  // allow this?
 
-            bslma_Allocator * pNullAlloc = 0;
+            bslma::Allocator * pNullAlloc = 0;
             bdema_ManagedPtr<const int> z(0, pNullAlloc);  // allow this?
         }
 #endif
@@ -7677,7 +7679,7 @@ int main(int argc, char *argv[])
 
             // These are currently runtime (UB) failures, rather than
             // compile-time errors.
-            bslma_Allocator * pNullAlloc = 0;
+            bslma::Allocator * pNullAlloc = 0;
             bdema_ManagedPtr<const int> z( i, pNullAlloc, 0);
             bdema_ManagedPtr<const int> zz(0, pNullAlloc, 0);  // allow this?
         }
@@ -7730,7 +7732,7 @@ int main(int argc, char *argv[])
         //   (implicit operator!() via operator BoolType())
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator ta("object", veryVeryVeryVerbose);
+        bslma::TestAllocator ta("object", veryVeryVeryVerbose);
 
         if (verbose) cout << "\tTest accessors on empty object\n";
 
@@ -7774,7 +7776,7 @@ int main(int argc, char *argv[])
             TObj *p = new (da) MyTestObject(&numDeletes);
             o.load(p);
             const bdema_ManagedPtrDeleter del(p, &da,
-              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
+             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
             validateManagedState(L_, o, p, del);
 
@@ -7794,7 +7796,7 @@ int main(int argc, char *argv[])
             TObj *p = new (da) MyTestObject(&numDeletes);
             o.load(p);
             const bdema_ManagedPtrDeleter del(p, &da,
-              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
+             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
             validateManagedState(L_, o, p, del);
 
@@ -7814,7 +7816,7 @@ int main(int argc, char *argv[])
             TObj *p = new (da) MyTestObject(&numDeletes);
             o.load(p);
             const bdema_ManagedPtrDeleter del(p, &da,
-              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
+             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
             validateManagedState(L_, o, p, del);
 
@@ -7833,16 +7835,16 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                          "\tTest accessors on simple object using a factory\n";
 
-        bslma_TestAllocatorMonitor tam(&ta);
+        bslma::TestAllocatorMonitor tam(&ta);
         numDeletes = 0;
         {
             Obj o;
             TObj *p = new (ta) MyTestObject(&numDeletes);
             o.load(p, &ta);
             const bdema_ManagedPtrDeleter del(p, &ta,
-              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
+             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
-            bslma_TestAllocatorMonitor tam2(&ta);
+            bslma::TestAllocatorMonitor tam2(&ta);
 
             validateManagedState(L_, o, p, del);
             ASSERT(tam2.isInUseSame());
@@ -7867,9 +7869,9 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) MyTestObject(&numDeletes);
             o.load(p, &ta);
             const bdema_ManagedPtrDeleter del(p, &ta,
-              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
+             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
-            bslma_TestAllocatorMonitor tam2(&ta);
+            bslma::TestAllocatorMonitor tam2(&ta);
 
             validateManagedState(L_, o, p, del);
             ASSERT(tam2.isInUseSame());
@@ -7894,9 +7896,9 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) MyTestObject(&numDeletes);
             o.load(p, &ta);
             const bdema_ManagedPtrDeleter del(p, &ta,
-              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
+             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
-            bslma_TestAllocatorMonitor tam2(&ta);
+            bslma::TestAllocatorMonitor tam2(&ta);
 
             validateManagedState(L_, o, p, del);
             ASSERT(tam2.isInUseSame());
@@ -8234,7 +8236,7 @@ int main(int argc, char *argv[])
         //:   the implicit deleter-function will destroy the pointed-to object
         //:   using the FACTORY::deleteObject (non-static) method.
         //:
-        //: 9 'bslma_Allocator' serves as a valid FACTORY type.
+        //: 9 'bslma::Allocator' serves as a valid FACTORY type.
         //:
         //:10 A custom type offering just the 'deleteObject' (non-virtual)
         //:   member function serves as a valid FACTORY type.
@@ -8294,8 +8296,8 @@ int main(int argc, char *argv[])
         //      OCDeriv
         //
         //   Codes for specific factories are:
-        //      Fbsl   factory is cast to base 'bslma_Allocator'
-        //      Ftst   factory is cast to specific 'bslma_TestAllocator' type
+        //      Fbsl   factory is cast to base 'bslma::Allocator'
+        //      Ftst   factory is cast to specific 'bslma::TestAllocator' type
         //      Fdflt  factory argument is ignored and default allocator used
         //
         //   Each test-function taking an 'Object' parameter will call 'load'
@@ -8447,7 +8449,7 @@ int main(int argc, char *argv[])
             x.load(v, 0);
             x.load(0, v); // We may consider allowing this
 
-            bslma_Allocator * pNullAlloc = 0;
+            bslma::Allocator * pNullAlloc = 0;
             x.load(0, pNullAlloc); // We may consider allowing this
 
             MyDerivedObject * pd = 0;
@@ -8464,7 +8466,7 @@ int main(int argc, char *argv[])
             x.load(i, 0, 0);
             x.load(0, 0, 0); // We may consider allowing this
 
-            bslma_Allocator * pNullAlloc = 0;
+            bslma::Allocator * pNullAlloc = 0;
             x.load(i, pNullAlloc, 0);
             x.load(0, pNullAlloc, 0);  // We may consider allowing this
         }
@@ -8516,7 +8518,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             Obj o;
 
             ASSERT(0 == o.ptr());
@@ -8528,7 +8530,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tvoid type\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<void> o;
 
             ASSERT(0 == o.ptr());
@@ -8540,7 +8542,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<const int> o;
 
             ASSERT(0 == o.ptr());
@@ -8556,7 +8558,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             Obj o(0);
 
             ASSERT(0 == o.ptr());
@@ -8568,7 +8570,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tvoid type\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             VObj o(0);
 
             ASSERT(0 == o.ptr());
@@ -8580,7 +8582,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<const int> o(0);
 
             ASSERT(0 == o.ptr());
@@ -8596,7 +8598,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             Obj o(0, 0);
 
             ASSERT(0 == o.ptr());
@@ -8608,7 +8610,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tvoid type\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             VObj o(0, 0);
 
             ASSERT(0 == o.ptr());
@@ -8620,7 +8622,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<const int> o(0, 0);
 
             ASSERT(0 == o.ptr());
@@ -8636,7 +8638,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             Obj o(0, 0, 0);
 
             ASSERT(0 == o.ptr());
@@ -8648,7 +8650,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tvoid type\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             VObj o(0, 0, 0);
 
             ASSERT(0 == o.ptr());
@@ -8660,7 +8662,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<const int> o(0, 0, 0);
 
             ASSERT(0 == o.ptr());
@@ -8700,8 +8702,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING bdema_ManagedPtr_Ref"
                           << "\n----------------------------" << endl;
 
-        bslma_TestAllocatorMonitor gam(&globalAllocator);
-        bslma_TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor gam(&globalAllocator);
+        bslma::TestAllocatorMonitor dam(&da);
 
         {
             int deleteCount = 0;
@@ -8751,7 +8753,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tNegative testing\n";
 
         {
-            bsls_AssertTestHandlerGuard guard;
+            bsls::AssertTestHandlerGuard guard;
             ASSERT_SAFE_FAIL_RAW(bdema_ManagedPtr_Ref<MyTestObject> nil(0, 0));
         }
 #else
@@ -8837,8 +8839,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest class MyTestObject\n";
 
-        bslma_TestAllocatorMonitor gam(&globalAllocator);
-        bslma_TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor gam(&globalAllocator);
+        bslma::TestAllocatorMonitor dam(&da);
 
         int destructorCount = 0;
         {
@@ -8973,7 +8975,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest copy construction.\n";
 
-        bslma_TestAllocator ta("object", veryVeryVeryVerbose);
+        bslma::TestAllocator ta("object", veryVeryVeryVerbose);
 
         int numDeletes = 0;
         {
@@ -9014,7 +9016,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor tam(&ta);
+            bslma::TestAllocatorMonitor tam(&ta);
 
             Obj x(returnManagedPtr(&numDeletes, &ta)); Obj const &X = x;
 

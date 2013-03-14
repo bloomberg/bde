@@ -2,8 +2,6 @@
 
 #include <bdeimp_voidptrhash.h>
 
-#include <bsls_platformutil.h>                  // for testing only
-
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>

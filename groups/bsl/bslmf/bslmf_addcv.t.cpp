@@ -1,17 +1,15 @@
 // bslmf_addcv.t.cpp                                                  -*-C++-*-
 #include <bslmf_addcv.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
-#include <cstdlib>
-#include <cstdio>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::atoi;
 
 //=============================================================================
 //                                TEST PLAN
@@ -19,12 +17,12 @@ using std::atoi;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function, 'bsl::add_cv', that adds a
-// top-level 'const'-qualifier and a 'volatile'-qualifier to a template
-// parameter type.  Thus, we need to ensure that the values returned by the
-// meta-function is correct for each possible category of types.
+// top-level 'const'-qualifier and a top-level 'volatile'-qualifier to a
+// template parameter type.  Thus, we need to ensure that the values returned
+// by the meta-function are correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
+// PUBLIC TYPES
 // [ 1] bsl::add_cv::type
 //
 // ----------------------------------------------------------------------------
@@ -83,8 +81,8 @@ struct TestType {
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    bool     verbose = argc > 2;
+    bool veryVerbose = argc > 3;
 
     (void) verbose;
     (void) veryVerbose;
@@ -116,7 +114,7 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding a 'const'-qualifier and 'volatile'-qualifier to a Type
+///Example 1: Adding a 'const'-Qualifier and a 'volatile'-Qualifier to a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to add a 'const'-qualifier and a 'volatile'-qualifier
 // to a particular type.
@@ -143,11 +141,11 @@ int main(int argc, char *argv[])
         //   type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::add_cv' adds a top-level 'const'-qualifier and a
+        //: 1 'bsl::add_cv' adds a top-level 'const'-qualifier and a top-level
         //:   'volatile'-qualifier only to regular types (primitive, pointers,
         //:   and user-defined types).
         //:
-        //: 2 'bsl::add_cv' does not add a 'const'-qualifier nor
+        //: 2 'bsl::add_cv' does not add a 'const'-qualifier nor a
         //:   'volatile'-qualifier to reference types, function types, or types
         //:   that are already both 'const'-qualified and 'volatile'-qualified.
         //
@@ -196,10 +194,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

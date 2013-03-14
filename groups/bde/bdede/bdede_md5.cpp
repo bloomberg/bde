@@ -74,7 +74,7 @@
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_platform.h>
 
 #include <bsl_ios.h>
 #include <bsl_ostream.h>
@@ -375,9 +375,9 @@ static void append(unsigned int *state, const unsigned char *data)
     bsl::memset(xArray, 0, sizeof(xArray));
 }
 
-static void padLengthToBuffer(unsigned int      *state,
-                              unsigned char     *buffer,
-                              bsls_Types::Int64  length)
+static void padLengthToBuffer(unsigned int       *state,
+                              unsigned char      *buffer,
+                              bsls::Types::Int64  length)
 {
     // The same as 'int inUse = length % BYTEBLOCKSIZE;'
     int inUse = length & 0x3f;
@@ -406,7 +406,7 @@ static void padLengthToBuffer(unsigned int      *state,
     {
         char *tmp = (char *)&length;
 
-#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
         // We want it in little-endian format, so reverse byte ordering.
         for (int i = 0; i < 8; ++i) {
             buffer[PADLENGTHINDEX + i] = tmp[7 - i];

@@ -186,12 +186,12 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
@@ -220,11 +220,19 @@ class bdec_VoidPtrQueue {
     // using all or part of an object as both source and destination) is
     // supported in all cases.
 
-    void           **d_array_p;// dynamically allocated array (d_size elements)
-    int              d_size;   // physical capacity of this array (in elements)
-    int              d_front;  // index of element before first stored element
-    int              d_back;   // index of element past last stored element
-    bslma_Allocator *d_allocator_p; // holds (but not own) memory allocator
+    void             **d_array_p;      // dynamically allocated array ('d_size'
+                                       // elements)
+
+    int                d_size;         // physical capacity of this array (in
+                                       // elements)
+
+    int                d_front;        // index of element before first stored
+                                       // element
+
+    int                d_back;         // index of element past last stored
+                                       // element
+
+    bslma::Allocator  *d_allocator_p;  // holds (but not own) memory allocator
 
     friend bool operator==(const bdec_VoidPtrQueue& lhs,
                            const bdec_VoidPtrQueue& rhs);
@@ -237,7 +245,7 @@ class bdec_VoidPtrQueue {
 public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdec_VoidPtrQueue,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // TYPES
     struct InitialCapacity {
@@ -256,13 +264,13 @@ public:
 
     // CREATORS
     explicit
-    bdec_VoidPtrQueue(bslma_Allocator *basicAllocator = 0);
+    bdec_VoidPtrQueue(bslma::Allocator *basicAllocator = 0);
     explicit
-    bdec_VoidPtrQueue(unsigned int     initialLength,
-                      bslma_Allocator *basicAllocator = 0);
-    bdec_VoidPtrQueue(unsigned int     initialLength,
-                      void            *initialValue,
-                      bslma_Allocator *basicAllocator = 0);
+    bdec_VoidPtrQueue(unsigned int      initialLength,
+                      bslma::Allocator *basicAllocator = 0);
+    bdec_VoidPtrQueue(unsigned int      initialLength,
+                      void             *initialValue,
+                      bslma::Allocator *basicAllocator = 0);
         // Create an in-place queue.  By default, the queue is empty.
         // Optionally specify the 'initialLength' of the queue.  Queue
         // elements are initialized with the specified 'initialValue', or to
@@ -273,7 +281,7 @@ public:
 
     explicit
     bdec_VoidPtrQueue(const InitialCapacity&  numElements,
-                      bslma_Allocator        *basicAllocator = 0);
+                      bslma::Allocator       *basicAllocator = 0);
         // Create an in-place queue with sufficient initial capacity to
         // accommodate up to the specified 'numElements' values without
         // subsequent reallocation.  A valid reference returned by the
@@ -284,9 +292,9 @@ public:
         // default allocator is used.  The behavior is undefined unless
         // '0 <= numElements'.
 
-    bdec_VoidPtrQueue(void * const    *srcArray,
-                      int              numElements,
-                      bslma_Allocator *basicAllocator = 0);
+    bdec_VoidPtrQueue(void * const     *srcArray,
+                      int               numElements,
+                      bslma::Allocator *basicAllocator = 0);
         // Create an in-place queue initialized with the specified
         // 'numElements' leading values from the specified 'srcArray'.
         // Optionally specify the 'basicAllocator' used to supply memory.
@@ -296,7 +304,7 @@ public:
         // 'numElements' values.
 
     bdec_VoidPtrQueue(const bdec_VoidPtrQueue&  original,
-                      bslma_Allocator          *basicAllocator = 0);
+                      bslma::Allocator         *basicAllocator = 0);
         // Create an in-place queue initialized to the value of the specified
         // 'original' queue.  Optionally specify the 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed

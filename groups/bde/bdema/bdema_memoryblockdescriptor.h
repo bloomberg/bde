@@ -1,4 +1,4 @@
-// bdema_memoryblockdescriptor.h      -*-C++-*-
+// bdema_memoryblockdescriptor.h                                      -*-C++-*-
 #ifndef INCLUDED_BDEMA_MEMORYBLOCKDESCRIPTOR
 #define INCLUDED_BDEMA_MEMORYBLOCKDESCRIPTOR
 
@@ -56,10 +56,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>  // @DEPRECATED
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -78,7 +74,7 @@ class bdema_MemoryBlockDescriptor {
 
   public:
     // PUBLIC TYPES
-    typedef bsls_Types::size_type size_type;  // type for block size
+    typedef bsls::Types::size_type size_type;  // type for block size
 
   private:
     // DATA

@@ -331,20 +331,20 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSL_UTILITY
-#include <bsl_utility.h>        // bsl::pair
+#include <bsl_utility.h>        // 'bsl::pair'
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -366,10 +366,10 @@ class bdepcre_RegEx {
     struct Pcre;  // opaque type for the PCRE library
 
     // PRIVATE DATA
-    int              d_flags;        // prepare/match flags
-    bsl::string      d_pattern;      // regular expression pattern
-    Pcre            *d_pcre_p;       // PCRE's internal data structure (owned)
-    bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+    int               d_flags;        // prepare/match flags
+    bsl::string       d_pattern;      // regular expression pattern
+    Pcre             *d_pcre_p;       // PCRE's internal data structure (owned)
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
     // NOT IMPLEMENTED
     bdepcre_RegEx(const bdepcre_RegEx& original);
@@ -398,7 +398,7 @@ class bdepcre_RegEx {
         // 'prepare' method to effect specific pattern matching behavior.
 
     // CREATORS
-    bdepcre_RegEx(bslma_Allocator *basicAllocator = 0);
+    bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);
         // Create a regular-expression object in the "unprepared" state.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is

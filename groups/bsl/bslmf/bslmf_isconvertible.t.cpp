@@ -4,9 +4,9 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <cstdio>      // 'printf'
-#include <cstdlib>     // 'atoi'
-#include <cstring>     // 'strcmp'
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
+#include <string.h>     // 'strcmp'
 
 // These 4 compilers cannot handle conversions to/from cv-qualified types
 // in all cases.
@@ -18,7 +18,6 @@
 #endif
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -108,7 +107,7 @@ class ConvertibleFrom {
   public:
     // CREATORS
     ConvertibleFrom() : d_value() { }
-    ConvertibleFrom(TYPE value) : d_value(value) { }
+    ConvertibleFrom(TYPE value) : d_value(value) { }                // IMPLICIT
 };
 
 class my_Class {
@@ -119,7 +118,7 @@ class my_Class {
 
   public:
     // CREATORS
-    my_Class(int i) : d_i(i) {}
+    my_Class(int i) : d_i(i) {}                                     // IMPLICIT
 };
 
 class my_OtherClass {
@@ -133,7 +132,7 @@ class my_ThirdClass {
     // This class is convertible from 'my_Class'.
 
   public:
-    my_ThirdClass(const my_Class&);
+    my_ThirdClass(const my_Class&);                                 // IMPLICIT
 };
 
 class my_AbstractClass {
@@ -179,7 +178,7 @@ class my_StlAllocator {
 
   public:
     // CREATORS
-    my_StlAllocator(my_BslmaAllocator*);
+    my_StlAllocator(my_BslmaAllocator*);                            // IMPLICIT
 };
 
 struct my_PlacementNew {
@@ -189,7 +188,7 @@ struct my_PlacementNew {
     void *d_p;
 
     // CREATORS
-    my_PlacementNew(void *p) : d_p(p) {}
+    my_PlacementNew(void *p) : d_p(p) {}                            // IMPLICIT
 };
 
 void *operator new(size_t, my_PlacementNew p)
@@ -299,7 +298,7 @@ int convertToInt(TYPE *object)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
 //  int veryVerbose = argc > 3;
 
@@ -1277,10 +1276,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

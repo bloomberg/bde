@@ -2,9 +2,12 @@
 
 #include <bdecs_hashtable2.h>
 
-#include <bslma_testallocator.h>
-#include <bsls_objectbuffer.h>
 #include <bdet_date.h>
+
+#include <bslma_testallocator.h>
+
+#include <bsls_objectbuffer.h>
+#include <bsls_types.h>
 
 #include <bsl_cmath.h>
 #include <bsl_cstdio.h>
@@ -325,7 +328,7 @@ void testIsNullFootprint(TYPE *ignored)
     typedef TYPE                          Bucket;
     typedef bdecs_HashTable2DefaultTraits Traits;
 
-    bsls_ObjectBuffer<Bucket> d_bucket;
+    bsls::ObjectBuffer<Bucket> d_bucket;
 
     bsl::memset(d_bucket.buffer(), 0, sizeof(Bucket));
     ASSERT(Traits::isNull(d_bucket.object()));
@@ -343,7 +346,7 @@ void testIsRemovedFootprint(TYPE *ignored)
     typedef TYPE                          Bucket;
     typedef bdecs_HashTable2DefaultTraits Traits;
 
-    bsls_ObjectBuffer<Bucket> d_bucket;
+    bsls::ObjectBuffer<Bucket> d_bucket;
 
     bsl::memset(d_bucket.buffer(), 0xFF, sizeof(Bucket));
     ASSERT(Traits::isRemoved(d_bucket.object()));
@@ -477,7 +480,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator testAllocator(testAllocatorVerbosity);
+    bslma::TestAllocator testAllocator(testAllocatorVerbosity);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {
@@ -1651,9 +1654,9 @@ int main(int argc, char *argv[])
                                << "(int hint);'" << bsl::endl;
         {
             static const struct {
-                int                      d_lineNum;
-                bsls_PlatformUtil::Int64 d_hint;
-                unsigned int             d_expected;
+                int                d_lineNum;
+                bsls::Types::Int64 d_hint;
+                unsigned int       d_expected;
             } DATA[] = {
                 //line    hint            expected
                 //----    ----            --------
@@ -1712,9 +1715,9 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                      LINE     = DATA[i].d_lineNum;
-                const bsls_PlatformUtil::Int64 HINT     = DATA[i].d_hint;
-                const unsigned int             EXPECTED = DATA[i].d_expected;
+                const int                LINE     = DATA[i].d_lineNum;
+                const bsls::Types::Int64 HINT     = DATA[i].d_hint;
+                const unsigned int       EXPECTED = DATA[i].d_expected;
 
                 if (veryVerbose) {
                     T_ P_(LINE) P_(HINT) P(EXPECTED)

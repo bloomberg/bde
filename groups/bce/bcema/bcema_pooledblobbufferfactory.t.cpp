@@ -124,8 +124,8 @@ int main(int argc, char *argv[]) {
                           << "\n--------------------------------------\n";
         for (int bufferSize = 1; bufferSize < 32 * sizeof(void*); ++bufferSize)
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard gard(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard gard(&ta);
 
             {
                 int maxLength = 0;

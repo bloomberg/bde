@@ -83,12 +83,16 @@ BDES_IDENT("$Id: $")
 #include <bdex_outstreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -132,15 +136,15 @@ class bael_Predicate {
     // CREATORS
     bael_Predicate(const bdeut_StringRef&  name,
                    int                     value,
-                   bslma_Allocator        *basicAllocator = 0 );
+                   bslma::Allocator       *basicAllocator = 0 );
         // Create a 'bael_Predicate' object having the specified 'name' and
         // 32-bit integer 'value'.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    bael_Predicate(const bdeut_StringRef&    name,
-                   bsls_PlatformUtil::Int64  value,
-                   bslma_Allocator          *basicAllocator = 0 );
+    bael_Predicate(const bdeut_StringRef&  name,
+                   bsls::Types::Int64      value,
+                   bslma::Allocator       *basicAllocator = 0 );
         // Create a 'bael_Predicate' object having the specified 'name' and
         // 64-bit integer 'value'.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently
@@ -148,7 +152,7 @@ class bael_Predicate {
 
     bael_Predicate(const bdeut_StringRef&  name,
                    const char             *value,
-                   bslma_Allocator        *basicAllocator = 0 );
+                   bslma::Allocator       *basicAllocator = 0 );
         // Create a 'bael_Predicate' object having the specified 'name' and
         // character string 'value'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -156,14 +160,14 @@ class bael_Predicate {
 
     bael_Predicate(const bdeut_StringRef&        name,
                    const bael_Attribute::Value&  value,
-                   bslma_Allocator              *basicAllocator = 0 );
+                   bslma::Allocator             *basicAllocator = 0 );
         // Create a 'bael_Attribute' object having the specified (literal)
         // 'name' and 'value'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     bael_Predicate(const bael_Predicate&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a 'bael_Predicate' object having the same name and attribute
         // value as the specified 'original' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -269,16 +273,16 @@ int bael_Predicate::maxSupportedBdexVersion()
 inline
 bael_Predicate::bael_Predicate(const bdeut_StringRef&  name,
                                int                     value,
-                               bslma_Allocator        *basicAllocator)
+                               bslma::Allocator       *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
 , d_attribute(d_nameStr.c_str(), value, basicAllocator)
 {
 }
 
 inline
-bael_Predicate::bael_Predicate(const bdeut_StringRef&    name,
-                               bsls_PlatformUtil::Int64  value,
-                               bslma_Allocator          *basicAllocator)
+bael_Predicate::bael_Predicate(const bdeut_StringRef&  name,
+                               bsls::Types::Int64      value,
+                               bslma::Allocator       *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
 , d_attribute(d_nameStr.c_str(), value, basicAllocator)
 {
@@ -287,7 +291,7 @@ bael_Predicate::bael_Predicate(const bdeut_StringRef&    name,
 inline
 bael_Predicate::bael_Predicate(const bdeut_StringRef&  name,
                                const char             *value,
-                               bslma_Allocator        *basicAllocator)
+                               bslma::Allocator       *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
 , d_attribute(d_nameStr.c_str(), value, basicAllocator)
 {
@@ -296,7 +300,7 @@ bael_Predicate::bael_Predicate(const bdeut_StringRef&  name,
 inline
 bael_Predicate::bael_Predicate(const bdeut_StringRef&        name,
                                const bael_Attribute::Value&  value,
-                               bslma_Allocator              *basicAllocator)
+                               bslma::Allocator             *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
 , d_attribute(d_nameStr.c_str(), value, basicAllocator)
 {
@@ -304,7 +308,7 @@ bael_Predicate::bael_Predicate(const bdeut_StringRef&        name,
 
 inline
 bael_Predicate::bael_Predicate(const bael_Predicate&  original,
-                               bslma_Allocator       *basicAllocator)
+                               bslma::Allocator      *basicAllocator)
 : d_nameStr(original.d_nameStr, basicAllocator)
 , d_attribute(d_nameStr.c_str(), original.d_attribute.value(), basicAllocator)
 {

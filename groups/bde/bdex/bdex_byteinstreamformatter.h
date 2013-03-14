@@ -31,8 +31,8 @@ BDES_IDENT("$Id: $")
 // The supported types and required content are listed in the table below.
 // All of the fundamental types in the table may be input as scalar values or
 // as homogeneous arrays.  'bsl::string' is input as a logical scalar string.
-// Note that 'Int64' and 'Uint64' denote 'bsls_PlatformUtil::Int64' and
-// 'bsls_PlatformUtil::Uint64', which in turn are 'typedef' names for the
+// Note that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
+// 'bsls::Types::Uint64', which in turn are 'typedef' names for the
 // signed and unsigned 64-bit integer types, respectively, on the host
 // platform.
 //..

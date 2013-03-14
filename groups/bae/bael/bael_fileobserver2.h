@@ -211,6 +211,14 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
+#ifndef INCLUDED_BDEF_FUNCTION
+#include <bdef_function.h>
+#endif
+
+#ifndef INCLUDED_BDESU_FDSTREAMBUF
+#include <bdesu_fdstreambuf.h>
+#endif
+
 #ifndef INCLUDED_BDET_DATETIME
 #include <bdet_datetime.h>
 #endif
@@ -219,8 +227,8 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetimeinterval.h>
 #endif
 
-#ifndef INCLUDED_BDEF_FUNCTION
-#include <bdef_function.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_FSTREAM
@@ -233,14 +241,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BDESU_FDSTREAMBUF
-#include <bdesu_fdstreambuf.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -382,7 +382,7 @@ class bael_FileObserver2 : public bael_Observer {
 
   public:
     // CREATORS
-    explicit bael_FileObserver2(bslma_Allocator *basicAllocator = 0);
+    explicit bael_FileObserver2(bslma::Allocator *basicAllocator = 0);
         // Create a file observer with file logging initially disabled.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is

@@ -158,7 +158,8 @@ void aSsErTq(int c, const char *s, int i) {
 #elif BSLS_PLATFORM_CMP_VER_MAJOR>=0x5100
 // We have to skip case 5 for cc-5.10, or the compiler runs out of memory.
 #undef TEST_IS_ENABLED
-#define TEST_IS_ENABLED(num) ((defined(SINGLE_TEST) && SINGLE_TEST == (num)) || (5 != (num)))
+#define TEST_IS_ENABLED(num)                                                  \
+        ((defined(SINGLE_TEST) && SINGLE_TEST == (num)) || (5 != (num)))
 #endif
 #endif
 
@@ -179,8 +180,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 typedef bdem_ElemType ET;
 
-typedef bsls_Types::Int64  Int64;
-typedef bsls_Types::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 static const bool  BOOL_ZERO = false;
 static const bool  BOOL_V1   = true;
@@ -447,7 +448,7 @@ class TestValue<T[NUM_ELEMS]> {
     // The 'isChanged' method conveniently reports if the current value is
     // different from the initial value.
 
-    typedef typename bslmf_RemoveCvq<T>::Type ItemType;
+    typedef typename bslmf::RemoveCvq<T>::Type ItemType;
     typedef ItemType ArrayType[NUM_ELEMS];
     ArrayType d_initial;
     ArrayType d_current;
@@ -1740,7 +1741,7 @@ int main(int argc, char *argv[])
                                << "----------------" << bsl::endl;
 
 #define TIME_FROM_TO(FROM_TYPE, FROM_STR, TO_TYPE, TO_STR, NULL_OR_VAL) {    \
-        bsls_Stopwatch timer;                                                \
+        bsls::Stopwatch timer;                                               \
         int iters = NUM_ITER / 2;                                            \
         int status = bdem_Convert::convert(&x##TO_TYPE,                      \
                                            NULL_OR_VAL##FROM_TYPE);          \
@@ -1904,7 +1905,7 @@ int main(int argc, char *argv[])
                                << "-------------------" << bsl::endl;
 
 #define TIME_FROM_TO(FROM_TYPE, FROM_STR, TO_BDEM, TO_TYPE, TO_STR) {        \
-        bsls_Stopwatch timer;                                                \
+        bsls::Stopwatch timer;                                               \
         int iters = NUM_ITER / 2;                                            \
         int status = bdem_Convert::toBdemType(&x##TO_TYPE,                   \
                                               bdem_ElemType::TO_BDEM,        \
@@ -2027,7 +2028,7 @@ int main(int argc, char *argv[])
                                << "---------------------" << bsl::endl;
 
 #define TIME_FROM_TO(FROM_BDEM, FROM_TYPE, FROM_STR, TO_TYPE, TO_STR) {      \
-        bsls_Stopwatch timer;                                                \
+        bsls::Stopwatch timer;                                               \
         int iters = NUM_ITER / 2;                                            \
         int status = bdem_Convert::fromBdemType(&x##TO_TYPE,                 \
                                                 &val##FROM_TYPE,             \

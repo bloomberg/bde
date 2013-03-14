@@ -83,6 +83,10 @@ BDES_IDENT("$Id: $")
 #include <bdeat_valuetypefunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -101,10 +105,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -132,7 +132,7 @@ class baenet_HttpResponseHeader : public baenet_HttpHeader {
         // containers.
 
     // CREATORS
-    explicit baenet_HttpResponseHeader(bslma_Allocator *basicAllocator = 0);
+    explicit baenet_HttpResponseHeader(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'baenet_HttpResponseHeader' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -140,7 +140,7 @@ class baenet_HttpResponseHeader : public baenet_HttpHeader {
 
     baenet_HttpResponseHeader(
                          const baenet_HttpResponseHeader&  original,
-                         bslma_Allocator                  *basicAllocator = 0);
+                         bslma::Allocator                 *basicAllocator = 0);
         // Create an object of type 'baenet_HttpResponseHeader' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -318,23 +318,23 @@ int baenet_HttpResponseHeader::maxSupportedBdexVersion()
 // CREATORS
 inline
 baenet_HttpResponseHeader::baenet_HttpResponseHeader(
-                                               bslma_Allocator *basicAllocator)
-: d_basicFields(bslma_Default::allocator(basicAllocator))
-, d_responseFields(bslma_Default::allocator(basicAllocator))
-, d_extendedFields(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+: d_basicFields(bslma::Default::allocator(basicAllocator))
+, d_responseFields(bslma::Default::allocator(basicAllocator))
+, d_extendedFields(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 baenet_HttpResponseHeader::baenet_HttpResponseHeader(
         const baenet_HttpResponseHeader& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_basicFields(original.d_basicFields,
-                bslma_Default::allocator(basicAllocator))
+                bslma::Default::allocator(basicAllocator))
 , d_responseFields(original.d_responseFields,
-                   bslma_Default::allocator(basicAllocator))
+                   bslma::Default::allocator(basicAllocator))
 , d_extendedFields(original.d_extendedFields,
-                   bslma_Default::allocator(basicAllocator))
+                   bslma::Default::allocator(basicAllocator))
 {
 }
 

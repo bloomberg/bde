@@ -49,7 +49,7 @@ static void aSsErT(int c, const char *s, int i)
 // operators are in fact called.
 //--------------------------------------------------------------------------
 // [ 2] static bdema_NewDeleteAllocator& singleton();
-// [ 2] static bslma_Allocator *allocator(bslma_Allocator *basicAllocator);
+// [ 2] static bslma::Allocator *allocator(bslma::Allocator *basicAllocator);
 // [ 1] bdema_NewDeleteAllocator();
 // [ 1] ~bdema_NewDeleteAllocator();
 // [ 1] void *allocate(int size);
@@ -68,14 +68,14 @@ class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
     int d_size;       // physical size of the 'd_array_p' array (elements)
     int d_length;     // logical length of the 'd_array_p' array (elements)
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) allocator
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) allocator
 
   private:
     void increaseSize(); // Increase the capacity by at least one element.
 
   public:
     // CREATORS
-    my_ShortArray(bslma_Allocator *basicAllocator = 0);
+    my_ShortArray(bslma::Allocator *basicAllocator = 0);
         // Create a empty array.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, global
         // operators 'new' and 'delete' are used.
@@ -91,7 +91,7 @@ enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 
 // ...
 
-my_ShortArray::my_ShortArray(bslma_Allocator *basicAllocator)
+my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(bdema_NewDeleteAllocator::allocator(basicAllocator))
@@ -124,7 +124,7 @@ inline void my_ShortArray::append(int value)
 
 inline static
 void reallocate(short **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified
     // 'newSize' using the specified 'basicAllocator'.  The specified
     // 'length' number of leading elements are preserved.  Since the
@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   static bdema_NewDeleteAllocator& singleton();
-        //   static bslma_Allocator *allocator(bslma_Allocator *basicAlloc);
+        //   static bslma::Allocator *allocator(bslma::Allocator *basicAlloc);
         //
         //   Make sure that the lifetime of the singleton is sufficient.
         //   Make sure that memory is not leaked.
@@ -396,16 +396,16 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\nTesting 'allocator'." << endl;
         {
-            bslma_Allocator *p = (bslma_Allocator *) 0xDeadBeef;
-            bslma_Allocator *q = &bdema_NewDeleteAllocator::singleton();
+            bslma::Allocator *p = (bslma::Allocator *) 0xDeadBeef;
+            bslma::Allocator *q = &bdema_NewDeleteAllocator::singleton();
 
-            bslma_Allocator *r = bdema_NewDeleteAllocator::allocator(p);
+            bslma::Allocator *r = bdema_NewDeleteAllocator::allocator(p);
             ASSERT(r == p);
 
-            bslma_Allocator *s = bdema_NewDeleteAllocator::allocator(0);
+            bslma::Allocator *s = bdema_NewDeleteAllocator::allocator(0);
             ASSERT(q == s);
 
-            bslma_Allocator *t = bdema_NewDeleteAllocator::allocator(q);
+            bslma::Allocator *t = bdema_NewDeleteAllocator::allocator(q);
             ASSERT(q == t);
         }
 

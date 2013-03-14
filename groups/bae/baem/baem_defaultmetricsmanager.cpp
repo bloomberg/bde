@@ -25,24 +25,24 @@ class baem_Publisher;
 
 // CLASS DATA
 baem_MetricsManager *baem_DefaultMetricsManager::s_singleton_p = 0;
-bslma_Allocator     *baem_DefaultMetricsManager::s_allocator_p = 0;
+bslma::Allocator    *baem_DefaultMetricsManager::s_allocator_p = 0;
 
 // CLASS METHODS
 baem_MetricsManager *baem_DefaultMetricsManager::create(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 {
     BSLS_ASSERT(0 == s_singleton_p);
     BSLS_ASSERT(0 == s_allocator_p);
 
-    s_allocator_p = bslma_Default::globalAllocator(basicAllocator);
+    s_allocator_p = bslma::Default::globalAllocator(basicAllocator);
     s_singleton_p = new (*s_allocator_p) baem_MetricsManager(s_allocator_p);
 
     return s_singleton_p;
 }
 
 baem_MetricsManager *baem_DefaultMetricsManager::create(
-                                              bsl::ostream&    stream,
-                                              bslma_Allocator *basicAllocator)
+                                              bsl::ostream&     stream,
+                                              bslma::Allocator *basicAllocator)
 {
     baem_MetricsManager *defaultManager = create(basicAllocator);
 
@@ -60,7 +60,7 @@ void baem_DefaultMetricsManager::destroy()
     BSLS_ASSERT(0 != s_allocator_p);
 
     baem_MetricsManager *singleton = s_singleton_p;
-    bslma_Allocator     *allocator = s_allocator_p;
+    bslma::Allocator    *allocator = s_allocator_p;
     s_singleton_p = 0;
     s_allocator_p = 0;
 

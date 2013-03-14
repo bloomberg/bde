@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to map integral constants to unique types.
 //
-//@DEPRECATED: Use 'bslstt_integral_constant' instead.
+//@DEPRECATED: Use 'bslmf_integralconstant' instead.
 //
 //@CLASSES:
 //  bslmf::MetaInt: meta-function mapping integral constants to C++ types
@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustates intended usage of this component
+// This section illustrates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -103,12 +103,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_TAG
-#include <bslmf_tag.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_TAG
+#include <bslmf_tag.h>
 #endif
 
 namespace BloombergLP {
@@ -139,7 +139,7 @@ struct MetaInt : public bsl::integral_constant<int, INT_VALUE> {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bsl::integral_constant<int, INT_VALUE>);
+    MetaInt(bsl::integral_constant<int, INT_VALUE>);                // IMPLICIT
         // Convert from a 'bsl::integral_constant<int, INT_VALUE>'.
 
     //! MetaInt(const MetaInt&) = default;
@@ -173,7 +173,7 @@ struct MetaInt<0> : public bsl::false_type {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bsl::false_type);
+    MetaInt(bsl::false_type);                                       // IMPLICIT
         // Convert from a 'bsl::false_type'.
 
     //! MetaInt(const MetaInt&) = default;
@@ -211,7 +211,7 @@ struct MetaInt<1> : public bsl::true_type {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bsl::true_type);
+    MetaInt(bsl::true_type);                                        // IMPLICIT
         // Convert from a 'bsl::true_type'.
 
     //! MetaInt(const MetaInt&) = default;
@@ -313,11 +313,24 @@ MetaInt<1>::operator bool() const
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004-2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

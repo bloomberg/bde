@@ -504,8 +504,8 @@ BDES_IDENT("$Id: $")
 #include <bslmf_isenum.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -609,7 +609,7 @@ namespace bdex_InStreamFunctions {
         // bdex_InStreamFunctions_IsEnumType and
         // bdex_InStreamFunctions_IsNotEnumType to choose the correct function.
 
-        typedef typename bslmf_If<bslmf_IsEnum<TYPE>::VALUE,
+        typedef typename bslmf::If<bslmf::IsEnum<TYPE>::VALUE,
                                   bdex_InStreamFunctions_IsEnumType,
                                   bdex_InStreamFunctions_IsNotEnumType>::Type
                                                                      dummyType;
@@ -787,14 +787,11 @@ namespace bdex_InStreamFunctions {
         return stream;
     }
 
-    // This specialization implements 'streamIn' for
-    // 'bsls_PlatformUtil::Int64'.
+    // This specialization implements 'streamIn' for 'bsls::Types::Int64'.
 
     template <typename STREAM>
     inline
-    STREAM& streamIn(STREAM&                   stream,
-                     bsls_PlatformUtil::Int64& variable,
-                     int)
+    STREAM& streamIn(STREAM& stream, bsls::Types::Int64& variable, int)
         // Assign to the specified 'variable' the value read from the specified
         // input 'stream' using the appropriate 'get' method of 'stream', and
         // return a reference to the modifiable 'stream'.  If 'stream' is
@@ -806,13 +803,11 @@ namespace bdex_InStreamFunctions {
     }
 
     // This specialization implements 'streamIn' for
-    // 'bsls_PlatformUtil::Uint64'.
+    // 'bsls::Types::Uint64'.
 
     template <typename STREAM>
     inline
-    STREAM& streamIn(STREAM&                    stream,
-                     bsls_PlatformUtil::Uint64& variable,
-                     int)
+    STREAM& streamIn(STREAM& stream, bsls::Types::Uint64& variable, int)
         // Assign to the specified 'variable' the value read from the specified
         // input 'stream' using the appropriate 'get' method of 'stream', and
         // return a reference to the modifiable 'stream'.  If 'stream' is
@@ -952,12 +947,12 @@ namespace bdex_InStreamFunctions {
     }
 
     // This specialization implements 'streamIn' for
-    // 'bsl::vector<bsls_PlatformUtil::Int64, ALLOC>'.
+    // 'bsl::vector<bsls::Types::Int64, ALLOC>'.
 
     template <typename STREAM, typename ALLOC>
     inline
-    STREAM& streamIn(STREAM&                                       stream,
-                     bsl::vector<bsls_PlatformUtil::Int64, ALLOC>& variable,
+    STREAM& streamIn(STREAM&                                 stream,
+                     bsl::vector<bsls::Types::Int64, ALLOC>& variable,
                      int)
         // Assign to the specified 'variable' the value read from the specified
         // input 'stream' using the appropriate 'get' method of 'stream', and

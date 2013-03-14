@@ -17,6 +17,7 @@
 #include <bsls_alignmentfromtype.h>
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -67,8 +68,8 @@ using namespace bsl;  // automatically added by script
 //        threads).  This is tested in [ 9].
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bcec_ObjectPool(objectCreator, bslma_Allocator);
-// [ 2] bcec_ObjectPool(objectCreator, numObjects, bslma_Allocator);
+// [ 2] bcec_ObjectPool(objectCreator, bslma::Allocator);
+// [ 2] bcec_ObjectPool(objectCreator, numObjects, bslma::Allocator);
 // [ 2] ~bcec_ObjectPool();
 //
 // MANIPULATORS
@@ -212,12 +213,12 @@ void executeInParallel(int numThreads, bcemt_ThreadUtil::ThreadFunction func)
 struct ConstructorTestHelp3
 {
    // PUBLIC DATA
-   bslma_Allocator     *d_allocator_p;
+   bslma::Allocator    *d_allocator_p;
    int d_resetCount;
    int d_startCount;
 
    // CREATORS
-   ConstructorTestHelp3(int startCount, bslma_Allocator *basicAllocator=0)
+   ConstructorTestHelp3(int startCount, bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
       , d_resetCount(0)
       , d_startCount(startCount)
@@ -237,7 +238,7 @@ struct ConstructorTestHelp3Creator
       : d_count(count)
    {}
 
-   void operator()(void* arena, bslma_Allocator* alloc)
+   void operator()(void* arena, bslma::Allocator * alloc)
    {
       new(arena) ConstructorTestHelp3(d_count, alloc);
    }
@@ -248,7 +249,7 @@ void constructor4(int count, void* arena)
    new(arena) ConstructorTestHelp3(count);
 }
 
-void constructor5(int count, void* arena, bslma_Allocator* basicAllocator)
+void constructor5(int count, void* arena, bslma::Allocator * basicAllocator)
 {
    new(arena) ConstructorTestHelp3(count, basicAllocator);
 }
@@ -256,18 +257,18 @@ void constructor5(int count, void* arena, bslma_Allocator* basicAllocator)
 struct ConstructorTestHelp1a
 {
    // PUBLIC DATA
-   bslma_Allocator      *d_allocator_p; //held
+   bslma::Allocator     *d_allocator_p; //held
    int                   d_resetCount;
 
    // CREATORS
-   ConstructorTestHelp1a(bslma_Allocator *basicAllocator=0)
+   ConstructorTestHelp1a(bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
       , d_resetCount(0)
    {}
 
    // TRAITS
    BSLALG_DECLARE_NESTED_TRAITS(ConstructorTestHelp1a,
-                                bslalg_TypeTraitUsesBslmaAllocator);
+                                bslalg::TypeTraitUsesBslmaAllocator);
 
    // ACCESSORS
    void reset();
@@ -296,21 +297,21 @@ struct ConstructorTestHelp1aCreator
       : d_count(count)
    {}
 
-   void operator()(void* arena, bslma_Allocator* alloc)
+   void operator()(void* arena, bslma::Allocator * alloc)
    {
       new(arena) ConstructorTestHelp1a(alloc);
       ((ConstructorTestHelp1a*)arena)->d_resetCount = d_count;
    }
 };
 
-void createConstructorTestHelp1a(void* arena, bslma_Allocator* alloc)
+void createConstructorTestHelp1a(void* arena, bslma::Allocator * alloc)
 {
     new(arena) ConstructorTestHelp1a(alloc);
 }
 
 int creatorCount1a = 0;
 
-void createConstructorTestHelp1b(void* arena, bslma_Allocator*)
+void createConstructorTestHelp1b(void* arena, bslma::Allocator *)
 {
     new(arena) ConstructorTestHelp1b;
 }
@@ -324,7 +325,7 @@ struct ConstructorTestHelp1aCreator2
       : d_count(count)
    {}
 
-   void operator()(void* arena, bslma_Allocator*)
+   void operator()(void* arena, bslma::Allocator *)
    {
       new(arena) ConstructorTestHelp1a;
       ((ConstructorTestHelp1a*)arena)->d_resetCount = d_count;
@@ -353,16 +354,16 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
    };
 
    struct UsesAllocatorType {
-       bslma_Allocator      *d_allocator_p;
+       bslma::Allocator     *d_allocator_p;
 
        // CREATORS
-       UsesAllocatorType(bslma_Allocator *basicAllocator=0)
+       UsesAllocatorType(bslma::Allocator *basicAllocator=0)
            : d_allocator_p(basicAllocator)
        {}
 
        // TRAITS
        BSLALG_DECLARE_NESTED_TRAITS(UsesAllocatorType,
-                                    bslalg_TypeTraitUsesBslmaAllocator);
+                                    bslalg::TypeTraitUsesBslmaAllocator);
    };
 
 
@@ -430,7 +431,7 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
       }
    };
 
-   inline void createCase13(void *address, bslma_Allocator *,
+   inline void createCase13(void *address, bslma::Allocator *,
                             bces_AtomicInt *created) {
       new (address) Case13Type;
       ++(*created);
@@ -487,8 +488,9 @@ void case13Processor(bcec_ObjectPool<Case13Type> *mX,
 namespace BCEC_OBJECTPOOL_TEST_CASE_12
 {
 
-const char *DEFAULT_STRING_INIT = "A default string, which is larger than what can fit "
-                                  "into the string short buffer";
+const char *DEFAULT_STRING_INIT =
+                         "A default string, which is larger than what can fit "
+                         "into the string short buffer";
 
 static void badCreateString(void *address)
     // Create a 'str::string' object at the specified 'address' in an initial
@@ -499,7 +501,7 @@ static void badCreateString(void *address)
 
 static void createString(void               *address,
                          const bsl::string&  initial,
-                         bslma_Allocator    *allocator)
+                         bslma::Allocator   *allocator)
     // Create a 'str::string' object at the specified 'address' in an initial
     // state equal to the specified 'default' string.  Use the specified
     // 'allocator' to supply memory.  If 'allocator' is 0, the currently
@@ -518,16 +520,16 @@ struct Exception {};
 
 class A
 {
-    int             *d_value_p;
-    bslma_Allocator *d_alloc_p;
+    int              *d_value_p;
+    bslma::Allocator *d_alloc_p;
 
   public:
     static int constructorCount;
     static int destructorCount;
 
-    A(bslma_Allocator *alloc = 0)
+    A(bslma::Allocator *alloc = 0)
     : d_value_p(0)
-    , d_alloc_p(bslma_Default::allocator(alloc))
+    , d_alloc_p(bslma::Default::allocator(alloc))
     {
         d_value_p = (int *) d_alloc_p->allocate(sizeof(int));
         *d_value_p = 1;
@@ -552,9 +554,9 @@ static int createBThrow = 1;
 
 class B
 {
-    A                d_a;
-    int             *d_value_p;
-    bslma_Allocator *d_alloc_p;
+    A                 d_a;
+    int              *d_value_p;
+    bslma::Allocator *d_alloc_p;
 
 public:
     // TRAITS
@@ -563,10 +565,10 @@ public:
     static int constructorCount;
     static int destructorCount;
 
-    B(bslma_Allocator *alloc = 0)
+    B(bslma::Allocator *alloc = 0)
     : d_a(alloc)
     , d_value_p(0)
-    , d_alloc_p(bslma_Default::allocator(alloc))
+    , d_alloc_p(bslma::Default::allocator(alloc))
     {
         if (createBThrow && 0 == --createBThrow) {
             throw Exception();   // destroys 'd_a'
@@ -796,7 +798,7 @@ extern "C"
     void *workerThread6(void *arg)
     {
         my_Class *arr[NUM_OBJECTS];
-        int remainder = (bsls_PlatformUtil::IntPtr)arg % 4;
+        int remainder = (bsls::Types::IntPtr)arg % 4;
 
         // 0-order threads
         if (remainder == 0) {
@@ -940,7 +942,7 @@ extern "C"
     void *workerThread4(void *arg)
     {
         my_Class *arr[NUM_OBJECTS];
-        int remainder = (bsls_PlatformUtil::IntPtr)arg % 2;
+        int remainder = (bsls::Types::IntPtr)arg % 2;
 
         // even numbered threads
         if (remainder == 0) {
@@ -950,7 +952,7 @@ extern "C"
             }
 
             barrier0.wait();
-            if ((bsls_PlatformUtil::IntPtr)arg == 0) {
+            if ((bsls::Types::IntPtr)arg == 0) {
                 int nC; // number of created objects
                 int nA; // number of available objects
                 nC = pool->numObjects();
@@ -1015,7 +1017,7 @@ extern "C"
       }
 
       barrier.wait();
-      if ((bsls_PlatformUtil::IntPtr)arg == 0) {
+      if ((bsls::Types::IntPtr)arg == 0) {
         int nC; // number of created objects
         int nA; // number of available objects
         nC = pool->numObjects();
@@ -1072,7 +1074,7 @@ union ObjectNode {
         ObjectNode                *d_next_p;
         bces_AtomicUtil::Int       d_refCount;
     } d_inUse;
-    bsls_AlignmentFromType<my_CheckingClass>::Type d_dummy;
+    bsls::AlignmentFromType<my_CheckingClass>::Type d_dummy;
 };
 
 union BlockNode {
@@ -1080,7 +1082,7 @@ union BlockNode {
         BlockNode *d_next_p;
         int        d_numObjects;  // number of objects in this block
     } d_inUse;
-    bsls_AlignmentFromType<ObjectNode>::Type d_dummy;
+    bsls::AlignmentFromType<ObjectNode>::Type d_dummy;
 };
 
 enum {
@@ -1193,10 +1195,10 @@ void serverThread(bces_AtomicInt* queries, int max,
 void queryHandler1(Query *query)
     // Handle the specified 'query' without using an objectpool.
 {
-    bsls_PlatformUtil::Int64 t1 = bsls_TimeUtil::getTimer();
+    bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     my_DatabaseConnection connection;
     connection.executeQuery(query);
-    bsls_PlatformUtil::Int64 t2 = bsls_TimeUtil::getTimer();
+    bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
 
     totalResponseTime1 += t2 - t1;
 
@@ -1214,10 +1216,10 @@ extern "C"
 void queryHandler2(Query *query)
         // Handle the specified 'query' using an objectpool.
 {
-    bsls_PlatformUtil::Int64 t1 = bsls_TimeUtil::getTimer();
+    bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     my_DatabaseConnection *connection = connectionPool->getObject();
     connection->executeQuery(query);
-    bsls_PlatformUtil::Int64 t2 = bsls_TimeUtil::getTimer();
+    bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
 
     totalResponseTime2 += t2 - t1;
 
@@ -1315,7 +1317,7 @@ int main(int argc, char *argv[])
          ptr1a = pool1a2b.getObject();
          pool1a2b.releaseObject(ptr1a);
 
-         ASSERT(bslma_Default::allocator() == ptr1a->d_allocator_p);
+         ASSERT(bslma::Default::allocator() == ptr1a->d_allocator_p);
          LOOP_ASSERT(ptr1a->d_resetCount,
                      500 == ptr1a->d_resetCount);
 
@@ -1328,7 +1330,7 @@ int main(int argc, char *argv[])
          ptr1a = pool1a2a.getObject();
          pool1a2a.releaseObject(ptr1a);
 
-         ASSERT(bslma_Default::allocator() == ptr1a->d_allocator_p);
+         ASSERT(bslma::Default::allocator() == ptr1a->d_allocator_p);
          LOOP_ASSERT(ptr1a->d_resetCount,
                      -1000 == ptr1a->d_resetCount);
 
@@ -1582,12 +1584,12 @@ int main(int argc, char *argv[])
         using namespace BCEC_OBJECTPOOL_TEST_CASE_12;
 
         bcema_TestAllocator defaultAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard taGuard(&defaultAlloc);
+        bslma::DefaultAllocatorGuard taGuard(&defaultAlloc);
 
         bcema_TestAllocator ta(veryVeryVerbose);
 
         {
-            bdef_Function<void(*)(void *, bslma_Allocator*)> objectCreator(
+            bdef_Function<void(*)(void *, bslma::Allocator *)> objectCreator(
                                        bdef_BindUtil::bind(&createString,
                                                            _1,
                                                            DEFAULT_STRING_INIT,
@@ -1629,7 +1631,7 @@ int main(int argc, char *argv[])
         using namespace BCEC_OBJECTPOOL_TEST_CASE_11;
 
         bcema_TestAllocator ta(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard taGuard(&ta);
+        bslma::DefaultAllocatorGuard taGuard(&ta);
 
         if (verbose) cout << "\tWith 'getObject'" << endl
                           << "\t----------------" << endl;
@@ -2129,7 +2131,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Initialize pools for various values of replenishment policy.  Use
-        //   'bslma_TestAllocator' as the allocator for each pool.  Do
+        //   'bslma::TestAllocator' as the allocator for each pool.  Do
         //   the following for each pool.
         //   Invoke 'getObject' repeatedly and verify that the correct
         //   number of objects are created.  Verify that all the objects (and
@@ -2149,8 +2151,8 @@ int main(int argc, char *argv[])
         //   using test allocator).
         //
         // Testing:
-        //   bcec_ObjectPool(objectCreator, bslma_Allocator);
-        //   bcec_ObjectPool(objectCreator, numObjects, bslma_Allocator);
+        //   bcec_ObjectPool(objectCreator, bslma::Allocator);
+        //   bcec_ObjectPool(objectCreator, numObjects, bslma::Allocator);
         //   ~bcec_ObjectPool();
         //   TYPE *getObject();
         // --------------------------------------------------------------------
@@ -2181,7 +2183,7 @@ int main(int argc, char *argv[])
             {   0,               1, 2, 4, 8, 16, 32, 32, 32  }
         };
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         bcec_ObjectPool<my_CheckingClass> *pool;
 
         int size = sizeof(DATA)/sizeof(DATA[0]);
@@ -2233,10 +2235,10 @@ int main(int argc, char *argv[])
                     my_CheckingClass *currP = pool->getObject();
 
                     // verify the alignment
-                    int al = bsls_AlignmentFromType<my_CheckingClass>::VALUE;
+                    int al = bsls::AlignmentFromType<my_CheckingClass>::VALUE;
                     LOOP5_ASSERT(i,j,k,
-                        (bsls_PlatformUtil::IntPtr)currP,al,
-                        (bsls_PlatformUtil::IntPtr)currP % al == 0);
+                        (bsls::Types::IntPtr)currP,al,
+                        (bsls::Types::IntPtr)currP % al == 0);
 
                     // verify that successive objects are separated by
                     // 'OBJECT_FRAME_SIZE' bytes.

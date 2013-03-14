@@ -327,7 +327,7 @@ bool checkControl(const int *lhsBitstring,
      int              *d_nullBits_p;        // nullness bit array
      int               d_nullBitsArrayLen;  // length of the nullness bits
                                             // integer array (in words)
-     bslma_Allocator  *d_allocator_p;       // memory allocator
+     bslma::Allocator *d_allocator_p;       // memory allocator
 
      // NOT IMPLEMENTED
      IntArray(const IntArray& original);
@@ -339,7 +339,7 @@ bool checkControl(const int *lhsBitstring,
 
    public:
      // CREATORS
-     explicit IntArray(int size = 0, bslma_Allocator *basicAllocator = 0);
+     explicit IntArray(int size = 0, bslma::Allocator *basicAllocator = 0);
          // Construct an 'int' array.  Optionally specify 'size' elements
          // initialized to '0' that would be the initial size of the
          // array.  Optionally specify a 'basicAllocator' used to supply
@@ -412,10 +412,10 @@ bool checkControl(const int *lhsBitstring,
                                     (d_nullBitsArrayLen + 1) * sizeof(int));
          if (d_nullBitsArrayLen > 0) {
              bdeu_BitstringUtil::copyRaw(newBitArray,
-                                          0,
-                                          d_nullBits_p,
-                                          0,
-                                          d_nullBitsArrayLen * BITS_PER_INT);
+                                         0,
+                                         d_nullBits_p,
+                                         0,
+                                         d_nullBitsArrayLen * BITS_PER_INT);
              d_allocator_p->deallocate(d_nullBits_p);
          }
          ++d_nullBitsArrayLen;
@@ -423,11 +423,11 @@ bool checkControl(const int *lhsBitstring,
      }
 
      // CREATORS
-     IntArray::IntArray(int size, bslma_Allocator *basicAllocator)
+     IntArray::IntArray(int size, bslma::Allocator *basicAllocator)
      : d_values(size, 0, basicAllocator)
      , d_nullBits_p(0)
      , d_nullBitsArrayLen(0)
-     , d_allocator_p(bslma_Default::allocator(basicAllocator))
+     , d_allocator_p(bslma::Default::allocator(basicAllocator))
      {
          d_nullBitsArrayLen = (size + BITS_PER_INT - 1) / BITS_PER_INT;
          d_nullBits_p       = (int *) d_allocator_p->allocate(

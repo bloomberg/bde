@@ -17,7 +17,7 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component provides an allocator, 'bcema_TestAllocator'
-// and implements the 'bslma_Allocator' protocol and bypasses global operators
+// and implements the 'bslma::Allocator' protocol and bypasses global operators
 // 'new' and 'delete', instead calling the 'C' library functions 'malloc' and
 // 'free' directly.  If exceptions are enabled, this allocator can be
 // configured to throw an exception after the number of allocation requests
@@ -40,9 +40,9 @@ BDES_IDENT("$Id: $")
 //             |         setQuiet/isQuiet
 //             |         setVerbose/isVerbose
 //             V
-//     ,---------------.
-//    ( bslma_Allocator )
-//     `---------------'
+//     ,----------------.
+//    ( bslma::Allocator )
+//     `----------------'
 //                     allocate
 //                     deallocate
 //..
@@ -95,7 +95,7 @@ BDES_IDENT("$Id: $")
 ///USAGE
 ///-----
 // The 'bcema_TestAllocator' object defined in this component can be used to
-// test other objects that take a 'bslma_Allocator' (e.g., at construction).
+// test other objects that take a 'bslma::Allocator' (e.g., at construction).
 // The following code example illustrates how to verify that an object under
 // test (e.g., 'my_ShortArray') is exception neutral:
 //..
@@ -206,7 +206,7 @@ namespace BloombergLP {
                         // class bcema_TestAllocator
                         // =========================
 
-class bcema_TestAllocator : public bslma_Allocator {
+class bcema_TestAllocator : public bslma::Allocator {
     // This class provides an allocator that DOES NOT USE global operators
     // 'new' or 'delete' at all, but instead uses 'malloc' and 'free' directly.
     // This allocator object also tracks the number of blocks (and bytes) that
@@ -219,10 +219,10 @@ class bcema_TestAllocator : public bslma_Allocator {
     // in use).
 
     // DATA
-    bslma_TestAllocator d_imp;    // thread unsafe test allocator
+    bslma::TestAllocator d_imp;    // thread unsafe test allocator
 
-    mutable bcemt_Mutex d_mutex;  // mutex used to synchronize access to this
-                                  // object
+    mutable bcemt_Mutex  d_mutex;  // mutex used to synchronize access to this
+                                   // object
 
     // FRIENDS
     friend bsl::ostream& operator<<(bsl::ostream&, const bcema_TestAllocator&);
@@ -234,29 +234,30 @@ class bcema_TestAllocator : public bslma_Allocator {
   public:
     // CREATORS
     explicit
-    bcema_TestAllocator(bslma_Allocator *basicAllocator = 0);
+    bcema_TestAllocator(bslma::Allocator *basicAllocator = 0);
         // Create a test allocator.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the
-        // 'bslma_MallocFreeAllocator' singleton is used.
+        // 'bslma::MallocFreeAllocator' singleton is used.
 
     explicit
-    bcema_TestAllocator(bool verboseFlag, bslma_Allocator *basicAllocator = 0);
+    bcema_TestAllocator(bool              verboseFlag,
+                        bslma::Allocator *basicAllocator = 0);
         // Create a test allocator with the specified 'verboseFlag' -- i.e.,
         // whether this test allocator should write allocation/deallocation
         // messages to 'stdout'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the
-        // 'bslma_MallocFreeAllocator' singleton is used.
+        // 'bslma::MallocFreeAllocator' singleton is used.
 
-    bcema_TestAllocator(const char      *name,
-                        bool             verboseFlag,
-                        bslma_Allocator *basicAllocator = 0);
+    bcema_TestAllocator(const char       *name,
+                        bool              verboseFlag,
+                        bslma::Allocator *basicAllocator = 0);
         // Create a test allocator having the specified 'name' with the
         // specified 'verboseFlag' -- i.e., whether this test allocator should
         // write allocation/deallocation messages to 'stdout'.  The 'name' is
         // included in messages written to 'stdout' to distinguish this test
         // allocator from other test allocators that may be used in the same
         // program.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the 'bslma_MallocFreeAllocator'
+        // memory.  If 'basicAllocator' is 0, the 'bslma::MallocFreeAllocator'
         // singleton is used.  The behavior is undefined unless the lifetime of
         // 'name' exceeds that of this test allocator.
 
@@ -268,7 +269,7 @@ class bcema_TestAllocator : public bslma_Allocator {
         // return non-zero unless in no-abort mode or quiet mode.  Note that,
         // in all cases, destroying this object has no effect on outstanding
         // memory blocks allocated from this test allocator (and may result in
-        // memory leaks -- e.g., if the (default) 'bslma_MallocFreeAllocator'
+        // memory leaks -- e.g., if the (default) 'bslma::MallocFreeAllocator'
         // singleton was used).
 
     // MANIPULATORS
@@ -320,7 +321,7 @@ class bcema_TestAllocator : public bslma_Allocator {
         // 'stdout', as will accumulated statistics upon destruction of this
         // object.  Note that the default mode is *not* verbose.
 
-    void setAllocationLimit(bsls_Types::Int64 limit);
+    void setAllocationLimit(bsls::Types::Int64 limit);
         // Set the number of valid allocation requests before an exception is
         // to be thrown to the specified 'limit'.  If 'limit' is less than 0,
         // no exception is to be thrown.  By default, no exception is
@@ -345,39 +346,39 @@ class bcema_TestAllocator : public bslma_Allocator {
         // events will be reported on 'stdout', as will summary statistics
         // upon destruction of this object.
 
-    bsls_Types::Int64 numBytesInUse() const;
+    bsls::Types::Int64 numBytesInUse() const;
         // Return the number of bytes currently allocated from this object.
         // Note that 'numBytesInUse() <= numBytesMax()'.
 
-    bsls_Types::Int64 numBlocksInUse() const;
+    bsls::Types::Int64 numBlocksInUse() const;
         // Return the number of blocks currently allocated from this object.
         // Note that 'numBlocksInUse() <= numBlocksMax()'.
 
-    bsls_Types::Int64 numBytesMax() const;
+    bsls::Types::Int64 numBytesMax() const;
         // Return the maximum number of bytes ever allocated from this object
         // at any one time.  Note that
         // 'numBytesInUse() <= numBytesMax() <= numBytesTotal()'.
 
-    bsls_Types::Int64 numBlocksMax() const;
+    bsls::Types::Int64 numBlocksMax() const;
         // Return the maximum number of blocks ever allocated from this object
         // at any one time.  Note that
         // 'numBlocksInUse() <= numBlocksMax() <= numBlocksTotal()'.
 
-    bsls_Types::Int64 numBytesTotal() const;
+    bsls::Types::Int64 numBytesTotal() const;
         // Return the cumulative number of bytes ever allocated from this
         // object.  Note that 'numBytesMax() <= numBytesTotal()'.
 
-    bsls_Types::Int64 numBlocksTotal() const;
+    bsls::Types::Int64 numBlocksTotal() const;
         // Return the cumulative number of blocks ever allocated from this
         // object.  Note that 'numBlocksMax() <= numBlocksTotal()'.
 
-    bsls_Types::Int64 numMismatches() const;
+    bsls::Types::Int64 numMismatches() const;
         // Return the number of mismatched memory deallocations that have
         // occurred since this object was created.  A memory deallocation is
         // *mismatched* if that memory was not allocated directly from this
         // allocator.
 
-    bsls_Types::Int64 numBoundsErrors() const;
+    bsls::Types::Int64 numBoundsErrors() const;
         // Return the number of times memory deallocations have detected that
         // pad areas at the front or back of the user segment had been
         // overwritten.
@@ -391,7 +392,7 @@ class bcema_TestAllocator : public bslma_Allocator {
         // define the criteria for an abort at destruction if quiet mode has
         // not been set.
 
-    bsls_Types::Int64 allocationLimit() const;
+    bsls::Types::Int64 allocationLimit() const;
         // Return the current number of allocation requests left before an
         // exception is thrown.  A negative value indicated that no exception
         // is scheduled.
@@ -416,12 +417,12 @@ class bcema_TestAllocator : public bslma_Allocator {
         // Note that the address is always recorded regardless of the validity
         // of the request.
 
-    bsls_Types::Int64 numAllocations() const;
+    bsls::Types::Int64 numAllocations() const;
         // Return the cumulative number of allocation requests.  Note that this
         // number is incremented for every 'allocate' invocation, regardless of
         // the validity of the request.
 
-    bsls_Types::Int64 numDeallocations() const;
+    bsls::Types::Int64 numDeallocations() const;
         // Return the cumulative number of deallocation requests.  Note that
         // this number is incremented for every 'deallocate' invocation,
         // regardless of the validity of the request.
@@ -464,14 +465,14 @@ class bcema_TestAllocator : public bslma_Allocator {
         //
         // DEPRECATED: use 'lastDeallocatedNumBytes' instead.
 
-    bsls_Types::Int64 numAllocation() const;
+    bsls::Types::Int64 numAllocation() const;
         // Return the cumulative number of allocation requests.  Note that this
         // number is incremented for every 'allocate' invocation, regardless of
         // the validity of the request.
         //
         // DEPRECATED: use 'numAllocations' instead.
 
-    bsls_Types::Int64 numDeallocation() const;
+    bsls::Types::Int64 numDeallocation() const;
         // Return the cumulative number of deallocation requests.  Note that
         // this number is incremented for every 'deallocate' invocation,
         // regardless of the validity of the request.
@@ -499,22 +500,22 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bcema_TestAllocator& rhs);
 
 // CREATORS
 inline
-bcema_TestAllocator::bcema_TestAllocator(bslma_Allocator *basicAllocator)
+bcema_TestAllocator::bcema_TestAllocator(bslma::Allocator *basicAllocator)
 : d_imp(basicAllocator)
 {
 }
 
 inline
-bcema_TestAllocator::bcema_TestAllocator(bool             verboseFlag,
-                                         bslma_Allocator *basicAllocator)
+bcema_TestAllocator::bcema_TestAllocator(bool              verboseFlag,
+                                         bslma::Allocator *basicAllocator)
 : d_imp(verboseFlag, basicAllocator)
 {
 }
 
 inline
-bcema_TestAllocator::bcema_TestAllocator(const char      *name,
-                                         bool             verboseFlag,
-                                         bslma_Allocator *basicAllocator)
+bcema_TestAllocator::bcema_TestAllocator(const char       *name,
+                                         bool              verboseFlag,
+                                         bslma::Allocator *basicAllocator)
 : d_imp(name, verboseFlag, basicAllocator)
 {
 }
@@ -558,7 +559,7 @@ void bcema_TestAllocator::setVerbose(bool flagValue)
 }
 
 inline
-void bcema_TestAllocator::setAllocationLimit(bsls_Types::Int64 limit)
+void bcema_TestAllocator::setAllocationLimit(bsls::Types::Int64 limit)
 {
     d_imp.setAllocationLimit(limit);
 }
@@ -583,49 +584,49 @@ bool bcema_TestAllocator::isVerbose() const
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numBlocksInUse() const
+bsls::Types::Int64 bcema_TestAllocator::numBlocksInUse() const
 {
     return d_imp.numBlocksInUse();
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numBytesInUse() const
+bsls::Types::Int64 bcema_TestAllocator::numBytesInUse() const
 {
     return d_imp.numBytesInUse();
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numBlocksMax() const
+bsls::Types::Int64 bcema_TestAllocator::numBlocksMax() const
 {
     return d_imp.numBlocksMax();
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numBytesMax() const
+bsls::Types::Int64 bcema_TestAllocator::numBytesMax() const
 {
     return d_imp.numBytesMax();
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numBlocksTotal() const
+bsls::Types::Int64 bcema_TestAllocator::numBlocksTotal() const
 {
     return d_imp.numBlocksTotal();
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numBytesTotal() const
+bsls::Types::Int64 bcema_TestAllocator::numBytesTotal() const
 {
     return d_imp.numBytesTotal();
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numMismatches() const
+bsls::Types::Int64 bcema_TestAllocator::numMismatches() const
 {
     return d_imp.numMismatches();
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numBoundsErrors() const
+bsls::Types::Int64 bcema_TestAllocator::numBoundsErrors() const
 {
     return d_imp.numBoundsErrors();
 }
@@ -638,7 +639,7 @@ int bcema_TestAllocator::status() const
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::allocationLimit() const
+bsls::Types::Int64 bcema_TestAllocator::allocationLimit() const
 {
     return d_imp.allocationLimit();
 }
@@ -670,13 +671,13 @@ void *bcema_TestAllocator::lastDeallocatedAddress() const
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numAllocations() const
+bsls::Types::Int64 bcema_TestAllocator::numAllocations() const
 {
     return d_imp.numAllocations();
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numDeallocations() const
+bsls::Types::Int64 bcema_TestAllocator::numDeallocations() const
 {
     return d_imp.numDeallocations();
 }
@@ -721,13 +722,13 @@ bcema_TestAllocator::lastDeallocateNumBytes() const
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numAllocation() const
+bsls::Types::Int64 bcema_TestAllocator::numAllocation() const
 {
     return numAllocations();
 }
 
 inline
-bsls_Types::Int64 bcema_TestAllocator::numDeallocation() const
+bsls::Types::Int64 bcema_TestAllocator::numDeallocation() const
 {
     return numDeallocations();
 }

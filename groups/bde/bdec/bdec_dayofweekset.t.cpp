@@ -2,8 +2,6 @@
 
 #include <bdec_dayofweekset.h>
 
-#include <bsls_platformutil.h>                  // for testing only
-
 #include <bdex_instreamfunctions.h>             // for testing only
 #include <bdex_outstreamfunctions.h>            // for testing only
 #include <bdex_testoutstream.h>                 // for testing only

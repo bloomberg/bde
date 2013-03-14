@@ -61,7 +61,7 @@ BDES_IDENT("$Id: $")
 //..
 // we can bind the parameters of 'invocable' to the following arguments:
 //..
-//  void bindTest(bslma_Allocator *allocator = 0) {
+//  void bindTest(bslma::Allocator *allocator = 0) {
 //      bcef_BindUtil::bind(allocator,                 // allocator,
 //                          &invocable,                // bound object and
 //                          10, 14, (const char*)"p3") // bound arguments
@@ -88,7 +88,7 @@ BDES_IDENT("$Id: $")
 //..
 // The creation of the binder is as follows:
 //..
-//  void bindTest1(bslma_Allocator *allocator = 0) {
+//  void bindTest1(bslma::Allocator *allocator = 0) {
 //      callBinder(bcef_BindUtil::bind(allocator,
 //                                     &invocable,
 //                                     _1, _2, someString));
@@ -112,7 +112,7 @@ BDES_IDENT("$Id: $")
 // that argument one (10) of the binder is passed as parameter two
 // and argument two (14) is passed as (i.e., bound to) parameter one:
 //..
-//  void bindTest2(bslma_Allocator *allocator = 0) {
+//  void bindTest2(bslma::Allocator *allocator = 0) {
 //      callBinder(bcef_BindUtil::bind(allocator,
 //                                     &invocable,
 //                                     _2, _1, someString));
@@ -134,7 +134,7 @@ BDES_IDENT("$Id: $")
 //      return (x > 0) ? x : -x;
 //  }
 //
-//  void bindTest3(bslma_Allocator *allocator = 0) {
+//  void bindTest3(bslma::Allocator *allocator = 0) {
 //      using namespace bdef_PlaceHolders;
 //      ASSERT( 24 == bcef_BindUtil::bind(allocator, &test1, _1, _2)(10, 14) );
 //      ASSERT( 24 == bcef_BindUtil::bind(allocator, &test1, _1, 14)(10) );
@@ -191,7 +191,7 @@ BDES_IDENT("$Id: $")
 //      ASSERT(14 == binder(identityFunctionWithSideEffects(10), 14));
 //  }
 //
-//  void bindTest4(bslma_Allocator *allocator = 0) {
+//  void bindTest4(bslma::Allocator *allocator = 0) {
 //      marker = 0;
 //      callBinderWithSideEffects1(bcef_BindUtil::bind(allocator,
 //                                                     &singleArgumentFunction,
@@ -225,7 +225,7 @@ BDES_IDENT("$Id: $")
 //      ASSERT(20 == RET2);
 //  }
 //
-//  void bindTest5(bslma_Allocator *allocator = 0) {
+//  void bindTest5(bslma::Allocator *allocator = 0) {
 //      marker = 0;
 //      callBinderWithSideEffects2(bcef_BindUtil::bind(allocator,
 //                                                     &doubleArgumentFunction,
@@ -267,24 +267,24 @@ BDES_IDENT("$Id: $")
 //..
 //  class MyString {
 //      // PRIVATE INSTANCE DATA
-//      bslma_Allocator *d_allocator_p;
-//      char            *d_string_p;
+//      bslma::Allocator *d_allocator_p;
+//      char             *d_string_p;
 //
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(MyString,
-//                                         bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      //CREATORS
-//      MyString(const char *str, bslma_Allocator *allocator = 0)
-//      : d_allocator_p(bslma_Default::allocator(allocator))
+//      MyString(const char *str, bslma::Allocator *allocator = 0)
+//      : d_allocator_p(bslma::Default::allocator(allocator))
 //      , d_string_p((char*)d_allocator_p->allocate(strlen(str)))
 //      {
 //          strcpy(d_string_p, str);
 //      }
 //
-//      MyString(MyString const& rhs, bslma_Allocator *allocator = 0)
-//      : d_allocator_p(bslma_Default::allocator(allocator))
+//      MyString(MyString const& rhs, bslma::Allocator *allocator = 0)
+//      : d_allocator_p(bslma::Default::allocator(allocator))
 //      , d_string_p((char*)d_allocator_p->allocate(strlen(rhs)))
 //      {
 //          strcpy(d_string_p, rhs);
@@ -298,21 +298,21 @@ BDES_IDENT("$Id: $")
 //      operator const char*() const { return d_string_p; }
 //  };
 //..
-// We will also use a 'bslma_TestAllocator' to keep track of the memory
+// We will also use a 'bslma::TestAllocator' to keep track of the memory
 // allocated:
 //..
 //  void bindTest6() {
-//      bslma_TestAllocator allocator;
+//      bslma::TestAllocator allocator;
 //      MyString myString((const char*)"p3", &allocator);
-//      const int NUM_ALLOCS = allocator.numAllocation();
+//      const int NUM_ALLOCS = allocator.numAllocations();
 //..
 // To expose that the default allocator is not used, we will use a default
 // allocator guard, which will re-route any default allocation to the
 // 'defaultAllocator':
 //..
-//      bslma_TestAllocator defaultAllocator;
-//      bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
-//      const int NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocation();
+//      bslma::TestAllocator defaultAllocator;
+//      bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+//      const int NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 //..
 // We now create a binder object with allocator using 'bindA'.  If the bound
 // object were an instance of a class taking an allocator, then 'allocator'
@@ -327,8 +327,8 @@ BDES_IDENT("$Id: $")
 // We now check that memory was allocated from the test allocator, and none
 // from the default allocator:
 //..
-//      ASSERT(NUM_ALLOCS != allocator.numAllocation());
-//      ASSERT(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocation());
+//      ASSERT(NUM_ALLOCS != allocator.numAllocations());
+//      ASSERT(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
 //  }
 //..
 //
@@ -407,7 +407,7 @@ BDES_IDENT("$Id: $")
 //      // Do something ...
 //  }
 //
-//  void myMainLoop(bslma_Allocator *allocator = 0)
+//  void myMainLoop(bslma::Allocator *allocator = 0)
 //  {
 //      MyEventScheduler sched(bcef_BindUtil::bind(allocator,
 //                                                 &myCallback, _1, _2));
@@ -426,7 +426,7 @@ BDES_IDENT("$Id: $")
 //      // Do something ...
 //  }
 //
-//  void myMainLoop2(bslma_Allocator *allocator = 0)
+//  void myMainLoop2(bslma::Allocator *allocator = 0)
 //  {
 //      MyEventScheduler sched(bcef_BindUtil::bind(allocator,
 //                                                 &myCallbackWithUserArgs,
@@ -446,7 +446,7 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //
-//  void myMainLoop3(bslma_Allocator *allocator = 0)
+//  void myMainLoop3(bslma::Allocator *allocator = 0)
 //  {
 //      MyEventScheduler sched(bcef_BindUtil::bind(allocator,
 //                      &myCallbackWithUserArgsReordered, _1, 360, 3.14, _2));
@@ -462,7 +462,7 @@ BDES_IDENT("$Id: $")
 //      // Do something ...
 //  }
 //
-//  void myMainLoop4(bslma_Allocator *allocator = 0)
+//  void myMainLoop4(bslma::Allocator *allocator = 0)
 //  {
 //      MyEventScheduler sched(bcef_BindUtil::bind(allocator,
 //                                        &myCallbackThatDiscardsResult, _2));
@@ -487,7 +487,7 @@ BDES_IDENT("$Id: $")
 //      }
 //  };
 //
-//  void myMainLoop5(bslma_Allocator *allocator = 0)
+//  void myMainLoop5(bslma::Allocator *allocator = 0)
 //  {
 //      MyCallbackObject obj;
 //      MyEventScheduler sched(bcef_BindUtil::bind(allocator, obj, _1, _2));
@@ -499,7 +499,7 @@ BDES_IDENT("$Id: $")
 // The following example reuses the 'MyCallbackObject' of the previous example,
 // but illustrates that it can be passed by reference as well as by value:
 //..
-//  void myMainLoop6(bslma_Allocator *allocator = 0)
+//  void myMainLoop6(bslma::Allocator *allocator = 0)
 //  {
 //      MyCallbackObject obj;
 //      MyEventScheduler sched(bcef_BindUtil::bind(allocator, &obj, _1, _2));
@@ -522,7 +522,7 @@ BDES_IDENT("$Id: $")
 //      }
 //  };
 //
-//  void myMainLoop7(bslma_Allocator *allocator = 0)
+//  void myMainLoop7(bslma::Allocator *allocator = 0)
 //  {
 //      MyStatefulObject obj;
 //      MyEventScheduler sched(bcef_BindUtil::bind(allocator,
@@ -541,7 +541,7 @@ BDES_IDENT("$Id: $")
 //      return event;
 //  }
 //
-//  void myMainLoop8(bslma_Allocator *allocator = 0)
+//  void myMainLoop8(bslma::Allocator *allocator = 0)
 //  {
 //      MyCallbackObject obj;
 //      MyEventScheduler sched(
@@ -568,7 +568,7 @@ BDES_IDENT("$Id: $")
 //      }
 //  };
 //
-//  void myMainLoop9(bslma_Allocator *allocator = 0)
+//  void myMainLoop9(bslma::Allocator *allocator = 0)
 //  {
 //      MyCallbackObjectWithoutResultType obj;
 //      MyEventScheduler sched(bcef_BindUtil::bindR<GlobalResultType>(
@@ -583,7 +583,7 @@ BDES_IDENT("$Id: $")
 // function of section "Elementary construction and usage of 'bdef_Bind'
 // objects" above can be bound to 'printf':
 //..
-//  void bindTest7(bslma_Allocator *allocator = 0)
+//  void bindTest7(bslma::Allocator *allocator = 0)
 //  {
 //      const char* formatString = "Here it is: %d %d\n";
 //      callBinder(bcef_BindUtil::bindR<int>(allocator,
@@ -640,16 +640,16 @@ class bcef_BindWrapper {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcef_BindWrapper,
-                                 bslalg_TypeTraitHasPointerSemantics);
+                                 bslalg::TypeTraitHasPointerSemantics);
 
     // PUBLIC TYPES
     typedef typename bdef_Bind<RET,FUNC,TUPLE>::ResultType ResultType;
         // The return type of this binder object.
 
     //CREATORS
-    bcef_BindWrapper(typename bslmf_ForwardingType<FUNC>::Type  func,
+    bcef_BindWrapper(typename bslmf::ForwardingType<FUNC>::Type func,
                      const TUPLE&                               tuple,
-                     bslma_Allocator                           *allocator = 0);
+                     bslma::Allocator                          *allocator = 0);
         // Create a wrapper with shared pointer semantics around a binder
         // constructed with the specified 'func' invocable and specified
         // 'tuple' bound arguments.
@@ -1055,116 +1055,116 @@ struct bcef_BindUtil {
 
     // CLASS METHODS
     template <class FUNC>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple0 >
-    bind(bslma_Allocator *allocator, FUNC func)
+    bind(bslma::Allocator *allocator, FUNC func)
         // Return a 'bdef_Bind' object that is bound to the specified
         // 'func' invocable object which can be invoked with no parameters.
     {
-        return bcef_BindWrapper<bslmf_Nil, FUNC, bdef_Bind_BoundTuple0>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, bdef_Bind_BoundTuple0>
                    (func, bdef_Bind_BoundTuple0(),allocator);
     }
 
     template <class FUNC, class P1>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple1<P1> >
-    bind(bslma_Allocator *allocator, FUNC func,P1 const&p1)
+    bind(bslma::Allocator *allocator, FUNC func,P1 const&p1)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameters.
     {
-        return bcef_BindWrapper<bslmf_Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
+        return bcef_BindWrapper<bslmf::Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
                    (func, bdef_Bind_BoundTuple1<P1>(p1,allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple2<P1,P2> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const &p1, P2 const &p2)
+    bind(bslma::Allocator *allocator, FUNC func, P1 const &p1, P2 const &p2)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters.
     {
         typedef bdef_Bind_BoundTuple2<P1,P2> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple3<P1,P2,P3> >
-    bind(bslma_Allocator *allocator, FUNC  func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC  func, P1 const&p1, P2 const&p2,
             P3 const&p3)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with three
         // parameters.
     {
         typedef bdef_Bind_BoundTuple3<P1,P2,P3> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple4<P1,P2,P3,P4> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
             P3 const&p3, P4 const&p4)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with four parameters.
     {
         typedef bdef_Bind_BoundTuple4<P1,P2,P3,P4> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple5<P1,P2,P3,P4,P5> >
-    bind(bslma_Allocator* allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with five parameters.
     {
         typedef bdef_Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,p4,p5,allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with six parameters.
     {
         typedef bdef_Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,p4,p5,p6,allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7>
     static inline bcef_BindWrapper<
-                                  bslmf_Nil,
+                                  bslmf::Nil,
                                   FUNC,
                                   bdef_Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with seven
         // parameters.
     {
         typedef bdef_Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,p4,p5,p6,p7,allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,
                                                          P8> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
          P8 const&p8)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1172,32 +1172,32 @@ struct bcef_BindUtil {
         // parameters.
     {
         typedef bdef_Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
                 (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,
                                                          P8,P9> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4,P5 const&p5, P6 const&p6, P7 const&p7,
          P8 const&p8, P9 const&p9)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with nine parameters.
     {
         typedef bdef_Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
              (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,
                                                             P8,P9,P10> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
          P8 const&p8, P9 const&p9, P10 const&p10)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1205,17 +1205,17 @@ struct bcef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
                                                                       ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
              allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,
                                                             P8,P9,P10,P11> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1224,7 +1224,7 @@ struct bcef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
             ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
              allocator);
     }
@@ -1232,10 +1232,10 @@ struct bcef_BindUtil {
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,
                                               P8,P9,P10,P11,P12> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11, P12 const&p12)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1244,7 +1244,7 @@ struct bcef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
             ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,allocator),
              allocator);
     }
@@ -1252,10 +1252,10 @@ struct bcef_BindUtil {
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,
                                               P8,P9,P10,P11,P12,P13> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11, P12 const&p12,
          P13 const&p13)
@@ -1265,7 +1265,7 @@ struct bcef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
                                        P13> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
                             allocator), allocator);
     }
@@ -1273,10 +1273,10 @@ struct bcef_BindUtil {
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13, class P14>
-    static inline bcef_BindWrapper<bslmf_Nil, FUNC,
+    static inline bcef_BindWrapper<bslmf::Nil, FUNC,
                                    bdef_Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
                                               P8,P9,P10,P11,P12,P13,P14> >
-    bind(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11, P12 const&p12,
          P13 const&p13, P14 const&p14)
@@ -1286,14 +1286,14 @@ struct bcef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
                                        P13,P14> ListType;
-        return bcef_BindWrapper<bslmf_Nil, FUNC, ListType>
+        return bcef_BindWrapper<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
                             allocator), allocator);
     }
 
     template <class RET, class FUNC>
     static inline bcef_BindWrapper<RET, FUNC, bdef_Bind_BoundTuple0 >
-    bindR(bslma_Allocator *allocator, FUNC func)
+    bindR(bslma::Allocator *allocator, FUNC func)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with no parameters
         // and returns a value of type 'RET'.
@@ -1304,7 +1304,7 @@ struct bcef_BindUtil {
 
     template <class RET, class FUNC, class P1>
     static inline bcef_BindWrapper<RET, FUNC, bdef_Bind_BoundTuple1<P1> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1)
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameter
         // and returns a value of type 'RET'.
@@ -1315,7 +1315,7 @@ struct bcef_BindUtil {
 
     template <class RET, class FUNC, class P1, class P2>
     static inline bcef_BindWrapper<RET, FUNC, bdef_Bind_BoundTuple2<P1,P2> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2)
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters
         // and returns a value of type 'RET'.
@@ -1327,7 +1327,7 @@ struct bcef_BindUtil {
 
     template <class RET, class FUNC, class P1, class P2, class P3>
     static inline bcef_BindWrapper<RET, FUNC, bdef_Bind_BoundTuple3<P1,P2,P3> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with three parameters
@@ -1341,7 +1341,7 @@ struct bcef_BindUtil {
     template <class RET, class FUNC, class P1, class P2, class P3, class P4>
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple4<P1,P2,P3,P4> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with four parameters
@@ -1356,7 +1356,7 @@ struct bcef_BindUtil {
               class P5>
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple5<P1,P2,P3,P4,P5> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with five parameters
@@ -1371,7 +1371,7 @@ struct bcef_BindUtil {
               class P5, class P6>
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with six parameters
@@ -1387,7 +1387,7 @@ struct bcef_BindUtil {
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,
                                                    P7> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with seven parameters
@@ -1403,7 +1403,7 @@ struct bcef_BindUtil {
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,
                                                          P8> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
           P8 const&p8)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1420,7 +1420,7 @@ struct bcef_BindUtil {
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,
                                                          P8,P9> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
           P8 const&p8, P9 const&p9)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1437,7 +1437,7 @@ struct bcef_BindUtil {
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,
                                                           P8,P9,P10> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
           P8 const&p8, P9 const&p9, P10 const&p10)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1457,7 +1457,7 @@ struct bcef_BindUtil {
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,
                                                           P8,P9,P10,P11> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1477,7 +1477,7 @@ struct bcef_BindUtil {
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,
                                                           P8,P9,P10,P11,P12> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
           P12 const&p12)
@@ -1498,7 +1498,7 @@ struct bcef_BindUtil {
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,
                                                        P8,P9,P10,P11,P12,P13> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
           P12 const&p12, P13 const&p13)
@@ -1519,7 +1519,7 @@ struct bcef_BindUtil {
     static inline bcef_BindWrapper<RET, FUNC,
                                    bdef_Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
                                                    P8,P9,P10,P11,P12,P13,P14> >
-    bindR(bslma_Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+    bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
           P12 const&p12, P13 const&p13, P14 const&p14)
@@ -1585,9 +1585,9 @@ struct bdef_Bind_Evaluator<bcef_BindWrapper<RET,FUNC,BINDLIST>, LIST> {
 template <class RET, class FUNC, class TUPLE>
 inline
 bcef_BindWrapper<RET,FUNC,TUPLE>::bcef_BindWrapper(
-    typename BloombergLP::bslmf_ForwardingType<FUNC>::Type  func,
-    TUPLE const&                                            tuple,
-    bslma_Allocator                                        *allocator)
+    typename BloombergLP::bslmf::ForwardingType<FUNC>::Type  func,
+    TUPLE const&                                             tuple,
+    bslma::Allocator                                        *allocator)
 {
     this->d_impl.createInplace(allocator, func, tuple, allocator);
 }

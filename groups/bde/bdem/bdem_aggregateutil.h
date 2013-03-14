@@ -72,7 +72,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      PriceBook(bslma_Allocator *basicAllocator = 0);
+//      PriceBook(bslma::Allocator *basicAllocator = 0);
 //          // Construct a price book.  Optionally specify a 'basicAllocator'
 //          // used to supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
@@ -115,7 +115,7 @@ BDES_IDENT("$Id: $")
 // The function definitions for the price book class are provided below:
 //..
 //  // CREATORS
-//  PriceBook::PriceBook(bslma_Allocator *basicAllocator)
+//  PriceBook::PriceBook(bslma::Allocator *basicAllocator)
 //  : d_quoteBook(basicAllocator)
 //  {
 //  }

@@ -437,10 +437,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>    // @DEPRECATED
-#endif
-
 #ifndef INCLUDED_BSL_CTIME
 #include <bsl_ctime.h>            // 'time_t'
 #endif

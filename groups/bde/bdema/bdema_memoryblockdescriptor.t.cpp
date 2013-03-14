@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator         talloc;
-    bslma_DefaultAllocatorGuard guard(&talloc);
+    bslma::TestAllocator         talloc;
+    bslma::DefaultAllocatorGuard guard(&talloc);
 
     switch (test) { case 0:
       case 9: {

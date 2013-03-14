@@ -24,9 +24,9 @@ bdem_BerEncoder::MemOutStream::~MemOutStream()
 
 // CREATORS
 bdem_BerEncoder::bdem_BerEncoder(const bdem_BerEncoderOptions *options,
-                                 bslma_Allocator              *basicAllocator)
+                                 bslma::Allocator             *basicAllocator)
 : d_options      (options)
-, d_allocator    (bslma_Default::allocator(basicAllocator))
+, d_allocator    (bslma::Default::allocator(basicAllocator))
 , d_logStream    (0)
 , d_severity     (BDEM_BER_SUCCESS)
 , d_streamBuf    (0)

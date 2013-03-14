@@ -130,6 +130,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -144,10 +148,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -183,8 +183,8 @@ class baetzo_LocalTimeDescriptor {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(baetzo_LocalTimeDescriptor,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CLASS METHODS
     static bool isValidUtcOffsetInSeconds(int value);
@@ -192,7 +192,7 @@ class baetzo_LocalTimeDescriptor {
         // '[-86399 .. 86399]', and 'false' otherwise.
 
     // CREATORS
-    explicit baetzo_LocalTimeDescriptor(bslma_Allocator *basicAllocator = 0);
+    explicit baetzo_LocalTimeDescriptor(bslma::Allocator *basicAllocator = 0);
         // Create a 'baetzo_LocalTimeDescriptor' object having the (default)
         // attribute values:
         //..
@@ -207,7 +207,7 @@ class baetzo_LocalTimeDescriptor {
     baetzo_LocalTimeDescriptor(int                     utcOffsetInSeconds,
                                bool                    dstInEffectFlag,
                                const bdeut_StringRef&  description,
-                               bslma_Allocator        *basicAllocator = 0);
+                               bslma::Allocator       *basicAllocator = 0);
         // Create a 'baetzo_LocalTimeDescriptor' object having the specified
         // 'utcOffsetInSeconds', 'dstInEffectFlag', and 'description' attribute
         // values.  Optionally specify a 'basicAllocator' used to supply
@@ -217,7 +217,7 @@ class baetzo_LocalTimeDescriptor {
 
     baetzo_LocalTimeDescriptor(
                         const baetzo_LocalTimeDescriptor&  original,
-                        bslma_Allocator                   *basicAllocator = 0);
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a 'baetzo_LocalTimeDescriptor' object having the same value
         // as the specified 'original' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -276,7 +276,7 @@ class baetzo_LocalTimeDescriptor {
 
                                   // Aspects
 
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
@@ -350,7 +350,7 @@ bool baetzo_LocalTimeDescriptor::isValidUtcOffsetInSeconds(int value)
 // CREATORS
 inline
 baetzo_LocalTimeDescriptor::baetzo_LocalTimeDescriptor(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_utcOffsetInSeconds(0)
 , d_dstInEffectFlag(false)
 , d_description(basicAllocator)
@@ -362,7 +362,7 @@ baetzo_LocalTimeDescriptor::baetzo_LocalTimeDescriptor(
                                     int                     utcOffsetInSeconds,
                                     bool                    dstInEffectFlag,
                                     const bdeut_StringRef&  description,
-                                    bslma_Allocator        *basicAllocator)
+                                    bslma::Allocator       *basicAllocator)
 : d_utcOffsetInSeconds(utcOffsetInSeconds)
 , d_dstInEffectFlag(dstInEffectFlag)
 , d_description(description.begin(), description.end(), basicAllocator)
@@ -374,7 +374,7 @@ baetzo_LocalTimeDescriptor::baetzo_LocalTimeDescriptor(
 inline
 baetzo_LocalTimeDescriptor::baetzo_LocalTimeDescriptor(
                              const baetzo_LocalTimeDescriptor&  original,
-                             bslma_Allocator                   *basicAllocator)
+                             bslma::Allocator                  *basicAllocator)
 : d_utcOffsetInSeconds(original.d_utcOffsetInSeconds)
 , d_dstInEffectFlag(original.d_dstInEffectFlag)
 , d_description(original.d_description, basicAllocator)
@@ -430,9 +430,9 @@ void baetzo_LocalTimeDescriptor::swap(baetzo_LocalTimeDescriptor& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bslalg_SwapUtil::swap(&d_description,        &other.d_description);
-    bslalg_SwapUtil::swap(&d_dstInEffectFlag,    &other.d_dstInEffectFlag);
-    bslalg_SwapUtil::swap(&d_utcOffsetInSeconds, &other.d_utcOffsetInSeconds);
+    bslalg::SwapUtil::swap(&d_description,        &other.d_description);
+    bslalg::SwapUtil::swap(&d_dstInEffectFlag,    &other.d_dstInEffectFlag);
+    bslalg::SwapUtil::swap(&d_utcOffsetInSeconds, &other.d_utcOffsetInSeconds);
 }
 
 // ACCESSORS
@@ -457,7 +457,7 @@ int baetzo_LocalTimeDescriptor::utcOffsetInSeconds() const
                                   // Aspects
 
 inline
-bslma_Allocator *baetzo_LocalTimeDescriptor::allocator() const
+bslma::Allocator *baetzo_LocalTimeDescriptor::allocator() const
 {
     return d_description.get_allocator().mechanism();
 }

@@ -675,10 +675,10 @@ extern "C" void *typesTest(void *voidArgs)
 
 ///Usage
 ///-----
-// In this section we show intended usage of this component. 
+// In this section we show intended usage of this component.
 //
 ///Example 1: A Service Request Processor with Thread Local Context
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we create a 'RequestProcessor' that places context
 // information for the current request in a thread-local variable.
 //
@@ -817,10 +817,10 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
-    bslma_TestAllocator defaultAllocator;
-    bslma_TestAllocator globalAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
+    bslma::TestAllocator defaultAllocator;
+    bslma::TestAllocator globalAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
 #ifdef DISABLE_TEST

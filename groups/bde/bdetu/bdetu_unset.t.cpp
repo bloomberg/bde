@@ -33,9 +33,9 @@ using namespace bsl;  // automatically added by script
 // [ 3] isUnset<int>(const int&)
 // [ 3] unsetValue<int>()
 // [ 3] makeUnset<int>(int*)
-// [ 4] isUnset<bsls_PlatformUtil::Int64>(const bsls_PlatformUtil::Int64&)
-// [ 4] unsetValue<bsls_PlatformUtil::Int64>()
-// [ 4] makeUnset<bsls_PlatformUtil::Int64>(bsls_PlatformUtil::Int64*)
+// [ 4] isUnset<bsls::Types::Int64>(const bsls::Types::Int64&)
+// [ 4] unsetValue<bsls::Types::Int64>()
+// [ 4] makeUnset<bsls::Types::Int64>(bsls::Types::Int64*)
 // [ 5] isUnset<float>(const float&)
 // [ 5] unsetValue<float>()
 // [ 5] makeUnset<float>(float*)
@@ -127,7 +127,7 @@ int foo(double x)
 // for 'my_List':
 //..
     // my_list.h
-  
+
     class my_List {
 //..
 // Define the list of types that this heterogenous container supports:
@@ -142,11 +142,11 @@ int foo(double x)
       private:
         // PRIVATE TYPES
         union Node {
-            int                                d_int;
-            double                             d_double;
-            bsls_ObjectBuffer<bsl::string>     d_string;
-            bsls_AlignmentUtil::MaxAlignedType d_align;
-        };
+            int                                 d_int;
+            double                              d_double;
+            bsls::ObjectBuffer<bsl::string>     d_string;
+            bsls::AlignmentUtil::MaxAlignedType d_align;
+       };
 //..
 // Define the vectors to store the types and corresponding values.  The element
 // at index 'i' in 'd_types' specifies the type of the i'th element of the
@@ -155,27 +155,27 @@ int foo(double x)
         // DATA
         bsl::vector<ELEMENT_TYPE>  d_types;        // list element types
         bsl::vector<Node>          d_values;       // list element values
-        bslma_Allocator           *d_allocator_p;  // holds (but doesn't own)
+        bslma::Allocator          *d_allocator_p;  // holds (but doesn't own)
                                                    // allocator
 //..
 // A minimal public interface (suitable for illustration only):
 //..
       public:
         // CREATORS
-        my_List(bslma_Allocator *basicAllocator = 0);
+        my_List(bslma::Allocator *basicAllocator = 0);
             // Create a list of length 0.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
-  
-        my_List(const my_List& original, bslma_Allocator *basicAllocator = 0);
+
+        my_List(const my_List& original, bslma::Allocator *basicAllocator = 0);
             // Create a list having the value of the specified 'original'
             // list.  Optionally specify a 'basicAllocator' used to supply
             // memory.  If 'basicAllocator' is 0, the currently installed
             // default allocator is used.
-  
+
         ~my_List();
             // Destroy this list.
-  
+
         // MANIPULATORS
         const my_List& operator=(const my_List& rhs);
             // Assign to this list the value of the specified 'rhs' list, and
@@ -188,25 +188,25 @@ int foo(double x)
         void appendInt(int value);
             // Append to this list an element of type 'INT' having the
             // specified 'value'.
-  
+
         void appendDouble(double value);
             // Append to this list an element of type 'DOUBLE' having the
             // specified 'value'.
-  
+
         void appendString(const bsl::string& value);
             // Append to this list an element of type 'STRING' having the
             // specified 'value'.
-  
+
 //..
 // Also provide functions that append unset elements that users can populate
 // later:
 //..
         void appendUnsetInt();
             // Append to this list an unset element of type 'INT'.
-  
+
         void appendUnsetDouble();
             // Append to this list an unset element of type 'DOUBLE'.
-  
+
         void appendUnsetString();
             // Append to this list an unset element of type 'STRING'.
 //..
@@ -216,12 +216,12 @@ int foo(double x)
             // Set the element of type 'INT' at the specified 'index' in this
             // list to the specified 'value'.  The behavior is undefined unless
             // '0 <= index < length()' and 'INT == elemType(index)'.
-  
+
         void setDouble(int index, double value);
             // Set the element of type 'DOUBLE' at the specified 'index' in
             // this list to the specified 'value'.  The behavior is undefined
             // unless '0 <= index < length()' and 'DOUBLE == elemType(index)'.
-  
+
         void setString(int index, const bsl::string& value);
             // Set the element of type 'STRING' at the specified 'index' in
             // this list to the specified 'value'.  The behavior is undefined
@@ -233,32 +233,32 @@ int foo(double x)
         // ACCESSORS
         int length() const;
             // Return the number of elements in this list.
-  
+
         int theInt(int index) const;
             // Return the element of type 'INT' at the specified 'index' in
             // this list.  The behavior is undefined unless
             // '0 <= index < length()' and 'INT == elemType(index)'.
-  
+
         double theDouble(int index) const;
             // Return the element of type 'DOUBLE' at the specified 'index' in
             // this list.  The behavior is undefined unless
             // '0 <= index < length()' and 'DOUBLE == elemType(index)'.
-  
+
         const bsl::string& theString(int index) const;
             // Return a reference to the non-modifiable element of type
             // 'STRING' at the specified 'index' in this list.  The behavior is
             // undefined unless '0 <= index < length()' and
             // 'STRING == elemType(index)'.
-  
+
         ELEMENT_TYPE elemType(int index) const;
             // Return the type of the element at the specified 'index' in this
             // list.  The behavior is undefined unless '0 <= index < length()'.
-  
+
         bool isUnset(int index) const;
             // Return 'true' if the element at the specified 'index' in this
             // list is unset, and 'false' otherwise.  The behavior is undefined
             // unless '0 <= index < length()'.
-    };
+  };
 //..
 // Below are the function definitions.  Note that, in the interest of brevity,
 // exception-safety concerns are not addressed:
@@ -266,30 +266,30 @@ int foo(double x)
     // ========================================================================
     //                        INLINE FUNCTION DEFINITIONS
     // ========================================================================
-  
+
     // CREATORS
     inline
-    my_List::my_List(bslma_Allocator *basicAllocator)
+    my_List::my_List(bslma::Allocator *basicAllocator)
     : d_types(basicAllocator)
     , d_values(basicAllocator)
     , d_allocator_p(basicAllocator)
     {
     }
-  
+
     inline
-    my_List::my_List(const my_List& original, bslma_Allocator *basicAllocator)
+    my_List::my_List(const my_List& original, bslma::Allocator *basicAllocator)
     : d_types(original.d_types, basicAllocator)
     , d_values(original.d_values, basicAllocator)
     , d_allocator_p(basicAllocator)
     {
     }
-  
+
     inline
     my_List::~my_List()
     {
         BSLS_ASSERT_SAFE(d_types.size() == d_values.size());
     }
-  
+
     // MANIPULATORS
     inline
     const my_List& my_List::operator=(const my_List& rhs)
@@ -300,7 +300,7 @@ int foo(double x)
         }
         return *this;
     }
-  
+
     inline
     void my_List::appendInt(int value)
     {
@@ -309,7 +309,7 @@ int foo(double x)
         node.d_int = value;
         d_values.push_back(node);
     }
-  
+
     inline
     void my_List::appendDouble(double value)
     {
@@ -318,7 +318,7 @@ int foo(double x)
         node.d_double = value;
         d_values.push_back(node);
     }
-  
+
     inline
     void my_List::appendString(const bsl::string& value)
     {
@@ -339,7 +339,7 @@ int foo(double x)
         node.d_int = bdetu_Unset<int>::unsetValue();
         d_values.push_back(node);
     }
-  
+
     inline
     void my_List::appendUnsetDouble()
     {
@@ -348,7 +348,7 @@ int foo(double x)
         node.d_double = bdetu_Unset<double>::unsetValue();
         d_values.push_back(node);
     }
-  
+
     inline
     void my_List::appendUnsetString()
     {
@@ -359,88 +359,88 @@ int foo(double x)
                                        d_allocator_p);
         d_values.push_back(node);
     }
-  
+
     inline
     void my_List::setInt(int index, int value)
     {
         BSLS_ASSERT_SAFE(0 <= index && index < length());
         BSLS_ASSERT_SAFE(INT == d_types[index]);
-  
+
         d_values[index].d_int = value;
     }
-  
+
     inline
     void my_List::setDouble(int index, double value)
     {
         BSLS_ASSERT_SAFE(0 <= index && index < length());
         BSLS_ASSERT_SAFE(DOUBLE == d_types[index]);
-  
+
         d_values[index].d_double = value;
     }
-  
+
     inline
     void my_List::setString(int index, const bsl::string& value)
     {
         BSLS_ASSERT_SAFE(0 <= index && index < length());
         BSLS_ASSERT_SAFE(STRING == d_types[index]);
-  
+
         d_values[index].d_string.object() = value;
     }
-  
+
     // ACCESSORS
     inline
     int my_List::length() const
     {
         BSLS_ASSERT_SAFE(d_types.size() == d_values.size());
-  
+
         return d_types.size();
     }
-  
+
     inline
     int my_List::theInt(int index) const
     {
         BSLS_ASSERT_SAFE(0 <= index && index < length());
         BSLS_ASSERT_SAFE(INT == d_types[index]);
-  
+
         return d_values[index].d_int;
     }
-  
+
     inline
     double my_List::theDouble(int index) const
     {
         BSLS_ASSERT_SAFE(0 <= index && index < length());
         BSLS_ASSERT_SAFE(DOUBLE == d_types[index]);
-  
+
         return d_values[index].d_double;
     }
-  
+
     inline
     const bsl::string& my_List::theString(int index) const
     {
         BSLS_ASSERT_SAFE(0 <= index && index < length());
         BSLS_ASSERT_SAFE(STRING == d_types[index]);
-  
+
         return d_values[index].d_string.object();
     }
-  
+
     inline
     my_List::ELEMENT_TYPE my_List::elemType(int index) const
     {
         BSLS_ASSERT_SAFE(0 <= index && index < length());
-  
+
         return d_types[index];
     }
 //..
 // The 'isUnset' method is defined in the corresponding '.cpp' file:
 //..
     // my_list.cpp
-  
+
     bool my_List::isUnset(int index) const
     {
         BSLS_ASSERT(0 <= index && index < length());
-  
+
         bool isElementUnset = false;
-  
+
         switch (d_types[index]) {
           case INT: {
             isElementUnset = bdetu_Unset<int>::isUnset(d_values[index].d_int);
@@ -454,7 +454,7 @@ int foo(double x)
                                             d_values[index].d_string.object());
           } break;
         }
-  
+
         return isElementUnset;
     }
 //..
@@ -540,7 +540,7 @@ int main(int argc, char *argv[])
         ASSERT(bdetu_UnsetValueIsDefined<char>::VALUE);
         ASSERT(bdetu_UnsetValueIsDefined<short>::VALUE);
         ASSERT(bdetu_UnsetValueIsDefined<int>::VALUE);
-        ASSERT(bdetu_UnsetValueIsDefined<bsls_PlatformUtil::Int64>::VALUE);
+        ASSERT(bdetu_UnsetValueIsDefined<bsls::Types::Int64>::VALUE);
         ASSERT(bdetu_UnsetValueIsDefined<float>::VALUE);
         ASSERT(bdetu_UnsetValueIsDefined<double>::VALUE);
         ASSERT(bdetu_UnsetValueIsDefined<bsl::string>::VALUE);
@@ -558,7 +558,7 @@ int main(int argc, char *argv[])
         ASSERT(!bdetu_UnsetValueIsDefined<unsigned long>::VALUE);
         ASSERT(!bdetu_UnsetValueIsDefined<signed long>::VALUE);
         ASSERT(!bdetu_UnsetValueIsDefined<long>::VALUE);
-        ASSERT(!bdetu_UnsetValueIsDefined<bsls_PlatformUtil::Uint64>::VALUE);
+        ASSERT(!bdetu_UnsetValueIsDefined<bsls::Types::Uint64>::VALUE);
         ASSERT(!bdetu_UnsetValueIsDefined<long double>::VALUE);
         ASSERT(!bdetu_UnsetValueIsDefined<bsl::vector<char> >::VALUE);
         ASSERT(!bdetu_UnsetValueIsDefined<bsl::vector<int> >::VALUE);
@@ -1010,26 +1010,26 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   1. For a set of values (unset and not unset) test the return value
-        //      from the isUnset<bsls_PlatformUtil::Int64> function.
-        //   2. Assert the value for unsetValue<bsls_PlatformUtil::Int64> is as
+        //      from the isUnset<bsls::Types::Int64> function.
+        //   2. Assert the value for unsetValue<bsls::Types::Int64> is as
         //      expected.
-        //   3. For a variable of type bsls_PlatformUtil::Int64 with a non
+        //   3. For a variable of type bsls::Types::Int64 with a non
         //      unset value, use makeUnset and verify that it becomes unset.
         //
         // Testing:
-        //   isUnset<bsls_PlatformUtil::Int64>(const bsls_PlatformUtil::Int64&)
-        //   unsetValue<bsls_PlatformUtil::Int64>()
-        //   makeUnset<bsls_PlatformUtil::Int64>(bsls_PlatformUtil::Int64*)
+        //   isUnset<bsls::Types::Int64>(const bsls::Types::Int64&)
+        //   unsetValue<bsls::Types::Int64>()
+        //   makeUnset<bsls::Types::Int64>(bsls::Types::Int64*)
         // --------------------------------------------------------------------
 
         if (verbose) cout
-            << endl << "Testing functions for bsls_PlatformUtil::Int64" << endl
+            << endl << "Testing functions for bsls::Types::Int64" << endl
             << "==============================================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
+        typedef bsls::Types::Int64 T;
 
-        const T UNSETVALUE = -(bsls_PlatformUtil::Int64)
-                              (((bsls_PlatformUtil::Uint64) 1 << 63) - 1) - 1;
+        const T UNSETVALUE = -(bsls::Types::Int64)
+                              (((bsls::Types::Uint64) 1 << 63) - 1) - 1;
         const T DATA[]  = { UNSETVALUE, -1, 1, 0, 127, -127 };
         const T NONUNSETVALUE = 10;
 

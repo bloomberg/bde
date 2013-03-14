@@ -181,7 +181,7 @@ using namespace BloombergLP;
 //                                  ----------- Microseconds ---------
 // SocketsTotal   # Busy    R|N         Poll      Pollset       Select
 // ------------   ------    ---     --------     --------     --------
-//       12            1     R         38.55        27.81        49.13 
+//       12            1     R         38.55        27.81        49.13
 //       12            6     R         49.89        37.79        59.42
 //       12            6     N         29.58        25.38        40.56
 //
@@ -395,7 +395,7 @@ private:
 
   public:
     // CREATORS
-    HelperEventManager(bslma_Allocator *basicAllocator = 0);
+    HelperEventManager(bslma::Allocator *basicAllocator = 0);
         // Create this 'HelperEventManager' object.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator'
         // is 0, global operators 'new' and 'delete' are used.
@@ -464,7 +464,7 @@ private:
         // functions under test.
 };
 
-HelperEventManager::HelperEventManager(bslma_Allocator *basicAllocator)
+HelperEventManager::HelperEventManager(bslma::Allocator *basicAllocator)
 : d_parameters(basicAllocator)
 {
 }
@@ -872,7 +872,7 @@ int main(int argc, char *argv[])
     int errCode = 0;
     bteso_SocketImpUtil::startup(&errCode);
     ASSERT(0 == errCode);
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     testAllocator.setNoAbort(1);
 
     switch (test) { case 0:  // Zero is always the leading case.

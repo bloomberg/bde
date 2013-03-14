@@ -37,16 +37,16 @@ using bsl::flush;
 // baem_DefaultMetricsManager
 // CLASS METHODS
 // [ 3] static baem_MetricsManager *manager(baem_MetricsManager *manager);
-// [ 1] static baem_MetricsManager *create(bslma_Allocator *);
-// [ 2] static baem_MetricsManager *create(bsl::ostream& , bslma_Allocator *);
+// [ 1] static baem_MetricsManager *create(bslma::Allocator *);
+// [ 2] static baem_MetricsManager *create(bsl::ostream& , bslma::Allocator *);
 // [ 1] static baem_MetricsManager *instance();
 // [ 1] static void destroy();
 //-----------------------------------------------------------------------------
 // baem_DefaultMetricsManagerScopedGuard
 // CREATORS
-// [ 4] baem_DefaultMetricsManagerScopedGuard(bslma_Allocator *);
+// [ 4] baem_DefaultMetricsManagerScopedGuard(bslma::Allocator *);
 // [ 5] baem_DefaultMetricsManagerScopedGuard(bsl::ostream&,
-//                                            bslma_Allocator *);
+//                                            bslma::Allocator *);
 // [ 3] ~baem_DefaultMetricsManagerScopedGuard();
 //-----------------------------------------------------------------------------
 // [ 6] USAGE EXAMPLE
@@ -125,9 +125,10 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator testAllocator; bslma_TestAllocator *Z = &testAllocator;
-    bslma_TestAllocator defaultAllocator, globalAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator          testAllocator;
+    bslma::TestAllocator         *Z = &testAllocator;
+    bslma::TestAllocator          defaultAllocator, globalAllocator;
+    bslma::DefaultAllocatorGuard  guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -220,7 +221,7 @@ int main(int argc, char *argv[])
         //
         //
         // Testing:
-        //    baem_DefaultMetricsManagerScopedGuard(bsl::cout, bslma_Allocator)
+        //   baem_DefaultMetricsManagerScopedGuard(bsl::cout, bslma::Allocator)
         //
         // --------------------------------------------------------------------
 
@@ -229,7 +230,7 @@ int main(int argc, char *argv[])
             << "baen_DefaultMetricsManagerScopedGuard(bsl::cout, ...)" << endl
             << "=====================================================" << endl;
 
-          bslma_Default::setGlobalAllocator(&globalAllocator);
+          bslma::Default::setGlobalAllocator(&globalAllocator);
           ASSERT(0 == testAllocator.numBytesInUse());
           ASSERT(0 == globalAllocator.numBytesInUse());
           ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -290,7 +291,7 @@ int main(int argc, char *argv[])
         //
         //
         // Testing:
-        //    baem_DefaultMetricsManagerScopedGuard(bslma_Allocator *)
+        //    baem_DefaultMetricsManagerScopedGuard(bslma::Allocator *)
         //    ~baem_DefaultMetricsManagerScopedGuard();
         //
         // --------------------------------------------------------------------
@@ -299,7 +300,7 @@ int main(int argc, char *argv[])
                           << "baen_DefaultMetricsManagerScopedGuard" << endl
                           << "=====================================" << endl;
 
-          bslma_Default::setGlobalAllocator(&globalAllocator);
+          bslma::Default::setGlobalAllocator(&globalAllocator);
           ASSERT(0 == testAllocator.numBytesInUse());
           ASSERT(0 == globalAllocator.numBytesInUse());
           ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -365,7 +366,7 @@ int main(int argc, char *argv[])
                           << "METHOD: manager" << endl
                           << "===============" << endl;
 
-          bslma_Default::setGlobalAllocator(&globalAllocator);
+          bslma::Default::setGlobalAllocator(&globalAllocator);
           Mgr x(Z); const Mgr& X = x;
 
           ASSERT(0  == Obj::instance());
@@ -393,7 +394,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CLASS METHOD TEST: create(bool, bslma_Allocator *);
+        // CLASS METHOD TEST: create(bool, bslma::Allocator *);
         //
         // Concerns:
         //    That the 'create' method behaves as documented
@@ -402,8 +403,8 @@ int main(int argc, char *argv[])
         //
         //
         // Testing:
-        //  static baem_MetricsManager *create(bsl::ostream& ,
-        //                                     bslma_Allocator *);
+        //  static baem_MetricsManager *create(bsl::ostream&,
+        //                                     bslma::Allocator *);
         //
         // --------------------------------------------------------------------
 
@@ -411,7 +412,7 @@ int main(int argc, char *argv[])
                           << "METHOD: create(bsl::ostream& , ...)" << endl
                           << "===================================" << endl;
 
-        bslma_Default::setGlobalAllocator(&globalAllocator);
+        bslma::Default::setGlobalAllocator(&globalAllocator);
         ASSERT(0 == Obj::instance());
         {
             if (verbose) {
@@ -420,7 +421,7 @@ int main(int argc, char *argv[])
                     << endl;
             }
 
-            bslma_TestAllocator streamAllocator;
+            bslma::TestAllocator streamAllocator;
             bdema_ManagedPtr<bsl::ostringstream> ostream(
                                  new (streamAllocator) bsl::ostringstream(),
                                  &streamAllocator);
@@ -532,7 +533,7 @@ int main(int argc, char *argv[])
         //    (using the global allocator).
         //
         // Testing:
-        //  static baem_MetricsManager *create(bslma_Allocator *);
+        //  static baem_MetricsManager *create(bslma::Allocator *);
         //  static baem_MetricsManager *instance();
         //  static void destroy();
         //
@@ -543,7 +544,7 @@ int main(int argc, char *argv[])
                           << "=========================" << endl;
 
 
-        bslma_Default::setGlobalAllocator(&globalAllocator);
+        bslma::Default::setGlobalAllocator(&globalAllocator);
         ASSERT(0 == Obj::instance());
         {
             if (verbose) {
@@ -617,7 +618,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
         }
-        bslma_Default::setGlobalAllocator(0);
+        bslma::Default::setGlobalAllocator(0);
 
       } break;
       default: {

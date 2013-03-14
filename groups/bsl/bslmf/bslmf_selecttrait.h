@@ -33,15 +33,15 @@ BSLS_IDENT("$Id: $")
 // might be bitwise copyable, or have an allocator that can be different in
 // the copy than in the original object, or that the original might be a pair
 // type, where the correct method of copying 'first' and 'second' is
-// (recursively) goverened by the same concerns.
+// (recursively) governed by the same concerns.
 //
 // The old (legacy) 'bsls::HasTrait' mechanism has a clumsy mechanism for
-// dispatching on multple traits at once.  For example, the
+// dispatching on multiple traits at once.  For example, the
 // 'bslalg::scalarprimitives::copyConstruct', function uses four different
 // implementations, depending on the traits of the object being copied.  The
 // existing code looks like this:
 //..
-//  template <typename TARGET_TYPE>
+//  template <class TARGET_TYPE>
 //  inline
 //  void
 //  ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
@@ -88,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //
 //  namespace bslalg {
 //  struct ScalarPrimitives {
-//      template <typename TARGET_TYPE>
+//      template <class TARGET_TYPE>
 //      static void copyConstruct(TARGET_TYPE        *address,
 //                                const TARGET_TYPE&  original,
 //                                bslma::Allocator   *allocator);
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 // different trait specialization. A fourth overload takes 'false_type'
 // instead of a trait specialization, for those types that don't match any
 // traits.  For testing purposes, in addition to copying the data member, each
-// overload also increments a separate counter.  These implemenations are
+// overload also increments a separate counter.  These implementations are
 // slightly simplified for readability:
 //..
 //  struct Imp {
@@ -116,7 +116,7 @@ BSLS_IDENT("$Id: $")
 //          d_isBitwiseCopyableCounter = 0;
 //      }
 //
-//      template <typename TARGET_TYPE>
+//      template <class TARGET_TYPE>
 //      static void
 //      copyConstruct(TARGET_TYPE                                 *address,
 //                    const TARGET_TYPE&                           original,
@@ -127,7 +127,7 @@ BSLS_IDENT("$Id: $")
 //          ++d_usesBslmaAllocatorCounter;
 //      }
 //
-//      template <typename TARGET_TYPE>
+//      template <class TARGET_TYPE>
 //      static void
 //      copyConstruct(TARGET_TYPE                 *address,
 //                    const TARGET_TYPE&           original,
@@ -141,7 +141,7 @@ BSLS_IDENT("$Id: $")
 //          ++d_isPairCounter;
 //      }
 //
-//      template <typename TARGET_TYPE>
+//      template <class TARGET_TYPE>
 //      static void
 //      copyConstruct(TARGET_TYPE                             *address,
 //                    const TARGET_TYPE&                       original,
@@ -152,7 +152,7 @@ BSLS_IDENT("$Id: $")
 //          ++d_isBitwiseCopyableCounter;
 //      }
 //
-//      template <typename TARGET_TYPE>
+//      template <class TARGET_TYPE>
 //      static void
 //      copyConstruct(TARGET_TYPE                *address,
 //                    const TARGET_TYPE&          original,
@@ -171,7 +171,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we implement 'ScalarPrimitives::copyConstruct':
 //..
-//  template <typename TARGET_TYPE>
+//  template <class TARGET_TYPE>
 //  inline void
 //  ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
 //                                  const TARGET_TYPE&  original,
@@ -205,7 +205,7 @@ BSLS_IDENT("$Id: $")
 //      int               d_value;
 //      bslma::Allocator *d_alloc;
 //  public:
-//      TypeWithAllocator(int v = 0, bslma::Allocator *a = 0)
+//      TypeWithAllocator(int v = 0, bslma::Allocator *a = 0)       // IMPLICIT
 //          : d_value(v), d_alloc(a) { }
 //      TypeWithAllocator(const TypeWithAllocator& other,
 //                        bslma::Allocator *a = 0)
@@ -218,12 +218,12 @@ BSLS_IDENT("$Id: $")
 //  template <> struct UsesBslmaAllocator<TypeWithAllocator>
 //      : bsl::true_type { };
 //..
-// The second class is associated with the 'IsBitwiseCopyiable' trait:
+// The second class is associated with the 'IsBitwiseCopyable' trait:
 //..
 //  class BitwiseCopyableType {
 //      int d_value;
 //  public:
-//      BitwiseCopyableType(int v = 0) : d_value(v) { }
+//      BitwiseCopyableType(int v = 0) : d_value(v) { }             // IMPLICIT
 //      int value() const { return d_value; }
 //  };
 //
@@ -242,7 +242,7 @@ BSLS_IDENT("$Id: $")
 //  template <> struct IsPair<PairType> : bsl::true_type { };
 //..
 // The fourth class is associated with both the the 'IsPair' and
-// 'IsBitwiseCopyiable' traits:
+// 'IsBitwiseCopyable' traits:
 //..
 //  struct BitwiseCopyablePairType {
 //      BitwiseCopyableType first;
@@ -260,7 +260,7 @@ BSLS_IDENT("$Id: $")
 //  class TypeWithNoTraits {
 //      int d_value;
 //  public:
-//      TypeWithNoTraits(int v = 0) : d_value(v) { }
+//      TypeWithNoTraits(int v = 0) : d_value(v) { }                // IMPLICIT
 //      int value() const { return d_value; }
 //  };
 //..
@@ -363,6 +363,10 @@ BSLS_IDENT("$Id: $")
 // the overloaded functions.  When inlining is in effect, the result is very
 // efficient.
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -399,7 +403,7 @@ struct SelectTraitCase
     // pointer-to-metafunction that holds the identity of a metafunction
     // similar to the way a pointer-to-function holds (at run-time) the
     // identity of a function.  As in the pointer-to-function case, a
-    // 'SelectTraitCase' can also be used indrectly to evaluate 'TRAIT' (at
+    // 'SelectTraitCase' can also be used indirectly to evaluate 'TRAIT' (at
     // compile time).  Also note that, when 'SelectTraitCase' is specialized
     // with the default 'TRAIT' type parameter, 'SelectTrait_False', it
     // essentially means that none of the traits specified to 'SelectTrait'
@@ -496,11 +500,24 @@ public:
 
 #endif // ! defined(INCLUDED_BSLMF_SELECTTRAIT)
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

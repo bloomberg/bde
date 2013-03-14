@@ -38,7 +38,7 @@ BDES_IDENT("$Id: $")
 // 'baem_MetricId' for a metric named "MetricA" belonging to the category
 // "MyCategory" (i.e., "MyCategory.MetricA").
 //..
-//  bslma_Allocator     *allocator = bslma_Default::allocator(0);
+//  bslma::Allocator    *allocator = bslma::Default::allocator(0);
 //  baem_MetricRegistry  registry(allocator);
 //
 //  baem_MetricId idA = registry.addId("MyCategory", "MetricA");
@@ -114,6 +114,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -144,10 +148,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -251,7 +251,7 @@ class baem_MetricRegistry {
 
     mutable bcemt_RWMutex  d_lock;           // read-write property lock
 
-    bslma_Allocator       *d_allocator_p;    // allocator (held, not owned)
+    bslma::Allocator      *d_allocator_p;    // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     baem_MetricRegistry(const baem_MetricRegistry&);
@@ -292,10 +292,10 @@ class baem_MetricRegistry {
   public:
     // PUBLIC TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_MetricRegistry,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    baem_MetricRegistry(bslma_Allocator *basicAllocator = 0);
+    baem_MetricRegistry(bslma::Allocator *basicAllocator = 0);
         // Create an empty metric registry.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.

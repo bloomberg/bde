@@ -129,11 +129,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator defaultAllocator(veryVeryVerbose);
-    bslma_Default::setDefaultAllocatorRaw(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator(veryVeryVerbose);
+    bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
-    bslma_TestAllocator globalAllocator(veryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator(veryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
@@ -246,24 +246,25 @@ if (veryVerbose)
 #define NL "\n"
             //line level spl    enumerator value           expected result
             //---- ----- --- ----------------------       -----------------
-            { L_,    0,   4, Obj::BAETZO_VALID_UNIQUE,    "VALID_UNIQUE"NL   },
-            { L_,    0,   4, Obj::BAETZO_VALID_AMBIGUOUS, "VALID_AMBIGUOUS"NL},
-            { L_,    0,   4, Obj::BAETZO_INVALID,         "INVALID"NL        },
+            { L_,    0,   4, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,    0,   4, Obj::BAETZO_VALID_AMBIGUOUS,
+                                                        "VALID_AMBIGUOUS" NL },
+            { L_,    0,   4, Obj::BAETZO_INVALID,        "INVALID" NL        },
 
             { L_,    0,   4, (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)-1,                    UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)-5,                    UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)99,                    UNKNOWN_FORMAT NL  },
 
-            { L_,    0,  -1, Obj::BAETZO_VALID_UNIQUE,    "VALID_UNIQUE"     },
-            { L_,    0,   0, Obj::BAETZO_VALID_UNIQUE,    "VALID_UNIQUE"NL   },
-            { L_,    0,   2, Obj::BAETZO_VALID_UNIQUE,    "VALID_UNIQUE"NL   },
-            { L_,    1,   1, Obj::BAETZO_VALID_UNIQUE,    " VALID_UNIQUE"NL  },
-            { L_,    1,   2, Obj::BAETZO_VALID_UNIQUE,    "  VALID_UNIQUE"NL },
-            { L_,   -1,   2, Obj::BAETZO_VALID_UNIQUE,    "VALID_UNIQUE"NL   },
-            { L_,   -2,   1, Obj::BAETZO_VALID_UNIQUE,    "VALID_UNIQUE"NL   },
-            { L_,    2,   1, Obj::BAETZO_VALID_UNIQUE,    "  VALID_UNIQUE"NL },
-            { L_,    1,   3, Obj::BAETZO_VALID_UNIQUE,    "   VALID_UNIQUE"NL},
+            { L_,    0,  -1, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE"      },
+            { L_,    0,   0, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,    0,   2, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,    1,   1, Obj::BAETZO_VALID_UNIQUE,   " VALID_UNIQUE" NL  },
+            { L_,    1,   2, Obj::BAETZO_VALID_UNIQUE,   "  VALID_UNIQUE" NL },
+            { L_,   -1,   2, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,   -2,   1, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,    2,   1, Obj::BAETZO_VALID_UNIQUE,   "  VALID_UNIQUE" NL },
+            { L_,    1,   3, Obj::BAETZO_VALID_UNIQUE,   "   VALID_UNIQUE" NL},
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

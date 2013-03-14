@@ -20,7 +20,7 @@ namespace BloombergLP {
 
 // CREATORS
 
-baea_Metric::baea_Metric(bslma_Allocator *basicAllocator)
+baea_Metric::baea_Metric(bslma::Allocator *basicAllocator)
 : d_metricName(basicAllocator)
 , d_category(basicAllocator)
 , d_reportingName(basicAllocator)
@@ -33,7 +33,7 @@ baea_Metric::baea_Metric(bslma_Allocator *basicAllocator)
 
 baea_Metric::baea_Metric(
         const baea_Metric&  original,
-        bslma_Allocator    *basicAllocator)
+        bslma::Allocator   *basicAllocator)
 : d_metricName(original.d_metricName, basicAllocator)
 , d_category(original.d_category, basicAllocator)
 , d_reportingName(original.d_reportingName, basicAllocator)

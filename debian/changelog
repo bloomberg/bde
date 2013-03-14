@@ -1,95 +1,893 @@
-bde-core (2.16.0.3) unstable; urgency=low
+bde-core (2.17.0.002) unstable; urgency=low
 
-  * Update uplids.
+  * Bump changelog
+  * a100fe3 [APPROVAL] origin/review/remove_mallocfree_from_header_drqs39615021 to master
+  * 4cbccff [APPROVAL] build-bbe-in-rules-drqs-39480694 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 10 Jan 2013 14:52:41 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 12 Mar 2013 13:48:30 -0400
 
-bde-core (2.16.0.1) unstable; urgency=low
+bde-core (BSL_FROZEN_2.17.0a) git; urgency=low
 
-  * Update bsl::hash<const char*> behaviour.
+  * 091f619 [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
+  * 28c4c99 [APPROVAL] pending/master/oss-bsls_buildtarget-test-driver-drqs_33319796 to master
+  * 3abccd6 [APPROVAL] pending/master/update-licenses-to-MIT-2013-drqs-39016521 to master
+  * a89d3be [APPROVAL] pending/master/ongoing_deprecation_of_hash_const_char_star_drqs38592188 to master
+  * bf4c4bf [APPROVAL] pending/master/bsltf_basic_form_drqs39249075 to master
+  * c852032 [APPROVAL] pending/master/bsl-slist-override-std-drqs39355613 to master
+  * dc5d442 [APPROVAL] pending/master/yet_more_bslmf_fixes_following_previous_two_merges_drqs39336243 to master
+  * 73808ca [APPROVAL] pending/master/bsl-atomic-test-typo-drqs39355553 to master
+  * 8f02c2a [APPROVAL] pending/master/clean_up_bsls_for_windows_drqs39193654 to master
+  * cce3633 [APPROVAL] pending/master/bslmf_enableif_crashes_clang3.1_drqs39147181 to master
+  * b8fa0b5 [APPROVAL] pending/master/nullptr_t_patch_for_msvc_clr_drqs38441804 to master
+  * 6891bfe [APPROVAL] bde-bsl-versions-to-2.17 to master
+  * 4413c82 [APPROVAL] pending/master/cygwin-port-phase-2 to master
+  * d093929 [APPROVAL] pending/master/drqs35514064_list_leak_file to master
+  * bd55884 [APPROVAL] pending/master/drqs35886446_list_inline to master
+  * aec7467 [APPROVAL] pending/master/cleanup-doc-bslstl_allocator-drqs-36470520 to master
+  * 7ce8156 [APPROVAL] pending/master/drqs-32442862-bslma-testallocator-print to master
+  * 5d0bf0e [APPROVAL] pending/master/drqs36665676_traits_to_end to master
+  * 43e8b16 [APPROVAL] pending/master/fix-unused-warnings-oss-issues-20-21_drqs-36943747 to master
+  * ed6aba1 [APPROVAL] pending/master/bsl-atomics-intrinsic-drqs37688355 to master
+  * ceaf749 [APPROVAL] pending/master/bsls-atomics-slow-tests-drqs39101345 to master
+  * d3523c8 [APPROVAL] pending/master/clean_up_bslmf_for_windows_drqs39269611 to master
+  * dbcd057 [APPROVAL] pending/master/eliminate_invented_legacy_in_bsls_drqs39194279 to master
+  * fd4898e [APPROVAL] pending/master/type-traits-doc to master
+  * 0576197 [APPROVAL] pending/master/gcc-4.7.0-cpp11-fixes-drqs31611140 to master
+  * b8cb1d6 [APPROVAL] pending/master/unordered_testing_revised to master
+  * 47ca27b [APPROVAL] pending/master/bte-build-against-osbsl-rebase to master
+  * 4e09b46 [APPROVAL] pending/master/bae-build-against-osbsl-rebase to master
+  * ce613b7 [APPROVAL] pending/master/bce-build-against-osbsl-rebase to master
+  * 5dc012c [APPROVAL] pending/master/bde-build-against-osbsl-rebase to master
+  * b6656a5 [APPROVAL] pending/master/bsl-stringbuf-readeof-drqs38933184 to master
+  * 20a9dab [APPROVAL] pending/master/bsl-stringbuf-assertoutputpos-drqs38872456-rebase to master
+  * c3cfe07 [APPROVAL] pending/master/common-patch-version-drqs-38733501 to master
+  * a5c9442 [APPROVAL] pending/master/drqs-33944521-codec-followup to master
+  * 96a17ae [APPROVAL] pending/master/bcemt-semaphore-darwin-test-drqs37308523 to master
+  * 96e74eb [APPROVAL] pending/master/bsl-iosfwd-macrostd-drqs38887876 to master
+  * 7c822eb [APPROVAL] pending/master/bsl-detectnested-templateconversion-drqs38623160 to master
+  * 5c6422f [APPROVAL] pending/master/bsl-detectnested-templateconversion-drqs38623160 to master
+  * 1a755eb [APPROVAL] origin/review/bsl-stringbuf-m64-warnings-drqs38470743 to master
+  * 018b110 [APPROVAL] origin/review/bsl-stringbuf-assertsize-drqs38618050 to master
+  * 90e9178 [APPROVAL] origin/review/fixes_for_doxygen-drqs-38664727 to master
+  * f569fc6 [APPROVAL] pending/master/bdeut-variant-metaint-pod-drqs37686975 to master
+  * 2ead108 [APPROVAL] pending/master/parse-double-fix-drqs-37205465 to master
+  * c69e905 [APPROVAL] pending/master/btemt_channelerror-drqs-33787836 to master
+  * b21a79e [APPROVAL] igit/dev/cwilson9/bde+pcre-test-failure to master
+  * 03f9212 [APPROVAL] pending/master/bdecs_calendarcache-timeout-fix-drqs-37338470 to master
+  * 7677178 [APPROVAL] pending/master/bcemt-qlock-semaphore-drqs37693825 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 18 Dec 2012 13:32:56 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 6 Mar 2013 11:58:54 -0500
 
-bde-core (2.16.0.0) unstable; urgency=low
+bde-core (MERGE_BASE_master_2.16.x) git; urgency=low
 
-  * Update version info for 2.16.0 rs_suite build
+  * dea54f5 [APPROVAL] changelog-update-2.16-release to master
+  * eef20bc [APPROVAL] pending/master/drqs37333435-baem-publisher-deadlock to master
+  * e7cc5b8 [APPROVAL] pending/master/bdede_charconvertutf16-make-complete-drqs-30437820 to master
+  * ecd9429 [APPROVAL] pending/master/bdex_genericbyteinstream-array_bounds-drqs-36150655 to master
+  * 5fb9dd6 [APPROVAL] refactor-appendIfValid-drqs37419039 to master
+  * f7544f1 [APPROVAL] pending/master/absolute-time-microsleep-drqs24592756 to master
+  * 51e0e81 [APPROVAL] pending/master/sop-cleanup-drqs37109979 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 07 Dec 2012 08:13:33 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Jan 2013 15:47:57 -0500
 
-bde-core (2.15.0.1) unstable; urgency=low
+bde-core (BSL_FROZEN_2.16.0_C) git; urgency=low
 
-  * Remove reference to 00deployed
+  * 414edb6 [APPROVAL] pending/master/fix-bdeut_variant-warning-drqs-37689270 to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Tue, 06 Nov 2012 17:21:41 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 10 Jan 2013 14:53:45 -0500
 
-bde-core (2.15.0.0) unstable; urgency=low
+bde-core (BSL_FROZEN_2.16.0_B) git; urgency=low
 
-  * Preparing 2.15.0 release
+  * 49a9b02 [APPROVAL] pending/master/bslalg_autoarray-move-destructor-usage-drqs-34554786 to master
+  * de0473a [APPROVAL] pending/master/restore_non_standard_bsl_hash_for_strings_drqs37540921 to master
+  * e02418a [APPROVAL] pending/master/bslmf-tests-msvc-drqs37446628 to master
+  * d33d90e [APPROVAL] pending/master/fix-bslmf_removepointer_t_cpp-omit_deprecated-on-aix-drqs-37503925 to master
+  * 529cd3d [APPROVAL] pending/master/bslmf_isfunction-fails-test-case-1-on-clang-drqs-37510095 to master
+  * 92e2759 [APPROVAL] pending/master/stringstream_warnings_drqs37145006 to master
+  * c4e2ae6 [APPROVAL] pending/master/darwin-tests-timing-tolerance-drqs37112694 to master
+  * ef53793 [APPROVAL] pending/master/bslalg_autoarray-move-destructor-usage-drqs-34554786 to master
+  * e2b9cf1 [APPROVAL] pending/master/fix-serializableobjectproxy-on-master to master
+  * e25e860 [APPROVAL] origin/review/build-clang-3.1-update-drqs-37395204 to master
+  * 1b25068 [APPROVAL] pending/master/baea-factor_sop-drqs-34365420 to master
+  * f107e16 [APPROVAL] pending/master/updates-setOnFileRotationCallback-doc-drqs-3735932 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 29 Aug 2012 13:59:00 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 18 Dec 2012 13:33:38 -0500
 
-bde-core (2.14.0.201208v01.0) unstable; urgency=low
+bde-core (BSL_FROZEN_2.16.0_A) git; urgency=low
 
-  * Rebase to BSL 2.14.0
+  * 7da1eac [APPROVAL] pending/master/unordered-fix-rehash to master
+  * b8613a4 [APPROVAL] pending/master/unordered_validation to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 27 Jul 2012 17:21:41 -0500
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 7 Dec 2012 19:30:10 -0500
 
-bde-core (2.13.0.RS201205v01.0) unstable; urgency=low
+bde-core (BSL_FROZEN_2.16.0) git; urgency=low
 
-  * Rebase to BSL 2.13.0
+  * 573ee79 [APPROVAL] origin/review/unordered_validation to rssuite-2.16.0
+  * 188010c [APPROVAL] pending/master/bsl-atomic-failure-clang-drqs-37362137 to master
+  * 0f93d1a [APPROVAL] pending/master/bsls-atomics-Solaris-Gcc-Code-Missing-drqs-35034529 to master
+  * dfa592b [APPROVAL] pending/master/bsl-removepointer-functionptr-xlc-drqs-37290749/1354836570 to master
+  * c4429ce [APPROVAL] pending/master/bsls_timeutil-and-bsls_stopwatch-corrections-drqs-34696461 to master
+  * d7344f6 [APPROVAL] pending/master/type-traits-doc to master
+  * d6da2fe [APPROVAL] pending/master/remove-stlport-text-from-bslstl_bitset-drqs-37337945 to master
+  * 0b2d8e0 [APPROVAL] pending/master/bslcleanup-bsls_pkg_doc-drqs-35429100 to master
+  * d830a8b [APPROVAL] pending/master/fix-warnings-in-bslalg_rangecompare-drqs-37088163 to master
+  * a2a7ceb [APPROVAL] pending/master/fix-warnings-in-bslalg_dequeprimitives-drqs-37088378 to master
+  * 136c4b5 [APPROVAL] pending/master/fix-warnings-issues-41_42_46_47_56-drqs-37220936 to master
+  * fa65ea4 [APPROVAL] origin/review/bcema_sharedptroutofplacerep-warning-fixup-drqs-36970087 to master
+  * 5693cf3 [APPROVAL] origin/review/bsl-stdhdrs-time-h-drqs37074038 to master
+  * 007676d [APPROVAL] pending/master/fix-unused-warnings-oss-issues-22-24_drqs-36943712 to master
+  * fa3b432 [APPROVAL] pending/master/bcemt_threadgroup-case-2-fails-drqs-36528243 to master
+  * 2d1df22 [APPROVAL] pending/master/bcep_multiqueuethreadpool-fix-destructor-documentation-drqs-34119806 to master
+  * 791cabf [APPROVAL] pending/master/bslcleanup-update_pkg_synopses-drqs-35798568 to master
+  * 60a0c65 [APPROVAL] pending/master/drqs-35256287-bslma-package-level-doc to master
+  * 1870af9 [APPROVAL] pending/master/drqs-35420225-bdef_bind_memfnobjectwrapper-traits to master
+  * a65a561 [APPROVAL] pending/master/reduce-scope-of-omit-transitional-in-bsl_functional_drqs-36719120 to master
+  * 3424a72 [APPROVAL] pending/master/drqs36358097_baenet_httpmessageparser_test to master
+  * 62502a9 [APPROVAL] pending/master/bteso_DEM_select-FD_ZERO-memset-drqs-36561621 to master
+  * 849c21e [APPROVAL] bump-versions-to-2.16.0 to master
+  * ee07b68 [APPROVAL] pending/master/reverse-deprecation-of-bslma-bdema_managedallocator_drqs-36500007 to master
+  * ad11f5e [APPROVAL] pending/master/remove-my_class5-tests-from-typetraits-test-drivers_drqs-35644799 to master
+  * 3ce5c49 [APPROVAL] pending/master/basic_warning_reduction_drqs37044526 to master
+  * 91357c2 [APPROVAL] origin/review/allow-pointer-to-member-in-bsl_pair_drqs-36958527 to master
+  * 37c0921 [APPROVAL] origin/review/bsls_platform-docs-missing-os-darwin-platform_drqs-36943777 to master
+  * 6787000 [APPROVAL] origin/review/oss-issue-26-cosmetica_drqs-36959222 to master
+  * 2475a6a [APPROVAL] origin/review/drqs37071363 to master
+  * 878a997 [APPROVAL] pending/master/bce-darwin-fixes-drqs36818167 to master
+  * 6210013 [APPROVAL] add-support-for-gcc-4.7.2 to master
+  * c662e92 [APPROVAL] origin/review/bsls-atomics-dependent-call-drqs36927466 to master
+  * 5d963eb [APPROVAL] origin/review/fix-bslstl_iteratorutil-on-sun_drqs-36781261 to master
+  * b8202f8 [APPROVAL] origin/review/fix-bslstl_unorderedmultiset-test-case-1_drqs-36781261 to master
+  * d66a7a8 [APPROVAL] origin/review/fix-bslfwd_mem-drqs-36700708 to master
+  * b1320d9 [APPROVAL] origin/review/oss-issue-5-bsls-timeutil-darwin-includes_drqs-36883008 to master
+  * 84799c6 [APPROVAL] origin/review/fix-package-prefix-use-in-bsls_buildtarget-phase-2-drqs-36700708 to master
+  * b2540ab [APPROVAL] origin/review/cleanup-legacy-identifier-use_drqs-36870775 to master
+  * 64e4529 [APPROVAL] unordered_polish-master-merge to master
+  * 0aa7023 [APPROVAL] cygwin_build-master-merge to master
+  * 8c1178d [APPROVAL] pending/master/type-traits-update to master
+  * 41e7710 [APPROVAL] pending/master/include_next-drqs36057057-merge to master
+  * 1dce5e5 [APPROVAL] pending/master/fix-package-prefix-use-in-bslstl_treeiterator-drqs-36697932 to master
+  * c865941 [APPROVAL] pending/master/cleanup-stlport-and-backwardcompatibility-drqs-36696957 to master
+  * 773dbd1 [APPROVAL] remove-stlport-references-drqs36694442 to master
+  * e8327a8 [APPROVAL] pending/master/cleanup-bslstdhdrs-drqs36543295 to master
+  * c492d4f [APPROVAL] pending/master/pcre-test-fixups-drqs-35297183 to master
+  * fe4ff8c [APPROVAL] pending/master/drqs-36599726-aggregateraw-safe-assert to master
+  * b44190e [APPROVAL] pending/master/drqs-34366115-bcem_aggregateutil-updated-master-2 to master
+  * bbb840f [APPROVAL] debian-packaging-typo-fixes to master
+  * 042fcaa [APPROVAL] pending/master/bsls_timeutil-compile-on-FreeBSD-drqs-35873591 to master
+  * ce391bd [APPROVAL] pending/master/bslstl_treeiterator-cleanup-drqs-35243096 to master
+  * 0c1e5bc [APPROVAL] pending/master/drqs30051183_smallchange_bael_log to master
+  * cc14d03 [APPROVAL] origin/review/bsl-tests-oss-portability-drqs-36260907 to master
+  * 83100c1 [APPROVAL] pending/master/baesu_stacktraceresolverimpl_elf-no-bsl-override to master
+  * 134b02e [APPROVAL] origin/review/baejsn-drqs-33944521 to master
+  * c51bf64 [APPROVAL] review/debian-packaging to master
+  * 247c005 [APPROVAL] remotes/origin/review/bsl-wrap_deprecated_includes-drqs-36262302 to master
+  * 7f316f8 [APPROVAL] remotes/origin/review/drqs36396820 to master
+  * 342685d [APPROVAL] origin/review/update-deprecated-component-name-in-bslstl_simplepool_drqs-36349742 to master
+  * 8a64b10 [APPROVAL] pending/master/drqs35181674_bslstl_string_assertion to master
+  * 7cef32c [APPROVAL] pending/master/bcef_bind_not_forwarding_all_arguments_drqs35403170 to master
+  * f0397a0 [APPROVAL] pending/master/bslstl-vector-doc-update-drqs-33321981 to master
+  * 306f380 [APPROVAL] pending/master/bdesu_fdstreambuf-on-darwin-drqs-34719497 to master
+  * 3887d1a [APPROVAL] pending/master/fix_format_for_conversion_to_doxygen-drqs-32314448 to master
+  * ea24ab0 [APPROVAL] pending/master/bslcleanup-merge_back_gitub_updates-drqs-35478553 to master
+  * 34208c4 [APPROVAL] pending/master/add_rvalue_reference_should_not_drqs35644714 to master
+  * 7ba6533 [APPROVAL] pending/master/bslstl_map-veryverbose_error-drqs-36319540 to master
+  * aaf83aa [APPROVAL] pending/master/metaint-conv-warning-drqs36031946 to master
+  * 8a4357a [APPROVAL] pending/master/bsl_utility-move-forward-drqs-34688236 to master
+  * 644b5eb [APPROVAL] drqs36396820 to master
+  * 44d0960 [APPROVAL] remotes/origin/review/correct_pub_files-drqs-35362831 to master
+  * 4227ed0 [APPROVAL] pending/master/bsls_timeutil-ubuntu-12.04-build-drqs-35852555 to master
+  * 6b47371 [APPROVAL] pending/master/stringstream-test-drivers to master
+  * 1635c22 [APPROVAL] pending/master/workaround-gcc-463-compiler-bug-in-bslstl_list.t.cpp-drqs-35775692 to master
+  * 603e140 [APPROVAL] remotes/origin/review/bslalg_doc_fixes_drqs35665439 to master
+  * 662ee49 [APPROVAL] pending/master/drqs34520980_bslstl_iterator_docs_and_testing to master
+  * 52322fb [APPROVAL] pending/master/change-drqs-and-treq-to-internal-ticket-in-doc-drqs-35594247 to master
+  * 3e8858a [APPROVAL] pending/master/rename-bslstl_treeiterator-template-parameters-drqs-34092930 to master
+  * 8d6aaf8 [APPROVAL] pending/master/bdechk_bsls_atomics_fixes_drqs35055960 to master
+  * be2ad10 [APPROVAL] pending/master/style_and_doc_fixes_for_bsls_drqs35677445 to master
+  * 253fce0 [APPROVAL] remotes/origin/review/bslcleanup-bsl_grp_doc-drqs-35592101 to master
+  * 6edfb09 [APPROVAL] pending/master/bslcleanup-fixes_for_doxygen-drqs-35644319 to master
+  * e63b993 [APPROVAL] pending/master/addcopyright-drqs35644844 to master
+  * 3c20d89 [APPROVAL] pending/master/has-trait-AIX-test-failure-drqs-35644614 to master
+  * a3efd69 [APPROVAL] remove-use-of-sequentialallocator-from-bslstl-drqs35644524 to master
+  * aa19af7 [APPROVAL] pending/master/make-bsls_bsltestutil-test-driver-includes-non-conditional-drqs-35573246 to master
+  * 7e310f7 [APPROVAL] pending/master/gcc-4.7.0-errors-from-github-drqs-35519429 to master
+  * 8fd1c4b [APPROVAL] pending/master/remove-additional-stlport-references-drqs-35520269 to master
+  * 1c0dc8e [APPROVAL] pending/master/add_missing_license-drqs-35544615 to master
+  * 5c3445f [APPROVAL] pending/master/unordered_container_development to master
+  * 568de40 [APPROVAL] pending/master/type-traits to master
+  * a8db59a [APPROVAL] pending/master/define_bsl_list_operators_outside_namespace_drqs_34726287 to master
+  * 5692ce5 [APPROVAL] pending/master/drqs34554731_bslalg_arraydestructionprimitives to master
+  * dc3571a [APPROVAL] pending/master/bslstl_containerbase-cleanup-drqs-34554721 to master
+  * f0aa55d [APPROVAL] pending/master/drqs34555046_bslalg_scalardestructionprimitives to master
+  * d50fdb4 [APPROVAL] pending/master/bslcleanup-bslstl_util-drqs-33491519 to master
+  * e3796bf [APPROVAL] remotes/origin/review/apply-clays-sstream-review-drqs-35395594 to master
+  * 1303c1b [APPROVAL] pending/master/bsls_alignmentfromtype-remove-unused-parameter-in-usage-drqs-31772303 to master
+  * 2091c75 [APPROVAL] pending/master/bslstl_map-select_on_container_copy-drqs-34006925 to master
+  * bfa2b42 [APPROVAL] pending/master/bsls_macroincrement_test_driver to master
+  * 003cb07 [APPROVAL] pending/master/drqs-33320166-bsl_string to master
+  * 789b059 [APPROVAL] pending/master/apply-single-underscore-script-to-treq_2275517-master-merge to master
+  * 98313c7 [APPROVAL] pending/master/bslalg_arrayprimitives-drqs-34554756 to master
+  * 04b61a7 [APPROVAL] pending/master/bslcleanup-grp_and_pkg_doc-drqs-33963079 to master
+  * 90f26e0 [APPROVAL] integrate-clay-suggestions-associative-containers-drqs-34920561 to master
+  * 4e9ebe0 [APPROVAL] pending/master/bsl-sstream-treq2147726 to master
+  * 6ebe508 [APPROVAL] pending/master/bslcleanup-add_MACROS_sections-drqs-34619984 to master
+  * 9c9d435 [APPROVAL] pending/master/bslalg_arrayprimitives-drqs-34554756 to master
+  * 1ba2df4 [APPROVAL] pending/master/rangecompare-usage-example-drqs-33396141 to master
+  * 5a7e116 [APPROVAL] pending/master/ibm_swap_empty_class_bug-drqs-35282073 to master
+  * 93a3480 [APPROVAL] pending/master/bslstl_list_merge_base_master_2.15.x to master
+  * b461974 [APPROVAL] pending/master/deque-usage-drqs-33321791 to master
+  * 9d4f303 [APPROVAL] pending/master/__-id-fix-7files-drqs-30790261 to master
+  * 84ad812 [APPROVAL] pending/master/drqs25587251_validating_journal to master
+  * 73fc533 [APPROVAL] pending/master/use_bsltestutil_in_bslma_drqs35008722 to master
+  * 3221079 [APPROVAL] review/bsl-cleanup-bsls_exceptionutil-drqs33321956 to master
+  * 6ead422 [APPROVAL] update-bslstl_list-template-param-names-drqs35234736 to master
+  * 931ed9b [APPROVAL] pending/master/bsls-bsltestutil-test-driver-drqs-29926158 to master
+  * 41ffc57 [APPROVAL] pending/master/drqs35111387_missing_constructor to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 16 May 2012 17:21:41 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Dec 2012 14:22:46 -0500
 
-bde-core (2.12.2.RS201201v00.0) unstable; urgency=low
+bde-core (MERGE_BASE_master_2.15.x) git; urgency=low
 
-  * Rebase to BSL 2.12.2
+  * 0cc7b0d [APPROVAL] pending/master/built_test_drivers_with_a_strict_library_drqs34854089 to master
+  * 83cf070 [APPROVAL] pending/master/drqs-35101359-channelpoolchannel-timeout-bug to master
+  * 3fd75e1 [APPROVAL] remotes/origin/review/BSL_LEGACY-fixup-core-drqs-34894640 to master
+  * 4cc7475 [APPROVAL] pending/master/bslstl_queue-rebase to master
+  * 9b56aac [APPROVAL] pending/master/bael_message_encoding-drqs-17731537 to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 26 Apr 2012 17:21:41 -0500
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Tue, 11 Sep 2012 17:14:04 -0400
 
-bde-core (2.12.0.10.RS201201v00) unstable; urgency=low
+bde-core (BSL_FROZEN_2.15.0_UPDATED) git; urgency=low
 
-  * Hard-code the UPLID to avoid weirdnes
+  * 3946000 [APPROVAL] pending/master/drqs-34828111-ber-decoding-using-variant to master
+  * 3628d98 [APPROVAL] remotes/origin/dev/druoso/debian-packaging to master
+  * b877f91 [APPROVAL] pending/master/cal-changing-weekend-days-drqs-25988530 to master
+  * 4a6f8a9 [APPROVAL] pending/master/bslstl_list-release to master
+  * 7796a54 [APPROVAL] pending/master/bslstl_map-ambiguous_Comparator to master
+  * fc40fb9 [APPROVAL] pending/master/drqs-34402866-ber-encoder-gcc-warning to master
+  * b26f2c3 [APPROVAL] pending/master/fix-type-trait-declaration-macros-drqs-34860604 to master
+  * 9b9d2c5 [APPROVAL] origin/dev/druoso/debian-packaging to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 26 Apr 2012 17:21:41 -0500
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 31 Aug 2012 19:17:03 -0400
 
-bde-core (2.12.0.9.RS201201v00) unstable; urgency=low
+bde-core (BSL_FROZEN_2.15.0) git; urgency=low
 
-  * Attempt to prevent undefs in the shared object broke the build
+  * ed9e829 [APPROVAL] fix_debian_rs_suite_version to master
+  * 49c7dd6 [APPROVAL] bump-versions-to-2.15 to master
+  * e8333a7 [APPROVAL] pending/master/bsls_timeutil-and-bsls_stopwatch-corrections-drqs-34696461 to master
+  * 070f9f5 [APPROVAL] pending/master/deprecate_dual_stlport_drqs34515180 to master
+  * f4ba209 [APPROVAL] pending/master/bslstl_map-ibm_compiler_workaround-drqs-34659505 to master
+  * 9ca247e [APPROVAL] pending/master/bteso_ipresolutioncache-test_failure-drqs-34720947 to master
+  * 341f4b7 [APPROVAL] pending/master/bslcleanup-unbalanced_code_ticks-drqs-33902195 to master
+  * 364c7d0 [APPROVAL] pending/master/bslcleanup-list_markup-drqs-33932761 to master
+  * 42d9223 [APPROVAL] pending/master/bslcleanup-SEE_ALSO-drqs-33892825 to master
+  * 3e634f6 [APPROVAL] bslstl_stack-rebase-treq-2156431 to master
+  * c2620d3 [APPROVAL] recursive-epilogue-merge-fix-drqs-34742613 to master
+  * 15149ef [APPROVAL] approvals/pending/master/bslstl_list-release/1345749902 to master
+  * 0021336 [APPROVAL] pending/master/bslstl_list-release to master
+  * 20ae49c [APPROVAL] pending/master/bslstl_iterator_test_driver_drqs33321146 to master
+  * c2a8cd3 [APPROVAL] pending/master/bslstl_queue-rebase to master
+  * 1beca06 [APPROVAL] remotes/origin/review/bsl-atomics-failures-clang-drqs34039467 to master
+  * c5e9d62 [APPROVAL] pending/master/bslcleanup-bsls_annotation-drqs-33491474 to master
+  * 6601b2f [APPROVAL] pending/master/bslcleanup-external_doc_references-drqs-34153369 to master
+  * 68b334e [APPROVAL] pending/master/bslstl_map-pool_doc_update-rebase to master
+  * 510a6c4 [APPROVAL] pending/master/move_bslstl_ex_components_back_to_bslstp_drqs34185150 to master
+  * 78eb550 [APPROVAL] pending/master/correct_allocator_include_for_bslstl_allocatorproxy_drqs34427303 to master
+  * 4d3da7b [APPROVAL] pending/master/bslstl-remove_comparator_inheritance-drqs-34488320 to master
+  * 3b17ed5 [APPROVAL] pending/master/bslstl_bidirectionaliterator-usage-drqs-33321781 to master
+  * 983b6ba [APPROVAL] pending/master/bslstl_randomaccessiterator-usage-drqs-33321916 to master
+  * 0e33833 [APPROVAL] pending/master/bsls_alignmentimp-usage-testdriver-drqs-33321756 to master
+  * 607aadb [APPROVAL] pending/master/bslstl-add_bslscm_version-drqs-34617129 to master
+  * 954d3a2 [APPROVAL] remotes/origin/review/debian-packaging to master
+  * 98a9394 [APPROVAL] pending/master/drqs-20535695-returning-peer-address to master
+  * 4544c71 [APPROVAL] switch-back-to-cp-dash-p-drqs-34472949-master-merge to master
+  * 3156a45 [APPROVAL] pending/master/drqs30625945_remove_deadbeef to master
+  * 5ab1d05 [APPROVAL] bslstl_bitset-usage-and-test-drqs-33316641 to master
+  * 6304674 [APPROVAL] remotes/origin/review/drqs-34395876-ber-bool-assertion-with-cast to master
+  * 425d96c [APPROVAL] pending/master/drqs-29773776-baexml_formatter-abi-incompatible-check to master
+  * da0cc2a [APPROVAL] pending/master/drqs-32546982-channelpoolchannel-destruct-callbacks to master
+  * fa3d61c [APPROVAL] pending/master/cstring_functors_drqs31441666 to master
+  * ddda042 [APPROVAL] pending/master/drqs-33290235-baexml_preparesequence-remove-executeimp to master
+  * 4fd4029 [APPROVAL] pending/master/drqs-26702556-bcem_aggregateraw-no-aggutil to master
+  * 9f75669 [APPROVAL] pending/master/bas_client_error_drqs33282575 to master
+  * 7122403 [APPROVAL] pending/master/managedptr_doc_bug_drqs34036167 to master
+  * 1720910 [APPROVAL] pending/master/baetzo_testloader-fix-test-drqs-33673562 to master
+  * 1806b34 [APPROVAL] pending/master/integrate-baea_serializableobjectproxy-drqs-26099066 to master
+  * 5c7c5f6 [APPROVAL] pending/master/SAFE_builds_on_Linux_drqs32701048 to master
+  * a2666d8 [APPROVAL] pending/master/bdesb-omosb-capitalization-drqs-30801681 to master
+  * 010dca3 [APPROVAL] pending/master/bcep_multiqueuethreadpool-INT_MAX-drqs-32586093 to master
+  * 59c0f74 [APPROVAL] pending/master/cleartempfiles_drqs30560917 to master
+  * 383dd3c [APPROVAL] pending/master/baelog_truncated_drqs31080737 to master
+  * f556c0f [APPROVAL] pending/master/bdepu-aix-compiler-error-drqs-33591929 to master
+  * fed7752 [APPROVAL] pending/master/bae-perfmonitor-overflow-drqs33181971 to master
+  * 58de2be [APPROVAL] pending/master/drqs29496693_channelpoolchannel_managedptr to master
+  * fdce1d3 [APPROVAL] pending/master/drqs-28150578-asyncchannel-doc to master
+  * 6c48fff [APPROVAL] pending/master/baetzo-change-default-path-log-drqs-32817639 to master
+  * 85a7a60 [APPROVAL] pending/master/doc_bdesu_fileutil_atomicity-drqs-32203925 to master
+  * da1622c [APPROVAL] pending/master/baezo_zoneinfocache-test-fix-drqs-32585193 to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 12 Apr 2012 17:21:41 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 29 Aug 2012 14:01:38 -0400
 
-bde-core (2.12.0.8.RS201201v00) unstable; urgency=low
+bde-core (MERGE_BASE_master_2.14.x) git; urgency=low
 
-  * Fix list of packages that should not be installed
+  * 556d922 [APPROVAL] pending/master/defaulteventmanager_epoll_drqs30910308 to master
+  * 29e007d [APPROVAL] pending/master/bdepu_iso8601-improvements-drqs-30160956 to master
+  * defbd60 [APPROVAL] pending/master/avoid-bdesu_fileutil-overflow-drqs-34122371 to master
+  * d127536 [APPROVAL] pending/master/bsls-compilerfeatures-cleanup-drqs33320946 to master
+  * 543ad4b [APPROVAL] pending/master/drqs-31848131_windows_timezones to master
+  * 7684e1a [APPROVAL] pending/master/drqs34078955_btemt_channelqueuepool_doc to master
+  * f2249a7 [APPROVAL] pending/master/bcemt_rwmutex-compiler-warning-drqs-28103928 to master
+  * 4a65e1e [APPROVAL] remotes/origin/review/removing_deprecated_components_phase2_drqs33433419 to master
+  * e5ef5db [APPROVAL] remotes/origin/review/drqs-33352502-channel-pool-test-driver to master
+  * 73e2221 [APPROVAL] pending/master/drqs-33150225-ber-encoder-bool-assert to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 20 Mar 2012 17:21:41 -0500
+ -- Shijin Kong <skong25@bloomberg.net>  Tue, 7 Aug 2012 17:35:29 -0400
 
-bde-core (2.12.0.7.RS201201v00) unstable; urgency=low
+bde-core (BSL_FROZEN_2.14.0) git; urgency=low
 
-  * Refactor header installation.
+  * 3aa609a [APPROVAL] pending/master/bdesu_fileutil-enum-prefix-drqs-32641536 to master
+  * 1669465 [APPROVAL] version_2.14_GIT_MASTER to master
+  * 0693d26 [APPROVAL] pending/master/atomic-singletons-drqs32300988 to master
+  * 4e76c63 [APPROVAL] pending/master/fix-bte-darwin-build-drqs33796821 to master
+  * bf4557c [APPROVAL] pending/master/warn_about_old_platforms_drqs30881113 to master
+  * 95e30d7 [APPROVAL] pending/master/IsPolymorphic_refinements_drqs28522058 to master
+  * dbcd2e8 [APPROVAL] pending/master/publish_hash_through_bsl_function_drqs33765075 to master
+  * a1c6e8d [APPROVAL] add-arconfig to master
+  * 1d071bb [APPROVAL] remotes/origin/review/add-arcconfig to master
+  * cb50ef3 [APPROVAL] pending/master/bsltf_testvaluearray-iter_traits-rebase-drqs-32090350 to master
+  * b4cbaa7 [APPROVAL] pending/master/bsltf_testvaluearray-iter_traits-rebase-drqs-32090350 to master
+  * 9c1b9d9 [APPROVAL] remotes/origin/review/default-opts-windows-W4-warnings-drqs-33673377 to master
+  * dd7e6a8 [APPROVAL] pending/master/bsl-hpux-atomics-noreordering-drqs31176257 to master
+  * b2ec81f [APPROVAL] pending/master/bslalg_scalarprimitive-new-rebase-drqs-30940277 to master
+  * 968572d [APPROVAL] pending/master/atomic-msvc-drqs29389358 to master
+  * b416838 [APPROVAL] bslstl_map to master
+  * 87c7d46 [APPROVAL] pending/master/bslim-printRange-drqs-30881797 to master
+  * 063f81a [APPROVAL] pending/master/bsl_support_for_no_exceptions_drqs31966350 to master
+  * 7f61ed6 [APPROVAL] pending/master/bsl-sign-conversion-drqs32312538 to master
+  * 40adca0 [APPROVAL] pending/master/bslstl_stringref-change-typename-drqs-32908879 to master
+  * 6c6b71f [APPROVAL] pending/master/drqs-33107174-channelpool-invoke-lowwat-rebased to master
+  * 19e65d3 [APPROVAL] pending/master/bteso-revert-hpux-to-poll-33118269 to master
+  * 6ba942c [APPROVAL] pending/master/drqs-32973044-async-channel-warning-rebased to master
+  * db69bfd [APPROVAL] pending/master/drqs-31706696-baexml_decoder-sequence-context to master
+  * dfdd849 [APPROVAL] fix-btemt_channelpool-testdriver to master
+  * 2cef171 [APPROVAL] pending/master/drqs-32694758-low-watermark to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 19 Mar 2012 17:21:41 -0500
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 23 Jul 2012 13:33:36 -0400
 
-bde-core (2.12.0.6.RS201201v00) unstable; urgency=low
+bde-core (MERGE_BASE_master_2.13.x) git; urgency=low
 
-  * Refuse unresolved symbols in the shared libraries
+  * bd5e014 [APPROVAL] pending/master/drqs-29286796-tcptimereventmgr-race-condition to master
+  * c7064e8 [APPROVAL] pending/master/doc_bdeut_stringref-drqs-31222558 to master
+  * 94f5228 [APPROVAL] pending/master/drqs-28934644-channelpool-disableRead to master
+  * 36a3c6d [APPROVAL] pending/master/drqs-29286796-tcptimereventmgr-race-condition to master
+  * 1b3deb2 [APPROVAL] pending/master/asyncfileobserver_nightly_failure_drqs32721749 to master
+  * f1127c6 [APPROVAL] remove-fwd-declare-drqs32822394 to master
+  * bc1a2c7 [APPROVAL] remove-shadow-declaration-drqs32822544-master to master
+  * 56957c3 [APPROVAL] pending/master/bsl-atomics-aix-gcc to master
+  * c59adc5 [APPROVAL] pending/master/drqs-32722084-revert-baexml_decoder-change to master
+  * aef0d6a [APPROVAL] pending/master/bdeu_string-lowerCaseCmp-drqs-32081455 to master
+  * 97a2489 [APPROVAL] pending/master/bsl-atomics-hpux-drqs32696083 to master
+  * 45a5db5 [APPROVAL] pending/master/fix_throw_expressions_in_bdesu_drqs32572479 to master
+  * 07d3a4c [APPROVAL] pending/master/remove-bdema-autodeallocator-autodeleter-autodestructor-drqs-30646486 to master
+  * 2bb1df0 [APPROVAL] pending/master/drqs-28002301-finish-mstr to master
+  * 04b44ed [APPROVAL] pending/master/replaceGMTwithUtc-drqs29222266 to master
+  * 0084ebb [APPROVAL] pending/master/baexml_validatingreader-usage-example-fix-drqs-31852121 to master
+  * 18e2d42 [APPROVAL] pending/master/drqs-31961640-fix_single_ticks to master
+  * 6f4284f [APPROVAL] pending/master/drqs-31706696-baexml_decoder-sequence-context to master
+  * e1125bd [APPROVAL] pending/master/drqs-31972516-fix_duplicate_headings to master
+  * cfc9b0b [APPROVAL] pending/master/drqs-29175158-datetime-ber-encoding to master
+  * 8922b4f [APPROVAL] pending/master/bcema_blob-appendDataBuffer-wont-trim-drqs-30331343 to master
+  * 9e4c8fe [APPROVAL] pending/master/baecs_journal-file-size-drqs-31496985 to master
+  * b0a5797 [APPROVAL] pending/master/compile_tests_without_exceptions_drqs28408577 to master
+  * c3cca07 [APPROVAL] pending/master/deprecation-cleanup-drqs26767621 to master
+  * 7a69e9d [APPROVAL] pending/master/move-bsl-test-pkgs-to-bst to master
+  * 6ea01f4 [APPROVAL] pending/master/baetzo-fix-c++11-drqs-28362533 to master
+  * 48993cd [APPROVAL] pending/master/bdeimp_dateutil-fix-nocache-drqs-29009449 to master
+  * 623edf4 [APPROVAL] pending/master/drqs30356156-baea_CommandLine-doc to master
+  * 7f4a8d9 [APPROVAL] pending/master/baea_commandline-argument-index-drqs-31325005 to master
+  * 3ff5934 [APPROVAL] pending/master/bdesu-eliminate-implicit-locks-drqs-30568749 to master
+  * 9e232eb [APPROVAL] pending/master/drqs-23445019-bcep_eventscheduler-cancelEvent to master
+  * 45861be [APPROVAL] pending/master/bcec_fixedqueue-erratic-failure-drqs-30852052 to master
+  * d844ea7 [APPROVAL] pending/master/remove_duplicate_includes_drqs30882377 to master
+  * e7ef3fb [APPROVAL] pending/master/remove-void-main-drqs_32454242 to master
+  * 584561e [APPROVAL] remotes/origin/review/bce-librt-drqs32384772 to master
+  * 039e9d2 [APPROVAL] pending/master/drqs-30994480-channelpool-statistics to master
+  * 4d42e86 [APPROVAL] pending/master/baea_pipecontrolchannel-fix-typo-drqs-31143116 to master
+  * 2d0a703 [APPROVAL] remotes/origin/review/plink_arch_64-default-opts-drqs-31382352 to master
+  * 73110e7 [APPROVAL] pending/master/btemt_channelpool.t.cpp-compile-failure-bsl-std-drqs-30383753 to master
+  * 9b805c1 [APPROVAL] pending/master/bteso_lingerOption-exemplar to master
+  * e9a33c6 [APPROVAL] pending/master/drqs-31003832_baetzo-error-reporting to master
+  * 1c77a86 [APPROVAL] pending/master/drqs-30994480-channelpool-statistics to master
+  * 6bdd873 [APPROVAL] pending/master/darwin-build-drqs30522547 to master
+  * 8019001 [APPROVAL] pending/master/move-bbe-to-bde-core-drqs-31723192 to master
+  * 85f8bdb [APPROVAL] remotes/origin/review/no-undefined-symbols-shlib to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 24 Feb 2012 17:21:41 -0500
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 14 Jun 2012 17:22:32 -0400
 
-bde-core (2.12.0.5.RS201201v00) unstable; urgency=low
+bde-core (BSL_FROZEN_2.13.0) git; urgency=low
 
-  * Produces the libraries using producemake and also the RSSUITE
+  * 34a188d [APPROVAL] pending/master/bsl-libc99-drqs-30644046 to master
+  * 7e8ab06 [APPROVAL] remotes/origin/review/revert-make_pair-drqs31085029 to master
+  * c7d6ba4 [APPROVAL] pending/master/bslalg_arrayprimitives-drqs-31711031 to master
+  * 80620c7 [APPROVAL] pending/master/bsl-atomics to master
+  * ffb5027 [APPROVAL] fix-master to master
+  * 6dfbd9a [APPROVAL] pending/master/bslim-printRange-drqs-30881797 to master
+  * e0c20f2 [APPROVAL] pending/master/bsl-stringref-streaming-drqs-30453264 to master
+  * 4b68596 [APPROVAL] pending/master/iterator_test_driver_cleanup_drqs30304522 to master
+  * 777d803 [APPROVAL] remotes/origin/review/bsl-make_pair-drqs31085029 to master
+  * b48e0b5 [APPROVAL] pending/master/bdesb_overflowmemoutstreambuf-includes-drqs-30382477 to master
+  * 3514cb8 [APPROVAL] pending/master/const_fix_for_allocatorproxy_drqs30304158 to master
+  * c6158da [APPROVAL] pending/master/bslstl_allocatortraits-drqs30567661 to master
+  * 1a5862c [APPROVAL] pending/master/extract-metafunctions-from-managedPtr-drqs30819610 to master
+  * 6839c0b [APPROVAL] remotes/origin/review/default-opts-gcc-drqs32000581 to master
+  * 2d65e6f [APPROVAL] pending/master/hash-multiset-range-insert-drqs-31062316 to master
+  * bce5fa6 [APPROVAL] pending/master/cleanup-for-no-BSL_OVERRIDES_STD-drqs30771494 to master
+  * a98ea1f [APPROVAL] pending/master/nonblocking_drqs30813822 to master
+  * 437db13 [APPROVAL] remotes/origin/review/public-protocoltest-drqs31193856 to master
+  * d38d1a5 [APPROVAL] pending/master/bsls_alignmentutil-fix-warnings-drqs-29594559 to master
+  * bc933a5 [APPROVAL] pending/master/bsl-c-headers to master
+  * de15d19 [APPROVAL] remotes/origin/review/gcc-4.1.2-warning-flags to master
+  * b338d04 [APPROVAL] remotes/origin/review/bsl-forward-headers-alloc-fix to master
+  * ea636be [APPROVAL] remotes/origin/review/gcc4.1.2-compilation-drqs31108406 to master
+  * f54288c [APPROVAL] remotes/origin/review/bsl-namespace-migration to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 24 Feb 2012 17:21:41 -0500
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 14 May 2012 15:50:20 -0400
 
-bde-core (2.12.0-4-gc4e17b7) unstable; urgency=low
+bde-core (BDE_CORE_MASTER_BEFORE_NAMESPACE_MIGRATION) git; urgency=low
 
-  * Produces the libraries using producemake and also the RSSUITE
+  * 712872a [APPROVAL] remotes/origin/review/gcc-4.7.0-support to master
+  * 176da1d [APPROVAL] remotes/origin/review/bae-asyncfileobserver-fdecl-drqs29344828 to master
+  * 634fae2 [APPROVAL] remotes/origin/review/bsl-forward-headers-2.12 to master
+  * a9c2715 [APPROVAL] pending/master/drqs-29175158-datetime-ber-encoding to master
+  * 17d10c8 [APPROVAL] remotes/origin/review/clang-build to master
+  * e1ac08a [APPROVAL] pending/master/testobserver_drqs30942437-master-merged to master
+  * f10f5e4 [APPROVAL] pending/master/drqs30626609_concurrencytest to master
+  * 6f0b1e4 [APPROVAL] remotes/origin/review/version-2.13-numbers to master
+  * 98f99b4 [APPROVAL] remotes/origin/review/core_hiddenpublish-drqs-30753902 to master
+  * 3ea76a6 [APPROVAL] remotes/origin/review/drqs-30703789-ber-encoderoptions-crash to master
+  * 3732c82 [APPROVAL] remotes/origin/review/managedptr-overloadset-fix-drqs-30670366 to master
+  * 06bebef [APPROVAL] pending/master/misaligned-managedPtr-base-drqs-30596378 to master
+  * 8f205b4 [APPROVAL] pending/master/drqs29344828_asyncfileobserver to master
+  * 5e15b42 [APPROVAL] pending/master/drqs-23445019-bcep_eventscheduler-cancelEvent to master
+  * 4d109ae [APPROVAL] remotes/origin/review/bap-isnt-linking-drqs-30379557 to master
+  * 5c44740 [APPROVAL] pending/master/drqs-30057667-bdesu_FileUtil-trylock-status to master
+  * 755737f [APPROVAL] pending/master/stacktrace-temporary-guard-drqs-30474753 to master
+  * d4ac54b [APPROVAL] pending/master/drqs29344828_asyncfileobserver to master
+  * d09b930 [APPROVAL] pending/master/drqs-30028258-bdepu_iso8601-overrun to master
+  * 38ce0c7 [APPROVAL] pending/master/bdem_tableimp-add-disable-geometric-growth-drqs-30233250 to master
+  * d7dbfe3 [APPROVAL] remotes/origin/review/drqs29962271-shrlib-broken-aix to master
+  * ee94d66 [APPROVAL] remotes/origin/review/bsic-hoststateimpl-fix-drqs30407963 to master
+  * 5d72b97 [APPROVAL] remotes/origin/review/drqs-30257159-test-bcemt_configuration to master
+  * 03cc158 [APPROVAL] remotes/origin/review/disable-bsls_ident-drqs_29644737 to master
+  * 17c2c8a [APPROVAL] remotes/origin/review/disable-bsls_ident-drqs_29644737 to master
+  * 8e5bfa4 [APPROVAL] remotes/origin/review/bdema_managedptr_for_beta to master
+  * 4a2ddff [APPROVAL] remotes/origin/review/drqs30047503-fix-process_inc-and-ar_install-for-windows to master
+  * a334664 [APPROVAL] remotes/origin/review/e_ipcfs_missing_header to master
+  * a8cc32f [APPROVAL] pending/master/drqs30168600-safe-mode-BDE_DONT_ALLOW_TRANSITIVE_INCLUDES to master
+  * db74f28 [APPROVAL] pending/master/drqs25908458-a_comdb2-linux_testdriver to master
+  * 97ef80e [APPROVAL] remotes/origin/review/drqs30245595-bapcdr-linking to master
+  * 6ca5778 [APPROVAL] pending/master/drqs-29523478-bcemt_Turnstile-nightly-build to master
+  * 8f9dd94 [APPROVAL] pending/master/drqs29021141-bteso_resolveutil-testfail to master
+  * f6ce5ad [APPROVAL] pending/master/drqs-28366137-baptst-cpp11 to master
+  * 89b898e [APPROVAL] pending/master/drqs-29764981-baea_CommandLine-printUsage to master
+  * 5cc750f [APPROVAL] remotes/origin/review/drqs28363581-bael-c++11modebuild to master
+  * 78c8d63 [APPROVAL] pending/master/drqs-29523606-encoder-options-additions to master
+  * a37c4aa [APPROVAL] pending/master/drqs-29712797-bapcdr-needs-trakhitspost to master
+  * 715e641 [APPROVAL] pending/master/drqs29494989-a_comdb2-vutf8_documentation to master
+  * 8b03c9d [APPROVAL] pending/master/bdema_managedptr to master
+  * ea79118 [APPROVAL] remotes/origin/review/drqs29962271-shrlib-broken-aix to master
+  * e4dff88 [APPROVAL] pending/master/drqs-29680062-enhance-bcep-scheduler-doc to master
+  * 430177b [APPROVAL] pending/master/drqs-29765669-ticks-in-bce to master
+  * 23d44c7 [APPROVAL] pending/master/prefix-namespace-z_a_bdema-29881636 to master
+  * f0c9b12 [APPROVAL] remotes/origin/review/drqs29845303-rpath-restoration to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 24 Feb 2012 17:21:41 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 24 Apr 2012 13:40:30 -0400
 
-bde-core (2.11.0-233-g54ba421) unstable; urgency=low
+bde-core (BSL_FROZEN_2.12.0) git; urgency=low
 
-  * Initial release
+  * 9e03492 [APPROVAL] remotes/origin/review/drqs29608792-make-BSL_LEGACY=0-for-windows to master
+  * c2b1042 [APPROVAL] pending/master/drqs28367677-bsl-test-utility to master
+  * bbb7e3b [APPROVAL] pending/master/drqs29644737-BSLS_IDENT_OFF to master
+  * 24df696 [APPROVAL] pending/master/drqs-29114951-ber-encoder-empty-vector to master
+  * d4923e3 [APPROVAL] pending/master/drqs28367677-bsl-test-utility to master
+  * fb532c5 [APPROVAL] remotes/origin/review/drqs29842023-bslim-enum to master
+  * 973fd19 [APPROVAL] pending/master/drqs29544311-threadvar-flag to master
+  * ed0080c [APPROVAL] pending/master/prefix-namespace-29173602 to master
+  * c2fb344 [APPROVAL] pending/master/drqs29432316-merge-_MSC_VER-ident-fixes to master
+  * 6e0affe [APPROVAL] pending/master/bsl-stringref-stream-29367301 to master
+  * 3a4effb [APPROVAL] pending/master/drqs29044162_PredicateTypeTraits to master
+  * c754d13 [APPROVAL] pending/master/bde-variant-sun-assert-29636421 to master
+  * 498c168 [APPROVAL] pending/master/DRQS29594683-deprecationInTestDriver to master
+  * a336f65 [APPROVAL] remotes/origin/review/drqs-27802322-time-calc-in-baea_performancemonitor to master
+  * 6bb61ee [APPROVAL] remotes/origin/review/drqs27906288-content-length to master
+  * e6a3160 [APPROVAL] remotes/origin/review/drqs-29523606-nillable-encoder-fix to master
+  * 5907cdc [APPROVAL] pending/master/drqs-28731692-channelpoolchannel-conversionfactory to master
+  * 36f2cb8 [APPROVAL] pending/master/drqs-29399626-fix-pekludge-in-bap to master
+  * 855beed [APPROVAL] pending/master/drqs-28494261-multithreaded-stacktrace to master
+  * 02e750f [APPROVAL] remotes/origin/review/bdes_cpp11_28362373 to master
+  * 4942483 [APPROVAL] remotes/origin/review/DRQS28362697-cpp11-bcem to master
+  * d2b66e3 [APPROVAL] remotes/origin/review/drqs-29257998-skipped-tests to master
+  * 0bced80 [APPROVAL] remotes/origin/review/drqs-29067989-channelpoolchannel-remove-pending-blob to master
+  * 3da0c3f [APPROVAL] remotes/origin/review/drqs-28935000-usage-example-first-sentence to master
+  * 170c97b [APPROVAL] update-version-to-2.12 to master
+  * 21552e2 [APPROVAL] bdem_allocatormanager_typo_fix to master
+  * 4661d3e [APPROVAL] pending/master/drqs-28405957-channelpool-connect-local-addr to master
+  * d11451a [APPROVAL] pending/master/drqs27854780-a_bteso-compilefailure to master
+  * d6a4345 [APPROVAL] pending/master/drqs-28388878-btemt-optional-args to master
+  * b91ee60 [APPROVAL] pending/master/fix-e_ipc-prototype-issues-part3 to master
+  * 1512f81 [APPROVAL] approvals/remove_a_ossl/1324667081 to master
+  * 8fbd128 [APPROVAL] drqs-28888616-fix_quotes to master
+  * 8914aef [APPROVAL] remotes/origin/review/drqs29168658-deprecate-phondb to master
+  * 2eccc12 [APPROVAL] remotes/origin/review/drqs27904520-enable-triggerMarkers to master
+  * 9d4d5b7 [APPROVAL] remotes/origin/review/drqs-28171075-bcep-thead_safety_doc to master
+  * 00d256e [APPROVAL] pending/master/prefix-namespace-29173602 to master
+  * 24d83ff [APPROVAL] pending/master/bde-mac-port-29174806 to master
+  * 214dc18 [APPROVAL] pending/master/drqs28662197-fix-bde+pcre-test-location to master
+  * 4f93378 [APPROVAL] pending/master/drqs-27472149-green-bteso-test-drivers to master
+  * 48b302a [APPROVAL] pending/master/review/drqs28099656-a_comdb2-bindText_StringRef to master
+  * 7636351 [APPROVAL] pending/master/drqs-28909833-bdem_beruniversaltagnumber-safe-assertion to master
+  * 7072850 [APPROVAL] approve-build-gcc-rpath to master
+  * 1b2e69c [APPROVAL] pending/master/bdem_tableimp-test-driver-fix-drqs27013335 to master
+  * 0af586b [APPROVAL] pending/master/drqs28362349-bdesb-c++11 to master
+  * fb04a15 [APPROVAL] pending/master/drqs-26805799-xml-decoding-nillable to master
+  * 5b765a2 [APPROVAL] remotes/origin/review/drqs-28078031-beyond-e_ipc-link-bug to master
+  * ed8576d [APPROVAL] remotes/origin/review/drqs28826497-datetimeinterval-doc to master
+  * 187d5f1 [APPROVAL] remotes/origin/review/drqs27904520-enable-triggerMarkers to master
+  * 02be4f5 [APPROVAL] pending/master/drqs28319543-bsls-bdes-ident-syncup to master
+  * 0282519 [APPROVAL] pending/master/DRQS28362737-cpp11-btemt to master
+  * 387da21 [APPROVAL] pending/master/bdem_berutil-drqs28147130 to master
+  * dea83f1 [APPROVAL] pending/master/drqs28362321-bdede-c++11 to master
+  * 7159510 [APPROVAL] pending/master/c++11-compilation-fixes to master
+  * 06d1545 [APPROVAL] pending/master/drqs28416349-a_comdb2-exeTyped to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 14 Dec 2011 15:42:22 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 6 Feb 2012 09:48:24 -0500
+
+bde-core (BSL_FROZEN_2.11.0) git; urgency=low
+
+  * a3e47a3 [APPROVAL] pending/master/bsls-types-27748822 to master
+  * f4f87a8 [APPROVAL] pending/master/drqs28319543-bsls-bdes-ident-syncup to master
+  * cbeb63f [APPROVAL] pending/master/drqs26314337-performancehint to master
+  * 6e9bc2e [APPROVAL] drqs-28155098-bslim_printer-string to master
+  * f9c79b6 [APPROVAL] remotes/origin/review/drqs-28635524-fix-warnings to master
+  * d5f04eb [APPROVAL] remotes/origin/review/drqs-28635524-fix-warnings to master
+  * 8a45824 [APPROVAL] remotes/origin/review/drqs27581909-bslim_printer-stringvalues to master
+  * 0135d2c [APPROVAL] remotes/origin/review/a_xercesc_cpp11_28362629 to master
+  * 894fe0a [APPROVAL] remotes/origin/review/drqs28135201-reduce-ephemeralport-usage to master
+  * f902d87 [APPROVAL] pending/master/drqs-28098492-assert to master
+  * 36be282 [APPROVAL] remotes/origin/review/a_xercesc-sun-gcc-xerces-locn to master
+  * 2c2da98 [APPROVAL] remotes/origin/review/bsl-stringref-epilogue-fix to master
+  * ac23d30 [APPROVAL] set_version_to_2.11 to master
+  * b0750d7 [APPROVAL] correct-z_bae-version-minor to master
+  * 0a60b9a [APPROVAL] pending/master/drqs-26989738-channelpool to master
+  * 9f788e7 [APPROVAL] pending/master/drqs27998185-replace-isbig.h-with-task_type.h to master
+  * 7a6e0c2 [APPROVAL] merge/master/drqs-27192411-e_ipc-link-failures to master
+  * 2948634 [APPROVAL] pending/master/bdem_berutil-drqs_19116227 to master
+  * f5c63d7 [APPROVAL] pending/master/review/drqs26443649-a_comdb2-doc to master
+  * ea254ec [APPROVAL] pending/master/drqs-27243517-remove-canRegisterSockets to master
+  * 50bd52c [APPROVAL] pending/master/bsl-stringref-bsl-overrides-std-27913232 to master
+  * 56d2a67 [APPROVAL] pending/master/drqs26443649-a_comdb2-bde2.10 to master
+  * af1be4d [APPROVAL] pending/master/bce-threadpool-drqs-26241257 to master
+  * 67dc4c7 [APPROVAL] pending/master/default-stacksize to master
+  * fe45e7d [APPROVAL] pending/master/drqs-27620140-exemplar-tbd to master
+  * 77690dc [APPROVAL] pending/master/drqs27854420-align-memory-accesses-patch to master
+  * 3caf9e2 [APPROVAL] pending/master/drqs-26989738-btemt-bteso-nextrel-failures to master
+  * ec723fc [APPROVAL] pending/master/drqs-26852289-bdea-enumeration-traits to master
+  * dab0ea5 [APPROVAL] pending/master/drqs27610012-bael-date_assert to master
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 28 Nov 2011 13:09:27 -0500
+
+bde-core (PKGS_TO_PABLO_20111012) git; urgency=low
+
+  * cfc4b54 [APPROVAL] remove-gcc-Winline to master
+  * 39ded7b [APPROVAL] pending/master/drqs-27314056-fix-bteso-link-bug to master
+  * 498f767 [APPROVAL] pending/master/drqs-26825632-bdeat_typecategory_usage to master
+  * 7046ed0 [APPROVAL] pending/master/drqs-27565560-aggregate-doc to master
+  * 378af94 [APPROVAL] pending/master/drqs-27590529-eschew_deprecated_methods-bslim_printer to master
+  * e12c0d4 [APPROVAL] pending/master/drqs-21968090-tweak-btemt_BlobMsg to master
+  * df03875 [APPROVAL] pending/master/DRQS-27573644-bsls_AssertTestHandlerGuard to master
+  * a31d964 [APPROVAL] remotes/origin/review/drqs27668547-BAEL_LOG_IS_CATEGORY_ENABLED to master
+  * 680b71b [APPROVAL] pending/master/bdeut-variant-visitor to master
+  * 5914de9 [APPROVAL] remotes/origin/review/drqs26743337-baem-safemode-vector to master
+  * 1e8b34b [APPROVAL] pending/master/bsl-allocator-26581166 to master
+  * 35f5a9e [APPROVAL] pending/master/drqs-26874138-bdesu-large-files to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Oct 2011 10:06:17 -0400
+
+bde-core (PKGS_TO_PABLO_20111006) git; urgency=low
+
+  * 53d4d73 [APPROVAL] remotes/origin/review/make-tests-silenceable to master
+  * 7f1b323 [APPROVAL] merge/master/fix_permissions to master
+  * 50f8f76 [APPROVAL] remotes/origin/dev/azakhar1/build-use-default-gcc to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 6 Oct 2011 15:22:31 -0400
+
+bde-core (BSL_FROZEN_2.10.0) git; urgency=low
+
+  * 7466db1 [APPROVAL] pending/master/DRQS-27636673-clearer-ASSERT_FAIL-messages to master
+  * a5bdf96 [APPROVAL] pending/master/bsl-stringref to master
+  * 3d14914 [APPROVAL] pending/master/bsl-stringref to master
+  * ff12902 [APPROVAL] remotes/origin/review/drqs-27606820-assertion to master
+  * eaea1ec [APPROVAL] pending/master/treq-1885814-bslma_testallocatormonitor to master
+  * aa5a324 [APPROVAL] pending/master/bsl-iterator-adapters to master
+  * 883db36 [APPROVAL] pending/master/reduce-bslalg-warnings to master
+  * fdf74da [APPROVAL] wrapper-prototype-fixes to master
+  * 4572f8c [APPROVAL] pending/master/drqs-26553533-bsls_addressof to master
+  * 6b78e31 [APPROVAL] fix-e_ipcfs-prototype-error to master
+  * b556567 [APPROVAL] pending/master/drqs-26033602-bsl_assert-logic_error to master
+  * ad8add4 [APPROVAL] pending/master/DRQS-27306476-negative-testing-on-windows to master
+  * eb660c8 [APPROVAL] remotes/origin/review/a_xml_2-deletion to master
+  * 597ee67 [APPROVAL] pending/master/drqs26807179-bdeut_strtokeniter-assert to master
+  * 1933f70 [APPROVAL] pending/master/drqs-26165309-multiprioritythreadpool to master
+  * 060152e [APPROVAL] pending/master/drqs-26621796-baetzo_localtimeperiod-testdriver to master
+  * 62900a5 [APPROVAL] remotes/origin/review/cleanup-Bdynamic-Bstatic-on-HP to master
+  * dbdbe12 [APPROVAL] remotes/origin/review/update-xerces-c-2.8.0 to master
+  * 6de4838 [APPROVAL] pending/master/drqs-26485385-bap-tests-building to master
+  * 5252ccd [APPROVAL] remotes/origin/review/a_bdema-missing-not-a-component to master
+  * 30924c4 [APPROVAL] remotes/origin/review/e_ipc-64bit-pointer-fix to master
+  * 8edb48f [APPROVAL] remotes/origin/review/drqs25749529-fix-z_baelu-prototype to master
+  * 803387b [APPROVAL] remotes/origin/review/drqs25708425-a_bdema-prototype-cleanup to master
+  * ced7530 [APPROVAL] remotes/origin/review/drqs27084948-add-cpp11-ufid-support to master
+  * 3e73aad [APPROVAL] remotes/origin/review/use-bb-data-tmp-for-tmpdir-on-linux to master
+  * 0665944 [APPROVAL] remotes/origin/review/drqs27131167-a_comdb2-comdb2tmchange to master
+  * a2c4bd8 [APPROVAL] remotes/origin/review/drqs-27104049-baexml_encoder-cdata to master
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 30 Sep 2011 18:32:56 -0400
+
+bde-core (BLP_LIB_A_BDEMA_2.9.1) git; urgency=low
+
+  * 7a0e57f [APPROVAL] remotes/origin/review/gcc-4.6.1-support to master
+  * 47d4d99 [APPROVAL] remotes/origin/review/gcc-4.6.1-support to master
+  * b947602 [APPROVAL] origin/review/drqs27037973-bael-file_permission to master
+
+ -- Rohan Bhindwale <rbhindwale@bloomberg.net>  Thu, 1 Sep 2011 15:20:44 -0400
+
+bde-core (PKGS_TO_PABLO_20110830) git; urgency=low
+
+  * d575fe4 [APPROVAL] version-2.10 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 26 Aug 2011 08:32:19 -0400
+
+bde-core (BUNDLE_SENT_TO_PHALPERN_20110830) git; urgency=low
+
+  * 0999f2c [APPROVAL] pending/master/drqs-26923097-bteso-build-errors to master
+  * 3306c47 [APPROVAL] pending/master/drqs-26851257-btemt-testing to master
+  * fe6a8ad [APPROVAL] pending/master/bcem_aggregate-memory-growth to master
+  * f91447e [APPROVAL] pending/master/drqs-26621740-btemt_channelpool-build to master
+  * 99a2dc0 [APPROVAL] pending/master/drqs24972657-bteso_ipresolutioncache-testdriver to master
+  * bd901ac [APPROVAL] pending/master/treq1923821-bael_fileobserver to master
+  * 67c5866 [APPROVAL] origin/review/drqs26754933-a_xercesc_stringutil_assert to master
+  * 9c113b1 [APPROVAL] pending/master/remove-unused-rc-from-bcem_aggregateutil.h to master
+  * 05fb9e8 [APPROVAL] pending/master/bcem_aggregate-memory-growth-update to master
+  * 2cad15b [APPROVAL] pending/master/drqs-26851257-btemt-testing to master
+  * b5e2511 [APPROVAL] pending/master/treq1923821bael_fileobserver_update to master
+  * 38cfb5b [APPROVAL] pending/master/bcem_aggregate-memory-growth to master
+  * 86b5790 [APPROVAL] pending/master/treq1923821-bael_fileobserver to master
+  * aca8206 [APPROVAL] pending/master/bsl-sun-stlport4 to master
+  * 353d403 [APPROVAL] pending/master/drqs-26769285-post-2.9.x-beta-docfixes to master
+  * 9f177da [APPROVAL] enable-gcc-warnings-on-all-gcc-builds to master
+  * 3b68b2c [APPROVAL] pending/master/drqs22909724-z_baelu-localtime to master
+  * 27605e8 [APPROVAL] pending/master/drqs-25486446-eventmgr-reduced-fix to master
+  * dd49678 [APPROVAL] pending/master/drqs24972657-bteso_ipresolutioncache_update to master
+  * 18468fa [APPROVAL] enable-gcc-warnings-on-all-gcc-builds to master
+  * 4840b0d [APPROVAL] pending/master/drqs-26767873-stacktrace-filehelper to master
+  * f1c0190 [APPROVAL] pending/master/DRQS26200407_accidental_operators to master
+  * 74621f4 [APPROVAL] pending/master/drqs24972657-bteso_ipresolutioncache to master
+  * f3dee51 [APPROVAL] pending/master/drqs-26407159-baet_localdatetime-refinements to master
+  * ea22d9e [APPROVAL] remotes/origin/review/a_comdb2-sqlservice-doc to master
+  * 398c54f [APPROVAL] pending/master/drqs-24816466-baexml_encoder-cdata to master
+  * 8f0b9b4 [APPROVAL] pending/master/drqs-26526407-processutil-close-file to master
+  * c3ee3cf [APPROVAL] remotes/origin/review/drqs-26116531-bcem_aggregate-setValue to master
+  * 4294f15 [APPROVAL] pending/master/drqs-26486529-tcptimereventmgr-deregisterTimer to master
+  * 3035207 [APPROVAL] pending/master/drqs-26459211-stacktrace-fixwarnings to master
+  * ecca1ec [APPROVAL] pending/master/bce-atomics-powerpc to master
+  * 4a2c377 [APPROVAL] pending/master/drqs25755645-bsidb2_dynamictagservice to master
+  * cadbd8f [APPROVAL] review/master/drqs2659982-a_comdb2_statictag-cursor to master
+  * 4315176 [APPROVAL] pending/master/drqs25869030-bteso_inetstreamsocketfactory to master
+  * e7f5c57 [APPROVAL] pending/master/baetzo_defaultzoneinfocache-userdefault to master
+  * dabdc39 [APPROVAL] pending/master/drqs25455143-bteso_resolveutil to master
+  * 4c8cee2 [APPROVAL] pending/master/bdesu_fileutil to master
+  * 37e1f24 [APPROVAL] pending/master/unspecifiedbool-vc2008-bug to master
+  * 289d6ef [APPROVAL] pending/master/drqs-26116531-bcem_aggregate-setValue to master
+  * f3ed35e [APPROVAL] pending/master/drqs-26465543-sharedptr-reset to master
+  * 7b6b62d [APPROVAL] pending/master/drqs_26193343-post-2.8.x-docfixes to master
+  * 95eb42d [APPROVAL] pending/master/drqs25629013-a_comdb2-ulonglong to master
+  * c91dacc [APPROVAL] import-a_cdrcache to master
+  * e39a8ea [APPROVAL] remotes/origin/review/DRQS26576230-managedptr-missing-include to master
+  * e6314a2 [APPROVAL] pending/master/drqs26313617-threadlocalvariable-doc to master
+  * 72c434d [APPROVAL] remotes/origin/review/sun-cc-5.10-as-default to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 26 Aug 2011 08:31:50 -0400
+
+bde-core (BSL_FROZEN_2.9.0) git; urgency=low
+
+  * 79f2327 [APPROVAL] pending/master/build-sun-stlport-merged to master
+  * 1e24612 [APPROVAL] pending/master/bsls_alignmentutil-drqs_26326161 to master
+  * 62f3e0f [APPROVAL] pending/master/bsl-addressof to master
+  * 2645f9f [APPROVAL] pending/master/drqs25750813-btemt_tcptimereventmanager to master
+  * aaa0e1b [APPROVAL] pending/master/build-sun-stlport-merged to master
+  * b1f1f1f [APPROVAL] pending/master/addreference to master
+  * 59a0ec5 [APPROVAL] pending/master/unspecifiedbool to master
+  * b25357b [APPROVAL] pending/master/baetzo_localtimedescriptor-exemplar to master
+  * 787e8d7 [APPROVAL] pending/master/drqs26006657-bapipc-compile_bug to master
+  * 67137b8 [APPROVAL] pending/master/bsl-swapfix to master
+  * 1205046 [APPROVAL] pending/master/bsl-protocoltest to master
+  * c1104f7 [APPROVAL] pending/master/baenet-sync-http-encoding to master
+  * 93b6ca0 [APPROVAL] remotes/origin/review/version-2.9.0-scm-files to master
+  * 344c188 [APPROVAL] remotes/origin/review/drqs26090294-a_xercesc-depend-on-rs_suite to master
+  * c3ad5f8 [APPROVAL] pending/master/post-beta-1-review-fixes to master
+  * fffbaeb [APPROVAL] pending/master/drqs-25530064-bapcdr-settlementloader-doc to master
+  * 45f7c95 [APPROVAL] pending/master/drqs-25533900-channel-pool-inefficiency to master
+  * 8f9539f [APPROVAL] pending/master/drqs25995466-bdet_datetime-snprintf to master
+  * 229620c [APPROVAL] pending/master/review/baenet-sync-http-encoding to master
+  * 051b1cc [APPROVAL] pending/master/stacktrace to master
+  * a08a1bb [APPROVAL] pending/master/drqs-20199908-btemt_channelpool-disable-read to master
+  * ea48933 [APPROVAL] remotes/origin/review/sysutil_ident-not-a-component-fixup to master
+  * 7bb5631 [APPROVAL] remotes/origin/review/sysutil_ident-not-a-component-fixup to master
+  * 615fda4 [APPROVAL] pending/master/drqs_23652498-bdema_alignedallocator to master
+  * 437b6b7 [APPROVAL] pending/master/drqs-25268032-bte-bce-efficiency to master
+  * 9ff9ff7 [APPROVAL] pending/master/bce-atomics-amd64 to master
+  * 302a98d [APPROVAL] pending/master/drqs-24968477-session-pool-stop to master
+  * b5323ad [APPROVAL] remotes/origin/review/fix-comments-in-manifest to master
+  * 8a69498 [APPROVAL] pending/master/bce-atomics-amd64 to master
+  * 326fad3 [APPROVAL] pending/master/DRQS-25954677-e_ipc-import to master
+  * 25d076e [APPROVAL] pending/master/bce-atomics-powerpc to master
+  * 175d155 [APPROVAL] remotes/origin/review/escape_retry_exclamation to remotes/origin/master
+  * eabe3be [APPROVAL] pending/master/baetzo-git-migration to master
+  * 336383c [APPROVAL] pending/master/bael_performance to master
+  * e1dad34 [APPROVAL] pending/master/baetzo-validateLocalTime to master
+  * f8a408f [APPROVAL] remotes/origin/review/bdescm_tag_as_master to master
+  * 7d928b0 [APPROVAL] pending/master/00depbuild-before-00deployed to master
+  * 9ccf411 [APPROVAL] pending/master/drqs-25457771-baenet_httpstatusline to master
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 1 Aug 2011 14:35:14 -0400
+
+bde-core (BSL_FROZEN_2.8.0) git; urgency=low
+
+  * 0d4e6f4 [APPROVAL] pending/master/drqs23276327-aCC-opts-fix to master
+  * 01e8ec2 [APPROVAL] pending/master/bslim-printer-ens to master
+  * de2a59c [APPROVAL] pending/master/bsl-vector to master
+  * 376b2df [APPROVAL] dev/hversche/bslmf-enableif-fixmerge to master
+  * 84dd72a [APPROVAL] origin/pending/master/dev/sbreitst/Doxygen.pm to master
+  * d49152f [APPROVAL] remotes/origin/pending/master/gitignore-vim-temp to master
+  * 12abaa4 Merge branch 'releases/2.7.x' of devgit:bde/git-bde
+  * 9f60317 [APPROVAL] origin/review/drqs-25457771-baenet_httpstatusline to master
+  * 834a39e [APPROVAL] origin/pending/master/remove-pedantic to master
+  * 75228a9 [APPROVAL] remotes/origin/review/drqs-25393633-hpux-getcontext to master
+  * 1808627 [APPROVAL] origin/review/treq-1743148-bdecs-precondition-checks to master
+  * 7328126 [APPROVAL] origin/review/baenet-generateoptions-script to master
+  * 58af46e [APPROVAL] remotes/origin/review/bdem-ber-codec-bsls_types to master
+  * 63d93ee [APPROVAL] remotes/origin/review/bdem-bas_codegen to master
+  * e19ec35 [APPROVAL] remotes/origin/review/bdem-deprecated to master
+  * 4229184 [APPROVAL] remotes/origin/review/bsic-imaster-changes to master
+  * 93a38e1 [APPROVAL] remotes/origin/review/bde-package-opts to master
+  * 28d9095 [APPROVAL] remotes/origin/review/bde-package-opts to origin/master
+  * 05cd775 [APPROVAL] remotes/origin/review/bdem_convert-cc-5.10-support to master
+  * 615ffa9 [APPROVAL] remotes/origin/review/ss12u1-xlc11-default-opts-update to master
+  * ad5e0dc [APPROVAL] origin/review/baecs-dev-history to remotes/origin/master
+  * e76c8ac [APPROVAL] remotes/origin/review/drqs25245489 to master
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 17 Jun 2011 11:39:52 -0400
+
+bde-core (BLP_LIB_BDE_BTE_2.7.1) git; urgency=low
+
+  * a265279 [APPROVAL] remotes/origin/review/drqs25245489-2.7-patch to releases/2.7.x
+  * 5e95499 [APPROVAL] pending/master/drqs-23897376-bcemt_rwmutex to master
+  * c832bbe [APPROVAL] remotes/origin/review/drqs-25312374-transactiondoc to master
+  * f272f29 [APPROVAL] remotes/origin/pending/master/zde-dev-history to master
+  * 879f121 [APPROVAL] remotes/origin/pending/master/a_bteso/package/a_bteso.opts to master
+  * db5c142 [APPROVAL] remotes/origin/pending/master/a_bdema-dev-history to master
+  * 4a1aad5 [APPROVAL] remotes/origin/pending/master/bsl-testallocator to master
+  * f7c28b8 [APPROVAL] remotes/origin/pending/master/ubuntu-support to master
+  * 4d9fd9b [APPROVAL] origin/pending/master/bbe-dev-history to master
+  * d477cda [APPROVAL] origin/pending/master/drqs-25058870-baenet-legacy-enums to master
+  * 0f4add5 [APPROVAL] remotes/origin/pending/master/z_bae-dev-history to master
+  * 60361d0 [APPROVAL] remotes/origin/pending/master/drqs-25207063-bdem_ber-warning to master
+  * 2d3156a [APPROVAL] remotes/origin/pending/master/gitignore-update to master
+  * ab50752 [APPROVAL] remotes/origin/pending/master/remove_extra_files to master
+  * 399ccfb [APPROVAL] remotes/origin/pending/master/version_tags_2.8.0_BETA_1 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 May 2011 14:35:33 -0400
+
+bde-core (RELEASE_2.7) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:04:33 -0400
+
+bde-core (BLP_LIB_BDE_BSL_2.7.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:04:11 -0400
+
+bde-core (BLP_LIB_BDE_BSI_2.7.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:02:50 -0400
+
+bde-core (BLP_LIB_BDE_BCE_2.7.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:01:37 -0400
+
+bde-core (BLP_LIB_BDE_BBE_2.7.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:00:39 -0400
+
+bde-core (RELEASE_2.6) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:58:39 -0400
+
+bde-core (BLP_LIB_BDE_BSL_2.6.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:58:22 -0400
+
+bde-core (BLP_LIB_BDE_BSI_2.6.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:57:15 -0400
+
+bde-core (BLP_LIB_BDE_BCE_2.6.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:56:00 -0400
+
+bde-core (BLP_LIB_BDE_BBE_2.6.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:54:01 -0400
+
+bde-core (RELEASE_2.5) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:53:07 -0400
+
+bde-core (BLP_LIB_BDE_BSL_2.5.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:52:46 -0400
+
+bde-core (BLP_LIB_BDE_BSI_2.5.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:51:47 -0400
+
+bde-core (BLP_LIB_BDE_BCE_2.5.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:50:39 -0400
+
+bde-core (BLP_LIB_BDE_BBE_2.5.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:49:43 -0400
+
+bde-core (RELEASE_2.4) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:46:56 -0400
+
+bde-core (BLP_LIB_BDE_BSL_2.4.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:46:36 -0400
+
+bde-core (BLP_LIB_BDE_BSI_2.4.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:45:41 -0400
+
+bde-core (BLP_LIB_BDE_BCE_2.4.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:44:32 -0400
+
+bde-core (BLP_LIB_BDE_BBE_2.4.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:43:49 -0400
+
+bde-core (BLP_LIB_A_XML2_2.4.0) git; urgency=low
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:42:57 -0400

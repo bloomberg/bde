@@ -87,7 +87,7 @@ class bdema_ManagedPtrDeleter {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdema_ManagedPtrDeleter,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
   private:
     // DATA

@@ -89,14 +89,14 @@ const bdeat_AttributeInfo *baenet_HttpHost::lookupAttributeInfo(int id)
 
 // CREATORS
 
-baenet_HttpHost::baenet_HttpHost(bslma_Allocator *basicAllocator)
+baenet_HttpHost::baenet_HttpHost(bslma::Allocator *basicAllocator)
 : d_name(basicAllocator)
 , d_port()
 {
 }
 
-baenet_HttpHost::baenet_HttpHost(const baenet_HttpHost& original,
-                                         bslma_Allocator *basicAllocator)
+baenet_HttpHost::baenet_HttpHost(const baenet_HttpHost&  original,
+                                 bslma::Allocator       *basicAllocator)
 : d_name(original.d_name, basicAllocator)
 , d_port(original.d_port)
 {

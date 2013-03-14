@@ -27,18 +27,18 @@ BDES_IDENT("$Id: $")
 // This component is intended to be an implementation utility for a hash table
 // class.  For example:
 //..
-//  bdeci_Hashtable<bsls_PlatformUtil::Int64, bdeimp_Int64Hash> hashTable;
+//  bdeci_Hashtable<bsls::Types::Int64, bdeimp_Int64Hash> hashTable;
 //..
 // See the component-level documentation of 'bdeci_hashtable' for further
-// information.  However, note that 'bsl::hash_map' generally should be used
-// instead of 'bdeci_Hashtable'.
+// information.  However, note that 'bsl::unordered_map' generally should be
+// used instead of 'bdeci_Hashtable'.
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 
@@ -53,7 +53,7 @@ struct bdeimp_Int64Hash {
     // hash table of 64-bit integer values.
 
     // CLASS METHODS
-    static int hash(bsls_PlatformUtil::Int64 value, int modulus);
+    static int hash(bsls::Types::Int64 value, int modulus);
         // Return an integer in the range from zero to one less than the
         // specified 'modulus' corresponding to the specified 'value'.
         // The behavior is undefined unless '0 < modulus < 2^31'.  Note that
@@ -72,7 +72,7 @@ struct bdeimp_Int64Hash {
 
 // CLASS METHODS
 inline
-int bdeimp_Int64Hash::hash(bsls_PlatformUtil::Int64 value, int modulus)
+int bdeimp_Int64Hash::hash(bsls::Types::Int64 value, int modulus)
 {
     return (int)((((unsigned int)((value >> 32) & 0xffffffff) %
                    (unsigned int)modulus) ^

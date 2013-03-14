@@ -37,11 +37,11 @@ bool baexml_Formatter::ElemContext::matchTag(const bdeut_StringRef& tag) const
                         // ======================
 
 // CREATORS
-baexml_Formatter::baexml_Formatter(bsl::streambuf  *output,
-                                   int              indentLevel,
-                                   int              spacesPerLevel,
-                                   int              wrapColumn,
-                                   bslma_Allocator *basic_allocator)
+baexml_Formatter::baexml_Formatter(bsl::streambuf   *output,
+                                   int               indentLevel,
+                                   int               spacesPerLevel,
+                                   int               wrapColumn,
+                                   bslma::Allocator *basic_allocator)
 : d_outputStreamObj(output)
 , d_outputStream(d_outputStreamObj)
 , d_indentLevel(indentLevel)
@@ -61,11 +61,11 @@ baexml_Formatter::baexml_Formatter(bsl::streambuf  *output,
     }
 }
 
-baexml_Formatter::baexml_Formatter(bsl::ostream&    output,
-                                   int              indentLevel,
-                                   int              spacesPerLevel,
-                                   int              wrapColumn,
-                                   bslma_Allocator *basic_allocator)
+baexml_Formatter::baexml_Formatter(bsl::ostream&     output,
+                                   int               indentLevel,
+                                   int               spacesPerLevel,
+                                   int               wrapColumn,
+                                   bslma::Allocator *basic_allocator)
 : d_outputStreamObj(0)
 , d_outputStream(output)
 , d_indentLevel(indentLevel)

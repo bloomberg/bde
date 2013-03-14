@@ -44,7 +44,7 @@ BDES_IDENT("$Id: $")
 // 'baem_MetricRegistry' object (such as the one owned by a
 // 'baem_MetricsManager').
 //..
-//  bslma_Allocator *allocator = bslma_Default::allocator(0);
+//  bslma::Allocator *allocator = bslma::Default::allocator(0);
 //
 //  baem_Category myCategory("MyCategory");
 //  baem_MetricDescription descA(&myCategory, "MetricA");
@@ -138,16 +138,16 @@ BDES_IDENT("$Id: $")
 #include <bdet_timeinterval.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -327,16 +327,16 @@ class baem_MetricSample {
 
     // PUBLIC TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_MetricSample,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    baem_MetricSample(bslma_Allocator *basicAllocator = 0);
+    baem_MetricSample(bslma::Allocator *basicAllocator = 0);
         // Create an empty metric sample.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     baem_MetricSample(const baem_MetricSample&  original,
-                      bslma_Allocator          *basicAllocator = 0);
+                      bslma::Allocator         *basicAllocator = 0);
         // Create a metric sample containing the same value as the specified
         // 'original' sample.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -590,7 +590,7 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
 
 // CREATORS
 inline
-baem_MetricSample::baem_MetricSample(bslma_Allocator *basicAllocator)
+baem_MetricSample::baem_MetricSample(bslma::Allocator *basicAllocator)
 : d_timeStamp()
 , d_records(basicAllocator)
 , d_numRecords(0)

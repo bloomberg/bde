@@ -10,7 +10,6 @@
 #include <bslma_defaultallocatorguard.h>         // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 #include <bslma_testallocatorexception.h>        // for testing only
-#include <bsls_platformutil.h>                   // for testing only
 
 #include <bsl_new.h>         // placement syntax
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -33,15 +32,15 @@ using namespace bsl;  // automatically added by script
 // 'g' and 'gg'.  Additional helper functions are provided to facilitate
 // perturbation of internal state (e.g., capacity).  Note that each
 // manipulator must support aliasing, and those that perform memory allocation
-// must be tested for exception neutrality via the 'bdema_testallocator'
+// must be tested for exception neutrality via the 'bslma_testallocator'
 // component.  Exception neutrality involving streaming is verified using
 // 'bdex_testinstream' (and 'bdex_testoutstream').
 //
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
-// [ 2] bdec2_IntMap(bslma_Allocator *ba = 0);
-// [  ] bdec2_IntMap(Hint, bslma_Allocator *ba = 0);
+// [ 2] bdec2_IntMap(bslma::Allocator *ba = 0);
+// [  ] bdec2_IntMap(Hint, bslma::Allocator *ba = 0);
 // [13] bdec2_IntMap(const InitialCapacity& ne, *ba = 0);
 // [  ] bdec2_IntMap(const InitialCapacity& ne, Hint, *ba = 0);
 // [ 7] bdec2_IntMap(const bdec2_IntMap& original, *ba = 0);
@@ -447,7 +446,7 @@ Obj& gg(Obj *object, const char *spec)
 Obj g(const char *spec)
     // Return, by value, a new object corresponding to the specified 'spec'.
 {
-    Obj object((bslma_Allocator *)0);
+    Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -464,9 +463,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator taDefault(veryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&taDefault);
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator taDefault(veryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&taDefault);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 17: {
@@ -739,13 +738,13 @@ int main(int argc, char *argv[])
         //   objects with increasing initial capacity.  Verify that each object
         //   has the same value as a control default object.  Then, add as
         //   many values as the requested initial capacity, and use
-        //   'bslma_TestAllocator' to verify that no additional allocations
+        //   'bslma::TestAllocator' to verify that no additional allocations
         //   have occurred.  Perform each test in the standard 'bdema'
         //   exception-testing macro block.
         //
         //   Repeat the constructor test initially specifying no allocator and
         //   again, specifying a static buffer allocator.  These tests (without
-        //   specifying a 'bslma_TestAllocator') cannot confirm correct
+        //   specifying a 'bslma::TestAllocator') cannot confirm correct
         //   capacity-reserving behavior, but can test for rudimentary correct
         //   object behavior via the destructor and Purify, and, in
         //   'veryVerbose' mode, via the print statements.
@@ -756,7 +755,7 @@ int main(int argc, char *argv[])
         //   of elements, and confirm that the test object has the same value
         //   as a separately constructed control object.  Then, add as many
         //   values as required to bring the test object's length to the
-        //   specified number of elements, and use 'bslma_TestAllocator' to
+        //   specified number of elements, and use 'bslma::TestAllocator' to
         //   verify that no additional allocations have occurred.  Perform each
         //   test in the standard 'bdema' exception-testing macro block.
         //
@@ -771,7 +770,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\nTesting 'bdec2_IntMap(capacity, ba)' Constructor" << endl;
-        if (verbose) cout << "\twith a 'bslma_TestAllocator':" << endl;
+        if (verbose) cout << "\twith a 'bslma::TestAllocator':" << endl;
         {
             const Obj W(&testAllocator);  // control value
             const int MAX_NUM_ELEMS = 9;
@@ -990,8 +989,8 @@ int main(int argc, char *argv[])
                         int erv = !X.isMember(KEYS[k]);
                         rp = mX.add(KEYS[k], VALUES[k]);
                         LOOP3_ASSERT(ti, ei, k,
-                                  erv ? 0 == (int)strcmp(rp->c_str(), VALUES[k])
-                                      : 0 == rp);
+                                 erv ? 0 == (int)strcmp(rp->c_str(), VALUES[k])
+                                     : 0 == rp);
 
                         rp = mX.add(KEYS[k], VALUES[k]);
                         LOOP3_ASSERT(ti, ei, k, 0 == rp);
@@ -1004,7 +1003,7 @@ int main(int argc, char *argv[])
 
                         rp = mX.add(KEYS[k], VALUES[k]);
                         LOOP3_ASSERT(ti, ei, k,
-                                      0 == (int)strcmp(rp->c_str(), VALUES[k]));
+                                     0 == (int)strcmp(rp->c_str(), VALUES[k]));
 
                         LOOP3_ASSERT(ti, ei, k,
                                      initialLength + erv == X.length());
@@ -1934,11 +1933,11 @@ int main(int argc, char *argv[])
         //
         //   To address concern 5, we will perform each of the above tests in
         //   the presence of exceptions during memory allocations using a
-        //   'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //   'bslma::TestAllocator' and varying its *allocation* *limit*.
         //
         //   To address concern 6, we will repeat the above tests:
         //     - When passing in no allocator.
-        //     - When passing in a null pointer: (bslma_Allocator *)0.
+        //     - When passing in a null pointer: (bslma::Allocator *)0.
         //     - When passing in a test allocator (see concern 5).
         //     - Where the object is constructed entirely in static memory
         //       (using a 'bdema_BufferedSequentialAllocator') and never
@@ -2004,7 +2003,7 @@ int main(int argc, char *argv[])
                     }
 
                     {                                   // Null allocator.
-                        const Obj Y1(X, (bslma_Allocator *) 0);
+                        const Obj Y1(X, (bslma::Allocator *) 0);
                         if (veryVerbose) { cout << "\t\t\t"; P(Y1); }
                         LOOP2_ASSERT(SPEC, N, W == Y1);
                         LOOP2_ASSERT(SPEC, N, W == X);
@@ -2901,7 +2900,8 @@ int main(int argc, char *argv[])
         //   constructor:
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        *limit*.
         //    - Where the object is constructed entirely in static memory
         //        (using a 'bdema_BufferedSequentialAllocator') and never
         //        destroyed.
@@ -2912,7 +2912,7 @@ int main(int argc, char *argv[])
         //   destructor asserts internal object invariants appropriately.
         //   After the final add operation in each test, use the (untested)
         //   basic accessors to cross-check the value of the object
-        //   and the 'bslma_TestAllocator' to confirm whether a resize has
+        //   and the 'bslma::TestAllocator' to confirm whether a resize has
         //   occurred.
         //
         //   To address concerns 4a-4c, construct a similar test, replacing
@@ -2936,7 +2936,7 @@ int main(int argc, char *argv[])
         //
         //   The first test acts as a "control" in that 'removeAll' is not
         //   called; if only the second test produces an error, we know that
-        //   'removeAll' is to blame.  We will rely on 'bslma_TestAllocator'
+        //   'removeAll' is to blame.  We will rely on 'bslma::TestAllocator'
         //   and purify to address concern 2, and on the object invariant
         //   assertions in the destructor to address concerns 3d and 4d.
         //
@@ -2944,7 +2944,7 @@ int main(int argc, char *argv[])
         //   during this bootstrap test.
         //
         // Testing:
-        //   bdec2_IntMap(bslma_Allocator *ba);
+        //   bdec2_IntMap(bslma::Allocator *ba);
         //   ~bdec2_IntMap();
         //   BOOTSTRAP: bsl::string *add(int key, const char *value);
         //   void removeAll();
@@ -2958,7 +2958,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             if (veryVerbose) { cout << "\t\t"; P(X); }
             ASSERT(0 == X.length());
         }

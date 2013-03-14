@@ -249,16 +249,16 @@ BDES_IDENT("$Id: $")
 #include <bdem_schema.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -368,7 +368,7 @@ class bael_LoggerManagerConfiguration {
 
     TriggerMarkers        d_triggerMarkers;       // trigger marker
 
-    bslma_Allocator      *d_allocator_p;          // memory allocator (held,
+    bslma::Allocator     *d_allocator_p;          // memory allocator (held,
                                                   // not owned)
 
     // FRIENDS
@@ -401,7 +401,7 @@ class bael_LoggerManagerConfiguration {
 
     // CREATORS
     explicit bael_LoggerManagerConfiguration(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create a logger manager configuration constrained-attribute object
         // having valid default values for all attributes.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -409,7 +409,7 @@ class bael_LoggerManagerConfiguration {
 
     bael_LoggerManagerConfiguration(
                    const bael_LoggerManagerConfiguration&  original,
-                   bslma_Allocator                        *basicAllocator = 0);
+                   bslma::Allocator                       *basicAllocator = 0);
         // Create a logger manager configuration constrained-attribute object
         // having the in-core value of the specified 'original' object.
         // Optionally specify a 'basicAllocator' used to supply memory.  If

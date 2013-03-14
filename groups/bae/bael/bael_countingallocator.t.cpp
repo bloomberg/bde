@@ -2,10 +2,9 @@
 
 #include <bael_countingallocator.h>
 
-#include <bsls_alignmentutil.h>                 // for testing only
-#include <bsls_platformutil.h>                  // for testing only
+#include <bslma_testallocator.h>
 
-#include <bslma_testallocator.h>                // for testing only
+#include <bsls_alignmentutil.h>
 
 #include <bsl_c_stdlib.h>     // atoi()
 
@@ -22,7 +21,7 @@ using namespace bsl;  // automatically added by script
 //                              Overview
 //                              --------
 //-----------------------------------------------------------------------------
-// [ 1] bael_CountingAllocator(bslma_Allocator *ba = 0);
+// [ 1] bael_CountingAllocator(bslma::Allocator *ba = 0);
 // [ 1] ~bael_CountingAllocator();
 // [ 1] void *allocate(int size);
 // [ 1] void deallocate(void *address);
@@ -95,8 +94,8 @@ void aSsErT(int c, const char *s, int i)
 
 int effectiveSize(int size)
 {
-    return bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT +
-      bsls_PlatformUtil::roundUpToMaximalAlignment(size);
+    return bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+           + bsls::AlignmentUtil::roundUpToMaximalAlignment(size);
 }
 
 //=============================================================================
@@ -112,7 +111,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
 
@@ -134,7 +133,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Example" << endl
                                   << "=====================" << endl;
 
-        bslma_Allocator *allocator = 0;
+        bslma::Allocator *allocator = 0;
         bael_CountingAllocator countingAllocator(allocator);
 
         bsl::vector<int> vec(&countingAllocator);
@@ -173,7 +172,7 @@ int main(int argc, char *argv[])
         //   'resetNumBytesTotal' and verify the accessor.
         //
         // Testing:
-        //   bael_CountingAllocator(bslma_Allocator *ba = 0);
+        //   bael_CountingAllocator(bslma::Allocator *ba = 0);
         //   ~bael_CountingAllocator();
         //   void *allocate(int size);
         //   void deallocate(void *address);
@@ -194,7 +193,7 @@ int main(int argc, char *argv[])
             P(EFF_SZ2);
         }
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bael_CountingAllocator ca(&ta);
         void *p1, *p2;
 

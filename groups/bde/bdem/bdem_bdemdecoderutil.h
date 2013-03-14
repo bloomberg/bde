@@ -794,14 +794,14 @@ struct bdem_BdemDecoderUtil_SelectArrayTypeCategory {
     BSLMF_ASSERT(!IS_ELEMENT_NULLABLE);
 
     enum {
-        IS_NATIVE_BDEM_ARRAY_TYPE = bslmf_IsSame<TYPE, BdemArrayType>::VALUE
+        IS_NATIVE_BDEM_ARRAY_TYPE = bslmf::IsSame<TYPE, BdemArrayType>::VALUE
     };
 
     enum {
         IS_EXTENDED_BDEM_ARRAY_TYPE
-                          = bslmf_IsSame<ElementType, bdet_DateTz>::VALUE     |
-                            bslmf_IsSame<ElementType, bdet_DatetimeTz>::VALUE |
-                            bslmf_IsSame<ElementType, bdet_TimeTz>::VALUE
+                         = bslmf::IsSame<ElementType, bdet_DateTz>::VALUE     |
+                           bslmf::IsSame<ElementType, bdet_DatetimeTz>::VALUE |
+                           bslmf::IsSame<ElementType, bdet_TimeTz>::VALUE
     };
 
     enum {
@@ -822,7 +822,7 @@ struct bdem_BdemDecoderUtil_SelectArrayTypeCategory {
 
   public:
     typedef typename
-    bslmf_Switch<SELECTOR, bdem_BdemDecoderUtil_NativeBdemArrayCategory,
+    bslmf::Switch<SELECTOR, bdem_BdemDecoderUtil_NativeBdemArrayCategory,
                            bdem_BdemDecoderUtil_ExtendedBdemArrayCategory,
                            bdem_BdemDecoderUtil_SequenceArrayCategory,
                            bdem_BdemDecoderUtil_ChoiceArrayCategory,
@@ -1222,7 +1222,7 @@ int bdem_BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
     bdem_SelectBdemType<TYPE>::Type BdemType;
 
     typedef typename
-    bslmf_If<bslmf_IsSame<TYPE, BdemType>::VALUE,
+    bslmf::If<bslmf::IsSame<TYPE, BdemType>::VALUE,
              NativeBdemTypeCategory,
              NotBdemTypeCategory>::Type Toggle;
 
@@ -1687,13 +1687,13 @@ int bdem_BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
 
     enum {
         IS_EXTENDED_BDEM_TYPE
-                          = bslmf_IsSame<ElementType, bdet_DateTz>::VALUE     |
-                            bslmf_IsSame<ElementType, bdet_DatetimeTz>::VALUE |
-                            bslmf_IsSame<ElementType, bdet_TimeTz>::VALUE
+                         = bslmf::IsSame<ElementType, bdet_DateTz>::VALUE     |
+                           bslmf::IsSame<ElementType, bdet_DatetimeTz>::VALUE |
+                           bslmf::IsSame<ElementType, bdet_TimeTz>::VALUE
     };
 
     typedef typename
-    bslmf_If<IS_EXTENDED_BDEM_TYPE,
+    bslmf::If<IS_EXTENDED_BDEM_TYPE,
              ExtendedBdemTypeCategory,
              TypeCategory>::Type Toggle;
 
@@ -1906,14 +1906,14 @@ int bdem_BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
     bdem_SelectBdemType<ValueType>::Type                BdemType;
 
     enum {
-        IS_NATIVE_BDEM_TYPE = bslmf_IsSame<ValueType, BdemType>::VALUE
+        IS_NATIVE_BDEM_TYPE = bslmf::IsSame<ValueType, BdemType>::VALUE
     };
 
     enum {
         IS_EXTENDED_BDEM_TYPE
-                            = bslmf_IsSame<ValueType, bdet_DateTz>::VALUE     |
-                              bslmf_IsSame<ValueType, bdet_DatetimeTz>::VALUE |
-                              bslmf_IsSame<ValueType, bdet_TimeTz>::VALUE
+                           = bslmf::IsSame<ValueType, bdet_DateTz>::VALUE     |
+                             bslmf::IsSame<ValueType, bdet_DatetimeTz>::VALUE |
+                             bslmf::IsSame<ValueType, bdet_TimeTz>::VALUE
     };
 
     enum {
@@ -1922,7 +1922,7 @@ int bdem_BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
     };
 
     typedef typename
-    bslmf_Switch<SELECTOR,
+    bslmf::Switch<SELECTOR,
                  NativeBdemTypeCategory,
                  ExtendedBdemTypeCategory,
                  NotBdemTypeCategory>::Type Switch;

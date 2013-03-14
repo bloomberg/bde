@@ -21,9 +21,9 @@ using namespace BloombergLP;
 // set, a generator function is used to generate a set of input and output
 // values for each of the tests.
 //-----------------------------------------------------------------------------
-// [2] baexml_ErrorInfo(bslma_Allocator *basicAllocator = 0);
+// [2] baexml_ErrorInfo(bslma::Allocator *basicAllocator = 0);
 // [4] baexml_ErrorInfo(const baexml_ErrorInfo&  other,
-//                      bslma_Allocator         *basicAllocator = 0);
+//                      bslma::Allocator        *basicAllocator = 0);
 // [2] ~baexml_ErrorInfo();
 // [4] baexml_ErrorInfo& operator=(const baexml_ErrorInfo& rhs);
 // [2] void setError(Severity               severity,
@@ -500,9 +500,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    bslma_TestAllocator da;
-    bslma_DefaultAllocatorGuard dag(&da);
-    bslma_TestAllocator ta;
+    bslma::TestAllocator da;
+    bslma::DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator ta;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -625,14 +625,14 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //     baexml_ErrorInfo(const baexml_ErrorInfo&  other,
-        //                      bslma_Allocator         *basicAllocator = 0);
+        //                      bslma::Allocator        *basicAllocator = 0);
         //     baexml_ErrorInfo& operator=(const baexml_ErrorInfo& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING COPY OPERATIONS"
                                << "\n=======================" << bsl::endl;
 
-        bslma_TestAllocator tb;
+        bslma::TestAllocator tb;
 
         TestVector v1;
         for (int i = 0; getTestVector(&v1, i); ++i) {
@@ -815,7 +815,7 @@ int main(int argc, char *argv[])
         //    state.
         //
         // Testing
-        //     baexml_ErrorInfo(bslma_Allocator *basicAllocator = 0);
+        //     baexml_ErrorInfo(bslma::Allocator *basicAllocator = 0);
         //     ~baexml_ErrorInfo();
         //     void setError(Severity               severity,
         //                   int                    lineNumber,

@@ -522,7 +522,8 @@ const bdeat_AttributeInfo *baenet_HttpBasicHeaderFields::lookupAttributeInfo(
 
 // CREATORS
 
-baenet_HttpBasicHeaderFields::baenet_HttpBasicHeaderFields(bslma_Allocator *basicAllocator)
+baenet_HttpBasicHeaderFields::baenet_HttpBasicHeaderFields(
+                                              bslma::Allocator *basicAllocator)
 : d_contentEncoding(basicAllocator)
 , d_contentLanguage(basicAllocator)
 , d_via(basicAllocator)
@@ -545,8 +546,9 @@ baenet_HttpBasicHeaderFields::baenet_HttpBasicHeaderFields(bslma_Allocator *basi
 {
 }
 
-baenet_HttpBasicHeaderFields::baenet_HttpBasicHeaderFields(const baenet_HttpBasicHeaderFields& original,
-                                                                   bslma_Allocator *basicAllocator)
+baenet_HttpBasicHeaderFields::baenet_HttpBasicHeaderFields(
+                           const baenet_HttpBasicHeaderFields&  original,
+                           bslma::Allocator                    *basicAllocator)
 : d_contentEncoding(original.d_contentEncoding, basicAllocator)
 , d_contentLanguage(original.d_contentLanguage, basicAllocator)
 , d_via(original.d_via, basicAllocator)
@@ -576,7 +578,8 @@ baenet_HttpBasicHeaderFields::~baenet_HttpBasicHeaderFields()
 // MANIPULATORS
 
 baenet_HttpBasicHeaderFields&
-baenet_HttpBasicHeaderFields::operator=(const baenet_HttpBasicHeaderFields& rhs)
+baenet_HttpBasicHeaderFields::operator=(
+                                       const baenet_HttpBasicHeaderFields& rhs)
 {
     if (this != &rhs) {
         d_cacheControl = rhs.d_cacheControl;

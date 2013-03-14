@@ -59,6 +59,10 @@ BDES_IDENT("$Id: $")
 #include <bcema_blob.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -77,10 +81,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -209,16 +209,16 @@ struct bcema_BlobUtil {
                        const bcema_Blob&  source,
                        int                offset,
                        int                length,
-                       bslma_Allocator   *);
+                       bslma::Allocator  *);
 
     static void append(bcema_Blob        *dest,
                        const bcema_Blob&  source,
                        int                offset,
-                       bslma_Allocator   *);
+                       bslma::Allocator  *);
 
     static void append(bcema_Blob        *dest,
                        const bcema_Blob&  source,
-                       bslma_Allocator   *);
+                       bslma::Allocator  *);
 };
 
                       // ================================
@@ -301,7 +301,7 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
                             const bcema_Blob&  source,
                             int                offset,
                             int                length,
-                            bslma_Allocator   *)
+                            bslma::Allocator  *)
 {
     return append(dest, source, offset, length);
 }
@@ -310,7 +310,7 @@ inline
 void bcema_BlobUtil::append(bcema_Blob        *dest,
                             const bcema_Blob&  source,
                             int                offset,
-                            bslma_Allocator   *)
+                            bslma::Allocator  *)
 {
     return append(dest, source, offset);
 }
@@ -318,7 +318,7 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
 inline
 void bcema_BlobUtil::append(bcema_Blob        *dest,
                             const bcema_Blob&  source,
-                            bslma_Allocator   *)
+                            bslma::Allocator  *)
 {
     return append(dest, source);
 }

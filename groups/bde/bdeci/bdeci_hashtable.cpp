@@ -29,8 +29,6 @@ BDES_IDENT_RCSID(bdeci_hashtable_cpp,"$Id$ $CSID$")
 // stream with minimal modification, the hashtable sizes provided by
 // 'bdeci_HashtableImpUtil' can be added to the definition of the value.
 
-#include <bsls_platformutil.h>                  // for testing only
-
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004

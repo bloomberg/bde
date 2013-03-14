@@ -10,6 +10,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_iostream.h>
@@ -51,9 +52,9 @@ using namespace bsl;  // automatically added by script
 //                      const bael_AttributeContainerListIterator& );
 // bael_AttributeContainerList
 // CREATORS
-// [ 8] bael_AttributeContainerList(bslma_Allocator *);
+// [ 8] bael_AttributeContainerList(bslma::Allocator *);
 // [10] bael_AttributeContainerList(const bael_AttributeContainerList&  ,
-//                                 bslma_Allocator                    *);
+//                                  bslma::Allocator                   *);
 // [ 8] bael_AttributeContainerList();
 // MANIPULATORS
 // [11] bael_AttributeContainerList& operator=(
@@ -126,7 +127,7 @@ int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 
-bslma_TestAllocator testAllocator;
+bslma::TestAllocator testAllocator;
 
 //=============================================================================
 //                          CLASSES FOR TESTING
@@ -161,8 +162,8 @@ bslma_TestAllocator testAllocator;
                   case 1: // int
                     return lhs.value().the<int>() < rhs.value().the<int>();
                   case 2: // int64
-                    return lhs.value().the<bsls_PlatformUtil::Int64>()
-                        <  rhs.value().the<bsls_PlatformUtil::Int64>();
+                    return lhs.value().the<bsls::Types::Int64>()
+                        <  rhs.value().the<bsls::Types::Int64>();
                  case 3: // string
                    return lhs.value().the<bsl::string>()
                        <  rhs.value().the<bsl::string>();
@@ -181,15 +182,15 @@ bslma_TestAllocator testAllocator;
 
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(AttributeSet,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
         explicit
-        AttributeSet(bslma_Allocator *basicAllocator = 0);
+        AttributeSet(bslma::Allocator *basicAllocator = 0);
             // Create this attribute set.
 
         AttributeSet(const AttributeSet&  original,
-                     bslma_Allocator     *basicAllocator = 0);
+                     bslma::Allocator    *basicAllocator = 0);
             // Create an attribute set with the same value as the specified
             // 'original'.
 
@@ -224,14 +225,14 @@ bslma_TestAllocator testAllocator;
 
     // CREATORS
     inline
-    AttributeSet::AttributeSet(bslma_Allocator *basicAllocator)
+    AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
     : d_set(AttributeComparator(), basicAllocator)
     {
     }
 
     inline
     AttributeSet::AttributeSet(const AttributeSet&  original,
-                               bslma_Allocator     *basicAllocator)
+                               bslma::Allocator    *basicAllocator)
     : d_set(original.d_set, basicAllocator)
     {
     }
@@ -413,9 +414,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_Allocator *Z = &testAllocator;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::Allocator *Z = &testAllocator;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
     switch (test) { case 0:  // Zero is always the leading case.
       case 17: {
         // --------------------------------------------------------------------
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
                           << "TESTING: free list\n"
                           << "==================\n";
 
-        bslma_TestAllocator containerAllocator;
+        bslma::TestAllocator containerAllocator;
         bsl::vector<AttributeSet> containers(&containerAllocator);
         containers.resize(10);
 
@@ -600,7 +601,7 @@ int main(int argc, char *argv[])
                           << "TESTING: removeAllAndRelease()\n"
                           << "==============================\n";
 
-        bslma_TestAllocator containerAllocator;
+        bslma::TestAllocator containerAllocator;
         bsl::vector<AttributeSet> containers(&containerAllocator);
         containers.resize(10);
 
@@ -676,7 +677,7 @@ int main(int argc, char *argv[])
                           << "TESTING: removeAll()\n"
                           << "====================\n";
 
-        bslma_TestAllocator containerAllocator;
+        bslma::TestAllocator containerAllocator;
         bsl::vector<AttributeSet> containers(&containerAllocator);
         containers.resize(10);
 
@@ -1111,7 +1112,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //
-        //   bael_AttributeContainerList(bslma_Allocator *);
+        //   bael_AttributeContainerList(bslma::Allocator *);
         //   ~bael_AttributeContainerList();
         //   iterator pushFront(const bael_AttributeContainer *container);
         //   void remove(const iterator& element);
@@ -1477,7 +1478,7 @@ int main(int argc, char *argv[])
                             << "BREATHING TEST 2" << endl
                             << "================" << endl;
 
-          bslma_TestAllocator t1, t2;
+          bslma::TestAllocator t1, t2;
           Obj mX(&t1); const Obj& MX = mX;
           Obj mY(&t2); const Obj& MY = mY;
 

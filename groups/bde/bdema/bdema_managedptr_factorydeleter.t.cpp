@@ -187,11 +187,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator da("default", veryVeryVeryVerbose);
-    bslma_Default::setDefaultAllocator(&da);
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&da);
 
     switch (test) { case 0:
       case 3: {
@@ -246,8 +246,8 @@ int main(int argc, char *argv[])
                              "a managed pointer\n";
 
         {
-            bslma_TestAllocatorMonitor gam(&globalAllocator);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor gam(&globalAllocator);
+            bslma::TestAllocatorMonitor dam(&da);
 
             int deleteCount = 0;
             CountedStackDeleter factory(&deleteCount);
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tNegative testing\n";
 
         {
-            bsls_AssertTestHandlerGuard guard;
+            bsls::AssertTestHandlerGuard guard;
 
             int deleteCount = 0;
             MyTestObject t(&deleteCount);
@@ -341,8 +341,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest class MyTestObject\n";
 
-        bslma_TestAllocatorMonitor gam(&globalAllocator);
-        bslma_TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor gam(&globalAllocator);
+        bslma::TestAllocatorMonitor dam(&da);
 
         int destructorCount = 0;
         {

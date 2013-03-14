@@ -179,7 +179,7 @@ namespace BloombergLP {
         // CREATORS
         Bind_Impl(FUNC               func,
                   LIST const&        list,
-                  bslma_Allocator  * = 0)
+                  bslma::Allocator * = 0)
             // Create a 'Bind_Impl' object that is bound to the specified
             // 'func' invocable object.
         : d_func(func)
@@ -187,7 +187,7 @@ namespace BloombergLP {
         {
         }
 
-        Bind_Impl(const Bind_Impl& other, bslma_Allocator * = 0)
+        Bind_Impl(const Bind_Impl& other, bslma::Allocator * = 0)
             // Create a 'Bind_Impl' object that is bound to the same
             // invocable object with the same bound parameters as 'other',
             // optionally using the 'allocator' to supply memory.
@@ -281,9 +281,9 @@ namespace BDEF_BIND_TEST_USAGE_EXAMPLE {
 //..
     void usageExampleNoAlloc(int veryVeryVerbose)
     {
-        bslma_TestAllocator          allocator0(veryVeryVerbose);
-        bslma_TestAllocator         *Z0 = &allocator0;
-        bslma_DefaultAllocatorGuard  allocGuard(Z0);
+        bslma::TestAllocator          allocator0(veryVeryVerbose);
+        bslma::TestAllocator         *Z0 = &allocator0;
+        bslma::DefaultAllocatorGuard  allocGuard(Z0);
 
         const int                         N1 = -1;
         const bdef_Bind_TestArgNoAlloc<1> I1 = 1;
@@ -304,7 +304,7 @@ namespace BDEF_BIND_TEST_USAGE_EXAMPLE {
 
             typedef bdef_Bind_TestTypeNoAlloc                      *FUNC;
             typedef bdef_Bind_Tuple1<bdef_Bind_TestArgNoAlloc<1> >  ListType;
-            typedef Bind_Impl<bslmf_Nil, FUNC, ListType>            Bind;
+            typedef Bind_Impl<bslmf::Nil, FUNC, ListType>           Bind;
 
                   ListType  mL(I1);     // list of arguments
             const ListType& L = mL;     // non-modifiable list of arguments
@@ -355,9 +355,9 @@ namespace BDEF_BIND_TEST_USAGE_EXAMPLE {
 
             // For passing to the constructor of 'Bind_Impl'.
 
-            typedef bdef_Bind_TestTypeNoAlloc            *FUNC;
-            typedef bdef_Bind_Tuple1<PH1>                 ListType;
-            typedef Bind_Impl<bslmf_Nil, FUNC, ListType>  Bind;
+            typedef bdef_Bind_TestTypeNoAlloc             *FUNC;
+            typedef bdef_Bind_Tuple1<PH1>                  ListType;
+            typedef Bind_Impl<bslmf::Nil, FUNC, ListType>  Bind;
 
                   ListType  mL(_1);     // list of arguments
             const ListType& L = mL;     // non-modifiable list of arguments
@@ -396,15 +396,15 @@ namespace BDEF_BIND_TEST_USAGE_EXAMPLE {
 //..
     void usageExampleAlloc(int veryVeryVerbose)
     {
-        bslma_TestAllocator  allocator0(veryVeryVerbose);
-        bslma_TestAllocator  allocator1(veryVeryVerbose);
-        bslma_TestAllocator  allocator2(veryVeryVerbose);
+        bslma::TestAllocator  allocator0(veryVeryVerbose);
+        bslma::TestAllocator  allocator1(veryVeryVerbose);
+        bslma::TestAllocator  allocator2(veryVeryVerbose);
 
-        bslma_TestAllocator *Z0 = &allocator0;
-        bslma_TestAllocator *Z1 = &allocator1;
-        bslma_TestAllocator *Z2 = &allocator2;
+        bslma::TestAllocator *Z0 = &allocator0;
+        bslma::TestAllocator *Z1 = &allocator1;
+        bslma::TestAllocator *Z2 = &allocator2;
 
-        bslma_DefaultAllocatorGuard allocGuard(Z0);
+        bslma::DefaultAllocatorGuard allocGuard(Z0);
 
         const bdef_Bind_TestArgAlloc<1> NV1 = -1;
         const bdef_Bind_TestArgAlloc<1>  V1 =  1;
@@ -421,7 +421,7 @@ namespace BDEF_BIND_TEST_USAGE_EXAMPLE {
 
             typedef bdef_Bind_TestTypeAlloc *FUNC;
             typedef bdef_Bind_Tuple1<bdef_Bind_TestArgAlloc<1> > ListType;
-            typedef Bind_Impl<bslmf_Nil, FUNC, ListType> Bind;
+            typedef Bind_Impl<bslmf::Nil, FUNC, ListType> Bind;
 
             // For passing to the constructor of 'Bind_Impl'.
 
@@ -468,7 +468,7 @@ namespace BDEF_BIND_TEST_USAGE_EXAMPLE {
 
             typedef bdef_Bind_TestTypeAlloc *FUNC;
             typedef bdef_Bind_Tuple1<PH1> ListType;
-            typedef Bind_Impl<bslmf_Nil, FUNC, ListType> Bind;
+            typedef Bind_Impl<bslmf::Nil, FUNC, ListType> Bind;
 
             // For passing to the constructor of 'Bind_Impl'.
 
@@ -563,21 +563,21 @@ int main(int argc, char *argv[])
     // The slots are set when the corresponding function object or free
     // function is called with 'NumArgs' arguments.
 
-    bslma_TestAllocator allocator0(veryVeryVerbose);
-    bslma_TestAllocator allocator1(veryVeryVerbose);
-    bslma_TestAllocator allocator2(veryVeryVerbose);
+    bslma::TestAllocator allocator0(veryVeryVerbose);
+    bslma::TestAllocator allocator1(veryVeryVerbose);
+    bslma::TestAllocator allocator2(veryVeryVerbose);
 
-    bslma_TestAllocator *Z0 = &allocator0;
-    bslma_TestAllocator *Z1 = &allocator1;
-    bslma_TestAllocator *Z2 = &allocator2;
+    bslma::TestAllocator *Z0 = &allocator0;
+    bslma::TestAllocator *Z1 = &allocator1;
+    bslma::TestAllocator *Z2 = &allocator2;
 
     SlotsAlloc::setZ0(Z0);
     SlotsAlloc::setZ1(Z1);
     SlotsAlloc::setZ2(Z2);
 
-    bslma_DefaultAllocatorGuard allocGuard(Z0);
+    bslma::DefaultAllocatorGuard allocGuard(Z0);
 
-    const bslma_Allocator *ALLOC_SLOTS[][NUM_SLOTS] = {
+    const bslma::Allocator *ALLOC_SLOTS[][NUM_SLOTS] = {
         // 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14    NumArgs
         { Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, // 0
         { Z0, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, // 1
@@ -596,7 +596,7 @@ int main(int argc, char *argv[])
         { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, }, // 14
         { Z0, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, }, // 15
     };
-    const bslma_Allocator * ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {
+    const bslma::Allocator * ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {
           Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0,
     };
 
@@ -665,17 +665,17 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tAsserting traits of test classes.\n");
         {
-            ASSERT(0 == (bslalg_HasTrait<bdef_Bind_TestArgNoAlloc<1>,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+            ASSERT(0 == (bslalg::HasTrait<bdef_Bind_TestArgNoAlloc<1>,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
-            ASSERT(0 == (bslalg_HasTrait<bdef_Bind_TestTypeNoAlloc,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+            ASSERT(0 == (bslalg::HasTrait<bdef_Bind_TestTypeNoAlloc,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
-            ASSERT(1 == (bslalg_HasTrait<bdef_Bind_TestArgAlloc<1>,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+            ASSERT(1 == (bslalg::HasTrait<bdef_Bind_TestArgAlloc<1>,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
-            ASSERT(1 == (bslalg_HasTrait<bdef_Bind_TestTypeAlloc,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+            ASSERT(1 == (bslalg::HasTrait<bdef_Bind_TestTypeAlloc,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
         }
 
       } break;

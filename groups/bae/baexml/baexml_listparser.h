@@ -199,7 +199,7 @@ class baexml_ListParser {
   public:
     // CREATORS
     explicit baexml_ListParser(ParseElementCallback  parseElementCallback,
-                               bslma_Allocator      *basicAllocator = 0);
+                               bslma::Allocator     *basicAllocator = 0);
         // Create a parser for lists using the specified 'parseElementCallback'
         // functor to parse each element and the specified 'basicAllocator' for
         // supplying memory.  If 'basicAllocator' is 0, the currently installed
@@ -336,7 +336,7 @@ int baexml_ListParser<bcem_AggregateRaw>::appendElement(const char *data,
 template <typename TYPE>
 baexml_ListParser<TYPE>::baexml_ListParser(
     ParseElementCallback  parseElementCallback,
-    bslma_Allocator      *basicAllocator)
+    bslma::Allocator     *basicAllocator)
 : d_characters(basicAllocator)
 , d_object_p(0)
 , d_parseElementCallback(parseElementCallback, basicAllocator)

@@ -23,10 +23,10 @@ int calculateMaxAlignedSize(int totalSize)
 {
     using namespace BloombergLP;
 
-    const int objectAlignmentMin1 = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
-    const int ret = (totalSize + objectAlignmentMin1) & ~(objectAlignmentMin1);
-    BSLS_ASSERT(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT ==
-                          bsls_AlignmentUtil::calculateAlignmentFromSize(ret));
+    const int objectAlignmentMin = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
+    const int ret = (totalSize + objectAlignmentMin) & ~(objectAlignmentMin);
+    BSLS_ASSERT(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT ==
+                         bsls::AlignmentUtil::calculateAlignmentFromSize(ret));
     return ret;
 }
 
@@ -37,33 +37,33 @@ namespace BloombergLP {
                       // -------------------------
 
 // CREATORS
-bcema_PoolAllocator::bcema_PoolAllocator(bslma_Allocator *basicAllocator)
+bcema_PoolAllocator::bcema_PoolAllocator(bslma::Allocator *basicAllocator)
 : d_initialized(BCEMA_UNINITIALIZED)
 , d_blockSize(0)
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 bcema_PoolAllocator::bcema_PoolAllocator(
-                                    bsls_BlockGrowth::Strategy  growthStrategy,
-                                    bslma_Allocator            *basicAllocator)
+                                   bsls::BlockGrowth::Strategy  growthStrategy,
+                                   bslma::Allocator            *basicAllocator)
 : d_initialized(BCEMA_UNINITIALIZED)
 , d_blockSize(0)
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
-bcema_PoolAllocator::bcema_PoolAllocator(size_type        blockSize,
-                                         bslma_Allocator *basicAllocator)
+bcema_PoolAllocator::bcema_PoolAllocator(size_type         blockSize,
+                                         bslma::Allocator *basicAllocator)
 : d_initialized(BCEMA_UNINITIALIZED)
 , d_blockSize(blockSize)
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 <= blockSize);
 
@@ -77,14 +77,14 @@ bcema_PoolAllocator::bcema_PoolAllocator(size_type        blockSize,
 }
 
 bcema_PoolAllocator::bcema_PoolAllocator(
-                                    size_type                   blockSize,
-                                    bsls_BlockGrowth::Strategy  growthStrategy,
-                                    bslma_Allocator            *basicAllocator)
+                                   size_type                    blockSize,
+                                   bsls::BlockGrowth::Strategy  growthStrategy,
+                                   bslma::Allocator            *basicAllocator)
 : d_initialized(BCEMA_UNINITIALIZED)
 , d_blockSize(blockSize)
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 <= blockSize);
 
@@ -98,27 +98,27 @@ bcema_PoolAllocator::bcema_PoolAllocator(
 }
 
 bcema_PoolAllocator::bcema_PoolAllocator(
-                                 bsls_BlockGrowth::Strategy  growthStrategy,
-                                 int                         maxBlocksPerChunk,
-                                 bslma_Allocator            *basicAllocator)
+                                bsls::BlockGrowth::Strategy  growthStrategy,
+                                int                          maxBlocksPerChunk,
+                                bslma::Allocator            *basicAllocator)
 : d_initialized(BCEMA_UNINITIALIZED)
 , d_blockSize(0)
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 bcema_PoolAllocator::bcema_PoolAllocator(
-                                 size_type                   blockSize,
-                                 bsls_BlockGrowth::Strategy  growthStrategy,
-                                 int                         maxBlocksPerChunk,
-                                 bslma_Allocator            *basicAllocator)
+                                size_type                    blockSize,
+                                bsls::BlockGrowth::Strategy  growthStrategy,
+                                int                          maxBlocksPerChunk,
+                                bslma::Allocator            *basicAllocator)
 : d_initialized(BCEMA_UNINITIALIZED)
 , d_blockSize(blockSize)
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 <= blockSize);
 

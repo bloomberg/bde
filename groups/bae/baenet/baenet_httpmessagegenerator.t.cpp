@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 != rc);
             }
         }
-        ASSERT(0 <= ta.numAllocation());
+        ASSERT(0 <= ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
 
       } break;

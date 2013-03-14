@@ -56,7 +56,7 @@ bael_LoggerManagerConfiguration::areValidDefaultThresholdLevels(
 
 // CREATORS
 bael_LoggerManagerConfiguration::bael_LoggerManagerConfiguration(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_defaults()
 , d_userSchema(basicAllocator)
 , d_userPopulator()
@@ -64,13 +64,13 @@ bael_LoggerManagerConfiguration::bael_LoggerManagerConfiguration(
 , d_defaultThresholdsCb()
 , d_logOrder(BAEL_LIFO)
 , d_triggerMarkers(BAEL_BEGIN_END_MARKERS)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 bael_LoggerManagerConfiguration::bael_LoggerManagerConfiguration(
                         const bael_LoggerManagerConfiguration&  original,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_defaults(original.d_defaults)
 , d_userSchema(original.d_userSchema, basicAllocator)
 , d_userPopulator(original.d_userPopulator)
@@ -78,7 +78,7 @@ bael_LoggerManagerConfiguration::bael_LoggerManagerConfiguration(
 , d_defaultThresholdsCb(original.d_defaultThresholdsCb)
 , d_logOrder(original.d_logOrder)
 , d_triggerMarkers(original.d_triggerMarkers)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

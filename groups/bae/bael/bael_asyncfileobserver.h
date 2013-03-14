@@ -323,12 +323,12 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetimeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -382,7 +382,7 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     mutable bcemt_Mutex           d_mutex;           // serialize operations
 
-    bslma_Allocator              *d_allocator_p;     // memory allocator (held,
+    bslma::Allocator             *d_allocator_p;     // memory allocator (held,
                                                      // not owned)
 
   private:
@@ -413,7 +413,7 @@ class bael_AsyncFileObserver : public bael_Observer {
     // CREATORS
     explicit bael_AsyncFileObserver(
               bael_Severity::Level  stdoutThreshold = bael_Severity::BAEL_WARN,
-              bslma_Allocator      *basicAllocator  = 0);
+              bslma::Allocator     *basicAllocator  = 0);
         // Create a file observer that asynchronously publishes log records
         // both to a log file, and possibly also to 'stdout' if a record's
         // severity us at least as severe as the optionally specified
@@ -433,7 +433,7 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     bael_AsyncFileObserver(bael_Severity::Level  stdoutThreshold,
                            bool                  publishInLocalTime,
-                           bslma_Allocator      *basicAllocator = 0);
+                           bslma::Allocator     *basicAllocator = 0);
         // Create a file observer that asynchronously publishes log records
         // both to a log file, and possibly also to 'stdout', if a record's
         // severity is at least as severe as the specified 'stdoutThreshold',
@@ -453,13 +453,13 @@ class bael_AsyncFileObserver : public bael_Observer {
                          bael_Severity::Level  stdoutThreshold,
                          bool                  publishInLocalTime,
                          int                   maxRecordQueueSize,
-                         bslma_Allocator      *basicAllocator = 0);
+                         bslma::Allocator     *basicAllocator = 0);
     bael_AsyncFileObserver(
                          bael_Severity::Level  stdoutThreshold,
                          bool                  publishInLocalTime,
                          int                   maxRecordQueueSize,
                          bael_Severity::Level  dropRecordsOnFullQueueThreshold,
-                         bslma_Allocator      *basicAllocator = 0);
+                         bslma::Allocator     *basicAllocator = 0);
         // Create a file observer that asynchronously publishes log records by
         // enqueing them onto a record queue having the specified
         // 'maxRecordQueue' length, where an independent publication thread

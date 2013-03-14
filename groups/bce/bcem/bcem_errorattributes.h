@@ -125,8 +125,8 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -166,10 +166,10 @@ class bcem_ErrorAttributes {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcem_ErrorAttributes,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bcem_ErrorAttributes(bslma_Allocator *basicAllocator = 0);
+    explicit bcem_ErrorAttributes(bslma::Allocator *basicAllocator = 0);
         // Create a 'bcem_ErrorAttributes' object having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -177,14 +177,14 @@ class bcem_ErrorAttributes {
 
     bcem_ErrorAttributes(bcem_ErrorCode::Code  code,
                          const char           *description,
-                         bslma_Allocator      *basicAllocator = 0);
+                         bslma::Allocator     *basicAllocator = 0);
         // Create a 'bcem_ErrorAttributes' object having the specified 'code'
         // and 'description'.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     bcem_ErrorAttributes(const bcem_ErrorAttributes&  original,
-                         bslma_Allocator             *basicAllocator = 0);
+                         bslma::Allocator            *basicAllocator = 0);
         // Create a 'bcem_ErrorAttributes' object having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -268,7 +268,7 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
 
 // CREATORS
 inline
-bcem_ErrorAttributes::bcem_ErrorAttributes(bslma_Allocator *basicAllocator)
+bcem_ErrorAttributes::bcem_ErrorAttributes(bslma::Allocator *basicAllocator)
 : d_description(basicAllocator)
 , d_code(bcem_ErrorCode::BCEM_SUCCESS)
 {
@@ -277,7 +277,7 @@ bcem_ErrorAttributes::bcem_ErrorAttributes(bslma_Allocator *basicAllocator)
 inline
 bcem_ErrorAttributes::bcem_ErrorAttributes(
                                    const bcem_ErrorAttributes&  original,
-                                   bslma_Allocator             *basicAllocator)
+                                   bslma::Allocator            *basicAllocator)
 : d_description(original.d_description, basicAllocator)
 , d_code(original.d_code)
 {
@@ -287,7 +287,7 @@ inline
 bcem_ErrorAttributes::bcem_ErrorAttributes(
                                           bcem_ErrorCode::Code  code,
                                           const char           *description,
-                                          bslma_Allocator      *basicAllocator)
+                                          bslma::Allocator     *basicAllocator)
 : d_description(description, basicAllocator)
 , d_code(code)
 {

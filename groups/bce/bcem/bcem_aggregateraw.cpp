@@ -229,12 +229,12 @@ class NullTerminatedString {
     // all, practical uses of this class without incurring a memory allocation.
 
     // DATA
-    char             d_buffer[128];  // buffer large enough for *most* uses
+    char              d_buffer[128];  // buffer large enough for *most* uses
 
-    char            *d_string_p;     // address of 'd_buffer', or allocated
-                                     // string if 128 is not sufficient
+    char             *d_string_p;     // address of 'd_buffer', or allocated
+                                      // string if 128 is not sufficient
 
-    bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
     // NOT IMPLEMENTED
     NullTerminatedString(const NullTerminatedString&);
@@ -242,11 +242,11 @@ class NullTerminatedString {
 
   public:
     // CREATORS
-    NullTerminatedString(const char      *string,
-                         int              length,
-                         bslma_Allocator *basicAllocator = 0)
+    NullTerminatedString(const char       *string,
+                         int               length,
+                         bslma::Allocator *basicAllocator = 0)
     : d_string_p(d_buffer)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         if (length >= (int)sizeof d_buffer) {
             d_string_p = (char *)d_allocator_p->allocate(length + 1);
@@ -299,7 +299,7 @@ struct ArrayInserter::SignChecker<unsigned int> {
 };
 
 template <>
-struct ArrayInserter::SignChecker<bsls_Types::Uint64> {
+struct ArrayInserter::SignChecker<bsls::Types::Uint64> {
     // TBD REMOVE
     enum {
         IS_SIGNED = 0
@@ -847,7 +847,7 @@ int bcem_AggregateRaw::makeSelectionByIndexRaw(
 
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
                               const char           *value,
-                              bslmf_MetaInt<1>) const
+                              bslmf::MetaInt<1>) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -882,7 +882,7 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
 
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes     *errorDescription,
                               const bdem_ConstElemRef&  value,
-                              bslmf_MetaInt<1>) const
+                              bslmf::MetaInt<1>) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -916,7 +916,7 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes     *errorDescription,
         }
         return toEnum(errorDescription,
                       value.theString().c_str(),
-                      bslmf_MetaInt<1>());                            // RETURN
+                      bslmf::MetaInt<1>());                           // RETURN
       } break;
       default: {
         bsl::ostringstream oss;
@@ -938,12 +938,12 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes     *errorDescription,
 
     // Got here if value is numeric and has been converted to int.
 
-    return toEnum(errorDescription, intValue, bslmf_MetaInt<0>());
+    return toEnum(errorDescription, intValue, bslmf::MetaInt<0>());
 }
 
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
                               const int&            value,
-                              bslmf_MetaInt<0>) const
+                              bslmf::MetaInt<0>) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -1223,9 +1223,9 @@ int bcem_AggregateRaw::asInt() const
     return convertScalar<int>();
 }
 
-bsls_Types::Int64 bcem_AggregateRaw::asInt64() const
+bsls::Types::Int64 bcem_AggregateRaw::asInt64() const
 {
-    return convertScalar<bsls_Types::Int64>();
+    return convertScalar<bsls::Types::Int64>();
 }
 
 float bcem_AggregateRaw::asFloat() const

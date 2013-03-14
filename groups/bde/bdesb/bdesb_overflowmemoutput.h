@@ -124,7 +124,7 @@ class bdesb_OverflowMemOutput {
 
     int   d_overflowBufferSize;    // size of 'd_overflowBuffer_p' buffer
 
-    bslma_Allocator
+    bslma::Allocator
          *d_allocator_p;           // memory allocator (held, not owned)
 
     // NOT IMPLEMENTED
@@ -146,9 +146,9 @@ class bdesb_OverflowMemOutput {
     typedef bsl::streambuf::traits_type traits_type;
 
     // CREATORS
-    bdesb_OverflowMemOutput(char            *buffer,
-                            int              length,
-                            bslma_Allocator *basicAllocator = 0);
+    bdesb_OverflowMemOutput(char             *buffer,
+                            int               length,
+                            bslma::Allocator *basicAllocator = 0);
         // Create an empty stream buffer that uses the specified 'buffer' as an
         // initial output buffer of the specified 'length' (in bytes).
         // Optionally specify a 'basicAllocator' used to supply memory.   If

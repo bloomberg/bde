@@ -46,7 +46,7 @@ using namespace bsl;  // automatically added by script
 // case 8.  Concurrent access (a concern due to the reuse of nodes in the free
 // list) is also a concern and tested in case 11.
 //-----------------------------------------------------------------------------
-// [3 ] bcec_TimeQueue(bslma_Allocator *allocator=0);
+// [3 ] bcec_TimeQueue(bslma::Allocator *allocator=0);
 // [3 ] ~bcec_TimeQueue();
 // [5 ] int popFront(bcec_TimeQueueItem<DATA> *buffer);
 // [6 ] int popFront(bcec_TimeQueueItem<DATA> *buffer,...
@@ -146,19 +146,19 @@ class TestString {
     // default-constructed 'TestString' is guaranteed *not* to trigger an
     // allocation.  This class is used in test cases 9 and 11.
 
-    bslma_Allocator *d_allocator_p;  // held, not owned
-    bsl::string     *d_string_p;     // owned
+    bslma::Allocator *d_allocator_p;  // held, not owned
+    bsl::string      *d_string_p;     // owned
 
     static bsl::string s_emptyString;
   public:
     // TYPES
     BSLALG_DECLARE_NESTED_TRAITS(TestString,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit TestString(bslma_Allocator *allocator = 0);
-    explicit TestString(const char *s, bslma_Allocator *allocator = 0);
-    explicit TestString(const bsl::string& s, bslma_Allocator *allocator = 0);
+    explicit TestString(bslma::Allocator *allocator = 0);
+    explicit TestString(const char *s, bslma::Allocator *allocator = 0);
+    explicit TestString(const bsl::string& s, bslma::Allocator *allocator = 0);
         // Create a string, optionally initialized with 's', using 'allocator'
         // to supply memory.  If allocator is null, the currently-installed
         // default allocator is used.
@@ -196,20 +196,20 @@ bool operator!=(const TestString& s1, const TestString& s2);
 bsl::string TestString::s_emptyString; // default-initialized
 
 // CREATORS
-TestString::TestString(bslma_Allocator *alloc)
-: d_allocator_p(bslma_Default::allocator(alloc))
+TestString::TestString(bslma::Allocator *alloc)
+: d_allocator_p(bslma::Default::allocator(alloc))
 , d_string_p(0)
 {
 }
 
-TestString::TestString(const char *s, bslma_Allocator *alloc)
-: d_allocator_p(bslma_Default::allocator(alloc))
+TestString::TestString(const char *s, bslma::Allocator *alloc)
+: d_allocator_p(bslma::Default::allocator(alloc))
 {
     d_string_p = new(*d_allocator_p) bsl::string(s, d_allocator_p);
 }
 
-TestString::TestString(const bsl::string& s, bslma_Allocator *alloc)
-: d_allocator_p(bslma_Default::allocator(alloc))
+TestString::TestString(const bsl::string& s, bslma::Allocator *alloc)
+: d_allocator_p(bslma::Default::allocator(alloc))
 {
     d_string_p = new(*d_allocator_p) bsl::string(s, d_allocator_p);
 }
@@ -469,7 +469,7 @@ void threadFunc(bcec_TimeQueue<int> *timeQueue,
     timers.resize(sendCount);
 
     bsl::vector<bcec_TimeQueueItem<int> > resubmit;
-    bsls_Stopwatch sw;
+    bsls::Stopwatch sw;
 
     for(int i=0; i<numIterations; i++) {
         if( verbose ) {
@@ -682,7 +682,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 
       public:
         // CREATORS
-        my_Server(int ioTimeout, bslma_Allocator *allocator=0);
+        my_Server(int ioTimeout, bslma::Allocator *allocator=0);
             // Construct a 'my_Server' object with a timeout value of
             // 'ioTimeout' seconds.  Use the specified 'allocator' for all
             // memory allocation for data members of 'my_Server'.
@@ -697,7 +697,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 // The constructor is simple: it initializes the internal 'bcec_TimeQueue' and
 // sets the I/O timeout value.  The virtual destructor does nothing.
 //..
-    my_Server::my_Server(int ioTimeout, bslma_Allocator *allocator)
+    my_Server::my_Server(int ioTimeout, bslma::Allocator *allocator)
     : d_timeQueue(allocator)
     , d_ioTimeout(ioTimeout)
     , d_connectionThreadHandle(bcemt_ThreadUtil::invalidHandle())
@@ -943,9 +943,9 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 
       public:
         // CREATORS
-        my_TestServer(int              ioTimeout,
-                      int              verbose = 0,
-                      bslma_Allocator *allocator = 0)
+        my_TestServer(int               ioTimeout,
+                      int               verbose = 0,
+                      bslma::Allocator *allocator = 0)
         : my_Server(ioTimeout,allocator)
         , d_verbose(verbose)
         {
@@ -1056,7 +1056,7 @@ int main(int argc, char *argv[])
 
     bcema_TestAllocator ta(veryVeryVerbose);
     bcema_TestAllocator defaultAlloc(veryVeryVerbose);
-    bslma_DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
+    bslma::DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
@@ -1152,7 +1152,7 @@ int main(int argc, char *argv[])
         const int NUM_OUTER_ITERATIONS = 10000;
         const int NUM_INNER_ITERATIONS = 100;
 #endif
-        bslma_TestAllocator na1, na2;
+        bslma::TestAllocator na1, na2;
 
         const int NUM_TOTAL_ITERATIONS =
                                    NUM_OUTER_ITERATIONS * NUM_INNER_ITERATIONS;
@@ -1175,7 +1175,7 @@ int main(int argc, char *argv[])
             popTimes[i].addMilliseconds(i * NUM_INNER_ITERATIONS);
         }
 
-        bsls_Stopwatch s;
+        bsls::Stopwatch s;
         s.start();
         {
             Obj mX(&na1); const Obj& X = mX;
@@ -2678,8 +2678,8 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bcec_TimeQueue(bslma_Allocator *allocator=0);
-        //   bcec_TimeQueue(bool poolTimerMem, bslma_Allocator *allocator=0);
+        //   bcec_TimeQueue(bslma::Allocator *allocator=0);
+        //   bcec_TimeQueue(bool poolTimerMem, bslma::Allocator *allocator=0);
         //   ~bcec_TimeQueue();
         //   void* add(const bdet_TimeInterval& time, const DATA& data, ...
         //   int length() const;

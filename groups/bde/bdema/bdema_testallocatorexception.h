@@ -31,9 +31,9 @@ BDES_IDENT("$Id: $")
 // (e.g., 'my_ShortArray') under test is exception neutral:
 //..
 //  // my_allocator.h
-//  #include <bdema_allocator.h>
+//  #include <bslma_allocator.h>
 //
-//  class my_Allocator : public bdema_Allocator {
+//  class my_Allocator : public bslma::Allocator {
 //      int d_allocationLimit;
 //      // ...
 //
@@ -211,7 +211,7 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-typedef bslma_TestAllocatorException bdema_TestAllocatorException;
+typedef bslma::TestAllocatorException bdema_TestAllocatorException;
     // This class defines an exception object for memory allocation operations.
     // Instances of this class contain information about the allocation
     // request.

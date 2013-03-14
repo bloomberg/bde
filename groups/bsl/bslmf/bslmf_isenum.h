@@ -65,6 +65,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
+#include <bslmf_isconvertibletoany.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
 #endif
@@ -94,15 +98,15 @@ struct IsEnum_AnyArithmeticType {
     // to 'IsEnum_AnyArithmeticType'.
 
     // NOT IMPLEMENTED
-    IsEnum_AnyArithmeticType(wchar_t);
-    IsEnum_AnyArithmeticType(int);
-    IsEnum_AnyArithmeticType(unsigned int);
-    IsEnum_AnyArithmeticType(long);
-    IsEnum_AnyArithmeticType(unsigned long);
-    IsEnum_AnyArithmeticType(long long);
-    IsEnum_AnyArithmeticType(unsigned long long);
-    IsEnum_AnyArithmeticType(double);
-    IsEnum_AnyArithmeticType(long double);
+    IsEnum_AnyArithmeticType(wchar_t);                              // IMPLICIT
+    IsEnum_AnyArithmeticType(int);                                  // IMPLICIT
+    IsEnum_AnyArithmeticType(unsigned int);                         // IMPLICIT
+    IsEnum_AnyArithmeticType(long);                                 // IMPLICIT
+    IsEnum_AnyArithmeticType(unsigned long);                        // IMPLICIT
+    IsEnum_AnyArithmeticType(long long);                            // IMPLICIT
+    IsEnum_AnyArithmeticType(unsigned long long);                   // IMPLICIT
+    IsEnum_AnyArithmeticType(double);                               // IMPLICIT
+    IsEnum_AnyArithmeticType(long double);                          // IMPLICIT
         // Create an 'IsEnum_AnyArithmeticType' object from a value of one of
         // the indicated arithmetic types.  Note that it is not necessary to
         // provide overloads taking 'bool', 'char', or 'short' because they are
@@ -130,7 +134,8 @@ struct is_enum
         !is_fundamental<typename remove_cv<TYPE>::type>::value
         && !is_reference<TYPE>::value
         && is_convertible<TYPE,
-                        BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value> {
+                        BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value
+        && !BloombergLP::bslmf::IsConvertibleToAny<TYPE>::value> {
     // This 'struct' template implements the 'is_enum' meta-function defined in
     // the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from
@@ -179,10 +184,23 @@ struct IsEnum : bsl::is_enum<TYPE>::type {
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

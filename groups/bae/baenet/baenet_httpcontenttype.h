@@ -17,8 +17,8 @@ BDES_IDENT_PRAGMA_ONCE
 //@DESCRIPTION:  This component provides a value-semantic type for representing
 // the HTTP Content-Type field value, as described in RFC 2616.
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
@@ -33,10 +33,6 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdeat_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
-#include <bsls_objectbuffer.h>
-#endif
-
 #ifndef INCLUDED_BDEX_INSTREAMFUNCTIONS
 #include <bdex_instreamfunctions.h>
 #endif
@@ -45,12 +41,24 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdex_outstreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
 #endif
 
 #ifndef INCLUDED_BDEUT_NULLABLEVALUE
@@ -63,10 +71,6 @@ BDES_IDENT_PRAGMA_ONCE
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -135,14 +139,14 @@ class baenet_HttpContentType {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit baenet_HttpContentType(bslma_Allocator *basicAllocator = 0);
+    explicit baenet_HttpContentType(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'baenet_HttpContentType' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     baenet_HttpContentType(const baenet_HttpContentType& original,
-                               bslma_Allocator *basicAllocator = 0);
+                           bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'baenet_HttpContentType' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -326,7 +330,8 @@ bsl::ostream& operator<<(bsl::ostream& stream,
 
 // TRAITS
 
-BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baenet_HttpContentType)
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
+                                                        baenet_HttpContentType)
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS

@@ -183,7 +183,7 @@ typedef bdem_Table         Table;
 typedef bdem_Choice        Choice;
 typedef bdem_ChoiceArray   ChoiceArray;
 
-typedef bsls_Types::Int64  Int64;
+typedef bsls::Types::Int64 Int64;
 
 const double RELDEF = 1e-12;  // 2/28/03: 'double' and 'float' have the same
 const double ABSDEF = 1e-24;  // Rel & Abs Tolerances.  KEEP IN SYNC w/.cpp
@@ -1278,7 +1278,7 @@ bool cApprox6(const Choice& lhs,
 
       public:
         // CREATORS
-        PriceBook(bslma_Allocator *basicAllocator = 0);
+        PriceBook(bslma::Allocator *basicAllocator = 0);
             // Construct a price book.  Optionally specify a 'basicAllocator'
             // used to supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
@@ -1321,7 +1321,7 @@ bool cApprox6(const Choice& lhs,
 // The function definitions for the price book class are provided below:
 //..
     // CREATORS
-    PriceBook::PriceBook(bslma_Allocator *basicAllocator)
+    PriceBook::PriceBook(bslma::Allocator *basicAllocator)
     : d_quoteBook(basicAllocator)
     {
     }
@@ -1421,8 +1421,8 @@ int main(int argc, char *argv[])
     int veryVerbose     = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 

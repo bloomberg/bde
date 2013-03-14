@@ -52,8 +52,8 @@ BDES_IDENT("$Id: $")
 //..
 ///Thread-safety
 ///-------------
-// This component depends on a 'bslma_Allocator' instance to supply memory.  If
-// the allocator is not thread enabled then the instances of this component
+// This component depends on a 'bslma::Allocator' instance to supply memory.
+// If the allocator is not thread enabled then the instances of this component
 // that use the same allocator instance will consequently not be thread safe
 // Otherwise, this component provides the following guarantees.
 //
@@ -261,25 +261,25 @@ BDES_IDENT("$Id: $")
 #include <bteso_eventtype.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSL_HASH_MAP
-#include <bsl_hash_map.h>
+#ifndef INCLUDED_BSL_UNORDERED_MAP
+#include <bsl_unordered_map.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 #if defined(BSLS_PLATFORM_OS_SOLARIS)    \
     || defined(BSLS_PLATFORM_OS_LINUX)   \
-    || defined(BDES_PLATFORM_OS_FREEBSD) \
+    || defined(BSLS_PLATFORM_OS_FREEBSD) \
     || defined(BSLS_PLATFORM_OS_AIX)     \
     || defined(BSLS_PLATFORM_OS_HPUX)    \
     || defined(BSLS_PLATFORM_OS_CYGWIN)  \
@@ -307,35 +307,37 @@ class bteso_DefaultEventManager<bteso_Platform::POLL>
     // mechanism.
 
     // DATA
-    bsl::vector<struct ::pollfd> d_pollFds;      // array of 'pollfd'
-                                                 // structures for each
-                                                 // registered socket handle
+    bsl::vector<struct ::pollfd>  d_pollFds;       // array of 'pollfd'
+                                                   // structures for each
+                                                   // registered socket handle
 
-    bsl::hash_map<bteso_Event, bteso_EventManager::Callback, bteso_EventHash>
-                                 d_callbacks;    // container of registered
-                                                 // socket events and
-                                                 // associated callbacks
+    bsl::unordered_map<bteso_Event,
+                       bteso_EventManager::Callback,
+                       bteso_EventHash>
+                                  d_callbacks;     // container of registered
+                                                   // socket events and
+                                                   // associated callbacks
 
-    bsl::hash_map<int,int>       d_index;        // map of socket handles to
-                                                 // the associated indexes in
-                                                 // 'd_pollFds'
+    bsl::unordered_map<int,int>   d_index;         // map of socket handles to
+                                                   // the associated indexes in
+                                                   // 'd_pollFds'
 
-    bteso_TimeMetrics           *d_timeMetric_p; // metrics to use for
-                                                 // reporting percent-busy
-                                                 // statistics
+    bteso_TimeMetrics            *d_timeMetric_p;  // metrics to use for
+                                                   // reporting percent-busy
+                                                   // statistics
 
-    bsl::vector<struct ::pollfd> d_signaled;     // array of 'pollfd'
-                                                 // structures indicating
-                                                 // pending IO operations
+    bsl::vector<struct ::pollfd>  d_signaled;      // array of 'pollfd'
+                                                   // structures indicating
+                                                   // pending IO operations
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_DefaultEventManager,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
     // CREATORS
     explicit
     bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric     = 0,
-                              bslma_Allocator   *basicAllocator = 0);
+                              bslma::Allocator  *basicAllocator = 0);
         // Create a 'poll'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics

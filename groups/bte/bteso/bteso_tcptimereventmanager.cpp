@@ -31,7 +31,7 @@ BDES_IDENT_RCSID(bteso_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bdef_function.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_vector.h>
 
@@ -50,10 +50,10 @@ namespace BloombergLP {
 // CREATORS
 
 bteso_TcpTimerEventManager::bteso_TcpTimerEventManager(
-      bslma_Allocator *basicAllocator)
+      bslma::Allocator *basicAllocator)
 : d_timers(basicAllocator)
 , d_isManagedFlag(1)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_metrics(NUM_CATEGORIES, CPU_BOUND, basicAllocator)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -69,10 +69,10 @@ bteso_TcpTimerEventManager::bteso_TcpTimerEventManager(
 
 bteso_TcpTimerEventManager::bteso_TcpTimerEventManager(
       Hint infrequentRegistrationHint,
-      bslma_Allocator *basicAllocator)
+      bslma::Allocator *basicAllocator)
 : d_timers(basicAllocator)
 , d_isManagedFlag(1)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_metrics(NUM_CATEGORIES, CPU_BOUND, basicAllocator)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -108,11 +108,11 @@ bteso_TcpTimerEventManager::bteso_TcpTimerEventManager(
 
 bteso_TcpTimerEventManager::bteso_TcpTimerEventManager(
       bteso_EventManager *manager,
-      bslma_Allocator *basicAllocator)
+      bslma::Allocator   *basicAllocator)
 : d_timers(basicAllocator)
 , d_manager_p(manager)
 , d_isManagedFlag(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_metrics(NUM_CATEGORIES, CPU_BOUND, basicAllocator)
 {
     BSLS_ASSERT(d_manager_p);
@@ -178,7 +178,7 @@ int bteso_TcpTimerEventManager::rescheduleTimer(
         const void               *timerId,
         const bdet_TimeInterval&  expiryTime)
 {
-    return d_timers.update((int)(bsls_PlatformUtil::IntPtr) timerId,
+    return d_timers.update((int)(bsls::Types::IntPtr) timerId,
                            expiryTime);
 }
 
@@ -201,7 +201,7 @@ void bteso_TcpTimerEventManager::deregisterAllSocketEvents() {
 
 void bteso_TcpTimerEventManager::deregisterTimer(const void *handle)
 {
-    d_timers.remove((int) (bsls_PlatformUtil::IntPtr) handle);
+    d_timers.remove((int) (bsls::Types::IntPtr) handle);
 }
 
 void bteso_TcpTimerEventManager::deregisterAllTimers() {

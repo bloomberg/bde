@@ -242,9 +242,9 @@ int loadTree(baexml_Element_Node      *rootNode,
     int state = STATE_INIT;
     int stateBeforeComment;
 
-    bslma_Allocator *allocator = rootNode->d_imp_p->d_allocator_p;
+    bslma::Allocator *allocator = rootNode->d_imp_p->d_allocator_p;
 
-    baexml_Element_Node *node         = 0;
+    baexml_Element_Node *node  = 0;
     bool          foundRoot    = false;
     bool          finished     = false;
     int           currentLevel = 0;
@@ -687,7 +687,7 @@ void baexml_ElementRef::insertSubElement(
     BSLS_ASSERT(0     <= index);
     BSLS_ASSERT(index <= numSubElements());
 
-    bslma_Allocator *allocator = d_node_p->d_imp_p->d_allocator_p;
+    bslma::Allocator *allocator = d_node_p->d_imp_p->d_allocator_p;
 
     bcema_Blob data;
     elementRef.extractData(&data);
@@ -935,14 +935,14 @@ int baexml_ElementConstRef::numSubElements() const
 
 // CREATORS
 
-baexml_Element::baexml_Element(bslma_Allocator *basicAllocator)
+baexml_Element::baexml_Element(bslma::Allocator *basicAllocator)
 : d_imp(basicAllocator)
 , d_root()
 {
 }
 
 baexml_Element::baexml_Element(const baexml_Element&   original,
-                               bslma_Allocator        *basicAllocator)
+                               bslma::Allocator       *basicAllocator)
 : d_imp(basicAllocator)
 , d_root()
 {
@@ -950,7 +950,7 @@ baexml_Element::baexml_Element(const baexml_Element&   original,
 }
 
 baexml_Element::baexml_Element(const baexml_ElementRef&  original,
-                               bslma_Allocator          *basicAllocator)
+                               bslma::Allocator         *basicAllocator)
 : d_imp(basicAllocator)
 , d_root()
 {
@@ -958,7 +958,7 @@ baexml_Element::baexml_Element(const baexml_ElementRef&  original,
 }
 
 baexml_Element::baexml_Element(const baexml_ElementConstRef&  original,
-                 bslma_Allocator        *basicAllocator)
+                               bslma::Allocator              *basicAllocator)
 : d_imp(basicAllocator)
 , d_root()
 {
@@ -974,7 +974,7 @@ baexml_Element::~baexml_Element()
 baexml_Element& baexml_Element::operator=(const baexml_Element& rhs)
 {
     if (&rhs != this) {
-        bslma_Allocator *allocator = d_imp.d_allocator_p;
+        bslma::Allocator *allocator = d_imp.d_allocator_p;
 
         bcema_Blob tmpData(rhs.d_imp.d_data, allocator);
         bcema_SharedPtr<baexml_Element_Node> tmpNode;
@@ -994,7 +994,7 @@ baexml_Element& baexml_Element::operator=(const baexml_Element& rhs)
 baexml_Element& baexml_Element::operator=(const baexml_ElementRef& rhs)
 {
     if (rhs != d_root) {
-        bslma_Allocator *allocator = d_imp.d_allocator_p;
+        bslma::Allocator *allocator = d_imp.d_allocator_p;
 
         bcema_Blob                    tmpData(allocator);
         bcema_SharedPtr<baexml_Element_Node> tmpNode;
@@ -1015,7 +1015,7 @@ baexml_Element& baexml_Element::operator=(const baexml_ElementRef& rhs)
 baexml_Element& baexml_Element::operator=(const baexml_ElementConstRef& rhs)
 {
     if (rhs != d_root) {
-        bslma_Allocator *allocator = d_imp.d_allocator_p;
+        bslma::Allocator *allocator = d_imp.d_allocator_p;
 
         bcema_Blob                    tmpData(allocator);
         bcema_SharedPtr<baexml_Element_Node> tmpNode;
@@ -1051,7 +1051,7 @@ int baexml_Element::load(const bcema_Blob& data)
 
 int baexml_Element::load(const bcema_Blob& data, int numLevels)
 {
-    bslma_Allocator *allocator = d_imp.d_allocator_p;
+    bslma::Allocator *allocator = d_imp.d_allocator_p;
 
     bcema_SharedPtr<baexml_Element_Node> rootNode;
     rootNode.createInplace(allocator, allocator);

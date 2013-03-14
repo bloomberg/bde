@@ -11,9 +11,9 @@ BDES_IDENT_RCSID(bteso_timemetrics_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // CREATORS
-bteso_TimeMetrics::bteso_TimeMetrics(int              numCategories,
-                                     int              currentCategory,
-                                     bslma_Allocator *basicAllocator)
+bteso_TimeMetrics::bteso_TimeMetrics(int               numCategories,
+                                     int               currentCategory,
+                                     bslma::Allocator *basicAllocator)
 : d_categoryStartTimes(numCategories, bdetu_SystemTime::now(), basicAllocator)
 , d_categoryTimes(numCategories, 0, basicAllocator)
 , d_currentCategory(currentCategory)

@@ -334,7 +334,7 @@ struct TestCommand {
 };
 
 char globalBuffer[HELPER_READ]; // To help read from the peer side.
-bslma_TestAllocator testAllocator;
+bslma::TestAllocator testAllocator;
 //=============================================================================
 //                    HELPER FUNCTIONS/CLASSES FOR TESTING
 //-----------------------------------------------------------------------------

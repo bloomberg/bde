@@ -77,16 +77,16 @@ BDES_IDENT("$Id: $")
 #include <bdema_pool.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -142,7 +142,7 @@ class btesos_TcpTimedCbChannel : public btesc_TimedCbChannel {
 
     bdema_Pool                   d_rrequestPool; // read requests' pool
     bdema_Pool                   d_wrequestPool; // write requests' pool
-    bslma_Allocator             *d_allocator_p;
+    bslma::Allocator            *d_allocator_p;
 
     int                          d_isInvalidReadFlag;
     int                          d_isInvalidWriteFlag;
@@ -207,9 +207,10 @@ class btesos_TcpTimedCbChannel : public btesc_TimedCbChannel {
         operator=(const btesos_TcpTimedCbChannel&);            // not impl.
   public:
     // CREATORS
-    btesos_TcpTimedCbChannel(bteso_StreamSocket<bteso_IPv4Address> *sSocket,
-            bteso_TimerEventManager                                *manager,
-            bslma_Allocator                              *basicAllocator = 0);
+    btesos_TcpTimedCbChannel(
+                    bteso_StreamSocket<bteso_IPv4Address> *sSocket,
+                    bteso_TimerEventManager               *manager,
+                    bslma::Allocator                      *basicAllocator = 0);
         // Create a timed callback channel for the TCP/IPv4 that uses the
         // specified 'sSocket' for socket-level communications, the specified
         // 'manager' to monitor for incoming data and for availability of space
@@ -221,10 +222,11 @@ class btesos_TcpTimedCbChannel : public btesc_TimedCbChannel {
         // 'sSocket' directly simultaneously with this channel may result in an
         // undefined behavior of the channel.
 
-    btesos_TcpTimedCbChannel(bteso_StreamSocket<bteso_IPv4Address> *sSocket,
-            bteso_TimerEventManager                                *rManager,
-            bteso_TimerEventManager                                *wManager,
-            bslma_Allocator                              *basicAllocator = 0);
+    btesos_TcpTimedCbChannel(
+                    bteso_StreamSocket<bteso_IPv4Address> *sSocket,
+                    bteso_TimerEventManager               *rManager,
+                    bteso_TimerEventManager               *wManager,
+                    bslma::Allocator                      *basicAllocator = 0);
         // Create a timed callback channel for the TCP/IPv4 that uses the
         // specified 'sSocket' for socket-level communications, the specified
         // 'rManager' to monitor for incoming data and the specified 'wManager'

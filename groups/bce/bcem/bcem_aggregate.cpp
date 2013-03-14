@@ -33,12 +33,12 @@ namespace BloombergLP {
 namespace {
 
 // TYPES
-typedef bsls_Types::Int64            Int64;
+typedef bsls::Types::Int64            Int64;
 
 // HELPER FUNCTIONS
 template <typename DATATYPE>
 inline
-bcema_SharedPtr<DATATYPE> makeValuePtrInplace(bslma_Allocator *basicAllocator)
+bcema_SharedPtr<DATATYPE> makeValuePtrInplace(bslma::Allocator *basicAllocator)
     // Return a shared pointer to an object of type 'DATATYPE' using the
     // "in-place" construction facility of 'bcema_SharedPtr' to
     // default-construct 'DATATYPE'.  The allocator is used to create the
@@ -52,7 +52,7 @@ bcema_SharedPtr<DATATYPE> makeValuePtrInplace(bslma_Allocator *basicAllocator)
 template <typename DATATYPE>
 inline
 bcema_SharedPtr<DATATYPE>
-makeValuePtrInplaceWithAlloc(bslma_Allocator *basicAllocator)
+makeValuePtrInplaceWithAlloc(bslma::Allocator *basicAllocator)
     // Return a shared pointer to an object of type 'DATATYPE' using the
     // "in-place" construction facility of 'bcema_SharedPtr' to
     // default-construct 'DATATYPE'.  The allocator is used to create the
@@ -115,9 +115,9 @@ class bcem_Aggregate_RepProctor {
 
 bcema_SharedPtr<void>
 bcem_Aggregate::makeValuePtr(bdem_ElemType::Type  type,
-                             bslma_Allocator     *basicAllocator)
+                             bslma::Allocator    *basicAllocator)
 {
-    bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
     switch (type) {
       case bdem_ElemType::BDEM_CHAR: {
@@ -267,7 +267,7 @@ void bcem_Aggregate::init(
                      const bcema_SharedPtr<const bdem_Schema>&  schemaPtr,
                      const bdem_RecordDef                      *recordDefPtr,
                      bdem_ElemType::Type                        elemType,
-                     bslma_Allocator                           *basicAllocator)
+                     bslma::Allocator                          *basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 == d_schemaRep_p);
     BSLS_ASSERT_SAFE(0 == d_valueRep_p);
@@ -283,7 +283,7 @@ void bcem_Aggregate::init(
                  : bdem_ElemType::BDEM_LIST;
     }
 
-    bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
     bcema_SharedPtr<void> valuePtr;
     switch (elemType) {
@@ -383,7 +383,7 @@ void bcem_Aggregate::init(
 void bcem_Aggregate::init(
                   const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
                   bdem_ElemType::Type                           elemType,
-                  bslma_Allocator                              *basicAllocator)
+                  bslma::Allocator                             *basicAllocator)
 {
     bcema_SharedPtr<const bdem_Schema> schemaPtr(recordDefPtr,
                                                  &recordDefPtr->schema());
@@ -394,7 +394,7 @@ void bcem_Aggregate::init(
                      const bcema_SharedPtr<const bdem_Schema>&  schemaPtr,
                      const char                                *recName,
                      bdem_ElemType::Type                        elemType,
-                     bslma_Allocator                           *basicAllocator)
+                     bslma::Allocator                          *basicAllocator)
 {
     const bdem_RecordDef *record = schemaPtr->lookupRecord(recName);
     if (! record) {
@@ -966,7 +966,7 @@ bool bcem_Aggregate::isUnset() const
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 const bcem_Aggregate
-bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
+bcem_Aggregate::clone(bslma::Allocator *basicAllocator) const
 {
     bcem_Aggregate returnVal(this->cloneData(basicAllocator));
 
@@ -1033,10 +1033,10 @@ bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
 }
 
 const bcem_Aggregate
-bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
+bcem_Aggregate::cloneData(bslma::Allocator *basicAllocator) const
 {
     bcema_SharedPtr<void> valuePtr;
-    bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
     switch (dataType()) {
       case bdem_ElemType::BDEM_ROW: {

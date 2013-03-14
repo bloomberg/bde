@@ -116,7 +116,7 @@ baenet_HttpBasicHeaderFields::operator=(const baenet_HttpBasicHeaderFields&)
 //               GLOBAL TYPEDEFS/CLASSES/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct HttpHeaderTest : bsls_ProtocolTestImp<baenet_HttpHeader> {
+struct HttpHeaderTest : bsls::ProtocolTestImp<baenet_HttpHeader> {
     int addField(const bdeut_StringRef&, const bdeut_StringRef&)
                                                       { return markDone(); }
     const baenet_HttpBasicHeaderFields& basicFields() const
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         // PROTOCOL TEST
         // --------------------------------------------------------------------
 
-        bsls_ProtocolTest<HttpHeaderTest> t(veryVerbose);
+        bsls::ProtocolTest<HttpHeaderTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());

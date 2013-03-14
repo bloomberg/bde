@@ -44,7 +44,7 @@ using namespace bsl;  // automatically added by script
 //   the primary manipulator, is sufficient to attain any achievable white-box
 //   state.
 //
-//    o baedb_TestUserDb(bslma_Allocator *basicAllocator = 0);
+//    o baedb_TestUserDb(bslma::Allocator *basicAllocator = 0);
 //
 // Primary Manipulators:
 //   The 'addRecords' method comprises the minimal set of manipulators that
@@ -79,11 +79,11 @@ using namespace bsl;  // automatically added by script
 // [10] static int maxSupportedBdexVersion();
 //
 // CREATORS
-// [ 2] baedb_TestUserDb(bslma_Allocator *basicAllocator = 0);
+// [ 2] baedb_TestUserDb(bslma::Allocator *basicAllocator = 0);
 // [ 7] baedb_TestUserDb(const baedb_TestUserDb&  original,
-//                       bslma_Allocator         *basicAllocator = 0);
-// [12] baedb_TestUserDb(const char      *inputRecords,
-//                       bslma_Allocator *basicAllocator = 0);
+//                       bslma::Allocator        *basicAllocator = 0);
+// [12] baedb_TestUserDb(const char       *inputRecords,
+//                       bslma::Allocator *basicAllocator = 0);
 // [ 2] virtual ~baedb_TestUserDb();
 //
 // MANIPULATORS
@@ -1530,8 +1530,8 @@ int main(int argc, char *argv[])
         //   data string and make sure that the two objects are identical.
         //
         // Testing:
-        //   baedb_TestUserDb(const char      *inputRecords,
-        //                    bslma_Allocator *basicAllocator = 0);
+        //   baedb_TestUserDb(const char       *inputRecords,
+        //                    bslma::Allocator *basicAllocator = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Secondary Constructor"
@@ -3442,7 +3442,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   baedb_TestUserDb(const baedb_TestUserDb&  original,
-        //                    bslma_Allocator         *basicAllocator = 0);
+        //                    bslma::Allocator        *basicAllocator = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Copy Constructor"
@@ -4957,7 +4957,7 @@ int main(int argc, char *argv[])
         //   object being tested leaves scope.
         //
         // Testing:
-        //   baedb_TestUserDb(bslma_Allocator *basicAllocator = 0);
+        //   baedb_TestUserDb(bslma::Allocator *basicAllocator = 0);
         //   virtual ~baedb_TestUserDb();
         //   BOOTSTRAP: int addRecords(const char *inputRecords);
         // --------------------------------------------------------------------

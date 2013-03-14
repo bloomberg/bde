@@ -5,7 +5,7 @@
 BDES_IDENT_RCSID(bdepu_typesparser_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 namespace BloombergLP {
 
@@ -65,7 +65,7 @@ GEN_ARRAY_RAW(DatetimeTz, bdet_DatetimeTz)
 GEN_ARRAY_RAW(Double, double)
 GEN_ARRAY_RAW(Float, float)
 GEN_ARRAY_RAW(Int, int)
-GEN_ARRAY_RAW(Int64, bsls_PlatformUtil::Int64)
+GEN_ARRAY_RAW(Int64, bsls::Types::Int64)
 GEN_ARRAY_RAW(Short, short)
 GEN_ARRAY_RAW(String, bsl::string)
 GEN_ARRAY_RAW(Time, bdet_Time)
@@ -89,7 +89,7 @@ int bdepu_TypesParser::parseIntegerLocator(const char **endPos,
     ++inputString;
 
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
-    bsls_PlatformUtil::Uint64 tmpResult;
+    bsls::Types::Uint64 tmpResult;
     if (bdepu_ParserImpUtil::parseUnsignedInteger(endPos,
                                                   &tmpResult,
                                                   inputString,
