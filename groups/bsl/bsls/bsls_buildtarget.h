@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide build-target information in the object file.
 //
 //@CLASSES:
-//  bsls::ExcBuildTarget: type name for identifying exception builds
-//  bsls::MtBuildTarget: type name for identifying multi-threaded builds
+//  bsls::BuildTargetExc: type name for identifying exception builds
+//  bsls::BuildTargetMt: type name for identifying multi-threaded builds
 //
 //@MACROS:
 //  BDE_BUILD_TARGET_EXC: flag for exception-enabled builds
@@ -27,6 +27,10 @@ BSLS_IDENT("$Id: $")
 // and whether it was multi-threaded or not (it is enabled unless overridden by
 // defining the 'BDE_BUILD_TARGET_NO_MT' macro).  The types defined by this
 // component should not be used directly.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -44,15 +48,17 @@ namespace BloombergLP {
 
 namespace bsls {
 
-struct YesExcBuildTarget {
-    static const int d_isExcBuildTarget;
+struct BuildTargetExcYes {
+    static const int s_isBuildTargetExc;
 };
-typedef YesExcBuildTarget ExcBuildTarget;
+typedef BuildTargetExcYes BuildTargetExc;
 
 }  // close package namespace
 
-typedef bsls::YesExcBuildTarget bsls_YesExcBuildTarget;
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+typedef bsls::BuildTargetExcYes bsls_YesExcBuildTarget;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #else
 
@@ -62,15 +68,17 @@ typedef bsls::YesExcBuildTarget bsls_YesExcBuildTarget;
 
 namespace bsls {
 
-struct NoExcBuildTarget {
-    static const int d_isExcBuildTarget;
+struct BuildTargetExcNo {
+    static const int s_isBuildTargetExc;
 };
-typedef NoExcBuildTarget ExcBuildTarget;
+typedef BuildTargetExcNo BuildTargetExc;
 
 }  // close package namespace
 
-typedef bsls::NoExcBuildTarget bsls_NoExcBuildTarget;
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+typedef bsls::BuildTargetExcNo bsls_NoExcBuildTarget;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 
@@ -83,15 +91,17 @@ typedef bsls::NoExcBuildTarget bsls_NoExcBuildTarget;
 
 namespace bsls {
 
-struct YesMtBuildTarget {
-    static const int d_isMtBuildTarget;
+struct BuildTargetMtYes {
+    static const int s_isBuildTargetMt;
 };
-typedef YesMtBuildTarget MtBuildTarget;
+typedef BuildTargetMtYes BuildTargetMt;
 
 }  // close package namespace
 
-typedef bsls::YesMtBuildTarget bsls_YesMtBuildTarget;
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+typedef bsls::BuildTargetMtYes bsls_YesMtBuildTarget;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #else
 
@@ -101,47 +111,17 @@ typedef bsls::YesMtBuildTarget bsls_YesMtBuildTarget;
 
 namespace bsls {
 
-struct NoMtBuildTarget {
-    static const int d_isMtBuildTarget;
+struct BuildTargetMtNo {
+    static const int s_isBuildTargetMt;
 };
-typedef NoMtBuildTarget MtBuildTarget;
+typedef BuildTargetMtNo BuildTargetMt;
 
 }  // close package namespace
 
-typedef bsls::NoMtBuildTarget bsls_NoMtBuildTarget;
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+typedef bsls::BuildTargetMtNo bsls_NoMtBuildTarget;
     // This alias is defined for backward compatibility.
-
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-
-namespace bsls {
-
-struct Yes64BitBuildTarget {
-    static const int d_is64BitBuildTarget;
-};
-
-}  // close package namespace
-
-typedef bsls::Yes64BitBuildTarget bsls_64BitBuildTarget;
-
-typedef bsls::Yes64BitBuildTarget bsls_Yes64BitBuildTarget;
-    // This alias is defined for backward compatibility.
-
-#else
-
-namespace bsls {
-
-struct No64BitBuildTarget {
-    static const int d_is64BitBuildTarget;
-};
-
-}  // close package namespace
-
-typedef bsls::No64BitBuildTarget bsls_64BitBuildTarget;
-
-typedef bsls::No64BitBuildTarget bsls_No64BitBuildTarget;
-    // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 
@@ -149,15 +129,15 @@ typedef bsls::No64BitBuildTarget bsls_No64BitBuildTarget;
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 static const int *bsls_buildtarget_assertion1 =
-                                     &bsls::ExcBuildTarget::d_isExcBuildTarget;
+                                     &bsls::BuildTargetExc::s_isBuildTargetExc;
 static const int *bsls_buildtarget_assertion2 =
-                                       &bsls::MtBuildTarget::d_isMtBuildTarget;
+                                       &bsls::BuildTargetMt::s_isBuildTargetMt;
 #else
 namespace {
     extern const int *const bsls_buildtarget_assertion1 =
-                                     &bsls::ExcBuildTarget::d_isExcBuildTarget;
+                                     &bsls::BuildTargetExc::s_isBuildTargetExc;
     extern const int *const bsls_buildtarget_assertion2 =
-                                       &bsls::MtBuildTarget::d_isMtBuildTarget;
+                                       &bsls::BuildTargetMt::s_isBuildTargetMt;
 }
 #endif
 
@@ -166,28 +146,36 @@ namespace {
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-#ifdef bsls_ExcBuildTarget
-#undef bsls_ExcBuildTarget
-#endif
-#define bsls_ExcBuildTarget bsls::ExcBuildTarget
+typedef bsls::BuildTargetExc bsls_ExcBuildTarget;
     // This alias is defined for backward compatibility.
 
-#ifdef bsls_MtBuildTarget
-#undef bsls_MtBuildTarget
-#endif
-#define bsls_MtBuildTarget bsls::MtBuildTarget
+typedef bsls::BuildTargetMt bsls_MtBuildTarget;
     // This alias is defined for backward compatibility.
+
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

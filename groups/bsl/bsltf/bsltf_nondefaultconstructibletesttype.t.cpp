@@ -1,9 +1,9 @@
 // bsltf_nondefaultconstructibletesttype.t.cpp                        -*-C++-*-
 #include <bsltf_nondefaultconstructibletesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -47,7 +47,7 @@ using namespace BloombergLP::bsltf;
 // CREATORS
 // [ 2] NonDefaultConstructibleTestType();
 // [ 3] NonDefaultConstructibleTestType(int data);
-// [ 7] NonDefaultConstructibleTestType(const NonDefaultConstructibleTestType&);
+// [ 7] NonDefaultConstructibleTestType(const NonDefaultConstructibleTestType&)
 // [ 2] ~NonDefaultConstructibleTestType();
 //
 // MANIPULATORS
@@ -71,7 +71,8 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -147,12 +148,13 @@ const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose         = argc > 2;
-    int veryVerbose     = argc > 3;
-    int veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+int main(int argc, char *argv[])
+{
+    int  test                = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose             = argc > 2;
+    bool veryVerbose         = argc > 3;
+    bool veryVeryVerbose     = argc > 4;
+    bool veryVeryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -600,7 +602,7 @@ int main(int argc, char *argv[]) {
         //:   'is_default_constructible' meta functions, and we can use that
         //:   once it's widely released.  (C-1)
         //:
-        //: 1 Create three attribute values for the 'data' atrribute 'D', 'A',
+        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the initial value.  'A' and 'B' should be
         //:   the the boundary values.
         //:
@@ -609,7 +611,7 @@ int main(int argc, char *argv[]) {
         //:   default-constructed value.  (C-1)
         //:
         //: 3 Set and object's 'data' attribute to 'A' and 'B'.  Verify the
-        //:   state of object using the (as yet unproven) salient attriubte
+        //:   state of object using the (as yet unproven) salient attribute
         //:   accessors.  (C-2)
         //
         // Testing:
@@ -697,11 +699,24 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

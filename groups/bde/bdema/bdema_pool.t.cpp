@@ -116,8 +116,8 @@ typedef bdema_Pool Obj;
 // purposes.
 
 struct InfrequentDeleteBlock {
-    InfrequentDeleteBlock              *d_next_p;
-    bsls_AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+    InfrequentDeleteBlock               *d_next_p;
+    bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
 // This type is copied from 'bdema_pool.cpp' to determine the internal limits
@@ -143,7 +143,7 @@ static int blockSize(int numBytes)
 
     if (numBytes) {
         numBytes += sizeof(InfrequentDeleteBlock) - 1;
-        numBytes &= ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+        numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
     return numBytes;
@@ -175,7 +175,7 @@ int poolBlockSize(int size)
     if (size < sizeof(void *))
         return sizeof(void *);
     else
-        return roundUp(size, bsls_AlignmentFromType<void *>::VALUE);
+        return roundUp(size, bsls::AlignmentFromType<void *>::VALUE);
 }
 
 inline
@@ -222,7 +222,7 @@ int growNumBlocks(int numBlocks, int growFactor, int maxNumBlocks)
 
       public:
         // CREATORS
-        my_PooledArray(bslma_Allocator *basicAllocator = 0);
+        my_PooledArray(bslma::Allocator *basicAllocator = 0);
             // Create a pooled array that stores the parameterized values
             // "out-of-place".  Optionally specify a 'basicAllocator' used to
             // supply memory.  If 'basicAllocator' is 0, the currently
@@ -287,7 +287,7 @@ int growNumBlocks(int numBlocks, int growFactor, int maxNumBlocks)
 
     // CREATORS
     template <class T>
-    my_PooledArray<T>::my_PooledArray(bslma_Allocator *basicAllocator)
+    my_PooledArray<T>::my_PooledArray(bslma::Allocator *basicAllocator)
     : d_array_p(basicAllocator)
     , d_pool(sizeof(T), basicAllocator)
     {
@@ -334,10 +334,10 @@ ostream& operator<<(ostream& stream, const my_PooledArray<T>& array)
 
 class my_Type {
     char *d_stuff_p;
-    bslma_Allocator *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
-    my_Type(int size, bslma_Allocator *basicAllocator)
+    my_Type(int size, bslma::Allocator *basicAllocator)
     : d_allocator_p(basicAllocator)
     {
         d_stuff_p = (char *) d_allocator_p->allocate(size);
@@ -349,7 +349,7 @@ class my_Type {
     }
 };
 
-my_Type *newMyType(bdema_Pool *pool, bslma_Allocator *basicAllocator) {
+my_Type *newMyType(bdema_Pool *pool, bslma::Allocator *basicAllocator) {
     return new (*pool) my_Type(5, basicAllocator);
 }
 
@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing 'blockSize'" << endl
                                   << "===================" << endl;
 
-        bslma_TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVerbose);
         Obj mX(1, &a);
         ASSERT(1 == mX.blockSize());
         char *c = new (mX) char;
@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
             const double DATA[] = { 0.0, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7 };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator a(veryVeryVerbose);
             my_PooledArray<double> array(&a);
 
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -497,11 +497,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsage test for 'new' operator." << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator a(veryVeryVerbose);
             const int BLOCK_SIZE = sizeof(my_Type);
             const int CHUNK_SIZE = 10;
             Obj mX(BLOCK_SIZE,
-                   bsls_BlockGrowth::BSLS_GEOMETRIC,
+                   bsls::BlockGrowth::BSLS_GEOMETRIC,
                    CHUNK_SIZE,
                    &a);
 
@@ -533,13 +533,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'reserveCapacity'." << endl;
 
-        bslma_TestAllocator a(veryVeryVerbose);
-         const bslma_TestAllocator& A = a;
+        bslma::TestAllocator a(veryVeryVerbose);
+         const bslma::TestAllocator& A = a;
         {
             const int BLOCK_SIZE = 5;
             const int CHUNK_SIZE = 10;
             Obj mX(BLOCK_SIZE,
-                   bsls_BlockGrowth::BSLS_CONSTANT,
+                   bsls::BlockGrowth::BSLS_CONSTANT,
                    CHUNK_SIZE,
                    &a);
 
@@ -547,25 +547,25 @@ int main(int argc, char *argv[])
                 mX.allocate();
             }
 
-            int numAllocation = A.numAllocations();
+            int numAllocations = A.numAllocations();
             mX.reserveCapacity(CHUNK_SIZE / 2);
-            ASSERT(A.numAllocations() == numAllocation);
+            ASSERT(A.numAllocations() == numAllocations);
 
             for (int ii = 0; ii < CHUNK_SIZE / 2; ++ii) {
                 mX.allocate();
             }
 
             mX.reserveCapacity(0);
-            ASSERT(A.numAllocations() == numAllocation);
+            ASSERT(A.numAllocations() == numAllocations);
 
             mX.reserveCapacity(CHUNK_SIZE);
-            ++numAllocation;
-            ASSERT(A.numAllocations() == numAllocation);
+            ++numAllocations;
+            ASSERT(A.numAllocations() == numAllocations);
 
             for (int j = 0; j < CHUNK_SIZE; ++j) {
                 mX.allocate();
             }
-            ASSERT(A.numAllocations() == numAllocation);
+            ASSERT(A.numAllocations() == numAllocations);
         }
         ASSERT(0 == A.numBytesInUse());
       } break;
@@ -590,14 +590,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'deleteObjectRaw':" << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
-            const bslma_TestAllocator& A = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            const bslma::TestAllocator& A = a;
 
             const int BLOCK_SIZE = sizeof(my_Class1);
             ASSERT(sizeof(my_Class2) == BLOCK_SIZE);
             const int CHUNK_SIZE = 1;
             Obj mX(BLOCK_SIZE,
-                   bsls_BlockGrowth::BSLS_CONSTANT,
+                   bsls::BlockGrowth::BSLS_CONSTANT,
                    CHUNK_SIZE,
                    &a);
 
@@ -642,14 +642,14 @@ int main(int argc, char *argv[])
         if (verbose) cout <<"\nTesting 'deleteObjectRaw' on polymorphic types:"
                           << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
-            const bslma_TestAllocator& A = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            const bslma::TestAllocator& A = a;
 
             const int BLOCK_SIZE = sizeof(my_MostDerived);
             ASSERT(sizeof(my_MostDerived) == BLOCK_SIZE);
             const int CHUNK_SIZE = 1;
             Obj mX(BLOCK_SIZE,
-                   bsls_BlockGrowth::BSLS_CONSTANT,
+                   bsls::BlockGrowth::BSLS_CONSTANT,
                    CHUNK_SIZE,
                    &a);
 
@@ -705,14 +705,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'deleteObject':" << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
-            const bslma_TestAllocator& A = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            const bslma::TestAllocator& A = a;
 
             const int BLOCK_SIZE = sizeof(my_Class1);
             ASSERT(sizeof(my_Class2) == BLOCK_SIZE);
             const int CHUNK_SIZE = 1;
             Obj mX(BLOCK_SIZE,
-                   bsls_BlockGrowth::BSLS_CONSTANT,
+                   bsls::BlockGrowth::BSLS_CONSTANT,
                    CHUNK_SIZE,
                    &a);
 
@@ -757,14 +757,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'deleteObject' on polymorphic types:"
                           << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
-            const bslma_TestAllocator& A = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            const bslma::TestAllocator& A = a;
 
             const int BLOCK_SIZE = sizeof(my_MostDerived);
             ASSERT(sizeof(my_MostDerived) == BLOCK_SIZE);
             const int CHUNK_SIZE = 1;
             Obj mX(BLOCK_SIZE,
-                   bsls_BlockGrowth::BSLS_CONSTANT,
+                   bsls::BlockGrowth::BSLS_CONSTANT,
                    CHUNK_SIZE,
                    &a);
 
@@ -873,14 +873,14 @@ int main(int argc, char *argv[])
                           << "EXCEPTION SAFETY OF OPERATOR NEW TEST" << endl
                           << "=====================================" << endl;
 
-        bslma_TestAllocator a(veryVeryVerbose);
-        const bslma_TestAllocator& A = a;
+        bslma::TestAllocator a(veryVeryVerbose);
+        const bslma::TestAllocator& A = a;
         {
             const int BLOCK_SIZE =
                                    sizeof(my_ClassThatMayThrowFromConstructor);
             const int CHUNK_SIZE = 1;
             Obj mX(BLOCK_SIZE,
-                   bsls_BlockGrowth::BSLS_CONSTANT,
+                   bsls::BlockGrowth::BSLS_CONSTANT,
                    CHUNK_SIZE,
                    &a);
 
@@ -930,12 +930,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "OPERATOR TEST" << endl
                                   << "=============" << endl;
 
-        bslma_TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVerbose);
 
         const int BLOCK_SIZE = sizeof(my_Class1);
         ASSERT(sizeof(my_Class2)==BLOCK_SIZE);
         const int CHUNK_SIZE = 10;
-        Obj mX(BLOCK_SIZE, bsls_BlockGrowth::BSLS_CONSTANT, CHUNK_SIZE, &a);
+        Obj mX(BLOCK_SIZE, bsls::BlockGrowth::BSLS_CONSTANT, CHUNK_SIZE, &a);
 
         my_ClassCode=0;
         my_Class1 *c1 = new (mX) my_Class1;
@@ -967,14 +967,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'release' and destructor." << endl;
 
-        bsls_BlockGrowth::Strategy GEO = bsls_BlockGrowth::BSLS_GEOMETRIC;
-        bsls_BlockGrowth::Strategy CON = bsls_BlockGrowth::BSLS_CONSTANT;
+        bsls::BlockGrowth::Strategy GEO = bsls::BlockGrowth::BSLS_GEOMETRIC;
+        bsls::BlockGrowth::Strategy CON = bsls::BlockGrowth::BSLS_CONSTANT;
 
         struct {
-            int                        d_line;
-            int                        d_blockSize;
-            int                        d_numBlocks;
-            bsls_BlockGrowth::Strategy d_strategy;
+            int                         d_line;
+            int                         d_blockSize;
+            int                         d_numBlocks;
+            bsls::BlockGrowth::Strategy d_strategy;
         } DATA[] = {
             //line    block
             //no.     size      max chunk size    growth strategy
@@ -988,23 +988,23 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         const int NUM_REQUESTS = 100;
-        bslma_TestAllocator taX(veryVeryVerbose);
-        const bslma_TestAllocator& TAX = taX;
-        bslma_TestAllocator taY(veryVeryVerbose);
-        const bslma_TestAllocator& TAY = taY;
+        bslma::TestAllocator taX(veryVeryVerbose);
+        const bslma::TestAllocator& TAX = taX;
+        bslma::TestAllocator taY(veryVeryVerbose);
+        const bslma::TestAllocator& TAY = taY;
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int                        LINE       = DATA[di].d_line;
-            const int                        BLOCK_SIZE = DATA[di].d_blockSize;
-            const int                        CHUNK_SIZE = DATA[di].d_numBlocks;
-            const bsls_BlockGrowth::Strategy STRATEGY   = DATA[di].d_strategy;
+            const int                         LINE       = DATA[di].d_line;
+            const int                         BLOCK_SIZE =DATA[di].d_blockSize;
+            const int                         CHUNK_SIZE =DATA[di].d_numBlocks;
+            const bsls::BlockGrowth::Strategy STRATEGY   = DATA[di].d_strategy;
             {
                 Obj mX(BLOCK_SIZE,
-                       bsls_BlockGrowth::BSLS_GEOMETRIC,
+                       bsls::BlockGrowth::BSLS_GEOMETRIC,
                        CHUNK_SIZE,
                        &taX);
                 Obj mY(BLOCK_SIZE,
-                       bsls_BlockGrowth::BSLS_GEOMETRIC,
+                       bsls::BlockGrowth::BSLS_GEOMETRIC,
                        CHUNK_SIZE,
                        &taY);
 
@@ -1052,14 +1052,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'deallocate'." << endl;
 
-        bsls_BlockGrowth::Strategy GEO = bsls_BlockGrowth::BSLS_GEOMETRIC;
-        bsls_BlockGrowth::Strategy CON = bsls_BlockGrowth::BSLS_CONSTANT;
+        bsls::BlockGrowth::Strategy GEO = bsls::BlockGrowth::BSLS_GEOMETRIC;
+        bsls::BlockGrowth::Strategy CON = bsls::BlockGrowth::BSLS_CONSTANT;
 
         struct {
-            int                        d_line;
-            int                        d_blockSize;
-            int                        d_numBlocks;
-            bsls_BlockGrowth::Strategy d_strategy;
+            int                         d_line;
+            int                         d_blockSize;
+            int                         d_numBlocks;
+            bsls::BlockGrowth::Strategy d_strategy;
         } DATA[] = {
             //line    block
             //no.     size      max chunk size    growth strategy
@@ -1074,27 +1074,27 @@ int main(int argc, char *argv[])
 
         const int NUM_REQUESTS = 100;
         void *p[NUM_REQUESTS];
-        bslma_TestAllocator ta(veryVeryVerbose);
-        const bslma_TestAllocator& TA = ta;
+        bslma::TestAllocator ta(veryVeryVerbose);
+        const bslma::TestAllocator& TA = ta;
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int                        LINE       = DATA[di].d_line;
-            const int                        BLOCK_SIZE = DATA[di].d_blockSize;
-            const int                        CHUNK_SIZE = DATA[di].d_numBlocks;
-            const bsls_BlockGrowth::Strategy STRATEGY   = DATA[di].d_strategy;
+            const int                         LINE       = DATA[di].d_line;
+            const int                         BLOCK_SIZE =DATA[di].d_blockSize;
+            const int                         CHUNK_SIZE =DATA[di].d_numBlocks;
+            const bsls::BlockGrowth::Strategy STRATEGY   = DATA[di].d_strategy;
             Obj mX(BLOCK_SIZE, STRATEGY, CHUNK_SIZE, &ta);
 
             for (int ai = 0; ai < NUM_REQUESTS; ++ai) {
                 p[ai] = mX.allocate();
             }
 
-            int numAllocation = TA.numAllocations();
+            int numAllocations = TA.numAllocations();
 
             for (int dd = NUM_REQUESTS - 1; dd >= 0; --dd) {
                 mX.deallocate(p[dd]);
             }
 
-            if (veryVerbose) { T_ P_(CHUNK_SIZE); P(numAllocation); }
+            if (veryVerbose) { T_ P_(CHUNK_SIZE); P(numAllocations); }
 
             // Ensure memory was deallocated in expected sequence
             for (int aj = 0; aj < NUM_REQUESTS; ++aj) {
@@ -1102,7 +1102,7 @@ int main(int argc, char *argv[])
             }
 
             // Ensure no additional memory request to the allocator occurred
-            LOOP2_ASSERT(LINE, di, TA.numAllocations() == numAllocation);
+            LOOP2_ASSERT(LINE, di, TA.numAllocations() == numAllocations);
         }
       } break;
       case 4: {
@@ -1142,14 +1142,14 @@ int main(int argc, char *argv[])
 
 //        if (verbose) cout << "\nTesting default growth strategy." << endl;
 //        {
-//            bslma_TestAllocator taX(veryVeryVerbose);
-//            const bslma_TestAllocator& TAX = taX;
+//            bslma::TestAllocator taX(veryVeryVerbose);
+//            const bslma::TestAllocator& TAX = taX;
 //            Obj mX(BLOCK_SIZE, MAX_CHUNK_SIZE, &taX);
 //
-//            bslma_TestAllocator taY(veryVeryVerbose);
-//            const bslma_TestAllocator& TAY = taY;
+//            bslma::TestAllocator taY(veryVeryVerbose);
+//            const bslma::TestAllocator& TAY = taY;
 //            Obj mY(BLOCK_SIZE,
-//                   bsls_BlockGrowth::BSLS_GEOMETRIC,
+//                   bsls::BlockGrowth::BSLS_GEOMETRIC,
 //                   MAX_CHUNK_SIZE,
 //                   &taY);
 //
@@ -1162,12 +1162,13 @@ int main(int argc, char *argv[])
 //                    mY.allocate();
 //                }
 //
-//                int numAllocation = TAX.numAllocations();
+//                int numAllocations = TAX.numAllocations();
 //                int numBytes = TAX.lastAllocatedNumBytes();
-//                if (veryVerbose) { T_ P_(numAllocation); T_ P(numBytes); }
-//                LOOP_ASSERT(chunkSize, TAY.numAllocations() == numAllocation);
-//                LOOP_ASSERT(chunkSize, TAY.lastAllocatedNumBytes()
-//                                                                  == numBytes);
+//                if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
+//                LOOP_ASSERT(chunkSize,
+//                            TAY.numAllocations() == numAllocations);
+//                LOOP_ASSERT(chunkSize,
+//                            TAY.lastAllocatedNumBytes() == numBytes);
 //
 //                int newChunkSize = growNumBlocks(chunkSize,
 //                                                 GROW_FACTOR,
@@ -1180,14 +1181,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting default max blocks per chunk." << endl;
         {
-            bslma_TestAllocator taX(veryVeryVerbose);
-            const bslma_TestAllocator& TAX = taX;
-            Obj mX(BLOCK_SIZE, bsls_BlockGrowth::BSLS_GEOMETRIC, &taX);
+            bslma::TestAllocator taX(veryVeryVerbose);
+            const bslma::TestAllocator& TAX = taX;
+            Obj mX(BLOCK_SIZE, bsls::BlockGrowth::BSLS_GEOMETRIC, &taX);
 
-            bslma_TestAllocator taY(veryVeryVerbose);
-            const bslma_TestAllocator& TAY = taY;
+            bslma::TestAllocator taY(veryVeryVerbose);
+            const bslma::TestAllocator& TAY = taY;
             Obj mY(BLOCK_SIZE,
-                   bsls_BlockGrowth::BSLS_GEOMETRIC,
+                   bsls::BlockGrowth::BSLS_GEOMETRIC,
                    MAX_CHUNK_SIZE,
                    &taY);
 
@@ -1200,10 +1201,10 @@ int main(int argc, char *argv[])
                     mY.allocate();
                 }
 
-                int numAllocation = TAX.numAllocations();
+                int numAllocations = TAX.numAllocations();
                 int numBytes = TAX.lastAllocatedNumBytes();
-                if (veryVerbose) { T_ P_(numAllocation); T_ P(numBytes); }
-                LOOP_ASSERT(chunkSize, TAY.numAllocations() == numAllocation);
+                if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
+                LOOP_ASSERT(chunkSize, TAY.numAllocations() == numAllocations);
                 LOOP_ASSERT(chunkSize, TAY.lastAllocatedNumBytes()
                                                                   == numBytes);
 
@@ -1219,8 +1220,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting default allocator." << endl;
         {
             // Make sure memory is allocated from the default allocator
-            bslma_TestAllocator ta;
-            bslma_DefaultAllocatorGuard dag(&ta);
+            bslma::TestAllocator ta;
+            bslma::DefaultAllocatorGuard dag(&ta);
             ASSERT(0 == ta.numBytesInUse());
 
             bdema_Pool p(BLOCK_SIZE);
@@ -1261,9 +1262,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting constructor and 'allocate' w/ varying "
                              "positive 'numBlocks'." << endl;
 
-        typedef bsls_BlockGrowth::Strategy St;
-        St GEO = bsls_BlockGrowth::BSLS_GEOMETRIC;
-        St CON = bsls_BlockGrowth::BSLS_CONSTANT;
+        typedef bsls::BlockGrowth::Strategy St;
+        St GEO = bsls::BlockGrowth::BSLS_GEOMETRIC;
+        St CON = bsls::BlockGrowth::BSLS_CONSTANT;
 
         static const struct {
             int d_line;
@@ -1332,8 +1333,8 @@ int main(int argc, char *argv[])
 
             const int POOL_BLOCK_SIZE = poolBlockSize(BLOCK_SIZE);
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
-            const bslma_TestAllocator& TA = testAllocator;
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
+            const bslma::TestAllocator& TA = testAllocator;
 
             BEGIN_BSLMA_EXCEPTION_TEST {
                 Obj mX(BLOCK_SIZE, STRATEGY, MAXBLOCKS, &testAllocator);
@@ -1412,19 +1413,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "CONSTRUCTOR AND 'allocate' TEST" << endl
                                   << "===============================" << endl;
 
-        if (verbose) cout << "\nTesting 'blockSize' constructor and 'allocate' "
-                             "with varying block sizes." << endl;
+        if (verbose) cout << "\nTesting 'blockSize' constructor and 'allocate'"
+                             " with varying block sizes." << endl;
 
         const int DATA[] = { 1, 2, 5, 6, 12, 24, 32 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
         const int NUM_BLOCKS = 5;
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         for (int di = 0; di < NUM_DATA; ++di) {
             BEGIN_BSLMA_EXCEPTION_TEST {
                 const int BLOCK_SIZE = DATA[di];
                 Obj mX(BLOCK_SIZE,
-                       bsls_BlockGrowth::BSLS_CONSTANT,
+                       bsls::BlockGrowth::BSLS_CONSTANT,
                        NUM_BLOCKS,
                        &testAllocator);
 
@@ -1485,7 +1486,7 @@ int main(int argc, char *argv[])
             const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator a(veryVeryVerbose);
             bdema_InfrequentDeleteBlockList bl(&a);
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1506,7 +1507,7 @@ int main(int argc, char *argv[])
 
             for (int di = 0; di < NUM_DATA; ++di) {
                 const int SIZE = DATA[di];
-                Obj mX(SIZE, bsls_BlockGrowth::BSLS_CONSTANT, 2);
+                Obj mX(SIZE, bsls::BlockGrowth::BSLS_CONSTANT, 2);
                 char *p = (char *) mX.allocate();
                 char *q = (char *) mX.allocate();
                 int EXP = q - p;

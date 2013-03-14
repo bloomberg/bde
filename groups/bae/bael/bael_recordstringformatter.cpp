@@ -62,7 +62,7 @@ static void appendToString(bsl::string *result, int value)
     *result += buffer;
 }
 
-static void appendToString(bsl::string *result, bsls_Types::Uint64 value)
+static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
     // Convert the specified 'value' into ASCII characters and append it to the
     // specified 'result.
 {
@@ -87,15 +87,15 @@ static void appendToString(bsl::string *result, bsls_Types::Uint64 value)
 
 // CREATORS
 bael_RecordStringFormatter::bael_RecordStringFormatter(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
 , d_timestampOffset(0)
 {
 }
 
 bael_RecordStringFormatter::bael_RecordStringFormatter(
-                                               const char      *format,
-                                               bslma_Allocator *basicAllocator)
+                                              const char       *format,
+                                              bslma::Allocator *basicAllocator)
 : d_formatSpec(format, basicAllocator)
 , d_timestampOffset(0)
 {
@@ -103,7 +103,7 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
 
 bael_RecordStringFormatter::bael_RecordStringFormatter(
                                   const bdet_DatetimeInterval&  offset,
-                                  bslma_Allocator              *basicAllocator)
+                                  bslma::Allocator             *basicAllocator)
 : d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
 , d_timestampOffset(offset)
 {
@@ -112,7 +112,7 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
 bael_RecordStringFormatter::bael_RecordStringFormatter(
                                   const char                   *format,
                                   const bdet_DatetimeInterval&  offset,
-                                  bslma_Allocator              *basicAllocator)
+                                  bslma::Allocator             *basicAllocator)
 : d_formatSpec(format, basicAllocator)
 , d_timestampOffset(offset)
 {
@@ -120,7 +120,7 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
 
 bael_RecordStringFormatter::bael_RecordStringFormatter(
                              const bael_RecordStringFormatter&  original,
-                             bslma_Allocator                   *basicAllocator)
+                             bslma::Allocator                  *basicAllocator)
 : d_formatSpec(original.d_formatSpec, basicAllocator)
 , d_timestampOffset(original.d_timestampOffset)
 {
@@ -244,7 +244,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 output += fixedFields.category();
               } break;
               case 'm': {
-                bslstl_StringRef message = fixedFields.messageRef();
+                bslstl::StringRef message = fixedFields.messageRef();
                 output.append(message.data(), message.length());
               } break;
               case 'x': {

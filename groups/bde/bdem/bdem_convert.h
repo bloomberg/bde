@@ -200,8 +200,8 @@ BDES_IDENT("$Id: $")
 #include <bdetu_unset.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -290,7 +290,8 @@ struct bdem_Convert_IsOstreamableImp {
 };
 
 bdem_Convert_IsOstreamableImp::NonStream&
-operator<<(bdem_Convert_IsOstreamableImp::NonStream&, const bslmf_AnyType&);
+operator<<(bdem_Convert_IsOstreamableImp::NonStream&,
+           const bslmf::MatchAnyType&);
     // Any type is streamable to a 'NonStream'.  This operator will be
     // selected when no better match is found during overload resolution for
     // 'operator<<'.  Compile-time only.  No implementation needed.
@@ -323,14 +324,14 @@ struct bdem_Convert_IsOstreamable {
         //..
         // exists, then it will be preferred over:
         //..
-        //  NonStream& operator<<(NonStream&, const bslmf_AnyType&);
+        //  NonStream& operator<<(NonStream&, const bslmf::MatchAnyType&);
         //..
         // because the latter requires two user-defined conversions whereas the
         // former requires *no* user-defined conversions.  If the size of the
         // returned value is 'sizeof(bsl::ostream)', then a 'TESTTYPE' value is
         // printable to 'bsl::ostream'.
 
-    typedef bslmf_MetaInt<VALUE> Type;
+    typedef bslmf::MetaInt<VALUE> Type;
 };
 
                             // ===================
@@ -345,10 +346,10 @@ struct bdem_Convert {
 
   private:
     // PRIVATE TYPES
-    typedef bsls_Types::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
-    typedef bslmf_MetaInt<0> FalseType;
-    typedef bslmf_MetaInt<1> TrueType;
+    typedef bslmf::MetaInt<0>  FalseType;
+    typedef bslmf::MetaInt<1>  TrueType;
 
     // Predicates, in priority order.
 
@@ -387,14 +388,14 @@ struct bdem_Convert {
         BDEM_TO_STRING
     };
 
-    typedef bslmf_MetaInt<BDEM_NO_CONVERSION>       NoConversion;
-    typedef bslmf_MetaInt<BDEM_TO_ELEMREF>          ElemRefFromAny;
-    typedef bslmf_MetaInt<BDEM_FLOAT_TO_INT>        IntegralFromFloating;
-    typedef bslmf_MetaInt<BDEM_BDETNONTZ_TO_BDETTZ> BdetTzFromBdetNonTz;
-    typedef bslmf_MetaInt<BDEM_CONVERTIBLE>         IsConvertible;
-    typedef bslmf_MetaInt<BDEM_FROM_STRING>         AnyFromString;
-    typedef bslmf_MetaInt<BDEM_FROM_ELEMREF>        AnyFromElemRef;
-    typedef bslmf_MetaInt<BDEM_TO_STRING>           StringFromOstreamable;
+    typedef bslmf::MetaInt<BDEM_NO_CONVERSION>       NoConversion;
+    typedef bslmf::MetaInt<BDEM_TO_ELEMREF>          ElemRefFromAny;
+    typedef bslmf::MetaInt<BDEM_FLOAT_TO_INT>        IntegralFromFloating;
+    typedef bslmf::MetaInt<BDEM_BDETNONTZ_TO_BDETTZ> BdetTzFromBdetNonTz;
+    typedef bslmf::MetaInt<BDEM_CONVERTIBLE>         IsConvertible;
+    typedef bslmf::MetaInt<BDEM_FROM_STRING>         AnyFromString;
+    typedef bslmf::MetaInt<BDEM_FROM_ELEMREF>        AnyFromElemRef;
+    typedef bslmf::MetaInt<BDEM_TO_STRING>           StringFromOstreamable;
 
     template <typename SRCTYPE, typename DSTTYPE>
     struct ConversionCategory;
@@ -441,7 +442,7 @@ struct bdem_Convert {
     static int fromString(char            *dstAddr, const char *srcValue);
     static int fromString(short           *dstAddr, const char *srcValue);
     static int fromString(int             *dstAddr, const char *srcValue);
-    static int fromString(bsls_Types::Int64
+    static int fromString(bsls::Types::Int64
                                           *dstAddr, const char *srcValue);
     static int fromString(float           *dstAddr, const char *srcValue);
     static int fromString(double          *dstAddr, const char *srcValue);
@@ -698,7 +699,7 @@ struct bdem_Convert {
     static int convert(bsl::string *dstAddr, char        srcValue);
     static int convert(bsl::string *dstAddr, short       srcValue);
     static int convert(bsl::string *dstAddr, int         srcValue);
-    static int convert(bsl::string *dstAddr, bsls_Types::Int64
+    static int convert(bsl::string *dstAddr, bsls::Types::Int64
                                                          srcValue);
     static int convert(bsl::string *dstAddr, float       srcValue);
     static int convert(bsl::string *dstAddr, double      srcValue);
@@ -878,32 +879,32 @@ struct bdem_Convert::IsToElemRef<SRCTYPE, bdem_ElemRef>
 
 template <typename DSTTYPE>
 struct bdem_Convert::IsFloatingToIntegral<float, DSTTYPE>
-                : bslmf_IsConvertible<DSTTYPE, int> {
+                : bslmf::IsConvertible<DSTTYPE, int> {
 };
 
 template <typename DSTTYPE>
 struct bdem_Convert::IsFloatingToIntegral<double, DSTTYPE>
-                : bslmf_IsConvertible<DSTTYPE, int> {
+                : bslmf::IsConvertible<DSTTYPE, int> {
 };
 
 template <typename DSTTYPE>
 struct bdem_Convert::IsFloatingToIntegral<long double, DSTTYPE>
-                : bslmf_IsConvertible<DSTTYPE, int> {
+                : bslmf::IsConvertible<DSTTYPE, int> {
 };
 
 template <typename DSTTYPE>
 struct bdem_Convert::IsBdetNonTzToBdetTz<bdet_Date, DSTTYPE>
-                : bslmf_IsSame<DSTTYPE, bdet_DateTz> {
+                : bslmf::IsSame<DSTTYPE, bdet_DateTz> {
 };
 
 template <typename DSTTYPE>
 struct bdem_Convert::IsBdetNonTzToBdetTz<bdet_Time, DSTTYPE>
-                : bslmf_IsSame<DSTTYPE, bdet_TimeTz> {
+                : bslmf::IsSame<DSTTYPE, bdet_TimeTz> {
 };
 
 template <typename DSTTYPE>
 struct bdem_Convert::IsBdetNonTzToBdetTz<bdet_Datetime, DSTTYPE>
-                : bslmf_IsSame<DSTTYPE, bdet_DatetimeTz> {
+                : bslmf::IsSame<DSTTYPE, bdet_DatetimeTz> {
 };
 
 template <typename DSTTYPE>
@@ -949,14 +950,14 @@ struct bdem_Convert::ConversionCategory {
           IsFloatingToIntegral<SRCTYPE, DSTTYPE>::VALUE ? BDEM_FLOAT_TO_INT   :
           IsBdetNonTzToBdetTz<SRCTYPE, DSTTYPE>::VALUE  ?
                                                      BDEM_BDETNONTZ_TO_BDETTZ :
-          bslmf_IsConvertible<SRCTYPE, DSTTYPE>::VALUE  ? BDEM_CONVERTIBLE    :
+          bslmf::IsConvertible<SRCTYPE, DSTTYPE>::VALUE ? BDEM_CONVERTIBLE    :
           IsFromString<SRCTYPE, DSTTYPE>::VALUE         ? BDEM_FROM_STRING    :
           IsFromElemRef<SRCTYPE, DSTTYPE>::VALUE        ? BDEM_FROM_ELEMREF   :
           IsPrintableToString<SRCTYPE, DSTTYPE>::VALUE  ? BDEM_TO_STRING      :
           BDEM_NO_CONVERSION
     };
 
-    typedef bslmf_MetaInt<VALUE> Type;
+    typedef bslmf::MetaInt<VALUE> Type;
 };
 
 // PRIVATE CLASS METHODS
@@ -1293,7 +1294,7 @@ int bdem_Convert::constConvert(DSTTYPE *dstAddr, SRCTYPE& srcValue)
 {
     BSLS_ASSERT_SAFE(dstAddr);
 
-    typedef typename bslmf_RemoveCvq<SRCTYPE>::Type ncvqFromType;
+    typedef typename bslmf::RemoveCvq<SRCTYPE>::Type ncvqFromType;
 
     typedef typename ConversionCategory<ncvqFromType, DSTTYPE>::Type Category;
     const int result = bdem_Convert::doConvert(dstAddr, srcValue, Category());
@@ -1311,9 +1312,9 @@ int bdem_Convert::constConvert(DSTTYPE *dstAddr, SRCTYPE& srcValue)
     // the case where 'DSTTYPE' is an ElemRef), has already been accounted for;
     // furthermore, 'bdetu_UnsetValueIsDefined<T>' is 'false' for ElemRefs.
 
-    bslmf_MetaInt<bdetu_UnsetValueIsDefined<ncvqFromType>::VALUE>
+    bslmf::MetaInt<bdetu_UnsetValueIsDefined<ncvqFromType>::VALUE>
                                                                srcTypeHasUnset;
-    bslmf_MetaInt<bdetu_UnsetValueIsDefined<DSTTYPE>::VALUE>   dstTypeHasUnset;
+    bslmf::MetaInt<bdetu_UnsetValueIsDefined<DSTTYPE>::VALUE>  dstTypeHasUnset;
 
     if (bdem_Convert::isUnset(srcValue, srcTypeHasUnset)) {
         bdem_Convert::setUnset(dstAddr, dstTypeHasUnset);

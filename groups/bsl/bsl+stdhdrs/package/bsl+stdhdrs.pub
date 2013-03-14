@@ -1,62 +1,64 @@
-# Container headers
-deque           bsl_deque.h         deque.SUNWCCh
-iterator        bsl_iterator.h      iterator.SUNWCCh
-list            bsl_list.h          list.SUNWCCh
-map             bsl_map.h           map.SUNWCCh
-memory          bsl_memory.h        memory.SUNWCCh
-queue           bsl_queue.h         queue.SUNWCCh
-set             bsl_set.h           set.SUNWCCh
-sstream         bsl_sstream.h       sstream.SUNWCCh
-stack           bsl_stack.h         stack.SUNWCCh
-string          bsl_string.h        string.SUNWCCh
-vector          bsl_vector.h        vector.SUNWCCh
-hash_set        bsl_hash_set.h      hash_set.SUNWCCh
-hash_map        bsl_hash_map.h      hash_map.SUNWCCh
-slist           bsl_slist.h         slist.SUNWCCh
+# Standard Container headers
+deque           deque.SUNWCCh
+iterator        iterator.SUNWCCh
+list            list.SUNWCCh
+map             map.SUNWCCh
+memory          memory.SUNWCCh
+queue           queue.SUNWCCh
+set             set.SUNWCCh
+sstream         sstream.SUNWCCh
+stack           stack.SUNWCCh
+string          string.SUNWCCh
+vector          vector.SUNWCCh
+
+# Non-standard container headers
+hash_set        hash_set.SUNWCCh
+hash_map        hash_map.SUNWCCh
+slist           slist.SUNWCCh
 
 # Non-container headers
-algorithm       bsl_algorithm.h     algorithm.SUNWCCh
-bitset          bsl_bitset.h        bitset.SUNWCCh
-complex         bsl_complex.h       complex.SUNWCCh
-exception       bsl_exception.h     exception.SUNWCCh
-fstream         bsl_fstream.h       fstream.SUNWCCh
-functional      bsl_functional.h    functional.SUNWCCh
-iomanip         bsl_iomanip.h       iomanip.SUNWCCh
-ios             bsl_ios.h           ios.SUNWCCh
-iosfwd          bsl_iosfwd.h        iosfwd.SUNWCCh
-iostream        bsl_iostream.h      iostream.SUNWCCh
-istream         bsl_istream.h       istream.SUNWCCh
-limits          bsl_limits.h        limits.SUNWCCh
-locale          bsl_locale.h        locale.SUNWCCh
-new             bsl_new.h           new.SUNWCCh
-numeric         bsl_numeric.h       numeric.SUNWCCh
-ostream         bsl_ostream.h       ostream.SUNWCCh
-stdexcept       bsl_stdexcept.h     stdexcept.SUNWCCh
-streambuf       bsl_streambuf.h     streambuf.SUNWCCh
-strstream       bsl_strstream.h     strstream.SUNWCCh
-typeinfo        bsl_typeinfo.h      typeinfo.SUNWCCh
-utility         bsl_utility.h       utility.SUNWCCh
-valarray        bsl_valarray.h      valarray.SUNWCCh
+algorithm       algorithm.SUNWCCh
+bitset          bitset.SUNWCCh
+complex         complex.SUNWCCh
+exception       exception.SUNWCCh
+fstream         fstream.SUNWCCh
+functional      functional.SUNWCCh
+iomanip         iomanip.SUNWCCh
+ios             ios.SUNWCCh
+iosfwd          iosfwd.SUNWCCh
+iostream        iostream.SUNWCCh
+istream         istream.SUNWCCh
+limits          limits.SUNWCCh
+locale          locale.SUNWCCh
+new             new.SUNWCCh
+numeric         numeric.SUNWCCh
+ostream         ostream.SUNWCCh
+stdexcept       stdexcept.SUNWCCh
+streambuf       streambuf.SUNWCCh
+strstream       strstream.SUNWCCh
+typeinfo        typeinfo.SUNWCCh
+utility         utility.SUNWCCh
+valarray        valarray.SUNWCCh
 
 # C headers
-cassert         bsl_cassert.h       cassert.SUNWCCh
-cctype          bsl_cctype.h        cctype.SUNWCCh
-cerrno          bsl_cerrno.h        cerrno.SUNWCCh
-cfloat          bsl_cfloat.h        cfloat.SUNWCCh
-ciso646         bsl_ciso646.h       ciso646.SUNWCCh
-climits         bsl_climits.h       climits.SUNWCCh
-clocale         bsl_clocale.h       clocale.SUNWCCh
-cmath           bsl_cmath.h         cmath.SUNWCCh
-csetjmp         bsl_csetjmp.h       csetjmp.SUNWCCh
-csignal         bsl_csignal.h       csignal.SUNWCCh
-cstdarg         bsl_cstdarg.h       cstdarg.SUNWCCh
-cstddef         bsl_cstddef.h       cstddef.SUNWCCh
-cstdio          bsl_cstdio.h        cstdio.SUNWCCh
-cstdlib         bsl_cstdlib.h       cstdlib.SUNWCCh
-cstring         bsl_cstring.h       cstring.SUNWCCh
-ctime           bsl_ctime.h         ctime.SUNWCCh
-cwchar          bsl_cwchar.h        cwchar.SUNWCCh
-cwctype         bsl_cwctype.h       cwctype.SUNWCCh
+cassert         cassert.SUNWCCh
+cctype          cctype.SUNWCCh
+cerrno          cerrno.SUNWCCh
+cfloat          cfloat.SUNWCCh
+ciso646         ciso646.SUNWCCh
+climits         climits.SUNWCCh
+clocale         clocale.SUNWCCh
+cmath           cmath.SUNWCCh
+csetjmp         csetjmp.SUNWCCh
+csignal         csignal.SUNWCCh
+cstdarg         cstdarg.SUNWCCh
+cstddef         cstddef.SUNWCCh
+cstdio          cstdio.SUNWCCh
+cstdlib         cstdlib.SUNWCCh
+cstring         cstring.SUNWCCh
+ctime           ctime.SUNWCCh
+cwchar          cwchar.SUNWCCh
+cwctype         cwctype.SUNWCCh
 
 # Package headers
 bsl_stdhdrs_epilogue.h

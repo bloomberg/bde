@@ -18,7 +18,6 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>

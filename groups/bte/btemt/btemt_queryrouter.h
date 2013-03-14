@@ -58,16 +58,16 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -83,7 +83,7 @@ class btemt_ChannelPoolConfiguration;
 
 class btemt_QueryRouter {
     // Class description
-    bslma_Allocator                   *d_allocator_p;
+    bslma::Allocator                  *d_allocator_p;
                                        // Held, not owned
 
     btemt_ChannelPool                 *d_channelPool_p;
@@ -188,7 +188,7 @@ class btemt_QueryRouter {
         const bdef_Function<void (*)(btemt_Message::MessageType, int,
                                      int, const bteso_IPv4Address&, void *)>&
             eventFunctor,
-        bslma_Allocator *basicAllocator = 0);
+        bslma::Allocator *basicAllocator = 0);
         // Create a router with the specified 'config' for the managed channel
         // pool, and cache the specified 'responseFunctor' to process a
         // received response from the channel pool, and cache the specified
@@ -233,7 +233,7 @@ class btemt_QueryRouter {
         // Return a pointer to the managed channel pool This is TEMPORARY for
         // TESTING ONLY
 
-    int query(const btemt_Query& query, bsls_PlatformUtil::Int64 queryId,
+    int query(const btemt_Query& query, bsls::Types::Int64 queryId,
               int processorId);
         // Send the specified 'query' to the channel associated with the
         // specified 'processorId'.  Return 0 on success, non-zero otherwise

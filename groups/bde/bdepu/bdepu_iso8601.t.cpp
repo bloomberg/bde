@@ -2118,7 +2118,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             bsl::cout << "Performance test:" << bsl::endl;
-            bsls_Stopwatch  watch;
+            bsls::Stopwatch watch;
             bdet_DatetimeTz datetime;
             const char INPUT[] = "2005-01-31T08:59:59.123-04:00";
             watch.start();

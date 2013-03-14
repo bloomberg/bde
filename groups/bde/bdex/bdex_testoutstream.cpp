@@ -36,7 +36,7 @@ const int SIZEOF_ARRLEN  = SIZEOF_INT32;
 
 // CREATORS
 
-bdex_TestOutStream::bdex_TestOutStream(bslma_Allocator *basicAllocator)
+bdex_TestOutStream::bdex_TestOutStream(bslma::Allocator *basicAllocator)
 : d_streambuf(basicAllocator)
 , d_formatter(&d_streambuf)
 {
@@ -63,56 +63,56 @@ bdex_TestOutStream::putVersion(int version)
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putInt64(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStream::putInt64(bsls::Types::Int64 value)
 {
     d_formatter.putInt64(value);
     return *this;
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putUint64(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStream::putUint64(bsls::Types::Int64 value)
 {
     d_formatter.putUint64(value);
     return *this;
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putInt56(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStream::putInt56(bsls::Types::Int64 value)
 {
     d_formatter.putInt56(value);
     return *this;
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putUint56(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStream::putUint56(bsls::Types::Int64 value)
 {
     d_formatter.putUint56(value);
     return *this;
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putInt48(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStream::putInt48(bsls::Types::Int64 value)
 {
     d_formatter.putInt48(value);
     return *this;
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putUint48(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStream::putUint48(bsls::Types::Int64 value)
 {
     d_formatter.putUint48(value);
     return *this;
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putInt40(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStream::putInt40(bsls::Types::Int64 value)
 {
     d_formatter.putInt40(value);
     return *this;
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putUint40(bsls_PlatformUtil::Int64 value)
+bdex_TestOutStream::putUint40(bsls::Types::Int64 value)
 {
     d_formatter.putUint40(value);
     return *this;
@@ -189,8 +189,8 @@ bdex_TestOutStream::putFloat32(float value)
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putArrayInt64(const bsls_PlatformUtil::Int64 *array,
-                                  int                             length)
+bdex_TestOutStream::putArrayInt64(const bsls::Types::Int64 *array,
+                                  int                       length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -200,8 +200,8 @@ bdex_TestOutStream::putArrayInt64(const bsls_PlatformUtil::Int64 *array,
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putArrayUint64(const bsls_PlatformUtil::Uint64 *array,
-                                   int                              length)
+bdex_TestOutStream::putArrayUint64(const bsls::Types::Uint64 *array,
+                                   int                        length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -211,8 +211,8 @@ bdex_TestOutStream::putArrayUint64(const bsls_PlatformUtil::Uint64 *array,
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putArrayInt56(const bsls_PlatformUtil::Int64 *array,
-                                  int                             length)
+bdex_TestOutStream::putArrayInt56(const bsls::Types::Int64 *array,
+                                  int                       length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -222,8 +222,8 @@ bdex_TestOutStream::putArrayInt56(const bsls_PlatformUtil::Int64 *array,
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putArrayUint56(const bsls_PlatformUtil::Uint64 *array,
-                                   int                             length)
+bdex_TestOutStream::putArrayUint56(const bsls::Types::Uint64 *array,
+                                   int                        length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -233,8 +233,8 @@ bdex_TestOutStream::putArrayUint56(const bsls_PlatformUtil::Uint64 *array,
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putArrayInt48(const bsls_PlatformUtil::Int64 *array,
-                                  int                             length)
+bdex_TestOutStream::putArrayInt48(const bsls::Types::Int64 *array,
+                                  int                       length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -244,8 +244,8 @@ bdex_TestOutStream::putArrayInt48(const bsls_PlatformUtil::Int64 *array,
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putArrayUint48(const bsls_PlatformUtil::Uint64 *array,
-                                   int                              length)
+bdex_TestOutStream::putArrayUint48(const bsls::Types::Uint64 *array,
+                                   int                        length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -255,8 +255,8 @@ bdex_TestOutStream::putArrayUint48(const bsls_PlatformUtil::Uint64 *array,
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putArrayInt40(const bsls_PlatformUtil::Int64 *array,
-                                  int                             length)
+bdex_TestOutStream::putArrayInt40(const bsls::Types::Int64 *array,
+                                  int                       length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
@@ -266,8 +266,8 @@ bdex_TestOutStream::putArrayInt40(const bsls_PlatformUtil::Int64 *array,
 }
 
 bdex_TestOutStream&
-bdex_TestOutStream::putArrayUint40(const bsls_PlatformUtil::Uint64 *array,
-                                   int                              length)
+bdex_TestOutStream::putArrayUint40(const bsls::Types::Uint64 *array,
+                                   int                        length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);

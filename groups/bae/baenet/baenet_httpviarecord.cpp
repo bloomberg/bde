@@ -151,7 +151,7 @@ const bdeat_AttributeInfo *baenet_HttpViaRecord::lookupAttributeInfo(int id)
 
 // CREATORS
 
-baenet_HttpViaRecord::baenet_HttpViaRecord(bslma_Allocator *basicAllocator)
+baenet_HttpViaRecord::baenet_HttpViaRecord(bslma::Allocator *basicAllocator)
 : d_protocolVersion(basicAllocator)
 , d_protocolName(basicAllocator)
 , d_comment(basicAllocator)
@@ -159,8 +159,9 @@ baenet_HttpViaRecord::baenet_HttpViaRecord(bslma_Allocator *basicAllocator)
 {
 }
 
-baenet_HttpViaRecord::baenet_HttpViaRecord(const baenet_HttpViaRecord& original,
-                                                   bslma_Allocator *basicAllocator)
+baenet_HttpViaRecord::baenet_HttpViaRecord(
+                                   const baenet_HttpViaRecord&  original,
+                                   bslma::Allocator            *basicAllocator)
 : d_protocolVersion(original.d_protocolVersion, basicAllocator)
 , d_protocolName(original.d_protocolName, basicAllocator)
 , d_comment(original.d_comment, basicAllocator)

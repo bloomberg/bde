@@ -284,8 +284,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -307,7 +307,7 @@ namespace bdeat_EnumFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
-    bslmf_MetaInt<0> isEnumerationMetaFunction(const TYPE&);
+    bslmf::MetaInt<0> isEnumerationMetaFunction(const TYPE&);
         // This function can be overloaded to support partial specialization
         // (Sun5.2 compiler is unable to partially specialize the 'struct'
         // below).  Note that this function is has no definition and should not
@@ -324,11 +324,11 @@ namespace bdeat_EnumFunctions {
         // documentation for further information.
 
         enum {
-            VALUE = bslalg_HasTrait<TYPE,
+            VALUE = bslalg::HasTrait<TYPE,
                                     bdeat_TypeTraitBasicEnumeration>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isEnumerationMetaFunction(
-                                                   bslmf_TypeRep<TYPE>::rep()))
+                                                  bslmf::TypeRep<TYPE>::rep()))
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
@@ -465,11 +465,10 @@ template <typename TYPE>
 inline
 int bdeat_EnumFunctions::bdeat_enumFromInt(TYPE *result, int number)
 {
-    BSLMF_ASSERT(
-              (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
+    BSLMF_ASSERT(bdeat_IsBasicEnumeration<TYPE>::value);
 
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Type;
-    return Type::fromInt(result, number);
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    return Wrapper::fromInt(result, number);
 }
 
 template <typename TYPE>
@@ -479,10 +478,10 @@ int bdeat_EnumFunctions::bdeat_enumFromString(TYPE       *result,
                                               int         stringLength)
 {
     BSLMF_ASSERT(
-              (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
 
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Type;
-    return Type::fromString(result, string, stringLength);
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    return Wrapper::fromString(result, string, stringLength);
 }
 
 // ACCESSORS
@@ -492,7 +491,7 @@ inline
 void bdeat_EnumFunctions::bdeat_enumToInt(int *result, const TYPE& value)
 {
     BSLMF_ASSERT(
-              (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
 
     *result = static_cast<int>(value);
 }
@@ -503,9 +502,9 @@ void bdeat_EnumFunctions::bdeat_enumToString(bsl::string *result,
                                              const TYPE&  value)
 {
     BSLMF_ASSERT(
-              (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
 
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     *result = Wrapper::toString(value);
 }
 

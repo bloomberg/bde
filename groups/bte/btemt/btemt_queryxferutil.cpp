@@ -22,7 +22,7 @@ BDES_IDENT_RCSID(btemt_queryxferutil_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 # include <netinet/in.h>  // ntohl()
@@ -41,11 +41,11 @@ int btemt_QueryXferUtil::parseQueryRequest(
         const bcema_SharedPtr<btemt_QueryRequest>&)>& procFunctor,
     int *numConsumed, int *numNeeded,
     const btemt_DataMsg& data,
-    bslma_Allocator *allocator)
+    bslma::Allocator *allocator)
 {
     BSLS_ASSERT(numConsumed && numNeeded);
 
-    allocator = bslma_Default::allocator(allocator);
+    allocator = bslma::Default::allocator(allocator);
 
     bcema_PooledBufferChain *bufferChain = data.data();
     bcesb_PooledBufferChainStreamBuf streamBuf(bufferChain);
@@ -86,7 +86,7 @@ int btemt_QueryXferUtil::parseQueryRequest(
             new (*sa) bdem_List(bdem_AggregateOption::BDEM_SUBORDINATE,
                                        sa.ptr());
         bdema_ManagedPtr<bdem_List> query(sa, qry);
-        bsls_PlatformUtil::Int64    queryId;
+        bsls::Types::Int64          queryId;
 
         int version;
         is.getVersion(version);
@@ -132,11 +132,11 @@ int btemt_QueryXferUtil::parseQueryResponse(
         const bcema_SharedPtr<btemt_QueryResponse>&)>& procFunctor,
     int *numConsumed, int *numNeeded,
     const btemt_DataMsg& data,
-    bslma_Allocator *allocator)
+    bslma::Allocator *allocator)
 {
     BSLS_ASSERT(numConsumed && numNeeded);
 
-    allocator = bslma_Default::allocator(allocator);
+    allocator = bslma::Default::allocator(allocator);
 
     bcema_PooledBufferChain *bufferChain = data.data();
     bcesb_PooledBufferChainStreamBuf streamBuf(bufferChain);
@@ -180,7 +180,7 @@ int btemt_QueryXferUtil::parseQueryResponse(
         bdema_ManagedPtr<bdem_List> response(sa, resp);
 
         int sequenceNum;
-        bsls_PlatformUtil::Int64 queryId;
+        bsls::Types::Int64 queryId;
         int status;
         int version;
         is.getVersion(version);
@@ -225,7 +225,7 @@ int btemt_QueryXferUtil::parseQueryResponse(
 int btemt_QueryXferUtil::serializeQuery(
     btemt_DataMsg *result,
     const btemt_Query& query,
-    const bsls_PlatformUtil::Int64& queryId)
+    const bsls::Types::Int64& queryId)
 {
     BSLS_ASSERT(result);
 
@@ -252,7 +252,7 @@ int btemt_QueryXferUtil::serializeQuery(
 int btemt_QueryXferUtil::serializeQueryResult(
     btemt_DataMsg *result,
     const btemt_QueryResult& queryResult,
-    const bsls_PlatformUtil::Int64& queryId,
+    const bsls::Types::Int64& queryId,
     btemt_QueryResponse::Status status)
 {
     BSLS_ASSERT(result);

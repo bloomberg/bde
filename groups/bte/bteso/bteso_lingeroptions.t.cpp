@@ -174,7 +174,7 @@ typedef bdex_TestOutStream  Out;
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT((bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseMoveable>::VALUE));
+BSLMF_ASSERT((bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseMoveable>::VALUE));
 
 // ============================================================================
 //                             GLOBAL TEST DATA
@@ -243,7 +243,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 // Next, we define a 'typedef' for the 'struct' needed to set the linger
 // options:
 //..
-    #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
+    #if defined(BSLS_PLATFORM_OS_WINDOWS)
         typedef LINGER LingerData;
     #else
         typedef linger LingerData;
@@ -292,8 +292,8 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case is memory allocated from the global allocator.
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 11: {
@@ -1580,7 +1580,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\t'timeout'" << endl;
             {
@@ -1748,7 +1749,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             Obj obj;
 

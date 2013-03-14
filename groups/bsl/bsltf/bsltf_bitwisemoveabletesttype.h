@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'BitwiseMoveableTestType', that is
-// bitwise-moveable and defines the 'bslalg_TypeTraitBitwiseMoveable' type
+// bitwise-moveable and defines the 'bslmf::IsBitwiseMoveable' type
 // trait.
 //
 ///Attributes
@@ -45,24 +45,22 @@ BSLS_IDENT("$Id: $")
 //  void printTypeTraits()
 //      // Prints the traits of the parameterized 'TYPE' to the console.
 //  {
-//      if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg_TypeTraitUsesBslmaAllocator>::VALUE) {
-//          printf("Type defines bslalg_TypeTraitUsesBslmaAllocator.\n");
+//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//          printf("Type defines bslma::UsesBslmaAllocator.\n");
 //      }
 //      else {
 //          printf(
-//               "Type does not define bslalg_TypeTraitUsesBslmaAllocator.\n");
+//               "Type does not define bslma::UsesBslmaAllocator.\n");
 //      }
 //
-//      if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg_TypeTraitBitwiseMoveable>::VALUE) {
-//          printf("Type defines bslalg_TypeTraitBitwiseMoveable.\n");
+//      if (blsmf::IsBitwiseMoveable<TYPE>::value) {
+//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
 //      }
 //      else {
-//          printf("Type does not define bslalg_TypeTraitBitwiseMoveable.\n");
+//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
 //      }
 //  }
-// ..
+//..
 // Now, we invoke the 'printTypeTraits' function template using
 // 'BitwiseMoveableTestType' as the parameterized 'TYPE':
 //..
@@ -70,12 +68,20 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe the console output:
 //..
-//  Type does not define bslalg_TypeTraitUsesBslmaAllocator.
-//  Type defines bslalg_TypeTraitBitwiseMoveable.
+//  Type does not define bslma::UsesBslmaAllocator.
+//  Type defines bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 namespace BloombergLP {
@@ -87,7 +93,7 @@ namespace bsltf {
 
 class BitwiseMoveableTestType {
     // This unconstrained (value-semantic) attribute class defines the
-    // 'bslalg_TypeTraitBitwiseMoveable' and does not allocate memory.  See the
+    // 'bslmf::IsBitwiseMoveable' and does not allocate memory.  See the
     // Attributes section under @DESCRIPTION in the component-level
     // documentation for information on the class attributes.
 
@@ -95,10 +101,6 @@ class BitwiseMoveableTestType {
     int d_data;  // class value
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseMoveableTestType,
-                                 bslalg::TypeTraitBitwiseMoveable);
-
     // CREATORS
     BitwiseMoveableTestType();
         // Create a 'SimpleTestType' object having the (default) attribute
@@ -183,32 +185,52 @@ int BitwiseMoveableTestType::data() const
     return d_data;
 }
 
+}  // close package namespace
 
 // FREE OPERATORS
 inline
-bool operator==(const bsltf::BitwiseMoveableTestType& lhs,
-                const bsltf::BitwiseMoveableTestType& rhs)
+bool bsltf::operator==(const bsltf::BitwiseMoveableTestType& lhs,
+                       const bsltf::BitwiseMoveableTestType& rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const bsltf::BitwiseMoveableTestType& lhs,
-                const bsltf::BitwiseMoveableTestType& rhs)
+bool bsltf::operator!=(const bsltf::BitwiseMoveableTestType& lhs,
+                       const bsltf::BitwiseMoveableTestType& rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+// TRAITS
+namespace bslmf {
+template <>
+struct IsBitwiseMoveable<bsltf::BitwiseMoveableTestType>
+    : bsl::true_type {};
+}  // close namespace bslmf
+
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -156,9 +156,9 @@ BDES_IDENT("$Id: $")
 //  #define SUCCEED { *endPos = s; return 0; }
 //  #define FAIL_UNLESS(c) if (!(c)) { *endPos = s; return 1; }
 //
-//  int parseInt64Array(const char                           **endPos,
-//                      bsl::vector<bsls_PlatformUtil::Int64   *result,
-//                      const char                            *s)
+//  int parseInt64Array(const char                     **endPos,
+//                      bsl::vector<bsls::Types::Int64  *result,
+//                      const char                      *s)
 //      // Parse the specified string 's' for a sequence of integers matching
 //      // the pattern [ (<INT64> (, <INT64>)*)? ] ignoring internal
 //      // whitespace, and load into the specified 'result'  those values.
@@ -192,7 +192,7 @@ BDES_IDENT("$Id: $")
 //              bdepu_ParserImpUtil::skipWhiteSpace(&s, s);
 //          }
 //
-//          bsls_PlatformUtil::Int64 value;
+//          bsls::Types::Int64 value;
 //          FAIL_UNLESS(0 == bdepu_ParserImpUtil::
 //                          parseSignedInteger(&s, &value, s, 10, 0xFFFFFFFF));
 //          bdepu_ParserImpUtil::skipWhiteSpace(&s, s);
@@ -215,8 +215,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -311,13 +311,12 @@ struct bdepu_ParserImpUtil {
         // 0 on success, and a non-zero value otherwise.  The behavior
         // is undefined if any argument is 0.
 
-    static int parseSignedInteger(
-                              const char                     **endPos,
-                              bsls_PlatformUtil::Int64        *result,
-                              const char                      *inputString,
-                              int                              base,
-                              const bsls_PlatformUtil::Int64   minValue,
-                              const bsls_PlatformUtil::Int64   maxValue);
+    static int parseSignedInteger(const char               **endPos,
+                                  bsls::Types::Int64        *result,
+                                  const char                *inputString,
+                                  int                        base,
+                                  const bsls::Types::Int64   minValue,
+                                  const bsls::Types::Int64   maxValue);
         // Parse the specified 'inputString' for an optional sign followed by a
         // sequence of characters representing digits in the specified 'base',
         // consuming the maximum that will form a number whose value is less
@@ -344,19 +343,17 @@ struct bdepu_ParserImpUtil {
         //   3. The first digit is not a valid number for the 'base'.
         //..
 
-    static int parseUnsignedInteger(
-                   const char                      **endPos,
-                   bsls_PlatformUtil::Uint64        *result,
-                   const char                       *inputString,
-                   int                               base,
-                   const bsls_PlatformUtil::Uint64   maxValue);
-    static int parseUnsignedInteger(
-                   const char                      **endPos,
-                   bsls_PlatformUtil::Uint64        *result,
-                   const char                       *inputString,
-                   int                               base,
-                   const bsls_PlatformUtil::Uint64   maxValue,
-                   int                               maxNumDigits);
+    static int parseUnsignedInteger(const char                **endPos,
+                                    bsls::Types::Uint64        *result,
+                                    const char                 *inputString,
+                                    int                         base,
+                                    const bsls::Types::Uint64   maxValue);
+    static int parseUnsignedInteger(const char                **endPos,
+                                    bsls::Types::Uint64        *result,
+                                    const char                 *inputString,
+                                    int                         base,
+                                    const bsls::Types::Uint64   maxValue,
+                                    int                         maxNumDigits);
         // Parse the specified 'inputString' for a sequence of characters
         // representing digits in the specified 'base', consuming the maximum
         // up to the optionally specified 'maxNumDigits' that form a number

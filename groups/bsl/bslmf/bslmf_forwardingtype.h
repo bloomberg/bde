@@ -64,26 +64,26 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, check that they match:
 //..
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T1>::Type,
-//                             EXP1>::VALUE));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T2>::Type,
-//                             EXP2>::VALUE));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T3>::Type,
-//                             EXP3>::VALUE));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T4>::Type,
-//                             EXP4>::VALUE));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T5>::Type,
-//                             EXP5>::VALUE));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T6>::Type,
-//                             EXP6>::VALUE));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T7>::Type,
-//                             EXP7>::VALUE));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T8>::Type,
-//                             EXP8>::VALUE));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T9>::Type,
-//                             EXP9>::VALUE));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T10>::Type,
-//                             EXP10>::VALUE));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T1>::Type,
+//                             EXP1>::value));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T2>::Type,
+//                             EXP2>::value));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T3>::Type,
+//                             EXP3>::value));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T4>::Type,
+//                             EXP4>::value));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T5>::Type,
+//                             EXP5>::value));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T6>::Type,
+//                             EXP6>::value));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T7>::Type,
+//                             EXP7>::value));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T8>::Type,
+//                             EXP8>::value));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T9>::Type,
+//                             EXP9>::value));
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T10>::Type,
+//                             EXP10>::value));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -124,26 +124,25 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-template <typename TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
+template <class TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
 struct ForwardingType_Imp;
 
                         // ====================
                         // class ForwardingType
                         // ====================
 
-template <typename TYPE>
+template <class TYPE>
 struct ForwardingType {
     // This template is used to specialize 'TYPE' such that arguments of type
     // 'TYPE' can be efficiently forwarded by reference or pointer.
 
     enum { BSLMF_FORWARDING_TYPE_ID = 1 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = IsFundamental<TYPE>::VALUE ||
-                        IsPointerToMember<TYPE>::VALUE ||
-                        IsMemberFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE*>::VALUE ||
-                        IsEnum<TYPE>::VALUE
+        IS_BASIC_TYPE = bsl::is_fundamental<TYPE>::value ||
+                        bsl::is_member_pointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE*>::value ||
+                        bsl::is_enum<TYPE>::value
     };
 
     typedef typename
@@ -151,7 +150,7 @@ struct ForwardingType {
 };
 
 // PARTIAL SPECIALIZATIONS
-template <typename TYPE>
+template <class TYPE>
 struct ForwardingType<const TYPE&> {
     // This specialization is used when the template parameter of
     // 'ForwardingType' is a 'const T&' and 'T' is not a volatile type.  In
@@ -160,19 +159,18 @@ struct ForwardingType<const TYPE&> {
 
     enum { BSLMF_FORWARDING_TYPE_ID = 2 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = IsFundamental<TYPE>::VALUE ||
-                        IsPointerToMember<TYPE>::VALUE ||
-                        IsMemberFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE*>::VALUE ||
-                        IsEnum<TYPE>::VALUE
+        IS_BASIC_TYPE = bsl::is_fundamental<TYPE>::value ||
+                        bsl::is_member_pointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE*>::value ||
+                        bsl::is_enum<TYPE>::value
     };
 
     typedef typename
         ForwardingType_Imp<const TYPE, IS_BASIC_TYPE, 0 >::Type Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct ForwardingType<const volatile TYPE&> {
     // This specialization is used when the template parameter of
     // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
@@ -183,7 +181,7 @@ struct ForwardingType<const volatile TYPE&> {
     typedef const volatile TYPE& Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct ForwardingType<volatile TYPE&> {
     // This specialization is used when the template parameter of
     // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
@@ -194,7 +192,7 @@ struct ForwardingType<volatile TYPE&> {
     typedef volatile TYPE* Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct ForwardingType<TYPE&>
 : public ForwardingType_Imp<TYPE, 0, 1> {
     // This specialization is used when the template parameter of
@@ -203,7 +201,7 @@ struct ForwardingType<TYPE&>
     enum { BSLMF_FORWARDING_TYPE_ID = 5 };  // For testing only.
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct ForwardingType<TYPE*> {
     // Pointer rvalues should not be forwarded any other way.
 
@@ -211,7 +209,7 @@ struct ForwardingType<TYPE*> {
     typedef TYPE* Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct ForwardingType<TYPE* const&> {
     // Pointer rvalues should not be forwarded any other way.
 
@@ -223,7 +221,7 @@ struct ForwardingType<TYPE* const&> {
                         // class ConstForwardingType
                         // =========================
 
-template <typename TYPE>
+template <class TYPE>
 struct ConstForwardingType : public ForwardingType<const TYPE>{
     // Use 'ConstForwardingType<TYPE>' for forwarding an rvalue of the given
     // 'TYPE'.  Note that for lvalues and pointer types,
@@ -232,11 +230,11 @@ struct ConstForwardingType : public ForwardingType<const TYPE>{
 };
 
 // PARTIAL SPECIALIZATIONS
-template <typename TYPE>
+template <class TYPE>
 struct ConstForwardingType<TYPE&> : public ForwardingType<TYPE&>{
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct ConstForwardingType<TYPE*> : public ForwardingType<TYPE*>{
 };
 
@@ -244,30 +242,30 @@ struct ConstForwardingType<TYPE*> : public ForwardingType<TYPE*>{
                         // class ForwardingType_Imp
                         // ========================
 
-template <typename TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
+template <class TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
 struct ForwardingType_Imp {
     typedef TYPE& Type;
 };
 
 // PARTIAL SPECIALIZATIONS
-template <typename TYPE>
+template <class TYPE>
 struct ForwardingType_Imp<TYPE,0,0> {
     typedef const TYPE& Type;
 };
 
-template <typename TYPE, std::size_t NUM_ELEMENTS>
+template <class TYPE, std::size_t NUM_ELEMENTS>
 struct ForwardingType_Imp<TYPE [NUM_ELEMENTS], 0, 0> {
     typedef TYPE *Type;
 };
 
-template <typename TYPE, std::size_t NUM_ELEMENTS>
+template <class TYPE, std::size_t NUM_ELEMENTS>
 struct ForwardingType_Imp<TYPE [NUM_ELEMENTS], 0, 1> {
     typedef TYPE *Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct ForwardingType_Imp<TYPE,1, 0> {
-    typedef typename RemoveCvq<TYPE>::Type Type;
+    typedef typename bsl::remove_cv<TYPE>::type Type;
 };
 
 }  // close package namespace
@@ -294,11 +292,24 @@ struct ForwardingType_Imp<TYPE,1, 0> {
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

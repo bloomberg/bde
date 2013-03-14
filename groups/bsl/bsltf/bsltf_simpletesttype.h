@@ -48,24 +48,22 @@ BSLS_IDENT("$Id: $")
 //  void printTypeTraits()
 //      // Prints the traits of the parameterized 'TYPE' to the console.
 //  {
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitUsesBslmaAllocator>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitUsesBslmaAllocator.\n");
+//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//          printf("Type defines bslma::UsesBslmaAllocator.\n");
 //      }
 //      else {
 //          printf(
-//               "Type does not define bslalg::TypeTraitUsesBslmaAllocator.\n");
+//               "Type does not define bslma::UsesBslmaAllocator.\n");
 //      }
 //
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitBitwiseMoveable>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitBitwiseMoveable.\n");
+//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
 //      }
 //      else {
-//          printf("Type does not define bslalg::TypeTraitBitwiseMoveable.\n");
+//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
 //      }
 //  }
-// ..
+//..
 // Now, we invoke the 'printTypeTraits' function template using
 // 'SimpleTestType' as the parameterized 'TYPE':
 //..
@@ -73,12 +71,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe the console output:
 //..
-//  Type does not define bslalg::TypeTraitUsesBslmaAllocator.
-//  Type does not define bslalg::TypeTraitBitwiseMoveable.
+//  Type does not define bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 namespace BloombergLP {
@@ -195,11 +193,24 @@ bool operator!=(const SimpleTestType& lhs, const SimpleTestType& rhs)
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

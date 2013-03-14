@@ -51,13 +51,12 @@ BDES_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BCES_ATOMICTYPES
-#include <bces_atomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_SEMAPHORE
-#include <semaphore.h>
-#define INCLUDED_SEMAPHORE
+#ifndef BCEMT_SEMAPHOREIMPL_PTHREAD
+#include <bcemt_semaphoreimpl_pthread.h>
 #endif
 
 namespace BloombergLP {
@@ -78,10 +77,11 @@ class bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore> {
     // very limited range of values.
 
     // DATA
-    bces_AtomicInt d_resources;  // if positive, number of available resources
+    bsls::AtomicInt d_resources; // if positive, number of available resources
                                  // if negative: number of waiting threads
 
-    sem_t          d_sem;        // native semaphore
+    bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>
+                   d_sem;        // posix semaphore implementation
 
     // NOT IMPLEMENTED
     bcemt_SemaphoreImpl(const bcemt_SemaphoreImpl&);
@@ -129,19 +129,14 @@ inline
 bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::bcemt_SemaphoreImpl(
                                                                      int count)
 : d_resources(count)
+, d_sem(0)
 {
-    // The first 0 passed to 'sem_init' indicates not shared between processes.
-    // A count of 0 (i.e., the second 0) is provided to 'sem_init' because
-    // 'd_resources' holds the count.
-
-    ::sem_init(&d_sem, 0, 0);
 }
 
 inline
 bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::
                                                          ~bcemt_SemaphoreImpl()
 {
-    ::sem_destroy(&d_sem);
 }
 
 // MANIPULATORS
@@ -149,8 +144,27 @@ inline
 void bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::post()
 {
     if (++d_resources <= 0) {
-        ::sem_post(&d_sem);
+        d_sem.post();
     }
+}
+
+inline
+void
+bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::post(int number)
+{
+    for (int i = 0; i < number; ++i) {
+        post();
+    }
+}
+
+inline
+void bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::wait()
+{
+    if (--d_resources >= 0) {
+        return;
+    }
+
+    d_sem.wait();
 }
 
 // ACCESSORS

@@ -57,17 +57,17 @@ BSLS_IDENT("$Id: $")
 // predefined type members 'TypeN' (where '1 <= N <= 20'), or another
 // meta-function 'bslmf::TypeListTypeOf':
 //..
-//  assert(1 == bslmf::IsSame<int,    List::Type1>::VALUE)
-//  assert(1 == bslmf::IsSame<double, List::Type2>::VALUE)
-//  assert(1 == bslmf::IsSame<char,   List::Type3>::VALUE)
+//  assert(1 == bsl::is_same<int,    List::Type1>::value)
+//  assert(1 == bsl::is_same<double, List::Type2>::value)
+//  assert(1 == bsl::is_same<char,   List::Type3>::value)
 //
 //  typedef bslmf::TypeListTypeOf<1, List>::Type my_Type1;
 //  typedef bslmf::TypeListTypeOf<2, List>::Type my_Type2;
 //  typedef bslmf::TypeListTypeOf<3, List>::Type my_Type3;
 //
-//  assert(1 == bslmf::IsSame<int,    my_Type1>::VALUE)
-//  assert(1 == bslmf::IsSame<double, my_Type2>::VALUE)
-//  assert(1 == bslmf::IsSame<char,   my_Type3>::VALUE)
+//  assert(1 == bsl::is_same<int,    my_Type1>::value)
+//  assert(1 == bsl::is_same<double, my_Type2>::value)
+//  assert(1 == bsl::is_same<char,   my_Type3>::value)
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -1123,11 +1123,24 @@ typedef bslmf::TypeList0 bslmf_TypeList0;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Note that 'int' is the most alignment-demanding type within 'MyStruct'.
-//..
+//
 // Now, we use 'AlignmentImpCalc' to calculate the alignments of two
 // types, 'short' and the 'MyStruct' we just defined:
 //..
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 // both its size and alignment requirement equal to the alignment requirement
 // of a specified template parameter type.  We can use the 'AlignmentImpTag'
 // 'struct' template, the overloads of 'AlignmentImpMatch::match' class method,
-// the 'AiignmentImp_Prioirty' template class, and the
+// the 'AiignmentImp_Priority' template class, and the
 // 'AlignmentImpPrioriityToType' template class to do this calculation.
 //
 // First, we define a class template, 'ConvertAlignmentToType', that provides a
@@ -232,7 +232,7 @@ struct AlignmentImpTag {
                 // struct AlignmentImpCalc
                 // =======================
 
-template <typename TYPE>
+template <class TYPE>
 struct AlignmentImpCalc {
     // This 'struct' provides an enumerator 'VALUE' that is initialized to the
     // required alignment for the specified 'TYPE'.
@@ -261,7 +261,7 @@ struct AlignmentImpCalc {
             // Prevent the compiler from automatically generating
             // default & copy constructors and destructor, as this could cause
             // problems if 'TYPE' has constructors / destructor that are
-            // private or unimplmented.
+            // private or unimplemented.
     };
 
   public:
@@ -430,7 +430,7 @@ struct AlignmentImpMatch {
         // size is the 2nd argument of the macro.
 
 # if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
-        // This type only exists, and is only needed, on Linux
+        // This type exists, and is needed, only on Linux
 
     static BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,      13);
 #endif
@@ -478,11 +478,24 @@ typedef bsls::AlignmentImpMatch bsls_AlignmentImpMatch;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

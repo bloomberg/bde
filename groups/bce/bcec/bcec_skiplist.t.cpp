@@ -356,7 +356,7 @@ class SimpleScheduler
 public:
 
     //CREATORS
-    SimpleScheduler(bslma_Allocator *basicAllocator = 0)
+    SimpleScheduler(bslma::Allocator *basicAllocator = 0)
     : d_list(basicAllocator)
     , d_startBarrier(2)
     , d_doneFlag(false)
@@ -676,7 +676,7 @@ void threadFunc(TimeQ               *timeQueue,
     bsl::vector<TimeQ::Pair*> timers;
     timers.resize(sendCount);
 
-    bsls_Stopwatch sw;
+    bsls::Stopwatch sw;
 
     for(int i=0; i<numIterations; i++) {
         if( verbose ) {
@@ -879,7 +879,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         {
             bcec_SkipList<bsl::string, bsl::string> mA(&ta), mB(&ta);
 
@@ -973,7 +973,7 @@ int main(int argc, char *argv[])
         // ----------------------------------------------------
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bcec_SkipList<int, bsl::string> SkipList;
         {
             SkipList obj(&ta);
@@ -1355,7 +1355,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bcec_SkipList<int, bsl::string> SkipList;
         {
             SkipList Obj(&ta);
@@ -1393,7 +1393,7 @@ int main(int argc, char *argv[])
         {
             bcema_TestAllocator ta(veryVeryVerbose);
             bcema_TestAllocator da(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+            bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
             typedef bcec_SkipList<int, bsl::string> SkipList;
             {
                 SkipList Obj(&ta);
@@ -1600,7 +1600,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bcec_SkipList<int, bsl::string> SkipList;
         {
             SkipList Obj(&ta);
@@ -1676,7 +1676,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bcec_SkipList<int, bsl::string> SkipList;
         {
             SkipList Obj(&ta);
@@ -1750,7 +1750,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bcec_SkipList<int, bsl::string> SkipList;
         {
             SkipList Obj(&ta);
@@ -1796,7 +1796,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bcec_SkipList<int, bsl::string> SkipList;
         {
             SkipList Obj(&ta);
@@ -1846,7 +1846,7 @@ int main(int argc, char *argv[])
         {
             bcema_TestAllocator ta(veryVeryVerbose);
             bcema_TestAllocator da(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+            bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
             typedef bcec_SkipList<int,int> Obj;
             typedef Obj::PairHandle H;
             typedef int (Obj::*Updater)(const Obj::Pair*,
@@ -1998,7 +1998,7 @@ int main(int argc, char *argv[])
         {
             bcema_TestAllocator ta(veryVeryVerbose);
             bcema_TestAllocator da(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+            bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
             typedef bcec_SkipList<int,bsl::string> SkipList;
             {
@@ -2123,7 +2123,7 @@ int main(int argc, char *argv[])
             while (bdetu_SystemTime::nowAsDatetimeUtc() < scheduleTime) {
                 bcemt_ThreadUtil::microSleep(10000);
             }
-            bsls_Stopwatch waitTimer;
+            bsls::Stopwatch waitTimer;
             waitTimer.start();
 
             // sleep for up to 2.5 seconds until everything gets executed

@@ -202,7 +202,7 @@ int bdet_Time::addInterval(const bdet_DatetimeInterval& interval)
     // We must perform the 64-bit normalization with temporaries before
     // adjusting the 'int' 'd_milliseconds' value to avoid integer overflow.
 
-    const bsls_PlatformUtil::Int64 totalMsec = interval.totalMilliseconds();
+    const bsls::Types::Int64 totalMsec = interval.totalMilliseconds();
 
     const int normMsec  =
                        static_cast<int>(totalMsec % BDET_MILLISECONDS_PER_DAY);

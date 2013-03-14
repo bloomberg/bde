@@ -82,8 +82,8 @@ BDES_IDENT("$Id: $")
 //      // 'bdet_Datetime' object.
 //
 //      // DATA
-//      bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
-//      bdet_Datetime    d_instance;    // in-place object
+//      bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
+//      bdet_Datetime     d_instance;    // in-place object
 //
 //    private:
 //      // NOT IMPLEMENTED
@@ -92,10 +92,10 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      MySharedDatetimeRepImpl(bslma_Allocator *basicAllocator,
-//                              int              year,
-//                              int              month,
-//                              int              day);
+//      MySharedDatetimeRepImpl(bslma::Allocator *basicAllocator,
+//                              int               year,
+//                              int               month,
+//                              int               day);
 //          // Create a shared representation of a 'bdet_Datetime' object
 //          // having the specified 'year', 'month' and 'day' using the
 //          // specified 'basicAllocator' to allocate memory.
@@ -121,10 +121,10 @@ BDES_IDENT("$Id: $")
 //..
 //  // CREATORS
 //  MySharedDatetimeRepImpl::MySharedDatetimeRepImpl(
-//                                             bslma_Allocator *basicAllocator,
-//                                             int              year,
-//                                             int              month,
-//                                             int              day)
+//                                            bslma::Allocator *basicAllocator,
+//                                            int               year,
+//                                            int               month,
+//                                            int               day)
 //  : d_allocator_p(basicAllocator)
 //  , d_instance(year, month, day)
 //  {
@@ -181,10 +181,10 @@ BDES_IDENT("$Id: $")
 //          // is the last shared reference, deleted the managed object.
 //
 //      // MANIPULATORS
-//      void createInplace(bslma_Allocator *basicAllocator,
-//                         int              year,
-//                         int              month,
-//                         int              day);
+//      void createInplace(bslma::Allocator *basicAllocator,
+//                         int               year,
+//                         int               month,
+//                         int               day);
 //          // Create a new 'MySharedDatetimeRepImpl', using the specified
 //          // 'basicAllocator' to supply memory, using the specified 'year',
 //          // 'month' and 'day' to initialize the 'bdet_Datetime' within the
@@ -239,12 +239,12 @@ BDES_IDENT("$Id: $")
 //      }
 //  }
 //
-//  void MySharedDatetimePtr::createInplace(bslma_Allocator *basicAllocator,
-//                                          int              year,
-//                                          int              month,
-//                                          int              day)
+//  void MySharedDatetimePtr::createInplace(bslma::Allocator *basicAllocator,
+//                                          int               year,
+//                                          int               month,
+//                                          int               day)
 //  {
-//      basicAllocator = bslma_Default::allocator(basicAllocator);
+//      basicAllocator = bslma::Default::allocator(basicAllocator);
 //      MySharedDatetimeRepImpl *rep = new (*basicAllocator)
 //                                      MySharedDatetimeRepImpl(basicAllocator,
 //                                                              year,

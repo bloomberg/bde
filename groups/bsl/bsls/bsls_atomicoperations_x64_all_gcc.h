@@ -2,17 +2,22 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X64_ALL_GCC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_X64_ALL_GCC
 
-//@PURPOSE: Provide implentations of atomic operations for X86_64/GCC.
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for X86_64/GCC.
 //
 //@CLASSES:
-//  bsls::AtomicOperations_X64_ALL_GCC: implementation of atomics for X86_64/GCC
+// bsls::AtomicOperations_X64_ALL_GCC: implementation of atomics for X86_64/GCC
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Linux X86_64 platform with GCC.  The classes are for private use
-// only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the public inteface
-// to atomics.
+// only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the public
+// interface to atomics.
 //
 ///Notes
 ///-----
@@ -22,20 +27,20 @@
 //:   GCC 3.x in optimized builds, therefore sometimes a combination of output
 //:   "=m" and input "m" constraints is used.
 
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
+#include <bsls_atomicoperations_default.h>
 #endif
-BSLS_IDENT("$Id: $")
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
-#include <bsls_atomicoperations_default.h>
-#endif
-
-#if defined(BSLS_PLATFORM_CPU_X86_64) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86_64) \
+    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 
 namespace BloombergLP {
 
@@ -205,36 +210,16 @@ int AtomicOperations_X64_ALL_GCC::
                    int compareValue,
                    int swapValue)
 {
-    asm volatile (
-        "       lock cmpxchgl %[val], %[obj]    \n\t"
-
-                : [cmp] "+a" (compareValue)
-                : [val] "r"  (swapValue),
-                  [obj] "m"  (*atomicInt)
-                : "memory", "cc");
-
-    return compareValue;
+    return __sync_val_compare_and_swap(&atomicInt->d_value,
+                                       compareValue,
+                                       swapValue);
 }
 
 inline
 int AtomicOperations_X64_ALL_GCC::
     addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
-#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40100 // gcc >= 4.1
     return __sync_add_and_fetch(&atomicInt->d_value, value);
-#else
-    int orig = value;
-
-    asm volatile (
-        "       lock xaddl %[val], %[obj]   \n\t"
-
-                : [val] "=r" (value),
-                  [obj] "=m" (*atomicInt)
-                : "0" (value), "m" (*atomicInt)
-                : "memory", "cc");
-
-    return orig + value;
-#endif
 }
 
 inline
@@ -318,15 +303,9 @@ Types::Int64 AtomicOperations_X64_ALL_GCC::
                      Types::Int64 compareValue,
                      Types::Int64 swapValue)
 {
-    asm volatile (
-        "       lock cmpxchgq %[val], %[obj]    \n\t"
-
-                : [cmp] "+a" (compareValue),
-                  [obj] "+m" (*atomicInt)
-                : [val] "r"  (swapValue)
-                : "memory", "cc");
-
-    return compareValue;
+    return __sync_val_compare_and_swap(&atomicInt->d_value,
+                                       compareValue,
+                                       swapValue);
 }
 
 inline
@@ -334,36 +313,35 @@ Types::Int64 AtomicOperations_X64_ALL_GCC::
     addInt64Nv(AtomicTypes::Int64 *atomicInt,
                Types::Int64 value)
 {
-#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40100 // gcc >= 4.1
     return __sync_add_and_fetch(&atomicInt->d_value, value);
-#else
-    Types::Int64 operand = value;
-
-    asm volatile (
-        "       lock xaddq %[val], %[obj]   \n\t"
-
-                : [val] "+r" (value),
-                  [obj] "+m" (*atomicInt)
-                :
-                : "memory", "cc");
-
-    return operand + value;
-#endif
 }
 
 }  // close package namespace
 
 }  // close enterprise namespace
 
-#endif // defined(BSLS_PLATFORM_CPU_X86_64) && defined(BSLS_PLATFORM_CMP_GNU)
+#endif // defined(BSLS_PLATFORM_CPU_X86_64) && (CMP_GNU || CMP_CLANG)
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

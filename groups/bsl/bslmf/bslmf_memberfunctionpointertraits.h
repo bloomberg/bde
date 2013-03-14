@@ -47,27 +47,27 @@ BSLS_IDENT("$Id: $")
 //  template <class TYPE>
 //  void checkNotMemberFunctionPointer(TYPE object)
 //  {
-//      assert(0 == bslmf::IsMemberFunctionPointer<TYPE>::VALUE);
+//      assert(0 == bslmf::IsMemberFunctionPointer<TYPE>::value);
 //  }
 //
 //  template <class BSLMF_RETURN, class ARGS, class TYPE>
 //  void checkMemberFunctionPointer(TYPE object)
 //  {
-//      assert(1 == bslmf::IsMemberFunctionPointer<TYPE>::VALUE);
+//      assert(1 == bslmf::IsMemberFunctionPointer<TYPE>::value);
 //      typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ResultType
 //          ResultType;
 //      typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ArgumentList
 //          ArgumentList;
-//      assert(1 == (bslmf::IsSame<ResultType, BSLMF_RETURN>::VALUE));
-//      assert(1 == (bslmf::IsSame<ArgumentList, ARGS>::VALUE));
+//      assert(1 == (bsl::is_same<ResultType, BSLMF_RETURN>::value));
+//      assert(1 == (bsl::is_same<ArgumentList, ARGS>::value));
 //  }
 //..
 // The following program should compile and run without errors:
 //..
 //  void usageExample()
 //  {
-//      assert(0 == bslmf::IsMemberFunctionPointer<int>::VALUE);
-//      assert(0 == bslmf::IsMemberFunctionPointer<int>::VALUE);
+//      assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
+//      assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
 //
 //      checkNotMemberFunctionPointer(&MyTestClass::voidFunc0);
 //      checkMemberFunctionPointer<int, bslmf::TypeList1<int> >(
@@ -85,8 +85,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_if.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
@@ -115,11 +115,13 @@ struct MemberFunctionPointerTraits
                     // =============================
 
 template <class PROTOTYPE>
-struct IsMemberFunctionPointer : MetaInt<
-        MemberFunctionPointerTraits<PROTOTYPE>::IS_MEMBER_FUNCTION_PTR> {
+struct IsMemberFunctionPointer
+    : bsl::integral_constant<
+            bool,
+            MemberFunctionPointerTraits<PROTOTYPE>::IS_MEMBER_FUNCTION_PTR> {
     // This template determines if the specified 'PROTOTYPE' is a member
-    // function pointer.  VALUE is defined as 1 if the specified 'PROTOTYPE' is
-    // a member function, and a zero value otherwise.
+    // function pointer.  'value' is defined as 1 if the specified 'PROTOTYPE'
+    // is a member function, and a zero value otherwise.
 };
 
 // ---- Anything below this line is implementation specific.  Do not use. ----
@@ -802,7 +804,8 @@ struct MemberFunctionPointerTraitsImp<
 #ifdef bslmf_MemberFunctionPointerTraitsImp
 #undef bslmf_MemberFunctionPointerTraitsImp
 #endif
-#define bslmf_MemberFunctionPointerTraitsImp bslmf::MemberFunctionPointerTraitsImp
+#define bslmf_MemberFunctionPointerTraitsImp  \
+        bslmf::MemberFunctionPointerTraitsImp
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
@@ -810,11 +813,24 @@ struct MemberFunctionPointerTraitsImp<
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

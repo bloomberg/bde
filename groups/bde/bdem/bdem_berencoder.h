@@ -240,7 +240,7 @@ class bdem_BerEncoder {
 
       public:
         // CREATORS
-        MemOutStream(bslma_Allocator *basicAllocator = 0);
+        MemOutStream(bslma::Allocator *basicAllocator = 0);
             // Create a new stream using the specified 'basicAllocator'.
 
         virtual ~MemOutStream();
@@ -274,20 +274,20 @@ class bdem_BerEncoder {
 
   private:
     // DATA
-    const bdem_BerEncoderOptions    *d_options;      // held, not owned
-    bslma_Allocator                 *d_allocator;    // held, not owned
+    const bdem_BerEncoderOptions     *d_options;        // held, not owned
+    bslma::Allocator                 *d_allocator;      // held, not owned
 
-    bsls_ObjectBuffer<MemOutStream>  d_logArea;
+    bsls::ObjectBuffer<MemOutStream>  d_logArea;
         // placeholder for MemOutStream
 
-    MemOutStream                    *d_logStream;
+    MemOutStream                     *d_logStream;
         // if not zero, log stream was created at the moment of first
         // logging and must be destroyed
 
-    ErrorSeverity                    d_severity;       // error severity
+    ErrorSeverity                     d_severity;       // error severity
 
-    bsl::streambuf                  *d_streamBuf;      // held, not owned
-    int                              d_currentDepth;   // current depth
+    bsl::streambuf                   *d_streamBuf;      // held, not owned
+    int                               d_currentDepth;   // current depth
 
     // NOT IMPLEMENTED
     bdem_BerEncoder(const bdem_BerEncoder&);
@@ -383,7 +383,7 @@ class bdem_BerEncoder {
   public:
     // CREATORS
     bdem_BerEncoder(const bdem_BerEncoderOptions *options = 0,
-                    bslma_Allocator              *basicAllocator = 0);
+                    bslma::Allocator             *basicAllocator = 0);
         // Construct a encoder object using the optionally specified 'options',
         // and 'basicAllocator'.
 
@@ -526,7 +526,7 @@ struct bdem_BerEncoder_encodeProxy {
 
     // FUNCTIONS
     template <typename TYPE>
-    int operator()(const TYPE& object, bslmf_Nil);
+    int operator()(const TYPE& object, bslmf::Nil);
 
     template <typename TYPE, typename ANY_CATEGORY>
     int operator()(const TYPE& object, ANY_CATEGORY category);
@@ -544,9 +544,9 @@ struct bdem_BerEncoder_encodeProxy {
                          // -----------------------------------
 
 inline
-bdem_BerEncoder::MemOutStream::MemOutStream(bslma_Allocator *basicAllocator)
+bdem_BerEncoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
 : bsl::ostream(0)
-, d_sb(bslma_Default::allocator(basicAllocator))
+, d_sb(bslma::Default::allocator(basicAllocator))
 {
     rdbuf(&d_sb);
 }
@@ -595,7 +595,7 @@ bdem_BerEncoder_LevelGuard::~bdem_BerEncoder_LevelGuard()
 
 template <typename TYPE>
 inline
-int bdem_BerEncoder_encodeProxy::operator()(const TYPE&, bslmf_Nil)
+int bdem_BerEncoder_encodeProxy::operator()(const TYPE&, bslmf::Nil)
 {
     BSLS_ASSERT_SAFE(0);
     return -1;

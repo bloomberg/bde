@@ -86,13 +86,13 @@ using namespace bsl;  // automatically added by script
 ///-------------
 // [ 2] bdef_Function();
 // [11] bdef_Function<FUNC_OR_ALLOC>(const FUNC_OR_ALLOC& funcOrAlloc);
-// [11] bdef_Function<FUNC>(const FUNC& func, bslma_Allocator *allocator);
+// [11] bdef_Function<FUNC>(const FUNC& func, bslma::Allocator *allocator);
 // [ 7] bdef_Function(const bdef_Function& original);
 // [ 9] bdef_Function::operator=(const bdef_Function& rhs);
 // [ 2] bdef_Function::operator=(FUNC const&);
 // [ 2] bdef_Function::clear();
 // [12] bdef_Function::swap(bdef_Function<PROTOTYPE>&);
-// [12] bdef_Function::load(FUNC, bslma_Allocator*);
+// [12] bdef_Function::load(FUNC, bslma::Allocator*);
 // [12] bdef_Function::transferTo(bdef_Function<PROTOTYPE>*);
 // [ 4] bdef_Function::operator()(...) const;
 // [ 4] bdef_Function::operator bool() const;
@@ -194,7 +194,7 @@ struct Function_Rep2 {
     // DATA
     bdef_Function_Rep::ArenaType  d_arena;
     bdef_Function_Rep::Manager    d_manager_p;
-    bslma_Allocator              *d_allocator_p;
+    bslma::Allocator             *d_allocator_p;
 };
 
                            // ================
@@ -205,8 +205,8 @@ struct Function2 {
     // This 'struct' *MUST* have the same layout as the 'bdef_Function' class
     // template.
 
-    Function_Rep2      d_rep;
-    void               (*d_invoker_p)();
+    Function_Rep2   d_rep;
+    void          (*d_invoker_p)();
 };
 
                        // =============================
@@ -258,10 +258,10 @@ struct EqualityComparisonUtil {
 #ifndef BDE_FUNCTION_PRIOR_1_16
         enum {
             SIZE         = sizeof(FUNC)
-          , BITWISE_MOVE = bslalg_HasTrait<FUNC,
-                                        bslalg_TypeTraitBitwiseCopyable>::VALUE
-          , BITWISE_COPY = bslalg_HasTrait<FUNC,
-                                        bslalg_TypeTraitBitwiseCopyable>::VALUE
+          , BITWISE_MOVE = bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
+          , BITWISE_COPY = bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
         };
         if (SIZE <= sizeof(bdef_Function_Rep::ArenaType)) {
             if (BITWISE_COPY) {
@@ -478,7 +478,7 @@ struct FunctorV {
     static int s_lastArg;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorV, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorV, bslalg::TypeTraitBitwiseCopyable);
 
     // DATA
     int d_value;
@@ -504,7 +504,7 @@ struct FunctorW {
     static int s_lastArg;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorW, bslalg_TypeTraitBitwiseMoveable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorW, bslalg::TypeTraitBitwiseMoveable);
 
     // DATA
     int d_value;
@@ -556,7 +556,7 @@ struct FunctorT {
     int d_value;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorT, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorT, bslalg::TypeTraitBitwiseCopyable);
 
     // MANIPULATORS
     int operator()(int value) {
@@ -611,7 +611,7 @@ struct FunctorQ {
     char d_padding[bdef_FunctionUtil::MAX_INPLACE_OBJECT_SIZE];
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorQ, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorQ, bslalg::TypeTraitBitwiseCopyable);
 
     // MANIPULATORS
     int operator()(int value) {
@@ -662,7 +662,7 @@ struct FunctorM {
     char d_padding[bdef_FunctionUtil::MAX_INPLACE_OBJECT_SIZE];
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorM, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorM, bslalg::TypeTraitBitwiseCopyable);
 
     // MANIPULATORS
     int operator()(int value) {
@@ -685,22 +685,16 @@ bool operator==(const FunctorM& lhs, const FunctorM& rhs)
 template <class FUNC>
 class PointerSemanticWrapper {
 
-    // PRIVATE TYPES
-    enum {
-        BITWISE = bslalg_HasTrait<FUNC, bslalg_TypeTraitBitwiseCopyable>::VALUE
-    };
-    typedef typename bslmf_If<BITWISE,
-                              bslalg_TypeTraitBitwiseCopyable,
-                              bslalg_TypeTraitNil>::Type    PassThroughBitwise;
-
     // DATA
     FUNC d_object;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(PointerSemanticWrapper,
-                                  bslalg_TypeTraitHasPointerSemantics,
-                                  PassThroughBitwise);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(PointerSemanticWrapper,
+                                      bsl::is_trivially_copyable,
+                                      bsl::is_trivially_copyable<FUNC>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION(PointerSemanticWrapper,
+                                   bslmf::HasPointerSemantics);
 
     // CREATORS
     PointerSemanticWrapper() : d_object() {}
@@ -753,7 +747,7 @@ class RawPointerWrapper {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(RawPointerWrapper,
-                                 bslalg_TypeTraitHasPointerSemantics);
+                                 bslalg::TypeTraitHasPointerSemantics);
 
     // CREATORS
     RawPointerWrapper() : d_object_p(0) {}
@@ -794,8 +788,8 @@ struct RawBCPointerWrapper : public RawPointerWrapper<FUNC> {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(RawBCPointerWrapper,
-                                  bslalg_TypeTraitHasPointerSemantics,
-                                  bslalg_TypeTraitBitwiseCopyable);
+                                  bslalg::TypeTraitHasPointerSemantics,
+                                  bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     RawBCPointerWrapper() : RawPointerWrapper<FUNC>() {}
@@ -1057,7 +1051,7 @@ template <class PROTOTYPE>
 bdef_Function<PROTOTYPE> g(const char *spec)
     // Return, by value, a new object corresponding to the specified 'spec'.
 {
-    bdef_Function<PROTOTYPE> object((bslma_Allocator *)0);
+    bdef_Function<PROTOTYPE> object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -1502,7 +1496,7 @@ struct MyBCFunctionObject : public MyFunctionObject {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(MyBCFunctionObject,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 };
 
                            // ==========================
@@ -1544,7 +1538,7 @@ int oldsvc_Entry_createService(
                 SharedPtr               *requestRouter,
                 bassvc::ServiceManifest *manifest,
                 const Aggregate&         configuration,
-                bslma_Allocator         *basicAllocator)
+                bslma::Allocator        *basicAllocator)
 {
     return configuration.d_value;
 }
@@ -1554,7 +1548,7 @@ struct InProcessServiceManager {
     typedef bdef_Function<int (*)(SharedPtr               *requestRouter,
                                   bassvc::ServiceManifest *manifest,
                                   const Aggregate&         configuration,
-                                  bslma_Allocator         *basicAllocator)>
+                                  bslma::Allocator        *basicAllocator)>
                                                      CreateBlobServiceCallback;
 
     int registerBlobRouter(const char                       *name,
@@ -1564,7 +1558,7 @@ struct InProcessServiceManager {
         SharedPtr               requestRouter;
         bassvc::ServiceManifest manifest;
         Aggregate               configuration;
-        bslma_TestAllocator     ta;
+        bslma::TestAllocator    ta;
         configuration.d_value = 0;
         ASSERT(0   == createServiceCb(&requestRouter,
                                       &manifest,
@@ -1869,11 +1863,11 @@ void testCase19(int argc)
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bslma_TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     int numAllocations;
     int numDeallocations;
 
-    bslma_TestAllocator& testAllocator = ta;  // for BSLMA_EXCEPTION_TEST
+    bslma::TestAllocator& testAllocator = ta;  // for BSLMA_EXCEPTION_TEST
 
     if (verbose)
        cout << "\nTesting binding to a 'bdef_Function' implicitly"
@@ -2005,15 +1999,15 @@ void testCase19(int argc)
         typedef int (*FUNC)(SharedPtr               *requestRouter,
                             bassvc::ServiceManifest *manifest,
                             const Aggregate&         configuration,
-                            bslma_Allocator         *basicAllocator);
+                            bslma::Allocator        *basicAllocator);
 
         enum {
             IS_IN_PLACE           =
                                   bdef_FunctionUtil::IsInplace<FUNC>::VALUE
           , HAS_POINTER_SEMANTICS =
-                bslalg_HasTrait<FUNC,
-                                bslalg_TypeTraitHasPointerSemantics>::VALUE
-          , INVOKER_TAG           = bslmf_IsFunctionPointer<FUNC>::VALUE
+                bslalg::HasTrait<FUNC,
+                                bslalg::TypeTraitHasPointerSemantics>::VALUE
+          , INVOKER_TAG           = bslmf::IsFunctionPointer<FUNC>::VALUE
                                   ? bdef_Function_Rep::IS_FUNCTION_POINTER
                                   : IS_IN_PLACE ? (HAS_POINTER_SEMANTICS
             ? bdef_Function_Rep::IS_IN_PLACE_WITH_POINTER_SEMANTICS
@@ -2055,11 +2049,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     int numAllocations;
     int numDeallocations;
 
-    bslma_TestAllocator& testAllocator = ta;  // for BSLMA_EXCEPTION_TEST
+    bslma::TestAllocator& testAllocator = ta;  // for BSLMA_EXCEPTION_TEST
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 21: {
@@ -2814,7 +2808,7 @@ int main(int argc, char *argv[])
         //   allocators are .
         //
         // Testing:
-        //    void load(const FUNC& func, bslma_Allocator *allocator);
+        //    void load(const FUNC& func, bslma::Allocator *allocator);
         //    void swap(const bdef_Function& rhs);
         //    void transferTo(const bdef_Function *target);
         // --------------------------------------------------------------------
@@ -2831,8 +2825,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'load'." << endl;
         {
-            bslma_TestAllocator tb(veryVeryVerbose);
-            bslma_Allocator *Z[] = { bslma_Default::allocator(0), &ta, &tb };
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::Allocator *Z[] = { bslma::Default::allocator(0), &ta, &tb };
             const int NUM_ALLOCS = sizeof Z / sizeof *Z;
 
             for (int ui = 0; SPECS[ui]; ++ui) {
@@ -3000,8 +2994,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tUsing various allocators." << endl;
         {
-            bslma_TestAllocator tb(veryVeryVerbose);
-            bslma_Allocator *Z[] = { bslma_Default::allocator(0), &ta, &tb };
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::Allocator *Z[] = { bslma::Default::allocator(0), &ta, &tb };
             const int NUM_ALLOCS = sizeof Z / sizeof *Z;
 
             for (int ui = 0; SPECS[ui]; ++ui) {
@@ -3136,8 +3130,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tUsing various allocators." << endl;
         {
-            bslma_TestAllocator tb(veryVeryVerbose);
-            bslma_Allocator *Z[] = { bslma_Default::allocator(0), &ta, &tb };
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::Allocator *Z[] = { bslma::Default::allocator(0), &ta, &tb };
             const int NUM_ALLOCS = sizeof Z / sizeof *Z;
 
             for (int ui = 0; SPECS[ui]; ++ui) {
@@ -3206,7 +3200,7 @@ int main(int argc, char *argv[])
         // TESTING ADDITIONAL CONSTRUCTORS
         //
         // Concerns:
-        //   1. That construction with a 'bslma_Allocator *' leaves the
+        //   1. That construction with a 'bslma::Allocator *' leaves the
         //      function object empty, but with a function pointer correctly
         //      sets the invocable and uses the default allocator.
         //   2. That value is set identically as default constructor followed
@@ -3216,7 +3210,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdef_Function<FUNC_OR_ALLOC>(const FUNC_OR_ALLOC& funcOrAlloc);
-        //   bdef_Function<FUNC>(const FUNC& func, bslma_Allocator *allocator);
+        //   bdef_Function<FUNC>(const FUNC& func, bslma::Allocator *alloc);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3345,11 +3339,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWith allocators." << endl;
         {
-            bslma_TestAllocator tb(veryVeryVerbose);
-            bslma_Allocator *Z[] = { 0, &tb };
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::Allocator *Z[] = { 0, &tb };
 
-            bslma_DefaultAllocatorGuard guard(&ta);
-            bslma_TestAllocator *ZZ[] = { &ta, &tb };
+            bslma::DefaultAllocatorGuard guard(&ta);
+            bslma::TestAllocator *ZZ[] = { &ta, &tb };
 
             const int NUM_ALLOCS = sizeof Z / sizeof *Z;
 
@@ -3388,7 +3382,7 @@ int main(int argc, char *argv[])
                     }                                                         \
                     LOOP2_ASSERT(ui, ua, UU == U);                            \
                     LOOP2_ASSERT(ui, ua, U.getAllocator() ==                  \
-                                            bslma_Default::allocator(Z[ua])); \
+                                           bslma::Default::allocator(Z[ua])); \
     } while(0)
 #else
     #define BDEF_FUNCTION_TEST_CTOR(U) \
@@ -3847,11 +3841,11 @@ int main(int argc, char *argv[])
         //
         //   To address concern 5, we will perform each of the above tests in
         //   the presence of exceptions during memory allocations using a
-        //   'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //   'bslma::TestAllocator' and varying its *allocation* *limit*.
         //
         //   To address concern 6, we will repeat the above tests:
         //     - When passing in no allocator.
-        //     - When passing in a null pointer: (bslma_Allocator *)0.
+        //     - When passing in a null pointer: (bslma::Allocator *)0.
         //     - When passing in a test allocator (see concern 5).
         //     - Where the object is constructed entirely in static memory
         //       (using a 'bdema_BufferedSequentialAllocator') and never
@@ -3935,7 +3929,7 @@ int main(int argc, char *argv[])
                     }
 
                     {                                   // Null allocator.
-                        const Obj Y1(X, (bslma_Allocator *) 0);
+                        const Obj Y1(X, (bslma::Allocator *) 0);
                         LOOP2_ASSERT(SPEC, PERTURB[ei], W == Y1);
                         LOOP2_ASSERT(SPEC, PERTURB[ei], W == X);
                     }
@@ -4513,7 +4507,8 @@ int main(int argc, char *argv[])
         //   constructor:
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        *limit*.
         //    - Where the object is constructed entirely in static memory
         //        (using a 'bdema_BufferedSequentialAllocator') and never
         //        destroyed.
@@ -4524,8 +4519,8 @@ int main(int argc, char *argv[])
         //   destructor asserts internal object invariants appropriately.
         //   After the final assignment operation in each test, use the
         //   (untested) basic accessors to cross-check the value of the object
-        //   and the 'bslma_TestAllocator' to confirm whether a transition from
-        //   in-place to out-of-place has occurred.
+        //   and the 'bslma::TestAllocator' to confirm whether a transition
+        //   from in-place to out-of-place has occurred.
         //
         //   To address concerns 4a-4c, construct a similar test, replacing
         //   assignment with 'clear'; this time, however, use the test
@@ -4549,7 +4544,7 @@ int main(int argc, char *argv[])
         //
         //   The first test acts as a "control" in that 'clear' is not
         //   called; if only the second test produces an error, we know that
-        //   'clear' is to blame.  We will rely on 'bslma_TestAllocator'
+        //   'clear' is to blame.  We will rely on 'bslma::TestAllocator'
         //   and purify to address concern 2, and on the object invariant
         //   assertions in the destructor to address concerns 3d and 4d.
         //
@@ -4677,7 +4672,8 @@ int main(int argc, char *argv[])
             ASSERT(VP == X(4));
         }
         ++numDeallocations;
-        ASSERT(numAllocations - numDeallocations == ta.numAllocations() - ta.numDeallocations());
+        ASSERT(numAllocations - numDeallocations ==
+                                  ta.numAllocations() - ta.numDeallocations());
 
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
@@ -5080,14 +5076,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting various types of invocables.\n";
 
-        bdef_Function<int (*)(int)> Z((bslma_Allocator*)0);
+        bdef_Function<int (*)(int)> Z((bslma::Allocator*)0);
         ASSERT((!Z));
         {
             if (verbose) cout << "\tFree function pointer.\n";
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5113,7 +5109,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5144,7 +5140,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5172,7 +5168,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5201,7 +5197,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5231,7 +5227,7 @@ int main(int argc, char *argv[])
                 T_ P(sizeof(void*));
                 T_ P(sizeof &freeFunc0);
                 T_ P(sizeof &MyFunctionObject::memFunc0);
-                T_ P(sizeof(bsls_AlignmentUtil::MaxAlignedType));
+                T_ P(sizeof(bsls::AlignmentUtil::MaxAlignedType));
                 T_ P(sizeof(int));
                 T_ P(sizeof(bdef_Function<int (*)()>));
                 T_ P(bdef_FunctionUtil::MAX_INPLACE_OBJECT_SIZE);
@@ -5260,7 +5256,7 @@ int main(int argc, char *argv[])
 
         bdef_Function<void (*)()> f((FunctorNop()));
 
-        bsls_Stopwatch sw;
+        bsls::Stopwatch sw;
         sw.start(true);
 
         for (int i = iterations; i > 0; --i) {

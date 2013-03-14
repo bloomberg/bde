@@ -88,12 +88,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_dequeimputil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
-#include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -195,10 +191,6 @@ class DequeIterator {
                                const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IteratorType,
-                                 TypeTraitBitwiseCopyable);
-
     // CREATORS
     DequeIterator();
         // Create a singular iterator (i.e., having internal null pointers).
@@ -349,10 +341,6 @@ class DequeIterator<VALUE_TYPE, 1> {
 #endif
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IteratorType,
-                                 TypeTraitBitwiseCopyable);
-
     // CREATORS
     DequeIterator();
     DequeIterator(BlockPtr *blockPtrPtr);
@@ -544,13 +532,13 @@ DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-(
                       const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs) const
 {
     if (d_blockPtr_p == rhs.d_blockPtr_p) {
-        return d_value_p - rhs.d_value_p;
+        return d_value_p - rhs.d_value_p;                             // RETURN
     }
     else {
         const int numFullBlocks = static_cast<int>(
                                     this->d_blockPtr_p - rhs.d_blockPtr_p - 1);
         return (numFullBlocks * BLOCK_LENGTH +
-                               rhs.remainingInBlock() + this->offsetInBlock());
+                rhs.remainingInBlock() + this->offsetInBlock());      // RETURN
     }
 }
 
@@ -830,10 +818,10 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
                        const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
 {
     if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
-        return lhs.d_value_p < rhs.d_value_p;
+        return lhs.d_value_p < rhs.d_value_p;                         // RETURN
     }
     else {
-        return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
+        return lhs.d_blockPtr_p < rhs.d_blockPtr_p;                   // RETURN
     }
 }
 
@@ -859,13 +847,40 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
 
 }  // close enterprise namespace
 
+// ===========================================================================
+//                                TYPE TRAITS
+// ===========================================================================
+
+namespace bsl {
+
+template <typename VALUE_TYPE, int BLOCK_LENGTH>
+struct is_trivially_copyable<BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
+                                                                BLOCK_LENGTH> >
+    : true_type
+{};
+
+}  // close namespace bsl
+
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

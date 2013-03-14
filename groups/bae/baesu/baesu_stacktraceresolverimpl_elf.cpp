@@ -14,7 +14,6 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -272,7 +271,7 @@ void zprintf(const char *, ...)
 // from those found in the .h files (mostly 'elf.h').  The following
 // transformations have been done on the definitions found in the .h file --
 // typedefs to fundamental types have been resolved (some that are equivalent
-// to 'bsls_Types::UintPtr' have been translated to 'UintPtr') and the names
+// to 'bsls::Types::UintPtr' have been translated to 'UintPtr') and the names
 // given for the structs are the names of typedefs to them in the namespace
 // 'Local' within this file.  Significantly, data members not used in this
 // source file are ommitted.
@@ -531,7 +530,7 @@ struct Local::StackTraceResolver::CurrentSegment {
     // resolving symbols within one at a time.
 
     // TYPES
-    typedef bsls_Types::UintPtr
+    typedef bsls::Types::UintPtr
                    UintPtr;             // 32 bit unsigned on 32 bit, 64 bit
                                         // unsigned on 64 bit, usually used for
                                         // absolute offsets into a file
@@ -588,7 +587,7 @@ struct Local::StackTraceResolver::CurrentSegment {
                                         // '*resolver.d_stackTrace_p'
 
     // CREATORS
-    CurrentSegment(int numFrames, bslma_Allocator *basicAllocator);
+    CurrentSegment(int numFrames, bslma::Allocator *basicAllocator);
         // Create this 'Seg' object, using the specified 'basicAllocator'
         // to allocate the arrays 'd_framePtrs_p' and 'd_addresses_p' to
         // have the specified 'numFrames' elements, initialize
@@ -606,8 +605,8 @@ struct Local::StackTraceResolver::CurrentSegment {
 
 // CREATORS
 Local::StackTraceResolver::CurrentSegment::CurrentSegment(
-                                               int              numFrames,
-                                               bslma_Allocator *basicAllocator)
+                                              int               numFrames,
+                                              bslma::Allocator *basicAllocator)
 : d_helper_p(0)
 , d_framePtrs_p(0)
 , d_addresses_p(0)
@@ -643,8 +642,8 @@ void Local::StackTraceResolver::CurrentSegment::reset()
     d_stringTableSize   = 0;
 
     const int bytesToZero = d_numFrames * (int) sizeof(void *);
-    memset(d_framePtrs_p, 0, bytesToZero);
-    memset(d_addresses_p, 0, bytesToZero);
+    bsl::memset(d_framePtrs_p, 0, bytesToZero);
+    bsl::memset(d_addresses_p, 0, bytesToZero);
 }
 
       // ---------------------------------------------------------------
@@ -729,10 +728,10 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     // .strtab, or, if the file was stripped, .dynsym and .dynstr
 
     Local::ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
-    memset(&symTabHdr, 0, sizeof(Local::ElfSectionHeader));
-    memset(&strTabHdr, 0, sizeof(Local::ElfSectionHeader));
-    memset(&dynSymHdr, 0, sizeof(Local::ElfSectionHeader));
-    memset(&dynStrHdr, 0, sizeof(Local::ElfSectionHeader));
+    bsl::memset(&symTabHdr, 0, sizeof(Local::ElfSectionHeader));
+    bsl::memset(&strTabHdr, 0, sizeof(Local::ElfSectionHeader));
+    bsl::memset(&dynSymHdr, 0, sizeof(Local::ElfSectionHeader));
+    bsl::memset(&dynStrHdr, 0, sizeof(Local::ElfSectionHeader));
 
     // Possible speedup: read all the section headers at once instead of one
     // at a time.
@@ -775,20 +774,20 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 
         switch (sec->sh_type) {
           case SHT_SYMTAB: {
-            if      (!strcmp(sectionName, ".symtab")) {
+            if      (!bsl::strcmp(sectionName, ".symtab")) {
                 symTabHdr = *sec;
             }
           }  break;
           case SHT_STRTAB: {
-            if      (!strcmp(sectionName, ".strtab")) {
+            if      (!bsl::strcmp(sectionName, ".strtab")) {
                 strTabHdr = *sec;
             }
-            else if (!strcmp(sectionName, ".dynstr")) {
+            else if (!bsl::strcmp(sectionName, ".dynstr")) {
                 dynStrHdr = *sec;
             }
           }  break;
           case SHT_DYNSYM: {
-            if      (!strcmp(sectionName, ".dynsym")) {
+            if      (!bsl::strcmp(sectionName, ".dynsym")) {
                 dynSymHdr = *sec;
             }
           }  break;
@@ -948,7 +947,7 @@ int Local::StackTraceResolver::processLoadedImage(
         // executable file, but those platforms have a standard virtual symlink
         // that points to the executable file name.
 
-        memset(d_scratchBuf_p, 0, Local::SCRATCH_BUF_LEN);
+        bsl::memset(d_scratchBuf_p, 0, Local::SCRATCH_BUF_LEN);
         if (0 < readlink("/proc/self/exe",
                          d_scratchBuf_p,
                          Local::SCRATCH_BUF_LEN)) {
@@ -1116,7 +1115,7 @@ int Local::StackTraceResolver::resolve(
     // work.
 
     shl_descriptor desc;
-    memset(&desc, 0, sizeof(shl_descriptor));
+    bsl::memset(&desc, 0, sizeof(shl_descriptor));
 
     // 'programHeaders' will point to a segment of memory we will allocate and
     // reallocated to the needed size indicated by the 'ElfHeader's we

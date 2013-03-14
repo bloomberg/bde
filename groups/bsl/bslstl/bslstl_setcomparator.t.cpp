@@ -98,14 +98,15 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i) {
+void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-}  // close unamed namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -313,7 +314,7 @@ void TestDriver<TYPE>::test4()
     //:   'COMPARATOR' passing another object exchanges their 'COMPARATOR'
     //:   objects.
     //:
-    //: 2 Inovking the 'swap' method or free function on an object with
+    //: 2 Invoking the 'swap' method or free function on an object with
     //:   function pointer 'COMPARATOR' passing another object exchanges their
     //:   'COMPARATOR' function pointers.
     //:
@@ -678,7 +679,7 @@ void TestDriver<TYPE>::test2()
     //:   pointer returned by 'keyComparator' points to the same address as
     //:   the function pointer used on construction.  (C-3)
     //:
-    //: 4 Manually verify that defualt-constructing an object with a function
+    //: 4 Manually verify that default-constructing an object with a function
     //:   pointer as the parameterized 'COMPARATOR' type causes the compilation
     //:   to fail.  (C-4)
     //
@@ -895,7 +896,7 @@ int main(int argc, char *argv[])
 
           while (nodeIterator != tree.sentinel()) {
               printf("Node value: %d\n",
-                     static_cast<const TreeNode<int> *>(nodeIterator)->value());
+                    static_cast<const TreeNode<int> *>(nodeIterator)->value());
               nodeIterator = bslalg::RbTreeUtil::next(nodeIterator);
           }
 //..
@@ -959,11 +960,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

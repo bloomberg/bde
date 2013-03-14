@@ -6,7 +6,7 @@
 //
 //@CLASSES:
 //
-//@MCROS:
+//@MACROS:
 //: BSLS_IDENT(identifier): inset 'identifier' into '.comment' section
 //: BSLS_IDENT_RCSID(tag, identifier): alternatively, use add 'tag' as static
 //: BSLS_IDENT_PRAGMA_ONCE: encapsulate '_Pragma("once")'
@@ -103,12 +103,13 @@
 BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #endif
 
-// Enabling BSLS_IDENT by default causes significant bloat - see DRQS 29644737.
+// Enabling BSLS_IDENT by default causes significant bloat - see internal
+// ticket D29644737.
 #ifndef BSLS_IDENT_ON
 #ifndef BSLS_IDENT_OFF
 #define BSLS_IDENT_OFF
-#endif // ndef BSLS_IDENT_OFF
-#endif // ndef BSLS_IDENT_ON
+#endif // ifndef BSLS_IDENT_OFF
+#endif // ifndef BSLS_IDENT_ON
 
 
 #ifdef BSLS_IDENT_OFF
@@ -333,11 +334,24 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #endif // INCLUDED_BSLS_IDENT
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

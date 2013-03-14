@@ -478,7 +478,7 @@ bdesu_FdStreamBuf::bdesu_FdStreamBuf(
                           bool                            writableFlag,
                           bool                            willCloseOnResetFlag,
                           bool                            binaryModeFlag,
-                          bslma_Allocator                *basicAllocator)
+                          bslma::Allocator               *basicAllocator)
 : bsl::streambuf()
 , d_fileHandler()
 , d_mode(BDESU_NULL_MODE)
@@ -491,7 +491,7 @@ bdesu_FdStreamBuf::bdesu_FdStreamBuf(
 , d_savedEgptr_p(0)
 , d_mmapBase_p(0)
 , d_mmapLen(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     reset(fileDescriptor, writableFlag, willCloseOnResetFlag, binaryModeFlag);
 }
@@ -1126,6 +1126,33 @@ void bdesu_FdStreamBuf::imbue(const bsl::locale& locale)
 #endif
 }
 
+bsl::streamsize bdesu_FdStreamBuf::showmanyc()
+{
+    // Is there any possibility that reads can succeed?
+
+    if (!isOpened()
+     || BDESU_OUTPUT_MODE == d_mode || BDESU_ERROR_MODE == d_mode) {
+        return -1;                                                    // RETURN
+    }
+    else if (BDESU_INPUT_PUTBACK_MODE == d_mode) {
+        // return the number of characters in the putback buffer
+
+        return egptr() - gptr();                                      // RETURN
+    }
+
+    // We are assuming here that 'showmanyc()' is called by 'in_avail()'
+    // only when 'gptr() >= egptr()', meaning that the position of the file
+    // descriptor matches the position the caller perceives this object as
+    // being at.  We are also assuming that if the file descriptor is not
+    // associated with a file, the seek will return -1.
+
+    bsl::streamoff pos = d_fileHandler.seek(0,
+                                            FileUtil::BDESU_SEEK_FROM_CURRENT);
+    bsl::streamoff sz  = d_fileHandler.fileSize();
+
+    return pos >= 0 && sz > pos ? sz - pos : 0;
+}
+
 bsl::streamsize bdesu_FdStreamBuf::xsgetn(char            *buffer,
                                           bsl::streamsize  numBytes)
 {
@@ -1194,34 +1221,6 @@ bsl::streamsize bdesu_FdStreamBuf::xsputn(const char      *buffer,
     }
 
     return buffer - start;
-}
-
-// PROTECTED ACCESSORS
-bsl::streamsize bdesu_FdStreamBuf::showmanyc()
-{
-    // Is there any possibility that reads can succeed?
-
-    if (!isOpened()
-     || BDESU_OUTPUT_MODE == d_mode || BDESU_ERROR_MODE == d_mode) {
-        return -1;                                                    // RETURN
-    }
-    else if (BDESU_INPUT_PUTBACK_MODE == d_mode) {
-        // return the number of characters in the putback buffer
-
-        return egptr() - gptr();                                      // RETURN
-    }
-
-    // We are assuming here that 'showmanyc()' is called by 'in_avail()'
-    // only when 'gptr() >= egptr()', meaning that the position of the file
-    // descriptor matches the position the caller perceives this object as
-    // being at.  We are also assuming that if the file descriptor is not
-    // associated with a file, the seek will return -1.
-
-    bsl::streamoff pos = d_fileHandler.seek(0,
-                                            FileUtil::BDESU_SEEK_FROM_CURRENT);
-    bsl::streamoff sz  = d_fileHandler.fileSize();
-
-    return pos >= 0 && sz > pos ? sz - pos : 0;
 }
 
 }  // close namespace BloombergLP

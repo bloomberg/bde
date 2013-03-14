@@ -299,11 +299,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator da("default", veryVeryVeryVerbose);
-    bslma_Default::setDefaultAllocator(&da);
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&da);
 
     switch (test) { case 0:
       case 4: {
@@ -350,8 +350,8 @@ int main(int argc, char *argv[])
         typedef bdema_ManagedPtr_FactoryDeleter<MyTestObject,
                                              CountedStackDeleter > TestFactory;
 
-        bslma_TestAllocatorMonitor gam(&globalAllocator);
-        bslma_TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor gam(&globalAllocator);
+        bslma::TestAllocatorMonitor dam(&da);
 
         if (verbose) cout << "\tTest default constructor\n";
 
@@ -390,7 +390,7 @@ int main(int argc, char *argv[])
                 if (verbose) cout << "\t\tNegative testing\n";
 
                 {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
 
                     const bdema_ManagedPtr_Members empty(0, 0, 0);
                     ASSERT_SAFE_FAIL(empty.deleter());
@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
                 if (verbose) cout << "\t\tNegative testing\n";
 
                 {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
                     ASSERT_SAFE_FAIL(members.deleter());
                 }
 #else
@@ -443,7 +443,7 @@ int main(int argc, char *argv[])
                 if (verbose) cout << "\t\tNegative testing\n";
 
                 {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
                     int x;
                     ASSERT_SAFE_FAIL(members.set(&x, &del, 0));
                     ASSERT_SAFE_PASS(members.set( 0, &del, 0));
@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
                 if (verbose) cout << "\t\tNegative testing\n";
 
                 {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
                     ASSERT_SAFE_FAIL(simple.setAliasPtr(0));
 
                     simple.set(0, 0, 0);
@@ -585,7 +585,7 @@ int main(int argc, char *argv[])
                 if (verbose) cout << "\t\tNegative testing\n";
 
                 {
-                    bsls_AssertTestHandlerGuard guard;
+                    bsls::AssertTestHandlerGuard guard;
                     ASSERT_SAFE_FAIL(b.move(&b));
                 }
 #else
@@ -647,7 +647,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == empty.pointer());
 #ifdef BDE_BUILD_TARGET_EXC
             {
-                bsls_AssertTestHandlerGuard guard;
+                bsls::AssertTestHandlerGuard guard;
                 ASSERT_SAFE_FAIL(empty.deleter());
             }
 #endif
@@ -674,7 +674,7 @@ int main(int argc, char *argv[])
             ASSERT(&countedNilDelete == empty.deleter().deleter());
 #ifdef BDE_BUILD_TARGET_EXC
             {
-                bsls_AssertTestHandlerGuard guard;
+                bsls::AssertTestHandlerGuard guard;
                 ASSERT_SAFE_FAIL(simple.deleter());
             }
 #endif
@@ -687,7 +687,7 @@ int main(int argc, char *argv[])
             ASSERT(&countedNilDelete == simple.deleter().deleter());
 #ifdef BDE_BUILD_TARGET_EXC
             {
-                bsls_AssertTestHandlerGuard guard;
+                bsls::AssertTestHandlerGuard guard;
                 ASSERT_SAFE_FAIL(empty.deleter());
             }
 #endif
@@ -735,8 +735,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest class MyTestObject\n";
 
-        bslma_TestAllocatorMonitor gam(&globalAllocator);
-        bslma_TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor gam(&globalAllocator);
+        bslma::TestAllocatorMonitor dam(&da);
 
         if (verbose) cout << "\tTest default constructor\n";
 
@@ -748,7 +748,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t\tNegative testing\n";
 
             {
-                bsls_AssertTestHandlerGuard guard;
+                bsls::AssertTestHandlerGuard guard;
 
                 ASSERT_SAFE_FAIL(empty.deleter());
             }
@@ -836,8 +836,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest class MyTestObject\n";
 
-        bslma_TestAllocatorMonitor gam(&globalAllocator);
-        bslma_TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor gam(&globalAllocator);
+        bslma::TestAllocatorMonitor dam(&da);
 
         int destructorCount = 0;
         {

@@ -103,7 +103,7 @@ class bcef_Vfunc0 {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcef_Vfunc0,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     bcef_Vfunc0();

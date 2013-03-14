@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // named 'Type' provide the results of type-returning meta-functions.
 //
 ///Usage
-//------
+///-----
 // The following snippets of code illustrate basic use of the 'bslmf::If'
 // meta-function.  The examples make use of the following declarations to
 // identify the type that is selected by a given constant integral expression:
@@ -103,6 +103,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
 #endif
@@ -119,16 +123,12 @@ template <int   CONDITION,
           class IF_TRUE_TYPE = Nil, class IF_FALSE_TYPE = Nil>
 struct If {
     // This meta-function selects 'IF_TRUE_TYPE' if 'CONDITION' is non-zero.
+    // and 'IF_FALSE_TYPE' otherwise.
 
-    typedef IF_TRUE_TYPE Type;
-};
-
-template <class IF_TRUE_TYPE, class IF_FALSE_TYPE>
-struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
-    // This specialization of 'If' selects 'IF_FALSE_TYPE' if 'CONDITION' is
-    // zero.
-
-    typedef IF_FALSE_TYPE Type;
+    typedef typename bsl::conditional<CONDITION,
+                                      IF_TRUE_TYPE,
+                                      IF_FALSE_TYPE>::type
+            Type;
 };
 
 }  // close package namespace
@@ -149,11 +149,24 @@ struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

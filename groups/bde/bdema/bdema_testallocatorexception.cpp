@@ -1,11 +1,8 @@
-// bdema_testallocatorexception.cpp             -*-C++-*-
+// bdema_testallocatorexception.cpp                                   -*-C++-*-
 #include <bdema_testallocatorexception.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdema_testallocatorexception_cpp,"$Id$ $CSID$")
-
-
-#include <bdema_allocator.h>
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -1166,7 +1166,7 @@ BSLS_IDENT("$Id: $")
 //
 //          return stream << "(* Invalid 'MyDate' State "
 //                        << d_serialDate
-//                        << " *)" << std::flush;                    // RETURN
+//                        << " *)" << std::flush;                     // RETURN
 //
 //  #endif // BSLS_ASSERT_OPT_IS_ACTIVE
 //
@@ -1181,16 +1181,16 @@ BSLS_IDENT("$Id: $")
 //
 //..
 
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
 #endif
 
                     // =================================
@@ -1302,8 +1302,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // A nested include guard is needed to support the test driver implementation.
-#ifndef INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
-#define INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
+#ifndef RECUSRSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
+#define RECUSRSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
 
 #ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
 #define BSLS_ASSERT_NORETURN_INVOKE_HANDLER  BSLS_ASSERT_NORETURN
@@ -1442,13 +1442,14 @@ class AssertFailureHandlerGuard {
     // DATA
     Assert::Handler d_original;  // original (restored at destruction)
 
+  private:
     // NOT IMPLEMENTED
     AssertFailureHandlerGuard(const AssertFailureHandlerGuard&);
     AssertFailureHandlerGuard& operator=(const AssertFailureHandlerGuard&);
 
   public:
     // CREATORS
-    AssertFailureHandlerGuard(Assert::Handler temporary);
+    explicit AssertFailureHandlerGuard(Assert::Handler temporary);
         // Create a guard object that installs the specified 'temporary'
         // failure handler and automatically restores the original handler on
         // destruction.
@@ -1485,26 +1486,10 @@ class AssertFailureHandlerGuard {
 #define BDE_ASSERT_CPP(X) BSLS_ASSERT(X)
 #define BSL_ASSERT_CPP(X) BSLS_ASSERT(X)       // introduced during migration
 
-namespace bdes {
-
-typedef bsls::Assert                    Assert;
+typedef bsls::Assert bdes_Assert;
     // This alias is defined for backward compatibility.
 
-typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
-    // This alias is defined for backward compatibility.
-
-}  // close package namespace
-
-#ifdef bdes_AssertFailureHandlerGuard
-#undef bdes_AssertFailureHandlerGuard
-#endif
-#define bdes_AssertFailureHandlerGuard bdes::AssertFailureHandlerGuard
-    // This alias is defined for backward compatibility.
-
-#ifdef bdes_Assert
-#undef bdes_Assert
-#endif
-#define bdes_Assert bdes::Assert
+typedef bsls::AssertFailureHandlerGuard bdes_AssertFailureHandlerGuard;
     // This alias is defined for backward compatibility.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -1583,11 +1568,24 @@ typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

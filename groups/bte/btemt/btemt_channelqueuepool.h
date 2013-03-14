@@ -569,8 +569,8 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -658,7 +658,7 @@ class btemt_ChannelQueuePool {
     bcemt_ThreadUtil::Handle               d_processorHandle;
     bces_AtomicUtil::Int                   d_runningFlag;
     bdet_TimeInterval                      d_workTimeout;
-    bslma_Allocator                       *d_allocator_p;
+    bslma::Allocator                      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void poolStateCb(int state, int source, int severity);
@@ -696,7 +696,7 @@ class btemt_ChannelQueuePool {
                     bcec_Queue<btemt_Message>             *outgoingQueue,
                     ParseMessagesCallback                  callback,
                     const btemt_ChannelPoolConfiguration&  parameters,
-                    bslma_Allocator                       *basicAllocator = 0);
+                    bslma::Allocator                      *basicAllocator = 0);
         // Create a channel queue pool that uses the specified 'incomingQueue'
         // for incoming messages, the specified 'outgoingQueue' for outgoing
         // messages, the specified 'callback' to distinguish message

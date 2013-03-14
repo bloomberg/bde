@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::RemoveCvq: meta-function for stripping 'const'/'volatile' qualifiers
 //
-//@AUTHOR: Shawn Edwards (sedwards)
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // strip of any top-level 'const'/'volatile' qualifiers from it's single
 // template parameter.  The un-qualified type can be accessed via the 'Type'
@@ -40,16 +38,16 @@ BSLS_IDENT("$Id: $")
 // First, we create a template that will determine whether two objects are
 // EXACTLY the same type:
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  bool isSame(TYPE& a, TYPE& b) { return true; }
-//  template <typename TYPEA, typename TYPEB>
+//  template <class TYPEA, class TYPEB>
 //  bool isSame(TYPEA& a, TYPEB& b) { return false; }
 //..
 // Next, we combine that template function with the use of 'bslmf::RemoveCvq'
 // to create a template that will determine whether two objects are the same
 // type, ignoring 'const' and 'volatile' qualifiers:
 //..
-//  template <typename TYPEA, typename TYPEB>
+//  template <class TYPEA, class TYPEB>
 //  bool isSortaSame(TYPEA& a, TYPEB& b)
 //  {
 //      typename bslmf::RemoveCvq<TYPEA>::Type aa = a;
@@ -95,82 +93,25 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
-
-                              // ================
-                              // struct RemoveCvq
-                              // ================
-
-template <typename T>
-struct RemovePtrCvq;
-    // This class implements a meta-function for stripping 'const' and
-    // 'volatile' qualifiers from the type pointed to by it's parameter type.
-    // It also returns, in 'ValueType', the (non-cvq) type pointed to by its
-    // parameter.  This class has no body -- it is specialized below for
-    // pointers to const, volatile, and const volatile.  IMPLEMENTATION NOTE:
-    // The Sun Workshop 6 C++ 5.2 compiler works with these pointer
-    // specializations, but does not work with direct specialization on T, T
-    // const, and T volatile.  Thus, 'RemoveCvq', below, is implemented
-    // indirectly in terms of 'RemovePtrCvq'.
-
-template <typename T>
-struct RemovePtrCvq<T *>
-    // This specialization handles unqualified pointers.
-{
-    typedef T *Type;
-    typedef T  ValueType;
-};
-
-template <typename T>
-struct RemovePtrCvq<T const *>
-    // This specialization removes 'const' qualification.
-{
-    typedef T *Type;
-    typedef T  ValueType;
-};
-
-template <typename T>
-struct RemovePtrCvq<T volatile *>
-    // This specialization removes 'volatile' qualification.
-{
-    typedef T *Type;
-    typedef T  ValueType;
-};
-
-template <typename T>
-struct RemovePtrCvq<T const volatile *>
-    // This specialization removes 'const volatile' qualification.
-{
-    typedef T *Type;
-    typedef T  ValueType;
-};
 
                            // ================
                            // struct RemoveCvq
                            // ================
 
-template <typename T>
+template <class TYPE>
 struct RemoveCvq
 {
     // This class implements a meta-function for stripping top-level
     // const/volatile qualifiers from it's parameter type.
-    // IMPLEMENTATION NOTE: The Sun Workshop 6 C++ 5.2 compiler works with
-    // pointer specializations, but does not work with direct specialization on
-    // 'T', 'T const', and 'T volatile'.  Thus, 'RemoveCvq' is implemented
-    // indirectly in terms of 'RemovePtrCvq', above.
 
-    typedef typename RemovePtrCvq<T*>::ValueType Type;
-};
-
-template <typename T>
-struct RemoveCvq<T&>
-{
-    // Specialization of 'RemoveCvq<T>' for reference types.  Since a reference
-    // cannot have cv qualifiers, the result is simply 'T&'
-
-    typedef T& Type;
+    typedef typename bsl::remove_cv<TYPE>::type Type;
 };
 
 }  // close package namespace
@@ -185,23 +126,30 @@ struct RemoveCvq<T&>
 #endif
 #define bslmf_RemoveCvq bslmf::RemoveCvq
     // This alias is defined for backward compatibility.
-
-#ifdef bslmf_RemovePtrCvq
-#undef bslmf_RemovePtrCvq
-#endif
-#define bslmf_RemovePtrCvq bslmf::RemovePtrCvq
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

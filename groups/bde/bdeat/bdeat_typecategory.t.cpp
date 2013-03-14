@@ -284,7 +284,7 @@ bdeat_typeCategorySelect(const MyAutoDetectDynamicType& object)
 struct MyManipulator {
 
     template <typename TYPE>
-    int operator()(TYPE *object, bslmf_Nil)
+    int operator()(TYPE *object, bslmf::Nil)
     {
         (void)object;
         return -1;
@@ -350,7 +350,7 @@ struct MyManipulator {
 struct MyAccessor {
 
     template <typename TYPE>
-    int operator()(const TYPE& object, bslmf_Nil)
+    int operator()(const TYPE& object, bslmf::Nil)
     {
         (void)object;
         return -1;
@@ -604,7 +604,7 @@ struct MyAccessor {
                                bdeat_TypeCategory::Array());          // RETURN
         }
 
-        return manipulator(object, bslmf_Nil());
+        return manipulator(object, bslmf::Nil());
     }
 
     template <typename MANIPULATOR>
@@ -616,7 +616,7 @@ struct MyAccessor {
                                bdeat_TypeCategory::Simple());         // RETURN
         }
 
-        return manipulator(object, bslmf_Nil());
+        return manipulator(object, bslmf::Nil());
     }
 
     template <typename ACCESSOR>
@@ -628,7 +628,7 @@ struct MyAccessor {
                             bdeat_TypeCategory::Array());             // RETURN
         }
 
-        return accessor(object, bslmf_Nil());
+        return accessor(object, bslmf::Nil());
     }
 
     template <typename ACCESSOR>
@@ -640,7 +640,7 @@ struct MyAccessor {
                             bdeat_TypeCategory::Simple());            // RETURN
         }
 
-        return accessor(object, bslmf_Nil());
+        return accessor(object, bslmf::Nil());
     }
 
 //..
@@ -651,7 +651,7 @@ struct MyAccessor {
         bsl::ostream *d_stream_p;
 
         template <typename TYPE>
-        int operator()(const TYPE& object, bslmf_Nil)
+        int operator()(const TYPE& object, bslmf::Nil)
         {
             ASSERT(0);  // received invalid object
             (void)object;
@@ -1932,7 +1932,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)Type::SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Type::Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -1942,7 +1942,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)Type::SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Type::Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -1952,7 +1952,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)Type::SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Type::Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -1962,7 +1962,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)Type::SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Type::Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -1972,7 +1972,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)Type::SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Type::Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -1982,7 +1982,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)Type::SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Type::Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -1992,7 +1992,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)Type::SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Type::Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -2002,7 +2002,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)Type::SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Type::Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -2015,7 +2015,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -2028,7 +2028,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -2041,7 +2041,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -2054,7 +2054,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }
@@ -2067,7 +2067,7 @@ int main(int argc, char *argv[])
 
             ASSERT(((int)SELECTION
                    == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
-            ASSERT((bslmf_IsSame<
+            ASSERT((bslmf::IsSame<
                               Category,
                               bdeat_TypeCategory::Select<Type>::Type>::VALUE));
         }

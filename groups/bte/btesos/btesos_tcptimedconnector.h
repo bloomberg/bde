@@ -20,7 +20,7 @@ BDES_IDENT("$Id: $")
 // servers that adheres to 'btesc_TimedChannelAllocator' protocol.  Both timed
 // and non-timed (synchronous) channels can be allocated in a timed and
 // non-timed fashion as indicated by the following table:
-//
+//..
 //       +=============================================================+
 //       |  Result/Operation |        Timed         |    Non-Timed     |
 //       +-------------------------------------------------------------+
@@ -28,7 +28,7 @@ BDES_IDENT("$Id: $")
 //       +-------------------------------------------------------------+
 //       |    Non-Timed      |    'timedAllocate'   |    'allocate'    |
 //       +=============================================================+
-//
+//..
 // The connector has the flexibility of changing the address of the peer server
 // at run-time (and producing channels connected to this end-point) without any
 // effects on the state of managed channels.
@@ -155,7 +155,7 @@ BDES_IDENT("$Id: $")
 //   // Perform proper shut down procedure
 //   channel->invalidate();
 //   connector.deallocate(channel);
-//....
+//..
 
 #ifndef INCLUDED_BTESCM_VERSION
 #include <btescm_version.h>
@@ -173,12 +173,12 @@ BDES_IDENT("$Id: $")
 #include <bdema_pool.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
 #endif
 
 namespace BloombergLP {
@@ -231,7 +231,7 @@ class btesos_TcpTimedConnector : public btesc_TimedChannelAllocator {
     // CREATORS
     btesos_TcpTimedConnector(
             bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
-            bslma_Allocator                              *basicAllocator = 0);
+            bslma::Allocator                             *basicAllocator = 0);
         // Create a timed connector that uses the specified 'factory' to create
         // stream sockets.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -243,7 +243,7 @@ class btesos_TcpTimedConnector : public btesc_TimedChannelAllocator {
     btesos_TcpTimedConnector(
              bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
              int                                           numElements,
-             bslma_Allocator                              *basicAllocator = 0);
+             bslma::Allocator                             *basicAllocator = 0);
         // Create a timed connector that uses the specified 'factory' to create
         // stream sockets with enough internal capacity to accommodate up to
         // the specified 'numElements' channels without reallocation.

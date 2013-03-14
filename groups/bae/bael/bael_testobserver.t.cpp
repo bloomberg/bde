@@ -13,7 +13,6 @@
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
-#include <bsls_platformutil.h>                  // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -33,7 +32,7 @@ using namespace bsl;  // automatically added by script
 //                              --------
 // TBD
 //-----------------------------------------------------------------------------
-// [  ] bael_TestObserver(bslma_Allocator *ba = 0);
+// [  ] bael_TestObserver(bslma::Allocator *ba = 0);
 // [  ] bael_TestObserver(bael_Observer *observer, *ba = 0);
 // [  ] virtual ~bael_TestObserver();
 // [  ] virtual void publish(const record&, const attributes&) = 0;
@@ -126,7 +125,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {

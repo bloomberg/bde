@@ -53,22 +53,22 @@ using namespace BloombergLP;
 // CREATORS
 // [10] bdem_ChoiceImp(
 //        bdem_AggregateOption::AllocationStrategy  allocMode,
-//        bslma_Allocator                          *basicAllocator = 0);
+//        bslma::Allocator                         *basicAllocator = 0);
 // [10] bdem_ChoiceImp(const bdem_ElemType::Type    selectionTypes[],
 //        int                                       numSelectionTypes,
 //        const bdem_Descriptor *const              attrLookupTbl[],
 //        bdem_AggregateOption::AllocationStrategy  allocMode,
-//        bslma_Allocator                          *basicAllocator=0);
+//        bslma::Allocator                         *basicAllocator=0);
 // [10] bdem_ChoiceImp(
 //        const bdem_ChoiceHeader&                  choiceHeader,
 //        bdem_AggregateOption::AllocationStrategy  allocMode,
-//        bslma_Allocator                          *basicAllocator = 0);
-// [ 7] bdem_ChoiceImp(const bdem_ChoiceImp&       original,
-//        bslma_Allocator                          *basicAllocator = 0);
-// [ 7] bdem_ChoiceImp(const bdem_ChoiceImp&       original,
-//        bdem_AggregateOption::AllocationStrategy allocMode,
-//        bslma_Allocator                          *basicAllocator = 0);
-// [ 4] bdem_ChoiceImp(bslma_Allocator             *basicAlloc = 0);
+//        bslma::Allocator                         *basicAllocator = 0);
+// [ 7] bdem_ChoiceImp(const bdem_ChoiceImp&        original,
+//        bslma::Allocator                         *basicAllocator = 0);
+// [ 7] bdem_ChoiceImp(const bdem_ChoiceImp&        original,
+//        bdem_AggregateOption::AllocationStrategy  allocMode,
+//        bslma::Allocator                         *basicAllocator = 0);
+// [ 4] bdem_ChoiceImp(bslma::Allocator            *basicAlloc = 0);
 // [ 4] ~bdem_ChoiceImp();
 
 // MANIPULATORS
@@ -172,7 +172,7 @@ typedef bdem_Descriptor                      Desc;
 typedef bdem_ElemType                        EType;
 typedef bdem_AggregateOption                 AggOption;
 
-typedef bsls_Types::Int64                    Int64;
+typedef bsls::Types::Int64                   Int64;
 
 typedef bdet_Datetime                        Datetime;
 typedef bdet_Date                            Date;
@@ -204,9 +204,7 @@ static int veryVeryVerbose = 0;
 //   LargeStringAlloc - sizeof(bdem_ChoiceImp)-byte object with
 //                      allocator trait
 
-struct NoBdemaAllocTrait { };
-
-template <int FOOTPRINT, typename ALLOC_TRAIT = NoBdemaAllocTrait>
+template <int FOOTPRINT, bool ALLOC_TRAIT = false>
 class FixedString {
 
     // Count constructor and destructor calls
@@ -214,14 +212,16 @@ class FixedString {
     static int d_destructorCount;
 
     // Calculate buffer size so that total size equals desired footprint.
-    enum { BUFSIZE = FOOTPRINT - sizeof(bslma_Allocator*) };
+    enum { BUFSIZE = FOOTPRINT - sizeof(bslma::Allocator*) };
 
-    bslma_Allocator *d_alloc;
-    char             d_buffer[BUFSIZE];
+    bslma::Allocator *d_alloc;
+    char              d_buffer[BUFSIZE];
 
   public:
-    BSLALG_DECLARE_NESTED_TRAITS2(FixedString, ALLOC_TRAIT,
-                                  bslalg_TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(FixedString,
+                                      bslma::UsesBslmaAllocator,
+                                      ALLOC_TRAIT);
+    BSLMF_NESTED_TRAIT_DECLARATION(FixedString, bslmf::IsBitwiseMoveable);
 
     static int constructorCount();
     static int destructorCount();
@@ -229,9 +229,9 @@ class FixedString {
     static int maxLength();
     static int maxSupportedBdexVersion();
 
-    FixedString(bslma_Allocator *alloc = 0);
-    FixedString(const char* s, bslma_Allocator *alloc = 0);
-    FixedString(const FixedString& original, bslma_Allocator *alloc = 0);
+    explicit FixedString(bslma::Allocator *alloc = 0);
+    FixedString(const char* s, bslma::Allocator *alloc = 0);
+    FixedString(const FixedString& original, bslma::Allocator *alloc = 0);
     ~FixedString();
 
     FixedString& operator=(const FixedString& rhs);
@@ -241,103 +241,103 @@ class FixedString {
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
 
-    bslma_Allocator *get_allocator() const;
+    bslma::Allocator *get_allocator() const;
     const char* c_str() const;
 };
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 bool operator==(const FixedString<FOOTPRINT, ALLOC_TRAIT>& a,
                 const FixedString<FOOTPRINT, ALLOC_TRAIT>& b) {
     return 0 == bsl::strcmp(a.c_str(), b.c_str());
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 bool operator!=(const FixedString<FOOTPRINT, ALLOC_TRAIT>& a,
                 const FixedString<FOOTPRINT, ALLOC_TRAIT>& b) {
     return ! (a == b);
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 bsl::ostream& operator<<(bsl::ostream&                              os,
                          const FixedString<FOOTPRINT, ALLOC_TRAIT>& s)
 {
     return os << s.c_str();
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::d_constructorCount = 0;
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::d_destructorCount = 0;
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::constructorCount() {
     return d_constructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::destructorCount() {
     return d_destructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::instanceCount() {
     return d_constructorCount - d_destructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::maxLength() {
     return BUFSIZE - 1;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::maxSupportedBdexVersion() {
     return 1;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
-FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(bslma_Allocator *alloc)
+template <int FOOTPRINT, bool ALLOC_TRAIT>
+FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(bslma::Allocator *alloc)
     : d_alloc(alloc) {
     bsl::memset(d_buffer, 0, BUFSIZE);
     ++d_constructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
-FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const char      *s,
-                                                 bslma_Allocator *alloc)
+template <int FOOTPRINT, bool ALLOC_TRAIT>
+FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const char       *s,
+                                                 bslma::Allocator *alloc)
     : d_alloc(alloc) {
     bsl::strncpy(d_buffer, s, BUFSIZE - 1);
     d_buffer[BUFSIZE - 1] = '\0';
     ++d_constructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const FixedString&  original,
-                                                 bslma_Allocator    *alloc)
+                                                 bslma::Allocator   *alloc)
     : d_alloc(alloc) {
     bsl::memcpy(d_buffer, original.d_buffer, BUFSIZE);
     ++d_constructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>::~FixedString() {
     ++d_destructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>&
 FixedString<FOOTPRINT, ALLOC_TRAIT>::operator=(const FixedString& rhs) {
     bsl::memcpy(d_buffer, rhs.d_buffer, BUFSIZE);
     return *this;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 template <class STREAM>
 STREAM&
 FixedString<FOOTPRINT, ALLOC_TRAIT>::bdexStreamIn(STREAM& stream, int version){
@@ -345,7 +345,7 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::bdexStreamIn(STREAM& stream, int version){
     return stream;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 template <class STREAM>
 STREAM&
 FixedString<FOOTPRINT, ALLOC_TRAIT>::bdexStreamOut(STREAM& stream,
@@ -354,22 +354,22 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::bdexStreamOut(STREAM& stream,
     return stream;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
-bslma_Allocator *FixedString<FOOTPRINT, ALLOC_TRAIT>::get_allocator() const {
+template <int FOOTPRINT, bool ALLOC_TRAIT>
+bslma::Allocator *FixedString<FOOTPRINT, ALLOC_TRAIT>::get_allocator() const {
     return d_alloc;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 const char *FixedString<FOOTPRINT, ALLOC_TRAIT>::c_str() const {
     return d_buffer;
 }
 
 const int SFP = 32;                     // Small FOOTPRINT
 const int LFP = sizeof(bdem_ChoiceImp); // Large FOOTPRINT
-typedef FixedString<SFP>                                     SmallString;
-typedef FixedString<SFP, bslalg_TypeTraitUsesBslmaAllocator> SmallStringAlloc;
-typedef FixedString<LFP>                                     LargeString;
-typedef FixedString<LFP, bslalg_TypeTraitUsesBslmaAllocator> LargeStringAlloc;
+typedef FixedString<SFP>       SmallString;
+typedef FixedString<SFP, true> SmallStringAlloc;
+typedef FixedString<LFP>       LargeString;
+typedef FixedString<LFP, true> LargeStringAlloc;
 
 namespace BloombergLP {
 
@@ -420,7 +420,7 @@ typedef bsl::vector<my_ElemTypes::ElemType>             TypesCatalog;
 #define BDEM_BASIC_DESCRIPTOR_INIT(T,ENUM)              \
     ENUM,                                               \
     sizeof(T),                                          \
-    bsls_AlignmentFromType<T >::VALUE,                  \
+    bsls::AlignmentFromType<T >::VALUE,                 \
     &bdem_FunctionTemplates::unsetConstruct<T >,        \
     &bdem_FunctionTemplates::copyConstruct<T >,         \
     &bdem_FunctionTemplates::destroy<T >,               \
@@ -458,7 +458,7 @@ my_descriptorLookupTable[my_ElemTypes::MY_NUM_TYPES] = {
 };
 
 // Sample data values
-bslma_TestAllocator sampleAlloc;
+bslma::TestAllocator sampleAlloc;
 
 // SmallString values must be under 23 characters long.
 const SmallString SS_UNSET(&sampleAlloc);
@@ -856,8 +856,8 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator         defaultAlloc;
-    bslma_DefaultAllocatorGuard allocGuard(&defaultAlloc);
+    bslma::TestAllocator         defaultAlloc;
+    bslma::DefaultAllocatorGuard allocGuard(&defaultAlloc);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
@@ -974,8 +974,8 @@ int main(int argc, char *argv[])
 
           const Desc **D = DESCRIPTORS;
 
-          bslma_TestAllocator testAllocator(veryVeryVerbose);
-          bslma_TestAllocator &tAlloc = testAllocator;
+          bslma::TestAllocator testAllocator(veryVeryVerbose);
+          bslma::TestAllocator &tAlloc = testAllocator;
           //iterate U over catalogs in S
           for (int i = 0; i < NUM_DATA; ++i) {
               const char *SPEC  = DATA[i].d_catalogSpec;
@@ -1061,21 +1061,21 @@ int main(int argc, char *argv[])
         // Plan: It suffices to assert that the traits is defined.  One way is
         //   by using 'BSLALG_DECLARE_NESTED_TRAITS' and another is by sniffing
         //   that there is an implicit conversion construction from
-        //   'bslma_Allocator*'.  We also want to discourage the second way, as
-        //   that constructor should be made explicit.
+        //   'bslma::Allocator*'.  We also want to discourage the second way,
+        //   as that constructor should be made explicit.
         //
         // Testing:
         //   bdema allocator model
-        //   correct declaration of bslalg_TypeTraitUsesBslmaAllocator
+        //   correct declaration of bslalg::TypeTraitUsesBslmaAllocator
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << "\nTesting allocator traits"
                                << "\n========================" << bsl::endl;
 
         typedef bdem_ChoiceImp Obj;
 
-        ASSERT((0 == bslmf_IsConvertible<bslma_Allocator*, Obj>::VALUE));
+        ASSERT((0 == bslmf::IsConvertible<bslma::Allocator*, Obj>::VALUE));
         ASSERT((1 ==
-             bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+           bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
       } break;
       case 11: {
@@ -1142,8 +1142,8 @@ int main(int argc, char *argv[])
 
           const Desc **D = DESCRIPTORS;
 
-          bslma_TestAllocator testAllocator(veryVeryVerbose);
-          bslma_TestAllocator &tAlloc = testAllocator;
+          bslma::TestAllocator testAllocator(veryVeryVerbose);
+          bslma::TestAllocator &tAlloc = testAllocator;
           //iterate U over catalogs in S
           for (int i = 0; i < NUM_DATA; ++i) {
               const char *SPEC  = DATA[i].d_catalogSpec;
@@ -1222,7 +1222,7 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCTORS
         //
         // Concerns:
-        //   - That the specified or bslma_Default::defaultAllocator is used.
+        //   - That the specified or bslma::Default::defaultAllocator is used.
         //   - That the specified or default (BDEM_PASS_THROUGH) strategy is
         //     used.
         //   - That the value is initialized properly.
@@ -1246,22 +1246,23 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //     bdem_ChoiceImp(
-        //       bslma_Allocator                          *basicAllocator = 0);
+        //       bslma::Allocator                         *basicAllocator = 0);
         //
         //     bdem_ChoiceImp(
         //       bdem_AggregateOption::AllocationStrategy  allocMode,
-        //       bslma_Allocator                          *basicAllocator = 0);
+        //       bslma::Allocator                         *basicAllocator = 0);
         //
-        //     bdem_ChoiceImp(const bdem_ElemType::Type      selectionTypes[],
-        //          int                                      numSelectionTypes,
-        //          const bdem_Descriptor *const             attrLookupTbl[],
-        //          bdem_AggregateOption::AllocationStrategy allocMode,
-        //          bslma_Allocator                         *basicAllocator=0);
+        //     bdem_ChoiceImp(
+        //         const bdem_ElemType::Type                 selectionTypes[],
+        //         int                                       numSelectionTypes,
+        //         const bdem_Descriptor *const              attrLookupTbl[],
+        //         bdem_AggregateOption::AllocationStrategy  allocMode,
+        //         bslma::Allocator                         *basicAllocator=0);
         //
         //     bdem_ChoiceImp(
         //       const bdem_ChoiceHeader&                  choiceHeader,
         //       bdem_AggregateOption::AllocationStrategy  allocMode,
-        //       bslma_Allocator                          *basicAllocator = 0);
+        //       bslma::Allocator                         *basicAllocator = 0);
         //
         // --------------------------------------------------------------------
 
@@ -1279,11 +1280,11 @@ int main(int argc, char *argv[])
             my_ElemTypes::ElemType *catSt = (cat.size()>0) ? &cat.front()
             : NULL;
 
-            bslma_TestAllocator alloc1,alloc2;
+            bslma::TestAllocator alloc1,alloc2;
 
             //Set a default alloc guard
 
-            const bslma_DefaultAllocatorGuard dag1(&alloc1);
+            const bslma::DefaultAllocatorGuard dag1(&alloc1);
 
             ASSERT(0 == alloc1.numBytesInUse());
             ASSERT(0 == alloc2.numBytesInUse());
@@ -1353,11 +1354,11 @@ int main(int argc, char *argv[])
             my_ElemTypes::ElemType *catSt = (cat.size()>0) ? &cat.front()
             : NULL;
 
-            bslma_TestAllocator alloc1,alloc2,alloc3,alloc4,alloc5;
-            bslma_TestAllocator alloc2B,alloc3B, badAlloc;
+            bslma::TestAllocator alloc1,alloc2,alloc3,alloc4,alloc5;
+            bslma::TestAllocator alloc2B,alloc3B, badAlloc;
 
             // Set a default alloc guard
-            const bslma_DefaultAllocatorGuard dag1(&badAlloc);
+            const bslma::DefaultAllocatorGuard dag1(&badAlloc);
 
             // create a choice imp object using the BDEM_PASS_THROUGH mode
             Obj a1(&alloc1);
@@ -1543,7 +1544,7 @@ int main(int argc, char *argv[])
                                                   ? &cat.front()
                                                   : NULL;
 
-                    bslma_TestAllocator alloc1(veryVeryVerbose);
+                    bslma::TestAllocator alloc1(veryVeryVerbose);
 
                     //create and populate mX1
                     Obj mX((bdem_ElemType::Type*)catSt,cat.size(),
@@ -1565,7 +1566,7 @@ int main(int argc, char *argv[])
 
                     // Stream a constructed obj to an empty obj
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
                         Obj mA(&tmpAlloc); const Obj& A = mA;
                         LOOP_ASSERT(LINE1, X != A);
 
@@ -1602,7 +1603,8 @@ int main(int argc, char *argv[])
 
                         for (int j2 = 0; j2 < LEN2; ++j2) {
 
-                            bslma_TestAllocator testAllocator(veryVeryVerbose);
+                            bslma::TestAllocator testAllocator(
+                                                              veryVeryVerbose);
 
                             TypesCatalog cat;
                             populateTypesCatalog(&cat,SPEC1);
@@ -1656,7 +1658,7 @@ int main(int argc, char *argv[])
 
                     // Stream from an empty and invalid stream
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
                         Obj mA(mX, &tmpAlloc); const Obj& A = mA;
                         Obj mB(mX, &tmpAlloc); const Obj& B = mB;
                         if (AISNULL) {
@@ -1725,7 +1727,7 @@ int main(int argc, char *argv[])
 
                     // Stream an empty obj to a constructed obj
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
                         Obj mY(mX, &tmpAlloc); const Obj& Y = mY;
                         Obj mA(&tmpAlloc); const Obj& A = mA;
                         if (AISNULL) {
@@ -1834,7 +1836,7 @@ int main(int argc, char *argv[])
             const char *SPEC  = DATA[i].d_catalogSpec;
             const int   LEN   = bsl::strlen(SPEC);
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
 
             Catalog catalog(&alloc);
             populateCatalog(&catalog, SPEC);
@@ -1907,7 +1909,7 @@ int main(int argc, char *argv[])
         // TESTING COPY CONSTRUCTOR:
         //
         // Concerns:
-        //   - That the specified or bslma_Default::defaultAllocator is used.
+        //   - That the specified or bslma::Default::defaultAllocator is used.
         //   - That the specified or default (BDEM_PASS_THROUGH) strategy is
         //     used.
         //   - Any value must be able to be copy constructed without affecting
@@ -1940,11 +1942,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //     bdem_ChoiceImp(const bdem_ChoiceImp&  original,
-        //                    bslma_Allocator       *basicAllocator = 0);
+        //                    bslma::Allocator      *basicAllocator = 0);
         //     bdem_ChoiceImp(
         //                 const bdem_ChoiceImp&                     original,
         //                 bdem_AggregateOption::AllocationStrategy  allocMode,
-        //                 bslma_Allocator                          *ba = 0);
+        //                 bslma::Allocator                         *ba = 0);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTesting Copy Constructor"
@@ -1954,13 +1956,13 @@ int main(int argc, char *argv[])
             if (veryVerbose) bsl::cout << "Verify the allocator is passed "
                                        << "correctly" << bsl::endl;
 
-            bslma_TestAllocator badAlloc, da, alloc;
+            bslma::TestAllocator badAlloc, da, alloc;
 
             //Set a default alloc guard
             Obj orig(&badAlloc);  const Obj& ORIG = orig;
             const int OB = badAlloc.numBytesInUse();
 
-            const bslma_DefaultAllocatorGuard dag1(&da);
+            const bslma::DefaultAllocatorGuard dag1(&da);
 
             ASSERT(0 == da.numBytesInUse());
 
@@ -1999,14 +2001,14 @@ int main(int argc, char *argv[])
             //that all the allocation modes behave correctly.
 
             //a simple catalog to work with
-            bslma_TestAllocator alloc1,alloc2;
-            bslma_TestAllocator alloc2B, badAlloc1, badAlloc2;
+            bslma::TestAllocator alloc1,alloc2;
+            bslma::TestAllocator alloc2B, badAlloc1, badAlloc2;
 
             Obj orig(&badAlloc1); const Obj& ORIG = orig;
             const int badAllocBytes = badAlloc1.numBytesInUse();
 
             //Set a default alloc guard
-            const bslma_DefaultAllocatorGuard dag1(&badAlloc2);
+            const bslma::DefaultAllocatorGuard dag1(&badAlloc2);
 
             //create an array using the BDEM_PASS_THROUGH mode
             Obj a1(ORIG,&alloc1);
@@ -2036,9 +2038,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) { bsl::cout << "Copy construct empty objects"
                                      << bsl::endl; }
         {
-            bslma_TestAllocator alloc1(veryVeryVerbose), da(veryVeryVerbose);
+            bslma::TestAllocator alloc1(veryVeryVerbose), da(veryVeryVerbose);
 
-            bslma_DefaultAllocatorGuard dag(&da);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             Obj mX(&alloc1); const Obj& X = mX;
 
@@ -2052,12 +2054,12 @@ int main(int argc, char *argv[])
                 AggOption::AllocationStrategy MODE =
                                               (AggOption::AllocationStrategy)i;
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 bdema_SequentialAllocator seqAlloc(
-                                       &bslma_NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
 
-                bslma_Allocator *alloc;
+                bslma::Allocator *alloc;
                 if (AggOption::BDEM_SUBORDINATE == MODE) {
                     alloc = &seqAlloc;
                 }
@@ -2065,7 +2067,7 @@ int main(int argc, char *argv[])
                     alloc = &testAllocator;
                 }
 
-                bslma_DefaultAllocatorGuard guard(alloc);
+                bslma::DefaultAllocatorGuard guard(alloc);
 
                 Obj mA(X, MODE); const Obj& A = mA;
 
@@ -2101,9 +2103,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                             bsl::cout << "\tNo alloc mode" << bsl::endl; }
             {
-                bslma_TestAllocator alloc1(veryVeryVerbose), da;
+                bslma::TestAllocator alloc1(veryVeryVerbose), da;
 
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 Obj mX(&alloc1); const Obj& X = mX;
 
@@ -2124,9 +2126,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) bsl::cout << "\tWith alloc mode" << bsl::endl;
             {
-                bslma_TestAllocator alloc1(veryVeryVerbose), da;
+                bslma::TestAllocator alloc1(veryVeryVerbose), da;
 
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 Obj mX(&alloc1); const Obj& X = mX;
 
@@ -2191,12 +2193,12 @@ int main(int argc, char *argv[])
                     const char *SPEC = DATA[i].d_catalogSpec;
                     const int   LEN  = bsl::strlen(SPEC);
 
-                    bslma_TestAllocator testAllocator(veryVeryVerbose);
+                    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                     bdema_SequentialAllocator seqAlloc(
-                                       &bslma_NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
 
-                    bslma_Allocator *alloc;
+                    bslma::Allocator *alloc;
                     if (AggOption::BDEM_SUBORDINATE == MODE) {
                         alloc = &seqAlloc;
                     }
@@ -2204,7 +2206,7 @@ int main(int argc, char *argv[])
                         alloc = &testAllocator;
                     }
 
-                    bslma_DefaultAllocatorGuard guard(alloc);
+                    bslma::DefaultAllocatorGuard guard(alloc);
 
                     Catalog catalog;
                     populateCatalog(&catalog, SPEC);
@@ -2307,8 +2309,8 @@ int main(int argc, char *argv[])
                         const char S1 = SPEC1[j1];
                         const char S2 = SPEC2[j2];
 
-                        bslma_TestAllocator alloc1(veryVeryVerbose);
-                        bslma_TestAllocator alloc2(veryVeryVerbose);
+                        bslma::TestAllocator alloc1(veryVeryVerbose);
+                        bslma::TestAllocator alloc2(veryVeryVerbose);
 
                         if (veryVerbose) { P(SPEC1); P(SPEC2); }
 
@@ -2847,7 +2849,7 @@ int main(int argc, char *argv[])
                 ASSERT(0);
             }
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
 
             Catalog x1(&alloc);
             x1.push_back(getDescriptor(SPEC));
@@ -2953,7 +2955,7 @@ int main(int argc, char *argv[])
         //   value of each constructed object.
         //
         // Testing:
-        //   bdem_ChoiceImp(bslma_Allocator *basicAlloc = 0);
+        //   bdem_ChoiceImp(bslma::Allocator *basicAlloc = 0);
         //   ~bdem_ChoiceImp();
         //   void addSelection(const bdem_Descriptor *elemAttr);
         //   int numSelections() const;
@@ -2972,7 +2974,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { bsl::cout << "\tDefault construct Obj mU"
                                      << bsl::endl; }
-        bslma_TestAllocator alloc(veryVeryVerbose);
+        bslma::TestAllocator alloc(veryVeryVerbose);
 
         Obj mU(&alloc); const Obj& U = mU;
 
@@ -3322,8 +3324,8 @@ int main(int argc, char *argv[])
             bsl::cout << "\nTesting 'populateCatalog' for a different length"
                       << " catalog" << bsl::endl;
 
-        bslma_TestAllocator  testAllocator;
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator;
+        bslma::Allocator     *Z = &testAllocator;
 
         for (int i = 0; i < NUM_SPECS; ++i) {
             const int   LINE = SPECS[i].d_line;
@@ -3419,8 +3421,8 @@ int main(int argc, char *argv[])
         //   1. Objects instantiated from FixedString have the expected
         //      footprint.
         //   2. Objects instantiated from FixedString have
-        //      'bslalg_TypeTraitUsesBslmaAllocator' trait if and only if that
-        //      trait is specified as a template parameter.
+        //      'bslma::UsesBslmaAllocator' trait if and only if 'true'
+        //      trait is specified as the 'ALLOC_TRAIT' template parameter.
         //   3. The constructor, destructor, copy-constructor, and assignment
         //      operator work as designed.  Constructors increment the
         //      instance count; destructor decrements the instance count.
@@ -3452,30 +3454,30 @@ int main(int argc, char *argv[])
         ASSERT(SFP == sizeof(SmallStringAlloc));
         ASSERT(LFP == sizeof(LargeString));
         ASSERT(LFP == sizeof(LargeStringAlloc));
-        ASSERT(SFP-sizeof(bslma_Allocator*)-1 == SmallString::maxLength());
-        ASSERT(SFP-sizeof(bslma_Allocator*)-1 ==
+        ASSERT(SFP-sizeof(bslma::Allocator*)-1 == SmallString::maxLength());
+        ASSERT(SFP-sizeof(bslma::Allocator*)-1 ==
                                                SmallStringAlloc::maxLength());
-        ASSERT(LFP-sizeof(bslma_Allocator*)-1 == LargeString::maxLength());
-        ASSERT(LFP-sizeof(bslma_Allocator*)-1 ==
+        ASSERT(LFP-sizeof(bslma::Allocator*)-1 == LargeString::maxLength());
+        ASSERT(LFP-sizeof(bslma::Allocator*)-1 ==
                LargeStringAlloc::maxLength());
 
         if (veryVerbose) bsl::cout << "Testing traits" << bsl::endl;
-        ASSERT(! (bslalg_HasTrait<SmallString,
-                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        ASSERT(  (bslalg_HasTrait<SmallStringAlloc,
-                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<LargeString,
-                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        ASSERT(  (bslalg_HasTrait<LargeStringAlloc,
-                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<SmallString,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  (bslalg::HasTrait<SmallStringAlloc,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<LargeString,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  (bslalg::HasTrait<LargeStringAlloc,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
-        bslma_TestAllocator defAlloc;
-        bslma_DefaultAllocatorGuard defAllocGuard(&defAlloc);
+        bslma::TestAllocator defAlloc;
+        bslma::DefaultAllocatorGuard defAllocGuard(&defAlloc);
 
         if (veryVerbose) bsl::cout << "Testing constructors" << bsl::endl;
         int initialCount = SmallString::instanceCount();
         {
-            bslma_TestAllocator t1;
+            bslma::TestAllocator t1;
             SmallString w(&t1);
             ASSERT(&t1 == w.get_allocator());
             ASSERT(0 == bsl::strcmp("", w.c_str()));
@@ -3485,7 +3487,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(SmallString::instanceCount() == initialCount);
         {
-            bslma_TestAllocator t1;
+            bslma::TestAllocator t1;
 
             // ALPHABET2 is a longer than the longest SmallString.
             static const char ALPHABET2[] = "abcdefghijklmnopqrstuvwxyz"
@@ -3501,7 +3503,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defAlloc.numBytesInUse());
             ASSERT(0 == t1.numBytesInUse());
 
-            bslma_TestAllocator t2;
+            bslma::TestAllocator t2;
             SmallString x(w, &t2);
             ASSERT(&t2 == x.get_allocator());
             ASSERT(0 == bsl::strcmp(w.c_str(), x.c_str()));
@@ -3514,7 +3516,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) bsl::cout << "Testing assignment" << bsl::endl;
         {
-            bslma_TestAllocator t1;
+            bslma::TestAllocator t1;
             SmallString w(&t1);
             ASSERT(&t1 == w.get_allocator());
             ASSERT(0 == t1.numBytesInUse());
@@ -3556,7 +3558,7 @@ int main(int argc, char *argv[])
         {
             ASSERT(1 == SmallString::maxSupportedBdexVersion());
 
-            bdesb_MemOutStreamBuf osb(&bslma_NewDeleteAllocator::singleton());
+            bdesb_MemOutStreamBuf osb(&bslma::NewDeleteAllocator::singleton());
             bdex_TestOutStreamFormatter outStream(&osb);
 
             SS_UNSET.bdexStreamOut(outStream, 1);
@@ -3568,7 +3570,7 @@ int main(int argc, char *argv[])
             bdex_TestInStreamFormatter inStream(&isb);
             inStream.setSuppressVersionCheck(true);
 
-            bslma_TestAllocator t1;
+            bslma::TestAllocator t1;
             SmallString w(&t1), x(&t1), y(&t1);
             w.bdexStreamIn(inStream, 1);
             ASSERT(inStream);
@@ -3584,7 +3586,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) bsl::cout << "Testing printing" << bsl::endl;
         for (int i = 0; i < DATA_SIZE; ++i)
         {
-            bdesb_MemOutStreamBuf osb(&bslma_NewDeleteAllocator::singleton());
+            bdesb_MemOutStreamBuf osb(&bslma::NewDeleteAllocator::singleton());
             bsl::ostream os(&osb);
             const SmallString& S = *DATA[i];
             os << S;
@@ -3633,7 +3635,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) { bsl::cout << "\tDefault construct Obj mX"
                                          << bsl::endl; }
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
 
             Obj mX(&alloc); const Obj& X = mX;
             ASSERT(0  == X.numSelections());

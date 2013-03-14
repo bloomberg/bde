@@ -990,7 +990,7 @@ bool operator!=(const SimpleTestType& lhs, const SimpleTestType& rhs)
 class AllocTestType {
     // This unconstrained (value-semantic) attribute class that uses a
     // 'bslma::Allocator' to allocate memory and defines the type trait
-    // 'bslalg::TypeTraitUsesBslmaAllocator'.  See the Attributes section under
+    // 'bslma::UsesBslmaAllocator'.  See the Attributes section under
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.
 
@@ -1000,10 +1000,6 @@ class AllocTestType {
     AllocTestType   *d_self_p;       // pointer to self
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(AllocTestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit AllocTestType(bslma::Allocator *basicAllocator = 0);
         // Create a 'AllocTestType' object having the (default) attribute
@@ -1043,6 +1039,13 @@ class AllocTestType {
     int data() const;
         // Return the value of the 'data' attribute of this object.
 };
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<AllocTestType> : bsl::true_type {};
+}
+}
 
 // FREE OPERATORS
 bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);
@@ -5956,6 +5959,8 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             RbTreeNode node; const RbTreeNode& NODE = node;
+            (void) node;  // Suppress 'unused variable' warnings
+                          // in non-SAFE modes
             ASSERT_FAIL(Obj::printTreeStructure(0,
                                                 &NODE,
                                                 printIntNodeValue,
@@ -8270,11 +8275,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

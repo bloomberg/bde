@@ -55,9 +55,6 @@ struct bdeu_CStringLess {
     // such as 'bsl::map' and 'bsl::set'.  Note that this class is an empty
     // POD type.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeu_CStringLess, bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef const char *first_argument_type;
     typedef const char *second_argument_type;
@@ -89,9 +86,26 @@ struct bdeu_CStringLess {
         // null-terminated strings.
 };
 
+} // Close enterprise namespace
+
+// POD TRAITS
+namespace bsl {
+
+template <>
+struct is_trivially_copyable<BloombergLP::bdeu_CStringLess> :
+        bsl::true_type { };
+
+template <>
+struct is_trivially_default_constructible<BloombergLP::bdeu_CStringLess> :
+        bsl::true_type { };
+
+} // Close namespace bslmf
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+namespace BloombergLP {
 
                         // -----------------------
                         // struct bdeu_CStringLess

@@ -237,7 +237,7 @@ public:
             bsl::ios_base::seekdir DIR = DATA[i].dir;
             bsl::ios_base::openmode MODE = DATA[i].mode;
 
-            for (std::streamoff pos = 0; pos != initialStr.size(); ++pos) {
+            for (std::size_t pos = 0; pos != initialStr.size(); ++pos) {
                 StringBufTest strBuf(initialStr, MODE);
 
                 std::streamoff seekOff
@@ -266,7 +266,7 @@ public:
     {
         bsl::string initialStr("initial state");
 
-        for (std::streamoff pos = 0; pos != initialStr.size(); ++pos) {
+        for (std::size_t pos = 0; pos != initialStr.size(); ++pos) {
             StringBufTest strBuf(initialStr, mode);
 
             strBuf.pubseekpos(pos, mode);
@@ -571,7 +571,7 @@ void testPutCharInTheMiddle(SeekFunc seekpos)
 {
     bsl::stringbuf buf("abcde");
 
-    int res = seekpos(buf);
+    std::streamoff res = seekpos(buf);
     ASSERT(res != -1);
 
     res = buf.sputc('3');
@@ -586,7 +586,7 @@ void testPutCharsInTheMiddle(SeekFunc seekpos)
     bsl::stringbuf buf("abcde");
     bsl::string what("34");
 
-    int res1 = seekpos(buf);
+    std::streamoff res1 = seekpos(buf);
     ASSERT(res1 != -1);
 
     std::streamsize res2 = buf.sputn(what.data(), what.size());
@@ -628,56 +628,59 @@ std::streampos bufPubseekoffEnd(bsl::stringbuf & buf)
 //-----------------------------------------------------------------------------
 
 namespace {
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic operations
+///Example 1: Basic Operations
 ///- - - - - - - - - - - - - -
 // The following example demonstrates the use of 'bsl::stringbuf' to read and
 // write character data from and to a 'bsl::string' object.
 //
 // Suppose we want to implement a simplified converter from 'unsigned int' to
-// 'bsl::string' and back.  First, we define the prototypes of conversion
+// 'bsl::string' and back.  First, we define the prototypes of two conversion
 // functions:
 //..
-bsl::string toString(unsigned int from);
-unsigned int fromString(const bsl::string& from);
+//  bsl::string  toString(unsigned int from);
+//  unsigned int fromString(const bsl::string& from);
 //..
-// Then, we use 'bsl::stringbuf' to implement the 'toString' function.  We write
-// all digits into 'bsl::stringbuf' individually using 'sputc' methods and then
-// return the resulting 'bsl::string' object as follows:
+// Then, we use 'bsl::stringbuf' to implement the 'toString' function.  We
+// write all digits into 'bsl::stringbuf' individually using 'sputc' methods
+// and then return the resulting 'bsl::string' object:
 //..
 //  #include <algorithm>
+//
+    bsl::string toString(unsigned int from)
+    {
+        bsl::stringbuf out;
 
-bsl::string toString(unsigned int from)
-{
-    bsl::stringbuf out;
+        for (; from != 0; from /= 10) {
+            out.sputc(char('0' + from % 10));
+        }
 
-    for (; from != 0; from /= 10) {
-        out.sputc('0' + from % 10);
+        bsl::string result(out.str());
+        std::reverse(result.begin(), result.end());
+        return result;
     }
-
-    bsl::string result(out.str());
-    std::reverse(result.begin(), result.end());
-    return result;
-}
 //..
 // Now, we implement the 'fromString' function that converts from
-// 'bsl::string' to 'unsigned int' by using 'bsl::stringbuf' to read digit
-// from the string object:
+// 'bsl::string' to 'unsigned int' by using 'bsl::stringbuf' to read individual
+// digits from the string object:
 //..
-unsigned int fromString(const bsl::string& from)
-{
-    unsigned int result = 0;
-    for (bsl::stringbuf in(from); in.in_avail(); ) {
-        result = result * 10 + (in.sbumpc() - '0');
-    }
+    unsigned int fromString(const bsl::string& from)
+    {
+        unsigned int result = 0;
 
-    return result;
-}
+        for (bsl::stringbuf in(from); in.in_avail(); ) {
+            result = result * 10 + (in.sbumpc() - '0');
+        }
+
+        return result;
+    }
 //..
-}
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -745,10 +748,12 @@ int main(int argc, char *argv[])
 // Finally, we verify that the result of the round-trip conversion is identical
 // to the original value:
 //..
-        unsigned int orig = 92872498;
-        unsigned int result = fromString(toString(orig));
-        ASSERT(orig == result);
+    unsigned int orig   = 92872498;
+    unsigned int result = fromString(toString(orig));
+//
+    ASSERT(orig == result);
 //..
+
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -959,20 +964,20 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf("abc");
-            char c(buf.sbumpc());
+            int c = buf.sbumpc();
             ASSERT(c == 'a');
 
-            int res = buf.sputbackc(c);
+            int res = buf.sputbackc(char(c));
             ASSERT(res == c);
 
-            c = static_cast<char>(buf.sbumpc());
+            c = buf.sbumpc();
             ASSERT(c == res);
 
             buf.pubseekpos(3);
             res = buf.sputbackc('c');
             ASSERT(res == 'c');
 
-            c = static_cast<char>(buf.sbumpc());
+            c = buf.sbumpc();
             ASSERT(c == res);
         }
 
@@ -984,20 +989,20 @@ int main(int argc, char *argv[])
             ASSERT(resEmpty == EOF);
 
             bsl::stringbuf buf("abc");
-            char c(buf.sbumpc());
+            int c = buf.sbumpc();
             ASSERT(c == 'a');
 
             int res = buf.sputbackc('1');
             ASSERT(res == '1');
 
-            c = static_cast<char>(buf.sbumpc());
+            c = buf.sbumpc();
             ASSERT(c == res);
 
             buf.pubseekpos(3);
             res = buf.sputbackc('3');
             ASSERT(res == '3');
 
-            c = static_cast<char>(buf.sbumpc());
+            c = buf.sbumpc();
             ASSERT(c == res);
 
             bsl::stringbuf bufReadonly("abc", std::ios_base::in);
@@ -1099,11 +1104,13 @@ int main(int argc, char *argv[])
         {
             bsl::stringbuf buf;
             buf.sputc('1');
+            ASSERT(buf.str() == "1");
+
             buf.str("another");
 
             int res = buf.sputc('s');
             ASSERT(res == 's');
-            ASSERT(buf.str() == "anothers");
+            ASSERT(buf.str() == "snother");
         }
 
         if (veryVerbose)
@@ -1386,7 +1393,8 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf1(std::ios_base::in, bsl::allocator<char>());
-            bsl::stringbuf buf2(std::ios_base::in, bslma::Default::allocator());
+            bsl::stringbuf buf2(std::ios_base::in,
+                                bslma::Default::allocator());
             bsl::stringbuf buf3(bsl::string("something"),
                                 std::ios_base::in,
                                 bslma::Default::allocator());
@@ -1423,11 +1431,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

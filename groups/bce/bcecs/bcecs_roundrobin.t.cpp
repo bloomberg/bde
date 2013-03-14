@@ -6,6 +6,7 @@
 #include <bcemt_thread.h>
 #include <bslma_testallocator.h>
 #include <bsls_alignment.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 
@@ -40,7 +41,7 @@ using namespace bsl;  // automatically added by script
 //   upon concurrent access to it.  It is tested in [8], [9] and [10].
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bcecs_RoundRobin(bslma_Allocator *allocator=0);
+// [ 1] bcecs_RoundRobin(bslma::Allocator *allocator=0);
 // [ 1] ~bcecs_RoundRobin();
 //
 // MANIPULATORS
@@ -216,7 +217,7 @@ bcecs_RoundRobin<int> rr(&ta);
 extern "C" {
     void *workerThread10(void *arg)
     {
-        int id = (bsls_PlatformUtil::IntPtr)arg;
+        int id = (bsls::Types::IntPtr)arg;
 
         barrier.wait();
         for(int i = 0; i < NUM_ITERATIONS; ++i){
@@ -250,7 +251,7 @@ bcecs_RoundRobin<int> rr(&ta);
 extern "C" {
     void *workerThread9(void *arg)
     {
-        int id = (bsls_PlatformUtil::IntPtr)arg;
+        int id = (bsls::Types::IntPtr)arg;
 
         barrier.wait();
         for(int i = 0; i < NUM_ITERATIONS; ++i){
@@ -612,21 +613,22 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a round robin passing it an instance of
-        //   'bdema_testAllocator'.
+        //   'bslma::TestAllocator'.
         //
         //   Add three objects (this will cause the underlying
-        //   'bdema_Pool' to request 2 blocks from 'bdema_testAllocator') and
-        //   Verify that the number of blocks allocated by
-        //   'bdema_testAllocator' is 2.
+        //   'bdema_Pool' to request 2 blocks from the 'bslma::TestAllocator')
+        //   and verify that the number of blocks allocated by the
+        //   'bslma::TestAllocator' is 2.
         //
         //   Invoke 'removeAll', add 3 objects and verify that no more
-        //   blocks were requested from 'bdema_testAllocator'.
+        //   blocks were requested from the 'bslma::TestAllocator'.
         //
         //   Remove all 3 objects using 'remove', add 3 objects and verify
-        //   that no more blocks were requested from 'bdema_testAllocator'.
+        //   that no more blocks were requested from the
+        //   'bslma::TestAllocator'.
         //
-        //   Note that this test case depends upon the implementation
-        //   detail of 'bdema_Pool' and 'bdema_testAllocator'.
+        //   Note that this test case depends upon implementation
+        //   details of 'bdema_Pool' and 'bslma::TestAllocator'.
         //
         // Testing:
         //   int   add(const TYPE& object);
@@ -640,7 +642,7 @@ int main(int argc, char *argv[])
 
         using namespace TestCase6;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bcecs_RoundRobin<int> rr(&ta);
         rr.add(1); rr.add(2); rr.add(3);
 

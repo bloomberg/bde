@@ -33,7 +33,7 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)    \
     || defined(BSLS_PLATFORM_OS_LINUX)   \
-    || defined(BDES_PLATFORM_OS_FREEBSD) \
+    || defined(BSLS_PLATFORM_OS_FREEBSD) \
     || defined(BSLS_PLATFORM_OS_AIX)     \
     || defined(BSLS_PLATFORM_OS_HPUX)    \
     || defined(BSLS_PLATFORM_OS_CYGWIN)  \
@@ -69,10 +69,10 @@ namespace BloombergLP {
                              // FILE-SCOPE STATICS
                              // ------------------
 
-typedef bsl::hash_map<bteso_Event,
-                      bteso_EventManager::Callback,
-                      bteso_EventHash>              CallbackMap;
-typedef bsl::hash_map<int,int>                      IndexMap;
+typedef bsl::unordered_map<bteso_Event,
+                           bteso_EventManager::Callback,
+                           bteso_EventHash>              CallbackMap;
+typedef bsl::unordered_map<int,int>                      IndexMap;
 
 static inline int dispatchCallbacks(bsl::vector<struct ::pollfd>  *tmp,
                                     bsl::vector<struct ::pollfd>&  pollFds,
@@ -137,7 +137,7 @@ static inline int dispatchCallbacks(bsl::vector<struct ::pollfd>  *tmp,
 
 bteso_DefaultEventManager<bteso_Platform::POLL>::bteso_DefaultEventManager(
                                             bteso_TimeMetrics *timeMetric,
-                                            bslma_Allocator   *basicAllocator)
+                                            bslma::Allocator  *basicAllocator)
 : d_pollFds(basicAllocator)
 , d_callbacks(basicAllocator)
 , d_index(basicAllocator)
@@ -357,7 +357,7 @@ int bteso_DefaultEventManager<bteso_Platform::POLL>::registerSocketEvent(
       case bteso_EventType::BTESO_WRITE:
         BSLS_ASSERT(0 == (eventmask & ~POLLIN));
         eventmask |= POLLOUT;
-//#ifdef BDES_PLATFORM_OS_FREEBSD
+//#ifdef BSLS_PLATFORM_OS_FREEBSD
 //        bteso_SocketOptUtil::setOption(socketHandle,
 //                                      bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
 //                                      bteso_SocketOptUtil::BTESO_SENDLOWATER,

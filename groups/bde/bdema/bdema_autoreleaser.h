@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Shao-wei Hung (shung1)
 //
-//@SEE_ALSO: bslma_deallocatorproctor, bslma_managedallocator
+//@SEE_ALSO: bslma_deallocatorproctor, bdema_managedallocator
 //
 //@DESCRIPTION: This component provides a proctor object to manage memory
 // allocated from a managed allocator or a pool.  The proctor's destructor

@@ -135,11 +135,11 @@ void processBlobMessages(bcec_Queue<btemt_Message> *queue,
 
 template <class TYPE>
 class DefaultDeleter : public bcema_Deleter<TYPE> {
-    bslma_Allocator *d_allocator_p;  // memory allocator (held, *not* owned)
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, *not* owned)
 
   public:
-    DefaultDeleter(bslma_Allocator *basicAllocator = 0)
-    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+    DefaultDeleter(bslma::Allocator *basicAllocator = 0)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {}
 
     virtual void deleteObject(TYPE *instance)
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
         //   btemt_MessageUtil::assignData(btemt_DataMsg*, const bcema_Blob&,
         //                                 int,
         //                                 bcema_PooledBufferChainFactory*,
-        //                                 bslma_Allocator*);
+        //                                 bslma::Allocator*);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING btemt_MessageUtil::assignData"
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
                 btemt_DataMsg dataMsg;
                 btemt_MessageUtil::assignData(
                     &dataMsg, blob, DATA_SIZE, &chainFactory,
-                    bslma_Default::allocator());
+                    bslma::Default::allocator());
                 ASSERT(dataMsg.data()->length() == blob.length());
                 char dataCopy[DATA_SIZE];
                 dataMsg.data()->copyOut(dataCopy, DATA_SIZE, 0);

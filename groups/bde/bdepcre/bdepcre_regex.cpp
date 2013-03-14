@@ -52,11 +52,11 @@ const int NUM_INTS_PER_CAPTURED_STRING = 3;
 
 // CREATORS
 
-bdepcre_RegEx::bdepcre_RegEx(bslma_Allocator *basicAllocator)
+bdepcre_RegEx::bdepcre_RegEx(bslma::Allocator *basicAllocator)
 : d_flags(0)
 , d_pattern(basicAllocator)
 , d_pcre_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -207,8 +207,8 @@ bdepcre_RegEx::match(bsl::vector<bsl::pair<int, int> > *result,
 
     // Let a proctor manage 'outputVector' (to ensure exception safety).
 
-    bslma_DeallocatorProctor<bslma_Allocator> proctor(outputVector,
-                                                      d_allocator_p);
+    bslma::DeallocatorProctor<bslma::Allocator> proctor(outputVector,
+                                                        d_allocator_p);
 
     int returnValue = pcre_exec(reinterpret_cast<pcre*>(d_pcre_p),
                                 0,

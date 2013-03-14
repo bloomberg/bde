@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::DequePrimitives: namespace for deque algorithms
 //
-//@SEE_ALSO: bslalg_scalarprimitives, bslalg_arrayprimitives, bslalg_typetraits
+//@SEE_ALSO: bslalg_scalarprimitives, bslalg_arrayprimitives
 //
 //@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu)
 //
@@ -68,24 +68,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                                         English description
 //  -----                                         -------------------
-//  bslalg::TypeTraitPair                         "TYPE has the pair trait", or
-//                                                "TYPE is a pair type"
-//
-//  bslalg::TypeTraitUsesBslmaAllocator           "the 'TYPE' constructor takes
-//                                                an allocator argument", or
-//                                                "'TYPE' supports 'bslma'
-//                                                allocators"
-//
-//  bslalg::TypeTraitHasTrivialDefaultConstructor "TYPE has the trivial default
-//                                                constructor trait", or
-//                                                "TYPE has a trivial default
-//                                                constructor"
-//
-//  bslalg::TypeTraitBitwiseCopyable              "TYPE has the bit-wise
+//  bsl::is_trivially_copyable                    "TYPE has the bit-wise
 //                                                copyable trait", or
 //                                                "TYPE is bit-wise copyable"
 //
-//  bslalg::TypeTraitBitwiseMoveable              "TYPE has the bit-wise
+//  bslmf::IsBitwiseMoveable                      "TYPE has the bit-wise
 //                                                moveable trait", or
 //                                                "TYPE is bit-wise moveable"
 //..
@@ -133,16 +120,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
@@ -194,7 +173,6 @@ namespace {
     };
 
 }
-
 
 namespace bslalg {
 
@@ -775,8 +753,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                        ::destruct(Iterator begin, Iterator end)
 {
     enum {
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS
@@ -822,8 +799,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                                     ALLOCATOR *allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS
@@ -922,10 +898,8 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                                ALLOCATOR         *allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
-        IS_BITWISEMOVEABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseMoveable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
@@ -1142,10 +1116,8 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                     ALLOCATOR         *allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
-        IS_BITWISEMOVEABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseMoveable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
@@ -1983,15 +1955,14 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
                                                 ALLOCATOR         *allocator)
 {
     enum {
-        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<VALUE_TYPE>::VALUE,
-        IS_FUNDAMENTAL      = bslmf::IsFundamental<VALUE_TYPE>::VALUE,
-        IS_POINTER          = bslmf::IsPointer<VALUE_TYPE>::VALUE,
+        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<VALUE_TYPE>::value,
+        IS_FUNDAMENTAL      = bslmf::IsFundamental<VALUE_TYPE>::value,
+        IS_POINTER          = bslmf::IsPointer<VALUE_TYPE>::value,
 
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                      TypeTraitBitwiseCopyable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS
@@ -2059,15 +2030,14 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
                                                 ALLOCATOR         *allocator)
 {
     enum {
-        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<VALUE_TYPE>::VALUE,
-        IS_FUNDAMENTAL      = bslmf::IsFundamental<VALUE_TYPE>::VALUE,
-        IS_POINTER          = bslmf::IsPointer<VALUE_TYPE>::VALUE,
+        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<VALUE_TYPE>::value,
+        IS_FUNDAMENTAL      = bslmf::IsFundamental<VALUE_TYPE>::value,
+        IS_POINTER          = bslmf::IsPointer<VALUE_TYPE>::value,
 
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                      TypeTraitBitwiseCopyable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS
@@ -2282,11 +2252,24 @@ void DequePrimitives_DequeMoveGuard<VALUE_TYPE, BLOCK_LENGTH>::release()
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -461,8 +461,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -521,9 +521,9 @@ namespace bdex_OutStreamFunctions {
     {
         // Assert that the enum value is between INT_MIN and INT_MAX.
         BSLS_ASSERT_SAFE(
-           bsls_PlatformUtil::Int64(value) >= bsls_PlatformUtil::Int64(INT_MIN)
+           bsls::Types::Int64(value) >= bsls::Types::Int64(INT_MIN)
            &&
-           bsls_PlatformUtil::Int64(value) <= bsls_PlatformUtil::Int64(INT_MAX)
+           bsls::Types::Int64(value) <= bsls::Types::Int64(INT_MAX)
         );
 
         // stream the enum value as a 32-bit 'int'
@@ -565,7 +565,7 @@ namespace bdex_OutStreamFunctions {
         // bdex_OutStreamFunctions_IsNotEnumType to choose the correct
         // function.
 
-        typedef typename bslmf_If<bslmf_IsEnum<TYPE>::VALUE,
+        typedef typename bslmf::If<bslmf::IsEnum<TYPE>::VALUE,
                                   bdex_OutStreamFunctions_IsEnumType,
                                   bdex_OutStreamFunctions_IsNotEnumType>::Type
                                                                      dummyType;
@@ -708,13 +708,11 @@ namespace bdex_OutStreamFunctions {
     }
 
     // This specialization implements 'streamOut' for
-    // 'bsls_PlatformUtil::Int64'.
+    // 'bsls::Types::Int64'.
 
     template <typename STREAM>
     inline
-    STREAM& streamOut(STREAM&                         stream,
-                      const bsls_PlatformUtil::Int64& value,
-                      int)
+    STREAM& streamOut(STREAM& stream, const bsls::Types::Int64& value, int)
         // Write the specified 'value' to the specified output 'stream' using
         // the appropriate 'put' method of 'stream'.  No version is used.  The
         // behavior is undefined unless 'STREAM' is a 'bdex'-compliant output
@@ -724,13 +722,11 @@ namespace bdex_OutStreamFunctions {
     }
 
     // This specialization implements 'streamOut' for
-    // 'bsls_PlatformUtil::Uint64'.
+    // 'bsls::Types::Uint64'.
 
     template <typename STREAM>
     inline
-    STREAM& streamOut(STREAM&                          stream,
-                      const bsls_PlatformUtil::Uint64& value,
-                      int)
+    STREAM& streamOut(STREAM& stream, const bsls::Types::Uint64& value, int)
         // Write the specified 'value' to the specified output 'stream' using
         // the appropriate 'put' method of 'stream'.  No version is used.  The
         // behavior is undefined unless 'STREAM' is a 'bdex'-compliant output
@@ -837,14 +833,13 @@ namespace bdex_OutStreamFunctions {
     }
 
     // This specialization implements 'streamOut' for
-    // 'bsl::vector<bsls_PlatformUtil::Int64, ALLOC>'.
+    // 'bsl::vector<bsls::Types::Int64, ALLOC>'.
 
     template <typename STREAM, typename ALLOC>
     inline
-    STREAM& streamOut(
-                   STREAM&                                             stream,
-                   const bsl::vector<bsls_PlatformUtil::Int64, ALLOC>& value,
-                   int)
+    STREAM& streamOut(STREAM&                                       stream,
+                      const bsl::vector<bsls::Types::Int64, ALLOC>& value,
+                      int)
         // Write the specified 'value' to the specified output 'stream' using
         // the appropriate 'put' method of 'stream'.  No version is used.  The
         // behavior is undefined unless 'STREAM' is a 'bdex'-compliant output

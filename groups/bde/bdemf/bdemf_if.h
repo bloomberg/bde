@@ -72,7 +72,7 @@ BDES_IDENT("$Id: $")
 // named 'Type' provide the results of type-returning meta-functions.
 //
 ///Usage
-//------
+///-----
 // The following snippets of code illustrate basic use of the 'bdemf_If'
 // meta-function.  The examples make use of the following declarations to
 // identify the type that is selected by a given constant integral expression:
@@ -101,7 +101,9 @@ BDES_IDENT("$Id: $")
 //   typedef bdemf_If<(sizeof(T2) > 1), int>::Type Type2;
 //   assert(T_NIL == whatType(Type2()));
 //..
-//@DEPRECATED
+//
+///DEPRECATED
+///----------
 // 'bdemf_if' (lowercase "i") has been replaced with 'bdemf_If' (uppercase "I")
 // for consistency with other meta-functions in 'bdemf'.
 
@@ -114,15 +116,15 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_If
-#define bdemf_If   bslmf_If
+#define bdemf_If   bslmf::If
     // This meta-function selects 'IF_TRUE_TYPE' if 'CONDITION' is non-zero.
 #endif
 
 #ifndef bdemf_if
-#define bdemf_if   bslmf_If
+#define bdemf_if   bslmf::If
     // This meta-function selects 'IF_TRUE_TYPE' if 'CONDITION' is non-zero.
     //
-    // DEPRECATED: Replaced by 'bslmf_If' (note the uppercase "I").
+    // DEPRECATED: Replaced by 'bslmf::If' (note the uppercase "I").
 #endif
 
 namespace BloombergLP {

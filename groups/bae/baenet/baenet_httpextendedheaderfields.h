@@ -122,16 +122,8 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDEAT_VALUETYPEFUNCTIONS
 #include <bdeat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BDEU_PRINTMETHODS
@@ -150,6 +142,22 @@ BDES_IDENT("$Id: $")
 #include <bdex_outstreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -162,15 +170,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
-
-struct baenet_HttpExtendedHeaderFields_Trait
-                                          : bslalg_TypeTraitUsesBslmaAllocator,
-                                            bdeu_TypeTraitHasPrintMethod { };
 
                    // =====================================
                    // class baenet_HttpExtendedHeaderFields
@@ -204,8 +204,10 @@ class baenet_HttpExtendedHeaderFields {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(baenet_HttpExtendedHeaderFields,
-                                 baenet_HttpExtendedHeaderFields_Trait);
+    BSLMF_NESTED_TRAIT_DECLARATION(baenet_HttpExtendedHeaderFields,
+                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(baenet_HttpExtendedHeaderFields,
+                                   bdeu_HasPrintMethod);
 
     // TYPES
     typedef FieldMap::iterator       FieldIterator;
@@ -229,14 +231,14 @@ class baenet_HttpExtendedHeaderFields {
 
     // CREATORS
     explicit baenet_HttpExtendedHeaderFields(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Construct an extended header fields container and use the specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.
 
     baenet_HttpExtendedHeaderFields(
                    const baenet_HttpExtendedHeaderFields&  original,
-                   bslma_Allocator                        *basicAllocator = 0);
+                   bslma::Allocator                       *basicAllocator = 0);
         // Construct a copy of the specified 'original', and use the specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.
@@ -373,7 +375,7 @@ int baenet_HttpExtendedHeaderFields::maxSupportedBdexVersion()
 // CREATORS
 inline
 baenet_HttpExtendedHeaderFields::baenet_HttpExtendedHeaderFields(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_fieldMap(CaseInsensitiveLessThan(), basicAllocator)
 {
 }
@@ -381,7 +383,7 @@ baenet_HttpExtendedHeaderFields::baenet_HttpExtendedHeaderFields(
 inline
 baenet_HttpExtendedHeaderFields::baenet_HttpExtendedHeaderFields(
                         const baenet_HttpExtendedHeaderFields&  original,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_fieldMap(original.d_fieldMap, basicAllocator)
 {
 }

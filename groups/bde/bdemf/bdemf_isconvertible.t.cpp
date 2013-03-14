@@ -5,7 +5,6 @@
 #include <bslmf_metaint.h>   // for testing only
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <cstdlib>     // atoi()
 #include <cstring>     // strcmp()
@@ -181,7 +180,7 @@ struct Bar {
 };
 
 template<class T>
-void createObj(T *space, MyAllocator *, bslmf_MetaInt<0>)
+void createObj(T *space, MyAllocator *, bslmf::MetaInt<0>)
 {
    // Use the type's default constructor if
    // bdemf_IsConvertible<MyAllocator*, T>::VALUE == 0, i.e., there is
@@ -191,7 +190,7 @@ void createObj(T *space, MyAllocator *, bslmf_MetaInt<0>)
 }
 
 template<class T>
-void createObj(T *space, MyAllocator *alloc, bslmf_MetaInt<1>)
+void createObj(T *space, MyAllocator *alloc, bslmf::MetaInt<1>)
 {
    // Use the type's constructor that takes a pointer to an allocator if
    // bdemf_IsConvertible<MyAllocator*, T>::VALUE == 1, i.e., there is

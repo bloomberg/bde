@@ -7,7 +7,6 @@ BDES_IDENT_RCSID(bdepu_parserimputil_cpp,"$Id$ $CSID$")
 #include <bdepu_escapechar.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_cctype.h>   // isspace(), isdigit(), isalpha(), isalnum()
 #include <bsl_cstring.h>  // strlen()
@@ -16,7 +15,7 @@ namespace BloombergLP {
 
 enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = 1 };
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64 Int64;
 
                     // --------------------------
                     // struct bdepu_ParserImpUtil
@@ -157,7 +156,7 @@ int bdepu_ParserImpUtil::parseEscapeSequence(const char **endPos,
       case bdepu_EscapeChar::BDEPU_HEXADECIMAL: {
         // hex escape sequence
         ++inputString;
-        bsls_PlatformUtil::Uint64 hexRes = 0;
+        bsls::Types::Uint64 hexRes = 0;
         if (parseUnsignedInteger(endPos, &hexRes, inputString,
                                                        16, 0xFFFFFFFFuLL, 2)) {
             rv = BDEPU_FAILURE;
@@ -167,7 +166,7 @@ int bdepu_ParserImpUtil::parseEscapeSequence(const char **endPos,
       } break;
       case bdepu_EscapeChar::BDEPU_OCTAL: {
         // octal escape sequence
-        bsls_PlatformUtil::Uint64 intRes = 0;
+        bsls::Types::Uint64 intRes = 0;
         // Note that the next line cannot fail since there is already an octal
         // digit present.
         parseUnsignedInteger(endPos, &intRes, inputString, 8, 255, 3);
@@ -242,12 +241,12 @@ int bdepu_ParserImpUtil::parseNull(const char **endPos,
 }
 
 int bdepu_ParserImpUtil::parseSignedInteger(
-                                  const char                     **endPos,
-                                  bsls_PlatformUtil::Int64        *result,
-                                  const char                      *inputString,
-                                  int                              base,
-                                  const bsls_PlatformUtil::Int64   minValue,
-                                  const bsls_PlatformUtil::Int64   maxValue)
+                                        const char               **endPos,
+                                        bsls::Types::Int64        *result,
+                                        const char                *inputString,
+                                        int                        base,
+                                        const bsls::Types::Int64   minValue,
+                                        const bsls::Types::Int64   maxValue)
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
@@ -256,7 +255,7 @@ int bdepu_ParserImpUtil::parseSignedInteger(
     BSLS_ASSERT(minValue <= 0);
     BSLS_ASSERT(maxValue >= 0);
 
-    bsls_PlatformUtil::Uint64 res = *result;
+    bsls::Types::Uint64 res = *result;
     int rv;
 
     if ('-' == *inputString) {
@@ -264,7 +263,7 @@ int bdepu_ParserImpUtil::parseSignedInteger(
                                   &res,
                                   inputString + 1,
                                   base,
-                                  (bsls_PlatformUtil::Uint64)~minValue + 1);
+                                  (bsls::Types::Uint64)~minValue + 1);
         if (!rv) {
             res = -res;
         }
@@ -283,11 +282,11 @@ int bdepu_ParserImpUtil::parseSignedInteger(
 }
 
 int bdepu_ParserImpUtil::parseUnsignedInteger(
-                                 const char                      **endPos,
-                                 bsls_PlatformUtil::Uint64        *result,
-                                 const char                       *inputString,
-                                 int                               base,
-                                 const bsls_PlatformUtil::Uint64   maxValue)
+                                       const char                **endPos,
+                                       bsls::Types::Uint64        *result,
+                                       const char                 *inputString,
+                                       int                         base,
+                                       const bsls::Types::Uint64   maxValue)
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(result);
@@ -295,10 +294,10 @@ int bdepu_ParserImpUtil::parseUnsignedInteger(
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
 
-    const bsls_PlatformUtil::Uint64 maxCheck = maxValue / base;
+    const bsls::Types::Uint64 maxCheck = maxValue / base;
     const char *start = inputString;
 
-    bsls_PlatformUtil::Uint64 res = 0;
+    bsls::Types::Uint64 res = 0;
     int digit = characterToDigit(*inputString, base);
     while (-1 != digit) {
         if (res < maxCheck) {
@@ -327,12 +326,12 @@ int bdepu_ParserImpUtil::parseUnsignedInteger(
 }
 
 int bdepu_ParserImpUtil::parseUnsignedInteger(
-                                const char                      **endPos,
-                                bsls_PlatformUtil::Uint64        *result,
-                                const char                       *inputString,
-                                int                               base,
-                                const bsls_PlatformUtil::Uint64   maxValue,
-                                int                               maxNumDigits)
+                                      const char                **endPos,
+                                      bsls::Types::Uint64        *result,
+                                      const char                 *inputString,
+                                      int                         base,
+                                      const bsls::Types::Uint64   maxValue,
+                                      int                         maxNumDigits)
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(result);
@@ -341,10 +340,10 @@ int bdepu_ParserImpUtil::parseUnsignedInteger(
     BSLS_ASSERT(     base <= 36);
     BSLS_ASSERT(0 <= maxNumDigits);
 
-    const bsls_PlatformUtil::Uint64 maxCheck = maxValue / base;
+    const bsls::Types::Uint64 maxCheck = maxValue / base;
     const char *start = inputString;
 
-    bsls_PlatformUtil::Uint64 res = 0;
+    bsls::Types::Uint64 res = 0;
     int digit = characterToDigit(*inputString, base);
     while (-1 != digit && maxNumDigits--) {
         if (res < maxCheck) {

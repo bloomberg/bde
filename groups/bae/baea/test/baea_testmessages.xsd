@@ -19,6 +19,7 @@
     <xs:element name='selection1' type='xs:boolean'/>
     <xs:element name='selection2' type='xs:string'/>
     <xs:element name='selection3' type='Choice1'/>
+    <xs:element name='selection4' type='xs:unsignedInt'/>    
   </xs:choice>
 </xs:complexType>
 
@@ -56,7 +57,8 @@
     <xs:element name='element1' type='Choice3' minOccurs='0'/>
     <xs:element name='element2' type='Choice1' minOccurs='0' maxOccurs='unbounded'/>
     <xs:element name='element3' type='Choice2' />
-    <xs:element name='element4' type='Choice3' minOccurs='0' maxOccurs='unbounded'/>
+    <xs:element name='element4' type='Choice1' nillable='true' minOccurs='0' maxOccurs='unbounded'/>
+    <xs:element name='element5' type='Choice3' minOccurs='0' maxOccurs='unbounded'/>
   </xs:sequence>
 </xs:complexType>
 
@@ -122,14 +124,18 @@
     <xs:element name='element1' type='xs:unsignedByte' minOccurs='0'/>
     <xs:element name='element2' type='CustomString' minOccurs='0'/>
     <xs:element name='element3' type='CustomInt' minOccurs='0'/>
-    <xs:element name='element4' type='xs:unsignedByte' />
-    <xs:element name='element5' type='CustomInt' nillable='true' minOccurs='0' maxOccurs='unbounded'/>
-    <xs:element name='element6' type='CustomString' />
-    <xs:element name='element7' type='CustomInt' />
-    <xs:element name='element8' type='xs:unsignedByte' minOccurs='0' maxOccurs='unbounded'/>
-    <xs:element name='element9' type='CustomString' minOccurs='0' maxOccurs='unbounded'/>
-    <xs:element name='element10' type='xs:unsignedByte' nillable='true' minOccurs='0' maxOccurs='unbounded'/>
-    <xs:element name='element11' type='CustomInt' minOccurs='0' maxOccurs='unbounded'/>
+    <xs:element name='element4' type='xs:unsignedInt'/>
+    <xs:element name='element5' type='xs:unsignedByte' />
+    <xs:element name='element6' type='CustomInt' nillable='true' minOccurs='0' maxOccurs='unbounded'/>
+    <xs:element name='element7' type='CustomString' />
+    <xs:element name='element8' type='CustomInt' />
+    <xs:element name='element9' type='xs:unsignedInt' minOccurs='0'/>
+    <xs:element name='element10' type='xs:unsignedByte' minOccurs='0' maxOccurs='unbounded'/>
+    <xs:element name='element11' type='CustomString' minOccurs='0' maxOccurs='unbounded'/>
+    <xs:element name='element12' type='xs:unsignedInt' minOccurs='0' maxOccurs='unbounded'/>
+    <xs:element name='element13' type='xs:unsignedByte' nillable='true' minOccurs='0' maxOccurs='unbounded'/>
+    <xs:element name='element14' type='CustomInt' minOccurs='0' maxOccurs='unbounded'/>
+    <xs:element name='element15' type='xs:unsignedInt' nillable='true' minOccurs='0' maxOccurs='unbounded'/>
   </xs:sequence>
 </xs:complexType>
 
@@ -145,6 +151,26 @@
   </xs:sequence>
 </xs:complexType>
 
+<xs:complexType name='SequenceWithAnonymity'>
+  <xs:sequence>
+    <xs:choice>
+      <xs:element name='selection1' type='Sequence6'/>
+      <xs:element name='selection2' type='xs:unsignedByte'/>
+      <xs:element name='selection3' type='CustomString'/>
+      <xs:element name='selection4' type='CustomInt'/>
+    </xs:choice>
+    <xs:choice>
+      <xs:element name='selection5' type='xs:boolean'/>
+      <xs:element name='selection6' type='xs:string'/>
+    </xs:choice>
+    <xs:choice minOccurs='0' maxOccurs='1'>
+      <xs:element name='selection7' type='Sequence4'/>
+      <xs:element name='selection8' type='Choice2'/>
+    </xs:choice>
+    <xs:element name='element4' type='Sequence6'/>
+  </xs:sequence>
+</xs:complexType>    
+
 <xs:complexType name='FeatureTestMessage'>
   <xs:choice>
     <xs:element name='selection1'  type='Sequence1'/>
@@ -157,6 +183,7 @@
     <xs:element name='selection8'  type='Choice3'/>
     <xs:element name='selection9'  type='VoidSequence'/>
     <xs:element name='selection10' type='UnsignedSequence'/>
+    <xs:element name='selection11' type='SequenceWithAnonymity'/>
   </xs:choice>
 </xs:complexType>
 

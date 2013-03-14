@@ -2,8 +2,6 @@
 
 #include <bslstl_allocator.h>
 
-#include <bslalg_typetraits.h>            // testing only
-#include <bslalg_hastrait.h>              // testing only
 #include <bslma_allocator.h>              // testing only
 #include <bslma_default.h>                // testing only
 #include <bslma_defaultallocatorguard.h>  // testing only
@@ -201,8 +199,8 @@ template <class T, class ALLOC>
     // CREATORS
     template<class T, class ALLOC>
     my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(int          length,
-                                                  const ALLOC& alloc)
-    : d_allocator(alloc), d_length(length)
+                                                  const ALLOC& allocator)
+    : d_allocator(allocator), d_length(length)
 {
     d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 
@@ -214,15 +212,15 @@ template <class T, class ALLOC>
 
 template<class T, class ALLOC>
     my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(
-        const my_FixedSizeArray& rhs,
-    const ALLOC&               alloc)
-    : d_allocator(alloc), d_length(rhs.d_length)
+                                            const my_FixedSizeArray& original,
+                                            const ALLOC&             allocator)
+    : d_allocator(allocator), d_length(original.d_length)
 {
     d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 
     // copy construct each element of the array:
     for (int i = 0; i < d_length; ++i) {
-        d_allocator.construct(&d_array[i], rhs.d_array[i]);
+        d_allocator.construct(&d_array[i], original.d_array[i]);
     }
 }
 
@@ -485,48 +483,48 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'pointer'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::pointer, int*>::VALUE));
-            ASSERT((bslmf::IsSame<AF::pointer, float*>::VALUE));
-            ASSERT((bslmf::IsSame<AV::pointer, void*>::VALUE));
+            ASSERT((bsl::is_same<AI::pointer, int*>::value));
+            ASSERT((bsl::is_same<AF::pointer, float*>::value));
+            ASSERT((bsl::is_same<AV::pointer, void*>::value));
         }
 
         if (verbose) printf("\tTesting 'const_pointer'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::const_pointer, const int*>::VALUE));
-            ASSERT((bslmf::IsSame<AF::const_pointer, const float*>::VALUE));
-            ASSERT((bslmf::IsSame<AV::const_pointer, const void*>::VALUE));
+            ASSERT((bsl::is_same<AI::const_pointer, const int*>::value));
+            ASSERT((bsl::is_same<AF::const_pointer, const float*>::value));
+            ASSERT((bsl::is_same<AV::const_pointer, const void*>::value));
         }
 
         if (verbose) printf("\tTesting 'reference'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::reference, int&>::VALUE));
-            ASSERT((bslmf::IsSame<AF::reference, float&>::VALUE));
+            ASSERT((bsl::is_same<AI::reference, int&>::value));
+            ASSERT((bsl::is_same<AF::reference, float&>::value));
         }
 
         if (verbose) printf("\tTesting 'const_reference'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::const_reference, const int&>::VALUE));
-            ASSERT((bslmf::IsSame<AF::const_reference, const float&>::VALUE));
+            ASSERT((bsl::is_same<AI::const_reference, const int&>::value));
+            ASSERT((bsl::is_same<AF::const_reference, const float&>::value));
         }
 
         if (verbose) printf("\tTesting 'value_type'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::value_type, int>::VALUE));
-            ASSERT((bslmf::IsSame<AF::value_type, float>::VALUE));
-            ASSERT((bslmf::IsSame<AV::value_type, void>::VALUE));
+            ASSERT((bsl::is_same<AI::value_type, int>::value));
+            ASSERT((bsl::is_same<AF::value_type, float>::value));
+            ASSERT((bsl::is_same<AV::value_type, void>::value));
         }
 
         if (verbose) printf("\tTesting 'rebind'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AI::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AI::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<void >::other, AV>::VALUE));
+            ASSERT((bsl::is_same<AI::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AI::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AI::rebind<void >::other, AV>::value));
+            ASSERT((bsl::is_same<AF::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AF::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AF::rebind<void >::other, AV>::value));
+            ASSERT((bsl::is_same<AV::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AV::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AV::rebind<void >::other, AV>::value));
         }
 
       } break;
@@ -727,10 +725,10 @@ int main(int argc, char *argv[])
         // Concerns:
         //   That an allocator has the proper traits defined.
         //
-        // Plan:  Since it does not matter what type 'bsl::allocator' is
-        // instantiated with, use 'int' and test for the traits using
-        // 'bslalg::HasTrait'.  Note that 'void' also needs to be tested since
-        // it is a specialization.
+        // Plan: Since it does not matter what type 'bsl::allocator' is
+        // instantiated with, use 'int' and test for each expected trait.
+        // Note that 'void' also needs to be tested since it is a
+        // specialization.
         //
         // Testing:
         //   bslalg::TypeTrait<bsl::allocator>
@@ -739,21 +737,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============");
 
-        ASSERT((bslalg::HasTrait<bsl::allocator<int>,
-                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<bsl::allocator<int>,
-                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg::HasTrait<
-                          bsl::allocator<int>,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
+        ASSERT((bslmf::IsBitwiseMoveable<bsl::allocator<int> >::value));
+        ASSERT((bsl::is_trivially_copyable<bsl::allocator<int> >::value));
+        ASSERT((bslmf::IsBitwiseEqualityComparable<
+                                                bsl::allocator<int> >::value));
 
-        ASSERT((bslalg::HasTrait<bsl::allocator<void>,
-                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<bsl::allocator<void>,
-                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg::HasTrait<
-                          bsl::allocator<void>,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
+        ASSERT((bslmf::IsBitwiseMoveable<bsl::allocator<void> >::value));
+        ASSERT((bsl::is_trivially_copyable<bsl::allocator<void> >::value));
+        ASSERT((bslmf::IsBitwiseEqualityComparable<
+                                               bsl::allocator<void> >::value));
 
       } break;
 
@@ -806,11 +798,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

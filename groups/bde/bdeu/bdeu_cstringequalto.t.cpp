@@ -8,6 +8,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslalg_hastrait.h>
+#include <bslalg_typetraits.h>
 
 #include <bslmf_issame.h>
 
@@ -118,8 +119,8 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 7: {
@@ -302,8 +303,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         static const struct {
             int         d_line;
@@ -408,8 +409,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout << "Value initialization" << endl;
         const bdeu_CStringEqualTo obj1 = bdeu_CStringEqualTo();

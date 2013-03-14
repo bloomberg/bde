@@ -36,11 +36,7 @@
 #include <bsl_c_stdio.h>
 #endif
 
-#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
-#include <strstrea.h>
-#else
 #include <bsl_strstream.h>
-#endif
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;

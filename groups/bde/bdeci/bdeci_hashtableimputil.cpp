@@ -4,8 +4,6 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdeci_hashtableimputil_cpp,"$Id$ $CSID$")
 
-#include <bsls_platformutil.h>
-
 namespace BloombergLP {
 
 int bdeci_HashtableImpUtil::sizes[] =

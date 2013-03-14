@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // memory from the indicated 'bslma::Allocator', a list supplies that
 // allocator's address to the constructors of contained objects of the
 // (template parameter) 'VALUE' type, if respectively, the parameterized types
-// define the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+// define the 'bslma::UsesBslmaAllocator' trait.
 //
 ///Operations
 ///----------
@@ -267,7 +267,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      int brightness() const
-//          // Return the brightness of this 'Star' ojbect.
+//          // Return the brightness of this 'Star' object.
 //      {
 //          return d_brightness;
 //      }
@@ -505,24 +505,20 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_rangecompare.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
-#include <bslalg_typetraitbitwisemoveable.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ENABLEIF
@@ -531,6 +527,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISENUM
+#include <bslmf_isenum.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
@@ -639,9 +639,9 @@ class List_Iterator
                            List_Iterator<T2, NODEP, DIFFT>);
 
     // PRIVATE TYPES
-    typedef typename BloombergLP::bslmf::RemoveCvq<VALUE>::Type  NcType;
-    typedef List_Iterator<NcType, NODEPTR, DIFFTYPE>             NcIter;
-    typedef List_Node<NcType>                                    Node;
+    typedef typename remove_cv<VALUE>::type          NcType;
+    typedef List_Iterator<NcType, NODEPTR, DIFFTYPE> NcIter;
+    typedef List_Node<NcType>                        Node;
 
     // DATA
     NODEPTR d_nodeptr;  // pointer to list node
@@ -930,22 +930,19 @@ class list
         // element holding the size of this list.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        list,
+        BloombergLP::bslmf::IsBitwiseMoveable,
+        BloombergLP::bslmf::IsBitwiseMoveable<ALLOCATOR>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION(list,
+                                   BloombergLP::bslalg::HasStlIterators);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        list,
+        BloombergLP::bslma::UsesBslmaAllocator,
+        (is_convertible<BloombergLP::bslma::Allocator*, ALLOCATOR>::value));
+
     // PUBLIC TYPES
-    typedef BloombergLP::bslalg::PassthroughTrait<
-                                 ALLOCATOR,
-                                 BloombergLP::bslalg::TypeTraitBitwiseMoveable>
-            AllocatorBitwiseMoveableTrait;
-        // This typedef is an alias for the bitwise movable type trait of this
-        // list if the (template parameter) 'ALLOCATOR' type has the bitwise
-        // movable type trait.
-
-    BSLALG_DECLARE_NESTED_TRAITS3(
-               list,
-               BloombergLP::bslalg::TypeTraitHasStlIterators,
-               AllocatorBitwiseMoveableTrait,
-               BloombergLP::bslalg::PassthroughTraitBslmaAllocator<ALLOCATOR>);
-        // This macro declares nested type traits for this list.
-
     typedef VALUE&                                             reference;
     typedef const VALUE&                                       const_reference;
     typedef List_Iterator<VALUE,NodePtr,DiffType>              iterator;
@@ -1019,8 +1016,8 @@ class list
     list(InputIter first,
          InputIter last,
          const ALLOCATOR& allocator = ALLOCATOR(),
-         typename BloombergLP::bslmf::EnableIf<
-             !BloombergLP::bslmf::IsFundamental<InputIter>::VALUE
+         typename enable_if<
+             !is_fundamental<InputIter>::value && !is_enum<InputIter>::value
          >::type * = 0)
         // Create a list using the specified 'allocator' and insert the number
         // of elements determined by the size of the specified range
@@ -1030,18 +1027,13 @@ class list
         // iterator type.  The behavior is undefined unless '[first, last)'
         // defines a range of valid objects.
         //
-        // TBD: This function's signature is specified using 'bslmf::EnableIf'
-        // in such a way that it will not be selected during overload
-        // resolution if 'InputIter' is a fundamental type.  Unfortunately,
-        // this function *will* (incorrectly) be selected if 'InputIter' is an
-        // enumerated type.  The best way to correct this problem would be to
-        // use 'std::is_arithmetic' (a currently unavailable metafunction that
-        // would include enums) instead of 'bslmf::IsFundamental' in the
-        // 'bslmf::EnableIf' expression.
+        // TBD: It would be better to use 'std::is_arithmetic' (a currently
+        // unavailable metafunction) instead of 'is_fundamental' in the
+        // 'enable_if' expression.
     : d_alloc_and_size(allocator, size_type(-1))
     {
         // MS Visual Studio 2008 compiler requires that a function using
-        // EnableIf be in-place inline.
+        // enable_if be in-place inline.
 
         // '*this' is in an invalid but destructible state (size == -1).
         // Create a temporary list, 'tmp' with the specified data.  If an
@@ -1113,8 +1105,9 @@ class list
 
     template <class InputIter>
     void assign(InputIter first, InputIter last,
-                typename BloombergLP::bslmf::EnableIf<
-                    !BloombergLP::bslmf::IsFundamental<InputIter>::VALUE
+                typename enable_if<
+                    !is_fundamental<InputIter>::value &&
+                    !is_enum<InputIter>::value
                 >::type * = 0)
         // Assign to this list the values of the elements in the specified
         // range '[first, last)'.  Each element in this list is set by either
@@ -1124,17 +1117,12 @@ class list
         // unless '[first, last)' is a range of valid iterators not into this
         // list.
         //
-        // TBD: This function's signature is specified using 'bslmf::EnableIf'
-        // in such a way that it will not be selected during overload
-        // resolution if 'InputIter' is a fundamental type.  Unfortunately,
-        // this function *will* (incorrectly) be selected if 'InputIter' is an
-        // enumerated type.  The best way to correct this problem is to use
-        // 'bslmf::IsArithmetic' (a currently unimplemented metafunction that
-        // would include enums) instead of 'bslmf::IsFundamental' in the
-        // 'bslmf::EnableIf' expression.
+        // TBD: It would be better to use 'std::is_arithmetic' (a currently
+        // unavailable metafunction) instead of 'is_fundamental' in the
+        // 'enable_if' expression.
     {
         // MS Visual Studio 2008 compiler requires that a function using
-        // EnableIf be in-place inline.
+        // enable_if be in-place inline.
 
         iterator i = this->begin();
         iterator e = this->end();
@@ -1359,25 +1347,21 @@ class list
 
     template <class InputIter>
     iterator insert(const_iterator position, InputIter first, InputIter last,
-                    typename BloombergLP::bslmf::EnableIf<
-                        !BloombergLP::bslmf::IsFundamental<InputIter>::VALUE
+                    typename enable_if<
+                        !is_fundamental<InputIter>::value &&
+                        !is_enum<InputIter>::value
                     >::type * = 0)
         // Insert the specified range '[first, last)' into this list at the
         // specified 'position' and return an iterator to the first inserted
         // element or 'position' if the range is empty.  Does not participate
         // in overload resolution unless 'InputIter' is an iterator type.
         //
-        // TBD: This function's signature is specified using 'bslmf::EnableIf'
-        // in such a way that it will not be selected during overload
-        // resolution if 'InputIter' is a fundamental type.  Unfortunately,
-        // this function *will* (incorrectly) be selected if 'InputIter' is an
-        // enumerated type.  The best way to correct this problem is to use
-        // 'bslmf::IsArithmetic' (a currently unimplemented metafunction that
-        // would include enums) instead of 'bslmf::IsFundamental' in the
-        // 'bslmf::EnableIf' expression.
+        // TBD: It would be better to use 'std::is_arithmetic' (a currently
+        // unavailable metafunction) instead of 'is_fundamental' in the
+        // 'enable_if' expression.
     {
         // MS Visual Studio 2008 compiler requires that a function using
-        // EnableIf be inplace inline.
+        // enable_if be inplace inline.
 
         if (first == last) {
             return position.unconst();                                // RETURN
@@ -2111,7 +2095,7 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& original)
         return *this;                                                 // RETURN
     }
 
-    if (AllocTraits::propagate_on_container_copy_assignment::VALUE &&
+    if (AllocTraits::propagate_on_container_copy_assignment::value &&
         allocator() != original.allocator()) {
         // Completely destroy and rebuild list using new allocator.
 
@@ -2150,7 +2134,7 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(list&& original)
 
         quick_swap(original);
     }
-    else if (AllocTraits::propagate_on_container_move_assignment::VALUE) {
+    else if (AllocTraits::propagate_on_container_move_assignment::value) {
         // Completely destroy and rebuild list using new allocator.
 
         // Create a new list with the new allocator and new contents.  This
@@ -2200,18 +2184,21 @@ void list<VALUE, ALLOCATOR>::assign(size_type n, const VALUE& value)
 
 // iterators:
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::iterator list<VALUE, ALLOCATOR>::begin()
 {
     return iterator(head());
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::iterator list<VALUE, ALLOCATOR>::end()
 {
     return iterator(d_sentinel);
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::reverse_iterator
 list<VALUE, ALLOCATOR>::rbegin()
 {
@@ -2219,6 +2206,7 @@ list<VALUE, ALLOCATOR>::rbegin()
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::reverse_iterator
 list<VALUE, ALLOCATOR>::rend()
 {
@@ -2257,6 +2245,7 @@ void list<VALUE, ALLOCATOR>::resize(size_type sz, const VALUE& c)
 
 // element access:
 template <class VALUE, class ALLOCATOR>
+inline
 VALUE& list<VALUE, ALLOCATOR>::front()
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
@@ -2265,6 +2254,7 @@ VALUE& list<VALUE, ALLOCATOR>::front()
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 VALUE& list<VALUE, ALLOCATOR>::back()
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
@@ -2278,6 +2268,7 @@ VALUE& list<VALUE, ALLOCATOR>::back()
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template <class VALUE, class ALLOCATOR>
 template <class... Args>
+inline
 void list<VALUE, ALLOCATOR>::emplace_front(Args&&... args)
 {
     emplace(begin(), std::forward<Args>(args)...);
@@ -2341,6 +2332,7 @@ void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1,
 #endif
 
 template <class VALUE, class ALLOCATOR>
+inline
 void list<VALUE, ALLOCATOR>::pop_front()
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
@@ -2352,6 +2344,7 @@ void list<VALUE, ALLOCATOR>::pop_front()
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template <class VALUE, class ALLOCATOR>
 template <class... Args>
+inline
 void list<VALUE, ALLOCATOR>::emplace_back(Args&&... args)
 {
     emplace(end(), std::forward<Args>(args)...);
@@ -2415,6 +2408,7 @@ void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1,
 #endif
 
 template <class VALUE, class ALLOCATOR>
+inline
 void list<VALUE, ALLOCATOR>::pop_back()
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
@@ -2423,12 +2417,14 @@ void list<VALUE, ALLOCATOR>::pop_back()
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 void list<VALUE, ALLOCATOR>::push_front(const VALUE& value)
 {
     emplace(begin(), value);
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 void list<VALUE, ALLOCATOR>::push_back(const VALUE& value)
 {
     emplace(end(), value);
@@ -2436,12 +2432,14 @@ void list<VALUE, ALLOCATOR>::push_back(const VALUE& value)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template <class VALUE, class ALLOCATOR>
+inline
 void list<VALUE, ALLOCATOR>::push_front(VALUE&& value)
 {
     emplace(begin(), std::move(value));
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 void list<VALUE, ALLOCATOR>::push_back(VALUE&& value)
 {
     emplace(end(), std::move(value));
@@ -2641,7 +2639,7 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
 {
     using std::swap;
 
-    if (AllocTraits::propagate_on_container_swap::VALUE) {
+    if (AllocTraits::propagate_on_container_swap::value) {
         swap(allocator(), other.allocator());
         quick_swap(other);
     }
@@ -2665,6 +2663,7 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 void list<VALUE, ALLOCATOR>::clear()
 {
     erase(begin(), end());
@@ -2887,6 +2886,7 @@ void list<VALUE, ALLOCATOR>::reverse()
 
 // 23.3.5.2 construct/copy/destroy:
 template <class VALUE, class ALLOCATOR>
+inline
 ALLOCATOR list<VALUE, ALLOCATOR>::get_allocator() const
 {
     return allocator();
@@ -2894,6 +2894,7 @@ ALLOCATOR list<VALUE, ALLOCATOR>::get_allocator() const
 
 // iterators:
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::const_iterator
 list<VALUE, ALLOCATOR>::begin() const
 {
@@ -2901,6 +2902,7 @@ list<VALUE, ALLOCATOR>::begin() const
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::const_iterator
 list<VALUE, ALLOCATOR>::end() const
 {
@@ -2908,6 +2910,7 @@ list<VALUE, ALLOCATOR>::end() const
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::const_reverse_iterator
 list<VALUE, ALLOCATOR>::rbegin() const
 {
@@ -2915,6 +2918,7 @@ list<VALUE, ALLOCATOR>::rbegin() const
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::const_reverse_iterator
 list<VALUE, ALLOCATOR>::rend() const
 {
@@ -2922,6 +2926,7 @@ list<VALUE, ALLOCATOR>::rend() const
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::const_iterator
 list<VALUE, ALLOCATOR>::cbegin() const
 {
@@ -2929,6 +2934,7 @@ list<VALUE, ALLOCATOR>::cbegin() const
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::const_iterator
 list<VALUE, ALLOCATOR>::cend() const
 {
@@ -2936,6 +2942,7 @@ list<VALUE, ALLOCATOR>::cend() const
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::const_reverse_iterator
 list<VALUE, ALLOCATOR>::crbegin() const
 {
@@ -2943,6 +2950,7 @@ list<VALUE, ALLOCATOR>::crbegin() const
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::const_reverse_iterator
 list<VALUE, ALLOCATOR>::crend() const
 {
@@ -2951,18 +2959,21 @@ list<VALUE, ALLOCATOR>::crend() const
 
 // 23.3.5.3 capacity:
 template <class VALUE, class ALLOCATOR>
+inline
 bool list<VALUE, ALLOCATOR>::empty() const
 {
     return 0 == size_ref();
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::size_type list<VALUE, ALLOCATOR>::size() const
 {
     return size_ref();
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 typename list<VALUE, ALLOCATOR>::size_type
 list<VALUE, ALLOCATOR>::max_size() const
 {
@@ -2971,6 +2982,7 @@ list<VALUE, ALLOCATOR>::max_size() const
 
 // element access:
 template <class VALUE, class ALLOCATOR>
+inline
 const VALUE& list<VALUE, ALLOCATOR>::front() const
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
@@ -2979,6 +2991,7 @@ const VALUE& list<VALUE, ALLOCATOR>::front() const
 }
 
 template <class VALUE, class ALLOCATOR>
+inline
 const VALUE& list<VALUE, ALLOCATOR>::back() const
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
@@ -2987,11 +3000,13 @@ const VALUE& list<VALUE, ALLOCATOR>::back() const
     return last->d_value;
 }
 
+}  // close namespace bsl
+
 // FREE OPERATORS
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator==(const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator==(const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
                                                     lhs.end(),
@@ -3003,16 +3018,16 @@ bool operator==(const list<VALUE, ALLOCATOR>& lhs,
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator!=(const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator!=(const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return ! (lhs == rhs);
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator< (const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator< (const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return 0 > BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
                                                                   lhs.end(),
@@ -3024,24 +3039,24 @@ bool operator< (const list<VALUE, ALLOCATOR>& lhs,
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator> (const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator> (const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return rhs < lhs;
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator>=(const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return ! (lhs < rhs);
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator<=(const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator<=(const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return ! (rhs < lhs);
 }
@@ -3049,20 +3064,32 @@ bool operator<=(const list<VALUE, ALLOCATOR>& lhs,
 // specialized algorithms:
 template <class VALUE, class ALLOCATOR>
 inline
-void swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs)
+void bsl::swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs)
 {
     lhs.swap(rhs);
 }
 
-}  // close namespace bsl
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

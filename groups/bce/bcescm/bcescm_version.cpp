@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcescm_version_cpp,"$Id$ $CSID$")
 
+#include <bdescm_patchversion.h> // BDESCM_PATCHVERSION_PATCH
+
 namespace BloombergLP {
 
 #define STRINGIFY2(a) #a
@@ -14,14 +16,14 @@ namespace BloombergLP {
                                              "." STRINGIFY(BDE_VERSION_MINOR) \
                                              "." STRINGIFY(REQUIRED_BDE_PATCH)
 
-#define BCE_VERSION_PATCH 0
+#define BCE_VERSION_PATCH BDESCM_PATCHVERSION_PATCH
 #define BCESCM_VERSION_STRING "BLP_LIB_BDE_BCE_" STRINGIFY(BCE_VERSION_MAJOR) \
                                              "." STRINGIFY(BCE_VERSION_MINOR) \
                                              "." STRINGIFY(BCE_VERSION_PATCH) \
                                              BDE_VERSION_RELEASETYPE
 
-const char *bcescm_Version::d_ident = "$Id: "BCESCM_VERSION_STRING" $";
-const char *bcescm_Version::d_what  = "@(#)"BCESCM_VERSION_STRING;
+const char *bcescm_Version::d_ident = "$Id: " BCESCM_VERSION_STRING " $";
+const char *bcescm_Version::d_what  = "@(#)" BCESCM_VERSION_STRING;
 
 const char *bcescm_Version::d_version           = BCESCM_VERSION_STRING;
 const char *bcescm_Version::d_dependencies      = BDESCM_VERSION_STRING;

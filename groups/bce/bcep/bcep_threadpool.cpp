@@ -10,8 +10,8 @@ BDES_IDENT_RCSID(bcep_threadpool_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_deque.h>
 
@@ -261,9 +261,9 @@ void bcep_ThreadPool::workerThread()
 
         // Run the callback and keep measurements.
 
-        bsls_PlatformUtil::Int64 start  = bsls_TimeUtil::getTimer();
+        bsls::Types::Int64 start  = bsls::TimeUtil::getTimer();
         functor();
-        bsls_PlatformUtil::Int64 finish = bsls_TimeUtil::getTimer();
+        bsls::Types::Int64 finish = bsls::TimeUtil::getTimer();
         if (start < d_lastResetTime) {
             d_callbackTime.add(finish - d_lastResetTime);
         }
@@ -274,11 +274,11 @@ void bcep_ThreadPool::workerThread()
 }
 
 // CREATORS
-bcep_ThreadPool::bcep_ThreadPool(const bcemt_Attribute& threadAttributes,
-                                 int                    minThreads,
-                                 int                    maxThreads,
-                                 int                    maxIdleTime,
-                                 bslma_Allocator       *basicAllocator)
+bcep_ThreadPool::bcep_ThreadPool(const bcemt_Attribute&  threadAttributes,
+                                 int                     minThreads,
+                                 int                     maxThreads,
+                                 int                     maxIdleTime,
+                                 bslma::Allocator       *basicAllocator)
 : d_queue(basicAllocator)
 , d_threadAttributes(threadAttributes)
 , d_maxThreads(maxThreads)
@@ -290,7 +290,7 @@ bcep_ThreadPool::bcep_ThreadPool(const bcemt_Attribute& threadAttributes,
 , d_numWaiting(0)
 , d_enabled(0)
 , d_waitHead(0)
-, d_lastResetTime(bsls_TimeUtil::getTimer()) // now
+, d_lastResetTime(bsls::TimeUtil::getTimer()) // now
 {
     // Force all threads to be detached.
 
@@ -362,15 +362,15 @@ void bcep_ThreadPool::shutdown()
 
 double bcep_ThreadPool::resetPercentBusy()
 {
-    bsls_PlatformUtil::Int64 now           = bsls_TimeUtil::getTimer();
-    bsls_PlatformUtil::Int64 callbackTime  = d_callbackTime.swap(0);
-    bsls_PlatformUtil::Int64 lastResetTime = d_lastResetTime.swap(now);
+    bsls::Types::Int64 now           = bsls::TimeUtil::getTimer();
+    bsls::Types::Int64 callbackTime  = d_callbackTime.swap(0);
+    bsls::Types::Int64 lastResetTime = d_lastResetTime.swap(now);
 
     // on some platforms, the "nanosecond" timers can be coarser.
     // so if no time has been perceived to elapse,
     // set the minimum elapsed time to 1ns.
 
-    bsls_PlatformUtil::Int64 interval = now - lastResetTime;
+    bsls::Types::Int64 interval = now - lastResetTime;
     if (0 == interval) {
 
         // BSLS_ASSERT (callbackTime <= interval);
@@ -432,8 +432,8 @@ int bcep_ThreadPool::numPendingJobs() const
 }
 
 double bcep_ThreadPool::percentBusy() const {
-    bsls_PlatformUtil::Int64 last     =  d_lastResetTime;
-    bsls_PlatformUtil::Int64 interval = bsls_TimeUtil::getTimer() - last;
+    bsls::Types::Int64 last     =  d_lastResetTime;
+    bsls::Types::Int64 interval = bsls::TimeUtil::getTimer() - last;
 
     // on some platforms, the "nanosecond" timers can be coarser.
     // so if no time has been perceived to elapse,

@@ -55,18 +55,18 @@
 //                                        process.
 //..
 //
-// Iterator Invalidation
-// ---------------------
+///Iterator Invalidation
+///---------------------
 // Registration of new pids does not invalidate existing iterators.
 // Unregistration of pid only invalidates iterators pointing to the statistics
 // for the pid being unregistered, all other iterators remain valid.
 //
-// Thread Safety
-// -------------
+///Thread Safety
+///-------------
 // This class is completely thread safe.
 //
-// Usage
-// -----
+///Usage
+///-----
 // The following example shows how to monitor the currently executing process
 // and produce a formatted report of the collected measures after a certain
 // interval.
@@ -125,6 +125,18 @@
 #include <bces_atomictypes.h>
 #endif
 
+#ifndef INCLUDED_BDET_DATETIME
+#include <bdet_datetime.h>
+#endif
+
+#ifndef INCLUDED_BDET_TIMEINTERVAL
+#include <bdet_timeinterval.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -133,12 +145,8 @@
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BDET_DATETIME
-#include <bdet_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDET_TIMEINTERVAL
-#include <bdet_timeinterval.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 #ifndef INCLUDED_BSL_ITERATOR
@@ -151,14 +159,6 @@
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -185,23 +185,23 @@ class baea_PerformanceMonitor {
     // PRIVATE TYPES
 
     // Defines a type alias for the operating system type discovered by the
-    // bdes_platform component.  This type alias is used to specifically select
-    // a particular template specialization of the 'Collector' template.
+    // 'bsls_platform' component.  This type alias is used to specifically
+    // select a particular template specialization of the 'Collector' template.
 
-#if defined(BSLS_PLATFORM_OS_LINUX)
-    typedef bsls_Platform::OsLinux   OsType;
-#elif defined(BDES_PLATFORM_OS_FREEBSD)
-    typedef bsls_Platform::OsFreeBsd OsType;
-#elif defined(BDES_PLATFORM_OS_DARWIN)
-    typedef bsls_Platform::OsDarwin OsType;
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+    typedef bsls::Platform::OsLinux   OsType;
+#elif defined(BSLS_PLATFORM_OS_FREEBSD)
+    typedef bsls::Platform::OsFreeBsd OsType;
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+    typedef bsls::Platform::OsDarwin  OsType;
 /*
 #elif defined(BSLS_PLATFORM_OS_HPUX)
-typedef bsls_Platform::OsHpUx OsType;
+typedef bsls::Platform::OsHpUx OsType;
 */
 #elif defined(BSLS_PLATFORM_OS_UNIX)
-    typedef bsls_Platform::OsUnix    OsType;
+    typedef bsls::Platform::OsUnix    OsType;
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
-    typedef bsls_Platform::OsWindows OsType;
+    typedef bsls::Platform::OsWindows OsType;
 #endif
 
     template <typename PLATFORM>
@@ -244,7 +244,7 @@ typedef bsls_Platform::OsHpUx OsType;
     mutable bcemt_RWMutex             d_mapGuard;    // serializes write access
                                                      // to 'd_pidMap'
 
-    bslma_Allocator                  *d_allocator_p; // supplies memory (held)
+    bslma::Allocator                 *d_allocator_p; // supplies memory (held)
 
   private:
     // NOT IMPLEMENTED
@@ -324,7 +324,7 @@ typedef bsls_Platform::OsHpUx OsType;
 
     public:
         // CREATORS
-        explicit Statistics(bslma_Allocator *basicAllocator = 0);
+        explicit Statistics(bslma::Allocator *basicAllocator = 0);
             // Create an instance of this class.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
@@ -461,7 +461,7 @@ typedef bsls_Platform::OsHpUx OsType;
 
     // CREATORS
     explicit
-    baea_PerformanceMonitor(bslma_Allocator *basicAllocator = 0);
+    baea_PerformanceMonitor(bslma::Allocator *basicAllocator = 0);
         // Create an instance of this class to collect performance statistics
         // on demand (via the 'collect' method).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -469,7 +469,7 @@ typedef bsls_Platform::OsHpUx OsType;
 
     baea_PerformanceMonitor(bcep_TimerEventScheduler *scheduler,
                             double                    interval,
-                            bslma_Allocator          *basicAllocator = 0);
+                            bslma::Allocator         *basicAllocator = 0);
         // Create an instance of this class that uses the specified 'scheduler'
         // to automatically collect performance statistics every specified
         // 'interval' (specified in seconds).  Optionally specify a

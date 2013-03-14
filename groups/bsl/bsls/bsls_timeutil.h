@@ -78,6 +78,14 @@ BSLS_IDENT("$Id: $")
 // the 'bsls::TimeUtil' high-resolution functions from the nanosecond range to
 // the microsecond range (or worse).
 //
+///Precision on Windows
+/// - - - - - - - - - -
+// Providing that the underlying timer is capable of reporting the
+// 'QueryPerformanceCounter' interface, the nanosecond values reported by
+// 'getTimer' or 'convertRawTime' will be in the range (t - 2, t], where t is
+// the real (infinitely precise floating point) number of nanoseconds expressed
+// by the current raw timer count.
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use 'bsls::TimeUtil'
@@ -191,7 +199,7 @@ BSLS_IDENT("$Id: $")
     #endif
 #endif
 
-#ifdef BSLS_PLATFORM_OS_AIX
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_FREEBSD)
     #ifndef INCLUDED_SYS_TIME
     #include <sys/time.h>
     #define INCLUDED_SYS_TIME
@@ -225,9 +233,9 @@ struct TimeUtil {
 #elif defined BSLS_PLATFORM_OS_AIX
     typedef timebasestruct_t                  OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_HPUX
-    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
-#elif defined BSLS_PLATFORM_OS_LINUX
-    typedef timespec                          OpaqueNativeTime;
+        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+        typedef timespec                          OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_UNIX
     typedef timeval                           OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_WINDOWS
@@ -297,11 +305,24 @@ typedef bsls::TimeUtil bsls_TimeUtil;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008, 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

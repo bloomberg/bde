@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO: bslstp_hashmap, bslstp_hashset
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a functor to compare two
 // null-terminated strings using a case-sensitive string comparison, rather
@@ -31,8 +31,12 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -52,12 +56,8 @@ namespace BloombergLP {
 struct bdeu_CStringEqualTo {
     // This 'struct' defines a comparison functor on null-terminated character
     // strings, enabling them for use as keys in the standard unordered
-    // associative containers such as 'bsl::hash_map' and 'bsl::hash_set'.
-    // Note that this class is an empty POD type.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeu_CStringEqualTo,
-                                 bslalg::TypeTraitsGroupPod);
+    // associative containers such as 'bsl::unordered_map' and
+    // 'bsl::unordered_set'.  Note that this class is an empty POD type.
 
     // STANDARD TYPEDEFS
     typedef const char *first_argument_type;
@@ -90,9 +90,26 @@ struct bdeu_CStringEqualTo {
         // point to null-terminated strings.
 };
 
+} // CLose enterprise namespace
+
+// POD TRAITS
+namespace bsl {
+
+template <>
+struct is_trivially_copyable<BloombergLP::bdeu_CStringEqualTo> :
+        bsl::true_type { };
+
+template <>
+struct is_trivially_default_constructible<BloombergLP::bdeu_CStringEqualTo> :
+        bsl::true_type { };
+
+} // Close namespace bsl
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+namespace BloombergLP {
 
                        // --------------------------
                        // struct bdeu_CStringEqualTo

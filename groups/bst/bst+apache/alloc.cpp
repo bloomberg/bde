@@ -33,12 +33,6 @@
 #include <rw_alloc.h>
 #include <driver.h>   // for rw_error(), rw_fatal()
 
-
-#ifdef __CYGWIN__
-// use the Windows API on Cygwin
-#  define _WIN32
-#endif
-
 #if !defined (_WIN32) && !defined (_WIN64)
 #  ifdef __SUNPRO_CC
 // working around SunOS bug #568

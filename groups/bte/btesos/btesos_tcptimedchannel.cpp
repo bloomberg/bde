@@ -108,13 +108,13 @@ void btesos_TcpTimedChannel::initializeReadBuffer(int size)
 
 btesos_TcpTimedChannel::btesos_TcpTimedChannel(
                     bteso_StreamSocket<bteso_IPv4Address> *socket,
-                    bslma_Allocator                       *basicAllocator)
+                    bslma::Allocator                      *basicAllocator)
 : d_socket_p(socket)
 , d_isInvalidFlag(0)
 , d_readBuffer(basicAllocator)
 , d_readBufferOffset(0)
 , d_readBufferedStartPointer(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(d_socket_p);
     d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);

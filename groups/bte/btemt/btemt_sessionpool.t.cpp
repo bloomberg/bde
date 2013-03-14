@@ -225,15 +225,15 @@ class TestSessionFactory : public btemt_SessionFactory {
     // objects.  No specific allocation strategy (such as pooling) is
     // implemented.
 
-    bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
+    bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestSessionFactory,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestSessionFactory(bslma_Allocator *basicAllocator = 0);
+    TestSessionFactory(bslma::Allocator *basicAllocator = 0);
         // Create a new 'TestSessionFactory' object.  Optionally specify
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator is used.
@@ -273,7 +273,7 @@ class TestServer {
                                                       // server is
                                                       // listening
 
-    bslma_Allocator               *d_allocator_p;     // memory allocator
+    bslma::Allocator              *d_allocator_p;     // memory allocator
                                                       // (held, not owned)
 
     bcemt_Mutex                   *d_coutMutex;       // Mutex for cout
@@ -297,13 +297,13 @@ class TestServer {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestServer,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestServer(bcemt_Mutex     *coutMutex,
-               int              portNumber,
-               int              numConnections,
-               bslma_Allocator *basicAllocator = 0);
+    TestServer(bcemt_Mutex      *coutMutex,
+               int               portNumber,
+               int               numConnections,
+               bslma::Allocator *basicAllocator = 0);
         // Create an echo server that listens for incoming connections on
         // the specified 'portNumber' managing up to the specified
         // 'numConnections' simultaneous connections.  Pass the specified
@@ -395,8 +395,8 @@ btemt_AsyncChannel *TesterSession::channel() const
                       // ------------------------
 
 // CREATORS
-TestSessionFactory::TestSessionFactory(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+TestSessionFactory::TestSessionFactory(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -463,12 +463,12 @@ void TestServer::sessionStateCb(int            state,
 }
 
 // CREATORS
-TestServer::TestServer(bcemt_Mutex     *coutMutex,
-                       int              portNumber,
-                       int              numConnections,
-                       bslma_Allocator *basicAllocator)
-: d_sessionFactory(bslma_Default::allocator(basicAllocator))
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+TestServer::TestServer(bcemt_Mutex      *coutMutex,
+                       int               portNumber,
+                       int               numConnections,
+                       bslma::Allocator *basicAllocator)
+: d_sessionFactory(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_coutMutex(coutMutex)
 {
     d_config.setMaxThreads(4);                  // 4 I/O threads
@@ -525,7 +525,7 @@ int TestServer::portNumber() const
 
 namespace BTEMT_SESSION_POOL_DRQS_29067989 {
 
-static bslma_TestAllocator testAllocator;
+static bslma::TestAllocator testAllocator;
 static int callbackCount = 0;
 
 static int maxLength = 0;
@@ -626,15 +626,15 @@ class TestSessionFactory : public btemt_SessionFactory {
     // objects.  No specific allocation strategy (such as pooling) is
     // implemented.
 
-    bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
+    bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestSessionFactory,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestSessionFactory(bslma_Allocator *basicAllocator = 0);
+    TestSessionFactory(bslma::Allocator *basicAllocator = 0);
         // Create a new 'TestSessionFactory' object.  Optionally specify
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator is used.
@@ -674,7 +674,7 @@ class TestServer {
                                                       // server is
                                                       // listening
 
-    bslma_Allocator               *d_allocator_p;     // memory allocator
+    bslma::Allocator              *d_allocator_p;     // memory allocator
                                                       // (held, not owned)
 
     bcemt_Mutex                   *d_coutMutex;       // Mutex for cout
@@ -698,13 +698,13 @@ class TestServer {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestServer,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestServer(bcemt_Mutex     *coutMutex,
-               int              portNumber,
-               int              numConnections,
-               bslma_Allocator *basicAllocator = 0);
+    TestServer(bcemt_Mutex      *coutMutex,
+               int               portNumber,
+               int               numConnections,
+               bslma::Allocator *basicAllocator = 0);
         // Create an echo server that listens for incoming connections on
         // the specified 'portNumber' managing up to the specified
         // 'numConnections' simultaneous connections.  Pass the specified
@@ -824,8 +824,8 @@ btemt_AsyncChannel *TesterSession::channel() const
                       // ------------------------
 
 // CREATORS
-TestSessionFactory::TestSessionFactory(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+TestSessionFactory::TestSessionFactory(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -892,12 +892,12 @@ void TestServer::sessionStateCb(int            state,
 }
 
 // CREATORS
-TestServer::TestServer(bcemt_Mutex     *coutMutex,
-                       int              portNumber,
-                       int              numConnections,
-                       bslma_Allocator *basicAllocator)
-: d_sessionFactory(bslma_Default::allocator(basicAllocator))
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+TestServer::TestServer(bcemt_Mutex      *coutMutex,
+                       int               portNumber,
+                       int               numConnections,
+                       bslma::Allocator *basicAllocator)
+: d_sessionFactory(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_coutMutex(coutMutex)
 {
     d_config.setMaxThreads(4);                  // 4 I/O threads
@@ -1036,16 +1036,16 @@ class TesterFactory : public btemt_SessionFactory {
     // DATA
     btemt_SessionFactory::Callback  d_callback;
     btemt_Session                  *d_session_p;
-    bslma_Allocator                *d_allocator_p;  // memory allocator (held,
+    bslma::Allocator               *d_allocator_p;  // memory allocator (held,
                                                     // not owned)
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TesterFactory,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TesterFactory(bslma_Allocator *basicAllocator = 0);
+    TesterFactory(bslma::Allocator *basicAllocator = 0);
         // Create a new 'TesterFactory' object using the specified 'barrier'.
         // Optionally specify 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -1125,9 +1125,9 @@ btemt_AsyncChannel *TesterSession::channel() const
                         // -------------------
 
 // CREATORS
-TesterFactory::TesterFactory(bslma_Allocator *basicAllocator)
+TesterFactory::TesterFactory(bslma::Allocator *basicAllocator)
 : d_session_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -1429,16 +1429,17 @@ class TesterFactory : public btemt_SessionFactory {
     btemt_SessionFactory::Callback  d_callback;
     btemt_Session                  *d_session_p;
     bcemt_Barrier                  *d_barrier_p;
-    bslma_Allocator                *d_allocator_p;  // memory allocator (held,
+    bslma::Allocator               *d_allocator_p;  // memory allocator (held,
                                                     // not owned)
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TesterFactory,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TesterFactory(bcemt_Barrier *barrier, bslma_Allocator *basicAllocator = 0);
+    TesterFactory(bcemt_Barrier    *barrier,
+                  bslma::Allocator *basicAllocator = 0);
         // Create a new 'TesterFactory' object using the specified 'barrier'.
         // Optionally specify 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -1518,11 +1519,11 @@ btemt_AsyncChannel *TesterSession::channel() const
                         // -------------------
 
 // CREATORS
-TesterFactory::TesterFactory(bcemt_Barrier   *barrier,
-                             bslma_Allocator *basicAllocator)
+TesterFactory::TesterFactory(bcemt_Barrier    *barrier,
+                             bslma::Allocator *basicAllocator)
 : d_session_p(0)
 , d_barrier_p(barrier)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -1628,7 +1629,7 @@ class TesterFactory : public btemt_SessionFactory {
     int                              d_mode;
     btemt_SessionFactory::Callback   d_callback;
     btemt_Session                   *d_session_p;
-    bslma_Allocator                 *d_allocator_p; // memory allocator (held,
+    bslma::Allocator                *d_allocator_p; // memory allocator (held,
                                                     // not owned)
 
   public:
@@ -1637,10 +1638,10 @@ class TesterFactory : public btemt_SessionFactory {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TesterFactory,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TesterFactory(int mode, bslma_Allocator *basicAllocator = 0);
+    TesterFactory(int mode, bslma::Allocator *basicAllocator = 0);
         // Create a new 'TesterFactory' object of the specified 'mode'.
         // Optionally specify 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -1721,10 +1722,10 @@ btemt_AsyncChannel *TesterSession::channel() const
                         // -------------------
 
 // CREATORS
-TesterFactory::TesterFactory(int mode, bslma_Allocator *basicAllocator)
+TesterFactory::TesterFactory(int mode, bslma::Allocator *basicAllocator)
 : d_mode(mode)
 , d_session_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -1788,7 +1789,7 @@ class Tester {
                                                        // echo server is
                                                        // listening
 
-    bslma_Allocator                *d_allocator_p;     // memory allocator
+    bslma::Allocator               *d_allocator_p;     // memory allocator
                                                        // (held)
 
   public:
@@ -1799,7 +1800,7 @@ class Tester {
     Tester(int                       mode,
            const bteso_IPv4Address&  endPointAddr,
            bool                      useBlobBasedReads = false,
-           bslma_Allocator          *basicAllocator = 0);
+           bslma::Allocator         *basicAllocator = 0);
     ~Tester();
 
     void poolStateCb(int reason, int source, void *userData);
@@ -1820,9 +1821,9 @@ class Tester {
 Tester::Tester(int                       mode,
                const bteso_IPv4Address&  endPointAddr,
                bool                      useBlobBasedReads,
-               bslma_Allocator          *basicAllocator)
+               bslma::Allocator         *basicAllocator)
 : d_sessionFactory(mode, basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_config.setMaxThreads(4);                  // 4 I/O threads
     d_config.setMaxConnections(5);
@@ -1975,15 +1976,15 @@ namespace BTEMT_SESSION_BLOB_BASED_EXAMPLE {
         // 'my_BlobBasedEchoSession' objects.  No specific allocation strategy
         // (such as pooling) is implemented.
 
-        bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
+        bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
 
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(my_BlobBasedEchoSessionFactory,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        my_BlobBasedEchoSessionFactory(bslma_Allocator *basicAllocator = 0);
+        my_BlobBasedEchoSessionFactory(bslma::Allocator *basicAllocator = 0);
             // Create a new 'my_BlobBasedEchoSessionFactory' object.
             // Optionally specify 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default
@@ -2069,8 +2070,8 @@ namespace BTEMT_SESSION_BLOB_BASED_EXAMPLE {
 
     // CREATORS
     my_BlobBasedEchoSessionFactory::my_BlobBasedEchoSessionFactory(
-                                               bslma_Allocator *basicAllocator)
-    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
@@ -2119,7 +2120,7 @@ namespace BTEMT_SESSION_BLOB_BASED_EXAMPLE {
         bcemt_Mutex                   *d_coutLock_p;      // mutex protecting
                                                           // bsl::cout
 
-        bslma_Allocator               *d_allocator_p;     // memory allocator
+        bslma::Allocator              *d_allocator_p;     // memory allocator
                                                           // (held)
 
         // PRIVATE MANIPULATORS
@@ -2140,14 +2141,14 @@ namespace BTEMT_SESSION_BLOB_BASED_EXAMPLE {
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(my_BlobBasedEchoServer,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        my_BlobBasedEchoServer(bcemt_Mutex     *coutLock,
-                               int              portNumber,
-                               int              numConnections,
-                               bool             reuseAddressFlag,
-                               bslma_Allocator *basicAllocator = 0);
+        my_BlobBasedEchoServer(bcemt_Mutex      *coutLock,
+                               int               portNumber,
+                               int               numConnections,
+                               bool              reuseAddressFlag,
+                               bslma::Allocator *basicAllocator = 0);
             // Create an echo server that listens for incoming connections on
             // the specified 'portNumber' managing up to the specified
             // 'numConnections' simultaneous connections.  The echo server
@@ -2218,14 +2219,14 @@ namespace BTEMT_SESSION_BLOB_BASED_EXAMPLE {
 
     // CREATORS
     my_BlobBasedEchoServer::my_BlobBasedEchoServer(
-                                             bcemt_Mutex     *lock,
-                                             int              portNumber,
-                                             int              numConnections,
-                                             bool             reuseAddressFlag,
-                                             bslma_Allocator *basicAllocator)
+                                            bcemt_Mutex      *lock,
+                                            int               portNumber,
+                                            int               numConnections,
+                                            bool              reuseAddressFlag,
+                                            bslma::Allocator *basicAllocator)
     : d_sessionFactory(basicAllocator)
     , d_coutLock_p(lock)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_config.setMaxThreads(4);                  // 4 I/O threads
         d_config.setMaxConnections(numConnections);
@@ -2278,7 +2279,7 @@ namespace BTEMT_SESSION_BLOB_BASED_EXAMPLE {
         return d_portNumber;
     }
 
-    int blobBasedUsageExample(bslma_Allocator *allocator) {
+    int blobBasedUsageExample(bslma::Allocator *allocator) {
 
         enum {
             BACKLOG = 5,
@@ -2377,15 +2378,15 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
         // objects.  No specific allocation strategy (such as pooling) is
         // implemented.
 
-        bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
+        bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
 
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(my_EchoSessionFactory,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        my_EchoSessionFactory(bslma_Allocator *basicAllocator = 0);
+        my_EchoSessionFactory(bslma::Allocator *basicAllocator = 0);
             // Create a new 'my_EchoSessionFactory' object.  Optionally specify
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
@@ -2476,8 +2477,8 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
 
     // CREATORS
     my_EchoSessionFactory::my_EchoSessionFactory(
-                                               bslma_Allocator *basicAllocator)
-    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
@@ -2530,7 +2531,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
         bcemt_Mutex                   *d_coutLock_p;      // mutex protecting
                                                           // bsl::cout
 
-        bslma_Allocator               *d_allocator_p;     // memory allocator
+        bslma::Allocator              *d_allocator_p;     // memory allocator
                                                           // (held)
 
         // PRIVATE MANIPULATORS
@@ -2551,14 +2552,14 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(my_EchoServer,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        my_EchoServer(bcemt_Mutex     *coutLock,
-                      int              portNumber,
-                      int              numConnections,
-                      bool             reuseAddressFlag,
-                      bslma_Allocator *basicAllocator = 0);
+        my_EchoServer(bcemt_Mutex      *coutLock,
+                      int               portNumber,
+                      int               numConnections,
+                      bool              reuseAddressFlag,
+                      bslma::Allocator *basicAllocator = 0);
             // Create an echo server that listens for incoming connections on
             // the specified 'portNumber' managing up to the specified
             // 'numConnections' simultaneous connections.  The echo server
@@ -2631,14 +2632,14 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
     }
 
     // CREATORS
-    my_EchoServer::my_EchoServer(bcemt_Mutex     *lock,
-                                 int              portNumber,
-                                 int              numConnections,
-                                 bool             reuseAddressFlag,
-                                 bslma_Allocator *basicAllocator)
+    my_EchoServer::my_EchoServer(bcemt_Mutex      *lock,
+                                 int               portNumber,
+                                 int               numConnections,
+                                 bool              reuseAddressFlag,
+                                 bslma::Allocator *basicAllocator)
     : d_sessionFactory(basicAllocator)
     , d_coutLock_p(lock)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_config.setMaxThreads(4);                  // 4 I/O threads
         d_config.setMaxConnections(numConnections);
@@ -2692,7 +2693,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
 // We can implement a simple "Hello World!" example to exercise our echo
 // server.
 //..
-    int usageExample(bslma_Allocator *allocator) {
+    int usageExample(bslma::Allocator *allocator) {
 
         enum {
             BACKLOG = 5,
@@ -2771,7 +2772,7 @@ int main(int argc, char *argv[])
 
         using namespace BTEMT_SESSION_POOL_DRQS_28731692;
         {
-            bslma_TestAllocator testAllocator;
+            bslma::TestAllocator testAllocator;
             TestServer testServer(&coutMutex, 0, 5, &testAllocator);
             bcema_Blob s_blob;
             s_blob_p = &s_blob;
@@ -3194,7 +3195,7 @@ int main(int argc, char *argv[])
         };
 
         bcema_TestAllocator da("defaultguard", veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
         my_EchoServer echoServer(&coutMutex, 0, BACKLOG, REUSE, &ta);
         {

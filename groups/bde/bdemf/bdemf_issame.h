@@ -56,7 +56,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_IsSame
-#define bdemf_IsSame   bslmf_IsSame
+#define bdemf_IsSame   bslmf::IsSame
     // Meta function with 'VALUE == 0' unless 'U' and 'V' are the same type.
 #endif
 

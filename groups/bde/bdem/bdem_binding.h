@@ -1002,7 +1002,7 @@ class bdem_ConstRowBinding {
     const char& theChar(const char *elementName) const;
     const short& theShort(const char *elementName) const;
     const int& theInt(const char *elementName) const;
-    const bsls_Types::Int64& theInt64(const char *elementName) const;
+    const bsls::Types::Int64& theInt64(const char *elementName) const;
     const float& theFloat(const char *elementName) const;
     const double& theDouble(const char *elementName) const;
     const bsl::string& theString(const char *elementName) const;
@@ -1016,7 +1016,7 @@ class bdem_ConstRowBinding {
     const bsl::vector<char>& theCharArray(const char *elementName) const;
     const bsl::vector<short>& theShortArray(const char *elementName) const;
     const bsl::vector<int>& theIntArray(const char *elementName) const;
-    const bsl::vector<bsls_Types::Int64>& theInt64Array(
+    const bsl::vector<bsls::Types::Int64>& theInt64Array(
                                                 const char *elementName) const;
     const bsl::vector<float>& theFloatArray(const char *elementName) const;
     const bsl::vector<double>& theDoubleArray(const char *elementName) const;
@@ -1461,7 +1461,7 @@ class bdem_RowBinding : public bdem_ConstRowBinding {
     char& theModifiableChar(const char *elementName) const;
     short& theModifiableShort(const char *elementName) const;
     int& theModifiableInt(const char *elementName) const;
-    bsls_Types::Int64& theModifiableInt64(const char *elementName) const;
+    bsls::Types::Int64& theModifiableInt64(const char *elementName) const;
     float& theModifiableFloat(const char *elementName) const;
     double& theModifiableDouble(const char *elementName) const;
     bsl::string& theModifiableString(const char *elementName) const;
@@ -1475,7 +1475,7 @@ class bdem_RowBinding : public bdem_ConstRowBinding {
     bsl::vector<char>& theModifiableCharArray(const char *elementName) const;
     bsl::vector<short>& theModifiableShortArray(const char *elementName) const;
     bsl::vector<int>& theModifiableIntArray(const char *elementName) const;
-    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array(
+    bsl::vector<bsls::Types::Int64>& theModifiableInt64Array(
                                                 const char *elementName) const;
     bsl::vector<float>& theModifiableFloatArray(const char *elementName) const;
     bsl::vector<double>& theModifiableDoubleArray(
@@ -1736,7 +1736,7 @@ class bdem_ConstTableBinding {
     const char& theChar(int rowIndex, const char *columnName) const;
     const short& theShort(int rowIndex, const char *columnName) const;
     const int& theInt(int rowIndex, const char *columnName) const;
-    const bsls_Types::Int64& theInt64(int         rowIndex,
+    const bsls::Types::Int64& theInt64(int        rowIndex,
                                       const char *columnName) const;
     const float& theFloat(int rowIndex, const char *columnName) const;
     const double& theDouble(int rowIndex, const char *columnName) const;
@@ -1757,7 +1757,7 @@ class bdem_ConstTableBinding {
                                             const char *columnName) const;
     const bsl::vector<int>& theIntArray(int         rowIndex,
                                         const char *columnName) const;
-    const bsl::vector<bsls_Types::Int64>& theInt64Array(
+    const bsl::vector<bsls::Types::Int64>& theInt64Array(
                                                 int         rowIndex,
                                                 const char *columnName) const;
     const bsl::vector<float>& theFloatArray(int         rowIndex,
@@ -2137,7 +2137,7 @@ class bdem_TableBinding: public bdem_ConstTableBinding {
     char& theModifiableChar(int rowIndex, const char *columnName) const;
     short& theModifiableShort(int rowIndex, const char *columnName) const;
     int& theModifiableInt(int rowIndex, const char *columnName) const;
-    bsls_Types::Int64& theModifiableInt64(int         rowIndex,
+    bsls::Types::Int64& theModifiableInt64(int        rowIndex,
                                           const char *columnName) const;
     float& theModifiableFloat(int rowIndex, const char *columnName) const;
     double& theModifiableDouble(int rowIndex, const char *columnName) const;
@@ -2161,7 +2161,7 @@ class bdem_TableBinding: public bdem_ConstTableBinding {
                                                 const char *columnName) const;
     bsl::vector<int>& theModifiableIntArray(int         rowIndex,
                                             const char *columnName) const;
-    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array(
+    bsl::vector<bsls::Types::Int64>& theModifiableInt64Array(
                                                 int         rowIndex,
                                                 const char *columnName) const;
     bsl::vector<float>& theModifiableFloatArray(int         rowIndex,
@@ -2941,7 +2941,7 @@ class bdem_ConstChoiceBinding {
     const char& theChar() const;
     const short& theShort() const;
     const int& theInt() const;
-    const bsls_Types::Int64& theInt64() const;
+    const bsls::Types::Int64& theInt64() const;
     const float& theFloat() const;
     const double& theDouble() const;
     const bsl::string& theString() const;
@@ -2955,7 +2955,7 @@ class bdem_ConstChoiceBinding {
     const bsl::vector<char>& theCharArray() const;
     const bsl::vector<short>& theShortArray() const;
     const bsl::vector<int>& theIntArray() const;
-    const bsl::vector<bsls_Types::Int64>& theInt64Array() const;
+    const bsl::vector<bsls::Types::Int64>& theInt64Array() const;
     const bsl::vector<float>& theFloatArray() const;
     const bsl::vector<double>& theDoubleArray() const;
     const bsl::vector<bsl::string>& theStringArray() const;
@@ -3337,7 +3337,7 @@ class bdem_ChoiceBinding : public bdem_ConstChoiceBinding {
     char& theModifiableChar() const;
     short& theModifiableShort() const;
     int& theModifiableInt() const;
-    bsls_Types::Int64& theModifiableInt64() const;
+    bsls::Types::Int64& theModifiableInt64() const;
     float& theModifiableFloat() const;
     double& theModifiableDouble() const;
     bsl::string& theModifiableString() const;
@@ -3351,7 +3351,7 @@ class bdem_ChoiceBinding : public bdem_ConstChoiceBinding {
     bsl::vector<char>& theModifiableCharArray() const;
     bsl::vector<short>& theModifiableShortArray() const;
     bsl::vector<int>& theModifiableIntArray() const;
-    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array() const;
+    bsl::vector<bsls::Types::Int64>& theModifiableInt64Array() const;
     bsl::vector<float>& theModifiableFloatArray() const;
     bsl::vector<double>& theModifiableDoubleArray() const;
     bsl::vector<bsl::string>& theModifiableStringArray() const;
@@ -3605,7 +3605,7 @@ class bdem_ConstChoiceArrayBinding {
     const char& theChar(int itemIndex) const;
     const short& theShort(int itemIndex) const;
     const int& theInt(int itemIndex) const;
-    const bsls_Types::Int64& theInt64(int itemIndex) const;
+    const bsls::Types::Int64& theInt64(int itemIndex) const;
     const float& theFloat(int itemIndex) const;
     const double& theDouble(int itemIndex) const;
     const bsl::string& theString(int itemIndex) const;
@@ -3619,7 +3619,7 @@ class bdem_ConstChoiceArrayBinding {
     const bsl::vector<char>& theCharArray(int itemIndex) const;
     const bsl::vector<short>& theShortArray(int itemIndex) const;
     const bsl::vector<int>& theIntArray(int itemIndex) const;
-    const bsl::vector<bsls_Types::Int64>& theInt64Array(int itemIndex) const;
+    const bsl::vector<bsls::Types::Int64>& theInt64Array(int itemIndex) const;
     const bsl::vector<float>& theFloatArray(int itemIndex) const;
     const bsl::vector<double>& theDoubleArray(int itemIndex) const;
     const bsl::vector<bsl::string>& theStringArray(int itemIndex) const;
@@ -3887,7 +3887,7 @@ class bdem_ChoiceArrayBinding : public bdem_ConstChoiceArrayBinding {
     char& theModifiableChar(int itemIndex) const;
     short& theModifiableShort(int itemIndex) const;
     int& theModifiableInt(int itemIndex) const;
-    bsls_Types::Int64& theModifiableInt64(int itemIndex) const;
+    bsls::Types::Int64& theModifiableInt64(int itemIndex) const;
     float& theModifiableFloat(int itemIndex) const;
     double& theModifiableDouble(int itemIndex) const;
     bsl::string& theModifiableString(int itemIndex) const;
@@ -3901,7 +3901,7 @@ class bdem_ChoiceArrayBinding : public bdem_ConstChoiceArrayBinding {
     bsl::vector<char>& theModifiableCharArray(int itemIndex) const;
     bsl::vector<short>& theModifiableShortArray(int itemIndex) const;
     bsl::vector<int>& theModifiableIntArray(int itemIndex) const;
-    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array(
+    bsl::vector<bsls::Types::Int64>& theModifiableInt64Array(
                                                           int itemIndex) const;
     bsl::vector<float>& theModifiableFloatArray(int itemIndex) const;
     bsl::vector<double>& theModifiableDoubleArray(int itemIndex) const;
@@ -4477,7 +4477,7 @@ const int& bdem_ConstRowBinding::theInt(const char *elementName) const
 }
 
 inline
-const bsls_Types::Int64&
+const bsls::Types::Int64&
 bdem_ConstRowBinding::theInt64(const char *elementName) const
 {
     BSLS_ASSERT_SAFE(elementName);
@@ -4669,7 +4669,7 @@ bdem_ConstRowBinding::theIntArray(const char *elementName) const
 }
 
 inline
-const bsl::vector<bsls_Types::Int64>&
+const bsl::vector<bsls::Types::Int64>&
 bdem_ConstRowBinding::theInt64Array(const char *elementName) const
 {
     BSLS_ASSERT_SAFE(elementName);
@@ -5254,7 +5254,7 @@ int& bdem_RowBinding::theModifiableInt(const char *elementName) const
 }
 
 inline
-bsls_Types::Int64&
+bsls::Types::Int64&
 bdem_RowBinding::theModifiableInt64(const char *elementName) const
 {
     BSLS_ASSERT_SAFE(elementName);
@@ -5446,7 +5446,7 @@ bdem_RowBinding::theModifiableIntArray(const char *elementName) const
 }
 
 inline
-bsl::vector<bsls_Types::Int64>&
+bsl::vector<bsls::Types::Int64>&
 bdem_RowBinding::theModifiableInt64Array(const char *elementName) const
 {
     BSLS_ASSERT_SAFE(elementName);
@@ -6019,7 +6019,7 @@ bdem_ConstTableBinding::theInt(int rowIndex, const char *columnName) const
 }
 
 inline
-const bsls_Types::Int64&
+const bsls::Types::Int64&
 bdem_ConstTableBinding::theInt64(int rowIndex, const char *columnName) const
 {
     BSLS_ASSERT_SAFE(0 <= rowIndex);
@@ -6248,7 +6248,7 @@ bdem_ConstTableBinding::theIntArray(int         rowIndex,
 }
 
 inline
-const bsl::vector<bsls_Types::Int64>&
+const bsl::vector<bsls::Types::Int64>&
 bdem_ConstTableBinding::theInt64Array(int         rowIndex,
                                       const char *columnName) const
 {
@@ -6853,7 +6853,7 @@ int& bdem_TableBinding::theModifiableInt(int         rowIndex,
 }
 
 inline
-bsls_Types::Int64&
+bsls::Types::Int64&
 bdem_TableBinding::theModifiableInt64(int         rowIndex,
                                       const char *columnName) const
 {
@@ -7089,7 +7089,7 @@ bdem_TableBinding::theModifiableIntArray(int         rowIndex,
 }
 
 inline
-bsl::vector<bsls_Types::Int64>&
+bsl::vector<bsls::Types::Int64>&
 bdem_TableBinding::theModifiableInt64Array(int         rowIndex,
                                            const char *columnName) const
 {
@@ -8253,7 +8253,7 @@ const int& bdem_ConstChoiceBinding::theInt() const
 }
 
 inline
-const bsls_Types::Int64& bdem_ConstChoiceBinding::theInt64() const
+const bsls::Types::Int64& bdem_ConstChoiceBinding::theInt64() const
 {
     BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == selectionType());
 
@@ -8365,7 +8365,7 @@ const bsl::vector<int>& bdem_ConstChoiceBinding::theIntArray() const
 }
 
 inline
-const bsl::vector<bsls_Types::Int64>&
+const bsl::vector<bsls::Types::Int64>&
 bdem_ConstChoiceBinding::theInt64Array() const
 {
     BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64_ARRAY == selectionType());
@@ -8796,7 +8796,7 @@ int& bdem_ChoiceBinding::theModifiableInt() const
 }
 
 inline
-bsls_Types::Int64& bdem_ChoiceBinding::theModifiableInt64() const
+bsls::Types::Int64& bdem_ChoiceBinding::theModifiableInt64() const
 {
     BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == selectionType());
 
@@ -8908,7 +8908,7 @@ bsl::vector<int>& bdem_ChoiceBinding::theModifiableIntArray() const
 }
 
 inline
-bsl::vector<bsls_Types::Int64>&
+bsl::vector<bsls::Types::Int64>&
 bdem_ChoiceBinding::theModifiableInt64Array() const
 {
     BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64_ARRAY == selectionType());
@@ -9353,7 +9353,7 @@ const int& bdem_ConstChoiceArrayBinding::theInt(int itemIndex) const
 }
 
 inline
-const bsls_Types::Int64&
+const bsls::Types::Int64&
 bdem_ConstChoiceArrayBinding::theInt64(int itemIndex) const
 {
     BSLS_ASSERT_SAFE(0 <= itemIndex);
@@ -9504,7 +9504,7 @@ bdem_ConstChoiceArrayBinding::theIntArray(int itemIndex) const
 }
 
 inline
-const bsl::vector<bsls_Types::Int64>&
+const bsl::vector<bsls::Types::Int64>&
 bdem_ConstChoiceArrayBinding::theInt64Array(int itemIndex) const
 {
     BSLS_ASSERT_SAFE(0 <= itemIndex);
@@ -9935,7 +9935,7 @@ int& bdem_ChoiceArrayBinding::theModifiableInt(int itemIndex) const
 }
 
 inline
-bsls_Types::Int64&
+bsls::Types::Int64&
 bdem_ChoiceArrayBinding::theModifiableInt64(int itemIndex) const
 {
     BSLS_ASSERT_SAFE(0 <= itemIndex);
@@ -10124,7 +10124,7 @@ bdem_ChoiceArrayBinding::theModifiableIntArray(int itemIndex) const
 }
 
 inline
-bsl::vector<bsls_Types::Int64>&
+bsl::vector<bsls::Types::Int64>&
 bdem_ChoiceArrayBinding::theModifiableInt64Array(int itemIndex) const
 {
     BSLS_ASSERT_SAFE(0 <= itemIndex);

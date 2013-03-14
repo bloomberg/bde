@@ -6,8 +6,6 @@
 #include <bslma_default.h>             // for testing only
 #include <bslma_testallocator.h>       // for testing only
 
-#include <bslmf_metaint.h>             // for testing only
-
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
@@ -184,9 +182,7 @@ class my_Pair {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // !!!Warning: Modified usage example in order to test it
 template <class TYPE>
-struct my_HasPairTrait {
-    enum { VALUE = 0 };
-};
+struct my_HasPairTrait : bsl::false_type { };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 // my_primitives.h
@@ -215,7 +211,7 @@ struct my_Primitives {
     static void copyConstruct(TYPE                       *address,
                               const TYPE&                 original,
                               bslma::Allocator           *basicAllocator,
-                              bslmf::MetaInt<PAIR_TRAIT> *);
+                              bsl::integral_constant<bool, PAIR_TRAIT> *);
         // Copy construct the specified 'original' into the specified
         // 'address' using the specified 'basicAllocator' (if the
         // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -225,7 +221,7 @@ struct my_Primitives {
     static void copyConstruct(TYPE                      *address,
                               const TYPE&                original,
                               bslma::Allocator          *basicAllocator,
-                              bslmf::MetaInt<NIL_TRAIT> *);
+                              bsl::integral_constant<bool, NIL_TRAIT> *);
         // Copy construct the specified 'original' into the specified
         // 'address' using the specified 'basicAllocator' (if the
         // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -241,7 +237,7 @@ void my_Primitives::copyConstruct(TYPE             *address,
     copyConstruct(address,
                   original,
                   basicAllocator,
-                  (bslmf::MetaInt<my_HasPairTrait<TYPE>::VALUE> *)0);
+                  (typename my_HasPairTrait<TYPE>::type *)0);
 }
 
 template <class TYPE>
@@ -249,7 +245,7 @@ inline
 void my_Primitives::copyConstruct(TYPE                       *address,
                                   const TYPE&                 original,
                                   bslma::Allocator           *basicAllocator,
-                                  bslmf::MetaInt<PAIR_TRAIT> *)
+                                  bsl::integral_constant<bool, PAIR_TRAIT> *)
 {
     copyConstruct(&address->first, original.first, basicAllocator);
 
@@ -274,15 +270,11 @@ inline
 void my_Primitives::copyConstruct(TYPE                      *address,
                                   const TYPE&                original,
                                   bslma::Allocator          *basicAllocator,
-                                  bslmf::MetaInt<NIL_TRAIT> *)
+                                  bsl::integral_constant<bool, NIL_TRAIT> *)
 {
     new(address)TYPE(original, basicAllocator);
 }
 //..
-// Note that the implementation of 'my_HasTrait' is not shown.  It is
-// used to detect whether 'TYPE' has 'my_PairTrait' or not
-// (see bslalg_typetraits).
-//
 // In the above implementation, if the copy construction of the second object
 // in the pair throws, all memory (and any other resources) acquired as a
 // result of copying the (not-yet-managed) object would be leaked.  Using the
@@ -345,9 +337,8 @@ class my_AllocatingClass {
 };
 
 template <>
-struct my_HasPairTrait<my_Pair<my_AllocatingClass, my_AllocatingClass> > {
-    enum { VALUE = 1 };
-};
+struct my_HasPairTrait<my_Pair<my_AllocatingClass, my_AllocatingClass> >
+    : bsl::true_type { };
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -387,7 +378,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Test not run without exception support.\n");
 #else
         bslma::TestAllocator z(veryVeryVerbose);
-        const bslma::TestAllocator &Z = z;
+//      const bslma::TestAllocator &Z = z;
 
         int counter1 = 0;
         int counter2 = 0;
@@ -739,11 +730,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

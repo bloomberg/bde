@@ -38,7 +38,6 @@ BDES_IDENT_RCSID(bdec_voidptrqueue_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_ostream.h>
 
@@ -375,12 +374,12 @@ static void copyData(void **dstArray,
 }
 
 inline
-static int increaseSizeImp(void            ***addrArray,
-                           int               *front,
-                           int               *back,
-                           int                newSize,
-                           int                size,
-                           bslma_Allocator   *allocator)
+static int increaseSizeImp(void             ***addrArray,
+                           int                *front,
+                           int                *back,
+                           int                 newSize,
+                           int                 size,
+                           bslma::Allocator   *allocator)
     // Increase the physical capacity of the queue represented by the
     // specified 'addrArray' to specified 'newSize' from the specified 'size'.
     // Return the new size of the queue.  This function copies the data
@@ -449,20 +448,20 @@ void bdec_VoidPtrQueue::increaseSize()
 
 // CREATORS
 
-bdec_VoidPtrQueue::bdec_VoidPtrQueue(bslma_Allocator *basicAllocator)
+bdec_VoidPtrQueue::bdec_VoidPtrQueue(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_front(INITIAL_SIZE - 1)
 , d_back(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(d_allocator_p);
     d_array_p = (void **)d_allocator_p->allocate(d_size * sizeof *d_array_p);
 }
 
-bdec_VoidPtrQueue::bdec_VoidPtrQueue(unsigned int     initialLength,
-                                     bslma_Allocator *basicAllocator)
+bdec_VoidPtrQueue::bdec_VoidPtrQueue(unsigned int      initialLength,
+                                     bslma::Allocator *basicAllocator)
 : d_back(initialLength)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(d_allocator_p);
 
@@ -477,11 +476,11 @@ bdec_VoidPtrQueue::bdec_VoidPtrQueue(unsigned int     initialLength,
     bsl::memset(d_array_p, 0, d_back * sizeof(void *));
 }
 
-bdec_VoidPtrQueue::bdec_VoidPtrQueue(unsigned int     initialLength,
-                                     void            *initialValue,
-                                     bslma_Allocator *basicAllocator)
+bdec_VoidPtrQueue::bdec_VoidPtrQueue(unsigned int      initialLength,
+                                     void             *initialValue,
+                                     bslma::Allocator *basicAllocator)
 : d_back(initialLength)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(d_allocator_p);
 
@@ -492,18 +491,18 @@ bdec_VoidPtrQueue::bdec_VoidPtrQueue(unsigned int     initialLength,
 
     d_front = d_size - 1;
 
-    bslalg_ArrayPrimitives::uninitializedFillN(d_array_p,
-                                               d_back,
-                                               initialValue,
-                                               d_allocator_p);
+    bslalg::ArrayPrimitives::uninitializedFillN(d_array_p,
+                                                d_back,
+                                                initialValue,
+                                                d_allocator_p);
 }
 
 bdec_VoidPtrQueue::bdec_VoidPtrQueue(const InitialCapacity&  numElements,
-                                     bslma_Allocator        *basicAllocator)
+                                     bslma::Allocator       *basicAllocator)
 : d_size(numElements.d_i + EXTRA_CAPACITY) // to hold the empty positions
 , d_front(numElements.d_i + 1)
 , d_back(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(EXTRA_CAPACITY <= d_size);
     BSLS_ASSERT(d_allocator_p);
@@ -511,11 +510,11 @@ bdec_VoidPtrQueue::bdec_VoidPtrQueue(const InitialCapacity&  numElements,
     d_array_p = (void **)d_allocator_p->allocate(d_size * sizeof *d_array_p);
 }
 
-bdec_VoidPtrQueue::bdec_VoidPtrQueue(void * const    *srcArray,
-                                     int              numElements,
-                                     bslma_Allocator *basicAllocator)
+bdec_VoidPtrQueue::bdec_VoidPtrQueue(void * const     *srcArray,
+                                     int               numElements,
+                                     bslma::Allocator *basicAllocator)
 : d_back(numElements)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(srcArray);
     BSLS_ASSERT(0 <= numElements);
@@ -528,8 +527,8 @@ bdec_VoidPtrQueue::bdec_VoidPtrQueue(void * const    *srcArray,
 }
 
 bdec_VoidPtrQueue::bdec_VoidPtrQueue(const bdec_VoidPtrQueue&  original,
-                                     bslma_Allocator          *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                     bslma::Allocator         *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(d_allocator_p);
 
@@ -1084,20 +1083,20 @@ void bdec_VoidPtrQueue::setLength(int newLength, void *initialValue)
     d_back = (d_front + 1 + newLength) % d_size;
     if (newLength > oldLength) {
         if (oldBack < d_back) {
-            bslalg_ArrayPrimitives::uninitializedFillN(d_array_p + oldBack,
-                                                       d_back - oldBack,
-                                                       initialValue,
-                                                       d_allocator_p);
+            bslalg::ArrayPrimitives::uninitializedFillN(d_array_p + oldBack,
+                                                        d_back - oldBack,
+                                                        initialValue,
+                                                        d_allocator_p);
         }
         else {
-            bslalg_ArrayPrimitives::uninitializedFillN(d_array_p + oldBack,
-                                                       d_size - oldBack,
-                                                       initialValue,
-                                                       d_allocator_p);
-            bslalg_ArrayPrimitives::uninitializedFillN(d_array_p,
-                                                       d_back,
-                                                       initialValue,
-                                                       d_allocator_p);
+            bslalg::ArrayPrimitives::uninitializedFillN(d_array_p + oldBack,
+                                                        d_size - oldBack,
+                                                        initialValue,
+                                                        d_allocator_p);
+            bslalg::ArrayPrimitives::uninitializedFillN(d_array_p,
+                                                        d_back,
+                                                        initialValue,
+                                                        d_allocator_p);
         }
     }
 }

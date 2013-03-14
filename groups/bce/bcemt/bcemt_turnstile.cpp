@@ -31,7 +31,7 @@ bcemt_Turnstile::bcemt_Turnstile(double                   rate,
 }
 
 // MANIPULATORS
-bsls_Types::Int64 bcemt_Turnstile::waitTurn()
+bsls::Types::Int64 bcemt_Turnstile::waitTurn()
 {
     enum { MIN_TIMER_RESOLUTION = 10 * 1000 };
         // Assume that minimum timer resolution applicable to "sleep" on all
@@ -80,7 +80,7 @@ void bcemt_Turnstile::reset(double                   rate,
 }
 
 // ACCESSORS
-bsls_Types::Int64 bcemt_Turnstile::lagTime() const
+bsls::Types::Int64 bcemt_Turnstile::lagTime() const
 {
     Int64 nowUSecs = bdetu_SystemTime::now().totalMicroseconds();
     d_timestamp = nowUSecs;

@@ -39,7 +39,7 @@ BDES_IDENT_RCSID(bteso_eventmanagertester_cpp,"$Id$ $CSID$")
 # include <sys/types.h>
 # include <sys/socket.h>                             // ::socketpair
 
-# if defined(BSLS_PLATFORM_OS_LINUX)
+# if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 #   include <sys/resource.h>
 # endif
 
@@ -1452,7 +1452,7 @@ bteso_EventManagerTester::testDispatchPerformance(
     bsl::ofstream os(outFileNameSS.str().c_str());
 
     {
-        bslma_TestAllocator testAllocator(
+        bslma::TestAllocator testAllocator(
                     flags & bteso_EventManagerTester::BTESO_VERY_VERY_VERBOSE);
         SocketPair *socketPairs = (SocketPair *)
                   testAllocator.allocate(numSocketPairs * sizeof (SocketPair));
@@ -1463,11 +1463,11 @@ bteso_EventManagerTester::testDispatchPerformance(
         bool *writtenFlags = (bool *) testAllocator.allocate(numSocketPairs);
 
         for (i = 0; i < numSocketPairs; ++i) {
-            bslalg_ScalarPrimitives::defaultConstruct(&socketPairs[i],
-                                                      &testAllocator);
+            bslalg::ScalarPrimitives::defaultConstruct(&socketPairs[i],
+                                                       &testAllocator);
 
-            bslalg_ScalarPrimitives::defaultConstruct(&readCb[i],
-                                                      &testAllocator);
+            bslalg::ScalarPrimitives::defaultConstruct(&readCb[i],
+                                                       &testAllocator);
         }
 
         for (i = 0; i < numSocketPairs; ++i) {
@@ -1520,7 +1520,7 @@ bteso_EventManagerTester::testDispatchPerformance(
             int toWrite = bsl::max((int) ((i + 1) * fractionBusy), 1);
             BSLS_ASSERT_OPT(toWrite <= i + 1);
             BSLS_ASSERT_OPT(toWrite >= 1);
-        
+
             bdet_TimeInterval timer;
             int actualNumMeasurements = 0;
 
@@ -1627,8 +1627,8 @@ bteso_EventManagerTester::testDispatchPerformance(
         bsl::cout << "\n" << averageResult << "\n";
 
         for (int j = 0; j < i; j++){ //have to 'destructor' one by one
-            bslalg_ScalarDestructionPrimitives::destroy(socketPairs+j);
-            bslalg_ScalarDestructionPrimitives::destroy(readCb+j);
+            bslalg::ScalarDestructionPrimitives::destroy(socketPairs+j);
+            bslalg::ScalarDestructionPrimitives::destroy(readCb+j);
         }
 
         testAllocator.deallocate(readCb);
@@ -1667,16 +1667,16 @@ bteso_EventManagerTester::testRegisterPerformance(bteso_EventManager *mX,
     bteso_EventManager::Callback nullCb =
                                          &bteso_eventmanagertester_nullFunctor;
 
-    bslma_TestAllocator testAllocator(flags &
+    bslma::TestAllocator testAllocator(flags &
                         bteso_EventManagerTester::BTESO_VERY_VERY_VERBOSE);
     bteso_SocketHandle::Handle *socket = (bteso_SocketHandle::Handle *)
                          testAllocator.allocate(numSockets * sizeof (*socket));
 
     for (int ii = 0; ii < numSockets; ii += 2) {
-        bslalg_ScalarPrimitives::defaultConstruct(&socket[ii],
-                                                  &testAllocator);
-        bslalg_ScalarPrimitives::defaultConstruct(&socket[ii + 1],
-                                                  &testAllocator);
+        bslalg::ScalarPrimitives::defaultConstruct(&socket[ii],
+                                                   &testAllocator);
+        bslalg::ScalarPrimitives::defaultConstruct(&socket[ii + 1],
+                                                   &testAllocator);
 
 #if BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
         // We found creating 40,000 sockets in the -1 and -2 cases of
@@ -1733,7 +1733,7 @@ bteso_EventManagerTester::testRegisterPerformance(bteso_EventManager *mX,
 
     for (int j = 0; j < numSockets; j++) {
         bteso_SocketImpUtil::close(socket[j]);
-        bslalg_ScalarDestructionPrimitives::destroy(&socket[j]);
+        bslalg::ScalarDestructionPrimitives::destroy(&socket[j]);
     }
     testAllocator.deallocate(socket);
 
@@ -1807,13 +1807,13 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
 
         if (rc) {
             if (d_verboseFlag) {
-                bsl::printf("T%llu: Closing %d\n", 
+                bsl::printf("T%llu: Closing %d\n",
                             bcemt_ThreadUtil::selfIdAsUint64(),
                             d_fds[1]);
                 bteso_SocketImpUtil::close(d_fds[1]);
             }
             if (d_verboseFlag) {
-                bsl::printf("T%llu: Closing %d\n", 
+                bsl::printf("T%llu: Closing %d\n",
                             bcemt_ThreadUtil::selfIdAsUint64(),
                             d_fds[0]);
                 bteso_SocketImpUtil::close(d_fds[0]);

@@ -3,7 +3,7 @@
 #include <bdeu_print.h>
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -1150,7 +1150,7 @@ int main(int argc, char *argv[])
             // test if 64-bit pointers or if value has only 32 bits
             #if defined(BSLS_PLATFORM_CPU_64_BIT)
             {
-                void *p = (void *) ((((bsls_PlatformUtil::Int64)
+                void *p = (void *) ((((bsls::Types::Int64)
                                         DATA[t].addr1) << 32) + DATA[t].addr2);
                 bdeu_Print::printPtr(out, p);
                 out << ends;

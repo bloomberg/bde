@@ -1,47 +1,63 @@
 // bslmf_issame.t.cpp                                                 -*-C++-*-
-
 #include <bslmf_issame.h>
 
-#include <cstdlib>     // atoi()
-#include <iostream>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
+// The component under test defines two meta-functions, 'bsl::is_same' and
+// 'bslmf::IsSame', that determine whether two template parameter types are
+// same.  Thus, we need to ensure that the values returned by these
+// meta-functions are correct for each possible pair of types.  Since the two
+// meta-functions are functionally equivalent, we will use the same set of
+// types for both.
+//
 //-----------------------------------------------------------------------------
-// [ 1] bslmf::IsSame
-// [ 2] USAGE EXAMPLE
+// PUBLIC CLASS DATA
+// [ 2] BloombergLP::bslmf::IsSame::VALUE
+// [ 1] bsl::is_same::value
+//
+// ----------------------------------------------------------------------------
+// [ 3] USAGE EXAMPLE
+
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+void aSsErT(bool b, const char *s, int i)
+{
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
 //=============================================================================
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -61,7 +77,7 @@ class Derived : public Base {};
 typedef int INT_TYPE;
 namespace NS {
     typedef int INT_TYPE;
-}
+}  // close namespace NS
 class Class {
   public:
     typedef int INT_TYPE;
@@ -84,66 +100,90 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void) verbose;          // eliminate unused variable warning
     (void) veryVerbose;      // eliminate unused variable warning
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf::IsSame'.
         //
         // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //
-        // Tactics:
-        //   - Add-Hoc Data Selection Method
-        //   - Brute-Force implementation technique
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                  << "=============" << endl;
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
 
 ///Usage
 ///-----
-// For example:
-//..
-       typedef int    INT;
-       typedef double DOUBLE;
+// In this section we show intended use of this component.
 //
-       const int I = bslmf::IsSame<INT, INT>::VALUE;            ASSERT(1 == I);
-       const int J = bslmf::IsSame<INT, DOUBLE>::VALUE;         ASSERT(0 == J);
+///Example 1: Determine Same Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we have several pairs of types and want to assert whether the
+// types in each pair are the same.
+//
+// First, we define several 'typedef's:
+//..
+    typedef       int    INT;
+    typedef       double DOUBLE;
+    typedef       short  SHORT;
+    typedef const short  CONST_SHORT;
+    typedef       int    INT;
+    typedef       int&   INT_REF;
+//..
+// Now, we instantiate the 'bsl::is_same' template for certain pairs of the
+// 'typedef's and assert the 'value' static data member of each instantiation:
+//..
+    ASSERT(true  == (bsl::is_same<INT, INT>::value));
+    ASSERT(false == (bsl::is_same<INT, DOUBLE>::value));
 //..
 // Note that a 'const'-qualified type is considered distinct from the
 // non-'const' (but otherwise identical) type:
 //..
-       typedef       short       SHORT;
-       typedef const short CONST_SHORT;
-       const int K = bslmf::IsSame<SHORT, CONST_SHORT>::VALUE;  ASSERT(0 == K);
+    ASSERT(false == (bsl::is_same<SHORT, CONST_SHORT>::value));
 //..
 // Similarly, a 'TYPE' and a reference to 'TYPE' ('TYPE&') are distinct:
 //..
-       typedef int  INT;
-       typedef int& INT_REF;
-       const int L = bslmf::IsSame<INT, INT_REF>::VALUE;        ASSERT(0 == L);
+    ASSERT(false == (bsl::is_same<INT, INT_REF>::value));
 //..
 
-        } break;
-      case 1: {
+      } break;
+      case 2: {
         // --------------------------------------------------------------------
-        // Test Plan:
+        // 'bslmf::IsSame::VALUE'
+        //   Ensure that the static data member 'VALUE' of 'bslmf::IsSame'
+        //   instantiations having various (template parameter) 'TYPE1' and
+        //   'TYPE2' has the correct value.
+        //
+        // Concerns:
+        //: 1 'IsSame::VALUE' is 1 when the two template parameter types are
+        //:   the same.
+        //:
+        //: 2 'IsSame::VALUE' is 0 when the two template parameter types are
+        //:   not the same.
+        //
+        // Plan:
         //   Instantiate 'bslmf::IsSame' with various combinations of types and
         //   verify that the 'VALUE' member is initialized properly.
+        //
+        // Testing:
+        //   bslmf::IsSame::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "bslmf::IsSame" << endl
-                                  << "=============" << endl;
+        if (verbose) printf("bslmf::IsSame::VALUE\n"
+                            "====================\n");
 
         ASSERT(1 == (bslmf::IsSame<int, int>::VALUE));
         ASSERT(1 == (bslmf::IsSame<short, short>::VALUE));
@@ -216,24 +256,132 @@ int main(int argc, char *argv[])
         ASSERT(0 == (bslmf::IsSame<Fie, Fi>::VALUE));
         ASSERT(0 == (bslmf::IsSame<PFi, Fi>::VALUE));
       } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // 'bsl::is_same::value'
+        //   Ensure that the static data member 'value' of 'bsl::is_same'
+        //   instantiations having various (template parameter) 'TYPE1' and
+        //   'TYPE2' has the correct value.
+        //
+        // Concerns:
+        //: 1 'is_same::value' is 'true' when the two template parameter types
+        //:   are the same.
+        //:
+        //: 2 'is_same::value' is 'false' when the two template parameter types
+        //:   are not the same.
+        //
+        // Plan:
+        //   Instantiate 'bsl::is_same' with various combinations of types and
+        //   verify that the 'value' member is initialized properly.  (C-1,2)
+        //
+        // Testing:
+        //   bsl::is_same::value
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("bsl::is_same::value\n"
+                            "===================\n");
+
+        ASSERT(true  == (bsl::is_same<int, int>::value));
+        ASSERT(true  == (bsl::is_same<short, short>::value));
+        ASSERT(false == (bsl::is_same<int, short>::value));
+        ASSERT(false == (bsl::is_same<short, int>::value));
+        ASSERT(false == (bsl::is_same<int, unsigned>::value));
+        ASSERT(false == (bsl::is_same<int&, int>::value));
+        ASSERT(false == (bsl::is_same<float, double>::value));
+        ASSERT(false == (bsl::is_same<float, float&>::value));
+
+        ASSERT(true  == (bsl::is_same<int const, int const>::value));
+        ASSERT(true  == (bsl::is_same<const int, int const>::value));
+        ASSERT(false == (bsl::is_same<int, int const>::value));
+        ASSERT(false == (bsl::is_same<int volatile, int>::value));
+        ASSERT(false == (bsl::is_same<int const volatile, int const>::value));
+
+        ASSERT(true  == (bsl::is_same<Enum1, Enum1>::value));
+        ASSERT(true  == (bsl::is_same<Enum3, Enum3>::value));
+        ASSERT(false == (bsl::is_same<Enum1, Enum2>::value));
+        ASSERT(false == (bsl::is_same<Enum3, Enum1>::value));
+        ASSERT(false == (bsl::is_same<int, Enum1>::value));
+        ASSERT(false == (bsl::is_same<Enum1, unsigned>::value));
+        ASSERT(false == (bsl::is_same<long, Enum1>::value));
+        ASSERT(false == (bsl::is_same<Enum1, unsigned long>::value));
+
+        ASSERT(true  == (bsl::is_same<char *, char *>::value));
+        ASSERT(true  == (bsl::is_same<void *, void *>::value));
+        ASSERT(true  == (bsl::is_same<const char *, const char *>::value));
+        ASSERT(false == (bsl::is_same<const char *, char *>::value));
+        ASSERT(false == (bsl::is_same<char *, char *const>::value));
+        ASSERT(false == (bsl::is_same<char *, void *>::value));
+        ASSERT(false == (bsl::is_same<int *, char *>::value));
+
+        ASSERT(true  == (bsl::is_same<Struct1, Struct1>::value));
+        ASSERT(true  == (bsl::is_same<Struct3, Struct3>::value));
+        ASSERT(false == (bsl::is_same<Struct1, Struct2>::value));
+        ASSERT(false == (bsl::is_same<Struct3, Struct1>::value));
+
+        ASSERT(true  == (bsl::is_same<Base, Base>::value));
+        ASSERT(true  == (bsl::is_same<const Base *, const Base *>::value));
+        ASSERT(true  == (bsl::is_same<Derived&, Derived&>::value));
+        ASSERT(false == (bsl::is_same<Base&, Base>::value));
+        ASSERT(false == (bsl::is_same<Base&, Derived&>::value));
+        ASSERT(false == (bsl::is_same<Derived *, Base *>::value));
+        ASSERT(false == (bsl::is_same<void *, Base *>::value));
+
+        ASSERT(true  == (bsl::is_same<int Base::*, int Base::*>::value));
+        ASSERT(true  == (bsl::is_same<int Struct3::*, int Struct3::*>::value));
+        ASSERT(false == (bsl::is_same<int Base::*, int Class::*>::value));
+        ASSERT(false == (bsl::is_same<int Base::*, int Derived::*>::value));
+        ASSERT(false == (bsl::is_same<int Derived::*, int Base::*>::value));
+
+        ASSERT(true  == (bsl::is_same<INT_TYPE, INT_TYPE>::value));
+        ASSERT(true  == (bsl::is_same<INT_TYPE, Class::INT_TYPE>::value));
+        ASSERT(true  == (bsl::is_same<NS::INT_TYPE, Class::INT_TYPE>::value));
+        ASSERT(true  == (bsl::is_same<INT_TYPE, NS::INT_TYPE>::value));
+
+        ASSERT(true  == (bsl::is_same<char [1], char [1]>::value));
+        ASSERT(true  == (bsl::is_same<const int [5], const int [5]>::value));
+        ASSERT(false == (bsl::is_same<char, char [1]>::value));
+        ASSERT(false == (bsl::is_same<int [5], char [5]>::value));
+        ASSERT(false == (bsl::is_same<int [2][4], int [4][2]>::value));
+
+        ASSERT(true  == (bsl::is_same<F, F>::value));
+        ASSERT(true  == (bsl::is_same<Fv, F>::value));
+        ASSERT(true  == (bsl::is_same<Fi, Fi>::value));
+        ASSERT(true  == (bsl::is_same<PFi, PFi>::value));
+        ASSERT(false == (bsl::is_same<Fe, Fi>::value));
+        ASSERT(false == (bsl::is_same<Fe, Fie>::value));
+        ASSERT(false == (bsl::is_same<Fie, Fi>::value));
+        ASSERT(false == (bsl::is_same<PFi, Fi>::value));
+      } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

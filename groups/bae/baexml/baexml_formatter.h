@@ -291,7 +291,7 @@ class baexml_Formatter {
     };
 
   private:
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
     enum State {
         BAEXML_AT_START,
@@ -379,16 +379,16 @@ class baexml_Formatter {
 
   public:
     // CREATORS
-    baexml_Formatter(bsl::streambuf  *output,
-                     int              indentLevel = 0,
-                     int              spacesPerLevel = 4,
-                     int              wrapColumn = 80,
-                     bslma_Allocator *basic_allocator = 0);
-    baexml_Formatter(bsl::ostream&    output,
-                     int              indentLevel = 0,
-                     int              spacesPerLevel = 4,
-                     int              wrapColumn = 80,
-                     bslma_Allocator *basic_allocator = 0);
+    baexml_Formatter(bsl::streambuf   *output,
+                     int               indentLevel = 0,
+                     int               spacesPerLevel = 4,
+                     int               wrapColumn = 80,
+                     bslma::Allocator *basic_allocator = 0);
+    baexml_Formatter(bsl::ostream&     output,
+                     int               indentLevel = 0,
+                     int               spacesPerLevel = 4,
+                     int               wrapColumn = 80,
+                     bslma::Allocator *basic_allocator = 0);
         // Construct an object to format XML data into the specified 'output'
         // stream or streambuf.  Optionally specify initial 'indentLevel',
         // 'spacesPerLevel', and 'wrapColumn' for formatting.  An
@@ -411,7 +411,7 @@ class baexml_Formatter {
                       int                    formattingMode = 0);
         // Add an attribute the specified 'name' and specified 'value' to the
         // currently open element.  'value' can be of the following types:
-        // 'char', 'short', 'int', 'bsls_PlatformUtil::Int64', 'float',
+        // 'char', 'short', 'int', 'bsls::Types::Int64', 'float',
         // 'double', 'bsl::string', 'bdet_Datetime', 'bdet_Date', and
         // 'bdet_Time'.  Precede this name="value" pair with a single space.
         // Wrap line (write the attribute on next line with proper
@@ -445,7 +445,7 @@ class baexml_Formatter {
     template <typename TYPE>
     void addListData(const TYPE& value, int formattingMode = 0);
         // Add the 'value' as the data content, where 'value' can be of the
-        // following types: 'char', 'short', 'int', 'bsls_PlatformUtil::Int64',
+        // following types: 'char', 'short', 'int', 'bsls::Types::Int64',
         // 'float', 'double', 'bsl::string', 'bdet_Datetime', 'bdet_Date', and
         // 'bdet_Time'.  'addListData' prefixes the 'value' with a
         // space('0x20') unless the data being added is the first data on a

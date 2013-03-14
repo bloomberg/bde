@@ -91,9 +91,9 @@ typedef bdema_BlockList Obj;
 // These type are copied from the 'bdema_blocklist.h' for testing purposes.
 
 struct Block {
-    Block                              *d_prev_p;
-    Block                              *d_next_p;
-    bsls_AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+    Block                               *d_prev_p;
+    Block                               *d_next_p;
+    bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
 inline static int roundUp(int x, int y)
@@ -136,7 +136,7 @@ inline static int roundUp(int x, int y)
         my_StrPool& operator=(const my_StrPool&);
 
       public:
-        my_StrPool(bslma_Allocator *basicAllocator = 0);
+        my_StrPool(bslma::Allocator *basicAllocator = 0);
             // Create a memory manager using the specified 'basicAllocator' to
             // supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
@@ -206,7 +206,7 @@ inline static int roundUp(int x, int y)
         }
     }
 
-    my_StrPool::my_StrPool(bslma_Allocator *basicAllocator)
+    my_StrPool::my_StrPool(bslma::Allocator *basicAllocator)
     : d_blockSize(INITIAL_SIZE)
     , d_block_p(0)
     , d_blockList(basicAllocator)  // the blocklist knows about 'bslma_default'
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE TEST" << endl
                                   << "==========" << endl;
 
-        bslma_TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVerbose);
 
         if (verbose) cout << "Testing 'my_StrPool'." << endl;
         {
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdema_BlockList sa(&ta);
 
         int lastNumBytesInUse = ta.numBytesInUse();
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 1, 10, 100, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVerbose);
 
         if (verbose) cout << "Testing 'release'." << endl;
         {
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
         //   the expected size.  Also verify that the returned memory address
         //   is properly offset to 1) reserve room for the memory block header,
         //   and 2) produce a 0 offset when supplied to the
-        //   'bsls_AlignmentUtil's 'calculateAlignmentOffset' method.  Note
+        //   'bsls::AlignmentUtil's 'calculateAlignmentOffset' method.  Note
         //   that the expected size varies depending on the platform, and it
         //   is chosen based on the memory block header size.
         //
@@ -404,9 +404,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "ALLOCATE TEST" << endl
                                   << "=============" << endl;
 
-        typedef bsls_AlignmentUtil U;
+        typedef bsls::AlignmentUtil U;
         const int BLKSZ = sizeof(Block) -
-                                        bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
         if (veryVerbose) { TAB; P_(BLKSZ); P(U::BSLS_MAX_ALIGNMENT); }
 
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'allocate'." << endl;
 
-        bslma_TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVerbose);
 
         for (int di = 0; di < NUM_DATA; ++di) {
             const int LINE = DATA[di].d_line;

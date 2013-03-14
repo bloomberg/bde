@@ -84,8 +84,8 @@ BDES_IDENT("$Id: $")
 //..
 //  class SimpleBlobBufferFactory : public bcema_BlobBufferFactory {
 //      // DATA
-//      bsl::size_t      d_bufferSize;
-//      bslma_Allocator *d_allocator_p;
+//      bsl::size_t       d_bufferSize;
+//      bslma::Allocator *d_allocator_p;
 //
 //      private:
 //      // NOT IMPLEMENTED
@@ -94,8 +94,8 @@ BDES_IDENT("$Id: $")
 //
 //      public:
 //      // CREATORS
-//      explicit SimpleBlobBufferFactory(int              bufferSize = 1024,
-//                                       bslma_Allocator *basicAllocator = 0);
+//      explicit SimpleBlobBufferFactory(int               bufferSize = 1024,
+//                                       bslma::Allocator *basicAllocator = 0);
 //      ~SimpleBlobBufferFactory();
 //
 //      // MANIPULATORS
@@ -103,10 +103,10 @@ BDES_IDENT("$Id: $")
 //  };
 //
 //  SimpleBlobBufferFactory::SimpleBlobBufferFactory(
-//                                             int              bufferSize,
-//                                             bslma_Allocator *basicAllocator)
+//                                            int               bufferSize,
+//                                            bslma::Allocator *basicAllocator)
 //  : d_bufferSize(bufferSize)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //  }
 //
@@ -209,7 +209,7 @@ BDES_IDENT("$Id: $")
 //..
 //  void prependProlog(bcema_Blob         *blob,
 //                     const bsl::string&  prolog,
-//                     bslma_Allocator    *allocator = 0);
+//                     bslma::Allocator   *allocator = 0);
 //      // Prepend the specified 'prolog' to the specified 'blob', using the
 //      // specified 'allocator' to supply any memory (or the currently
 //      // installed default allocator if 'allocator' is 0).  The behavior is
@@ -223,7 +223,7 @@ BDES_IDENT("$Id: $")
 //                      const int          *vectorSizes,
 //                      int                 numVectors,
 //                      const DELETER&      deleter,
-//                      bslma_Allocator    *allocator = 0);
+//                      bslma::Allocator   *allocator = 0);
 //      // Load into the specified 'blob' the data composed of the specified
 //      // 'prolog' and of the payload in the 'numVectors' buffers pointed to
 //      // by the specified 'vectors' of the respective 'vectorSizes'.
@@ -236,7 +236,7 @@ BDES_IDENT("$Id: $")
 //      // created with a blob buffer factory.  The behavior is undefined
 //      // unless 'blob' points to an initialized 'bcema_Blob' instance.
 //
-//  int timestampMessage(bcema_Blob *blob, bslma_Allocator *allocator = 0);
+//  int timestampMessage(bcema_Blob *blob, bslma::Allocator *allocator = 0);
 //      // Insert a timestamp data buffer immediately after the prolog buffer
 //      // and prior to any payload buffer.  Return the number of bytes
 //      // inserted.  Use the specified 'allocator' to supply memory, or the
@@ -249,7 +249,7 @@ BDES_IDENT("$Id: $")
 //..
 //  void prependProlog(bcema_Blob         *blob,
 //                     const bsl::string&  prolog,
-//                     bslma_Allocator    *allocator)
+//                     bslma::Allocator   *allocator)
 //  {
 //      BSLS_ASSERT(blob);
 //
@@ -289,7 +289,7 @@ BDES_IDENT("$Id: $")
 //                      const int          *vectorSizes,
 //                      int                 numVectors,
 //                      const DELETER&      deleter,
-//                      bslma_Allocator    *allocator)
+//                      bslma::Allocator   *allocator)
 //  {
 //      BSLS_ASSERT(blob);
 //      BSLS_ASSERT(vectors);
@@ -315,7 +315,7 @@ BDES_IDENT("$Id: $")
 // that in typical messages, timestamps would be part of the prolog itself, so
 // this is a somewhat contrived example for exposition only.
 //..
-//  int timestampMessage(bcema_Blob *blob, bslma_Allocator *allocator)
+//  int timestampMessage(bcema_Blob *blob, bslma::Allocator *allocator)
 //  {
 //      BSLS_ASSERT(blob);
 //      BSLS_ASSERT(0 < blob->numDataBuffers());
@@ -365,16 +365,16 @@ BDES_IDENT("$Id: $")
 #include <bcema_sharedptr.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 #include <bslalg_typetraitbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -387,10 +387,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -406,10 +402,6 @@ class bcema_BlobBuffer {
     // pre-existing instance, the container is left in a valid state, but its
     // value is undefined.  In no event is memory leaked.
 
-    // PRIVATE TYPES
-    typedef bslalg_PassthroughTrait<bcema_SharedPtr<char>,
-                                 bslalg_TypeTraitBitwiseMoveable> NestedTraits;
-
     // DATA
     bcema_SharedPtr<char> d_buffer;  // shared buffer
     int                   d_size;    // buffer size (in bytes)
@@ -422,9 +414,6 @@ class bcema_BlobBuffer {
                            const bcema_BlobBuffer&);
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bcema_BlobBuffer, NestedTraits);
-
     // CREATORS
     bcema_BlobBuffer();
         // Create a blob buffer representing a null buffer.  Note that the
@@ -484,6 +473,16 @@ class bcema_BlobBuffer {
         // interface compatibility only and are effectively ignored.
 };
 
+// TYPE TRAITS
+namespace bslmf {
+
+template <>
+struct IsBitwiseMoveable<BloombergLP::bcema_BlobBuffer>
+    : IsBitwiseMoveable<BloombergLP::bcema_SharedPtr<char> >::type
+{};
+
+}
+
 // FREE OPERATORS
 bool operator==(const bcema_BlobBuffer& lhs, const bcema_BlobBuffer& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' blob buffers have the
@@ -529,11 +528,6 @@ class bcema_Blob {
     // instance, the container is left in a valid state, but its value is
     // undefined.  In no event is memory leaked.
 
-    // PRIVATE TYPES
-    typedef bslalg_PassthroughTrait<
-                                 bsl::vector<bcema_BlobBuffer>,
-                                 bslalg_TypeTraitBitwiseMoveable> NestedTraits;
-
     // DATA
     bsl::vector<bcema_BlobBuffer>  d_buffers;             // buffer sequence
 
@@ -569,11 +563,8 @@ class bcema_Blob {
         // Assert the invariants of this object and return 0 on success.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bcema_BlobBuffer, NestedTraits);
-
     // CREATORS
-    explicit bcema_Blob(bslma_Allocator *basicAllocator = 0);
+    explicit bcema_Blob(bslma::Allocator *basicAllocator = 0);
         // Create an empty blob having no factory to allocate blob buffers.
         // Since there is no factory, the behavior is undefined if the length
         // of the blob is set beyond the total size.  Optionally specify a
@@ -581,7 +572,7 @@ class bcema_Blob {
         // the currently installed default allocator is used.
 
     explicit bcema_Blob(bcema_BlobBufferFactory *factory,
-                        bslma_Allocator         *basicAllocator = 0);
+                        bslma::Allocator        *basicAllocator = 0);
         // Create an empty blob using the specified 'factory' to allocate blob
         // buffers.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -590,7 +581,7 @@ class bcema_Blob {
     bcema_Blob(const bcema_BlobBuffer  *buffers,
                int                      numBuffers,
                bcema_BlobBufferFactory *factory,
-               bslma_Allocator         *basicAllocator = 0);
+               bslma::Allocator        *basicAllocator = 0);
         // Create a blob that initially holds the specified 'numBuffers'
         // buffers referenced by the specified 'buffers', and uses the
         // specified 'factory' to allocate blob buffers.  Optionally specify a
@@ -599,7 +590,7 @@ class bcema_Blob {
 
     bcema_Blob(const bcema_Blob&        original,
                bcema_BlobBufferFactory *factory,
-               bslma_Allocator         *basicAllocator = 0);
+               bslma::Allocator        *basicAllocator = 0);
         // Create a blob that holds the same buffers as the specified
         // 'original' blob, and uses the specified 'factory' to allocate blob
         // buffers.  Optionally specify a 'basicAllocator' used to supply
@@ -607,7 +598,7 @@ class bcema_Blob {
         // allocator is used.
 
     bcema_Blob(const bcema_Blob&  original,
-               bslma_Allocator   *basicAllocator = 0);
+               bslma::Allocator  *basicAllocator = 0);
         // Create a blob that holds the same buffers as the specified
         // 'original' blob, and has no factory to allocate blob buffers.  Since
         // there is no factory, the behavior is undefined if the length of the
@@ -748,6 +739,20 @@ class bcema_Blob {
         // Return the sum of the sizes of all blob buffers in this blob (i.e.,
         // the capacity of this blob).
 };
+
+// TYPE TRAITS
+namespace bslmf {
+template <>
+struct IsBitwiseMoveable<BloombergLP::bcema_Blob>
+    : IsBitwiseMoveable<bsl::vector<BloombergLP::bcema_BlobBuffer> >::type
+{};
+}
+
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<BloombergLP::bcema_Blob> : bsl::true_type
+{};
+}
 
 // FREE OPERATORS
 bool operator==(const bcema_Blob& lhs, const bcema_Blob& rhs);

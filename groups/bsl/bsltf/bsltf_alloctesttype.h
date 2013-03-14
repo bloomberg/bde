@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'AllocTestType', that uses a
 // 'bslma::Allocator' to allocate memory and defines the type trait
-// 'bslalg::TypeTraitUsesBslmaAllocator'.  Furthermore, this class is not
+// 'bslma::UsesBslmaAllocator'.  Furthermore, this class is not
 // bitwise-moveable, and will assert on destruction if it has been moved.  This
 // class is primarily provided to facilitate testing of templates by defining a
 // simple type representative of user-defined types having an allocator.
@@ -48,24 +48,22 @@ BSLS_IDENT("$Id: $")
 //  void printTypeTraits()
 //      // Prints the traits of the parameterized 'TYPE' to the console.
 //  {
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitUsesBslmaAllocator>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitUsesBslmaAllocator.\n");
+//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//          printf("Type defines bslma::UsesBslmaAllocator.\n");
 //      }
 //      else {
 //          printf(
-//              "Type does not define bslalg::TypeTraitUsesBslmaAllocator.\n");
+//              "Type does not define bslma::UsesBslmaAllocator.\n");
 //      }
 //
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitBitwiseMoveable>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitBitwiseMoveable.\n");
+//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
 //      }
 //      else {
-//          printf("Type does not define bslalg::TypeTraitBitwiseMoveable.\n");
+//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
 //      }
 //  }
-// ..
+//..
 // Now, we invoke the 'printTypeTraits' function template using
 // 'AllocTestType' as the parameterized 'TYPE':
 //..
@@ -73,24 +71,25 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe the console output:
 //..
-//  Type defines bslalg::TypeTraitUsesBslmaAllocator.
-//  Type does not define bslalg::TypeTraitBitwiseMoveable.
+//  Type defines bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
+namespace BloombergLP
+{
 
-namespace BloombergLP {
-namespace bsltf {
+namespace bslma { class Allocator; }
+
+namespace bsltf
+{
 
                         // ===================
                         // class AllocTestType
@@ -99,7 +98,7 @@ namespace bsltf {
 class AllocTestType {
     // This unconstrained (value-semantic) attribute class that uses a
     // 'bslma::Allocator' to allocate memory and defines the type trait
-    // 'bslalg::TypeTraitUsesBslmaAllocator'.  This class is primarily provided
+    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided
     // to facilitate testing of templates by defining a simple type
     // representative of user-defined types having an allocator.  See the
     // Attributes section under @DESCRIPTION in the component-level
@@ -115,10 +114,6 @@ class AllocTestType {
                                      // is not bit-wise moved)
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(AllocTestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit AllocTestType(bslma::Allocator *basicAllocator = 0);
         // Create a 'AllocTestType' object having the (default) attribute
@@ -185,60 +180,7 @@ bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs);
                         // class AllocTestType
                         // -------------------
 
-// CREATORS
-inline
-AllocTestType::AllocTestType(bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = 0;
-}
-
-inline
-AllocTestType::AllocTestType(int data, bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = data;
-}
-
-inline
-AllocTestType::AllocTestType(const AllocTestType& original,
-                             bslma::Allocator     *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = *original.d_data_p;
-}
-
-inline
-AllocTestType::~AllocTestType()
-{
-    d_allocator_p->deallocate(d_data_p);
-
-    // Ensure that this objects has not been bitwise moved.
-
-    BSLS_ASSERT_OPT(this == d_self_p);
-}
-
 // MANIPULATORS
-inline
-AllocTestType& AllocTestType::operator=(const AllocTestType& rhs)
-{
-    if (&rhs != this)
-    {
-        int *newData = reinterpret_cast<int *>(
-                                         d_allocator_p->allocate(sizeof(int)));
-        d_allocator_p->deallocate(d_data_p);
-        d_data_p = newData;
-        *d_data_p = *rhs.d_data_p;
-    }
-    return *this;
-}
-
 inline
 void AllocTestType::setData(int value)
 {
@@ -260,29 +202,50 @@ bslma::Allocator *AllocTestType::allocator() const
     return d_allocator_p;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const AllocTestType& lhs, const AllocTestType& rhs)
+bool bsltf::operator==(const AllocTestType& lhs, const AllocTestType& rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
+bool bsltf::operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+// TRAITS
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<bsltf::AllocTestType>
+    : bsl::true_type {};
+}  // close namespace bslma
+
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

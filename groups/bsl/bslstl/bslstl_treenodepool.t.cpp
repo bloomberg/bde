@@ -183,6 +183,15 @@ class AllocatingIntType {
     const int& value() const { return *d_value_p; }
 };
 
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<AllocatingIntType> : bsl::true_type {};
+
+}
+}
+
 //=============================================================================
 //                               TEST FACILITIES
 //-----------------------------------------------------------------------------
@@ -240,7 +249,7 @@ class Stack
 template <class VALUE>
 class TestDriver {
     // This templatized struct provide a namespace for testing the 'map'
-    // container.  The parameterized 'VALUE' specifies the value type forr this
+    // container.  The parameterized 'VALUE' specifies the value type for this
     // object.  Each "testCase*" method test a specific aspect of
     // 'SimplePool<VALUE>'.  Every test cases should be invoked with various
     // parameterized type to fully test the container.
@@ -376,7 +385,7 @@ void TestDriver<VALUE>::testCase8()
     // Plan:
     //: 1 Using a table-based approach:
     //:
-    //:   1 Create two objects of whick memory has been allocated and
+    //:   1 Create two objects of which memory has been allocated and
     //:     deallocated various number of times.
     //:
     //:   2 Swap the two objects, verify allocator is not changed.  (C-2)
@@ -572,9 +581,8 @@ void TestDriver<VALUE>::testCase7()
                         "\n========================\n");
 
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
+                                    VALUE>::value;
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -691,9 +699,8 @@ void TestDriver<VALUE>::testCase6()
     if (verbose) printf("\nMANIPULATOR 'reserve'"
                         "\n======================\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
+                                    VALUE>::value;
 
     for (int ti = 1; ti < 8; ++ti) {
         for(int tj = 0; tj < 8; ++tj) {
@@ -790,9 +797,8 @@ void TestDriver<VALUE>::testCase5()
     if (verbose) printf("\nMANIPULATOR 'deleteNode'"
                         "\n========================");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
+                                    VALUE>::value;
 
     struct {
         int         d_line;
@@ -943,6 +949,7 @@ void TestDriver<VALUE>::testCase4()
           } break;
           default: {
               ASSERTV(CONFIG, !"Bad allocator config.");
+              return;
           } break;
         }
 
@@ -1037,9 +1044,7 @@ void TestDriver<VALUE>::testCase2()
 
     if (verbose) printf("\nTesting with various allocator configurations.\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
 
@@ -1065,6 +1070,7 @@ void TestDriver<VALUE>::testCase2()
           } break;
           default: {
             ASSERTV(CONFIG, !"Bad allocator config.");
+            return;
           } break;
         }
 
@@ -1455,11 +1461,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

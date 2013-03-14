@@ -1,4 +1,4 @@
-// bdesu_fileutil.t.cpp -*-C++-*-
+// bdesu_fileutil.t.cpp                                               -*-C++-*-
 #include <bdesu_fileutil.h>
 
 #include <bdesu_pathutil.h>
@@ -246,13 +246,13 @@ bsl::string tempFileName()
 class MMIXRand {
     // Pseudo-Random number generator based on Donald Knuth's 'MMIX'
 
-    static const bsls_Types::Uint64 A = 6364136223846793005ULL;
-    static const bsls_Types::Uint64 C = 1442695040888963407ULL;
+    static const bsls::Types::Uint64 A = 6364136223846793005ULL;
+    static const bsls::Types::Uint64 C = 1442695040888963407ULL;
 
     // DATA
-    bsls_Types::Uint64       d_reg;
-    bsl::stringstream        d_ss;
-    char                     d_outBuffer[17];
+    bsls::Types::Uint64 d_reg;
+    bsl::stringstream   d_ss;
+    char                d_outBuffer[17];
 
   public:
     // CREATOR
@@ -906,7 +906,9 @@ int main(int argc, char *argv[])
         //   does not return an error status on Unix.
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM_OS_UNIX
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
+        // 'tryLock' appears to ALWAYS succeed on Cygwin.
+
         typedef bdesu_FileUtil::FileDescriptor FD;
         enum { BEGINNING = bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING };
 
@@ -1072,6 +1074,10 @@ int main(int argc, char *argv[])
                                                     false);
                 bdesu_FileUtil::close(fdSuccess);
             }
+        }
+#else
+        if (verbose) {
+            cout << "Skipping case 10 on Windows and Cygwin..." << endl;
         }
 #endif
       } break;
@@ -1272,10 +1278,16 @@ int main(int argc, char *argv[])
             int ret = bdesu_FileUtil::createDirectories(dirName, true);
             ASSERT(0 == ret);
 
-            // On UNIX use stat64 as an oracle: the file size of a directory
-            // depends on the file system.
+            // On UNIX use 'stat64' ('stat' on cygwin) as an oracle: the file
+            // size of a directory depends on the file system.
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+            struct stat oracleInfo;
+            int rc = ::stat(dirName.c_str(), &oracleInfo);
+            ASSERT(0 == rc);
+
+            bdesu_FileUtil::Offset EXPECTED = oracleInfo.st_size;
+#elif !defined BSLS_PLATFORM_OS_WINDOWS
             struct stat64 oracleInfo;
             int rc = ::stat64(dirName.c_str(), &oracleInfo);
             ASSERT(0 == rc);
@@ -1998,7 +2010,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::unmap(p, pageSize));
 
 #if 0
-        bdesu_FileUtil::FileDescriptor fd =
+        bdesu_FileUtil::FileDescriptor fd =  // /bb/data is Bloomberg-specific
                        bdesu_FileUtil::open("/bb/data/tmp/blahblah.tmp", 1, 0);
         int pageSize = bdesu_FileUtil::pageSize();
         int nPages = 1024*1024*1024 / pageSize;
@@ -2032,16 +2044,16 @@ int main(int argc, char *argv[])
         typedef bdesu_FileUtil Util;
 
 #if 1
-        const bsls_Types::Int64 fiveGig = 5LL * 1000LL * 1000LL * 1000LL;
-        const bsls_Types::Int64 deltaMileStone = 100LL * 1000LL * 1000LL;
+        const bsls::Types::Int64 fiveGig = 5LL * 1000LL * 1000LL * 1000LL;
+        const bsls::Types::Int64 deltaMileStone = 100LL * 1000LL * 1000LL;
 #else
-        const bsls_Types::Int64 fiveGig = 5 * 1000LL * 1000LL;
-        const bsls_Types::Int64 deltaMileStone = 100LL * 1000LL;
+        const bsls::Types::Int64 fiveGig = 5 * 1000LL * 1000LL;
+        const bsls::Types::Int64 deltaMileStone = 100LL * 1000LL;
 #endif
 
-        bsls_Types::Int64 mileStone = deltaMileStone;
+        bsls::Types::Int64 mileStone = deltaMileStone;
 
-        bsls_Types::Int64 bytesWritten = 0;
+        bsls::Types::Int64 bytesWritten = 0;
 
         char record[80] = "123456789 123456789 123456789 123456789 "
                           "123456789 123456789 123";
@@ -2089,7 +2101,7 @@ int main(int argc, char *argv[])
         ASSERT(Util::getFileSize(fileName) == bytesWritten);
 
         char inBuf[80];
-        bsls_Types::Int64 bytesRead = 0;
+        bsls::Types::Int64 bytesRead = 0;
         rand.reset();
         mileStone = deltaMileStone;
 

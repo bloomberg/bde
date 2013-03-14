@@ -294,7 +294,7 @@ void testCase3(int verbose, int veryVerbose, int veryVeryVerbose)
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to write a function to determine whether or not a given
 // number is prime.  One way to implement this function is by using what's
-// called the Sieve of Erathosthenes.  The basic idea of this algorithm is to
+// called the Sieve of Eratosthenes.  The basic idea of this algorithm is to
 // repeatedly walk the sequence of integer values and mark any numbers up to
 // and including the particular value of interest that are integer multiples of
 // first 2, then 3, then 5 etc., (skipping 4 because it was previously marked
@@ -329,7 +329,7 @@ bool isPrime(int candidate)
 
     bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
-// Next, we observe that a default-contructed 'bsl::bitset' has no flags set,
+// Next, we observe that a default-constructed 'bsl::bitset' has no flags set,
 // which we can verify by asserting that the 'none' method returns true, by
 // asserting that the 'any' method returns false, or by asserting that the
 // 'count' of set bits is 0:
@@ -998,7 +998,8 @@ int main(int argc, char *argv[])
     } break;
 
     case -1: {
-      cout << "2147483647 is prime? " << isPrime<2147483647>(2147483647) << endl;
+      cout << "2147483647 is prime? " << isPrime<2147483647>(2147483647)
+           << endl;
     } break;
 
     default: {
@@ -1014,11 +1015,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -105,31 +105,31 @@ using bsl::flush;
 //                        const bcem_Aggregate& rhs);
 //
 // CREATORS
-// [10] bcem_Aggregate(bslma_Allocator *basicAllocator = 0);
+// [10] bcem_Aggregate(bslma::Allocator *basicAllocator = 0);
 // [10] template <typename VALTYPE>
-//      bcem_Aggregate(const ET::Type   dataType,
-//                     const VALTYPE&   value,
-//                     bslma_Allocator *basicAllocator);
+//      bcem_Aggregate(const ET::Type    dataType,
+//                     const VALTYPE&    value,
+//                     bslma::Allocator *basicAllocator);
 // [10] explicit bcem_Aggregate(const ConstRecDefShdPtr&  recordDefPtr,
-//                              bslma_Allocator          *basicAllocator);
+//                              bslma::Allocator         *basicAllocator);
 // [10] explicit bcem_Aggregate(const RecDefShdPtr&  recordDefPtr,
-//                              bslma_Allocator     *basicAllocator);
+//                              bslma::Allocator    *basicAllocator);
 // [10] bcem_Aggregate(const ConstRecDefShdPtr&  recordDefPtr,
 //                     ET::Type                  elemType,
-//                     bslma_Allocator          *basicAllocator);
+//                     bslma::Allocator         *basicAllocator);
 // [10] bcem_Aggregate(const RecDefShdPtr&  recordDefPtr,
 //                     ET::Type             elemType,
-//                     bslma_Allocator     *basicAllocator);
+//                     bslma::Allocator    *basicAllocator);
 // [10] bcem_Aggregate(const ConstSchemaShdPtr&  schemaPtr,
 //                     const bsl::string&        recordName,
 //                     ET::Type                  elemType,
-//                     bslma_Allocator          *basicAllocator);
+//                     bslma::Allocator         *basicAllocator);
 // [10] bcem_Aggregate(const SchemaShdPtr&  schemaPtr,
 //                     const bsl::string&   recordName,
 //                     ET::Type             elemType,
-//                     bslma_Allocator     *basicAllocator);
+//                     bslma::Allocator    *basicAllocator);
 // [21] bcem_Aggregate(const bcem_Aggregate&  other,
-//                     bslma_Allocator       *basicAllocator);
+//                     bslma::Allocator      *basicAllocator);
 // [10] ~bcem_Aggregate();
 
 // MANIPULATORS
@@ -250,7 +250,7 @@ using bsl::flush;
 // [ 6] char asChar() const;
 // [ 6] short asShort() const;
 // [ 6] int asInt() const;
-// [ 6] bsls_PlatformUtil::Int64 asInt64() const;
+// [ 6] bsls::Types::Int64 asInt64() const;
 // [ 6] float asFloat() const;
 // [ 6] double asDouble() const;
 // [ 6] bdet_Datetime asDatetime() const;
@@ -306,8 +306,8 @@ using bsl::flush;
 // [14] int numSelections() const;
 // [19] const char *selector() const;
 // [20] int selectorId() const;
-// [22] bcem_Aggregate clone(bslma_Allocator *basicAllocator) const;
-// [22] bcem_Aggregate cloneData(bslma_Allocator *basicAllocator) const;
+// [22] bcem_Aggregate clone(bslma::Allocator *basicAllocator) const;
+// [22] bcem_Aggregate cloneData(bslma::Allocator *basicAllocator) const;
 // [ 7] ET::Type dataType() const;
 // [10] const bdem_RecordDef& recordDef() const;
 // [10] const void *data() const;
@@ -594,7 +594,7 @@ typedef bdet_DatetimeTz       DatetimeTz;
 typedef bdet_DateTz           DateTz;
 typedef bdet_TimeTz           TimeTz;
 
-typedef bsls_PlatformUtil::Int64         Int64;
+typedef bsls::Types::Int64    Int64;
 
 typedef bdeat_TypeName     TN;
 typedef bdeat_TypeCategory TC;
@@ -629,12 +629,12 @@ int   mA02 ;        const int&    A02 = mA02;
 int   mB02 ;        const int&    B02 = mB02;
 int   mN02 ;        const int&    N02 = mN02;
 
-bsls_PlatformUtil::Int64 mA03;
-bsls_PlatformUtil::Int64 mB03;
-bsls_PlatformUtil::Int64 mN03;
-const bsls_PlatformUtil::Int64& A03 = mA03;
-const bsls_PlatformUtil::Int64& B03 = mB03;
-const bsls_PlatformUtil::Int64& N03 = mN03;
+bsls::Types::Int64 mA03;
+bsls::Types::Int64 mB03;
+bsls::Types::Int64 mN03;
+const bsls::Types::Int64& A03 = mA03;
+const bsls::Types::Int64& B03 = mB03;
+const bsls::Types::Int64& N03 = mN03;
 
 float            mA04;           const float&            A04 = mA04;
 float            mB04;           const float&            B04 = mB04;
@@ -690,12 +690,12 @@ bsl::vector<int>   mA12;         const bsl::vector<int>&   A12 = mA12;
 bsl::vector<int>   mB12;         const bsl::vector<int>&   B12 = mB12;
 bsl::vector<int>   mN12;         const bsl::vector<int>&   N12 = mN12;
 
-bsl::vector<bsls_PlatformUtil::Int64> mA13;
-bsl::vector<bsls_PlatformUtil::Int64> mB13;
-bsl::vector<bsls_PlatformUtil::Int64> mN13;
-const bsl::vector<bsls_PlatformUtil::Int64>&  A13 = mA13;
-const bsl::vector<bsls_PlatformUtil::Int64>&  B13 = mB13;
-const bsl::vector<bsls_PlatformUtil::Int64>&  N13 = mN13;
+bsl::vector<bsls::Types::Int64> mA13;
+bsl::vector<bsls::Types::Int64> mB13;
+bsl::vector<bsls::Types::Int64> mN13;
+const bsl::vector<bsls::Types::Int64>&  A13 = mA13;
+const bsl::vector<bsls::Types::Int64>&  B13 = mB13;
+const bsl::vector<bsls::Types::Int64>&  N13 = mN13;
 
 bsl::vector<float> mA14;
 bsl::vector<float> mB14;
@@ -817,7 +817,7 @@ void initStaticData ()
 
     mA03 = -100;
     mB03 = -200;
-    mN03 = bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+    mN03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
     mA04 = -1.5;
     mB04 = -2.5;
@@ -2952,7 +2952,7 @@ class AggAccessor {
     int operator()(const T& value, const TC::Simple&);
 
     template <typename T>
-    int operator()(const T& value, const bslmf_Nil&);
+    int operator()(const T& value, const bslmf::Nil&);
         // Illegal call: prevent recursive calls to the 'INFO' version of
         // 'operator()' in case of incorrect overload selection by the
         // compiler.
@@ -3061,7 +3061,7 @@ int AggAccessor::operator()(const T& value, const TC::Simple&)
 
 template <typename T>
 inline
-int AggAccessor::operator()(const T& value, const bslmf_Nil&)
+int AggAccessor::operator()(const T& value, const bslmf::Nil&)
 {
     // This method should never be instantiated
     ASSERT("Shouldn't call this function" && 0);
@@ -3151,7 +3151,7 @@ class NewAggAccessor {
     int operator()(const T& value, const TC::Simple&);
 
     template <typename T>
-    int operator()(const T& value, const bslmf_Nil&);
+    int operator()(const T& value, const bslmf::Nil&);
         // Illegal call: prevent recursive calls to the 'INFO' version of
         // 'operator()' in case of incorrect overload selection by the
         // compiler.
@@ -3250,7 +3250,7 @@ int NewAggAccessor::operator()(const T& value, const TC::Simple&)
 
 template <typename T>
 inline
-int NewAggAccessor::operator()(const T& value, const bslmf_Nil&)
+int NewAggAccessor::operator()(const T& value, const bslmf::Nil&)
 {
     // This method should never be instantiated
     ASSERT("Shouldn't call this function" && 0);
@@ -3654,7 +3654,7 @@ static void runBerBenchmark(bool verbose, bool veryVerbose,
 
     char* ENCODE_BUFFER = new char[ENCODE_BUFFER_SIZE];
 
-    bsls_Stopwatch timer;
+    bsls::Stopwatch timer;
     bdem_BerEncoderOptions options;
     bdem_BerEncoder encoder(&options);
 
@@ -4527,9 +4527,9 @@ static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
     if (verbose) tst::cout << "\nTESTING 'accessArray(RawPtr)'"
                            << "\n=============================" << bsl::endl;
 
-    bslma_TestAllocator da("da", veryVeryVerbose);
-    bslma_DefaultAllocatorGuard dag(&da);
-    bslma_TestAllocator ta("ta", veryVeryVerbose);
+    bslma::TestAllocator da("da", veryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     for (int numElements = 1; numElements <= 3; ++numElements) {
 
@@ -4638,7 +4638,7 @@ static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
         if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-        bslma_TestAllocator t(veryVeryVerbose);
+        bslma::TestAllocator t(veryVeryVerbose);
         Obj mX(CRP, &t); const Obj& X = mX;
         Obj mY(CRP, &t); const Obj& Y = mY;
         ASSERT(!X.isUnset());
@@ -5239,8 +5239,8 @@ static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     for (int i = 1; i <= 4096; i <<= 1)
     {
-        bslma_TestAllocator ta("TableTestAllocator", false);
-        bslma_TestAllocator aa("AggregateTestAllocator", false);
+        bslma::TestAllocator ta("TableTestAllocator", false);
+        bslma::TestAllocator aa("AggregateTestAllocator", false);
 
         bdem_Table table(&ta);
         bcem_Aggregate tableAggregate(bdem_ElemType::BDEM_TABLE,
@@ -5267,8 +5267,8 @@ static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     for (int i = 1; i <= 4096; i <<= 1)
     {
-        bslma_TestAllocator ca("ChoiceArrayTestAllocator", false);
-        bslma_TestAllocator aa("AggregateTestAllocator", false);
+        bslma::TestAllocator ca("ChoiceArrayTestAllocator", false);
+        bslma::TestAllocator aa("AggregateTestAllocator", false);
 
         bdem_ChoiceArray choiceArray(&ca);
         bcem_Aggregate choiceArrayAggregate(bdem_ElemType::BDEM_CHOICE_ARRAY,
@@ -5298,8 +5298,8 @@ static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     for (int i = 1; i <= 4096; i <<= 1)
     {
-        bslma_TestAllocator sa("ScalarArrayTestAllocator", false);
-        bslma_TestAllocator aa("AggregateTestAllocator", false);
+        bslma::TestAllocator sa("ScalarArrayTestAllocator", false);
+        bslma::TestAllocator aa("AggregateTestAllocator", false);
 
         bsl::vector<int> scalarArray(&sa);
         bcem_Aggregate scalarArrayAggregate(bdem_ElemType::BDEM_INT_ARRAY,
@@ -5327,8 +5327,8 @@ static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (verbose) cout << "Testing with a non-array type aggregate" << endl;
     {
-        bslma_TestAllocator la("ListArrayTestAllocator", false);
-        bslma_TestAllocator aa("AggregateTestAllocator", false);
+        bslma::TestAllocator la("ListArrayTestAllocator", false);
+        bslma::TestAllocator aa("AggregateTestAllocator", false);
 
         bdem_List list(&la);
         bcem_Aggregate listAggregate(bdem_ElemType::BDEM_LIST, list, &aa);
@@ -5613,7 +5613,7 @@ static void testCase28(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 continue;
             }
 
-            bsls_ObjectBuffer<CERef> refs[MAX_DEPTH];
+            bsls::ObjectBuffer<CERef> refs[MAX_DEPTH];
             CERef *expRef = &topRef;
             for (int depth = 0; depth < EXPECTED_DEPTH; ++depth) {
                 // Using 'bdem' primitives (not 'bcem_Aggregate' methods),
@@ -6087,7 +6087,7 @@ static void testCase26(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 int version = bsl::strstr(SPEC, "NT") ? 3 : 1;
                 for (; version <= MAX_VERSION; ++version) {
-                    bslma_TestAllocator t(veryVeryVerbose);
+                    bslma::TestAllocator t(veryVeryVerbose);
                     Obj mU(CRP, &t); const Obj& U = mU;
                     Obj mV(CRP, &t); const Obj& V = mV;
                     Obj mX(CRP, &t); const Obj& X = mX;
@@ -7316,12 +7316,12 @@ static void testCase23(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 }
             }
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
          BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
-            bslma_TestAllocator alloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard dag(&alloc);
+            bslma::TestAllocator alloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&alloc);
 
             Obj mX(CRP, &testAllocator); const Obj& X = mX;
             Obj mA(CRP, &testAllocator); const Obj& A = mA;
@@ -7434,14 +7434,14 @@ static void testCase22(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //     the presence of exceptions.
         //
         // Testing:
-        //   bcem_Aggregate clone(bslma_Allocator *basicAllocator) const;
-        //   bcem_Aggregate cloneData(bslma_Allocator *basicAllocator) const;
+        //   bcem_Aggregate clone(bslma::Allocator *basicAllocator) const;
+        //   bcem_Aggregate cloneData(bslma::Allocator *basicAllocator) const;
         // --------------------------------------------------------------------
 
         if (verbose) tst::cout << "\nTESTING 'clone' FUNCTIONS"
                                << "\n=========================" << bsl::endl;
         {
-            bslma_TestAllocator ta1, ta2;
+            bslma::TestAllocator ta1, ta2;
             Obj mX; const Obj& X = mX;
             ASSERT(X.isNul2());
 
@@ -7554,7 +7554,7 @@ static void testCase22(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             const CERef A1 = getCERef(TYPE, 1);
             const CERef A2 = getCERef(TYPE, 2);
 
-            bslma_TestAllocator t(veryVeryVerbose);
+            bslma::TestAllocator t(veryVeryVerbose);
             Obj mU(CRP, &t); const Obj& U = mU;
             Obj mV(CRP, &t); const Obj& V = mV;
 
@@ -7566,7 +7566,7 @@ static void testCase22(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) P(X) P(Y) };
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
           BEGIN_BSLMA_EXCEPTION_TEST {
             const int BYTES = t.numBytesInUse();
 
@@ -7733,7 +7733,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //
         // Testing:
         //   bcem_Aggregate(const bcem_Aggregate&  other,
-        //                  bslma_Allocator       *basicAllocator);
+        //                  bslma::Allocator      *basicAllocator);
         // --------------------------------------------------------------------
 
         if (verbose) tst::cout << "\nTESTING COPY CONSTRUCTOR"
@@ -7841,7 +7841,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             Obj mX(CRP, &testAllocator); const Obj& X = mX;
             Obj mY(CRP, &testAllocator); const Obj& Y = mY;
 
@@ -7852,8 +7852,8 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             Obj mV = Y.field(fldName); const Obj& V = mV;
 
           BEGIN_BSLMA_EXCEPTION_TEST {
-            bslma_TestAllocator alloc1(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard allocGuard(&alloc1);
+            bslma::TestAllocator alloc1(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard allocGuard(&alloc1);
 
             {
                 Obj mA(U); const Obj& A = mA;
@@ -7938,7 +7938,7 @@ static void testCase20(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mW(RP, &t); const Obj& W = mW;
                 Obj mX(RP, &t); const Obj& X = mX;
                 Obj mY(RP, &t); const Obj& Y = mY;
@@ -7999,7 +7999,7 @@ static void testCase20(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mW(RP, &t); const Obj& W = mW;
                 Obj mX(RP, &t); const Obj& X = mX;
                 Obj mY(RP, &t); const Obj& Y = mY;
@@ -8204,7 +8204,7 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 const CERef VA = getCERef(TYPE, 1);
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX(CRP, &t); const Obj& X = mX;
                 Obj mY(CRP, &t); const Obj& Y = mY;
 
@@ -8314,7 +8314,7 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mW(CRP, &t); const Obj& W = mW;
                 Obj mX(CRP, &t); const Obj& X = mX;
                 Obj mY(CRP, &t); const Obj& Y = mY;
@@ -8536,7 +8536,7 @@ static void testCase18(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
           BEGIN_BSLMA_EXCEPTION_TEST {
@@ -8806,7 +8806,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
@@ -8940,7 +8940,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
@@ -9166,7 +9166,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator testAllocator;
+                bslma::TestAllocator testAllocator;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
@@ -9307,7 +9307,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                                    ? true : false;
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
@@ -9515,7 +9515,7 @@ static void testCase15(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
           BEGIN_BSLMA_EXCEPTION_TEST {
             Obj mX(CRP, &testAllocator); const Obj& X = mX;
@@ -9817,7 +9817,7 @@ static void testCase14(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 const CERef VA = getCERef(TYPE, 1);
                 const CERef VN = getCERef(TYPE, 0);
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX(CRP, &t); const Obj& X = mX;
                 Obj mY(CRP, &t); const Obj& Y = mY;
 
@@ -9907,7 +9907,7 @@ static void testCase14(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX(CRP, &t); const Obj& X = mX;
                 if (2 == SCHEMA.numRecords()) {
                     X.field(REC->fieldName(0)).appendItems(1);
@@ -10090,7 +10090,7 @@ static void testCase14(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 const CERef VA = getCERef(TYPE, 1);
                 const CERef VB = getCERef(TYPE, 2);
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX(CRP, &t); const Obj& X = mX;
                 Obj mY(CRP, &t); const Obj& Y = mY;
                 if (RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()) {
@@ -10587,7 +10587,7 @@ static void testCase12(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (veryVerbose) { T_ P_(SPEC1) P(SCHEMA1) };
 
-            bslma_TestAllocator t1(veryVeryVerbose);
+            bslma::TestAllocator t1(veryVeryVerbose);
             Obj mX(CRP1, &t1); const Obj& X = mX;
 
             if (RecDef::BDEM_CHOICE_RECORD == RECORD1->recordType()) {
@@ -10622,7 +10622,7 @@ static void testCase12(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P_(SPEC2) P(SCHEMA2) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 Obj mY(CRP2, &testAllocator); const Obj& Y = mY;
 
@@ -10713,7 +10713,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 const CERef CEA = getCERef(TYPE, 1);
                 const CERef CEB = getCERef(TYPE, 2);
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mA(TYPE, CEA, &t); const Obj& A = mA;
                 Obj mB(TYPE, CEB, &t); const Obj& B = mB;
 
@@ -10792,7 +10792,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P(s) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX(rp, &t); const Obj& X = mX;
                 Obj mY(rp, &t); const Obj& Y = mY;
 
@@ -10921,7 +10921,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                     ListShdPtr lp(&list, NilDeleter(), 0);
                     TableShdPtr tp(&table, NilDeleter(), 0);
 
-                    bslma_TestAllocator t(veryVeryVerbose);
+                    bslma::TestAllocator t(veryVeryVerbose);
                     Obj mX(rp, ET::BDEM_LIST);  const Obj& X = mX;
                     mX.setValue(*lp);
                     Obj mY(rp, ET::BDEM_TABLE);  const Obj& Y = mY;
@@ -10987,7 +10987,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                     ChoiceShdPtr cp(&choice, NilDeleter(), 0);
                     ChoiceArrayShdPtr ccp(&choiceArray, NilDeleter(), 0);
 
-                    bslma_TestAllocator t(veryVeryVerbose);
+                    bslma::TestAllocator t(veryVeryVerbose);
                     Obj mX(rp, ET::BDEM_CHOICE); const Obj& X = mX;
                     mX.setValue(*cp);
                     Obj mY(rp, ET::BDEM_CHOICE_ARRAY); const Obj& Y = mY;
@@ -11083,29 +11083,29 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
     //     the presence of exceptions.
     //
     // Testing:
-    //   bcem_Aggregate(bslma_Allocator *basicAllocator);
+    //   bcem_Aggregate(bslma::Allocator *basicAllocator);
     //   template <typename VALTYPE>
-    //       bcem_Aggregate(const ET::Type   dataType,
-    //                      const VALTYPE&   value,
-    //                      bslma_Allocator *basicAllocator);
+    //       bcem_Aggregate(const ET::Type    dataType,
+    //                      const VALTYPE&    value,
+    //                      bslma::Allocator *basicAllocator);
     //   explicit bcem_Aggregate(const ConstRecDefShdPtr&  recordDefPtr,
-    //                           bslma_Allocator          *basicAllocator);
+    //                           bslma::Allocator         *basicAllocator);
     //   explicit bcem_Aggregate(const RecDefShdPtr&  recordDefPtr,
-    //                           bslma_Allocator     *basicAllocator);
+    //                           bslma::Allocator    *basicAllocator);
     //   bcem_Aggregate(const ConstRecDefShdPtr&  recordDefPtr,
     //                  ET::Type                  elemType,
-    //                  bslma_Allocator          *basicAllocator);
+    //                  bslma::Allocator         *basicAllocator);
     //   bcem_Aggregate(const RecDefShdPtr&  recordDefPtr,
     //                  ET::Type             elemType,
-    //                  bslma_Allocator     *basicAllocator);
+    //                  bslma::Allocator    *basicAllocator);
     //   bcem_Aggregate(const ConstSchemaShdPtr&  schemaPtr,
     //                  const bsl::string&        recordName,
     //                  ET::Type                  elemType,
-    //                  bslma_Allocator          *basicAllocator);
+    //                  bslma::Allocator         *basicAllocator);
     //   bcem_Aggregate(const SchemaShdPtr&  schemaPtr,
     //                  const bsl::string&   recordName,
     //                  ET::Type             elemType,
-    //                  bslma_Allocator     *basicAllocator);
+    //                  bslma::Allocator    *basicAllocator);
     //   ~bcem_Aggregate();
     // --------------------------------------------------------------------
     if (verbose) tst::cout << "\nTESTING CREATORS"
@@ -11115,8 +11115,8 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                            << "\n========================"
                            << bsl::endl;
     {
-        bslma_TestAllocator da;
-        bslma_DefaultAllocatorGuard allocGuard(&da);
+        bslma::TestAllocator da;
+        bslma::DefaultAllocatorGuard allocGuard(&da);
 
         Obj mX; const Obj& X = mX;
         ASSERT(ET::BDEM_VOID            == X.dataType());
@@ -11144,11 +11144,11 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             bdem_Convert::convert(&sa, CEA);
 
-            bslma_TestAllocator da("da");
-            bslma_TestAllocator testAllocator("ta", veryVeryVerbose);
+            bslma::TestAllocator da("da");
+            bslma::TestAllocator testAllocator("ta", veryVeryVerbose);
 
             BEGIN_BSLMA_EXCEPTION_TEST {
-                bslma_DefaultAllocatorGuard allocGuard(&da);
+                bslma::DefaultAllocatorGuard allocGuard(&da);
 
                 Obj mA(TYPE, CEA, &testAllocator); const Obj& A = mA;
                 LOOP_ASSERT(TYPE, TYPE == A.dataType());
@@ -11183,15 +11183,15 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bsl::string sa; const bsl::string& SA = sa;
             bdem_Convert::convert(&sa, CEA);
 
-            bslma_TestAllocator ta1(veryVeryVerbose);
+            bslma::TestAllocator ta1(veryVeryVerbose);
             ASSERT_AGG_ERROR(Obj(ET::BDEM_DATETIME, SA.c_str(), &ta1),
                              BCEM_ERR_TBD);
 
-            bslma_TestAllocator ta2(veryVeryVerbose);
+            bslma::TestAllocator ta2(veryVeryVerbose);
             ASSERT_AGG_ERROR(Obj(ET::BDEM_TIMETZ, SA.c_str(), &ta2),
                              BCEM_ERR_TBD);
 
-            bslma_TestAllocator ta3(veryVeryVerbose);
+            bslma::TestAllocator ta3(veryVeryVerbose);
             ASSERT_AGG_ERROR(Obj(ET::BDEM_CHAR_ARRAY, SA.c_str(), &ta2),
                              BCEM_ERR_TBD);
         }
@@ -11264,13 +11264,13 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-            bslma_TestAllocator da("da");
-            bslma_TestAllocator testAllocator("ta", veryVeryVerbose);
+            bslma::TestAllocator da("da");
+            bslma::TestAllocator testAllocator("ta", veryVeryVerbose);
 
             BEGIN_BSLMA_EXCEPTION_TEST {
                 // Test constructor that are explicitly supplied a ctor
                 {
-                    bslma_DefaultAllocatorGuard allocGuard(&da);
+                    bslma::DefaultAllocatorGuard allocGuard(&da);
 
                     Obj mA(CRP, &testAllocator); const Obj& A = mA;
                     Obj mB(RP, &testAllocator); const Obj& B = mB;
@@ -11403,7 +11403,7 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 // Test constructor where allocator is not explicitly supplied
                 {
-                    bslma_DefaultAllocatorGuard allocGuard(&testAllocator);
+                    bslma::DefaultAllocatorGuard allocGuard(&testAllocator);
                     int numBytes = testAllocator.numBytesInUse();
 
                     Obj mA(CRP); const Obj& A = mA;
@@ -11657,10 +11657,10 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 TableShdPtr tp(&table, NilDeleter(), 0);
                 const TableShdPtr& TP = tp;
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 BEGIN_BSLMA_EXCEPTION_TEST {
-                    bslma_DefaultAllocatorGuard allocGuard(&testAllocator);
+                    bslma::DefaultAllocatorGuard allocGuard(&testAllocator);
 
                     Obj mA(CRP, ET::BDEM_LIST);             const Obj& A = mA;
                     mA.setValue(*LP);
@@ -11749,10 +11749,10 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 ChoiceArrayShdPtr cap(&choiceArray, NilDeleter(), 0);
                 const ChoiceArrayShdPtr& CAP = cap;
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 BEGIN_BSLMA_EXCEPTION_TEST {
-                    bslma_DefaultAllocatorGuard allocGuard(&testAllocator);
+                    bslma::DefaultAllocatorGuard allocGuard(&testAllocator);
 
                     Obj mA(CRP, ET::BDEM_CHOICE);
                     const Obj& A = mA;
@@ -11931,8 +11931,8 @@ static void testCase9(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                     const int LINE2 = DATA[j].d_line;
                     ET::Type  TYPE2 = DATA[j].d_type;
 
-                    bslma_TestAllocator t1(veryVeryVerbose);
-                    bslma_TestAllocator t2(veryVeryVerbose);
+                    bslma::TestAllocator t1(veryVeryVerbose);
+                    bslma::TestAllocator t2(veryVeryVerbose);
 
                     const CERef A1 = getCERef(TYPE1, 1);
                     const CERef A2 = getCERef(TYPE1, 2);
@@ -12045,7 +12045,7 @@ static void testCase9(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 // Create three objects:
                 //   X and Y are identical
                 //   Z is equivalent but not identical to X and Y
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX(rp, &t); const Obj& X = mX;
                 Obj mY(X);      const Obj& Y = mY;
                 Obj mZ(rp, &t); const Obj& Z = mZ;
@@ -12193,7 +12193,7 @@ static void testCase9(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) P(ARRAY_CEA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 Obj mX(CRP1, &testAllocator); const Obj& X = mX;
                 Obj mY(CRP2, &testAllocator); const Obj& Y = mY;
@@ -12608,7 +12608,7 @@ static void testCase7(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P(s) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX(rp, &t); const Obj& X = mX;
                 ASSERT(rp == X.recordDefPtr());
 
@@ -12705,7 +12705,7 @@ static void testCase6(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //   char asChar() const;
         //   short asShort() const;
         //   int asInt() const;
-        //   bsls_PlatformUtil::Int64 asInt64() const;
+        //   bsls::Types::Int64 asInt64() const;
         //   float asFloat() const;
         //   double asDouble() const;
         //   bdet_Datetime asDatetime() const;
@@ -13995,7 +13995,7 @@ static void testCase5(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             if (veryVerbose) { P(s) };
 
             ConstRecDefShdPtr rp(&r, NilDeleter(), 0);
-            bslma_TestAllocator t(veryVeryVerbose);
+            bslma::TestAllocator t(veryVeryVerbose);
 
             const CERef VN = getCERef(FLD_TYPE, 0);
             const CERef VA = getCERef(FLD_TYPE, 1);
@@ -14860,7 +14860,7 @@ static void testCase4(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             if (veryVerbose) { P(s) };
 
             ConstRecDefShdPtr rp(&r, NilDeleter(), 0);
-            bslma_TestAllocator t(veryVeryVerbose);
+            bslma::TestAllocator t(veryVeryVerbose);
 
             const CERef VN = getCERef(FLD_TYPE, 0);
             const CERef VA = getCERef(FLD_TYPE, 1);
@@ -15464,7 +15464,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ T_ P(s) P(CEA) P(EA) }
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX(rp, &t); const Obj& X = mX;
                 ASSERT(rp == X.recordDefPtr());
                 Obj mN(TYPE, CEA); const Obj& N = mN;
@@ -15864,7 +15864,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 Obj mW(CRP, &testAllocator); const Obj& W = mW;
                 mW.setField(fldName, ARRAY_CEA);
@@ -16074,7 +16074,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) P(ARRAY_CEA) P(CEA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 Obj mW(CRP, &testAllocator); const Obj& W = mW;
 
@@ -16433,7 +16433,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) P(ARRAY_CEA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 Obj mX(CRP1, &testAllocator); const Obj& X = mX;
                 Obj mY(CRP2, &testAllocator); const Obj& Y = mY;
@@ -17053,7 +17053,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing scalar constructors" << bsl::endl;
         {
-            bslma_TestAllocator ta (veryVeryVerbose);
+            bslma::TestAllocator ta (veryVeryVerbose);
 
             bcem_Aggregate agg1;
             ASSERT(agg1.dataType() == ET::BDEM_VOID);
@@ -17073,7 +17073,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             if (verbose) P(agg3);
         }
 
-        bslma_TestAllocator sa;
+        bslma::TestAllocator sa;
         bcema_SharedPtr<bdem_Schema> schema(new(sa) bdem_Schema(&sa), &sa);
 
         bdem_RecordDef *level2 = schema->createRecord("Level2");
@@ -17090,7 +17090,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         level1->appendField(ET::BDEM_LIST, level1, "List1.4"); // Recursive
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (verbose) tst::cout << "Testing record def constructor"
                                    << bsl::endl;
@@ -17166,7 +17166,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         table1Row->appendField(ET::BDEM_DOUBLE, "DoubleField");
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (verbose) tst::cout << "Testing table operations" << bsl::endl;
 
@@ -17221,7 +17221,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         choice1->appendField(ET::BDEM_INT,    "IdSelection");
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (verbose) tst::cout << "Testing choice operations" << bsl::endl;
             bcem_Aggregate agg1(schema, "Choice1", ET::BDEM_CHOICE, &ta);
@@ -17251,8 +17251,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) tst::cout << "Testing other constructors" << bsl::endl;
 
         {
-            bslma_TestAllocator ta;
-            bslma_DefaultAllocatorGuard allocGuard(&ta);
+            bslma::TestAllocator ta;
+            bslma::DefaultAllocatorGuard allocGuard(&ta);
 
             // Create shared pointers to some record definitions
             bcema_SharedPtr<bdem_RecordDef> lev1(schema, level1);
@@ -17341,12 +17341,12 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing clone" << bsl::endl;
         {
-            bslma_TestAllocator da("da", veryVeryVerbose);
-            bslma_TestAllocator ta1("ta1", veryVeryVerbose);
-            bslma_TestAllocator ta2("ta2", veryVeryVerbose);
+            bslma::TestAllocator da("da", veryVeryVerbose);
+            bslma::TestAllocator ta1("ta1", veryVeryVerbose);
+            bslma::TestAllocator ta2("ta2", veryVeryVerbose);
             const bsl::string recName = "Level1";
 
-            bslma_DefaultAllocatorGuard allocGuard(&da);
+            bslma::DefaultAllocatorGuard allocGuard(&da);
             bcem_Aggregate agg1(schema, recName, ET::BDEM_VOID, &ta1);
             agg1.setField("Double1.2", 3.4);
             agg1.setField("List1.3", "Date2.3", "2006-02-16");

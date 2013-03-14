@@ -8,7 +8,7 @@
 BSLS_IDENT("$Id: $")
 
 /*
-//@PURPOSE: Provide functionality of the corresponding C++ Standard header
+//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
 //@SEE_ALSO: package bsl+stdhdrs
 //
@@ -23,13 +23,21 @@ BSLS_IDENT("$Id: $")
 // places them in the 'std' namespace.
 */
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATH
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_SYS_TIME_HEADER(sys/time.h)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#     include_next <sys/time.h>
+#   else
+#     include BSL_NATIVE_SYS_TIME_HEADER(sys/time.h)
+#   endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
@@ -46,7 +54,11 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_SYS_TIME_HEADER(sys/time.h)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#     include_next <sys/time.h>
+#   else
+#     include BSL_NATIVE_SYS_TIME_HEADER(sys/time.h)
+#   endif
 
 // This native header does not define any symbols in namespace 'std' to import,
 // so the following include is not necessary:
@@ -62,12 +74,12 @@ BSLS_IDENT("$Id: $")
 #endif  /* INCLUDED_NATIVE_C_SYS_TIME */
 
 /*
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 */

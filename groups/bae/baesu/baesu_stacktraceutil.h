@@ -193,12 +193,12 @@ BDES_IDENT("$Id: $")
 #include <baesu_stacktrace.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {

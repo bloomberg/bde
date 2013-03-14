@@ -29,9 +29,9 @@ using namespace bsl;  // automatically added by script
 //    [TBD - Overview of the test]
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bteso_TcpTimerEventManager(bslma_Allocator *basicAllocator = 0);
-// [ 2] bteso_TcpTimerEventManager(Hint infreqRegHint, bslma_Allocator *ba =0);
-// [ 2] bteso_TcpTimerEventManager(bteso_EventManager*, bslma_Allocator *ba=0);
+// [ 2] bteso_TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
+// [ 2] bteso_TcpTimerEventManager(Hint infreqRegHint, bslma::Allocator*ba =0);
+// [ 2] bteso_TcpTimerEventManager(bteso_EventManager*, bslma::Allocator*ba=0);
 // [ 2] ~bteso_TcpTimerEventManager();
 
 // MANIPULATORS
@@ -141,8 +141,8 @@ class my_CommandMediator {
   public:
     // CREATORS
     my_CommandMediator(bteso_TcpTimerEventManager *manager,
-                       bdef_Function<void (*)()> command,
-                       bslma_Allocator *basicAllocator = 0);
+                       bdef_Function<void (*)()>   command,
+                       bslma::Allocator           *basicAllocator = 0);
         // Create a mediator attached to the specified 'manager' and
         // the specified 'command', which will be invoked from 'manager''s
         // 'dispatch' method.  Optionally specify a 'basicAllocator' used to
@@ -173,7 +173,7 @@ void my_CommandMediator::readCb() {
 inline
 my_CommandMediator::my_CommandMediator(bteso_TcpTimerEventManager *manager,
                                        bdef_Function<void (*)()>   command,
-                                       bslma_Allocator     *basicAllocator)
+                                       bslma::Allocator    *basicAllocator)
 : d_manager_p(manager)
 , d_byte(0xAF)
 , d_command(command)
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     ASSERT(0 == bteso_SocketImpUtil::startup());
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
             //   USAGE EXAMPLE
             // ----------------------------------------------------------------
             ASSERT(0 == bteso_SocketImpUtil::startup());
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             if (verbose) cout << "\nTesting Usage Example"
                               << "\n=====================" << endl;
@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
             //   USAGE EXAMPLE
             // ----------------------------------------------------------------
             ASSERT(0 == bteso_SocketImpUtil::startup());
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             if (verbose) cout << "\nTesting Usage Example"
                               << "\n=====================" << endl;
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
         for (int i = 0; i < NUM_DATA; ++i) {
-            bslma_TestAllocator testAllocator;
+            bslma::TestAllocator testAllocator;
             Obj mX(&testAllocator);
 
             int isInvoked = 0;
@@ -559,7 +559,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
         const bdet_TimeInterval tolerance(0.25);
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         for (int i = 0; i < NUM_DATA; ++i) {
             void *timerIds[NUM_OFFSETS];
@@ -715,7 +715,7 @@ int main(int argc, char *argv[])
         #else
         const bdet_TimeInterval tolerance(0.1);
         #endif
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         for (int i = 0; i < NUM_DATA; ++i) {
             bdet_TimeInterval timeValues[NUM_OFFSETS];
@@ -805,7 +805,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tTesting 'registerTimer' method." << endl;
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             void *timerIds[NUM_OFFSETS * MAX_NUM_SAME];
             bdet_TimeInterval now = bdetu_SystemTime::now();
@@ -830,7 +830,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tTesting 'rescheduleTimer' method." << endl;
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             void *timerIds[NUM_OFFSETS  * (MAX_NUM_SAME + 1)];
             bdet_TimeInterval now = bdetu_SystemTime::now();
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tTesting 'deregisterAll' method." << endl;
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             void *timerIds[NUM_OFFSETS  * (MAX_NUM_SAME + 1)];
             bdet_TimeInterval now = bdetu_SystemTime::now();
@@ -902,7 +902,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tTesting 'deregisterTimer' method." << endl;
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             void *timerIds[NUM_OFFSETS  * (MAX_NUM_SAME + 1)];
             bdet_TimeInterval now = bdetu_SystemTime::now();
@@ -975,7 +975,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tTesting 'registerSocketEvent'" << endl;
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             Obj mX(&testAllocator);
             const Obj& X = mX;
             const bteso_EventManager *em = X.socketEventManager();
@@ -994,7 +994,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tTesting 'deregisterSocketEvent'" << endl;
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             Obj mX(&testAllocator);
             const Obj& X = mX;
             const bteso_EventManager *em = X.socketEventManager();
@@ -1021,7 +1021,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tTesting 'deregisterSocket'" << endl;
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             Obj mX(&testAllocator);
             const Obj& X = mX;
             const bteso_EventManager *em = X.socketEventManager();
@@ -1048,7 +1048,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tTesting 'deregisterAllSocketEvents'" << endl;
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             Obj mX(&testAllocator);
             const Obj& X = mX;
             const bteso_EventManager *em = X.socketEventManager();
@@ -1080,7 +1080,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tTesting 'deregisterAll'" << endl;
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             Obj mX(&testAllocator);
             const Obj& X = mX;
             const bteso_EventManager *em = X.socketEventManager();
@@ -1122,10 +1122,10 @@ int main(int argc, char *argv[])
         //   Particularly, install external socket event
         //   manager and memory allocator and
         // Testing:
-        //   bteso_TcpTimerEventManager(bslma_Allocator * = 0);
-        //   bteso_TcpTimerEventManager(Hint , bslma_Allocator *);
+        //   bteso_TcpTimerEventManager(bslma::Allocator * = 0);
+        //   bteso_TcpTimerEventManager(Hint , bslma::Allocator *);
         //   bteso_TcpTimerEventManager(bteso_EventManager *,
-        //                              bslma_Allocator *);
+        //                              bslma::Allocator *);
         //   ~bteso_TcpTimerEventManager()
         //   socketEventManager()
         //   timeMetrics()
@@ -1139,7 +1139,7 @@ int main(int argc, char *argv[])
             cout << "\tTesting default constructor." << endl;
 
         {
-            bslma_TestAllocator testAllocator;
+            bslma::TestAllocator testAllocator;
             Obj mX(&testAllocator); const Obj& X = mX;
             ASSERT(0 != testAllocator.numAllocations());
             const bteso_EventManager *eventManager = X.socketEventManager();
@@ -1158,7 +1158,7 @@ int main(int argc, char *argv[])
 
         {
             {
-            bslma_TestAllocator testAllocator;
+            bslma::TestAllocator testAllocator;
             Obj mX(bteso_TcpTimerEventManager::BTESO_NO_HINT,
                    &testAllocator); const Obj& X = mX;
 
@@ -1195,7 +1195,7 @@ int main(int argc, char *argv[])
             cout << "\tTesting constructor with user-installed event manager."
                  << endl;
         {
-            bslma_TestAllocator testAllocator;
+            bslma::TestAllocator testAllocator;
             bteso_EventManager *myEventManager
                 = (bteso_EventManager*)0xAB;
 
@@ -1226,7 +1226,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bslma_TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         Obj mX(&testAllocator);
         const Obj& X = mX;

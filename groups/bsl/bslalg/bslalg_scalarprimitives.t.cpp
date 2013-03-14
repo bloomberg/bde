@@ -4,17 +4,13 @@
 
 #include <bslalg_autoscalardestructor.h>
 #include <bslalg_scalardestructionprimitives.h>
-#include <bslalg_typetraits.h>
-#include <bslalg_typetraitbitwisecopyable.h>
-#include <bslalg_typetraitbitwisemoveable.h>
-#include <bslalg_typetraitpair.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -188,10 +184,12 @@ class my_Class2 {
 
 // TRAITS
 namespace BloombergLP {
+namespace bslma {
 
 template <>
-struct bslalg_TypeTraits<my_Class2> : bslalg::TypeTraitUsesBslmaAllocator { };
+struct UsesBslmaAllocator<my_Class2> : bsl::true_type { };
 
+}  // close namesace bslma
 }  // close enterprise namespace
 
                              // ===================
@@ -269,15 +267,10 @@ int my_ClassFussy::assignmentInvocations            = 0;
 int my_ClassFussy::destructorInvocations            = 0;
 
 // TRAITS
-namespace BloombergLP {
-
-template <>
-struct bslalg_TypeTraits<my_ClassFussy>
-: bslalg::TypeTraitHasTrivialDefaultConstructor
-, bslalg::TypeTraitBitwiseCopyable
-{ };
-
-}  // close enterprise namespace
+namespace bsl {
+template <> struct is_trivially_copyable<my_ClassFussy> : true_type {};
+template <> struct is_trivially_default_constructible<my_ClassFussy> : true_type {};
+}
 
                                  // =========
                                  // my_Class4
@@ -336,10 +329,12 @@ class my_Class4 {
 
 // TRAITS
 namespace BloombergLP {
+namespace bslma {
 
-template <> struct bslalg_TypeTraits<my_Class4>
-    : bslalg::TypeTraitUsesBslmaAllocator { };
+template <>
+struct UsesBslmaAllocator<my_Class4> : bsl::true_type { };
 
+}  // close namespace bslma
 }  // close enterprise namespace
 
                                  // =========
@@ -364,9 +359,13 @@ class my_Class5 : public my_Class4 {
 // TRAITS
 namespace BloombergLP {
 
-template <> struct bslalg_TypeTraits<my_Class5>
-    : bslalg::TypeTraitUsesBslmaAllocator
-    , bslalg::TypeTraitBitwiseMoveable { };
+namespace bslma {
+template <> struct UsesBslmaAllocator<my_Class5> : bsl::true_type { };
+}  // close namesace bslma
+
+namespace bslmf {
+template <> struct IsBitwiseMoveable<my_Class5> : bsl::true_type { };
+}  // close namesace bslmf
 
 }  // close enterprise namespace
 
@@ -432,11 +431,12 @@ struct my_PairA {
 };
 
 namespace BloombergLP {
+namespace bslma {
 
 template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairA<T1, T2> >
-    : bslalg::TypeTraitUsesBslmaAllocator { };
+struct UsesBslmaAllocator<my_PairA<T1, T2> > : bsl::true_type { };
 
+}  // close namespace bslma
 }  // close enterprise namespace
 
                               // ===============
@@ -472,11 +472,12 @@ struct my_PairAA {
 };
 
 namespace BloombergLP {
+namespace bslma {
 
 template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairAA<T1, T2> >
-    : bslalg::TypeTraitUsesBslmaAllocator { };
+struct  UsesBslmaAllocator<my_PairAA<T1, T2> > : bsl::true_type  { };
 
+}  // close namespace bslma
 }  // close enterprise namespace
 
                               // ===============
@@ -499,10 +500,6 @@ struct my_PairBB {
     T1 first;
     T2 second;
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(my_PairBB,
-                                 BloombergLP::bslalg::TypeTraitPair);
-
     // CREATORS
     my_PairBB() {}
 
@@ -517,11 +514,12 @@ struct my_PairBB {
 };
 
 namespace BloombergLP {
+namespace bslmf {
 
 template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairBB<T1, T2> >
-    : bslalg::TypeTraitPair {};
+struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
 
+}  // close namespace bslalg
 }  // close enterprise namespace
 
                               // ===============
@@ -769,11 +767,13 @@ class ConstructTestArgAlloc : public my_ClassDef {
 
 // TRAITS
 namespace BloombergLP {
+namespace bslma {
 
 template <int ID>
-struct bslalg_TypeTraits<ConstructTestArgAlloc<ID> >
-    : bslalg::TypeTraitUsesBslmaAllocator { };
+struct UsesBslmaAllocator<ConstructTestArgAlloc<ID> >
+    : bsl::true_type { };
 
+}  // close namespace bslma
 }  // close enterprise namespace
 
 // CREATORS
@@ -926,11 +926,12 @@ class ConstructTestTypeAlloc {
 
 // TRAITS
 namespace BloombergLP {
+namespace bslma {
 
 template <>
-struct bslalg_TypeTraits<ConstructTestTypeAlloc>
-    : bslalg::TypeTraitUsesBslmaAllocator { };
+struct UsesBslmaAllocator<ConstructTestTypeAlloc> : bsl::true_type { };
 
+}  // close namespace bslma
 }  // close enterprise namespace
 
 // FREE OPERATORS
@@ -1667,7 +1668,7 @@ int main(int argc, char *argv[])
             objPtr->~my_PairAA_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-        if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
+        if (verbose) printf("\t...constructing pair with IsPair\n");
 
         const int NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -1775,7 +1776,7 @@ int main(int argc, char *argv[])
             objPtr->~my_PairAA_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-        if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
+        if (verbose) printf("\t...constructing pair with IsPair\n");
 
         const int NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -1890,7 +1891,7 @@ int main(int argc, char *argv[])
             objPtr->~my_PairAA_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-        if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
+        if (verbose) printf("\t...constructing pair with IsPair\n");
 
         const int NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -2029,11 +2030,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

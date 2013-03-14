@@ -3,25 +3,28 @@
 #include <bslstl_vector.h>
 
 #include <bslstl_allocator.h>
-#include <bslstl_iterator.h>
 #include <bslstl_forwarditerator.h>
+#include <bslstl_iterator.h>
 
-#include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>   // for testing only
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>           // for testing only
 #include <bslma_testallocatorexception.h>  // for testing only
+
 #include <bslmf_issame.h>                  // for testing only
-#include <bsls_objectbuffer.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_exceptionutil.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>                // for testing only
 #include <bsls_util.h>
+
 #include <bsltf_nontypicaloverloadstesttype.h>
 
 #include <iterator>   // 'iterator_traits'
@@ -65,7 +68,7 @@ using namespace bsl;
 // must be tested for exception neutrality via the 'bslma_testallocator'
 // component.  After the mandatory sequence of cases (1--10) for value-semantic
 // types (cases 5 and 10 are not implemented, as there is not output or
-// streaming below stlport), we test each individual constructor, manipulator,
+// streaming below bslstl), we test each individual constructor, manipulator,
 // and accessor in subsequent cases.
 //
 // Abbreviations:
@@ -425,8 +428,7 @@ class TestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestType, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -619,9 +621,10 @@ class BitwiseMoveableTestType : public TestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveableTestType,
+                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveableTestType,
+                                   bslmf::IsBitwiseMoveable);
 
     // CREATORS
     explicit
@@ -654,8 +657,8 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyableTestType,
+                                   bsl::is_trivially_copyable);
 
     // CREATORS
     BitwiseCopyableTestType()
@@ -689,8 +692,8 @@ class BitwiseEqComparableTestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseEqComparableTestType,
-                                 bslalg::TypeTraitBitwiseEqualityComparable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseEqComparableTestType,
+                                   bslmf::IsBitwiseEqualityComparable);
 
     // CREATORS
     BitwiseEqComparableTestType()
@@ -879,10 +882,6 @@ class LimitAllocator : public ALLOC {
     size_type d_limit;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(LimitAllocator,
-                                 BloombergLP::bslalg_TypeTraits<AllocBase>);
-
     // CREATORS
     LimitAllocator()
     : d_limit(-1) {}
@@ -901,6 +900,18 @@ class LimitAllocator : public ALLOC {
     // ACCESSORS
     size_type max_size() const { return d_limit; }
 };
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename ALLOCATOR>
+struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+}  // namespace BloombergLP
 
 //=============================================================================
 //                            Test Case 22
@@ -957,7 +968,7 @@ struct TestDriver {
     //-------------------------------------------------------------------------
 
     // TYPES
-    typedef Vector_Imp<TYPE,ALLOC>  Obj;
+    typedef bsl::vector<TYPE,ALLOC>  Obj;
         // Type under testing.
 
     typedef typename Obj::iterator                iterator;
@@ -1159,7 +1170,7 @@ int TestDriver<TYPE,ALLOC>::ggg(Obj *object,
 }
 
 template <class TYPE, class ALLOC>
-Vector_Imp<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
+bsl::vector<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
                                                    const char *spec)
 {
     ASSERT(ggg(object, spec) < 0);
@@ -1167,7 +1178,7 @@ Vector_Imp<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
 }
 
 template <class TYPE, class ALLOC>
-Vector_Imp<TYPE,ALLOC> TestDriver<TYPE,ALLOC>::g(const char *spec)
+bsl::vector<TYPE,ALLOC> TestDriver<TYPE,ALLOC>::g(const char *spec)
 {
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
@@ -1433,13 +1444,13 @@ void TestDriver<TYPE,ALLOC>::testCaseM1()
     const TYPE         *values      = 0;
     const TYPE *const&  VALUES      = values;
     const int           NUM_VALUES  = getValues(&values);
-    const int           LENGTH_S    = bslmf::IsSame<TYPE,char>::VALUE
+    const int           LENGTH_S    = bsl::is_same<TYPE,char>::value
                                     ? 5000 : 1000;
-    const int           LENGTH_L    = bslmf::IsSame<TYPE,char>::VALUE
+    const int           LENGTH_L    = bsl::is_same<TYPE,char>::value
                                     ? 20000 : 5000;
-    const int           NUM_VECTOR_S = bslmf::IsSame<TYPE,char>::VALUE
+    const int           NUM_VECTOR_S = bsl::is_same<TYPE,char>::value
                                      ? 500 : 100;
-    const int           NUM_VECTOR_L = bslmf::IsSame<TYPE,char>::VALUE
+    const int           NUM_VECTOR_L = bsl::is_same<TYPE,char>::value
                                      ? 5000 : 1000;
 
     // INITIAL ALLOCATION (NOT TIMED)
@@ -2556,10 +2567,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
     const int           NUM_VALUES = getValues(&values);
 
     enum {
-        TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE,
-        TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE
+        TYPE_MOVEABLE  = bslmf::IsBitwiseMoveable<TYPE>::value,
+        TYPE_ALLOC  =  bslma::UsesBslmaAllocator<TYPE>::value
     };
 
     static const struct {
@@ -3133,10 +3142,8 @@ void TestDriver<TYPE,ALLOC>::testCase17()
     const int           NUM_VALUES = getValues(&values);
 
     enum {
-        TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE,
-        TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE
+        TYPE_MOVEABLE  = bslmf::IsBitwiseMoveable<TYPE>::value,
+        TYPE_ALLOC  =  bslma::UsesBslmaAllocator<TYPE>::value
     };
 
     static const struct {
@@ -3362,7 +3369,7 @@ void TestDriver<TYPE,ALLOC>::testCase17()
 
                         // Have to separate const's from vars in boolean
                         // operations or we get these really stupid warnings
-                        // grom g++.
+                        // from g++.
 
                         const int TYPE_ALLOCS = !TYPE_ALLOC || TYPE_MOVEABLE
                                               ? 0
@@ -3581,16 +3588,14 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE;
-    const int TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_MOVEABLE  = bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_ALLOC  =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
-        bslmf::IsSame<std::input_iterator_tag,
+        bsl::is_same<std::input_iterator_tag,
                       typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                      >::VALUE;
+                      >::value;
 
     static const struct {
         int         d_lineNum;          // source line number
@@ -4000,7 +4005,7 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     //   reference (setting it to a default value, then back to its original
     //   value, and as a non-modifiable reference.
     //
-    // For 4--6, use 'bslmf::IsSame' to assert the identity of iterator types.
+    // For 4--6, use 'bsl::is_same' to assert the identity of iterator types.
     // Note that these concerns let us get away with other concerns such as
     // testing that 'iter[i]' and 'iter + i' advance 'iter' by the correct
     // number 'i' of positions, and other concern about traits, because
@@ -4040,8 +4045,8 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     if (verbose) printf("Testing 'iterator', 'begin', and 'end',"
                         " and 'const' variants.\n");
     {
-        ASSERT(1 == (bslmf::IsSame<iterator, TYPE *>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const_iterator, const TYPE *>::VALUE));
+        ASSERT(1 == (bsl::is_same<iterator, TYPE *>::value));
+        ASSERT(1 == (bsl::is_same<const_iterator, const TYPE *>::value));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
@@ -4080,10 +4085,10 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     {
 #ifdef BSLS_PLATFORM_CMP_SUN
 #else
-        ASSERT(1 == (bslmf::IsSame<reverse_iterator,
-                                   bsl::reverse_iterator<TYPE *> >::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const_reverse_iterator,
-                                bsl::reverse_iterator<const TYPE *> >::VALUE));
+        ASSERT(1 == (bsl::is_same<reverse_iterator,
+                                   bsl::reverse_iterator<TYPE *> >::value));
+        ASSERT(1 == (bsl::is_same<const_reverse_iterator,
+                                bsl::reverse_iterator<const TYPE *> >::value));
 #endif
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -4404,8 +4409,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     static const size_t EXTEND[] = {
         0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
@@ -5123,8 +5127,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose) printf("\nTesting initial-length ctor "
                         "with (default) initial value.\n");
@@ -5429,7 +5432,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("\t\tCreating object of "); P(LENGTH);
                 }
 
-                try {
+                BSLS_TRY {
                     const bsls::Types::Int64 TB =
                                            defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
@@ -5444,7 +5447,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (...) {
+                BSLS_CATCH(...) {
                     break;
                 }
                 ASSERT(0 == globalAllocator_p->numBytesInUse());
@@ -5466,7 +5469,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("using "); P(VALUE);
                 }
 
-                try {
+                BSLS_TRY {
                     const bsls::Types::Int64 TB =
                                            defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
@@ -5481,7 +5484,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (...) {
+                BSLS_CATCH(...) {
 
                     break;
                 }
@@ -5536,16 +5539,14 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-    const int TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE;
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_MOVEABLE  = bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
-        bslmf::IsSame<std::input_iterator_tag,
+        bsl::is_same<std::input_iterator_tag,
                       typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                      >::VALUE;
+                      >::value;
 
     static const struct {
         int         d_lineNum;          // source line number
@@ -5720,10 +5721,10 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
     }
 
     const int RANDOM_ACCESS_ITERATOR_TAG =
-          bslmf::IsSame<std::random_access_iterator_tag,
+          bsl::is_same<std::random_access_iterator_tag,
                        typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                      >::VALUE;
+                      >::value;
 
     if (RANDOM_ACCESS_ITERATOR_TAG) {
         if (verbose) { printf("\nNegative testing\n"); }
@@ -5810,7 +5811,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     //   o That the 'computeNewCapacity' class method does not overflow
     //   o That creating an empty vector does not allocate
     //   o That the allocator is passed through to elements
-    //   o That the vector class has the 'bslalg::TypeTraitUsesBslmaAllocator'
+    //   o That the vector class has the 'bslma::UsesBslmaAllocator' trait.
     //
     // Plan:
     //   We first verify that the 'Vector_Imp' class has the traits, and
@@ -5838,10 +5839,11 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     (void)NUM_VALUES;
 
     if (verbose)
-        printf("\nTesting 'bslalg::TypeTraitUsesBslmaAllocator'.\n");
+        printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
 
-    ASSERT((bslalg::HasTrait<Obj,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    ASSERT((bsl::is_convertible<bslma::Allocator *,
+                                typename Obj::allocator_type>::value));
+    ASSERT((bslma::UsesBslmaAllocator<Obj>::value));
 
     if (verbose)
         printf("\nTesting that empty vector does not allocate.\n");
@@ -5853,8 +5855,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     if (verbose)
         printf("\nTesting passing allocator through to elements.\n");
 
-    ASSERT((bslalg::HasTrait<TYPE,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    ASSERT(( bslma::UsesBslmaAllocator<TYPE>::value));
     {
         Obj mX(1, VALUES[0], &testAllocator);  const Obj& X = mX;
         ASSERT(&testAllocator == X[0].allocator());
@@ -6334,11 +6335,9 @@ void TestDriver<TYPE,ALLOC>::testCase7()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE  = bslalg::HasTrait<TYPE,
-                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
+    const int TYPE_MOVE  = bslmf::IsBitwiseMoveable<TYPE>::value
                          ? 0 : 1;  // if moveable, moves do not count as allocs
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d, TYPE_MOVE = %d.\n",
@@ -7424,11 +7423,9 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE = bslalg::HasTrait<TYPE,
-                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
+    const int TYPE_MOVE = bslmf::IsBitwiseMoveable<TYPE>::value
                             ? 0 : 1;
-    const int TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC  =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose)
         printf("\tTesting parameters: TYPE_ALLOC = %d, TYPE_MOVE = %d.\n",
@@ -8033,6 +8030,286 @@ void TestDriver<TYPE,ALLOC>::testCase1()
 }
 
 //=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+namespace {
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Creating a Matrix Type
+///- - - - - - - - - - - - - - - - -
+// Suppose we want to define a value semantic type representing a
+// dynamically resizable two-dimensional matrix.
+//
+// First, we define the public interface for the 'MyMatrix' class template:
+//..
+template <class TYPE>
+class MyMatrix {
+    // This value-semantic type characterizes a two-dimensional matrix of
+    // objects of the (template parameter) 'TYPE'.  The numbers of columns and
+    // rows of the matrix can be specified at construction and, at any time,
+    // via the 'reset', 'insertRow', and 'insertColumn' methods.  The value of
+    // each element in the matrix can be set and accessed using the 'theValue',
+    // and 'theModifiableValue' methods respectively.  A free operator,
+    // 'operator*', is available to return the product of two specified
+    // matrices.
+
+  public:
+    // PUBLIC TYPES
+//..
+// Here, we create a type alias, 'RowType', for an instantiation of
+// 'bsl::vector' to represent a row of 'TYPE' objects in the matrix.  We create
+// another type alias, 'MatrixType', for an instantiation of 'bsl::vector' to
+// represent the entire matrix of 'TYPE' objects as a list of rows:
+//..
+    typedef bsl::vector<TYPE>    RowType;
+        // This is an alias representing a row of values of the (template
+        // parameter) 'TYPE'.
+
+    typedef bsl::vector<RowType> MatrixType;
+        // This is an alias representing a two-dimensional matrix of values of
+        // the (template parameter) 'TYPE'.
+
+  private:
+    // DATA
+    MatrixType d_matrix;      // matrix of values
+    int        d_numColumns;  // number of columns
+
+    // FRIENDS
+    template<class T>
+    friend bool operator==(const MyMatrix<T>&, const MyMatrix<T>&);
+
+  public:
+    // PUBLIC TYPES
+    typedef typename MatrixType::const_iterator ConstRowIterator;
+
+    // CREATORS
+    MyMatrix(int               numRows,
+             int               numColumns,
+             bslma::Allocator *basicAllocator = 0);
+        // Create a 'MyMatrix' object having the specified 'numRows' and the
+        // specified 'numColumns'.  All elements of the (template parameter)
+        // 'TYPE' in the matrix will have the default-constructed value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless '0 <= numRows' and
+        // '0 <= numColumns'
+
+    MyMatrix(const MyMatrix&   original,
+             bslma::Allocator *basicAllocator = 0);
+        // Create a 'MyMatrix' object having the same value as the specified
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    //! ~MyMatrix = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    MyMatrix& operator=(const MyMatrix& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    void clear();
+        // Remove all rows and columns from this object.
+
+    void insertRow(int rowIndex);
+        // Insert, into this matrix, an row at the specified 'rowIndex'.  All
+        // elements of the (template parameter) 'TYPE' in the row will have the
+        // default-constructed value.  The behavior is undefined unless
+        // '0 <= rowIndex <= numRows()'.
+
+    void insertColumn(int columnIndex);
+        // Insert, into this matrix, an column at the specified 'columnIndex'.
+        // All elements of the (template parameter) 'TYPE' in the column will
+        // have the default constructed value.  The behavior is undefined
+        // unless '0 <= columnIndex <= numColumns()'.
+
+    TYPE& theModifiableValue(int rowIndex, int columnIndex);
+        // Return a reference providing modifiable access to the element at the
+        // specified 'rowIndex' and the specified 'columnIndex' in this matrix.
+        // The behavior is undefined unless '0 <= rowIndex < numRows()'
+        // and '0 <= columnIndex < numColumns()'.
+
+    // ACCESSORS
+    int numRows() const;
+        // Return the number of rows in this matrix.
+
+    int numColumns() const;
+        // Return the number of columns in this matrix.
+
+    ConstRowIterator beginRow() const;
+        // Return an iterator providing non-modifiable access to the 'RowType'
+        // objects representing the first row in this matrix.
+
+    ConstRowIterator endRow() const;
+        // Return an iterator providing non-modifiable access to the 'RowType'
+        // objects representing the past-the-end row in this matrix.
+
+    const TYPE& theValue(int rowIndex, int columnIndex) const;
+        // Return a reference providing non-modifiable access to the element at
+        // the specified 'rowIndex' and the specified 'columnIndex' in this
+        // matrix.  The behavior is undefined unless
+        // '0 <= rowIndex < numRows()' and '0 <= columnIndex < numColumns()'.
+};
+//..
+// Then we declare the free operator for 'MyMatrix':
+//..
+// FREE OPERATORS
+template <class TYPE>
+MyMatrix<TYPE> operator==(const MyMatrix<TYPE>& lhs,
+                          const MyMatrix<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'MyMatrix' objects have the same
+    // value if they have the same number of rows and columns and every element
+    // in both matrices compare equal.
+
+template <class TYPE>
+MyMatrix<TYPE> operator!=(const MyMatrix<TYPE>& lhs,
+                          const MyMatrix<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'MyMatrix' objects do not have
+    // the same value if they do not have the same number of rows and columns
+    // or every element in both matrices do not compare equal.
+//..
+// Now, we define the methods of 'MyMatrix':
+//..
+// CREATORS
+template <class TYPE>
+MyMatrix<TYPE>::MyMatrix(int numRows,
+                         int numColumns,
+                         bslma::Allocator *basicAllocator)
+: d_matrix(numRows, basicAllocator)
+, d_numColumns(numColumns)
+{
+    BSLS_ASSERT(0 <= numRows);
+    BSLS_ASSERT(0 <= numColumns);
+
+    for (typename MatrixType::iterator itr = d_matrix.begin();
+         itr != d_matrix.end();
+         ++itr) {
+        itr->resize(d_numColumns);
+    }
+}
+
+template <class TYPE>
+MyMatrix<TYPE>::MyMatrix(const MyMatrix& original,
+                         bslma::Allocator *basicAllocator)
+: d_matrix(original.d_matrix, basicAllocator)
+, d_numColumns(original.d_numColumns)
+{
+}
+//..
+// Notice that we pass the contained 'bsl::vector' ('d_matrix') the allocator
+// specified at construction to supply memory.  If the (template parameter)
+// 'TYPE' of the elements has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+// this allocator will be passed by the vector to the elements as well.
+//..
+// MANIPULATORS
+template <class TYPE>
+MyMatrix<TYPE>& MyMatrix<TYPE>::operator=(const MyMatrix& rhs)
+{
+    d_matrix = rhs.d_matrix;
+    d_numColumns = rhs.d_numColumns;
+}
+
+template <class TYPE>
+void MyMatrix<TYPE>::clear()
+{
+    d_matrix.clear();
+    d_numColumns = 0;
+}
+
+template <class TYPE>
+void MyMatrix<TYPE>::insertRow(int rowIndex)
+{
+    typename MatrixType::iterator itr =
+        d_matrix.insert(d_matrix.begin() + rowIndex, RowType());
+    itr->resize(d_numColumns);
+}
+
+template <class TYPE>
+void MyMatrix<TYPE>::insertColumn(int colIndex) {
+    for (typename MatrixType::iterator itr = d_matrix.begin();
+         itr != d_matrix.end();
+         ++itr) {
+        itr->insert(itr->begin() + colIndex, TYPE());
+    }
+    ++d_numColumns;
+}
+
+template <class TYPE>
+TYPE& MyMatrix<TYPE>::theModifiableValue(int rowIndex, int columnIndex)
+{
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(rowIndex < d_matrix.size());
+    BSLS_ASSERT(0 <= columnIndex);
+    BSLS_ASSERT(columnIndex < d_numColumns);
+
+    return d_matrix[rowIndex][columnIndex];
+}
+
+// ACCESSORS
+template <class TYPE>
+int MyMatrix<TYPE>::numRows() const
+{
+    return d_matrix.size();
+}
+
+template <class TYPE>
+int MyMatrix<TYPE>::numColumns() const
+{
+    return d_numColumns;
+}
+
+template <class TYPE>
+typename MyMatrix<TYPE>::ConstRowIterator MyMatrix<TYPE>::beginRow() const
+{
+    return d_matrix.begin();
+}
+
+template <class TYPE>
+typename MyMatrix<TYPE>::ConstRowIterator MyMatrix<TYPE>::endRow() const
+{
+    return d_matrix.end();
+}
+
+template <class TYPE>
+const TYPE& MyMatrix<TYPE>::theValue(int rowIndex, int columnIndex) const
+{
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(rowIndex < d_matrix.size());
+    BSLS_ASSERT(0 <= columnIndex);
+    BSLS_ASSERT(columnIndex < d_numColumns);
+
+    return d_matrix[rowIndex][columnIndex];
+}
+//..
+// Finally, we defines the free operators for 'MyMatrix':
+//..
+// FREE OPERATORS
+template <class TYPE>
+MyMatrix<TYPE> operator==(const MyMatrix<TYPE>& lhs,
+                          const MyMatrix<TYPE>& rhs)
+{
+    return lhs.d_numColumns == rhs.d_numColumns &&
+                                                  lhs.d_matrix == rhs.d_matrix;
+}
+
+template <class TYPE>
+MyMatrix<TYPE> operator!=(const MyMatrix<TYPE>& lhs,
+                          const MyMatrix<TYPE>& rhs)
+{
+    return !(lhs == rhs);
+}
+//..
+
+}  // close unnamed namespace
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -8071,9 +8348,53 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 24: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+        // Do some ad-hoc breathing test for the 'MyMatrix' type defined in the
+        // usage example
+
+        {
+            bslma::TestAllocator oa("oa", veryVeryVeryVerbose);
+
+            // 1 2
+            //
+            // 3 4
+
+            MyMatrix<int> m1(1, 1, &oa);
+            m1.theModifiableValue(0, 0) = 4;
+            m1.insertRow(0);
+            m1.theModifiableValue(0, 0) = 2;
+            m1.insertColumn(0);
+            m1.theModifiableValue(0, 0) = 1;
+            m1.theModifiableValue(1, 0) = 3;
+
+            ASSERT(1 == m1.theValue(0, 0));
+            ASSERT(2 == m1.theValue(0, 1));
+            ASSERT(3 == m1.theValue(1, 0));
+            ASSERT(4 == m1.theValue(1, 1));
+        }
+      } break;
       case 23: {
         // --------------------------------------------------------------------
-        // RANGE INSERT FUNCION PTR BUG
+        // RANGE INSERT FUNCTION PTR BUG
         //
         // Concerns:
         //   In DRQS 31711031, it was observed that a c'tor insert range from
@@ -8946,13 +9267,10 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work
-        ASSERT(  (bslalg::HasTrait<Vector_Imp<char>,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Vector_Imp<T>,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Vector_Imp<Vector_Imp<int> >,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
+#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work
+        ASSERT(  (bslmf::IsBitwiseMoveable<vector<char> >::value));
+        ASSERT(  (bslmf::IsBitwiseMoveable<vector<T> >::value));
+        ASSERT(  (bslmf::IsBitwiseMoveable<vector<Vector_Imp<int> > >::value));
 #endif
 
       } break;
@@ -9037,11 +9355,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

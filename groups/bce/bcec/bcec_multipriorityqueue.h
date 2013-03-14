@@ -396,6 +396,10 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
+#ifndef INCLUDED_BDES_BITUTIL
+#include <bdes_bitutil.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
 #endif
@@ -406,6 +410,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
@@ -420,20 +428,12 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BDES_BITUTIL
-#include <bdes_bitutil.h>
-#endif
-
 #ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 
@@ -450,7 +450,7 @@ class bcec_MultipriorityQueue_Node {
     // priority.  This class is not to be used from outside this component.
 
     // DATA
-    bslalg_ConstructorProxy<TYPE>       d_item;    // object stored in node
+    bslalg::ConstructorProxy<TYPE>      d_item;    // object stored in node
     bcec_MultipriorityQueue_Node<TYPE> *d_next_p;  // next node on linked list
 
     // NOT IMPLEMENTED
@@ -461,13 +461,13 @@ class bcec_MultipriorityQueue_Node {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_MultipriorityQueue_Node,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     bcec_MultipriorityQueue_Node(
                         const TYPE&                   item,
                         bcec_MultipriorityQueue_Node *next,
-                        bslma_Allocator              *basicAllocator);
+                        bslma::Allocator             *basicAllocator);
         // Create a node containing a copy of the specified 'item' and having
         // the specified 'next' pointer.  Use the specified 'basicAllocator' to
         // supply memory.  The behavior is undefined unless 'basicAllocator' is
@@ -556,7 +556,7 @@ class bcec_MultipriorityQueue {
                                           // to the multipriority queue (does
                                           // not affect pops)
 
-    bslma_Allocator    *d_allocator_p;    // memory allocator (held)
+    bslma::Allocator   *d_allocator_p;    // memory allocator (held)
 
     // NOT IMPLEMENTED
     bcec_MultipriorityQueue(const bcec_MultipriorityQueue&);
@@ -580,12 +580,12 @@ class bcec_MultipriorityQueue {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_MultipriorityQueue,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bcec_MultipriorityQueue(bslma_Allocator *basicAllocator = 0);
-    explicit bcec_MultipriorityQueue(int              numPriorities,
-                                     bslma_Allocator *basicAllocator = 0);
+    explicit bcec_MultipriorityQueue(bslma::Allocator *basicAllocator = 0);
+    explicit bcec_MultipriorityQueue(int               numPriorities,
+                                     bslma::Allocator *basicAllocator = 0);
         // Create a multipriority queue.  Optionally specify 'numPriorities',
         // the number of distinct priorities supported by the multipriority
         // queue.  If 'numPriorities' is not specified, the
@@ -708,7 +708,7 @@ inline
 bcec_MultipriorityQueue_Node<TYPE>::bcec_MultipriorityQueue_Node(
                                   const TYPE&                   item,
                                   bcec_MultipriorityQueue_Node *next,
-                                  bslma_Allocator              *basicAllocator)
+                                  bslma::Allocator             *basicAllocator)
 : d_item(item, basicAllocator)
 , d_next_p(next)
 {
@@ -813,30 +813,30 @@ int bcec_MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
 // CREATORS
 template <typename TYPE>
 bcec_MultipriorityQueue<TYPE>::bcec_MultipriorityQueue(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_heads((typename NodePtrVector::size_type)BCEC_DEFAULT_NUM_PRIORITIES, 0,
           basicAllocator)
 , d_tails((typename NodePtrVector::size_type)BCEC_DEFAULT_NUM_PRIORITIES, 0,
           basicAllocator)
 , d_notEmptyFlags(0)
-, d_pool(sizeof(Node), bslma_Default::allocator(basicAllocator))
+, d_pool(sizeof(Node), bslma::Default::allocator(basicAllocator))
 , d_length(0)
 , d_enabledFlag(true)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 template <typename TYPE>
 bcec_MultipriorityQueue<TYPE>::bcec_MultipriorityQueue(
-                                               int              numPriorities,
-                                               bslma_Allocator *basicAllocator)
+                                              int               numPriorities,
+                                              bslma::Allocator *basicAllocator)
 : d_heads((typename NodePtrVector::size_type)numPriorities, 0, basicAllocator)
 , d_tails((typename NodePtrVector::size_type)numPriorities, 0, basicAllocator)
 , d_notEmptyFlags(0)
-, d_pool(sizeof(Node), bslma_Default::allocator(basicAllocator))
+, d_pool(sizeof(Node), bslma::Default::allocator(basicAllocator))
 , d_length(0)
 , d_enabledFlag(true)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(1                       <= numPriorities);
     BSLS_ASSERT(BCEC_MAX_NUM_PRIORITIES >= numPriorities);
@@ -876,12 +876,12 @@ int bcec_MultipriorityQueue<TYPE>::pushBack(const TYPE& item,
     //     Note the queue being disabled is not the usual case.  Note a race
     // condition occurs if we check d_enabledFlag outside the mutex.
     Node *newNode = (Node *)d_pool.allocate();
-    bslma_DeallocatorProctor<bcema_Pool> deleter(newNode, &d_pool);
+    bslma::DeallocatorProctor<bcema_Pool> deleter(newNode, &d_pool);
 
-    bslalg_ScalarPrimitives::construct(newNode,
-                                       item,
-                                       (Node *)0,
-                                       d_allocator_p);
+    bslalg::ScalarPrimitives::construct(newNode,
+                                        item,
+                                        (Node *)0,
+                                        d_allocator_p);
 
     {
         bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
@@ -925,13 +925,12 @@ void bcec_MultipriorityQueue<TYPE>::pushFrontMultipleRaw(
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma_DeallocatorProctor<bcema_Pool> deleter(newNode,
-                                                              &d_pool);
+            bslma::DeallocatorProctor<bcema_Pool> deleter(newNode, &d_pool);
 
-            bslalg_ScalarPrimitives::construct(newNode,
-                                               item,
-                                               (Node *)0,
-                                               d_allocator_p);
+            bslalg::ScalarPrimitives::construct(newNode,
+                                                item,
+                                                (Node *)0,
+                                                d_allocator_p);
 
             deleter.release();
 
@@ -965,13 +964,12 @@ void bcec_MultipriorityQueue<TYPE>::pushBackMultipleRaw(
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma_DeallocatorProctor<bcema_Pool> deleter(newNode,
-                                                              &d_pool);
+            bslma::DeallocatorProctor<bcema_Pool> deleter(newNode, &d_pool);
 
-            bslalg_ScalarPrimitives::construct(newNode,
-                                               item,
-                                               (Node *)0,
-                                               d_allocator_p);
+            bslalg::ScalarPrimitives::construct(newNode,
+                                                item,
+                                                (Node *)0,
+                                                d_allocator_p);
 
             deleter.release();
 

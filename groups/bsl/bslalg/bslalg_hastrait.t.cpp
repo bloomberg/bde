@@ -128,9 +128,11 @@ unsigned traitBits()
     result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASSTLITERATORS
             : 0;
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
+
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasPointerSemantics>::VALUE
             ? TRAIT_HASPOINTERSEMANTICS
             : 0;
+
     return result;
 }
 
@@ -153,7 +155,7 @@ struct Identity
     typedef Type const volatile cvType;                                \
     static const char *TypeName = #TYPE;                               \
     static const unsigned traits = traitBits<  Type>();                \
-    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == TRAIT_BITS); \
+    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == (TRAIT_BITS)); \
     LOOP2_ASSERT(TypeName, traits, traitBits< cType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits< vType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits<cvType>() == traits);     \
@@ -174,19 +176,22 @@ struct my_Class1
 };
 
 namespace BloombergLP {
+namespace bslma {
 
-    template <>
-        struct bslalg_TypeTraits<my_Class1>
-        : bslalg::TypeTraitUsesBslmaAllocator {};
+template <>
+struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 
+}  // close bslma namespace
 }  // close enterprise namespace
 
 template <class T>
 struct my_Class2
 {
     // Class template that has nested type traits
-    BSLALG_DECLARE_NESTED_TRAITS(my_Class2,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+    BSLALG_DECLARE_NESTED_TRAITS3(my_Class2,
+                                bslalg::TypeTraitBitwiseCopyable,
+                                bslalg::TypeTraitBitwiseMoveable,
+                                bslalg::TypeTraitHasTrivialDefaultConstructor);
 };
 
 struct my_Class4
@@ -196,34 +201,40 @@ struct my_Class4
     my_Class4(void*);
 };
 
-struct my_Class5
-{
-    // Class with no special traits but has conversion from anything.  Used
-    // the check against false positives for nested traits and
-    // 'bslma::Allocator*' traits.
-    template <class T> my_Class5(const T& t);
-    template <class T> my_Class5(const volatile T& t);
-
-#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_OS_LINUX)
-    // Workaround for AIX xlC 6.0 and and Linux gcc compilers.  Without this
-    // declaration, the compiler tries to instantiate the templated
-    // constructors when probing for 'bslma::Allocator*' conversions.  This
-    // declaration short-circuits the traits-sniffing logic so that it will
-    // not probe for conversion from 'bslma::Allocator*'.
-    BSLALG_DECLARE_NESTED_TRAITS(my_Class5, bslalg::TypeTraitNil);
-#endif
-};
-
-// Implementations of my_Class5 constructors.  If these constructors are
-// actually instantiated, they will fail to compile.
-template <class T> my_Class5::my_Class5(const T& t) { t->foo(); }
-template <class T> my_Class5::my_Class5(const volatile T& t) { t->foo(); }
-
 enum my_Enum
 {
     // Enumeration type (is automatically bitwise copyable)
     MY_ENUM_0
 };
+
+struct ConvertibleToAnyNoTraits
+    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
+    // assign it any traits.  The concern is that since
+    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
+    // the "convert to anything" operator shouldn't interfere with the nested
+    // trait logic.
+{
+    template <typename T>
+    operator T() const { return T(); }
+};
+
+struct ConvertibleToAnyWithTraits {
+    template <typename T>
+    operator T() const { return T(); }
+};
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<ConvertibleToAnyWithTraits> : bsl::true_type {
+    // Even though the nested trait logic is disabled by the template
+    // conversion operator, the out-of-class trait specialization should still
+    // work.
+};
+
+}
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -259,7 +270,6 @@ int main(int argc, char *argv[])
         // Nil traits
         TRAIT_TEST(my_Class0, TRAIT_NIL);
         TRAIT_TEST(my_Class4, TRAIT_NIL);
-        TRAIT_TEST(my_Class5, TRAIT_NIL);
 
         // Reference traits.  (Cannot use TRAIT_TEST for references.)
         ASSERT(traitBits<int&>() == TRAIT_NIL);
@@ -286,18 +296,22 @@ int main(int argc, char *argv[])
         TRAIT_TEST(bsls::Types::Uint64, TRAIT_EQPOD);
         TRAIT_TEST(float, TRAIT_EQPOD);
         TRAIT_TEST(double, TRAIT_EQPOD);
-        TRAIT_TEST(char*, TRAIT_EQPOD);
-        TRAIT_TEST(const char*, TRAIT_EQPOD);
-        TRAIT_TEST(void*, TRAIT_EQPOD);
-        TRAIT_TEST(const void*, TRAIT_EQPOD);
-        TRAIT_TEST(void* const, TRAIT_EQPOD);
+        TRAIT_TEST(char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(const char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(void*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(const void*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(void* const, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
         TRAIT_TEST(my_Enum, TRAIT_EQPOD);
-        TRAIT_TEST(int (*)(int), TRAIT_EQPOD);
+        TRAIT_TEST(int (*)(int), TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
         TRAIT_TEST(int (my_Class1::*)(int), TRAIT_EQPOD);
 
         // Explicit traits
         TRAIT_TEST(my_Class1, TRAIT_USESBSLMAALLOCATOR);
         TRAIT_TEST(my_Class2<int>, TRAIT_POD);
+
+        // Trait tests for type convertible to anything
+        TRAIT_TEST(ConvertibleToAnyNoTraits, TRAIT_NIL);
+        TRAIT_TEST(ConvertibleToAnyWithTraits, TRAIT_USESBSLMAALLOCATOR);
 
       } break;
 
@@ -314,11 +328,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

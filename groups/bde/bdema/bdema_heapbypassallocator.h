@@ -17,18 +17,19 @@ BDES_IDENT("$Id: $")
 //@SEE_ALSO: bsls_alignmentutil
 //
 //@DESCRIPTION: The 'bdema_HeapBypassAllocator' class provided by this
-// component implements a concrete allocator derived from the 'bslma_Allocator'
-// interface that allocates memory directly from virtual memory, bypassing the
-// heap.  The heap, normally accessed via 'malloc', 'new', 'free' and 'delete',
-// maintains a free list of freed memory, which may become corrupt, with
-// disastrous results for subsequent heap allocation.  This allocator is thus
-// useful when the heap may be corrupt.  All memory allocated by this allocator
-// is freed when the allocator's destructor is called, but not before.
+// component implements a concrete allocator derived from the
+// 'bslma::Allocator' interface that allocates memory directly from virtual
+// memory, bypassing the heap.  The heap, normally accessed via 'malloc',
+// 'new', 'free' and 'delete', maintains a free list of freed memory, which may
+// become corrupt, with disastrous results for subsequent heap allocation.
+// This allocator is thus useful when the heap may be corrupt.  All memory
+// allocated by this allocator is freed when the allocator's destructor is
+// called, but not before.
 //..
 //                   ( bdema_HeapBypassAllocator )
 //                                 |         ctor
 //                                 V
-//                        ( bslma_Allocator )
+//                        ( bslma::Allocator )
 //                                           dtor
 //                                           allocate
 //                                           deallocate      // no-op
@@ -98,7 +99,7 @@ namespace BloombergLP {
                       // class bdema_HeapBypassAllocator
                       // ===============================
 
-class bdema_HeapBypassAllocator : public bslma_Allocator {
+class bdema_HeapBypassAllocator : public bslma::Allocator {
     // This class allows the caller to allocate memory directly from virtual
     // memory, without going through the heap like 'malloc' or 'new' would.
     // Note that the only way to free any memory allocated with this object is
@@ -164,7 +165,7 @@ class bdema_HeapBypassAllocator : public bslma_Allocator {
     // MANIPULATORS
     virtual void *allocate(size_type size);
         // Allocate a buffer of memory having the specified 'size' (in bytes),
-        // and alignment defined by 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT',
+        // and alignment defined by 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT',
         // from virtual memory.  Return the address of the allocated memory on
         // success, and 0 otherwise.
 

@@ -329,7 +329,7 @@ my_RecordBuffer::~my_RecordBuffer()
 //                       CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 
-struct RecordBufferTest : bsls_ProtocolTestImp<bael_RecordBuffer> {
+struct RecordBufferTest : bsls::ProtocolTestImp<bael_RecordBuffer> {
     void popBack()                                     { markDone(); }
     void popFront()                                    { markDone(); }
     int pushBack(const bcema_SharedPtr<bael_Record>&)  { return markDone(); }
@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        bsls_ProtocolTest<RecordBufferTest> t(veryVerbose);
+        bsls::ProtocolTest<RecordBufferTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());

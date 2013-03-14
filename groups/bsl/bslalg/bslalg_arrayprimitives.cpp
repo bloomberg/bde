@@ -50,8 +50,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                                            int       *begin,
 //                                            int        value,
 //                                            size_type  numElements,
-//                                            void      *allocator,
-//                                            bslalg::TypeTraitBitwiseCopyable)
+//                                            void      *allocator)
 //  {
 //      if (0 == value || -1 == value) {
 //          std::memset(begin, value, numElements * sizeof value);
@@ -106,15 +105,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'bslmf::EnableIf' directly in the return type:
 //..
 //  template <class TARGET_TYPE, class ALLOCATOR>
-//  static typename bslmf::EnableIf<bslalg::HasTrait<
-//                                TARGET_TYPE,
-//                                bslalg::TypeTraitHasTrivialDefaultConstructor
-//                                        >::VALUE,
-//                                void>::Type
+//  static
+//  typename bsl::enable_if<bsl::is_trivially_copyable<TARGET_TYPE>::value>
+//      ::type
 //  defaultConstruct(TARGET_TYPE *begin, ...);
 //..
-// The 'bslmf_enableif' is currently not part of the bslmf package because it
-// does not work with SunPRO CC 5.5.
 
 #include <bslmf_assert.h>
 
@@ -189,7 +184,8 @@ void ArrayPrimitives_Imp::uninitializedFillN(
         return;                                                      // RETURN
     }
     const char  *valueCharBuffer  = (const char *) &value;
-    const short *valueShortBuffer = (const short*)(void *) valueCharBuffer;
+    const short *valueShortBuffer = static_cast<const short *>(
+                                   static_cast<const void *>(valueCharBuffer));
     if (valueCharBuffer[0]  == valueCharBuffer[1] &&
         valueShortBuffer[0] == valueShortBuffer[1]) {
         // The two tests above make sure all four bytes of value are identical.
@@ -215,8 +211,10 @@ void ArrayPrimitives_Imp::uninitializedFillN(
         return;                                                      // RETURN
     }
     const char  *valueCharBuffer  = (const char *) &value;
-    const short *valueShortBuffer = (const short *)(void *) valueCharBuffer;
-    const int   *valueIntBuffer   = (const int   *)(void *) valueCharBuffer;
+    const short *valueShortBuffer = static_cast<const short *>(
+                                   static_cast<const void *>(valueCharBuffer));
+    const int   *valueIntBuffer   = static_cast<const int *>(
+                                   static_cast<const void *>(valueCharBuffer));
     if (valueCharBuffer[0]  == valueCharBuffer[1] &&
         valueShortBuffer[0] == valueShortBuffer[1] &&
         valueIntBuffer[0]   == valueIntBuffer[1]) {
@@ -351,6 +349,8 @@ void ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
 
     std::ptrdiff_t numBytes = static_cast<int>(middle - begin);
     BSLS_ASSERT(numBytes == end - middle);
+
+    (void) end;
 
     union {
         char                                d_buffer[INPLACE_BUFFER_SIZE];
@@ -596,11 +596,24 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
 
 }  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

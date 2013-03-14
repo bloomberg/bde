@@ -115,10 +115,6 @@ BDES_IDENT("$Id: $")
 #include <bdeu_bitstringutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 #include <bslalg_typetraitbitwisemoveable.h>
 #endif
@@ -129,6 +125,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
 #include <bslalg_typetraitusesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_RAWDELETERPROCTOR
@@ -155,10 +155,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstdlib.h>          // 'bsl::size_t'
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
 
                         // ===================
@@ -181,10 +177,6 @@ class bdem_TableImp {
     // argues for populating such values in place.  This class is *used* *by*
     // the 'bdem_list' class implementation.  Clients should use 'bdem_list',
     // and should not use this class in place.
-
-    // PRIVATE TYPES
-    typedef bslalg_PassthroughTrait<bdem_RowData,
-                                    bslalg_TypeTraitBitwiseMoveable> MoveTrait;
 
     // DATA
     // NOTE: Do *NOT* change the order of the data members.  The implementation
@@ -212,9 +204,10 @@ class bdem_TableImp {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdem_TableImp,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  MoveTrait);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdem_TableImp,
+                                bslmf::IsBitwiseMoveable,
+                                bslmf::IsBitwiseMoveable<bdem_RowData>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdem_TableImp, bslma::UsesBslmaAllocator);
 
     // CLASS DATA
     static const bdem_Descriptor d_tableAttr;
@@ -259,11 +252,11 @@ class bdem_TableImp {
     explicit
     bdem_TableImp(
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_TableImp(
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                  int                                       initialMemorySize,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create an empty table (having no rows and no columns) using the
         // specified memory allocation strategy 'allocationStrategy'.  (The
         // meanings of the various 'allocationStrategy' values are described in
@@ -283,14 +276,14 @@ class bdem_TableImp {
                int                                       numColumns,
                const bdem_Descriptor                    *const *attrLookupTbl,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
     bdem_TableImp(
                const bdem_ElemType::Type                 columnTypes[],
                int                                       numColumns,
                const bdem_Descriptor                    *const *attrLookupTbl,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                int                                       initialMemorySize,
-               bslma_Allocator                          *basicAllocator = 0);
+               bslma::Allocator                         *basicAllocator = 0);
         // Create an empty table (having no rows) configured with the specified
         // 'numColumns' 'columnTypes'.  Use the specified memory allocation
         // strategy allocationStrategy' and the specified 'attrLookupTbl' table
@@ -314,12 +307,12 @@ class bdem_TableImp {
     bdem_TableImp(
                  const bdem_RowLayout&                     rowLayout,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_TableImp(
                  const bdem_RowLayout&                     rowLayout,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                  int                                       initialMemorySize,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create an empty table (having no rows and no columns) using the
         // specified memory allocation strategy 'allocationStrategy'.  (The
         // meanings of the various 'allocationStrategy' values are described in
@@ -337,12 +330,12 @@ class bdem_TableImp {
     bdem_TableImp(
                  const bdem_TableImp&                      original,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_TableImp(
                  const bdem_TableImp&                      original,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                  int                                       initialMemorySize,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a table having the value of the specified 'original' table
         // using the specified memory management 'allocationStrategy'.  (The
         // meanings of the various 'allocationStrategy' values are described in
@@ -360,12 +353,12 @@ class bdem_TableImp {
     bdem_TableImp(
                  const bdem_RowData&                       rowData,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_TableImp(
                  const bdem_RowData&                       rowData,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                  int                                       initialMemorySize,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create an empty table configured by the specified 'rowDef', using
         // the specified memory allocation strategy 'allocationStrategy'.  (The
         // meanings of the various 'allocationStrategy' values are described in
@@ -891,7 +884,7 @@ STREAM& bdem_TableImp::bdexStreamInImp(
                                        d_allocatorManager.internalAllocator());
 
                 if (!(bitmap & bit)) {
-                    bslma_RawDeleterProctor<bdem_RowData, bdema_Pool>
+                    bslma::RawDeleterProctor<bdem_RowData, bdema_Pool>
                                                         rowProctor(tempRowPtr,
                                                                    &d_rowPool);
                     tempRowPtr->bdexStreamInImp(stream,
@@ -951,7 +944,7 @@ STREAM& bdem_TableImp::bdexStreamInImp(
                                        d_allocatorManager.allocationStrategy(),
                                        d_allocatorManager.internalAllocator());
 
-            bslma_RawDeleterProctor<bdem_RowData, bdema_Pool> rowProctor(
+            bslma::RawDeleterProctor<bdem_RowData, bdema_Pool> rowProctor(
                                                                    tempRowPtr,
                                                                    &d_rowPool);
             tempRowPtr->bdexStreamInImp(stream,

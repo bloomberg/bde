@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
           bcemt_Mutex lock;
 
           lock.lock();
-          bsls_Stopwatch timer;
+          bsls::Stopwatch timer;
           timer.start();
           x.timedWait(&lock, bdetu_SystemTime::now() + 2);
           ASSERT(bdeimp_Fuzzy::eq(timer.elapsedTime(), 2.0, -1, 0.1));

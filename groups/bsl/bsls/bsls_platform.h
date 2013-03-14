@@ -36,15 +36,16 @@ BSLS_IDENT("$Id: $")
 //  -------------------------------------------------------------
 //       Type                Subtype               Version
 //  -----------------   -------------------   -------------------
-//   @_OS_UNIX          @_OS_AIX             @_OS_VER_MAJOR
-//                       @_OS_HPUX            @_OS_VER_MINOR
+//   @_OS_UNIX           @_OS_AIX              @_OS_VER_MAJOR
+//                       @_OS_HPUX             @_OS_VER_MINOR
 //                       @_OS_LINUX
 //                       @_OS_FREEBSD
 //                       @_OS_SOLARIS
 //                       @_OS_SUNOS
 //                       @_OS_CYGWIN
+//                       @_OS_DARWIN
 //
-//   @_OS_WINDOWS       @_OS_WIN9X
+//   @_OS_WINDOWS        @_OS_WIN9X
 //                       @_OS_WINNT
 //                       @_OS_WIN2K
 //                       @_OS_WINXP
@@ -141,11 +142,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef __cplusplus
-#error This header should not be included in non-C++ compilation units.
-#endif
-
+#ifdef __cplusplus
 namespace BloombergLP {
+#endif
 
                     // ===========================
                     // struct bsls_Platform_Assert
@@ -436,7 +435,18 @@ struct bsls_Platform_Assert;
     #pragma warning(disable : 4290)  // MSVC ignores exception specifications
     #pragma warning(disable : 4673)  // warns that warning 4670 follows
     #pragma warning(disable : 4670)  // thrown exception has inaccessible base
-    #endif
+    // These warnings added with VC2012 'all' warnings build
+    #pragma warning(disable : 4514)  // unused inline function removed
+    #pragma warning(disable : 4625)  // could not generate copy constructor
+    #pragma warning(disable : 4626)  // could not generate assignment operator
+    #pragma warning(disable : 4668)  // #if on undefined names substitutes 0
+    #pragma warning(disable : 4710)  // function not inlined
+    #pragma warning(disable : 4820)  // add padding bytes after data member
+    #pragma warning(disable : 4350)  // Compiler fix:no longer bind temp to ref
+    #pragma warning(disable : 4574)  // #ifdef macro defined as 0 (in yvals.h)
+    #pragma warning(disable : 4548)  // left of comma has no effect (in winapi)
+    #pragma warning(disable : 4686)  // change of return ABI for some templates
+    #endif // BDE_DO_NOT_HIDE_PEDANTIC_WINDOWS_WARNINGS
 
     #ifdef BDE_HIDE_COMMON_WINDOWS_WARNINGS // config macro name
     // Short-term noise reduction: These warnings are noisy but should be
@@ -445,12 +455,12 @@ struct bsls_Platform_Assert;
     #pragma warning(disable : 4389)  // signed/unsigned mismatch operator==
     #pragma warning(disable : 4245)  // signed/unsigned mismatch in conversion
     #pragma warning(disable : 4244)  // conversion may lose data
-    #pragma warning(disable : 4310)  // cast truncates constant value
-    #pragma warning(disable : 4309)  // initialization truncates constant value
     #pragma warning(disable : 4305)  // initialization truncates in conversion
-    #pragma warning(disable : 4189)  // unused local variable is initialized
-    #pragma warning(disable : 4101)  // local variable is not used
+    #pragma warning(disable : 4309)  // initialization truncates constant value
+    #pragma warning(disable : 4310)  // cast truncates constant value
     #pragma warning(disable : 4100)  // unused function parameter
+    #pragma warning(disable : 4101)  // local variable is not used
+    #pragma warning(disable : 4189)  // unused local variable is initialized
     #pragma warning(disable : 4805)  // unsafe mix of bool
     #pragma warning(disable : 4702)  // unreachable code (likely in templates)
     #pragma warning(disable : 4505)  // unreferenced local function removed
@@ -468,7 +478,12 @@ struct bsls_Platform_Assert;
     // be dealt with, but for now we are silencing them.  This pragma should be
     // removed and the warnings addressed in a future release.
     #pragma warning(disable : 4267)  // conversion from 'size_t' to int
-    #endif
+
+    // TBD
+    // This warning becomes prevalent after installing VC2012, and should be
+    // cleared up properly, rather than simply silencing like this.
+    #pragma warning(disable : 4365)  // signed/unsigned size_t/bsls::SizeType
+    #endif // BDE_HIDE_COMMON_WINDOWS_WARNINGS
 // ---------------------------------------------------------------------------
 #elif defined(__GNUC__) || defined(__EDG__)
 
@@ -815,6 +830,7 @@ struct bsls_Platform_Assert;
     char die[sizeof(bsls_Platform_Assert)];          // if '#error' unsupported
 #endif
 
+#ifdef __cplusplus
 namespace bsls {
 
 // ----------------------------------------------------------------------------
@@ -947,6 +963,7 @@ struct Platform {
 };
 
 }  // close package namespace
+#endif  // __cplusplus
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -955,162 +972,7 @@ struct Platform {
                       // BACKWARD COMPATIBILITY
                       // ======================
 
-#ifdef BSLS_PLATFORM_OS_UNIX
-#define BDES_PLATFORM_OS_UNIX        BSLS_PLATFORM_OS_UNIX
-#endif
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#define BDES_PLATFORM_OS_WINDOWS     BSLS_PLATFORM_OS_WINDOWS
-#endif
-
-#ifdef BSLS_PLATFORM_OS_VER_MAJOR
-#define BDES_PLATFORM_OS_VER_MAJOR   BSLS_PLATFORM_OS_VER_MAJOR
-#endif
-
-#ifdef BSLS_PLATFORM_OS_VER_MINOR
-#define BDES_PLATFORM_OS_VER_MINOR   BSLS_PLATFORM_OS_VER_MINOR
-#endif
-
-#ifdef BSLS_PLATFORM_OS_AIX
-#define BDES_PLATFORM_OS_AIX         BSLS_PLATFORM_OS_AIX
-#endif
-
-#ifdef BSLS_PLATFORM_OS_CYGWIN
-#define BDES_PLATFORM_OS_CYGWIN      BSLS_PLATFORM_OS_CYGWIN
-#endif
-
-#ifdef BSLS_PLATFORM_OS_HPUX
-#define BDES_PLATFORM_OS_HPUX        BSLS_PLATFORM_OS_HPUX
-#endif
-
-#ifdef BSLS_PLATFORM_OS_LINUX
-#define BDES_PLATFORM_OS_LINUX       BSLS_PLATFORM_OS_LINUX
-#endif
-
-#ifdef BSLS_PLATFORM_OS_DARWIN
-#define BDES_PLATFORM_OS_DARWIN      BSLS_PLATFORM_OS_DARWIN
-#endif
-
-#ifdef BSLS_PLATFORM_OS_FREEBSD
-#define BDES_PLATFORM_OS_FREEBSD     BSLS_PLATFORM_OS_FREEBSD
-#endif
-
-#ifdef BSLS_PLATFORM_OS_SOLARIS
-#define BDES_PLATFORM_OS_SOLARIS     BSLS_PLATFORM_OS_SOLARIS
-#endif
-
-#ifdef BSLS_PLATFORM_OS_SUNOS
-#define BDES_PLATFORM_OS_SUNOS       BSLS_PLATFORM_OS_SUNOS
-#endif
-
-#ifdef BSLS_PLATFORM_OS_WIN2K
-#define BDES_PLATFORM_OS_WIN2K       BSLS_PLATFORM_OS_WIN2K
-#endif
-
-#ifdef BSLS_PLATFORM_OS_WIN9X
-#define BDES_PLATFORM_OS_WIN9X       BSLS_PLATFORM_OS_WIN9X
-#endif
-
-#ifdef BSLS_PLATFORM_OS_WINNT
-#define BDES_PLATFORM_OS_WINNT       BSLS_PLATFORM_OS_WINNT
-#endif
-
-#ifdef BSLS_PLATFORM_OS_WINXP
-#define BDES_PLATFORM_OS_WINXP       BSLS_PLATFORM_OS_WINXP
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_VER_MAJOR
-#define BDES_PLATFORM_CMP_VER_MAJOR  BSLS_PLATFORM_CMP_VERSION
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_IBM
-#define BDES_PLATFORM_CMP_AIX        BSLS_PLATFORM_CMP_IBM
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_EDG
-#define BDES_PLATFORM_CMP_EDG        BSLS_PLATFORM_CMP_EDG
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_GNU
-#define BDES_PLATFORM_CMP_GNU        BSLS_PLATFORM_CMP_GNU
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_HP
-#define BDES_PLATFORM_CMP_HP         BSLS_PLATFORM_CMP_HP
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_MSVC
-#define BDES_PLATFORM_CMP_MSVC       BSLS_PLATFORM_CMP_MSVC
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_SUN
-#define BDES_PLATFORM_CMP_SUN        BSLS_PLATFORM_CMP_SUN
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_VER_MAJOR
-#define BDES_PLATFORM_CPU_VER_MAJOR  BSLS_PLATFORM_CPU_VER_MAJOR
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_VER_MINOR
-#define BDES_PLATFORM_CPU_VER_MINOR  BSLS_PLATFORM_CPU_VER_MINOR
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-#define BDES_PLATFORM_CPU_64_BIT     BSLS_PLATFORM_CPU_64_BIT
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-#define BDES_PLATFORM_CPU_32_BIT     BSLS_PLATFORM_CPU_32_BIT
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_88000
-#define BDES_PLATFORM_CPU_88000      BSLS_PLATFORM_CPU_88000
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_ALPHA
-#define BDES_PLATFORM_CPU_ALPHA      BSLS_PLATFORM_CPU_ALPHA
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_HPPA
-#define BDES_PLATFORM_CPU_HPPA       BSLS_PLATFORM_CPU_HPPA
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_IA64
-#define BDES_PLATFORM_CPU_IA64       BSLS_PLATFORM_CPU_IA64
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_INTEL
-#define BDES_PLATFORM_CPU_INTEL      BSLS_PLATFORM_CPU_INTEL
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_MIPS
-#define BDES_PLATFORM_CPU_MIPS       BSLS_PLATFORM_CPU_MIPS
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_POWERPC
-#define BDES_PLATFORM_CPU_POWERPC    BSLS_PLATFORM_CPU_POWERPC
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_SPARC
-#define BDES_PLATFORM_CPU_SPARC      BSLS_PLATFORM_CPU_SPARC
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_SPARC_32
-#define BDES_PLATFORM_CPU_SPARC_32   BSLS_PLATFORM_CPU_SPARC_32
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_SPARC_V9
-#define BDES_PLATFORM_CPU_SPARC_V9   BSLS_PLATFORM_CPU_SPARC_V9
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_X86
-#define BDES_PLATFORM_CPU_X86        BSLS_PLATFORM_CPU_X86
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_X86_64
-#define BDES_PLATFORM_CPU_X86_64     BSLS_PLATFORM_CPU_X86_64
-#endif
-
+#ifdef __cplusplus
 namespace bdes {
 
 typedef bsls::Platform Platform;
@@ -1123,102 +985,108 @@ typedef bsls::Platform Platform;
 #endif
 #define bdes_Platform bdes::Platform
     // This alias is defined for backward compatibility.
+#endif  // __cplusplus
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+#ifdef __cplusplus
 typedef bsls::Platform bsls_Platform;
     // This alias is defined for backward compatibility.
+#endif
+
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
+#ifdef __cplusplus
 }  // close enterprise namespace
+#endif
 
 #if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
 
 // BDES id's
 
-#ifdef BDES_PLATFORM_CMP_AIX
-# define BDES_PLATFORM__CMP_AIX BDES_PLATFORM_CMP_AIX
+#ifdef BSLS_PLATFORM_CMP_AIX
+# define BDES_PLATFORM__CMP_AIX BSLS_PLATFORM_CMP_AIX
 #endif
 
 // BDES_PLATFORM__CMP_EPC -- referenced, never defined.  Can be removed.
 
-#ifdef BDES_PLATFORM_CMP_GNU
-# define BDES_PLATFORM__CMP_GNU BDES_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_CMP_GNU
+# define BDES_PLATFORM__CMP_GNU BSLS_PLATFORM_CMP_GNU
 #endif
-#ifdef BDES_PLATFORM_CMP_HP
-# define BDES_PLATFORM__CMP_HP BDES_PLATFORM_CMP_HP
+#ifdef BSLS_PLATFORM_CMP_HP
+# define BDES_PLATFORM__CMP_HP BSLS_PLATFORM_CMP_HP
 #endif
-#ifdef BDES_PLATFORM_CMP_MSVC
-# define BDES_PLATFORM__CMP_MSVC BDES_PLATFORM_CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
+# define BDES_PLATFORM__CMP_MSVC BSLS_PLATFORM_CMP_MSVC
 #endif
-#ifdef BDES_PLATFORM_CMP_SUN
-# define BDES_PLATFORM__CMP_SUN BDES_PLATFORM_CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
+# define BDES_PLATFORM__CMP_SUN BSLS_PLATFORM_CMP_SUN
 #endif
-#ifdef BDES_PLATFORM_CMP_VER_MAJOR
-# define BDES_PLATFORM__CMP_VER_MAJOR BDES_PLATFORM_CMP_VER_MAJOR
+#ifdef BSLS_PLATFORM_CMP_VER_MAJOR
+# define BDES_PLATFORM__CMP_VER_MAJOR BSLS_PLATFORM_CMP_VER_MAJOR
 #endif
-#ifdef BDES_PLATFORM_CPU_32_BIT
-# define BDES_PLATFORM__CPU_32_BIT BDES_PLATFORM_CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+# define BDES_PLATFORM__CPU_32_BIT BSLS_PLATFORM_CPU_32_BIT
 #endif
-#ifdef BDES_PLATFORM_CPU_64_BIT
-# define BDES_PLATFORM__CPU_64_BIT BDES_PLATFORM_CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+# define BDES_PLATFORM__CPU_64_BIT BSLS_PLATFORM_CPU_64_BIT
 #endif
-#ifdef BDES_PLATFORM_CPU_INTEL
-# define BDES_PLATFORM__CPU_INTEL BDES_PLATFORM_CPU_INTEL
+#ifdef BSLS_PLATFORM_CPU_INTEL
+# define BDES_PLATFORM__CPU_INTEL BSLS_PLATFORM_CPU_INTEL
 #endif
-#ifdef BDES_PLATFORM_CPU_X86
-# define BDES_PLATFORM__CPU_X86 BDES_PLATFORM_CPU_X86
+#ifdef BSLS_PLATFORM_CPU_X86
+# define BDES_PLATFORM__CPU_X86 BSLS_PLATFORM_CPU_X86
 #endif
-#ifdef BDES_PLATFORM_OS_AIX
-# define BDES_PLATFORM__OS_AIX BDES_PLATFORM_OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
+# define BDES_PLATFORM__OS_AIX BSLS_PLATFORM_OS_AIX
 #endif
-#ifdef BDES_PLATFORM_OS_CYGWIN
-# define BDES_PLATFORM__OS_CYGWIN BDES_PLATFORM_OS_CYGWIN
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+# define BDES_PLATFORM__OS_CYGWIN BSLS_PLATFORM_OS_CYGWIN
 #endif
-#ifdef BDES_PLATFORM_OS_DARWIN
-# define BDES_PLATFORM__OS_DARWIN BDES_PLATFORM_OS_DARWIN
+#ifdef BSLS_PLATFORM_OS_DARWIN
+# define BDES_PLATFORM__OS_DARWIN BSLS_PLATFORM_OS_DARWIN
 #endif
 
 // BDES_PLATFORM__OS_DGUX -- referenced, never defined.  Can be removed.
 
-#ifdef BDES_PLATFORM_OS_FREEBSD
-# define BDES_PLATFORM__OS_FREEBSD BDES_PLATFORM_OS_FREEBSD
+#ifdef BSLS_PLATFORM_OS_FREEBSD
+# define BDES_PLATFORM__OS_FREEBSD BSLS_PLATFORM_OS_FREEBSD
 #endif
-#ifdef BDES_PLATFORM_OS_HPUX
-# define BDES_PLATFORM__OS_HPUX BDES_PLATFORM_OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
+# define BDES_PLATFORM__OS_HPUX BSLS_PLATFORM_OS_HPUX
 #endif
-#ifdef BDES_PLATFORM_OS_LINUX
-# define BDES_PLATFORM__OS_LINUX BDES_PLATFORM_OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
+# define BDES_PLATFORM__OS_LINUX BSLS_PLATFORM_OS_LINUX
 #endif
-#ifdef BDES_PLATFORM_OS_SOLARIS
-# define BDES_PLATFORM__OS_SOLARIS BDES_PLATFORM_OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+# define BDES_PLATFORM__OS_SOLARIS BSLS_PLATFORM_OS_SOLARIS
 #endif
-#ifdef BDES_PLATFORM_OS_SUNOS
-# define BDES_PLATFORM__OS_SUNOS BDES_PLATFORM_OS_SUNOS
+#ifdef BSLS_PLATFORM_OS_SUNOS
+# define BDES_PLATFORM__OS_SUNOS BSLS_PLATFORM_OS_SUNOS
 #endif
-#ifdef BDES_PLATFORM_OS_UNIX
-# define BDES_PLATFORM__OS_UNIX BDES_PLATFORM_OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
+# define BDES_PLATFORM__OS_UNIX BSLS_PLATFORM_OS_UNIX
 #endif
-#ifdef BDES_PLATFORM_OS_VER_MAJOR
-# define BDES_PLATFORM__OS_VER_MAJOR BDES_PLATFORM_OS_VER_MAJOR
+#ifdef BSLS_PLATFORM_OS_VER_MAJOR
+# define BDES_PLATFORM__OS_VER_MAJOR BSLS_PLATFORM_OS_VER_MAJOR
 #endif
-#ifdef BDES_PLATFORM_OS_VER_MINOR
-# define BDES_PLATFORM__OS_VER_MINOR BDES_PLATFORM_OS_VER_MINOR
+#ifdef BSLS_PLATFORM_OS_VER_MINOR
+# define BDES_PLATFORM__OS_VER_MINOR BSLS_PLATFORM_OS_VER_MINOR
 #endif
-#ifdef BDES_PLATFORM_OS_WIN2K
-# define BDES_PLATFORM__OS_WIN2K BDES_PLATFORM_OS_WIN2K
+#ifdef BSLS_PLATFORM_OS_WIN2K
+# define BDES_PLATFORM__OS_WIN2K BSLS_PLATFORM_OS_WIN2K
 #endif
-#ifdef BDES_PLATFORM_OS_WIN9X
-# define BDES_PLATFORM__OS_WIN9X BDES_PLATFORM_OS_WIN9X
+#ifdef BSLS_PLATFORM_OS_WIN9X
+# define BDES_PLATFORM__OS_WIN9X BSLS_PLATFORM_OS_WIN9X
 #endif
-#ifdef BDES_PLATFORM_OS_WINDOWS
-# define BDES_PLATFORM__OS_WINDOWS BDES_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+# define BDES_PLATFORM__OS_WINDOWS BSLS_PLATFORM_OS_WINDOWS
 #endif
-#ifdef BDES_PLATFORM_OS_WINNT
-# define BDES_PLATFORM__OS_WINNT BDES_PLATFORM_OS_WINNT
+#ifdef BSLS_PLATFORM_OS_WINNT
+# define BDES_PLATFORM__OS_WINNT BSLS_PLATFORM_OS_WINNT
 #endif
-#ifdef BDES_PLATFORM_OS_WINXP
-# define BDES_PLATFORM__OS_WINXP BDES_PLATFORM_OS_WINXP
+#ifdef BSLS_PLATFORM_OS_WINXP
+# define BDES_PLATFORM__OS_WINXP BSLS_PLATFORM_OS_WINXP
 #endif
 
 // BSLS id's
@@ -1366,12 +1234,24 @@ typedef bsls::Platform bsls_Platform;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
-
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

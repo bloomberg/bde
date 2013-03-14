@@ -260,7 +260,7 @@ class bdet_Date {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdet_Date, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(bdet_Date, bslalg::TypeTraitBitwiseCopyable);
 
     // CLASS METHODS
     static bool isValid(int year, int month, int day);

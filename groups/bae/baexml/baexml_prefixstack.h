@@ -99,10 +99,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
 
 class bdeut_StringRef;
@@ -131,7 +127,7 @@ class baexml_PrefixStack {
   public:
     // CREATORS
     baexml_PrefixStack(baexml_NamespaceRegistry *namespaceRegistry,
-                       bslma_Allocator          *basicAllocator = 0);
+                       bslma::Allocator         *basicAllocator = 0);
         // Construct an empty registry.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.

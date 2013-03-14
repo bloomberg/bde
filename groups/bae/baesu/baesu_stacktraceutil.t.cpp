@@ -17,7 +17,6 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -36,6 +35,7 @@
 
 #include <ctype.h>
 
+#ifndef BSLS_PLATFORM_OS_CYGWIN
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 // for 'EnumWindows'
@@ -180,7 +180,7 @@ typedef long      unsigned int UintPtr;
 
 #endif
 
-typedef bsls_Types::IntPtr     IntPtr;
+typedef bsls::Types::IntPtr    IntPtr;
 
 }  // close unnamed namespace
 
@@ -191,9 +191,9 @@ typedef bsls_Types::IntPtr     IntPtr;
 static int verbose;
 static int veryVerbose;
 
-static bslma_TestAllocator ota;
+static bslma::TestAllocator ota;
 static bdema_SequentialAllocator ta(&ota);
-static bslma_TestAllocator defaultAllocator;
+static bslma::TestAllocator defaultAllocator;
 
 bsl::ostream *out_p;    // pointer to either 'cout' or a dummy stringstream
                         // that is never output, depending on the value of
@@ -247,7 +247,7 @@ void checkOutput(const bsl::string&               str,
     // check that the specified 'str' contains all the strings specified in the
     // vector 'matches' in order.  Note that 'matches' may be modified.
 {
-    bslma_TestAllocator localAllocator;
+    bslma::TestAllocator localAllocator;
     bdema_SequentialAllocator sa(&localAllocator);
 
     if (PLAT_WIN && !DEBUG_ON) {
@@ -651,13 +651,13 @@ ENDNS07  // close namespace
 
 void case_5_top(bool demangle, bool useTestAllocator)
 {
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     ST stTest(&ta);
     ST stHeapBypass;
 
     ST& st = useTestAllocator ? stTest : stHeapBypass;
 
-    bsls_Stopwatch sw;
+    bsls::Stopwatch sw;
     sw.start(true);
     int rc = Util::loadStackTraceFromStack(&st, 2000, demangle);
     LOOP_ASSERT(rc, 0 == rc);
@@ -790,7 +790,7 @@ void case_4_top(bool demangle)
     if (0 == rc) {
         testStackTrace(st);
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         bsl::vector<const char *> matches(&ta);
         matches.push_back("case_4_top");
         matches.push_back("middle");
@@ -801,7 +801,7 @@ void case_4_top(bool demangle)
         Util::printFormatted(os, st);
         bsl::string str(&ta);
         {
-            bslma_DefaultAllocatorGuard guard(&ta);
+            bslma::DefaultAllocatorGuard guard(&ta);
             str = os.str();
         }
         checkOutput(str, matches);
@@ -884,7 +884,7 @@ void case_3_Top(bool demangle)
     if (0 == rc) {
         testStackTrace(st);
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         bsl::vector<const char *> matches(&ta);
         matches.push_back("case_3_Top");
         matches.push_back("upperMiddle");
@@ -896,7 +896,7 @@ void case_3_Top(bool demangle)
         Util::printFormatted(os, st);
         bsl::string str(&ta);
         {
-            bslma_DefaultAllocatorGuard guard(&ta);
+            bslma::DefaultAllocatorGuard guard(&ta);
             str = os.str();
         }
         checkOutput(str, matches);
@@ -984,7 +984,7 @@ namespace CASE_2 {
 
 bool called = false;
 
-void top(bslma_Allocator *alloc)
+void top(bslma::Allocator *alloc)
     // Note that we don't get
 {
     if (called) return;
@@ -1006,7 +1006,7 @@ void top(bslma_Allocator *alloc)
             bsl::ostream& ssARef = ssA << st;
             ASSERT(&ssA == &ssARef);
 
-            bslma_DefaultAllocatorGuard guard(alloc);
+            bslma::DefaultAllocatorGuard guard(alloc);
             strA = ssA.str();
             checkOutput(strA, matches);
         }
@@ -1016,7 +1016,7 @@ void top(bslma_Allocator *alloc)
             bsl::ostream& ssBRef = st.print(ssB, 0, -1);
             ASSERT(&ssB == &ssBRef);
 
-            bslma_DefaultAllocatorGuard guard(alloc);
+            bslma::DefaultAllocatorGuard guard(alloc);
             strB = ssB.str();
             checkOutput(strB, matches);
         }
@@ -1027,14 +1027,14 @@ void top(bslma_Allocator *alloc)
         bsl::stringstream ssC(alloc);
         bsl::ostream& ssCRef = Util::printFormatted(ssC, st);
 
-        bslma_DefaultAllocatorGuard guard(alloc);
+        bslma::DefaultAllocatorGuard guard(alloc);
 
         ASSERT(&ssC == &ssCRef);
         checkOutput(ssC.str(), matches);
     }
 }
 
-void bottom(bslma_Allocator *alloc)
+void bottom(bslma::Allocator *alloc)
 {
     // still attempting to thwart optimizer -- all this does is call 'top'
     // a bunch of times.
@@ -1060,7 +1060,7 @@ namespace CASE_1 {
 
 bool called = false;
 
-void top(bslma_Allocator *alloc)
+void top(bslma::Allocator *alloc)
 {
     if (called) return;
     called = true;
@@ -1125,7 +1125,7 @@ void top(bslma_Allocator *alloc)
     }
 }
 
-void bottom(bslma_Allocator *alloc)
+void bottom(bslma::Allocator *alloc)
 {
     // still attempting to thwart optimizer -- all this does is call 'top'
     // a bunch of times.
@@ -1303,7 +1303,7 @@ int main(int argc, char *argv[])
 
     // see if we can avoid calling 'malloc' from here on out
 
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     // 'dummyOstream' is a way of achieving the equivalent of opening /dev/null
     // that works on Windoze.
@@ -1778,6 +1778,15 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+#else
+
+int main()
+{
+    return -1;
+}
+
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:

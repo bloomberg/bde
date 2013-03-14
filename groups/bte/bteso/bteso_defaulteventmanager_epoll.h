@@ -50,8 +50,8 @@ BDES_IDENT("$Id: $")
 //..
 ///Thread-safety
 ///-------------
-// This component depends on a 'bslma_Allocator' instance to supply memory.  If
-// the allocator is not thread enabled then the instances of this component
+// This component depends on a 'bslma::Allocator' instance to supply memory.
+// If the allocator is not thread enabled then the instances of this component
 // that use the same allocator instance will consequently not be thread safe
 // Otherwise, this component provides the following guarantees.
 //
@@ -271,6 +271,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitbitwisemoveable.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -279,16 +283,12 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSL_HASH_MAP
-#include <bsl_hash_map.h>
+#ifndef INCLUDED_BSL_UNORDERED_MAP
+#include <bsl_unordered_map.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
@@ -298,13 +298,11 @@ BDES_IDENT("$Id: $")
 #define INCLUDED_SYS_EPOLL
 #endif
 
-namespace BloombergLP {
+namespace bsl {
+template <> struct is_trivially_copyable<epoll_event> : true_type {};
+}
 
-template <>
-struct bslalg_TypeTraits<struct ::epoll_event> :
-                                        public bslalg_TypeTraitBitwiseCopyable
-{
-};
+namespace BloombergLP {
 
 class bdet_TimeInterval;
 class bteso_TimeMetrics;
@@ -326,10 +324,10 @@ class bteso_DefaultEventManager<bteso_Platform::EPOLL>
         int                          d_mask;
 
         BSLALG_DECLARE_NESTED_TRAITS(HandleEvents,
-                                     bslalg_TypeTraitBitwiseMoveable);
+                                     bslalg::TypeTraitBitwiseMoveable);
     };
 
-    typedef bsl::hash_map<int, HandleEvents>               EventMap;
+    typedef bsl::unordered_map<int, HandleEvents> EventMap;
 
     int                          d_epollFd;      // epoll fd
 
@@ -377,7 +375,7 @@ class bteso_DefaultEventManager<bteso_Platform::EPOLL>
     // CREATORS
     explicit
     bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric     = 0,
-                              bslma_Allocator   *basicAllocator = 0);
+                              bslma::Allocator  *basicAllocator = 0);
         // Create a 'epoll'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics

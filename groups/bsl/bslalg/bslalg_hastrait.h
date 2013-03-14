@@ -17,12 +17,12 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a meta-function, 'bslalg::HasTrait',
-// for for macros used to assign traits to user-defined class.  Traits are used
+// for macros used to assign traits to user-defined class.  Traits are used
 // to enable certain optimizations or discriminations at compile-time.  For
 // instance, a class having the trait 'bslalg::TypeTraitBitwiseMoveable' may
 // allow resizing an array of objects by simply calling 'std::memcpy' instead
 // of invoking a copy-constructor on every object.  The usage example shows how
-// to use the 'bslalg::TypeTraitUsesBslmaAllocator' to propagate allocators to
+// to use the 'bslma::UsesBslmaAllocator' to propagate allocators to
 // nested instances that may require them.
 //
 // This component should be used in conjunction with other components from the
@@ -40,10 +40,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -74,54 +70,10 @@ struct HasTrait {
     // 'bslalg_TypeTraits<TYPE>' directly includes 'TRAIT' or else includes a
     // trait that implies 'TRAIT'.
 
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
   public:
     enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits, TRAIT>::VALUE
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-template <typename TYPE>
-struct HasTrait<TYPE, TypeTraitBitwiseMoveable> {
-    // bitwise copyable                => bitwise moveable
-    // has trivial default constructor => bitwise moveable
-
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
-    enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits,
-                                    TypeTraitBitwiseMoveable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                                    TypeTraitBitwiseCopyable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                           TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-template <typename TYPE>
-struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
-    // has trivial default constructor => bitwise copyable
-
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
-    enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits,
-                                    TypeTraitBitwiseCopyable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                           TypeTraitHasTrivialDefaultConstructor>::VALUE
+        VALUE = TRAIT::template
+                       Metafunction<typename bsl::remove_cv<TYPE>::type>::value
     };
 
     typedef bslmf::MetaInt<VALUE> Type;
@@ -145,11 +97,24 @@ struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

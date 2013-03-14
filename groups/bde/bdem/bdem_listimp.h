@@ -106,10 +106,6 @@ BDES_IDENT("$Id: $")
 #include <bdeimp_bitwisecopy.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 #include <bslalg_typetraitbitwisemoveable.h>
 #endif
@@ -122,6 +118,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -132,10 +132,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -158,9 +154,6 @@ class bdem_ListImp {
     // class is *used* *by* the 'bdem_list' class implementation.  Clients
     // should use 'bdem_list', and should not use this class in place.
 
-    // PRIVATE TYPES
-    typedef bslalg_PassthroughTrait<bdem_RowData,
-                                    bslalg_TypeTraitBitwiseMoveable> MoveTrait;
     // DATA
     // NOTE: Do *NOT* change the order of the data members.  The implementation
     // relies on them being declared in this order.
@@ -190,10 +183,12 @@ class bdem_ListImp {
     bdem_ListImp(const bdem_ListImp&);
 
   public:
+
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdem_ListImp,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  MoveTrait);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdem_ListImp,
+                                bslmf::IsBitwiseMoveable,
+                                bslmf::IsBitwiseMoveable<bdem_RowData>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdem_ListImp, bslma::UsesBslmaAllocator);
 
     // TYPES
     class InitialMemory {
@@ -240,10 +235,10 @@ class bdem_ListImp {
     // CREATORS
     explicit
     bdem_ListImp(bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_ListImp(bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                  const InitialMemory&                      initialMemory,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a list of length 0 using the specified memory allocation
         // strategy 'allocationStrategy'.  (The meanings of the various
         // 'allocationStrategy' values are described in
@@ -262,13 +257,13 @@ class bdem_ListImp {
                  int                                       numElements,
                  const bdem_Descriptor *const             *attrLookupTbl,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_ListImp(const bdem_ElemType::Type                *elementTypes,
                  int                                       numElements,
                  const bdem_Descriptor *const             *attrLookupTbl,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                  const InitialMemory&                      initialMemory,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a list having the the specified 'numElements', whose types
         // are the same as those in the specified 'elementTypes', with each
         // element set to null and having its corresponding unset value (see
@@ -291,20 +286,20 @@ class bdem_ListImp {
         // 'columnTypes', and '0 <= initialMemorySize', if 'initialMemorySize'
         // is specified.
 
-    bdem_ListImp(const bdem_RowData&                     original,
+    bdem_ListImp(const bdem_RowData&                       original,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_ListImp(const bdem_ListImp&                       original,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
-    bdem_ListImp(const bdem_RowData   &                  original,
+                 bslma::Allocator                         *basicAllocator = 0);
+    bdem_ListImp(const bdem_RowData&                       original,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                  const InitialMemory&                      initialMemory,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_ListImp(const bdem_ListImp&                       original,
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                  const InitialMemory&                      initialMemory,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a list having the value of the specified 'original' object
         // (row or list).  Optionally specify a memory allocation strategy
         // 'allocationStrategy'.  If 'allocationStrategy' is not specified,

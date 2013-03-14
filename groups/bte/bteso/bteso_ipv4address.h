@@ -124,7 +124,7 @@ class bteso_IPv4Address {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_IPv4Address,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // TYPES
     enum {

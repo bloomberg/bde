@@ -289,12 +289,12 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
@@ -486,7 +486,7 @@ class bael_AttributeContext {
                                                        // rule sequence number,
                                                        // and rule set mutex
 
-    static bslma_Allocator      *s_globalAllocator_p;  // an allocator for
+    static bslma::Allocator     *s_globalAllocator_p;  // an allocator for
                                                        // thread local context
                                                        // objects
 
@@ -497,7 +497,7 @@ class bael_AttributeContext {
     mutable RuleEvaluationCache  d_ruleCache_p;        // cache of rule
                                                        // evaluations
 
-    bslma_Allocator             *d_allocator_p;        // allocator used to
+    bslma::Allocator            *d_allocator_p;        // allocator used to
                                                        // create this object
                                                        // (held but not owned)
 
@@ -524,7 +524,7 @@ class bael_AttributeContext {
         // thus should not be called in application code directly).
 
     // PRIVATE CREATORS
-    bael_AttributeContext(bslma_Allocator *globalAllocator = 0);
+    bael_AttributeContext(bslma::Allocator *globalAllocator = 0);
         // Create a 'bael_AttributeContext' object initially having no
         // attributes.  Optionally specify a 'globalAllocator' used to supply
         // memory.  If 'globalAllocator' is 0, the currently installed global
@@ -542,7 +542,7 @@ class bael_AttributeContext {
 
     // CLASS METHODS
     static void initialize(bael_CategoryManager *categoryManager,
-                           bslma_Allocator      *globalAllocator = 0);
+                           bslma::Allocator     *globalAllocator = 0);
         // Initialize the static data members of 'bael_AttributeContext' using
         // the specified 'categoryManager'.  Optionally specify a
         // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,

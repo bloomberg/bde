@@ -1,11 +1,11 @@
-// bsltf_stdtestallocator.t.cpp                               -*-C++-*-
+// bsltf_stdtestallocator.t.cpp                                       -*-C++-*-
 #include <bsltf_stdtestallocator.h>
 
 #include <bsltf_simpletesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -14,6 +14,8 @@
 #include <bslmf_issame.h>
 
 #include <limits>
+
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -101,10 +103,11 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) { ++testStatus; }
     }
 }
 
@@ -179,8 +182,8 @@ class MyContainer {
     TYPE      *d_object_p;   // pointer to the contained object
 
   public:
-    // CONSTRUCTORS
-    MyContainer(const TYPE& object);
+    // CREATORS
+    explicit MyContainer(const TYPE& object);
         // Create an container containing the specified 'object', using the
         // parameterized 'ALLOCATOR' to allocate memory.
 
@@ -243,7 +246,7 @@ class TestType {
 
   public:
     // CREATORS
-    TestType(int data)
+    explicit TestType(int data)
     : d_data(data)
     {
     }
@@ -266,12 +269,13 @@ class TestType {
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test                = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose             = argc > 2;
-    int veryVerbose         = argc > 3;
-    int veryVeryVerbose     = argc > 4;
-    int veryVeryVeryVerbose = argc > 4;
+int main(int argc, char *argv[])
+{
+    int  test                = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose             = argc > 2;
+    bool veryVerbose         = argc > 3;
+    bool veryVeryVerbose     = argc > 4;
+    bool veryVeryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -325,30 +329,7 @@ int main(int argc, char *argv[]) {
         // This part has been copied from bslstl_allocator's test driver and
         // had been originally written by Pablo.
 
-        typedef bslma::Allocator::size_type bsize;
-
-        enum {
-            BSLMA_SIZE_IS_SIGNED = ~bslma::Allocator::size_type(0) < 0,
-            MAX_NUM_BYTES = ~std::size_t(0) /
-            (BSLMA_SIZE_IS_SIGNED ? 2 : 1),
-            MAX_ELEMENTS1 = MAX_NUM_BYTES / sizeof(char),
-            MAX_ELEMENTS2 = (std::size_t)MAX_NUM_BYTES / sizeof(char)
-        };
-
-        if (verbose) {
-            printf("Illustrating the reason for the cast in the"
-                   " enumeration (on AIX 64-bit mode):\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
-            printf("\tMAX_NUM_BYTES = %ld\n", (bsize)MAX_NUM_BYTES);
-            printf("\tMAX_ELEMENTS1 = %ld\n", (bsize)MAX_ELEMENTS1);
-            printf("\tMAX_ELEMENTS2 = %ld\n", (bsize)MAX_ELEMENTS2);
-
-            printf("Printing the same values as unsigned:\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
-            printf("\tMAX_NUM_BYTES = %lu\n", (bsize)MAX_NUM_BYTES);
-            printf("\tMAX_ELEMENTS1 = %lu\n", (bsize)MAX_ELEMENTS1);
-            printf("\tMAX_ELEMENTS2 = %lu\n", (bsize)MAX_ELEMENTS2);
-        }
+        typedef StdTestAllocator<char>::size_type bsize;
 
         StdTestAllocator<char> X;
         bsize cas = X.max_size();
@@ -453,10 +434,10 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //: 1 The 'allocate' method forwards allocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //:
         //: 2 The 'deallocate' method forwards the deallocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //
         // Plan:
         //: 1 Create a 'bslma_Allocator' object and install it as the delegate
@@ -502,7 +483,7 @@ int main(int argc, char *argv[]) {
         //:   by the C++03 standard for template instances parameterized on the
         //:   'void' and other types .
         //:
-        //: 2 'size_type' is unsigned while 'difference_type' is signed.
+        //: 2 'size_type' is 'unsigned int' while 'difference_type' is 'int'.
         //:
         //: 3 'rebind<OTHER_TYPE>::other' defines a template instance for
         //:   'StdTestAllocator' parameterized on the 'OTHER_TYPE' type.
@@ -517,12 +498,12 @@ int main(int argc, char *argv[]) {
         //:     'difference_type' are the right size and verify they are
         //:     unsigned values.  (C-1..2)
         //:
-        //:   2 For all other type aliases, use 'bslmf::IsSame' to verify that
+        //:   2 For all other type aliases, use 'bsl::is_same' to verify that
         //:     they are the expected types, except for 'reference' and
         //:     'const_reference' for the instance parameterized on the 'void'
         //:     type.  (C-1)
         //:
-        //:   3 Verify using 'bslmf::IsSame' that 'rebind<U>::other', where 'U'
+        //:   3 Verify using 'bsl::is_same' that 'rebind<U>::other', where 'U'
         //:     is the other two aliases defined by P-1, defines the correct
         //:     type.  (C-3)
         //
@@ -546,66 +527,60 @@ int main(int argc, char *argv[]) {
 
         if (verbose) printf("\tTesting 'size_type'.\n");
         {
-            ASSERT(sizeof(AI::size_type) == sizeof(int*));
-            ASSERT(sizeof(AV::size_type) == sizeof(void*));
-
-            ASSERT(0 < ~(AI::size_type)0);
-            ASSERT(0 < ~(AV::size_type)0);
+            ASSERT((bsl::is_same<AI::size_type, unsigned int>::value));
+            ASSERT((bsl::is_same<AV::size_type, unsigned int>::value));
         }
 
         if (verbose) printf("\tTesting 'difference_type'.\n");
         {
-            ASSERT(sizeof(AI::difference_type) == sizeof(int*));
-            ASSERT(sizeof(AV::difference_type) == sizeof(void*));
-
-            ASSERT(0 > ~(AI::difference_type)0);
-            ASSERT(0 > ~(AV::difference_type)0);
+            ASSERT((bsl::is_same<AI::difference_type, int>::value));
+            ASSERT((bsl::is_same<AV::difference_type, int>::value));
         }
 
         if (verbose) printf("\tTesting 'pointer'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::pointer, int*>::VALUE));
-            ASSERT((bslmf::IsSame<AF::pointer, float*>::VALUE));
-            ASSERT((bslmf::IsSame<AV::pointer, void*>::VALUE));
+            ASSERT((bsl::is_same<AI::pointer, int*>::value));
+            ASSERT((bsl::is_same<AF::pointer, float*>::value));
+            ASSERT((bsl::is_same<AV::pointer, void*>::value));
         }
 
         if (verbose) printf("\tTesting 'const_pointer'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::const_pointer, const int*>::VALUE));
-            ASSERT((bslmf::IsSame<AF::const_pointer, const float*>::VALUE));
-            ASSERT((bslmf::IsSame<AV::const_pointer, const void*>::VALUE));
+            ASSERT((bsl::is_same<AI::const_pointer, const int*>::value));
+            ASSERT((bsl::is_same<AF::const_pointer, const float*>::value));
+            ASSERT((bsl::is_same<AV::const_pointer, const void*>::value));
         }
 
         if (verbose) printf("\tTesting 'reference'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::reference, int&>::VALUE));
-            ASSERT((bslmf::IsSame<AF::reference, float&>::VALUE));
+            ASSERT((bsl::is_same<AI::reference, int&>::value));
+            ASSERT((bsl::is_same<AF::reference, float&>::value));
         }
 
         if (verbose) printf("\tTesting 'const_reference'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::const_reference, const int&>::VALUE));
-            ASSERT((bslmf::IsSame<AF::const_reference, const float&>::VALUE));
+            ASSERT((bsl::is_same<AI::const_reference, const int&>::value));
+            ASSERT((bsl::is_same<AF::const_reference, const float&>::value));
         }
 
         if (verbose) printf("\tTesting 'value_type'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::value_type, int>::VALUE));
-            ASSERT((bslmf::IsSame<AF::value_type, float>::VALUE));
-            ASSERT((bslmf::IsSame<AV::value_type, void>::VALUE));
+            ASSERT((bsl::is_same<AI::value_type, int>::value));
+            ASSERT((bsl::is_same<AF::value_type, float>::value));
+            ASSERT((bsl::is_same<AV::value_type, void>::value));
         }
 
         if (verbose) printf("\tTesting 'rebind'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AI::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AI::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<void >::other, AV>::VALUE));
+            ASSERT((bsl::is_same<AI::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AI::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AI::rebind<void >::other, AV>::value));
+            ASSERT((bsl::is_same<AF::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AF::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AF::rebind<void >::other, AV>::value));
+            ASSERT((bsl::is_same<AV::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AV::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AV::rebind<void >::other, AV>::value));
         }
       } break;
       case 10: {
@@ -633,7 +608,7 @@ int main(int argc, char *argv[]) {
         //:   copy-assignment operator defined in this component.  (C-1)
         //:
         //: 2 Create two sets of 'StdTestAllocator' objects (parameterized on
-        //:   void and int) and assign a non-modifiable refernce of one to the
+        //:   void and int) and assign a non-modifiable reference of one to the
         //:   other.  (C-2)
         //
         // Testing:
@@ -715,7 +690,7 @@ int main(int argc, char *argv[]) {
         //: 1 'operator==' always return true, even for objects of different
         //:   template instances.
         //:
-        //: 2 'operator!=' always return false, enve for objects of different
+        //: 2 'operator!=' always return false, even for objects of different
         //:   template instances.
         //
         //: 3 The equality operator's signature and return type are standard.
@@ -877,7 +852,7 @@ int main(int argc, char *argv[]) {
           ASSERT(0 == oa.numBytesInUse());
 
           StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
-                                       &bslma::NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
 
       } break;
       case 1: {
@@ -927,11 +902,24 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

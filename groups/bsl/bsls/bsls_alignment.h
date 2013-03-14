@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 // allocation request; 0 is returned if the request cannot be satisfied:
 //..
 //  if (*cursor + offset + size > bufferSize) {
-//      return 0;                                                 // RETURN
+//      return 0;                                                     // RETURN
 //  }
 //
 //  void *result = &buffer[*cursor + offset];
@@ -166,6 +166,8 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
 #endif
@@ -178,10 +180,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmenttotype.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
-#include <bsls_alignmentutil.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -191,11 +189,18 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 // Temporarily define the legacy 'bsls_AlignmentOf' to refer to its
 // replacement, 'bsls::AlignmentFromType'.
 
 #ifndef bsls_AlignmentOf
 #define bsls_AlignmentOf bsls::AlignmentFromType
+#endif
+
+// required for some code below wrapped in ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
+#include <bsls_alignmentutil.h>
 #endif
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -378,11 +383,24 @@ typedef bsls::Alignment bsls_Alignment;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -311,7 +311,7 @@ BDES_IDENT("$Id: $")
 //      // DATA
 //      btemt_ChannelPoolConfiguration d_config;        // pool's configuration
 //      btemt_ChannelPool             *d_channelPool_p; // managed pool
-//      bslma_Allocator               *d_allocator_p;   // memory manager
+//      bslma::Allocator              *d_allocator_p;   // memory manager
 //      bcemt_Mutex                   *d_coutLock_p;    // synchronize 'cout'
 //
 //    private:
@@ -361,10 +361,10 @@ BDES_IDENT("$Id: $")
 //      my_EchoServer& operator=(const my_EchoServer&);
 //
 //    public:
-//      my_EchoServer(bcemt_Mutex     *coutLock,
-//                    int              portNumber,
-//                    int              numConnections,
-//                    bslma_Allocator *basicAllocator = 0);
+//      my_EchoServer(bcemt_Mutex      *coutLock,
+//                    int               portNumber,
+//                    int               numConnections,
+//                    bslma::Allocator *basicAllocator = 0);
 //          // Create an echo server that listens for incoming connections on
 //          // the specified 'portNumber' managing up to the specified
 //          // 'numConnections' simultaneous connections.  The echo server
@@ -385,11 +385,11 @@ BDES_IDENT("$Id: $")
 // the channel pool is created, configured, and started.  The listening port
 // is established:
 //..
-//  my_EchoServer::my_EchoServer(bcemt_Mutex     *coutLock,
-//                               int              portNumber,
-//                               int              numConnections,
-//                               bslma_Allocator *basicAllocator)
-//  : d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  my_EchoServer::my_EchoServer(bcemt_Mutex      *coutLock,
+//                               int               portNumber,
+//                               int               numConnections,
+//                               bslma::Allocator *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  , d_coutLock_p(coutLock) {
 //      d_config.setMaxThreads(4);
 //      d_config.setMaxConnections(numConnections);
@@ -619,12 +619,12 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -977,7 +977,7 @@ class btemt_ChannelPool {
                                         // *** Metrics ***
     bces_AtomicInt                      d_totalConnectionsLifetime;
     bdet_TimeInterval                   d_lastResetTime;
-    volatile bsls_PlatformUtil::Int64   d_totalBytesReadAdjustment;
+    volatile bsls::Types::Int64         d_totalBytesReadAdjustment;
                                                // adjustment to
                                                // the sum of individual
                                                // channel numBytesRead(),
@@ -985,7 +985,7 @@ class btemt_ChannelPool {
                                                // channels and calls to
                                                // 'resetTotalBytesRead'
 
-    volatile bsls_PlatformUtil::Int64   d_totalBytesWrittenAdjustment;
+    volatile bsls::Types::Int64         d_totalBytesWrittenAdjustment;
                                                // adjustment to
                                                // the sum of individual
                                                // channel numBytesWritten(),
@@ -993,7 +993,7 @@ class btemt_ChannelPool {
                                                // channels and calls to
                                                // 'resetTotalBytesWritten'
 
-    volatile bsls_PlatformUtil::Int64   d_totalBytesRequestedWrittenAdjustment;
+    volatile bsls::Types::Int64         d_totalBytesRequestedWrittenAdjustment;
                                                // adjustment to
                                                // the sum of individual
                                                // channel values,
@@ -1012,7 +1012,7 @@ class btemt_ChannelPool {
     bcema_Pool                          d_pool;        // for btemt_Channel
                                                        // (owned)
 
-    bslma_Allocator                    *d_allocator_p; // (held, not owned)
+    bslma::Allocator                   *d_allocator_p; // (held, not owned)
 
   private:
     // FRIENDS
@@ -1174,7 +1174,7 @@ class btemt_ChannelPool {
            DataCallback                           pooledBufferChainBasedReadCb,
            PoolStateCallback                      poolStateCb,
            const btemt_ChannelPoolConfiguration&  parameters,
-           bslma_Allocator                       *basicAllocator = 0);
+           bslma::Allocator                      *basicAllocator = 0);
         // Create a channel pool with the specified 'channelStateCb',
         // 'pooledBufferChainBasedReadCb' and 'poolStateCb' callbacks to be
         // invoked, correspondingly, when a channel state changes, data
@@ -1196,7 +1196,7 @@ class btemt_ChannelPool {
            DataReadCallback                       pooledBufferChainBasedReadCb,
            PoolStateChangeCallback                poolStateCb,
            const btemt_ChannelPoolConfiguration&  parameters,
-           bslma_Allocator                       *basicAllocator = 0);
+           bslma::Allocator                      *basicAllocator = 0);
         // Create a channel pool with the specified 'channelStateCb',
         // 'pooledBufferChainBasedReadCb' and 'poolStateCb' callbacks to be
         // invoked, correspondingly, when a channel state changes, data
@@ -1216,7 +1216,7 @@ class btemt_ChannelPool {
             BlobBasedReadCallback                  blobBasedReadCb,
             PoolStateCallback                      poolStateCb,
             const btemt_ChannelPoolConfiguration&  parameters,
-            bslma_Allocator                       *basicAllocator = 0);
+            bslma::Allocator                      *basicAllocator = 0);
         // Create a channel pool with the specified 'channelStateCb',
         // 'blobBasedReadCb' and 'poolStateCb' callbacks to be invoked,
         // correspondingly, when a channel state changes, data arrives, or
@@ -1238,7 +1238,7 @@ class btemt_ChannelPool {
             BlobBasedReadCallback                  blobBasedReadCb,
             PoolStateChangeCallback                poolStateCb,
             const btemt_ChannelPoolConfiguration&  parameters,
-            bslma_Allocator                       *basicAllocator = 0);
+            bslma::Allocator                      *basicAllocator = 0);
         // Create a channel pool with the specified 'channelStateCb',
         // 'blobBasedReadCb' and 'poolStateCb' callbacks to be invoked,
         // correspondingly, when a channel state changes, data arrives, or
@@ -1626,8 +1626,9 @@ class btemt_ChannelPool {
         // Enqueue a request to write the specified 'message' into the channel
         // having the specified 'channelId'.  Optionally specify an
         // 'enqueueWaterMark' to limit the size of the enqueued portion of the
-        // message.  Return 0 on success (i.e., the operation was successfully
-        // enqueued) and a non-zero value otherwise.
+        // message.  Return 0 on success, and a non-zero value otherwise.  On
+        // error, the return value *may* equal to one of the enumerators in
+        // 'btemt_ChannelStatus::Enum'.
 
     int write(int                   channelId,
               const btemt_DataMsg&  message);
@@ -1637,8 +1638,9 @@ class btemt_ChannelPool {
         // Enqueue a request to write the specified 'message' into the channel
         // having the specified 'channelId'.  Optionally specify an
         // 'enqueueWaterMark' to limit the size of the enqueued portion of the
-        // message.  Return 0 on success (i.e., the operation was successfully
-        // enqueued) and a non-zero value otherwise.
+        // message.  Return 0 on success, and a non-zero value otherwise.  On
+        // error, the return value *may* equal to one of the enumerators in
+        // 'btemt_ChannelStatus::Enum'.
 
     int write(int                   channelId,
               const btemt_DataMsg&  message,
@@ -1656,13 +1658,14 @@ class btemt_ChannelPool {
               const btes_Ovec   vecs[],
               int               numVecs);
         // Enqueue a request to write the specified 'vecs' into the channel
-        // having the specified 'channelId'.  Return 0 on success (i.e., the
-        // operation was successfully enqueued) and a non-zero value otherwise.
-        // Note that you should prefer this method over the other 'write()'
-        // method *only* *if* you expect that this object will be able to write
-        // most of the data contained in the specified 'vecs' atomically.  If
-        // the 'vecs' must be enqueued, an inefficient data copy will occur to
-        // allow to control the lifetime of the data.
+        // having the specified 'channelId'.  Return 0 on success, and a
+        // non-zero value otherwise.  On error, the return value *may* equal to
+        // one of the enumerators in 'btemt_ChannelStatus::Enum'.  Note that
+        // you should prefer this method over the other 'write()' method *only*
+        // *if* you expect that this object will be able to write most of the
+        // data contained in the specified 'vecs' atomically.  If the 'vecs'
+        // must be enqueued, an inefficient data copy will occur to allow to
+        // control the lifetime of the data.
 
                                   // *** Clock management ***
 
@@ -1753,15 +1756,15 @@ class btemt_ChannelPool {
         // previous reset, this method will return the same number as
         // 'numChannels()'.  0 means that they were all down.
 
-    void totalBytesReadReset(bsls_PlatformUtil::Int64 *result);
+    void totalBytesReadReset(bsls::Types::Int64 *result);
         // Load, into the specified 'result', and atomically reset the total
         // number of bytes read by the pool.
 
-    void totalBytesWrittenReset(bsls_PlatformUtil::Int64 *result);
+    void totalBytesWrittenReset(bsls::Types::Int64 *result);
         // Load, into the specified 'result', and atomically reset the total
         // number of bytes written by the pool.
 
-    void totalBytesRequestedToBeWrittenReset(bsls_PlatformUtil::Int64 *result);
+    void totalBytesRequestedToBeWrittenReset(bsls::Types::Int64 *result);
         // Load, into the specified 'result', and atomically reset the total
         // number of bytes requested to be written by the pool.
 
@@ -1781,10 +1784,10 @@ class btemt_ChannelPool {
         // 'channelId', and '(void*)0' if no such channel exists OR the user
         // context for this channel was explicitly set to '(void*)0'.
 
-    int getChannelStatistics(bsls_PlatformUtil::Int64 *numRead,
-                             bsls_PlatformUtil::Int64 *numRequestedToBeWritten,
-                             bsls_PlatformUtil::Int64 *numWritten,
-                             int                       channelId) const;
+    int getChannelStatistics(bsls::Types::Int64 *numRead,
+                             bsls::Types::Int64 *numRequestedToBeWritten,
+                             bsls::Types::Int64 *numWritten,
+                             int                 channelId) const;
         // Load into the specified 'numRead', 'numRequestedToBeWritten' and
         // 'numWritten' respectively the number of bytes read, requested to
         // be written and written by the channel identified by the specified
@@ -1860,20 +1863,20 @@ class btemt_ChannelPool {
         // communication channel having the specified 'channelId'.  Return 0 on
         // success, and a non-zero value with no effect on 'result' otherwise.
 
-    int numBytesRead(bsls_PlatformUtil::Int64 *result, int channelId) const;
+    int numBytesRead(bsls::Types::Int64 *result, int channelId) const;
         // Load, into the specified 'result', the number of bytes read by the
         // channel identified by the specified 'channelId' and return 0 if the
         // specified 'channelId' is a valid channel id.  Otherwise, return a
         // non-zero value.
 
-    int numBytesWritten(bsls_PlatformUtil::Int64 *result, int channelId) const;
+    int numBytesWritten(bsls::Types::Int64 *result, int channelId) const;
         // Load, into the specified 'result', the number of bytes written by
         // the channel identified by the specified 'channelId' and return 0 if
         // the specified 'channelId' is a valid channel id.  Otherwise, return
         // a non-zero value.
 
-    int numBytesRequestedToBeWritten(bsls_PlatformUtil::Int64 *result,
-                                     int                      channelId) const;
+    int numBytesRequestedToBeWritten(bsls::Types::Int64 *result,
+                                     int                 channelId) const;
         // Load, into the specified 'result', the number of bytes requested to
         // be written by the channel identified by the specified 'channelId'
         // and return 0 if the specified 'channelId' is a valid channel id.
@@ -1914,16 +1917,15 @@ class btemt_ChannelPool {
         // channel pool is undefined if the underlying socket is manipulated
         // while still under mangement by this channel pool.
 
-    void totalBytesRead(bsls_PlatformUtil::Int64 *result) const;
+    void totalBytesRead(bsls::Types::Int64 *result) const;
         // Load, into the specified 'result', the total number of bytes read by
         // the pool.
 
-    void totalBytesRequestedToBeWritten(
-                                       bsls_PlatformUtil::Int64 *result) const;
+    void totalBytesRequestedToBeWritten(bsls::Types::Int64 *result) const;
         // Load, into the specified 'result', the total number of bytes
         // requested to be written by the pool.
 
-    void totalBytesWritten(bsls_PlatformUtil::Int64 *result) const;
+    void totalBytesWritten(bsls::Types::Int64 *result) const;
         // Load, into the specified 'result', the total number of bytes written
         // by the pool.
 };
@@ -1944,9 +1946,9 @@ class btemt_ChannelPool_IovecArray {
     // the sum of the lengths of the 'IOVEC' objects in 'iovecs()'.
 
     // DATA
-    const IOVEC              *d_iovecs;       // array of iovecs
-    int                       d_numIovecs;    // number of iovecs
-    bsls_PlatformUtil::Int64  d_totalLength;  // total data length
+    const IOVEC        *d_iovecs;       // array of iovecs
+    int                 d_numIovecs;    // number of iovecs
+    bsls::Types::Int64  d_totalLength;  // total data length
 
     public:
 
@@ -1978,7 +1980,7 @@ class btemt_ChannelPool_IovecArray {
         // Return the length of the array of 'IOVEC' objects returned by
         // 'iovecs()'.
 
-    bsls_PlatformUtil::Int64 length() const;
+    bsls::Types::Int64 length() const;
         // Return the total length, in bytes, of the data referred to by
         // 'IOVEC' objects in the 'iovecs()' array of 'IOVEC' objects.
 };
@@ -2040,10 +2042,10 @@ struct btemt_ChannelPool_MessageUtil {
 
     // CLASS METHODS
     template <typename IOVEC>
-    static bsls_PlatformUtil::Int64 length(
+    static bsls::Types::Int64 length(
                                const btemt_ChannelPool_IovecArray<IOVEC>& msg);
-    static bsls_PlatformUtil::Int64 length(const btemt_DataMsg& msg);
-    static bsls_PlatformUtil::Int64 length(const bcema_Blob& msg);
+    static bsls::Types::Int64 length(const btemt_DataMsg& msg);
+    static bsls::Types::Int64 length(const bcema_Blob& msg);
         // Return the length of the specified 'msg'.
 
     template <typename IOVEC>
@@ -2247,7 +2249,7 @@ btemt_ChannelPool_IovecArray<IOVEC>::operator=(
 // ACCESSORS
 template <typename IOVEC>
 inline
-bsls_PlatformUtil::Int64
+bsls::Types::Int64
 btemt_ChannelPool_IovecArray<IOVEC>::length() const
 {
     return d_totalLength;
@@ -2274,14 +2276,14 @@ int btemt_ChannelPool_IovecArray<IOVEC>::numIovecs() const
 
 // CLASS METHODS
 inline
-bsls_PlatformUtil::Int64
+bsls::Types::Int64
 btemt_ChannelPool_MessageUtil::length(const btemt_DataMsg& msg)
 {
     return msg.data()->length();
 }
 
 inline
-bsls_PlatformUtil::Int64
+bsls::Types::Int64
 btemt_ChannelPool_MessageUtil::length(const bcema_Blob& msg)
 {
     return msg.length();
@@ -2289,7 +2291,7 @@ btemt_ChannelPool_MessageUtil::length(const bcema_Blob& msg)
 
 template <typename IOVEC>
 inline
-bsls_PlatformUtil::Int64
+bsls::Types::Int64
 btemt_ChannelPool_MessageUtil::length(
                                 const btemt_ChannelPool_IovecArray<IOVEC>& msg)
 {

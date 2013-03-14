@@ -261,7 +261,7 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
     int errCode = 0;
     while (1) {
         #if defined(BSLS_PLATFORM_OS_LINUX) \
-         || defined(BDES_PLATFORM_OS_FREEBSD)
+         || defined(BSLS_PLATFORM_OS_FREEBSD)
         struct hostent *result;
         if (gethostbyname_r(hostName,
                             &hostEntry,
@@ -482,14 +482,14 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
 
     while (1) {
         #if defined(BSLS_PLATFORM_OS_LINUX) \
-         || defined(BDES_PLATFORM_OS_FREEBSD)
+         || defined(BSLS_PLATFORM_OS_FREEBSD)
         struct servent *glibcResult;
 
-        #if defined(BDES_PLATFORM_OS_FREEBSD)
+        #if defined(BSLS_PLATFORM_OS_FREEBSD)
         int getServRet;
         #endif
         if ((
-        #if defined(BDES_PLATFORM_OS_FREEBSD)
+        #if defined(BSLS_PLATFORM_OS_FREEBSD)
           getServRet =
         #endif
             getservbyname_r(serviceName,
@@ -513,7 +513,7 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
                                  bufferLength))
         #endif
         {
-            #if defined(BDES_PLATFORM_OS_FREEBSD)
+            #if defined(BSLS_PLATFORM_OS_FREEBSD)
               errno = getServRet;
             #endif
             if (errno == ERANGE) {
@@ -610,7 +610,7 @@ int bteso_ResolveUtil::getHostnameByAddress(
     *canonicalHostname = hp->h_name;
 
 #elif defined(BSLS_PLATFORM_OS_LINUX) \
-   || defined(BDES_PLATFORM_OS_FREEBSD)
+   || defined(BSLS_PLATFORM_OS_FREEBSD)
     struct hostent hent;
     char hdt[2048];
     int err;

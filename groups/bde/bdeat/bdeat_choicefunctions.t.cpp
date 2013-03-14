@@ -8,8 +8,6 @@
 
 #include <bslalg_typetraits.h>
 
-#include <bsls_platformutil.h>
-
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -743,6 +741,8 @@ int main(int argc, char *argv[])
         const char dummySelectionName[]     = "dummy";
         int        dummySelectionNameLength = 5;
         int        dummyVisitor             = 0;
+
+        BSLMF_ASSERT(bdeat_IsBasicChoice<geom::Figure>::value);
 
         globalFlag = 0;
         ASSERT(1 == bdeat_ChoiceFunctions::makeSelection(&mF,

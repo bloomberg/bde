@@ -13,7 +13,6 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -32,6 +31,7 @@
 
 #include <ctype.h>
 
+#ifndef BSLS_PLATFORM_OS_CYGWIN
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 // for 'EnumWindows'
@@ -174,7 +174,7 @@ typedef long      unsigned int UintPtr;
 
 #endif
 
-typedef bsls_Types::IntPtr     IntPtr;
+typedef bsls::Types::IntPtr    IntPtr;
 
 }  // close unnamed namespace
 
@@ -237,7 +237,7 @@ void checkOutput(const bsl::string&               str,
     // check that the specified 'str' contains all the strings specified in the
     // vector 'matches' in order.  Note that 'matches' may be modified.
 {
-    bslma_TestAllocator localAllocator;
+    bslma::TestAllocator localAllocator;
     bdema_SequentialAllocator sa(&localAllocator);
 
     if (PLAT_WIN && !DEBUG_ON) {
@@ -275,7 +275,7 @@ void top()
     testDumpUnion.d_funcPtr = &PrintUtilTest::printStackTraceToString;
     testDumpUnion.d_uintPtr = foilOptimizer(testDumpUnion.d_uintPtr);
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
@@ -343,12 +343,12 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
         return FALSE;                                                 // RETURN
     }
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     bsl::stringstream ss(&ta);
     PrintUtil::printStackTrace(ss);
     bsl::string dump(&ta);
     {
-        bslma_DefaultAllocatorGuard guard(&ta);
+        bslma::DefaultAllocatorGuard guard(&ta);
         dump = ss.str();
     }
     const bsl::size_t NPOS = bsl::string::npos;
@@ -397,12 +397,12 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
 
 static int phonyCompare(const void *, const void *)
 {
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     bsl::stringstream ss(&ta);
     PrintUtil::printStackTrace(ss);
     bsl::string dump(&ta);
     {
-        bslma_DefaultAllocatorGuard guard(&ta);
+        bslma::DefaultAllocatorGuard guard(&ta);
         dump = ss.str();
     }
     const bsl::size_t NPOS = bsl::string::npos;
@@ -463,7 +463,7 @@ void top()
     if (calledTop) return;
     calledTop = true;
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     bsl::vector<const char *> matches(&ta);
     matches.push_back("top");
     matches.push_back("\n");
@@ -481,7 +481,7 @@ void top()
 
     bsl::string str(&ta);
     {
-        bslma_DefaultAllocatorGuard guard(&ta);
+        bslma::DefaultAllocatorGuard guard(&ta);
 
         // 'bsl::stringstream::str' may create temporaries if the string is
         // large
@@ -571,7 +571,7 @@ namespace CASE_1 {
 
 bool called = false;
 
-void top(bslma_Allocator *alloc)
+void top(bslma::Allocator *alloc)
 {
     if (called) return;
     called = true;
@@ -587,7 +587,7 @@ void top(bslma_Allocator *alloc)
         bsl::string str(alloc);
 
         {
-            bslma_DefaultAllocatorGuard guard(alloc);
+            bslma::DefaultAllocatorGuard guard(alloc);
 
             // 'bsl::stringstream::str' may create temporaries if the string is
             // large
@@ -602,7 +602,7 @@ void top(bslma_Allocator *alloc)
     }
 }
 
-void bottom(bslma_Allocator *alloc)
+void bottom(bslma::Allocator *alloc)
 {
     // still attempting to thwart optimizer -- all this does is call 'top'
     // a bunch of times.
@@ -683,11 +683,11 @@ int main(int argc, char *argv[])
 
     // see if we can avoid calling 'malloc' from here on out
 
-    bslma_TestAllocator ota;
+    bslma::TestAllocator ota;
     bdema_SequentialAllocator ta(&ota);
 
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     // 'dummyOstream' is a way of achieving the equivalent of opening /dev/null
     // that works on Windoze.
@@ -858,7 +858,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\tprintStackTrace" << endl;
             {
@@ -911,6 +912,15 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+#else
+
+int main()
+{
+    return -1;
+}
+
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:

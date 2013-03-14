@@ -20,7 +20,6 @@ BDES_IDENT("$Id: $")
 //  bdealg_TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //                          bdealg_TypeTraitPair: for 'bsl::pair'-like classes
 //            bdealg_TypeTraitUsesBdemaAllocator: uses 'bdema' allocators
-//                     bdealg_TypeTraitsGroupPod: POD trait
 //
 //                             bdealg_TypeTraits: default trait computation
 //
@@ -52,15 +51,6 @@ BDES_IDENT("$Id: $")
 //..
 //  Entity                                    Description
 //  ------                                    -----------
-//  bdealg_TypeTraitNil                       The nil trait.  Types with no
-//                                            other traits have the nil trait.
-//
-//  bdealg_TypeTraits<T>                      Traits for type 'T'.  The general
-//                                            definition computes the nested
-//                                            and implied traits.  A user can
-//                                            specialize it to a combination of
-//                                            one or more of the following:
-//
 //  bdealg_TypeTraitBitwiseMoveable          (See the corresponding class-level
 //  bdealg_TypeTraitBitwiseCopyable                             documentation.)
 //  bdealg_TypeTraitBitwiseEqualityComparable
@@ -80,12 +70,6 @@ BDES_IDENT("$Id: $")
 //                                            possesses the parameterized
 //                                            'TRAIT'.
 //
-//  bdealg_PassthroughTrait<TYPE, TRAIT>      This macro selects the
-//                                            parameterized 'TRAIT' if the
-//                                            parameterized 'TYPE' possesses
-//                                            it, and a distinct and otherwise
-//                                            unused trait otherwise.
-//
 //  bdealg_SelectTrait<T, TRAIT1, ...>        This meta-function selects the
 //                                            first trait possessed by the
 //                                            parameterized 'TYPE' from the
@@ -103,13 +87,13 @@ BDES_IDENT("$Id: $")
 ///- - - - - - - - - -
 // Suppose we want to implement a generic container of a parameterized 'TYPE',
 // which may or may not follow the 'bdema' allocator model.  If it does, our
-// container should pass an extra 'bdema_Allocator*' argument to copy construct
-// a value; but if it does not, then passing this extra argument is going to
-// generate a compile-time error.  It thus appears we need two implementations
-// of our container.  This can be done more succinctly by encapsulating into
-// the constructor some utilities which will, through a single interface,
-// determine whether 'TYPE' has the trait 'bdealg_TypeTraitUsesBdemaAllocator'
-// and copy-construct it accordingly.
+// container should pass an extra 'bslma::Allocator *' argument to copy
+// construct a value; but if it does not, then passing this extra argument is
+// going to generate a compile-time error.  It thus appears we need two
+// implementations of our container.  This can be done more succinctly by
+// encapsulating into the constructor some utilities which will, through a
+// single interface, determine whether 'TYPE' has the trait
+// 'bdealg_TypeTraitUsesBdemaAllocator' and copy-construct it accordingly.
 //
 // The container contains a single data member of the parameterized 'TYPE'.
 // Since we are going to initialize this data member manually, we do not want
@@ -141,13 +125,14 @@ BDES_IDENT("$Id: $")
 // require that an element always be initialized.
 //..
 //      // CREATORS
-//      MyGenericContainer(const TYPE& object, bdema_Allocator *allocator = 0);
+//      MyGenericContainer(const TYPE&       object,
+//                         bslma::Allocator *allocator = 0);
 //          // Create an container containing the specified 'object', using the
 //          // optionally specified 'allocator' to allocate memory.  If
 //          // 'allocator' is 0, the currently installed allocator is used.
 //
 //      MyGenericContainer(const MyGenericContainer&  container,
-//                         bdema_Allocator           *allocator = 0);
+//                         bslma::Allocator          *allocator = 0);
 //          // Create an container containing the same object as the specified
 //          // 'container', using the optionally specified 'allocator' to
 //          // allocate memory.  If 'allocator' is 0, the currently installed
@@ -186,9 +171,9 @@ BDES_IDENT("$Id: $")
 //      // allocator pass-through mechanism in a generic container.
 //
 //      template <class TYPE>
-//      static void copyConstruct(TYPE            *location,
-//                                const TYPE&      value,
-//                                bdema_Allocator *allocator,
+//      static void copyConstruct(TYPE             *location,
+//                                const TYPE&       value,
+//                                bslma::Allocator *allocator,
 //                                bdealg_TypeTraitUsesBdemaAllocator)
 //          // Create a copy of the specified 'value' at the specified
 //          // 'location', using the specified 'allocator' to allocate memory.
@@ -202,9 +187,9 @@ BDES_IDENT("$Id: $")
 // traits always inherits from 'bdealg_TypeTraitNil'.
 //..
 //      template <class TYPE>
-//      static void copyConstruct(TYPE            *location,
-//                                const TYPE&      value,
-//                                bdema_Allocator *allocator,
+//      static void copyConstruct(TYPE             *location,
+//                                const TYPE&       value,
+//                                bslma::Allocator *allocator,
 //                                bdealg_TypeTraitNil)
 //          // Create a copy of the specified 'value' at the specified
 //          // 'location'.  Note that the specified 'allocator' is ignored.
@@ -216,9 +201,9 @@ BDES_IDENT("$Id: $")
 // the appropriately (compiler-)chosen overload:
 //..
 //      template <class TYPE>
-//      static void copyConstruct(TYPE            *location,
-//                                const TYPE&      value,
-//                                bdema_Allocator *allocator)
+//      static void copyConstruct(TYPE             *location,
+//                                const TYPE&       value,
+//                                bslma::Allocator *allocator)
 //          // Create a copy of the specified 'value' at the specified
 //          // 'location', optionally using the specified 'allocator' to supply
 //          // memory if the parameterized 'TYPE' possesses the
@@ -236,8 +221,8 @@ BDES_IDENT("$Id: $")
 //..
 //  // CREATORS
 //  template <typename TYPE>
-//  MyGenericContainer<TYPE>::MyGenericContainer(const TYPE&      object,
-//                                               bdema_Allocator *allocator)
+//  MyGenericContainer<TYPE>::MyGenericContainer(const TYPE&       object,
+//                                               bslma::Allocator *allocator)
 //  {
 //      my_GenericContainerUtil::copyConstruct(&d_object.object(),
 //                                             object,
@@ -247,7 +232,7 @@ BDES_IDENT("$Id: $")
 //  template <typename TYPE>
 //  MyGenericContainer<TYPE>::MyGenericContainer(
 //                                        const MyGenericContainer&  container,
-//                                        bdema_Allocator           *allocator)
+//                                        bslma::Allocator          *allocator)
 //  {
 //      my_GenericContainerUtil::copyConstruct(&d_object.object(),
 //                                             container.object(),
@@ -287,7 +272,7 @@ BDES_IDENT("$Id: $")
 // one has the 'bdealg_TypeTraitUsesBdemaAllocator' trait and the other has
 // not:
 //..
-//  bdema_Allocator *allocSlot;
+//  bslma::Allocator *allocSlot;
 //
 //  struct MyTestTypeWithBdemaAllocatorTraits {
 //      // Class with declared traits.  Calling copy constructor without an
@@ -301,8 +286,8 @@ BDES_IDENT("$Id: $")
 //      MyTestTypeWithBdemaAllocatorTraits() {}
 //
 //      MyTestTypeWithBdemaAllocatorTraits(
-//                       const MyTestTypeWithBdemaAllocatorTraits&,
-//                       bdema_Allocator                            *allocator)
+//                        const MyTestTypeWithBdemaAllocatorTraits&,
+//                        bslma::Allocator                          *allocator)
 //      {
 //          allocSlot = allocator;
 //      }
@@ -317,8 +302,8 @@ BDES_IDENT("$Id: $")
 //      MyTestTypeWithNoBdemaAllocatorTraits() {}
 //
 //      MyTestTypeWithNoBdemaAllocatorTraits(
-//                    const MyTestTypeWithNoBdemaAllocatorTraits &,
-//                    bdema_Allocator                               *allocator)
+//                      const MyTestTypeWithNoBdemaAllocatorTraits&,
+//                      bslma::Allocator                            *allocator)
 //      {
 //          allocSlot = allocator;
 //      }
@@ -370,20 +355,12 @@ BDES_IDENT("$Id: $")
 #include <bslalg_hastrait.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SELECTTRAIT
 #include <bslalg_selecttrait.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPPOD
-#include <bslalg_typetraitsgrouppod.h>
 #endif
 
 // The following were formerly guarded by 'BDE_DONT_ALLOW_TRANSITIVE_INCLUDES'.
@@ -425,10 +402,10 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-    // No symbols are defined here (see 'bslalg_typetraits' component).
-    // No aliases or macros for the 'bdealg' types or macros are defined here,
-    // instead they are defined in 'bslalg' so that clients that rely on these
-    // via transitive includes may still have those aliases or macros.
+#ifndef BDEALG_DECLARE_NESTED_TRAITS
+#define BDEALG_DECLARE_NESTED_TRAITS(T, TRAITS)  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAITS)
+#endif
 
 }  // close namespace BloombergLP
 

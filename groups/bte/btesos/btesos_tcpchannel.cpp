@@ -105,7 +105,7 @@ void btesos_TcpChannel::initializeReadBuffer(int size)
 
 btesos_TcpChannel::btesos_TcpChannel(
                     bteso_StreamSocket<bteso_IPv4Address> *socket,
-                    bslma_Allocator                       *basicAllocator)
+                    bslma::Allocator                      *basicAllocator)
 : d_socket_p(socket)
 , d_isInvalidFlag(0)
 , d_readBuffer(basicAllocator)

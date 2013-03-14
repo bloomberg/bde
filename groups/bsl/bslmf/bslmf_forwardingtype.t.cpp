@@ -1,11 +1,12 @@
 // bslmf_forwardingtype.t.cpp                                         -*-C++-*-
 #include <bslmf_forwardingtype.h>
 
+#include <bslmf_isarray.h>
 #include <bslmf_issame.h>          // for testing only
 
-#include <bslmf_isarray.h>
+#include <bsls_platform.h>
 
-#include <cstdlib>    // atoi()
+#include <stdlib.h>    // atoi()
 #include <iostream>
 #include <typeinfo>
 
@@ -51,7 +52,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
-#define ASSERT_SAME(X, Y) ASSERT(1 == (bslmf::IsSame<X, Y>::VALUE))
+#define ASSERT_SAME(X, Y) ASSERT(1 == (bsl::is_same<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -114,26 +115,26 @@ void usageExample()
     typedef MyType&                EXP9;
     typedef MyType*                EXP10;
 
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T1>::Type,
-                               EXP1>::VALUE));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T2>::Type,
-                               EXP2>::VALUE));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T3>::Type,
-                               EXP3>::VALUE));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T4>::Type,
-                               EXP4>::VALUE));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T5>::Type,
-                               EXP5>::VALUE));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T6>::Type,
-                               EXP6>::VALUE));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T7>::Type,
-                               EXP7>::VALUE));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T8>::Type,
-                               EXP8>::VALUE));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T9>::Type,
-                               EXP9>::VALUE));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T10>::Type,
-                               EXP10>::VALUE));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T1>::Type,
+                               EXP1>::value));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T2>::Type,
+                               EXP2>::value));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T3>::Type,
+                               EXP3>::value));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T4>::Type,
+                               EXP4>::value));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T5>::Type,
+                               EXP5>::value));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T6>::Type,
+                               EXP6>::value));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T7>::Type,
+                               EXP7>::value));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T8>::Type,
+                               EXP8>::value));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T9>::Type,
+                               EXP9>::value));
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T10>::Type,
+                               EXP10>::value));
 }
 
 //=============================================================================
@@ -155,7 +156,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf::RemoveReference'.
+        //   Simple example illustrating use of 'bsl::remove_reference'.
         //
         // Concerns:
         //
@@ -209,7 +210,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType<Struct& >::Type, Struct&);
         ASSERT_SAME(bslmf::ConstForwardingType<Union   >::Type, const Union&);
         ASSERT_SAME(bslmf::ConstForwardingType<Union&  >::Type, Union&);
-        ASSERT(0 == bslmf::IsArray<Class>::VALUE);
+        ASSERT(0 == bsl::is_array<Class>::value);
         ASSERT_SAME(bslmf::ConstForwardingType<Class   >::Type,const Class&);
         if (verbose)
             P(bslmf::ConstForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);
@@ -266,7 +267,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ForwardingType<Struct&     >::Type, Struct&);
         ASSERT_SAME(bslmf::ForwardingType<Union       >::Type, const Union&);
         ASSERT_SAME(bslmf::ForwardingType<Union&      >::Type, Union&);
-        ASSERT(0 == bslmf::IsArray<Class>::VALUE);
+        ASSERT(0 == bsl::is_array<Class>::value);
         ASSERT_SAME(bslmf::ForwardingType<Class       >::Type, const Class&);
         if (verbose)
             P(bslmf::ForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);
@@ -321,11 +322,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

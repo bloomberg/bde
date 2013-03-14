@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
-//  BSLS_MACROINCREMENT(NUMBER): expand to evalued 'NUMBER + 1'
+//  BSLS_MACROINCREMENT(NUMBER): expand to evaluated 'NUMBER + 1'
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
@@ -39,17 +39,25 @@ BSLS_IDENT("$Id: $")
 // Here we illustrate the typical use case, which demonstrates using the
 // 'BSLS_MACROINCREMENT' macro to change the effective name of a file without
 // changing the effective line count.
-//..
-//  #include <iostream>
-//  #include <ostream>
 //
-//  int main()
-//  {
-//      using std::cout;
-//      cout << "__LINE__, __FILE__: " << __LINE__ << ", " __FILE__ << "\n";
-//  #line BSLS_MACROINCREMENT(__LINE__) "some_other_filename.cpp"
-//      cout << "__LINE__, __FILE__: " << __LINE__ << ", " __FILE__ << "\n";
-//  }
+// First, we print out current file name and line number:
+//..
+//  cout << "__LINE__, __FILE__: " << __LINE__ << ", " __FILE__ << "\n";
+//..
+// Now, we provide a new effective file name to compiler by supplying the new
+// file name to '#line' directive:
+//..
+//#line BSLS_MACROINCREMENT(__LINE__) "some_other_filename.cpp"
+//..
+// Notice that the first argument following '#line' directive is the designated
+// line number of the next line, so we increment current '__LINE__' by calling
+// 'BSLS_MACROINCREMENT' to keep consistent line numbers.
+//
+// Finally, print out current file name and line number again.  Observe that
+// the file name is changed to the one we set in previous '#line' directive
+// while the line number still works as expected:
+//..
+//  cout << "__LINE__, __FILE__: " << __LINE__ << ", " __FILE__ << "\n";
 //..
 
 #define BSLS_MACROINCREMENT(MACRO_VALUE) \
@@ -20065,11 +20073,24 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

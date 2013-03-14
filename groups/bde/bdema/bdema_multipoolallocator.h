@@ -17,7 +17,7 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Shao-wei Hung (shung1)
 //
 //@DESCRIPTION: This component provides a general-purpose, managed allocator,
-// 'bdema_MultipoolAllocator', that implements the 'bslma_ManagedAllocator'
+// 'bdema_MultipoolAllocator', that implements the 'bdema_ManagedAllocator'
 // protocol and provides an allocator that maintains a configurable number of
 // 'bdema_Pool' objects, each dispensing memory blocks of a unique size.  The
 // 'bdema_Pool' objects are placed in an array, starting at index 0, with each
@@ -39,22 +39,22 @@ BDES_IDENT("$Id: $")
 //               |         reserveCapacity
 //               V
 //    ,----------------------.
-//   ( bslma_ManagedAllocator )
+//   ( bdema_ManagedAllocator )
 //    `----------------------'
 //               |         release
 //               V
-//       ,----------------.
-//      (  bslma_Allocator )
-//       `----------------'
+//       ,-----------------.
+//      (  bslma::Allocator )
+//       `-----------------'
 //                        allocate
 //                        deallocate
 //..
 // The main difference between a 'bdema_MultipoolAllocator' and a
 // 'bdema_Multipool' is that, very often, a 'bdema_MultipoolAllocator' is
-// managed through a 'bslma_Allocator' pointer.  Hence, every call to the
+// managed through a 'bslma::Allocator' pointer.  Hence, every call to the
 // 'allocate' method invokes a virtual function call, which is slower than
 // invoking the non-virtual 'allocate' method on a 'bdema_Multipool'.  However,
-// since 'bslma_Allocator *' is widely used across BDE interfaces,
+// since 'bslma::Allocator *' is widely used across BDE interfaces,
 // 'bdema_MultipoolAllocator' is more general purpose than a 'bdema_Multipool'.
 //
 ///Configuration At Construction
@@ -159,10 +159,10 @@ BDES_IDENT("$Id: $")
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(my_Node,
-//                                   bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      // CREATORS
-//      explicit my_Node(bslma_Allocator *basicAllocator = 0);
+//      explicit my_Node(bslma::Allocator *basicAllocator = 0);
 //          // Create a node not connected to any other nodes.  Optionally
 //          // specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
@@ -172,7 +172,7 @@ BDES_IDENT("$Id: $")
 //  };
 //
 //  // CREATORS
-//  my_Node::my_Node(bslma_Allocator *basicAllocator)
+//  my_Node::my_Node(bslma::Allocator *basicAllocator)
 //  : d_edges(basicAllocator)
 //  {
 //  }
@@ -191,10 +191,10 @@ BDES_IDENT("$Id: $")
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(my_Graph,
-//                                   bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      // CREATORS
-//      explicit my_Graph(bslma_Allocator *basicAllocator = 0);
+//      explicit my_Graph(bslma::Allocator *basicAllocator = 0);
 //          // Create an empty graph.  Optionally specify a 'basicAllocator'
 //          // used to supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
@@ -202,7 +202,7 @@ BDES_IDENT("$Id: $")
 //      // ...
 //  };
 //
-//  my_Graph::my_Graph(bslma_Allocator *basicAllocator)
+//  my_Graph::my_Graph(bslma::Allocator *basicAllocator)
 //  : d_edges(basicAllocator)
 //  , d_nodes(basicAllocator)
 //  {
@@ -221,10 +221,10 @@ BDES_IDENT("$Id: $")
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(my_NamedGraphContainer,
-//                                   bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      // CREATORS
-//      explicit my_NamedGraphContainer(bslma_Allocator *basicAllocator = 0);
+//      explicit my_NamedGraphContainer(bslma::Allocator *basicAllocator = 0);
 //          // Create an empty named graph container.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
@@ -234,7 +234,7 @@ BDES_IDENT("$Id: $")
 //
 //  // CREATORS
 //  my_NamedGraphContainer::my_NamedGraphContainer(
-//                                             bslma_Allocator *basicAllocator)
+//                                            bslma::Allocator *basicAllocator)
 //  : d_graphMap(basicAllocator)
 //  {
 //  }
@@ -269,10 +269,10 @@ BDES_IDENT("$Id: $")
 // the 'bdema_MultipoolAllocator' under the these scenario by comparing the
 // following 3 different allocator uses:
 //
-//: 1 Using the 'bslma_NewDeleteAllocator directly.
+//: 1 Using the 'bslma::NewDeleteAllocator directly.
 //:
 //: 2 Using a 'bdema_MultipoolAllocator as a direct substitute of the
-//:   'bslma_NewDeleteAllocator'.
+//:   'bslma::NewDeleteAllocator'.
 //:
 //: 3 Exploiting the managed aspect of 'bslma_MultipoolAllocator' by avoiding
 //:   invocation of the destructor of the data structure; whereas, the
@@ -322,7 +322,7 @@ BDES_IDENT("$Id: $")
 //..
 //    public:
 //      // CREATORS
-//      my_TestDataStructure(bslma_Allocator *basicAllocator = 0);
+//      my_TestDataStructure(bslma::Allocator *basicAllocator = 0);
 //
 //      // MANIPULATORS
 //      void pop();
@@ -331,7 +331,8 @@ BDES_IDENT("$Id: $")
 //  };
 //
 //  // CREATORS
-//  my_TestDataStructure::my_TestDataStructure(bslma_Allocator *basicAllocator)
+//  my_TestDataStructure::my_TestDataStructure(
+//                                            bslma::Allocator *basicAllocator)
 //  : d_list1(basicAllocator)
 //  , d_list2(basicAllocator)
 //  , d_list3(basicAllocator)
@@ -403,7 +404,7 @@ BDES_IDENT("$Id: $")
 // measures the effect of construction and destruction of entire lists of
 // nodes.
 //
-// The 'test' method will also accept an 'bslma_Allocator *', which will be
+// The 'test' method will also accept an 'bslma::Allocator *', which will be
 // used as the allocator used to construct the test mechanism and its internal
 // lists:
 //..
@@ -411,8 +412,8 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CLASS METHODS
-//      static void test(int              testLengthFactor,
-//                       bslma_Allocator *basicAllocator)
+//      static void test(int               testLengthFactor,
+//                       bslma::Allocator *basicAllocator)
 //      {
 //          int n          = 1;
 //          int iterations = 1;
@@ -422,7 +423,7 @@ BDES_IDENT("$Id: $")
 //          }
 //
 //          for (int i = 0; i <= testLengthFactor; ++i) {
-//              bsls_Stopwatch timer;
+//              bsls::Stopwatch timer;
 //              timer.start();
 //
 //              for (int j = 0; j < iterations; ++j) {
@@ -459,7 +460,7 @@ BDES_IDENT("$Id: $")
 // at once, eliminating the need to run the destructor of the test mechanism:
 //..
 //      static void testManaged(int                     testLengthFactor,
-//                              bslma_ManagedAllocator *managedAllocator)
+//                              bdema_ManagedAllocator *managedAllocator)
 //      {
 //          int n          = 1;
 //          int iterations = 1;
@@ -469,7 +470,7 @@ BDES_IDENT("$Id: $")
 //          }
 //
 //          for (int i = 0; i <= testLengthFactor; ++i) {
-//              bsls_Stopwatch timer;
+//              bsls::Stopwatch timer;
 //              timer.start();
 //
 //              for (int j = 0; j < iterations; ++j) {
@@ -531,13 +532,13 @@ BDES_IDENT("$Id: $")
 //          }
 //      }
 //
-//      bsls_BlockGrowth::Strategy strategy = growth == 'g'
-//                                          ? bsls_BlockGrowth::BSLS_GEOMETRIC
-//                                          : bsls_BlockGrowth::BSLS_CONSTANT;
+//      bsls::BlockGrowth::Strategy strategy = growth == 'g'
+//                                          ? bsls::BlockGrowth::BSLS_GEOMETRIC
+//                                          : bsls::BlockGrowth::BSLS_CONSTANT;
 //
 //      printf("\nNew Delete Allocator:\n\n");
 //      {
-//          bslma_Allocator *nda = bslma_NewDeleteAllocator::allocator(0);
+//          bslma::Allocator *nda = bslma::NewDeleteAllocator::allocator(0);
 //          my_TestUtil::test(testLengthFactor, nda);
 //      }
 //
@@ -602,16 +603,16 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BDEMA_MANAGEDALLOCATOR
+#include <bdema_managedallocator.h>
+#endif
+
 #ifndef INCLUDED_BDEMA_MULTIPOOL
 #include <bdema_multipool.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
-#include <bslma_managedallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -620,8 +621,8 @@ namespace BloombergLP {
                      // class bdema_MultipoolAllocator
                      // ==============================
 
-class bdema_MultipoolAllocator : public bslma_ManagedAllocator {
-    // This class implements the 'bslma_ManagedAllocator' protocol to provide
+class bdema_MultipoolAllocator : public bdema_ManagedAllocator {
+    // This class implements the 'bdema_ManagedAllocator' protocol to provide
     // an allocator that maintains a configurable number of 'bdema_Pool'
     // objects,  each dispensing memory blocks of a unique size.  The
     // 'bdema_Pool' objects are placed in an array, with each successive pool
@@ -643,22 +644,22 @@ class bdema_MultipoolAllocator : public bslma_ManagedAllocator {
   public:
     // CREATORS
     bdema_MultipoolAllocator(
-                      bslma_Allocator                  *basicAllocator = 0);
+                      bslma::Allocator                  *basicAllocator = 0);
     bdema_MultipoolAllocator(
-                      int                               numPools,
-                      bslma_Allocator                  *basicAllocator = 0);
+                      int                                numPools,
+                      bslma::Allocator                  *basicAllocator = 0);
     bdema_MultipoolAllocator(
-                      bsls_BlockGrowth::Strategy        growthStrategy,
-                      bslma_Allocator                  *basicAllocator = 0);
+                      bsls::BlockGrowth::Strategy        growthStrategy,
+                      bslma::Allocator                  *basicAllocator = 0);
     bdema_MultipoolAllocator(
-                      int                               numPools,
-                      bsls_BlockGrowth::Strategy        growthStrategy,
-                      bslma_Allocator                  *basicAllocator = 0);
+                      int                                numPools,
+                      bsls::BlockGrowth::Strategy        growthStrategy,
+                      bslma::Allocator                  *basicAllocator = 0);
     bdema_MultipoolAllocator(
-                      int                               numPools,
-                      bsls_BlockGrowth::Strategy        growthStrategy,
-                      int                               maxBlocksPerChunk,
-                      bslma_Allocator                  *basicAllocator = 0);
+                      int                                numPools,
+                      bsls::BlockGrowth::Strategy        growthStrategy,
+                      int                                maxBlocksPerChunk,
+                      bslma::Allocator                  *basicAllocator = 0);
         // Create a multipool allocator.  Optionally specify 'numPools',
         // indicating the number of internally created 'bdema_Pool' objects;
         // the block size of the first pool is 8 bytes, with the block size of
@@ -684,31 +685,31 @@ class bdema_MultipoolAllocator : public bslma_ManagedAllocator {
         // pool managing memory block of sufficient size exists.  The behavior
         // is undefined unless '1 <= numPools' and '1 <= maxBlocksPerChunk'.
         // Note that, on platforms where
-        // '8 < bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
+        // '8 < bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
         // allocated for pools managing smaller blocks.  Also note that
         // 'maxBlocksPerChunk' need not be an integral power of 2; if geometric
         // growth would exceed the maximum value, the chunk size is capped at
         // that value).
 
     bdema_MultipoolAllocator(
-                      int                               numPools,
-                      const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                      bslma_Allocator                  *basicAllocator = 0);
+                     int                                numPools,
+                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                     bslma::Allocator                  *basicAllocator = 0);
     bdema_MultipoolAllocator(
-                      int                               numPools,
-                      const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                      int                               maxBlocksPerChunk,
-                      bslma_Allocator                  *basicAllocator = 0);
+                     int                                numPools,
+                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                     int                                maxBlocksPerChunk,
+                     bslma::Allocator                  *basicAllocator = 0);
     bdema_MultipoolAllocator(
-                      int                               numPools,
-                      bsls_BlockGrowth::Strategy        growthStrategy,
-                      const int                        *maxBlocksPerChunkArray,
-                      bslma_Allocator                  *basicAllocator = 0);
+                     int                                numPools,
+                     bsls::BlockGrowth::Strategy        growthStrategy,
+                     const int                         *maxBlocksPerChunkArray,
+                     bslma::Allocator                  *basicAllocator = 0);
     bdema_MultipoolAllocator(
-                      int                               numPools,
-                      const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                      const int                        *maxBlocksPerChunkArray,
-                      bslma_Allocator                  *basicAllocator = 0);
+                     int                                numPools,
+                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                     const int                         *maxBlocksPerChunkArray,
+                     bslma::Allocator                  *basicAllocator = 0);
         // Create a multipool allocator having the specified 'numPools',
         // indicating the number of internally created 'bdema_Pool' objects;
         // the block size of the first pool is 8 bytes, with the block size of
@@ -740,7 +741,7 @@ class bdema_MultipoolAllocator : public bslma_ManagedAllocator {
         // least 'numPools' strategies, '1 <= maxBlocksPerChunk' and
         // 'maxBlocksPerChunkArray' have at least 'numPools' positive values.
         // Note that, on platforms where
-        // '8 < bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
+        // '8 < bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
         // allocated for pools managing smaller blocks.  Also note that the
         // maximum need not be an integral power of 2; if geometric growth
         // would exceed a maximum value, the chunk size is capped at that
@@ -803,81 +804,81 @@ class bdema_MultipoolAllocator : public bslma_ManagedAllocator {
 // CREATORS
 inline
 bdema_MultipoolAllocator::bdema_MultipoolAllocator(
-                  bslma_Allocator                  *basicAllocator)
+                  bslma::Allocator                  *basicAllocator)
 : d_multipool(basicAllocator)
 {
 }
 
 inline
 bdema_MultipoolAllocator::bdema_MultipoolAllocator(
-                  int                               numPools,
-                  bslma_Allocator                  *basicAllocator)
+                  int                                numPools,
+                  bslma::Allocator                  *basicAllocator)
 : d_multipool(numPools, basicAllocator)
 {
 }
 
 inline
 bdema_MultipoolAllocator::bdema_MultipoolAllocator(
-                  bsls_BlockGrowth::Strategy        growthStrategy,
-                  bslma_Allocator                  *basicAllocator)
+                  bsls::BlockGrowth::Strategy        growthStrategy,
+                  bslma::Allocator                  *basicAllocator)
 : d_multipool(growthStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_MultipoolAllocator::bdema_MultipoolAllocator(
-                  int                               numPools,
-                  bsls_BlockGrowth::Strategy        growthStrategy,
-                  bslma_Allocator                  *basicAllocator)
+                  int                                numPools,
+                  bsls::BlockGrowth::Strategy        growthStrategy,
+                  bslma::Allocator                  *basicAllocator)
 : d_multipool(numPools, growthStrategy, basicAllocator)
 {
 }
 
 inline
 bdema_MultipoolAllocator::bdema_MultipoolAllocator(
-                  int                               numPools,
-                  const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                  bslma_Allocator                  *basicAllocator)
+                  int                                numPools,
+                  const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                  bslma::Allocator                  *basicAllocator)
 : d_multipool(numPools, growthStrategyArray, basicAllocator)
 {
 }
 
 inline
 bdema_MultipoolAllocator::bdema_MultipoolAllocator(
-                  int                               numPools,
-                  bsls_BlockGrowth::Strategy        growthStrategy,
-                  int                               maxBlocksPerChunk,
-                  bslma_Allocator                  *basicAllocator)
+                  int                                numPools,
+                  bsls::BlockGrowth::Strategy        growthStrategy,
+                  int                                maxBlocksPerChunk,
+                  bslma::Allocator                  *basicAllocator)
 : d_multipool(numPools, growthStrategy, maxBlocksPerChunk, basicAllocator)
 {
 }
 
 inline
 bdema_MultipoolAllocator::bdema_MultipoolAllocator(
-                  int                               numPools,
-                  const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                  int                               maxBlocksPerChunk,
-                  bslma_Allocator                  *basicAllocator)
+                  int                                numPools,
+                  const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                  int                                maxBlocksPerChunk,
+                  bslma::Allocator                  *basicAllocator)
 : d_multipool(numPools, growthStrategyArray, maxBlocksPerChunk, basicAllocator)
 {
 }
 
 inline
 bdema_MultipoolAllocator::bdema_MultipoolAllocator(
-                  int                               numPools,
-                  bsls_BlockGrowth::Strategy        growthStrategy,
-                  const int                        *maxBlocksPerChunkArray,
-                  bslma_Allocator                  *basicAllocator)
+                  int                                numPools,
+                  bsls::BlockGrowth::Strategy        growthStrategy,
+                  const int                         *maxBlocksPerChunkArray,
+                  bslma::Allocator                  *basicAllocator)
 : d_multipool(numPools, growthStrategy, maxBlocksPerChunkArray, basicAllocator)
 {
 }
 
 inline
 bdema_MultipoolAllocator::bdema_MultipoolAllocator(
-                  int                               numPools,
-                  const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                  const int                        *maxBlocksPerChunkArray,
-                  bslma_Allocator                  *basicAllocator)
+                  int                                numPools,
+                  const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                  const int                         *maxBlocksPerChunkArray,
+                  bslma::Allocator                  *basicAllocator)
 : d_multipool(numPools,
               growthStrategyArray,
               maxBlocksPerChunkArray,

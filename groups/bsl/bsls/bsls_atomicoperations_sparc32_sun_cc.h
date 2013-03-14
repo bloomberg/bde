@@ -2,7 +2,12 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC32_SUN_CC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_SPARC32_SUN_CC
 
-//@PURPOSE: Provide implentations of atomic operations for Sparc/Sun (32bit).
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for Sparc/Sun (32bit).
 //
 //@CLASSES:
 //  bsls::AtomicOperations_SPARC32_SUN_CC: atomics for Sparc32/Sun.
@@ -12,16 +17,7 @@
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Sun Sparc platform in 32bit mode with SunCC compiler.  The classes
 // are for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for
-// the public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
+// the public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
@@ -29,6 +25,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC_SUN_CC_DEFAULT
 #include <bsls_atomicoperations_sparc_sun_cc_default.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_SPARC_32) \
@@ -295,11 +299,24 @@ Types::Int64 AtomicOperations_SPARC32_SUN_CC::
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

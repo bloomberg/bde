@@ -41,16 +41,16 @@
 #define INCLUDED_BSL_STDHDRS_PROLOGUE
 
 #ifndef INCLUDED_BSLS_IDENT
-# include <bsls_ident.h>
+#include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_NATIVESTD
-# include <bsls_nativestd.h>
+#include <bsls_nativestd.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
-# include <bsls_platform.h>
+#include <bsls_platform.h>
 #endif
 
 // When a standard C header file (e.g., 'stddef.h') is included within an
@@ -59,17 +59,15 @@ BSLS_IDENT("$Id: $")
 // header is wrapped around an 'extern "C++"' block.
 extern "C++" {
 
-namespace std
-{
+namespace std {
     namespace rel_ops { }
-}
+}  // close namespace std
 
-namespace bsl
-{
-    // Only 'rel_ops' is alised and imported into the 'bsl' namespace here.
+namespace bsl {
+    // Only 'rel_ops' is aliased and imported into the 'bsl' namespace here.
     // Other 'std' symbols are imported by files in the 'bsl+bslhdrs' package.
     namespace rel_ops = std::rel_ops;
-}
+}  // close namespace bsl
 
 }  // extern "C++"
 
@@ -88,11 +86,24 @@ namespace bsl
 
 #endif // INCLUDED_BSL_STDHDRS_PROLOGUE
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

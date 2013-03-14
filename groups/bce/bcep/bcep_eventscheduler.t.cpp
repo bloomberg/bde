@@ -7,17 +7,18 @@
 #include <bcemt_barrier.h>
 #include <bcemt_thread.h>
 #include <bcemt_threadgroup.h>
-#include <bsls_stopwatch.h>
 
 #include <bdef_bind.h>
 #include <bdef_placeholder.h>
 #include <bdef_memfn.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bdes_bitutil.h>
-#include <bsls_platform.h>
-
 #include <bdet_datetime.h>
 #include <bdetu_systemtime.h>
+
+#include <bslma_defaultallocatorguard.h>
+#include <bsls_platform.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_sys_time.h>
@@ -732,7 +733,7 @@ class my_Server {
   public:
     explicit
     my_Server(const bdet_TimeInterval&  ioTimeout,
-              bslma_Allocator          *allocator = 0);
+              bslma::Allocator         *allocator = 0);
         // Construct a 'my_Server' object with a timeout value of
         // 'ioTimeout' seconds.  Optionally specify a 'allocator' used to
         // supply memory.  If 'allocator' is 0, the currently installed
@@ -742,8 +743,8 @@ class my_Server {
         // Perform the required clean-up and destroy this object.
 };
 
-my_Server::my_Server(const bdet_TimeInterval& ioTimeout,
-                                                    bslma_Allocator *alloc)
+my_Server::my_Server(const bdet_TimeInterval&  ioTimeout,
+                     bslma::Allocator         *alloc)
 : d_connections(alloc)
 , d_scheduler(alloc)
 , d_ioTimeout(ioTimeout)
@@ -863,8 +864,8 @@ namespace BCEP_EVENTSCHEDULER_TEST_CASE_15 {
 struct SlowFunctor {
 
     // TYPES
-    typedef bsl::pair<double, bsls_PlatformUtil::Int64> TimeElement;
-    typedef bsl::list<TimeElement >                     DateTimeList;
+    typedef bsl::pair<double, bsls::Types::Int64> TimeElement;
+    typedef bsl::list<TimeElement >               DateTimeList;
 
     enum {
         SLEEP_MICROSECONDS = 100 * 1000
@@ -881,10 +882,10 @@ struct SlowFunctor {
         return d_timeList;
     }
 
-    static TimeElement timeOfDay(bsls_PlatformUtil::Int64 warnAfter)
+    static TimeElement timeOfDay(bsls::Types::Int64 warnAfter)
     {
         bdet_TimeInterval now = bdetu_SystemTime::now();
-        bsls_PlatformUtil::Int64 interval = now.totalMicroseconds();
+        bsls::Types::Int64 interval = now.totalMicroseconds();
         if (0 < warnAfter && warnAfter < interval) {
             cout << "...SlowFunctor invoked at " << interval
                  << " ( " << interval - warnAfter << " after "
@@ -893,7 +894,7 @@ struct SlowFunctor {
         return TimeElement(now.totalSecondsAsDouble(), interval);
     }
 
-    void callback(bsls_PlatformUtil::Int64 warnAfter)
+    void callback(bsls::Types::Int64 warnAfter)
     {
         d_timeList.push_back(timeOfDay(warnAfter));
         bcemt_ThreadUtil::microSleep(SLEEP_MICROSECONDS);
@@ -1036,7 +1037,7 @@ TestClass1 testObj[NUM_THREADS]; // one test object for each thread
 extern "C" {
 void *workerThread11(void *arg)
 {
-    int id = (int)(bsls_PlatformUtil::IntPtr)arg;
+    int id = (int)(bsls::Types::IntPtr)arg;
 
     barrier.wait();
     switch(id % 2) {
@@ -1114,7 +1115,7 @@ TestClass1 testObj[NUM_THREADS]; // one test object for each thread
 extern "C" {
 void *workerThread10(void *arg)
 {
-    int id = (int)(bsls_PlatformUtil::IntPtr)arg;
+    int id = (int)(bsls::Types::IntPtr)arg;
 
     barrier.wait();
     switch(id % 2) {
@@ -1940,7 +1941,7 @@ void threadFunc(bcep_EventScheduler *scheduler,
     bsl::vector<bcep_EventScheduler::Event*> timers;
     timers.resize(sendCount);
 
-    bsls_Stopwatch sw;
+    bsls::Stopwatch sw;
 
     for(int i=0; i<numIterations; i++) {
         if( verbose ) {
@@ -2046,7 +2047,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         using namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE;
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&ta);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
         {
             bcep_EventScheduler scheduler;
             vector<Value> values;
@@ -2360,7 +2361,7 @@ int main(int argc, char *argv[])
                 prevTime = sfit->first;
                 double offBy = diff - sf.SLEEP_SECONDS;
                 if (veryVerbose) {
-                    bsls_PlatformUtil::Int64 interval = sfit->second;
+                    bsls::Types::Int64 interval = sfit->second;
                     P_(i); P_(offBy); P_(interval);
                     P(sf.tolerance(i / 2));
                 }
@@ -2385,7 +2386,7 @@ int main(int argc, char *argv[])
                 prevTime = sfit->first;
                 double offBy = diff - sf.SLEEP_SECONDS;
                 if (veryVerbose) {
-                    bsls_PlatformUtil::Int64 interval = sfit->second;
+                    bsls::Types::Int64 interval = sfit->second;
                     P_(i); P_(offBy); P_(interval);
                     P(sf.tolerance(i / 2));
                 }

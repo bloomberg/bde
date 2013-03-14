@@ -38,6 +38,10 @@ BDES_IDENT("$Id: $")
 #include <bces_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifdef BCES_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.
@@ -49,6 +53,11 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
 #endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 
 typedef unsigned long DWORD;
 typedef int BOOL;
@@ -173,7 +182,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // Return the non-negative minimum available priority for the
         // optionally-specified 'policy' on success, where 'policy' is of type
         // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
-        // error.  Note that for some platform / policy cominations,
+        // error.  Note that for some platform / policy combinations,
         // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
 
     static int getMaxSchedulingPriority(
@@ -181,7 +190,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // Return the non-negative maximum available priority for the
         // optionally-specified 'policy' on success, where 'policy' is of type
         // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
-        // error.  Note that for some platform / policy cominations,
+        // error.  Note that for some platform / policy combinations,
         // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
 
     static int join(Handle& thread, void **status = 0);
@@ -209,6 +218,17 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // Note that the actual time suspended depends on many factors
         // including system scheduling, and system timer resolution.  On the
         // win32 platform the sleep timer has a resolution of 1 millisecond.
+
+    static int sleepUntil(const bdet_TimeInterval& absoluteTime);
+        // Suspend execution of the current thread until the specified
+        // 'absoluteTime' (expressed as the !ABSOLUTE! time from 00:00:00 UTC,
+        // January 1, 1970).  Return 0 on success, and a non-zero value
+        // otherwise.  The behavior is undefined unless 'absoluteTime'
+        // represents a time after January 1, 1970 and before the end of
+        // December 31, 9999 (i.e., a time interval greater than or equal to
+        // 0, and less than 253,402,300,800 seconds).  Note that the actual
+        // time suspended depends on many factors including system scheduling
+        // and system timer resolution.
 
     static void exit(void *status);
         // Exit the current thread and return the specified 'status'.  If
@@ -243,7 +263,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // current thread within the current process.  Note that the id is only
         // valid until the thread terminates and may be reused thereafter.
 
-    static bsls_PlatformUtil::Uint64 selfIdAsInt();
+    static bsls::Types::Uint64 selfIdAsInt();
         // Return an integral identifier that can be used to uniquely identify
         // the current thread within the current process.  This representation
         // is particularly useful for logging purposes.  Note that this value
@@ -252,7 +272,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         //
         // DEPRECATED: Use 'selfIdAsUint64' instead.
 
-    static bsls_PlatformUtil::Uint64 selfIdAsUint64();
+    static bsls::Types::Uint64 selfIdAsUint64();
         // Return an integral identifier that can be used to uniquely identify
         // the current thread within the current process.  This representation
         // is particularly useful for logging purposes.  Note that this value
@@ -345,7 +365,7 @@ bool operator!=(
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
                          getMinSchedulingPriority(
-                               bcemt_ThreadAttributes::SchedulingPolicy policy)
+                             bcemt_ThreadAttributes::SchedulingPolicy )
 {
     return -1;    // priorities not supported on Windows
 }
@@ -353,7 +373,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
                          getMaxSchedulingPriority(
-                               bcemt_ThreadAttributes::SchedulingPolicy policy)
+                               bcemt_ThreadAttributes::SchedulingPolicy )
 {
     return -1;    // priorities not supported on Windows
 }
@@ -407,17 +427,17 @@ bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::selfId()
 }
 
 inline
-bsls_PlatformUtil::Uint64
+bsls::Types::Uint64
 bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::selfIdAsInt()
 {
-    return static_cast<bsls_PlatformUtil::Uint64>(selfId());
+    return static_cast<bsls::Types::Uint64>(selfId());
 }
 
 inline
-bsls_PlatformUtil::Uint64
+bsls::Types::Uint64
 bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::selfIdAsUint64()
 {
-    return static_cast<bsls_PlatformUtil::Uint64>(selfId());
+    return static_cast<bsls::Types::Uint64>(selfId());
 }
 
 inline

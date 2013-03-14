@@ -6,6 +6,8 @@ BDES_IDENT_RCSID(bcemt_meteredmutex_cpp,"$Id$ $CSID$")
 
 #include <bcemt_barrier.h>  // for testing only
 
+#include <bsls_types.h>
+
 namespace BloombergLP {
 
                            // ------------------------
@@ -19,13 +21,13 @@ void bcemt_MeteredMutex::resetMetrics()
     // modified (by some other thread) between the computation
     // of 't1' and the modification of d_lastResetTime by 'testAndSwap'.
 
-    bsls_PlatformUtil::Int64 t1, old;
+    bsls::Types::Int64 t1, old;
 
     d_holdTime = 0;
     d_waitTime = 0;
     do {
         old = d_lastResetTime;
-        t1 = bsls_TimeUtil::getTimer();
+        t1 = bsls::TimeUtil::getTimer();
     } while(d_lastResetTime.testAndSwap(old, t1) != old);
 }
 

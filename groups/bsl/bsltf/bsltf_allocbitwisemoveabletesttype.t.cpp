@@ -1,8 +1,6 @@
 // bsltf_allocbitwisemoveabletesttype.t.cpp                           -*-C++-*-
 #include <bsltf_allocbitwisemoveabletesttype.h>
 
-#include <bslalg_hastrait.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -173,20 +171,18 @@ template <class TYPE>
 void printTypeTraits()
     // Prints the traits of the parameterized 'TYPE' to the console.
 {
-    if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg::TypeTraitUsesBslmaAllocator>::VALUE) {
-        printf("Type defines bslalg::TypeTraitUsesBslmaAllocator.\n");
+    if (bslma::UsesBslmaAllocator<TYPE>::value) {
+        printf("Type defines bslma::UsesBslmaAllocator.\n");
     }
     else {
-        printf("Type does not define bslalg::TypeTraitUsesBslmaAllocator.\n");
+        printf("Type does not define bslma::UsesBslmaAllocator.\n");
     }
 
-    if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg::TypeTraitBitwiseMoveable>::VALUE) {
-        printf("Type defines bslalg::TypeTraitBitwiseMoveable.\n");
+    if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+        printf("Type defines bslmf::IsBitwiseMoveable.\n");
     }
     else {
-        printf("Type does not define bslalg::TypeTraitBitwiseMoveable.\n");
+        printf("Type does not define bslmf::IsBitwiseMoveable.\n");
     }
 }
 //..
@@ -215,8 +211,8 @@ int main(int argc, char *argv[]) {
 //..
 // Finally, we observe the console output:
 //..
-//  Type defines bslalg::TypeTraitUsesBslmaAllocator.
-//  Type defines bslalg::TypeTraitBitwiseMoveable.
+//  Type defines bslma::UsesBslmaAllocator.
+//  Type defines bslmf::IsBitwiseMoveable.
 //..
       } break;
       case 11: {
@@ -232,12 +228,8 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   CONCERN: The object has the necessary type traits
         // --------------------------------------------------------------------
-        BSLMF_ASSERT((1 ==
-                      bslalg::HasTrait<Obj,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((1 ==
-                      bslalg::HasTrait<Obj,
-                                    bslalg::TypeTraitBitwiseMoveable>::VALUE));
+        BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+        BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1079,7 +1071,7 @@ int main(int argc, char *argv[]) {
                       } break;
                       default: {
                         ASSERTV(CONFIG, !"Bad allocator config.");
-                      } break;
+                      } return testStatus;                            // RETURN
                     }
                     ASSERTV(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
@@ -1162,7 +1154,7 @@ int main(int argc, char *argv[]) {
         //:   violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' atrribute 'D', 'A',
+        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
         //:   the the boundary values.
         //:
@@ -1189,7 +1181,7 @@ int main(int argc, char *argv[]) {
         //:     (C-2..4)
         //:
         //:   4 Use the appropriate test allocators to verify that the
-        //:     approporiate amount of memory is allocated by the default
+        //:     appropriate amount of memory is allocated by the default
         //:     constructor.  (C-9)
         //:
         //:   5 Use the individual (as yet unproven) salient attribute
@@ -1238,7 +1230,6 @@ int main(int argc, char *argv[]) {
             switch (CONFIG) {
               case 'a': {
                 objAllocatorPtr = &da;
-
               } break;
               case 'b': {
                 objAllocatorPtr = &da;
@@ -1248,7 +1239,7 @@ int main(int argc, char *argv[]) {
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
-              } break;
+              } return testStatus;                                    // RETURN
             }
 
             bslma::TestAllocator&  oa = *objAllocatorPtr;
@@ -1270,7 +1261,7 @@ int main(int argc, char *argv[]) {
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                  } break;
+                  } return testStatus;                                // RETURN
                 }
                 ASSERTV(CONFIG, tam.isInUseUp());
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
@@ -1380,11 +1371,24 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

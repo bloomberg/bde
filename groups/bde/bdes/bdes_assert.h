@@ -83,11 +83,28 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-    // No symbols or macros are defined here (see 'bsls_assert' component).
-    // No aliases or macros for the 'bdes_Assert' types or 'BDE_ASSERT_*'
-    // macros are defined here, instead they are defined in 'bsls_assert' so
-    // that clients that rely on these via transitive includes may still have
-    // those aliases or macros defined.
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+                        // =========================
+                        // BDE_ASSERT_H (deprecated)
+                        // =========================
+
+// Active in "Safe Mode"
+
+#ifndef BDE_ASSERT_H
+#define BDE_ASSERT_H(X) BSLS_ASSERT_SAFE(X)
+#endif
+
+                        // ===========================
+                        // BDE_ASSERT_CPP (deprecated)
+                        // ===========================
+
+// Active in "Safe Mode" and "Debug Mode"
+
+#ifndef BDE_ASSERT_CPP
+#define BDE_ASSERT_CPP(X) BSLS_ASSERT(X)
+#endif
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

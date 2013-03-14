@@ -89,7 +89,7 @@ BDES_IDENT("$Id: $")
 // The following detailed example uses the bitwise-swap
 // function.  We define a basic templatized 'Array' class as our example
 // container.  This container class may be parameterized by any class that is
-// bitwise moveable.  (See the component 'bslmf_IsBitwiseCopyable'.)  In
+// bitwise moveable.  (See the component 'bslmf_istriviallycopyable'.)  In
 // addition to the constructor and destructor, the container class has an index
 // operator and a swap function.  The swap function is implemented using the
 // 'bdeimp_BitwiseCopy' component.
@@ -244,7 +244,7 @@ void bdeimp_BitwiseCopy<TYPE>::copy(TYPE *dstAddr, const TYPE *srcAddr)
     // The compiler thus provides and invokes an assignment operator, producing
     // a compiler-optimized bitwise copy.
 
-    typedef bsls_ObjectBuffer<TYPE> BitType;
+    typedef bsls::ObjectBuffer<TYPE> BitType;
 
     // The compiler will use the most efficient bit-wise copy instructions
     // available for assigning the memory at srcAddr to the memory at dstAddr.
@@ -259,7 +259,7 @@ void bdeimp_BitwiseCopy<TYPE>::swap(TYPE *addr1, TYPE *addr2)
     BSLS_ASSERT_SAFE(addr1);  BSLS_ASSERT_SAFE(addr2);
 
     // Object big enough to hold a 'TYPE', properly aligned.
-    bsls_ObjectBuffer<TYPE> temp;
+    bsls::ObjectBuffer<TYPE> temp;
 
     bdeimp_BitwiseCopy<TYPE>::copy(&temp.object(), addr1);
     bdeimp_BitwiseCopy<TYPE>::copy(addr1, addr2);

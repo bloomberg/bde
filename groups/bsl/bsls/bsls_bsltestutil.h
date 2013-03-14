@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X): print args if '!X'
 //  BSLS_BSLTESTUTIL_Q(X): quote identifier literally
 //  BSLS_BSLTESTUTIL_P(X): print identifier and value
-//  BSLS_BSLTESTUTIL_P_(X): print identifer and value without '\n'
+//  BSLS_BSLTESTUTIL_P_(X): print identifier and value without '\n'
 //  BSLS_BSLTESTUTIL_L_: current line number
 //  BSLS_BSLTESTUTIL_T_: print tab without '\n'
 //
@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 //
 //: o The 'printf' function requires a format string to specify the way to
 //:   print an object; so, unlike 'iostream', printing different types of
-//:   objects using 'printf' requires different synatxes due to the need for
+//:   objects using 'printf' requires different syntaxes due to the need for
 //:   different format strings.
 //:
 //: o While the format strings for built-in types can be included as part of
@@ -225,10 +225,20 @@ BSLS_IDENT("$Id: $")
 //  obj = MyType<9>
 //..
 
+// Note that one of the requirements of this component is that it is the
+// lowest level component in the 'bsls' package, so that it can be used without
+// making cycles in any other 'bsl' test driver.  Therefore, we cannot rely on
+// <bsls_platform.h>, and must check the compiler version directly.
 #if defined(_MSC_VER)
-#include <stddef.h>
+#   ifndef INCLUDED_STDDEF
+#   include <stddef.h>
+#   define INCLUDED_STDDEF
+#   endif
 #else
-#include <stdint.h>
+#   ifndef INCLUDED_STDINT
+#   include <stdint.h>
+#   define INCLUDED_STDINT
+#   endif
 #endif
 
                        // =================
@@ -284,7 +294,7 @@ BSLS_IDENT("$Id: $")
                 aSsErT(!(X), #X, __LINE__); } }
 
 // The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
+// pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in
 // the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
 #define BSLS_BSLTESTUTIL_EXPAND(X)                                            \
     X
@@ -407,10 +417,10 @@ void debugprint(const volatile void *v);
     // Print to the console the specified memory address, 'v', formatted as
     // a hexadecimal integer.
 
-template <typename RESULT>
+template <class RESULT>
 void debugprint(RESULT (*v)());
     // Print to the console the specified function pointer, 'v', formatted as a
-    // hexidecimal integer. On some platforms (notably Windows), a function
+    // hexadecimal integer. On some platforms (notably Windows), a function
     // pointer is treated differently from an object pointer, and the compiler
     // will not be able to determine which 'void *' overload of 'debugprint'
     // should be used for a function pointer. Therefore an overload of
@@ -449,7 +459,7 @@ void BslTestUtil::callDebugprint(const TYPE& obj,
 
 // FREE FUNCTIONS
 
-template <typename RESULT>
+template <class RESULT>
 void bsls::debugprint(RESULT (*v)())
 {
     uintptr_t address = reinterpret_cast<uintptr_t>(v);
@@ -460,11 +470,24 @@ void bsls::debugprint(RESULT (*v)())
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -73,7 +73,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_FunctionPointerTraits
-#define bdemf_FunctionPointerTraits  bslmf_FunctionPointerTraits
+#define bdemf_FunctionPointerTraits  bslmf::FunctionPointerTraits
     // This class gives information about the specified 'PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
@@ -81,7 +81,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_IsFunctionPointer
-#define bdemf_IsFunctionPointer      bslmf_IsFunctionPointer
+#define bdemf_IsFunctionPointer      bslmf::IsFunctionPointer
     // This template determines if the specified 'PROTOTYPE' is a free (i.e.,
     // non-member) function pointer.  VALUE is defined as 1 if the specified
     // 'PROTOTYPE' is a function pointer type, and a zero value otherwise.

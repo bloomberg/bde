@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //  template <class TYPE>
 //  void print(const TYPE& value)
 //  {
-//      my_If<my_IsPrintable<TYPE>::VALUE, int>::Type Type;  // default false
+//      my_If<my_IsPrintable<TYPE>::value, int>::Type Type;  // default false
 //                                                           // type is
 //                                                           // 'bslmf::Nil'.
 //      print(value, Type());
@@ -76,17 +76,17 @@ BSLS_IDENT("$Id: $")
 // Finally, the 'bslmf::IsNil' meta-function returns true if the type passed to
 // it is 'bslmf::Nil', and false otherwise:
 //..
-//  assert(1 == bslmf::IsNil<bslmf::Nil>::VALUE)
-//  assert(0 == bslmf::IsNil<int>::VALUE)
-//  assert(0 == bslmf::IsNil<char>::VALUE)
+//  assert(1 == bslmf::IsNil<bslmf::Nil>::value)
+//  assert(0 == bslmf::IsNil<int>::value)
+//  assert(0 == bslmf::IsNil<char>::value)
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 namespace BloombergLP {
@@ -106,20 +106,11 @@ struct Nil {
                       // ============
 
 template <class T>
-struct IsNil {
-    // This meta function sets 'VALUE' to 0 if the type being tested is not
-    // 'Nil'.
-
-    enum { VALUE = 0 };
-    typedef MetaInt<0> Type;
+struct IsNil : bsl::false_type {
 };
 
 template <>
-struct IsNil<Nil> {
-    // This meta function sets 'VALUE' to 1 if the type being tested is 'Nil'.
-
-    enum { VALUE = 1 };
-    typedef MetaInt<1> Type;
+struct IsNil<Nil> : bsl::true_type {
 };
 
 }  // close package namespace
@@ -143,11 +134,24 @@ typedef bslmf::Nil bslmf_Nil;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -88,7 +88,7 @@ BDES_IDENT("$Id: $")
 //                   CHAR_ARRAY         bsl::vector<char>
 //                   SHORT_ARRAY        bsl::vector<short>
 //                   INT_ARRAY          bsl::vector<int>
-//                   INT64_ARRAY        bsl::vector<bsls_Types::Int64>
+//                   INT64_ARRAY        bsl::vector<bsls::Types::Int64>
 //                   FLOAT_ARRAY        bsl::vector<float>
 //                   DOUBLE_ARRAY       bsl::vector<double>
 //                   STRING_ARRAY       bsl::vector<bsl::string>
@@ -228,18 +228,18 @@ BDES_IDENT("$Id: $")
 //  bdem_RowLayout mRL(ETA,         // array of element type enumerators
 //                     4,           // length of row
 //                     EDA,         // (sparse) array of element descriptors
-//                     bslma_Default::defaultAllocator());
+//                     bslma::Default::defaultAllocator());
 //..
 // Given 'mRL', we now instantiate two (modifiable) row definitions, 'mRD1' and
 // 'mRD2':
 //..
 //  bdem_RowData mRD1(&mRL,
 //                    bdem_AggregateOption::BDEM_PASS_THROUGH,
-//                    bslma_Default::defaultAllocator());
+//                    bslma::Default::defaultAllocator());
 //
 //  bdem_RowData mRD2(&mRL,
 //                    bdem_AggregateOption::BDEM_PASS_THROUGH,
-//                    bslma_Default::defaultAllocator());
+//                    bslma::Default::defaultAllocator());
 //
 //..
 // By design, a 'bdem_Row' contains exactly one data member of type
@@ -480,7 +480,7 @@ class bdem_Row {
     char& theModifiableChar(int index);
     short& theModifiableShort(int index);
     int& theModifiableInt(int index);
-    bsls_Types::Int64& theModifiableInt64(int index);
+    bsls::Types::Int64& theModifiableInt64(int index);
     float& theModifiableFloat(int index);
     double& theModifiableDouble(int index);
     bsl::string& theModifiableString(int index);
@@ -494,7 +494,7 @@ class bdem_Row {
     bsl::vector<char>& theModifiableCharArray(int index);
     bsl::vector<short>& theModifiableShortArray(int index);
     bsl::vector<int>& theModifiableIntArray(int index);
-    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array(int index);
+    bsl::vector<bsls::Types::Int64>& theModifiableInt64Array(int index);
     bsl::vector<float>& theModifiableFloatArray(int index);
     bsl::vector<double>& theModifiableDoubleArray(int index);
     bsl::vector<bsl::string>& theModifiableStringArray(int index);
@@ -564,7 +564,7 @@ class bdem_Row {
     const char& theChar(int index) const;
     const short& theShort(int index) const;
     const int& theInt(int index) const;
-    const bsls_Types::Int64& theInt64(int index) const;
+    const bsls::Types::Int64& theInt64(int index) const;
     const float& theFloat(int index) const;
     const double& theDouble(int index) const;
     const bsl::string& theString(int index) const;
@@ -578,7 +578,7 @@ class bdem_Row {
     const bsl::vector<char>& theCharArray(int index) const;
     const bsl::vector<short>& theShortArray(int index) const;
     const bsl::vector<int>& theIntArray(int index) const;
-    const bsl::vector<bsls_Types::Int64>& theInt64Array(int index) const;
+    const bsl::vector<bsls::Types::Int64>& theInt64Array(int index) const;
     const bsl::vector<float>& theFloatArray(int index) const;
     const bsl::vector<double>& theDoubleArray(int index) const;
     const bsl::vector<bsl::string>& theStringArray(int index) const;
@@ -784,12 +784,12 @@ int& bdem_Row::theModifiableInt(int index)
 }
 
 inline
-bsls_Types::Int64& bdem_Row::theModifiableInt64(int index)
+bsls::Types::Int64& bdem_Row::theModifiableInt64(int index)
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(index < d_rowData.length());
 
-    return *static_cast<bsls_Types::Int64 *>(elemData(index));
+    return *static_cast<bsls::Types::Int64 *>(elemData(index));
 }
 
 inline
@@ -910,12 +910,12 @@ bsl::vector<int>& bdem_Row::theModifiableIntArray(int index)
 }
 
 inline
-bsl::vector<bsls_Types::Int64>& bdem_Row::theModifiableInt64Array(int index)
+bsl::vector<bsls::Types::Int64>& bdem_Row::theModifiableInt64Array(int index)
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(index < d_rowData.length());
 
-    return *static_cast<bsl::vector<bsls_Types::Int64> *>(elemData(index));
+    return *static_cast<bsl::vector<bsls::Types::Int64> *>(elemData(index));
 }
 
 inline
@@ -1129,12 +1129,12 @@ const int& bdem_Row::theInt(int index) const
 }
 
 inline
-const bsls_Types::Int64& bdem_Row::theInt64(int index) const
+const bsls::Types::Int64& bdem_Row::theInt64(int index) const
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(index < d_rowData.length());
 
-    return *static_cast<const bsls_Types::Int64 *>(elemData(index));
+    return *static_cast<const bsls::Types::Int64 *>(elemData(index));
 }
 
 inline
@@ -1255,12 +1255,12 @@ const bsl::vector<int>& bdem_Row::theIntArray(int index) const
 }
 
 inline
-const bsl::vector<bsls_Types::Int64>& bdem_Row::theInt64Array(int index) const
+const bsl::vector<bsls::Types::Int64>& bdem_Row::theInt64Array(int index) const
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(index < d_rowData.length());
 
-    return *static_cast<const bsl::vector<bsls_Types::Int64> *>
+    return *static_cast<const bsl::vector<bsls::Types::Int64> *>
                                                              (elemData(index));
 }
 

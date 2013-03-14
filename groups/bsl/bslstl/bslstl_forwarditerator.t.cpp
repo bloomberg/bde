@@ -1069,21 +1069,21 @@ int main(int argc, char *argv[])
         //  Assert iterator_traits finds the expected typedefs
         typedef bsl::iterator_traits<iter_type>  IterTraits;
         typedef bsl::iterator_traits<const_iter_type>  ConstIterTraits;
-        ASSERT((bslmf::IsSame<IterTraits::difference_type,
-                std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf::IsSame<IterTraits::value_type, int>::VALUE));
-        ASSERT((bslmf::IsSame<IterTraits::pointer, int *>::VALUE));
-        ASSERT((bslmf::IsSame<IterTraits::reference, int &>::VALUE));
-        ASSERT((bslmf::IsSame<IterTraits::iterator_category,
-                std::forward_iterator_tag>::VALUE));
+        ASSERT((bsl::is_same<IterTraits::difference_type,
+                std::ptrdiff_t>::value));
+        ASSERT((bsl::is_same<IterTraits::value_type, int>::value));
+        ASSERT((bsl::is_same<IterTraits::pointer, int *>::value));
+        ASSERT((bsl::is_same<IterTraits::reference, int &>::value));
+        ASSERT((bsl::is_same<IterTraits::iterator_category,
+                std::forward_iterator_tag>::value));
 
-        ASSERT((bslmf::IsSame<ConstIterTraits::difference_type,
-                std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf::IsSame<ConstIterTraits::value_type, const int>::VALUE));
-        ASSERT((bslmf::IsSame<ConstIterTraits::pointer, const int *>::VALUE));
-        ASSERT((bslmf::IsSame<ConstIterTraits::reference, const int&>::VALUE));
-        ASSERT((bslmf::IsSame<ConstIterTraits::iterator_category,
-                std::forward_iterator_tag>::VALUE));
+        ASSERT((bsl::is_same<ConstIterTraits::difference_type,
+                std::ptrdiff_t>::value));
+        ASSERT((bsl::is_same<ConstIterTraits::value_type, const int>::value));
+        ASSERT((bsl::is_same<ConstIterTraits::pointer, const int *>::value));
+        ASSERT((bsl::is_same<ConstIterTraits::reference, const int&>::value));
+        ASSERT((bsl::is_same<ConstIterTraits::iterator_category,
+                std::forward_iterator_tag>::value));
 
         if (verbose) cout << "\nPopulate the test list." << std::endl;
         int i;
@@ -1150,11 +1150,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

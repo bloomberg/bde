@@ -385,12 +385,16 @@ BDES_IDENT("$Id: $")
 #include <bces_atomictypes.h>
 #endif
 
+#ifndef INCLUDED_BDEF_FUNCTION
+#include <bdef_function.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDEF_FUNCTION
-#include <bdef_function.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -399,10 +403,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
@@ -509,16 +509,16 @@ class bcep_MultipriorityThreadPool {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcep_MultipriorityThreadPool,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     bcep_MultipriorityThreadPool(int                     numThreads,
                                  int                     numPriorities,
-                                 bslma_Allocator        *basicAllocator = 0);
+                                 bslma::Allocator       *basicAllocator = 0);
     bcep_MultipriorityThreadPool(int                     numThreads,
                                  int                     numPriorities,
                                  const bcemt_Attribute&  threadAttributes,
-                                 bslma_Allocator        *basicAllocator = 0);
+                                 bslma::Allocator       *basicAllocator = 0);
         // Create a multi-priority thread pool capable of concurrently
         // executing the specified 'numThreads' "jobs" with associated integer
         // priorities in the range '0 <= priority < numPriorities', 0 being

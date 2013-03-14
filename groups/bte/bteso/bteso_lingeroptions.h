@@ -67,7 +67,7 @@ BDES_IDENT("$Id: $")
 // Next, we define a 'typedef' for the 'struct' needed to set the linger
 // options:
 //..
-//  #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
+//  #if defined(BSLS_PLATFORM_OS_WINDOWS)
 //      typedef LINGER LingerData;
 //  #else
 //      typedef linger LingerData;
@@ -165,7 +165,7 @@ class bteso_LingerOptions {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_LingerOptions,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();

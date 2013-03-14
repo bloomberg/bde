@@ -5,13 +5,16 @@
 #include <bael_severity.h>                      // for testing only
 #include <bael_attributecontainerlist.h>        // for testing only
 #include <bael_defaultattributecontainer.h>     // for testing only
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
 #include <bdex_instreamfunctions.h>             // for testing only
 #include <bdex_outstreamfunctions.h>            // for testing only
 #include <bdex_testinstream.h>                  // for testing only
 #include <bdex_testinstreamexception.h>         // for testing only
 #include <bdex_testoutstream.h>                 // for testing only
+
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -110,11 +113,11 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bael_Rule Obj;
-typedef bael_ThresholdAggregate Levels;
-typedef bsls_PlatformUtil::Int64 Int64;
-typedef bdex_TestInStream  In;
-typedef bdex_TestOutStream Out;
+typedef bael_Rule                      Obj;
+typedef bael_ThresholdAggregate        Levels;
+typedef bsls::Types::Int64             Int64;
+typedef bdex_TestInStream              In;
+typedef bdex_TestOutStream             Out;
 typedef bael_DefaultAttributeContainer AttributeSet;
 
 #define VA_LEVELS 0, 0, 0, 0
@@ -271,7 +274,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -1311,7 +1314,7 @@ int main(int argc, char *argv[])
 
             // construct y with an allocator but no exception
             {
-                bslma_TestAllocator testAllocatorY(veryVeryVerbose);
+                bslma::TestAllocator testAllocatorY(veryVeryVerbose);
                 Obj mY(X, &testAllocatorY); const Obj& Y = mY;
 
                 LOOP_ASSERT(LINE, Y == W);
@@ -1322,7 +1325,7 @@ int main(int argc, char *argv[])
 
             // construct y with an allocator and exceptions
             {
-                bslma_TestAllocator testAllocatorY(veryVeryVerbose);
+                bslma::TestAllocator testAllocatorY(veryVeryVerbose);
 
                 BEGIN_BSLMA_EXCEPTION_TEST {
                     Obj mY(X, &testAllocatorY); const Obj& Y = mY;
@@ -1739,7 +1742,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             ASSERT(0 == strcmp("", X.pattern()));
             ASSERT(Levels(0, 0, 0, 0) == Levels(X.recordLevel(),
                                                 X.passLevel(),
@@ -1831,9 +1834,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith an allocator." << endl;
         if (verbose) cout << "\t\tWithout exceptions." << endl;
         {
-            bslma_TestAllocator testAllocatorX(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorY(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorZ(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorX(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorY(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
 
             Obj mX(VA, &testAllocatorX);  const Obj& X = mX;
 
@@ -1882,9 +1885,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
-            bslma_TestAllocator testAllocatorX(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorY(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorZ(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorX(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorY(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
 
           BEGIN_BSLMA_EXCEPTION_TEST {
             if (veryVerbose) cout <<

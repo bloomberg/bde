@@ -98,16 +98,18 @@ BSLS_IDENT("$Id: $")
 //      TARGET_TYPE *d_target_p;    // wrapped pointer
 //      DeleterFn   *d_deleter_fn;  // deleter function
 //
-//      // Objects of this type cannot be copied.
-//      ScopedPointer(const ScopedPointer&);
-//      ScopedPointer& operator=(const ScopedPointer&);
-//
 //      template<class SOURCE_TYPE>
 //      static void defaultDeleteFn(TARGET_TYPE *ptr);
 //          // Destroy the specified '*ptr' by calling 'delete' on the pointer
 //          // cast to the parameterized 'SOURCE_TYPE*'.  It is an error to
 //          // instantiate this template with a 'SOURCE_TYPE' that is not
 //          // derived from (and cv-compatible with) 'TARGET_TYPE'.
+//
+//     private:
+//      // NOT IMPLEMENTED
+//      ScopedPointer(const ScopedPointer&);
+//      ScopedPointer& operator=(const ScopedPointer&);
+//          // Objects of this type cannot be copied.
 //
 //    public:
 //      template<class SOURCE_TYPE>
@@ -178,6 +180,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 #  if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
     // We currently know of no platform that supports 'nullptr' and does not
@@ -190,7 +196,16 @@ namespace bsl
 {
     // We must define this 'typedef' appropriately for platforms that support
     // 'nullptr' to avoid accidental clashes in 'BSL_OVERRIDES_STD' mode.
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(__cplusplus_cli)
+    // MSVC in /clr mode defines 'nullptr' as the .NET null pointer type, which
+    // is different from C++11 'nullptr'.  To resolve this conflict MSVC
+    // provides '__nullptr' for C++11 'nullptr'.
+
+    typedef decltype(__nullptr) nullptr_t;
+#else
     typedef decltype(nullptr) nullptr_t;
+#endif
 }
 #  endif
 #else
@@ -229,11 +244,24 @@ namespace bsl
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

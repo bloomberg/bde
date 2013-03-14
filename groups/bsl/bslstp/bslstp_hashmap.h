@@ -62,12 +62,16 @@
 #include <bslstp_exfunctional.h>
 #endif
 
-#ifndef INCLUDED_BSLSTP_ITERATOR
-#include <bslstp_iterator.h>
+#ifndef INCLUDED_BSLSTP_HASH
+#include <bslstp_hash.h>
 #endif
 
 #ifndef INCLUDED_BSLSTP_HASHTABLE
 #include <bslstp_hashtable.h>
+#endif
+
+#ifndef INCLUDED_BSLSTP_ITERATOR
+#include <bslstp_iterator.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -82,7 +86,9 @@
 namespace bsl {
 
 
-template <class _Key, class _Tp, class _HashFcn = hash<_Key>,
+template <class _Key, class _Tp,
+          class _HashFcn =
+                      typename ::BloombergLP::bslstp::HashSelector<_Key>::Type,
           class _EqualKey = typename bsl::ComparatorSelector<_Key>::Type,
           class _Alloc = bsl::allocator< pair < const _Key, _Tp > > >
 class hash_map
@@ -112,9 +118,6 @@ public:
   typedef typename _Ht::const_iterator const_iterator;
 
   typedef typename _Ht::allocator_type allocator_type;
-
-  BSLALG_DECLARE_NESTED_TRAITS(hash_map,
-                               BloombergLP::bslalg_TypeTraits<_Ht>);
 
   hasher hash_funct() const { return _M_ht.hash_funct(); }
   key_equal key_eq() const { return _M_ht.key_eq(); }
@@ -256,7 +259,9 @@ void swap(hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc>& lhs,
     lhs.swap(rhs);
 }
 
-template <class _Key, class _Tp, class _HashFcn = hash<_Key>,
+template <class _Key, class _Tp,
+          class _HashFcn =
+                      typename ::BloombergLP::bslstp::HashSelector<_Key>::Type,
           class _EqualKey = typename bsl::ComparatorSelector<_Key>::Type,
           class _Alloc = bsl::allocator< pair < const _Key, _Tp> > >
 class hash_multimap
@@ -286,9 +291,6 @@ public:
   typedef typename _Ht::const_iterator const_iterator;
 
   typedef typename _Ht::allocator_type allocator_type;
-
-  BSLALG_DECLARE_NESTED_TRAITS(hash_multimap,
-                               BloombergLP::bslalg_TypeTraits<_Ht>);
 
   hasher hash_funct() const { return _M_ht.hash_funct(); }
   key_equal key_eq() const { return _M_ht.key_eq(); }
@@ -519,6 +521,72 @@ public:
 };
 
 }  // close namespace std
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses 'bslma' allocators if the parameterized
+//:     '_Alloc' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <class _Key,
+          class _Tp,
+          class _HashFcn,
+          class _EqualKey,
+          class _Alloc>
+struct HasStlIterators<bsl::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <class _Key,
+          class _Tp,
+          class _HashFcn,
+          class _EqualKey,
+          class _Alloc>
+struct UsesBslmaAllocator<bsl::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
+    : bsl::is_convertible<Allocator*, _Alloc>
+{};
+
+}  // close package namespace
+
+namespace bslalg {
+
+template <class _Key,
+          class _Tp,
+          class _HashFcn,
+          class _EqualKey,
+          class _Alloc>
+struct HasStlIterators<bsl::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <class _Key,
+          class _Tp,
+          class _HashFcn,
+          class _EqualKey,
+          class _Alloc>
+struct UsesBslmaAllocator<bsl::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
+    : bsl::is_convertible<Allocator*, _Alloc>
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 
 #ifdef BSLSTP_DEFINE_STD
 #undef BSLSTP_DEFINE_STD

@@ -93,7 +93,7 @@ typedef bdeut_StringRef    Ref;
 //                  PARANOID ALLOCATOR FOR MANUAL TESTING
 //-----------------------------------------------------------------------------
 
-class donotusethis_FatalAllocator : public bslma_Allocator {
+class donotusethis_FatalAllocator : public bslma::Allocator {
     // This class provides an allocator that emits a message and terminates on
     // 'allocate'.  It is for manual testing only and is of no programmatic use
     // in nightly builds
@@ -383,7 +383,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'operator()' and 'tokenRef'." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             Obj X(" ", 0, ":");
 
@@ -1150,8 +1151,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting four-argument constructor"
                           << "\n================================="  << endl;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
-        bslma_Allocator *ba = &ta;
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::Allocator *ba = &ta;
 
         Ref mR;  const Ref& R = mR;  // reusable string ref
 
@@ -1645,8 +1646,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting three-argument constructor"
                           << "\n=================================="  << endl;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
-        bslma_Allocator *ba = &ta;
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::Allocator *ba = &ta;
 
         Ref mR;  const Ref& R = mR;  // reusable string ref
 
@@ -1898,8 +1899,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBreathing Test"
                           << "\n==============" << endl;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
-        bslma_Allocator *ba = &ta;
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::Allocator *ba = &ta;
 
         const char *string = ", .Now ,, is .? the ??time ..for all good,men \n"
                              "to,come,to,the    aid,of    their,country.\n";

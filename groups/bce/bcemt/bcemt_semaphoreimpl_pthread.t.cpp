@@ -12,7 +12,9 @@
 #include <bdetu_systemtime.h>
 
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
+#include <bsl_vector.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 
@@ -388,7 +390,7 @@ class IntQueue {
 
     public:
     // CREATORS
-    explicit IntQueue(bslma_Allocator *basicAllocator = 0);
+    explicit IntQueue(bslma::Allocator *basicAllocator = 0);
         // Create a new 'IntQueue' object.
 
     ~IntQueue();
@@ -402,7 +404,7 @@ class IntQueue {
         // Push the specified 'number' to the queue.
 };
 
-IntQueue::IntQueue(bslma_Allocator *basicAllocator)
+IntQueue::IntQueue(bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 , d_mutexSem(0)
 , d_resourceSem(0)
@@ -483,6 +485,32 @@ static const char* fmt(int n) {
     return buf;
 }
 
+void *createSemaphoresWorker(void *arg)
+{
+    typedef bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> semaphore_t;
+    bsl::vector<bsls::ObjectBuffer<semaphore_t> > semaphores(10);
+
+    for (int i = 0; i != 1000; ++i) {
+        // create a bunch of semaphores
+        for (int j = 0; j != semaphores.size(); ++j) {
+            new (semaphores[j].buffer()) semaphore_t(i);
+        }
+
+        // use semaphores
+        for (int j = 0; j != semaphores.size(); ++j) {
+            int result = semaphores[j].object().tryWait();
+            ASSERT((i == 0) == (result != 0)); // lock fails on initial count 0
+        }
+
+        // delete semaphores
+        for (int j = 0; j != semaphores.size(); ++j) {
+            semaphores[j].object().~semaphore_t();
+        }
+    }
+
+    return 0;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -496,7 +524,39 @@ int main(int argc, char *argv[]) {
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) {
+    switch (test) { case 0:
+    case 7: {
+        // --------------------------------------------------------------------
+        // TESTING CONCURRENT SEMAPHORE CREATION
+        //
+        // Concerns:
+        // 1. On Darwin the creation of the semaphore object is synchronized
+        //    because it's implemented via named semaphores.  Concurrent
+        //    creation of multiple semaphores should not lead to invalid
+        //    semaphore objects or deadlock.
+        //
+        // Plan:
+        // 1. In multiple threads, create a number of semaphore objects and
+        //    verify that they are valid.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing concurrent creation\n"
+                          << "===========================\n";
+
+        vector<bcemt_ThreadUtil::Handle> threads(16);
+
+        for (int i = 0; i != threads.size(); ++i) {
+            int rc = bcemt_ThreadUtil::create(&threads[i],
+                                              &createSemaphoresWorker,
+                                              NULL);
+            ASSERT(rc == 0);
+        }
+
+        for (int i = 0; i != threads.size(); ++i) {
+            bcemt_ThreadUtil::join(threads[i]);
+        }
+
+    } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING MULTIPLE POST
@@ -822,24 +882,23 @@ int main(int argc, char *argv[]) {
                                      (void*)(producerData+i));
         }
         for(int j=0; j<samples; j++) {
-            bsls_PlatformUtil::Int64 timeStart = bsls_TimeUtil::getTimer();
-            bsls_PlatformUtil::Int64 timeStartCPU = ::clock();
+            bsls::Types::Int64 timeStart = bsls::TimeUtil::getTimer();
+            bsls::Types::Int64 timeStartCPU = ::clock();
             int* consumerCount = new int[numConsumers];
             for(int i=0; i<numConsumers; i++) {
                 consumerCount[i] = consumerData[i].count;
             }
-            bsls_PlatformUtil::Int64 throughput;
-            bsls_PlatformUtil::Int64 throughputCPU;
+            bsls::Types::Int64 throughput;
+            bsls::Types::Int64 throughputCPU;
             for(int i=0; i<seconds; i++) {
                 bcemt_ThreadUtil::microSleep(1000000);
-                bsls_PlatformUtil::Int64 totalMessages = 0;
+                bsls::Types::Int64 totalMessages = 0;
                 for(int i=0; i<numConsumers;i++) {
                     totalMessages += (consumerData[i].count-consumerCount[i]);
                 }
-                bsls_PlatformUtil::Int64 elapsed_us =
-                                    (bsls_TimeUtil::getTimer()-timeStart)/1000;
-                bsls_PlatformUtil::Int64 elapsed_usCPU =
-                                                        ::clock()-timeStartCPU;
+                bsls::Types::Int64 elapsed_us =
+                                   (bsls::TimeUtil::getTimer()-timeStart)/1000;
+                bsls::Types::Int64 elapsed_usCPU = ::clock()-timeStartCPU;
                 throughput = (totalMessages*1000000/elapsed_us);
                 throughputCPU = (totalMessages*1000000/elapsed_usCPU);
                 cout << "testing: "

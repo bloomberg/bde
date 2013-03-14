@@ -470,6 +470,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -496,10 +500,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -622,7 +622,7 @@ class bdecs_PackedCalendar {
                                             // stored in the same order as in
                                             // 'd_holidayOffsets'
 
-    bslma_Allocator  *d_allocator_p;        // memory allocator (held, not
+    bslma::Allocator *d_allocator_p;        // memory allocator (held, not
                                             // owned)
 
     // FRIENDS
@@ -693,7 +693,7 @@ class bdecs_PackedCalendar {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdecs_PackedCalendar,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // TYPES
     typedef bdecs_PackedCalendar_BusinessDayConstIterator
@@ -735,14 +735,14 @@ class bdecs_PackedCalendar {
         // containers.
 
     // CREATORS
-    explicit bdecs_PackedCalendar(bslma_Allocator *basicAllocator = 0);
+    explicit bdecs_PackedCalendar(bslma::Allocator *basicAllocator = 0);
         // Create an empty calendar having no valid range.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     bdecs_PackedCalendar(const bdet_Date&  firstDate,
                          const bdet_Date&  lastDate,
-                         bslma_Allocator  *basicAllocator = 0);
+                         bslma::Allocator *basicAllocator = 0);
         // Create a calendar having a valid range from the specified
         // 'firstDate' through the specified 'lastDate' if
         // 'firstDate' <= lastDate'; otherwise, make the valid range empty.
@@ -751,7 +751,7 @@ class bdecs_PackedCalendar {
         // used.
 
     bdecs_PackedCalendar(const bdecs_PackedCalendar&  original,
-                         bslma_Allocator             *basicAllocator = 0);
+                         bslma::Allocator            *basicAllocator = 0);
         // Create a calendar having the value of the specified 'original'
         // calendar.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default

@@ -92,11 +92,11 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 namespace BloombergLP {
-  
+
 class bdem_Schema {
         // Dummy type.
 };
-  
+
 }
 
 //=============================================================================
@@ -141,8 +141,8 @@ int main(int argc, char *argv[])
 // enumeration definition that collectively could be used to describe the
 // value of a sale.  For the purposes of this example a sale can be performed
 // using either check, credit-card, or cash.  The set of definitions will have
-// the following structure: 
-//.. 
+// the following structure:
+//..
 //        +---------------------------------------------------------+
 //        |{                                                        |
 //        |    ENUMERATION "CREDIT_CARD_TYPE" {                     |
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 // in the lists "creditCardPayment" and "cashPayment" (in the "PAYMENT_INFO'
 // choice record definition).
 //
-// Finally, note that "SALE" has a "quanity" whose default value is 1. 
+// Finally, note that "SALE" has a "quanity" whose default value is 1.
 //
 // Here are a couple hypothetical record values that this schema might
 // describe:
@@ -218,11 +218,11 @@ int main(int argc, char *argv[])
 //      price:        48.50
 //      date:         May 1, 2010
 //      paymentInfo:  {
-//          creditCardPayment:  { 
+//          creditCardPayment:  {
 //              cardType:   "VISA"
 //              name:       Sally Jenkins
 //              cardNumber: 1111222223333
-//          } 
+//          }
 //      }
 //  }
 //..
@@ -238,33 +238,33 @@ int main(int argc, char *argv[])
 // Clients should not create a 'bdem_RecordDef' directly, but obtain one from
 // a 'bdem_Schema'.  For the purpose of this usage example, we define a dummy
 // stand-in type for 'bdem_Schema'.  This type is used in name-only by
-// 'bdem_RecordDef', so its definition is not necessary: 
+// 'bdem_RecordDef', so its definition is not necessary:
 //..
 //  namespace BloombergLP {
-//  
+//
 //  class bdem_Schema {
 //      // Dummy type.
 //  };
-//  
+//
 //  }
 //..
 // Now we create record and enumeration definition objects matching the
 // names in the example above.  We create one enumeration definition,
 // "CREDIT_CARD_TYPE", one record definition, "PAYMENT_INFO", of type choice
-// (i.e., 'BDEM_CHOICE_RECORD'), and three record defintions, 
+// (i.e., 'BDEM_CHOICE_RECORD'), and three record defintions,
 // "CREDIT_CARD_PAYMENT", "CHECK_PAYMENT", and "SALE", of type sequence
 // (i.e., 'BDEM_SEQUENCE_RECORD'):
 //..
-    bslma_Allocator           *allocator = bslma_Default::allocator(); 
+    bslma::Allocator          *allocator = bslma::Default::allocator();
     bdema_SequentialAllocator  seqAllocator(allocator);
     bdem_Schema                dummySchema;
- 
+
     bdem_EnumerationDef ccTypeEnumDef(&dummySchema,
                                       0,
                                       "CREDIT_CARD_TYPE",
                                       &seqAllocator);
     bdem_RecordDef ccPaymentRecDef(&dummySchema,
-                                   0, 
+                                   0,
                                    "CREDIT_CARD_PAYMENT",
                                    bdem_RecordDef::BDEM_SEQUENCE_RECORD,
                                    &seqAllocator,
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
                                      &seqAllocator,
                                      allocator);
     bdem_RecordDef saleRecDef(&dummySchema,
-                              3, 
+                              3,
                               "SALE",
                               bdem_RecordDef::BDEM_SEQUENCE_RECORD,
                               &seqAllocator,
@@ -290,31 +290,31 @@ int main(int argc, char *argv[])
 //..
 //
 ///Maniupulating and Accessing a 'bdem_RecordDef'
-///- - - - - - - - - - - - - - - - - - - - - - - 
+///- - - - - - - - - - - - - - - - - - - - - - -
 // In the following section we demonstrate how to append fields to a record
 // definition, and access its properties.  We will use the record definitions
 // (and enumeration definition) created in the preceeding section.  In practice
 // clients should obtain these definitions from a schema (see 'bdem_schema').
-// 
-// We start by examining the properties for the sequence record definition, 
+//
+// We start by examining the properties for the sequence record definition,
 // 'ccPaymentRecDef'.  Note that the values returned for 'recordName',
 // 'recordIndex', and 'recordType' are the values supplied atconstruction:
 //..
     ASSERT(0 == ccPaymentRecDef.recordIndex());
     ASSERT(0 == bsl::strcmp(ccPaymentRecDef.recordName(),
                             "CREDIT_CARD_PAYMENT"));
-    ASSERT(bdem_RecordDef::BDEM_SEQUENCE_RECORD == 
+    ASSERT(bdem_RecordDef::BDEM_SEQUENCE_RECORD ==
                                                  ccPaymentRecDef.recordType());
     ASSERT(0 == ccPaymentRecDef.numFields());
     ASSERT(&dummySchema == &ccPaymentRecDef.schema());
 //..
 // We also examine the properties for the choice record definition,
-// 'paymentInfoRecDef': 
+// 'paymentInfoRecDef':
 //..
     ASSERT(2 == paymentInfoRecDef.recordIndex());
     ASSERT(0 == bsl::strcmp(paymentInfoRecDef.recordName(),
                             "PAYMENT_INFO"));
-    ASSERT(bdem_RecordDef::BDEM_CHOICE_RECORD == 
+    ASSERT(bdem_RecordDef::BDEM_CHOICE_RECORD ==
                                                paymentInfoRecDef.recordType());
     ASSERT(0 == paymentInfoRecDef.numFields());
     ASSERT(&dummySchema == &paymentInfoRecDef.schema());
@@ -328,21 +328,21 @@ int main(int argc, char *argv[])
     ASSERT(0 == id1); ASSERT(1 == id2); ASSERT(2 == id3);
 //..
 // Next we append the field definitions to 'ccPaymentRecDef'.  When we add
-// the field definition "cardType" we supply the enumeration defintion 
+// the field definition "cardType" we supply the enumeration defintion
 // 'ccTypeEnumDef' as an enumeration constraint for the values of that field:
 //..
     ccPaymentRecDef.appendField(bdem_ElemType::BDEM_STRING,
                                 &ccTypeEnumDef,
                                 "cardType");
-    ccPaymentRecDef.appendField(bdem_ElemType::BDEM_STRING, 
+    ccPaymentRecDef.appendField(bdem_ElemType::BDEM_STRING,
                                 "name");
-    ccPaymentRecDef.appendField(bdem_ElemType::BDEM_INT,    
+    ccPaymentRecDef.appendField(bdem_ElemType::BDEM_INT,
                                 "cardNumber");
 //..
 // We verify the properties of a one of the fields we've appended.  By
 // default, a field will have a null field-id, it will not be nullable, it
 // will not have a default value, and its formatting mode will be
-// 'bdeat_FormattingMode::BDEAT_DEFAULT': 
+// 'bdeat_FormattingMode::BDEAT_DEFAULT':
 //..
     ASSERT(3 == ccPaymentRecDef.numFields());
     const bdem_FieldDef& cardTypeFldDef = ccPaymentRecDef.field(0);
@@ -352,15 +352,15 @@ int main(int argc, char *argv[])
     ASSERT(bdem_ElemType::BDEM_STRING    == cardTypeFldDef.elemType());
     ASSERT(false                         == cardTypeFldDef.hasDefaultValue());
     ASSERT(false                         == cardTypeFldDef.isNullable());
-    ASSERT(bdeat_FormattingMode::BDEAT_DEFAULT == 
+    ASSERT(bdeat_FormattingMode::BDEAT_DEFAULT ==
                                        cardTypeFldDef.formattingMode());
     ASSERT(&ccTypeEnumDef == cardTypeFldDef.enumerationConstraint());
 //..
 // Next append the fields to 'checkPaymentRecDef':
-//.. 
+//..
     checkPaymentRecDef.appendField(bdem_ElemType::BDEM_STRING,
                                    "bankName");
-    checkPaymentRecDef.appendField(bdem_ElemType::BDEM_INT,    
+    checkPaymentRecDef.appendField(bdem_ElemType::BDEM_INT,
                                    "routingNumber");
 //..
 // Next we append the fields to the choice record definition
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
     paymentInfoRecDef.appendField(bdem_ElemType::BDEM_LIST,
                                   &checkPaymentRecDef,
                                   "checkPayment");
-    paymentInfoRecDef.appendField(bdem_ElemType::BDEM_BOOL, 
+    paymentInfoRecDef.appendField(bdem_ElemType::BDEM_BOOL,
                                   "cashPayment");
 //..
 // Next we append the fields to the record definition 'saleRecDef'.  For the

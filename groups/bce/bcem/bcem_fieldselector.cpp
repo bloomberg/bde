@@ -6,6 +6,9 @@ BDES_IDENT_RCSID(bcem_fieldselector_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsl_cstring.h>
+#include <bsl_ostream.h>
+
 namespace BloombergLP {
 
                      // ------------------------
@@ -35,6 +38,24 @@ bsl::ostream& bcem_FieldSelector::print(bsl::ostream& stream,
     printer.end();
 
     return stream;
+}
+
+// FREE OPERATORS
+bool operator==(const bcem_FieldSelector& lhs, const bcem_FieldSelector& rhs)
+{
+    if (lhs.isEmpty() && rhs.isEmpty()) {
+        return true;                                                  // RETURN
+    }
+
+    if (lhs.isName() && rhs.isName()) {
+        return !bsl::strcmp(lhs.name(), rhs.name());                  // RETURN
+    }
+
+    if (lhs.isIndex() && rhs.isIndex()) {
+        return lhs.index() == rhs.index();                            // RETURN
+    }
+
+    return false;
 }
 
 }  // close namespace BloombergLP

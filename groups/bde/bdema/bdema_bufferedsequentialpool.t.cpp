@@ -37,7 +37,7 @@ using namespace bsl;
 // tests for the correctness of 'allocate', and the second verifies the
 // size of the first allocation and the memory alignment strategy.
 //
-// Finally, we make heavy use of the 'bslma_TestAllocator' to ensure that:
+// Finally, we make heavy use of the 'bslma::TestAllocator' to ensure that:
 //
 // (1) When the external buffer supplied at construction is full, memory
 //     allocation is satisfied using a dynamic buffer allocated by the
@@ -49,9 +49,9 @@ using namespace bsl;
 // (3) When the pool is destroyed, all managed memory is deallocated.
 //-----------------------------------------------------------------------------
 // // CREATORS
-// [3] bdema_BufferedSequentialPool(char *b, int s, bslma_Allocator *a = 0)
+// [3] bdema_BufferedSequentialPool(char *b, int s, bslma::Allocator *a = 0)
 // [3] bdema_BufferedSequentialPool(char *b, int s,
-//                            AlignmentStrategy st, bslma_Allocator *a = 0)
+//                            AlignmentStrategy st, bslma::Allocator *a = 0)
 // [7] ~bdema_BufferedSequentialPool
 //
 // // MANIPULATORS
@@ -131,7 +131,7 @@ bool globalDestructorInvoked = false;
 // actually get aligned on 4-byte boundary.  To fix this, create a static
 // buffer instead.
 enum { BUFFER_SIZE = 256 };
-static bsls_AlignedBuffer<BUFFER_SIZE> bufferStorage;
+static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
 
 //=============================================================================
 //                          HELPER CLASS FOR TESTING
@@ -155,8 +155,8 @@ struct InfrequentDeleteBlock {
     // This type is copied from the 'bdema_infrequentdeleteblocklist.h' for
     // testing purposes.
 
-    InfrequentDeleteBlock              *d_next_p;
-    bsls_AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+    InfrequentDeleteBlock               *d_next_p;
+    bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
 //=============================================================================
@@ -171,7 +171,7 @@ static int blockSize(int numBytes)
 
     if (numBytes) {
         numBytes += sizeof(InfrequentDeleteBlock) - 1;
-        numBytes &= ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+        numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
     return numBytes;
@@ -239,9 +239,9 @@ static int calculateNextSize(int currSize, int size)
         enum Type { MY_INT, MY_DOUBLE };
 
         // CREATORS
-        my_BufferedIntDoubleArray(char            *buffer,
-                                  int              size,
-                                  bslma_Allocator *basicAllocator = 0);
+        my_BufferedIntDoubleArray(char             *buffer,
+                                  int               size,
+                                  bslma::Allocator *basicAllocator = 0);
             // Create a fast 'int'-'double' array that initially allocates
             // memory sequentially from the specified 'buffer' having the
             // specified 'size' (in bytes).  Optionally specify a
@@ -293,9 +293,9 @@ static int calculateNextSize(int currSize, int size)
 
     // CREATORS
     my_BufferedIntDoubleArray::my_BufferedIntDoubleArray(
-                                               char            *buffer,
-                                               int              size,
-                                               bslma_Allocator *basicAllocator)
+                                              char             *buffer,
+                                              int               size,
+                                              bslma::Allocator *basicAllocator)
     : d_length(INITIAL_SIZE)
     , d_capacity(INITIAL_SIZE)
     , d_pool(buffer, size, basicAllocator)
@@ -359,7 +359,7 @@ static int calculateNextSize(int currSize, int size)
 //..
 ///Example 2: Implementing an Allocator Using 'bdema_BufferedSequentialPool'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bslma_Allocator' is used throughout the interfaces of BDE components.
+// 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a fast allocator, 'my_FastAllocator', that
 // allocates memory from a buffer in a similar fashion to
 // 'bdema_BufferedSequentialPool'.  This class can be used directly to
@@ -369,8 +369,8 @@ static int calculateNextSize(int currSize, int size)
 // example.  Please see 'bdema_bufferedsequentialallocator' for full
 // documentation of a similar class.
 //..
-    class my_FastAllocator : public bslma_Allocator {
-        // This class implements the 'bslma_Allocator' protocol to provide a
+    class my_FastAllocator : public bslma::Allocator {
+        // This class implements the 'bslma::Allocator' protocol to provide a
         // fast allocator of heterogeneous blocks of memory (of varying,
         // user-specified sizes) from an external buffer whose address and size
         // are supplied at construction.
@@ -380,9 +380,9 @@ static int calculateNextSize(int currSize, int size)
                                               // memory blocks
 
         // CREATORS
-        my_FastAllocator(char            *buffer,
-                         int              size,
-                         bslma_Allocator *basicAllocator = 0);
+        my_FastAllocator(char             *buffer,
+                         int               size,
+                         bslma::Allocator *basicAllocator = 0);
             // Create an allocator for allocating memory blocks from the
             // specified external 'buffer' of the specified 'size' (in bytes).
             // Optionally specify a 'basicAllocator' used to supply memory
@@ -406,9 +406,9 @@ static int calculateNextSize(int currSize, int size)
 
     // CREATORS
     inline
-    my_FastAllocator::my_FastAllocator(char            *buffer,
-                                       int              size,
-                                       bslma_Allocator *basicAllocator)
+    my_FastAllocator::my_FastAllocator(char             *buffer,
+                                       int               size,
+                                       bslma::Allocator *basicAllocator)
     : d_pool(buffer, size, basicAllocator)
     {
     }
@@ -450,19 +450,19 @@ int main(int argc, char *argv[])
     // three test allocators.
 
     // Object Test Allocator.
-    bslma_TestAllocator objectAllocator("Object Allocator",
-                                        veryVeryVeryVerbose);
+    bslma::TestAllocator objectAllocator("Object Allocator",
+                                         veryVeryVeryVerbose);
 
     // Default Test Allocator.
-    bslma_TestAllocator defaultAllocator("Default Allocator",
-                                         veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("Default Allocator",
+                                          veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     // Global Test Allocator.
-    bslma_TestAllocator  globalAllocator("Global Allocator",
+    bslma::TestAllocator globalAllocator("Global Allocator",
                                          veryVeryVeryVerbose);
-    bslma_Allocator *originalGlobalAllocator =
-                           bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::Allocator *originalGlobalAllocator =
+                          bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 9: {
@@ -534,7 +534,7 @@ int main(int argc, char *argv[])
         //   deallocated.
         //
         //   For concern 2, construct a buffered sequential pool using a
-        //   'bslma_TestAllocator', allocate sufficient memory such that the
+        //   'bslma::TestAllocator', allocate sufficient memory such that the
         //   buffer runs out and the allocator is used.  Finally, destroy
         //   the pool, and verify, using the test allocator, that there is
         //   no outstanding memory allocated.
@@ -672,7 +672,7 @@ int main(int argc, char *argv[])
         //   deallocated.
         //
         //   For concern 2 and 3, construct a buffered sequential pool using a
-        //   'bslma_TestAllocator', allocate sufficient memory such that the
+        //   'bslma::TestAllocator', allocate sufficient memory such that the
         //   buffer runs out and the allocator is used.  Finally, invoke
         //   'release' and verify, using the test allocator, that there is
         //   no outstanding memory allocated.  Then, allocate memory again and
@@ -818,22 +818,21 @@ int main(int argc, char *argv[])
         // Block copied from bdema_infrequentdeleteblocklist.h.  This is
         // the amount of additional memory used per allocation.
         struct Block {
-            Block                              *d_next_p;
-            bsls_AlignmentUtil::MaxAlignedType  d_memory;  // force
-                                                           // alignment
+            Block                               *d_next_p;
+            bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
         };
 
         // Align 'buffer' to MaxAlignedType.
         static union {
             char majorBuffer[MAJOR_BUFFER_SIZE];
-            bsls_AlignmentUtil::MaxAlignedType  dummy;
+            bsls::AlignmentUtil::MaxAlignedType dummy;
         };
 
         char                     *buffer;
         const int                 bufferSize = STATIC_BUFFER_SIZE;
         char                     *cBuffer;
-        bsls_Alignment::Strategy  nat = bsls_Alignment::BSLS_NATURAL;
-        bsls_Alignment::Strategy  max = bsls_Alignment::BSLS_MAXIMUM;
+        bsls::Alignment::Strategy nat = bsls::Alignment::BSLS_NATURAL;
+        bsls::Alignment::Strategy max = bsls::Alignment::BSLS_MAXIMUM;
 
         // Move the buffer to the middle.
         buffer = majorBuffer + 128;
@@ -987,16 +986,16 @@ int main(int argc, char *argv[])
                 cBuffer = (char *)mY.allocate(1);
                 ASSERT((cBuffer   <= buffer) || (cBuffer  >= buffer + 64));
                 ASSERT(cBuffer    == tBuffer + 1 +
-                       bsls_AlignmentUtil::calculateAlignmentOffset(
-                         tBuffer + 1, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT));
+                       bsls::AlignmentUtil::calculateAlignmentOffset(
+                        tBuffer + 1, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
                 ASSERT(bytesUsed  == objectAllocator.numBytesInUse());
 
                 tBuffer = cBuffer;
                 cBuffer = (char *)mY.allocate(1);
                 ASSERT((cBuffer   <= buffer) || (cBuffer  >= buffer + 64));
                 ASSERT(cBuffer    == tBuffer + 1 +
-                       bsls_AlignmentUtil::calculateAlignmentOffset(
-                         tBuffer + 1, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT));
+                       bsls::AlignmentUtil::calculateAlignmentOffset(
+                        tBuffer + 1, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
                 ASSERT(bytesUsed  == objectAllocator.numBytesInUse());
                 mY.release();
             }
@@ -1008,10 +1007,11 @@ int main(int argc, char *argv[])
         {
             // Testing maximal alignment
             {
-                int blockSize = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                int blockSize = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
                 Obj bufSeqPool(buffer, 8 * blockSize,
-                               bsls_Alignment::BSLS_MAXIMUM, &objectAllocator);
+                               bsls::Alignment::BSLS_MAXIMUM,
+                               &objectAllocator);
 
                 int offset   = 0; // alignment offset
 
@@ -1043,7 +1043,7 @@ int main(int argc, char *argv[])
                 // is unable to allocate another block of the desired size
                 // because of alignment considerations.
 
-                int blockSize = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                int blockSize = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
                 buffer += blockSize / 2;
                 Obj bufSeqPool(buffer, 8 * blockSize, nat, &objectAllocator);
@@ -1098,7 +1098,7 @@ int main(int argc, char *argv[])
                     T_ P_(bufferSize) P(MAXBUFFERSIZE)
                 }
 
-                bslma_TestAllocator ta(veryVeryVerbose),
+                bslma::TestAllocator ta(veryVeryVerbose),
                                     tb(veryVeryVerbose),
                                     tc(veryVeryVerbose);
 
@@ -1205,15 +1205,15 @@ int main(int argc, char *argv[])
         //      construction, is defaulted to natural alignment.
         //
         // Plan:
-        //   1) For concern 1 and 2, first create a 'bslma_TestAllocator' and
+        //   1) For concern 1 and 2, first create a 'bslma::TestAllocator' and
         //      a buffer on the stack.  Then create a buffered sequential pool
         //      object using the allocator and the buffer.  Verify that memory
         //      allocated from the pool first comes from the buffer, and when
         //      the buffer cannot satisfy the request, comes from the
         //      allocator.
         //
-        //   2) For concern 3, install a 'bslma_TestAllocator' as the default
-        //      allocator using a 'bslma_DefaultAllocatorGuard' object.  Then
+        //   2) For concern 3, install a 'bslma::TestAllocator' as the default
+        //      allocator using a 'bslma::DefaultAllocatorGuard' object.  Then
         //      verify that when an allocator is not specified at construction,
         //      the currently installed default allocator is used.
         //
@@ -1223,9 +1223,9 @@ int main(int argc, char *argv[])
         //      pool by comparing the address of the second allocation.
         //
         // Testing:
-        //   bdema_BufferedSequentialPool(char *b,int s,bslma_Allocator *a = 0)
+        //   bdema_BufferedSequentialPool(char *b,int s,bslma::Allocator *a=0);
         //   bdema_BufferedSequentialPool(char *b,int s,
-        //                        AlignmentStrategy st, bslma_Allocator *a = 0)
+        //                        AlignmentStrategy st, bslma::Allocator *a=0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTOR TEST" << endl
@@ -1303,48 +1303,48 @@ int main(int argc, char *argv[])
             {
                 Obj pool(buffer,
                          BUFFER_SIZE,
-                         bsls_Alignment::BSLS_NATURAL);
+                         bsls::Alignment::BSLS_NATURAL);
 
                 pool.allocate(ALLOC_SIZE1);
                 void *addr = pool.allocate(ALLOC_SIZE2);
 
                 int cursor = 0;
                 bdema_BufferImpUtil::allocateFromBuffer(
-                                                 &cursor,
-                                                 buffer,
-                                                 BUFFER_SIZE,
-                                                 ALLOC_SIZE1,
-                                                 bsls_Alignment::BSLS_NATURAL);
+                                                &cursor,
+                                                buffer,
+                                                BUFFER_SIZE,
+                                                ALLOC_SIZE1,
+                                                bsls::Alignment::BSLS_NATURAL);
                 void *addr2 = bdema_BufferImpUtil::allocateFromBuffer(
-                                                 &cursor,
-                                                 buffer,
-                                                 BUFFER_SIZE,
-                                                 ALLOC_SIZE2,
-                                                 bsls_Alignment::BSLS_NATURAL);
+                                                &cursor,
+                                                buffer,
+                                                BUFFER_SIZE,
+                                                ALLOC_SIZE2,
+                                                bsls::Alignment::BSLS_NATURAL);
 
                 LOOP2_ASSERT(addr2, addr, addr2 == addr);
             }
 
             if (verbose) cout << "\tTesting maximum alignment." << endl;
             {
-                Obj pool(buffer, BUFFER_SIZE, bsls_Alignment::BSLS_MAXIMUM);
+                Obj pool(buffer, BUFFER_SIZE, bsls::Alignment::BSLS_MAXIMUM);
 
                 pool.allocate(ALLOC_SIZE1);
                 void *addr = pool.allocate(ALLOC_SIZE2);
 
                 int cursor = 0;
                 bdema_BufferImpUtil::allocateFromBuffer(
-                                                 &cursor,
-                                                 buffer,
-                                                 BUFFER_SIZE,
-                                                 ALLOC_SIZE1,
-                                                 bsls_Alignment::BSLS_MAXIMUM);
+                                                &cursor,
+                                                buffer,
+                                                BUFFER_SIZE,
+                                                ALLOC_SIZE1,
+                                                bsls::Alignment::BSLS_MAXIMUM);
                 void *addr2 = bdema_BufferImpUtil::allocateFromBuffer(
-                                                 &cursor,
-                                                 buffer,
-                                                 BUFFER_SIZE,
-                                                 ALLOC_SIZE2,
-                                                 bsls_Alignment::BSLS_MAXIMUM);
+                                                &cursor,
+                                                buffer,
+                                                BUFFER_SIZE,
+                                                ALLOC_SIZE2,
+                                                bsls::Alignment::BSLS_MAXIMUM);
 
                 LOOP2_ASSERT(addr2, addr, addr2 == addr);
             }
@@ -1359,17 +1359,17 @@ int main(int argc, char *argv[])
 
             int cursor = 0;
             bdema_BufferImpUtil::allocateFromBuffer(
-                                                 &cursor,
-                                                 buffer,
-                                                 BUFFER_SIZE,
-                                                 ALLOC_SIZE1,
-                                                 bsls_Alignment::BSLS_NATURAL);
+                                                &cursor,
+                                                buffer,
+                                                BUFFER_SIZE,
+                                                ALLOC_SIZE1,
+                                                bsls::Alignment::BSLS_NATURAL);
             void *addr2 = bdema_BufferImpUtil::allocateFromBuffer(
-                                                 &cursor,
-                                                 buffer,
-                                                 BUFFER_SIZE,
-                                                 ALLOC_SIZE2,
-                                                 bsls_Alignment::BSLS_NATURAL);
+                                                &cursor,
+                                                buffer,
+                                                BUFFER_SIZE,
+                                                ALLOC_SIZE2,
+                                                bsls::Alignment::BSLS_NATURAL);
 
             LOOP2_ASSERT(addr2, addr, addr2 == addr);
         }
@@ -1377,7 +1377,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting growth strategy." << endl;
         {
             {
-                Obj mA(buffer, BUFFER_SIZE, bsls_BlockGrowth::BSLS_GEOMETRIC);
+                Obj mA(buffer, BUFFER_SIZE, bsls::BlockGrowth::BSLS_GEOMETRIC);
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
                 mA.allocate(BUFFER_SIZE + 1);
@@ -1388,7 +1388,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
             {
-                Obj mA(buffer, BUFFER_SIZE, bsls_BlockGrowth::BSLS_CONSTANT);
+                Obj mA(buffer, BUFFER_SIZE, bsls::BlockGrowth::BSLS_CONSTANT);
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
                 mA.allocate(BUFFER_SIZE);
@@ -1415,7 +1415,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
             {
-                Obj mA(buffer, BUFFER_SIZE, bsls_Alignment::BSLS_NATURAL);
+                Obj mA(buffer, BUFFER_SIZE, bsls::Alignment::BSLS_NATURAL);
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
                 mA.allocate(BUFFER_SIZE + 1);
@@ -1454,7 +1454,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVerbose);
         bdema_InfrequentDeleteBlockList bl(&a);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
@@ -1503,7 +1503,7 @@ int main(int argc, char *argv[])
         //   address of the second allocation.
         //
         //   For concern 4, initialize a 'bdema_BufferedSequentialPool' with a
-        //   'bslma_TestAllocator'.  Then allocate a block of memory that is
+        //   'bslma::TestAllocator'.  Then allocate a block of memory that is
         //   larger than the buffer supplied at construction of the buffered
         //   sequential pool.  Verify that memory is allocated from the test
         //   allocator.

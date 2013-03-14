@@ -2,7 +2,9 @@
 
 #include <bslmf_addreference.h>
 
+#include <bslmf_addrvaluereference.h>
 #include <bslmf_issame.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>    // atoi()
@@ -56,7 +58,7 @@ static void aSsErT(bool b, const char *s, int i) {
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT_SAME(X, Y) ASSERT((bslmf::IsSame<X, Y>::VALUE))
+#define ASSERT_SAME(X, Y) ASSERT((bsl::is_same<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -114,7 +116,7 @@ namespace USAGE_EXAMPLE_1 {
         typedef typename bslmf::AddReference<TYPE>::Type WrappedType;
 
         // CREATORS
-        Wrapper(TYPE value) : d_data(value) {}
+        Wrapper(TYPE value) : d_data(value) {}                      // IMPLICIT
             // Create a 'Wrapper' object having the specified 'value'.
 
         //! ~Wrapper() = default;
@@ -310,6 +312,122 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::AddReference<void volatile>::Type, volatile void);
         ASSERT_SAME(bslmf::AddReference<void const volatile>::Type,
                     const volatile void);
+
+        if (verbose) printf("\nbsl::add_lvalue_reference"
+                            "\n=========================\n");
+
+        ASSERT_SAME(bsl::add_lvalue_reference<int       >::type, int&);
+        ASSERT_SAME(bsl::add_lvalue_reference<int&      >::type, int&);
+        ASSERT_SAME(bsl::add_lvalue_reference<int const >::type, const int&);
+        ASSERT_SAME(bsl::add_lvalue_reference<int const&>::type, const int&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<void *          >::type,
+                    void *&);
+        ASSERT_SAME(bsl::add_lvalue_reference<void *&         >::type,
+                    void *&);
+        ASSERT_SAME(bsl::add_lvalue_reference<void volatile *&>::type,
+                    volatile void *&);
+        ASSERT_SAME(bsl::add_lvalue_reference<char const *const&>::type,
+                    const char *const&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<Enum        >::type, Enum&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Enum&       >::type, Enum&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Struct      >::type, Struct&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Struct&     >::type, Struct&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Union       >::type, Union&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Union&      >::type, Union&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Class       >::type, Class&);
+        ASSERT_SAME(bsl::add_lvalue_reference<const Class&>::type,
+                    const Class&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<INT >::type, int&);
+        ASSERT_SAME(bsl::add_lvalue_reference<INT&>::type, int&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<int Class::* >::type,
+                    int Class::*&);
+        ASSERT_SAME(bsl::add_lvalue_reference<int Class::*&>::type,
+                    int Class::*&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<  F>::type,  F&);
+        ASSERT_SAME(bsl::add_lvalue_reference< RF>::type,  F&);
+        ASSERT_SAME(bsl::add_lvalue_reference< PF>::type, PF&);
+        ASSERT_SAME(bsl::add_lvalue_reference<RPF>::type, PF&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference< Fi >::type, Fi&);
+        ASSERT_SAME(bsl::add_lvalue_reference<RFi >::type, Fi&);
+        ASSERT_SAME(bsl::add_lvalue_reference< FRi>::type, FRi&);
+        ASSERT_SAME(bsl::add_lvalue_reference<RFRi>::type, FRi&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference< A>::type, A&);
+        ASSERT_SAME(bsl::add_lvalue_reference<RA>::type, A&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<void         >::type,
+                    void);
+        ASSERT_SAME(bsl::add_lvalue_reference<void const   >::type,
+                    const void);
+        ASSERT_SAME(bsl::add_lvalue_reference<void volatile>::type,
+                    volatile void);
+        ASSERT_SAME(bsl::add_lvalue_reference<void const volatile>::type,
+                    const volatile void);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        if (verbose) printf("\nbsl::add_rvalue_reference"
+                            "\n=========================\n");
+
+        ASSERT_SAME(bsl::add_rvalue_reference<int       >::type, int&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<int&      >::type, int&);
+        ASSERT_SAME(bsl::add_rvalue_reference<int const >::type, const int&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<int const&>::type, const int&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<void *          >::type,
+                    void *&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<void *&         >::type,
+                    void *&);
+        ASSERT_SAME(bsl::add_rvalue_reference<void volatile *&>::type,
+                    volatile void *&);
+        ASSERT_SAME(bsl::add_rvalue_reference<char const *const&>::type,
+                    const char *const&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<Enum        >::type, Enum&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Enum&       >::type, Enum&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Struct      >::type, Struct&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Struct&     >::type, Struct&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Union       >::type, Union&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Union&      >::type, Union&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Class       >::type, Class&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<const Class&>::type,
+                    const Class&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<INT >::type, int&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<INT&>::type, int&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<int Class::* >::type,
+                    int Class::*&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<int Class::*&>::type,
+                    int Class::*&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<  F>::type,  F&&);
+        ASSERT_SAME(bsl::add_rvalue_reference< RF>::type,  F&);
+        ASSERT_SAME(bsl::add_rvalue_reference< PF>::type, PF&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<RPF>::type, PF&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference< Fi >::type, Fi&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<RFi >::type, Fi&);
+        ASSERT_SAME(bsl::add_rvalue_reference< FRi>::type, FRi&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<RFRi>::type, FRi&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference< A>::type, A&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<RA>::type, A&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<void         >::type,
+                    void);
+        ASSERT_SAME(bsl::add_rvalue_reference<void const   >::type,
+                    const void);
+        ASSERT_SAME(bsl::add_rvalue_reference<void volatile>::type,
+                    volatile void);
+        ASSERT_SAME(bsl::add_rvalue_reference<void const volatile>::type,
+                    const volatile void);
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -324,11 +442,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

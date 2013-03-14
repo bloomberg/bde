@@ -96,15 +96,15 @@ class BlobBufferFactory : public bcema_BlobBufferFactory {
     // TBD: doc
 
     // PRIVATE DATA MEMBERS
-    int              d_size;
-    bslma_Allocator *d_allocator_p;
+    int               d_size;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // CREATORS
-    BlobBufferFactory(int              initialSize,
-                      bslma_Allocator *basicAllocator = 0)
+    BlobBufferFactory(int               initialSize,
+                      bslma::Allocator *basicAllocator = 0)
     : d_size(initialSize)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
@@ -390,9 +390,9 @@ int main(int argc, char *argv[]) {
             INC_NUM_BUFFERS = 1
         };
 
-        bslma_TestAllocator allocator;
-        bslma_Default::setDefaultAllocatorRaw(&allocator);
-        ASSERT(&allocator == bslma_Default::defaultAllocator());
+        bslma::TestAllocator allocator;
+        bslma::Default::setDefaultAllocatorRaw(&allocator);
+        ASSERT(&allocator == bslma::Default::defaultAllocator());
 
         for (int bufferSize =  MIN_BUFFER_SIZE;
                  bufferSize <= MAX_BUFFER_SIZE;
@@ -620,7 +620,7 @@ int main(int argc, char *argv[]) {
             const int   d_retValue;
         } DATA[] = {
             // Line   LHS         RHS          retValue
-            // ----   ---         ---          -------- 
+            // ----   ---         ---          --------
             {   L_,   "",         "",                 0 },
 
             {   L_,   "a",        "",                 1 },

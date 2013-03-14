@@ -17,7 +17,7 @@ namespace BloombergLP {
                         // ---------------------------
 
 // CREATORS
-bael_RecordAttributes::bael_RecordAttributes(bslma_Allocator *basicAllocator)
+bael_RecordAttributes::bael_RecordAttributes(bslma::Allocator *basicAllocator)
 : d_timestamp()
 , d_processID(0)
 , d_threadID(0)
@@ -30,15 +30,15 @@ bael_RecordAttributes::bael_RecordAttributes(bslma_Allocator *basicAllocator)
 }
 
 bael_RecordAttributes::bael_RecordAttributes(
-                                     const bdet_Datetime&       timestamp,
-                                     int                        processID,
-                                     bsls_PlatformUtil::Uint64  threadID,
-                                     const char                *fileName,
-                                     int                        lineNumber,
-                                     const char                *category,
-                                     int                        severity,
-                                     const char                *message,
-                                     bslma_Allocator           *basicAllocator)
+                                          const bdet_Datetime&  timestamp,
+                                          int                   processID,
+                                          bsls::Types::Uint64   threadID,
+                                          const char           *fileName,
+                                          int                   lineNumber,
+                                          const char           *category,
+                                          int                   severity,
+                                          const char           *message,
+                                          bslma::Allocator     *basicAllocator)
 : d_timestamp(timestamp)
 , d_processID(processID)
 , d_threadID(threadID)
@@ -52,8 +52,8 @@ bael_RecordAttributes::bael_RecordAttributes(
 }
 
 bael_RecordAttributes::bael_RecordAttributes(
-                                  const bael_RecordAttributes& original,
-                                  bslma_Allocator              *basicAllocator)
+                                  const bael_RecordAttributes&  original,
+                                  bslma::Allocator             *basicAllocator)
 : d_timestamp(original.d_timestamp)
 , d_processID(original.d_processID)
 , d_threadID(original.d_threadID)
@@ -112,13 +112,14 @@ const char *bael_RecordAttributes::message() const
     return d_messageStreamBuf.data();
 }
 
-bslstl_StringRef bael_RecordAttributes::messageRef() const
+bslstl::StringRef bael_RecordAttributes::messageRef() const
 {
     int length = d_messageStreamBuf.length();
     const char *str = d_messageStreamBuf.data();
-    return bslstl_StringRef(str,
-                            (!length || '\0' != str[length - 1]) ? length
-                                                                 : length - 1);
+    return bslstl::StringRef(str,
+                             (!length || '\0' != str[length - 1])
+                             ? length
+                             : length - 1);
 }
 
 bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
@@ -209,7 +210,7 @@ bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
-    bslstl_StringRef message = messageRef();
+    bslstl::StringRef message = messageRef();
     stream.write(message.data(), message.length());
 
     if (0 <= spacesPerLevel) {

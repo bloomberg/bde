@@ -14,16 +14,15 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  btesos_TcpTimedAcceptor: a blocking 'btesc'-style timed channel allocator
 //
-//@SEE_ALSO: btesos_tcpchannel  btesos_tcptimedchannel
-//
-//@SEE_ALSO: btesos_tcptimedconnector
+//@SEE_ALSO: btesos_tcpchannel,  btesos_tcptimedchannel,
+//           btesos_tcptimedconnector
 //
 //@DESCRIPTION: This component provides a blocking single-port acceptor of TCP
 // connections with timeout capability that adheres to
 // 'btesc_TimedChannelAllocator' protocol.  Both timed and non-timed (blocking)
 // channels can be allocated in a timed or non-timed fashion correspondingly as
 // indicated by the following table:
-//
+//..
 //       +=============================================================+
 //       |  Result/Operation |        Timed         |    Non-Timed     |
 //       +-------------------------------------------------------------+
@@ -31,7 +30,7 @@ BDES_IDENT("$Id: $")
 //       +-------------------------------------------------------------+
 //       |    Non-Timed      |    'timedAllocate'   |    'allocate'    |
 //       +=============================================================+
-//
+//..
 // The acceptor has the flexibility of opening and closing a listening socket
 // with no effect on any existing channels managed by this object.
 //
@@ -52,8 +51,8 @@ BDES_IDENT("$Id: $")
 // non-timed version of the acceptor (i.e., 'btesos_tcpacceptor').  If timed
 // allocations are not required, 'btesos_TcpAcceptor' should be used instead.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
 // The following usage example shows a possible implementation of a single-user
 // echo server.  An echo server accepts a connection and sends back any
 // received data back to the client (until the connection is terminated).  This
@@ -157,12 +156,12 @@ BDES_IDENT("$Id: $")
 #include <bdema_pool.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
 #endif
 
 namespace BloombergLP {
@@ -217,7 +216,7 @@ class btesos_TcpTimedAcceptor : public btesc_TimedChannelAllocator {
     // CREATORS
     btesos_TcpTimedAcceptor(
              bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
-             bslma_Allocator                              *basicAllocator = 0);
+             bslma::Allocator                             *basicAllocator = 0);
         // Create a timed acceptor that uses the specified 'factory' to create
         // stream sockets.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -230,7 +229,7 @@ class btesos_TcpTimedAcceptor : public btesc_TimedChannelAllocator {
     btesos_TcpTimedAcceptor(
              bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
              int                                           initialCapacity,
-             bslma_Allocator                              *basicAllocator = 0);
+             bslma::Allocator                             *basicAllocator = 0);
         // Create a timed acceptor that uses the specified 'factory' to create
         // stream sockets with enough internal capacity to accommodate up to
         // the specified 'initialCapacity' channels without reallocation.

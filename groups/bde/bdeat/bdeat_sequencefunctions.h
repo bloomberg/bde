@@ -602,8 +602,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 namespace BloombergLP {
@@ -621,7 +621,7 @@ namespace bdeat_SequenceFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
-    bslmf_MetaInt<0> isSequenceMetaFunction(const TYPE&);
+    bslmf::MetaInt<0> isSequenceMetaFunction(const TYPE&);
         // This function can be overloaded to support partial specialization
         // (Sun5.2 compiler is unable to partially specialize the 'struct'
         // below).  Note that this function is has no definition and should not
@@ -638,10 +638,10 @@ namespace bdeat_SequenceFunctions {
         // documentation for further information.
 
         enum {
-            VALUE = bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE
+            VALUE = bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isSequenceMetaFunction(
-                                                   bslmf_TypeRep<TYPE>::rep()))
+                                                  bslmf::TypeRep<TYPE>::rep()))
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
@@ -929,7 +929,8 @@ int bdeat_SequenceFunctions::bdeat_sequenceManipulateAttribute(
                                              const char   *attributeName,
                                              int           attributeNameLength)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
+    BSLMF_ASSERT(
+                (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
 
     return object->manipulateAttribute(manipulator,
                                        attributeName,
@@ -943,7 +944,8 @@ int bdeat_SequenceFunctions::bdeat_sequenceManipulateAttribute(
                                                      MANIPULATOR&  manipulator,
                                                      int           attributeId)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
+    BSLMF_ASSERT(
+                (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
 
     return object->manipulateAttribute(manipulator, attributeId);
 }
@@ -954,7 +956,8 @@ int bdeat_SequenceFunctions::bdeat_sequenceManipulateAttributes(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
+    BSLMF_ASSERT(
+                (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
 
     return object->manipulateAttributes(manipulator);
 }
@@ -969,7 +972,8 @@ int bdeat_SequenceFunctions::bdeat_sequenceAccessAttribute(
                                                const char *attributeName,
                                                int         attributeNameLength)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
+    BSLMF_ASSERT(
+                (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
 
     return object.accessAttribute(accessor,
                                   attributeName,
@@ -983,7 +987,8 @@ int bdeat_SequenceFunctions::bdeat_sequenceAccessAttribute(
                                                        ACCESSOR&   accessor,
                                                        int         attributeId)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
+    BSLMF_ASSERT(
+                (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
 
     return object.accessAttribute(accessor, attributeId);
 }
@@ -994,7 +999,8 @@ int bdeat_SequenceFunctions::bdeat_sequenceAccessAttributes(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
+    BSLMF_ASSERT(
+                (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
 
     return object.accessAttributes(accessor);
 }
@@ -1010,7 +1016,8 @@ bool bdeat_SequenceFunctions::bdeat_sequenceHasAttribute(
                                               const char  *attributeName,
                                               int          attributeNameLength)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
+    BSLMF_ASSERT(
+                (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
 
     return 0 != object.lookupAttributeInfo(attributeName, attributeNameLength);
 }
@@ -1021,7 +1028,8 @@ bool bdeat_SequenceFunctions::bdeat_sequenceHasAttribute(
                                                        const TYPE& object,
                                                        int         attributeId)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
+    BSLMF_ASSERT(
+                (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE));
 
     return 0 != object.lookupAttributeInfo(attributeId);
 }

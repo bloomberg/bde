@@ -101,7 +101,7 @@ static void aSsErT(int c, const char *s, int i)
 // both its size and alignment requirement equal to the alignment requirement
 // of a specified template parameter type.  We can utilize the
 // 'AlignmentImpTag' 'struct' template, the overloads of
-// 'AlignmentImpMatch::match' class method, the 'AiignmentImp_Prioirty'
+// 'AlignmentImpMatch::match' class method, the 'AlignmentImp_Priority'
 // template class, and the 'AlignmentImpPrioriityToType' template class to do
 // this calculation.
 
@@ -184,29 +184,28 @@ struct S1 { char d_buff[8]; S1(char); };                            // IMPLICIT
 struct S2 { char d_buff[8]; int d_int; S2(); private: S2(const S2&); };
 struct S3 { S1 d_s1; double d_double; short d_short; };
 struct S4 { short d_shorts[5]; char d_c;  S4(int); private: S4(const S4&); };
-                                                                    // IMPLICIT
-
-#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)) \
+#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)  \
+                                      || defined(BSLS_PLATFORM_OS_CYGWIN)) \
  && defined(BSLS_PLATFORM_CPU_X86)
 struct S5 { long long d_longLong __attribute__((__aligned__(8))); };
 #endif
 union  U1 { char d_c; int *d_pointer; };
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, void *)
 {
     return false;
 }
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, T *)
 {
     return true;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool sameType(T1 t1, T2 t2)
 {
@@ -356,7 +355,8 @@ int main(int argc, char *argv[])
             S2_ALIGNMENT          = bsls::AlignmentImpCalc<S2>::VALUE,
             S3_ALIGNMENT          = bsls::AlignmentImpCalc<S3>::VALUE,
             S4_ALIGNMENT          = bsls::AlignmentImpCalc<S4>::VALUE,
-#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)) \
+#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)  \
+                                      || defined(BSLS_PLATFORM_OS_CYGWIN)) \
  && defined(BSLS_PLATFORM_CPU_X86)
             S5_ALIGNMENT          = bsls::AlignmentImpCalc<S5>::VALUE,
 #endif
@@ -383,6 +383,7 @@ int main(int argc, char *argv[])
             int EXP_S2_ALIGNMENT          = 4;
             int EXP_S3_ALIGNMENT          = 8;
             int EXP_S4_ALIGNMENT          = 2;
+            int EXP_S5_ALIGNMENT          = 8;
             int EXP_U1_ALIGNMENT          = 4;
 
 // Specializations for different architectures
@@ -390,8 +391,7 @@ int main(int argc, char *argv[])
  && defined(BSLS_PLATFORM_CPU_X86)
             EXP_INT64_ALIGNMENT           = 4;
             EXP_DOUBLE_ALIGNMENT          = 4;
-            int EXP_S5_ALIGNMENT          = 8;
-#ifdef BSLS_PLATFORM_OS_LINUX
+#if defined(BSLS_PLATFORM_OS_LINUX)
             EXP_LONG_DOUBLE_ALIGNMENT     = 4;
 #else
             EXP_LONG_DOUBLE_ALIGNMENT     = 16;
@@ -417,6 +417,11 @@ int main(int argc, char *argv[])
             EXP_DOUBLE_ALIGNMENT          = 4;
             EXP_LONG_DOUBLE_ALIGNMENT     = 4;
             EXP_S3_ALIGNMENT              = 4;
+#endif
+
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+            EXP_WCHAR_T_ALIGNMENT         = 2;
+            EXP_LONG_DOUBLE_ALIGNMENT     = 4;
 #endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -514,7 +519,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(bsls::AlignmentImpPriorityToType<12>::Type(),
                         sameType(bsls::AlignmentImpPriorityToType<12>::Type(),
                                  char()));
-#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_X86)
+#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)) \
+  && defined(BSLS_PLATFORM_CPU_X86)
             ASSERT(sameType(bsls::AlignmentImpPriorityToType<13>::Type(),
                             bsls::AlignmentImp8ByteAlignedType()));
 #endif
@@ -533,11 +539,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

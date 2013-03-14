@@ -5,7 +5,7 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>       // for usage example(s)
 #include <bsls_objectbuffer.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>               // atoi()
 #include <bsl_iostream.h>
@@ -57,20 +57,20 @@ using namespace bsl;  // automatically added by script
 // ----------------
 // [ 2] bces_AtomicInt64();
 // [ 3] bces_AtomicInt64(const bces_AtomicInt64& original);
-// [ 3] bces_AtomicInt64(bsls_PlatformUtil::Int64 value);
+// [ 3] bces_AtomicInt64(bsls::Types::Int64 value);
 // [ 2] ~bces_AtomicInt64();
-// [ 4] bsls_PlatformUtil::Int64 add(bsls_PlatformUtil::Int64 value);
-// [ 5] bsls_PlatformUtil::Int64 swap(bsls_PlatformUtil::Int64 swapValue);
-// [ 5] bsls_PlatformUtil::Int64 testAndSwap(bsls_PlatformUtil::Int64 ...
-// [ 6] bsls_PlatformUtil::Int64 operator ++();
-// [ 6] bsls_PlatformUtil::Int64 operator ++(int);
-// [ 6] bsls_PlatformUtil::Int64 operator --();
-// [ 6] bsls_PlatformUtil::Int64 operator --(int);
+// [ 4] bsls::Types::Int64 add(bsls::Types::Int64 value);
+// [ 5] bsls::Types::Int64 swap(bsls::Types::Int64 swapValue);
+// [ 5] bsls::Types::Int64 testAndSwap(bsls::Types::Int64 ...
+// [ 6] bsls::Types::Int64 operator ++();
+// [ 6] bsls::Types::Int64 operator ++(int);
+// [ 6] bsls::Types::Int64 operator --();
+// [ 6] bsls::Types::Int64 operator --(int);
 // [ 3] bces_AtomicInt64& operator= (const bces_AtomicInt64& rhs);
-// [ 2] bces_AtomicInt64& operator= (bsls_PlatformUtil::Int64 value);
-// [ 4] void operator +=(bsls_PlatformUtil::Int64 value);
-// [ 4] void operator -=(bsls_PlatformUtil::Int64 value);
-// [ 2] operator bsls_PlatformUtil::Int64() const;
+// [ 2] bces_AtomicInt64& operator= (bsls::Types::Int64 value);
+// [ 4] void operator +=(bsls::Types::Int64 value);
+// [ 4] void operator -=(bsls::Types::Int64 value);
+// [ 2] operator bsls::Types::Int64() const;
 //
 // bces_AtomicPointer
 // ------------------
@@ -153,7 +153,7 @@ typedef bces_AtomicPointer<APTestObj>       AP;
 typedef bces_AtomicPointer<const APTestObj> CAP;
 typedef bces_SpinLock                       SL;
 
-typedef bsls_PlatformUtil::Int64            Int64;
+typedef bsls::Types::Int64                  Int64;
 
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -377,10 +377,10 @@ class my_CountedHandle;
 
 template <class INSTANCE, class FACTORY>
 class my_CountedHandleRep {
-    bces_AtomicInt  d_count;       // number of active references
-    INSTANCE        *d_instance_p;  // address of managed instance
-    FACTORY         *d_factory_p;   // held but not owned
-    bslma_Allocator *d_allocator_p; // held but not owned
+    bces_AtomicInt    d_count;       // number of active references
+    INSTANCE         *d_instance_p;  // address of managed instance
+    FACTORY          *d_factory_p;   // held but not owned
+    bslma::Allocator *d_allocator_p; // held but not owned
     friend class my_CountedHandle<INSTANCE, FACTORY>;
   private: // not implemented
     my_CountedHandleRep(const my_CountedHandleRep&);
@@ -390,9 +390,9 @@ class my_CountedHandleRep {
     static void
     deleteObject(my_CountedHandleRep<INSTANCE, FACTORY> *object);
     // CREATORS
-    my_CountedHandleRep(INSTANCE        *instance,
-                           FACTORY         *factory,
-                           bslma_Allocator *basicAllocator);
+    my_CountedHandleRep(INSTANCE         *instance,
+                        FACTORY          *factory,
+                        bslma::Allocator *basicAllocator);
     ~my_CountedHandleRep();
     // MANIPULATORS
     void increment();
@@ -409,9 +409,9 @@ class my_CountedHandle {
   public:
     // CREATORS
     my_CountedHandle();
-    my_CountedHandle(INSTANCE        *instance,
-                        FACTORY         *factory,
-                        bslma_Allocator *basicAllocator = 0);
+    my_CountedHandle(INSTANCE         *instance,
+                     FACTORY          *factory,
+                     bslma::Allocator *basicAllocator = 0);
     my_CountedHandle(const my_CountedHandle<INSTANCE, FACTORY>& other);
     ~my_CountedHandle();
      // ACCESSORS
@@ -431,9 +431,9 @@ void my_CountedHandleRep<INSTANCE, FACTORY>::deleteObject(
 template <class INSTANCE, class FACTORY>
 inline
 my_CountedHandleRep<INSTANCE, FACTORY>::
-                        my_CountedHandleRep(INSTANCE        *instance,
-                                            FACTORY         *factory,
-                                            bslma_Allocator *basicAllocator)
+                        my_CountedHandleRep(INSTANCE         *instance,
+                                            FACTORY          *factory,
+                                            bslma::Allocator *basicAllocator)
 : d_instance_p(instance)
 , d_factory_p(factory)
 , d_allocator_p(basicAllocator)
@@ -475,11 +475,11 @@ my_CountedHandle<INSTANCE, FACTORY>::my_CountedHandle()
 template <class INSTANCE, class FACTORY>
 inline
 my_CountedHandle<INSTANCE, FACTORY>::my_CountedHandle(
-                                             INSTANCE        *object,
-                                             FACTORY         *factory,
-                                             bslma_Allocator *basicAllocator)
+                                             INSTANCE         *object,
+                                             FACTORY          *factory,
+                                             bslma::Allocator *basicAllocator)
 {
-    bslma_Allocator *ba = bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *ba = bslma::Default::allocator(basicAllocator);
     d_rep_p = new(ba->allocate(sizeof *d_rep_p))
                 my_CountedHandleRep<INSTANCE, FACTORY>(object, factory, ba);
 }
@@ -524,22 +524,22 @@ class my_PtrStack {
     struct Node {
         TYPE                 *d_item;
         Node                 *d_next;
-        bces_AtomicUtil::Int d_dirtyBit;
+        bces_AtomicUtil::Int  d_dirtyBit;
     };
     bces_AtomicPointer<Node>  d_list_p;
     bces_AtomicPointer<Node>  d_freeList_p;
-    bslma_Allocator *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
     Node *allocateNode();
     void freeNode(Node *node);
   public:
-    my_PtrStack(bslma_Allocator *allocator=0);
+    my_PtrStack(bslma::Allocator *allocator=0);
    ~my_PtrStack();
     void push(TYPE* item);
     TYPE *pop();
 };
 
 template <class TYPE>
-inline my_PtrStack<TYPE>::my_PtrStack(bslma_Allocator *allocator)
+inline my_PtrStack<TYPE>::my_PtrStack(bslma::Allocator *allocator)
 : d_allocator_p(allocator)
 {
 }
@@ -568,7 +568,7 @@ typename my_PtrStack<TYPE>::Node* my_PtrStack<TYPE>::allocateNode()
         bces_AtomicUtil::setInt(&node->d_dirtyBit, 0);
     } while (1);
     if (!node) {
-        bslma_Allocator *ba = bslma_Default::allocator(d_allocator_p);
+        bslma::Allocator *ba = bslma::Default::allocator(d_allocator_p);
         node = new(*ba) Node();
         bces_AtomicUtil::setInt(&node->d_dirtyBit, 1);
     }
@@ -685,7 +685,7 @@ int main(int argc, char *argv[])
             my_PtrStack<int> stack;
         }
         {
-            my_CountedHandle<double, bslma_Allocator> handle;
+            my_CountedHandle<double, bslma::Allocator> handle;
         }
       } break;
       case 7: {
@@ -749,10 +749,10 @@ int main(int argc, char *argv[])
         //  int operator ++(int);
         //  int operator --();
         //  int operator --(int);
-        //  bsls_PlatformUtil::Int64 operator ++();
-        //  bsls_PlatformUtil::Int64 operator ++(int);
-        //  bsls_PlatformUtil::Int64 operator --();
-        //  bsls_PlatformUtil::Int64 operator --(int);
+        //  bsls::Types::Int64 operator ++();
+        //  bsls::Types::Int64 operator ++(int);
+        //  bsls::Types::Int64 operator --();
+        //  bsls::Types::Int64 operator --(int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Increment/Decrement Manipulators"
@@ -1019,8 +1019,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   int swap(int swapValue);
         //   int testAndSwap(int compareValue,int swapValue);
-        //   bsls_PlatformUtil::Int64 swap(bsls_PlatformUtil::Int64 swapValue);
-        //   bsls_PlatformUtil::Int64 testAndSwap(bsls_PlatformUtil::Int64 ...
+        //   bsls::Types::Int64 swap(bsls::Types::Int64 swapValue);
+        //   bsls::Types::Int64 testAndSwap(bsls::Types::Int64 ...
         //   T* swap(const T* swapValue);
         //   T* testAndSwap(const T* compareValue, const T* swapValue);
         // --------------------------------------------------------------------
@@ -1310,9 +1310,9 @@ int main(int argc, char *argv[])
         //   int add(int value);
         //   void operator +=(int value);
         //   void operator -=(int value);
-        //   bsls_PlatformUtil::Int64 add(bsls_PlatformUtil::Int64 value);
-        //   void operator +=(bsls_PlatformUtil::Int64 value);
-        //   void operator -=(bsls_PlatformUtil::Int64 value);
+        //   bsls::Types::Int64 add(bsls::Types::Int64 value);
+        //   void operator +=(bsls::Types::Int64 value);
+        //   void operator -=(bsls::Types::Int64 value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1581,7 +1581,7 @@ int main(int argc, char *argv[])
         //   bces_AtomicInt(int value);
         //   bces_AtomicInt& operator= (const bces_AtomicInt& rhs);
         //   bces_AtomicInt64(const bces_AtomicInt64& original);
-        //   bces_AtomicInt64(bsls_PlatformUtil::Int64 value);
+        //   bces_AtomicInt64(bsls::Types::Int64 value);
         //   bces_AtomicInt64& operator= (const bces_AtomicInt64& rhs);
         //   bces_AtomicPointer(const bces_AtomicPointer<T>& original);
         //   bces_AtomicPointer(const T* value);
@@ -1711,7 +1711,7 @@ int main(int argc, char *argv[])
         //   sequence independent test values, set the value using the basic
         //   manipulator('operator=').  Verify that the value is correct using
         //   the respective direct accessor('operator int',
-        //   'operator bsls_PlatformUtil::Int64', 'operator T*').
+        //   'operator bsls::Types::Int64', 'operator T*').
         //
         // Testing:
         //   bces_AtomicInt();
@@ -1720,8 +1720,8 @@ int main(int argc, char *argv[])
         //   operator int() const;;
         //   bces_AtomicInt64();
         //   ~bces_AtomicInt64();
-        //   bces_AtomicInt64& operator= (bsls_PlatformUtil::Int64 value);
-        //   operator bsls_PlatformUtil::Int64() const;
+        //   bces_AtomicInt64& operator= (bsls::Types::Int64 value);
+        //   operator bsls::Types::Int64() const;
         //   bces_AtomicPointer();
         //   bces_AtomicPointer<T>& operator= (const T *value);
         //   ~bces_AtomicPointer();

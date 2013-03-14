@@ -379,22 +379,14 @@ bsls::Types::Int64 fakeConvertRawTime(bsls::Types::Int64 rawTime,
 
         rawTime -= initialTime;
 
-        return (
-                // Divide high part by frequency
-                static_cast<bsls::Types::Int64>(rawTime >> 32)
-                    * highPartDivisionFactor
-                +
-                (
-                 // Restore remainder of high part division
-                 static_cast<bsls::Types::Int64>(rawTime >> 32)
-                    * highPartRemainderFactor
-                 +
-                 // Calculate low part contribution
-                 static_cast<bsls::Types::Uint64>(rawTime & LOW_MASK)
-                    * G
-                )
-                    / timerFrequency
-                );
+        const bsls::Types::Int64 high32Bits =
+            static_cast<bsls::Types::Int64>(rawTime >> 32);
+        const bsls::Types::Uint64 low32Bits  =
+            static_cast<bsls::Types::Uint64> (rawTime & LOW_MASK);
+
+        return high32Bits * highPartDivisionFactor +
+              (high32Bits * highPartRemainderFactor) / timerFrequency +
+              (low32Bits * G) / timerFrequency;
 }
 
 bsls::Types::Int64 getFrequency()
@@ -468,27 +460,23 @@ void compareRealToFakeConvertRawTime(const TU::OpaqueNativeTime& startTime,
                              startTime.d_opaque,
                              frequency);
 
-    // We expect 'realEnd - realStart' to be the same as
-    // 'fakeEnd - fakeStart'.  However, we know that
-    // 'realEnd != fakeEnd' and 'realStart != fakeStart', because
-    // the internal initial time used by 'TU::convertRawTime' is
-    // not the same as 'startTime.d_opaque'.  Because the
-    // calculations of 'realEnd', 'realStart, 'fakeEnd', and
-    // 'fakeStart' all discard fractions of nanoseconds, the
-    // intervals we compare will include a small amount of rounding
-    // error, and therefore 'realEnd - realStart' and
-    // 'fakeEnd - fakeStart' may differ by at most 1.
+    // 'fakeConvertRawTime' and 'TU::convertRawTime' have been calculated with
+    // integer arithmetic, including two division operations.  Due to the loss
+    // of fractional remainders in integer division, the result of either
+    // function will be either floor(v) or floor(v) - 1, where v is the actual
+    // (infinite precision floating point) number of nanoseconds corresponding
+    // to the input.  Similarly, the difference between two results will be in
+    // the range floor(v1 - v2) +- 1, and the difference between two intervals
+    // will be in the range floor((e1 - s1) - (e2 - s2)) +- 2.
 
     LOOP5_ASSERT(offset,
                  realEnd,
                  fakeEnd,
                  (realEnd - realStart),
                  (fakeEnd - fakeStart),
-                 (realEnd - realStart) - (fakeEnd - fakeStart)
-                 <= 1
+                 (realEnd - realStart) + 2 > (fakeEnd - fakeStart) - 2
                  &&
-                 (realEnd - realStart) - (fakeEnd - fakeStart)
-                 >= -1);
+                 (fakeEnd - fakeStart) + 2 > (realEnd - realStart) - 2);
 }
 
 #endif
@@ -892,14 +880,26 @@ int main(int argc, char *argv[])
                     P(OUTPUT)
                 }
 
+                // 'OUTPUT' has been calculated with integer arithmetic,
+                // including one division operation.  Due to the loss of
+                // fractional remainders in integer division, OUTPUT ==
+                // floor(v), where v is the actual (infinite precision floating
+                // point) number of nanoseconds corresponding to the input.
+                // Because 'fakeConvertRawTime' performs two integer divisions,
+                // its result will be either floor(v) or floor(v) - 1.
+
                 LOOP5_ASSERT(LINE,
                              INPUT,
                              INITIAL_TIME,
                              FREQUENCY,
                              OUTPUT,
                              OUTPUT == fakeConvertRawTime(INPUT,
-                                                         INITIAL_TIME,
-                                                         FREQUENCY));
+                                                             INITIAL_TIME,
+                                                             FREQUENCY)
+                             ||
+                             OUTPUT - 1 == fakeConvertRawTime(INPUT,
+                                                              INITIAL_TIME,
+                                                              FREQUENCY));
             }
         }
 
@@ -946,9 +946,10 @@ int main(int argc, char *argv[])
                                           startTime,
                                           limit32Bits - 1 - startTime.d_opaque,
                                           frequency);
-                compareRealToFakeConvertRawTime(startTime,
-                                                limit32Bits - 2,
-                                                frequency);
+                compareRealToFakeConvertRawTime(
+                                              startTime,
+                                              limit32Bits - startTime.d_opaque,
+                                              frequency);
                 compareRealToFakeConvertRawTime(
                                           startTime,
                                           limit32Bits + 1 - startTime.d_opaque,
@@ -1356,8 +1357,8 @@ int main(int argc, char *argv[])
         //  to be 100 milliseconds.
 #if defined BSLS_PLATFORM_OS_SOLARIS || defined BSLS_PLATFORM_OS_FREEBSD
         const Int64 timeQuantum = nsecsPerSec / CLK_TCK;
-#elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX \
-   || defined BSLS_PLATFORM_OS_HPUX || defined(BSLS_PLATFORM_OS_DARWIN)
+#elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX    \
+   || defined BSLS_PLATFORM_OS_HPUX  || defined BSLS_PLATFORM_OS_DARWIN
         const Int64 timeQuantum = nsecsPerSec / sysconf(_SC_CLK_TCK);
                                         // On our local flavor of Linux, old
                                         // POSIX requirements and immoderate
@@ -1367,7 +1368,7 @@ int main(int argc, char *argv[])
                                         // and the symbol that is correct
                                         // (CLK_TCK) unavailable.
                                         // (AIX just walks its own path.)
-#elif defined BSLS_PLATFORM_OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS || defined BSLS_PLATFORM_OS_CYGWIN
         const Int64 timeQuantum = 100;  // Hard-coded from Windows
                                         // documentation.  We need to test
                                         // (not pre-accept)
@@ -1427,10 +1428,10 @@ int main(int argc, char *argv[])
             // their differences taken, and those differences compared to
             // whatever constants are involved.
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
-            ASSERT(wt2 - wt1 >= shortSleep * nsecsPerSec);
-#else
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT(wt2 - wt1 + windowsFudge >= shortSleep * nsecsPerSec);
+#else
+            ASSERT(wt2 - wt1 >= shortSleep * nsecsPerSec);
 #endif
                                                // Did we sleep long enough?
 
@@ -1451,7 +1452,7 @@ int main(int argc, char *argv[])
 
             enum { NUM_INTERVALS = 10,
                    NUM_SAMPLES = NUM_INTERVALS + 1 };
-            struct sample {
+            struct Sample {
                 Int64 d_wt;  // wall time
                 Int64 d_ut;  // user time
                 Int64 d_st;  // system time
@@ -1466,8 +1467,8 @@ int main(int argc, char *argv[])
             Int64 uQuantsSpent = 0;
             Int64 sQuantsSpent = 0;
             for (int i = 0; i < NUM_INTERVALS; ++i) {
-                sample& s0 = samples[i];
-                sample& s1 = samples[i+1];
+                Sample& s0 = samples[i];
+                Sample& s1 = samples[i+1];
 
                 s1.d_wt = TU::getTimer();
                 s1.d_ut = TU::getProcessUserTimer();
@@ -1509,8 +1510,8 @@ int main(int argc, char *argv[])
                         samples[0].d_st);
 
                 for (int i = 1; i < NUM_SAMPLES; ++i) {
-                    sample& s0 = samples[i - 1];
-                    sample& s1 = samples[i];
+                    Sample& s0 = samples[i - 1];
+                    Sample& s1 = samples[i];
 
                     printf("%2d: wt: %lld - %lld = %lld\n"
                            "%2d: ut: %lld - %lld = %lld\n"
@@ -1561,16 +1562,16 @@ int main(int argc, char *argv[])
 
             ASSERT(st2 - st1 >= 0);     // And system time did not go backward.
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
+            ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1)
+                                   + 10 * windowsFudge + 2 * timeQuantum >= 0);
+#else
             ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1) +
                                                          2 * timeQuantum >= 0);
                                         // And our wall time was greater than
                                         // our user and system time together,
                                         // allowing for quantization error
                                         // (in both user and system time).
-#else
-            ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1)
-                                  + 10 * windowsFudge + 2 * timeQuantum >= 0);
 #endif
 
         }
@@ -1829,11 +1830,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008, 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

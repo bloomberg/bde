@@ -70,28 +70,20 @@ typedef bslalg::TypeTraitUsesBslmaAllocator           UsesBdemaAllocator;
 //                          HELPER CLASS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct traits_MoveAbandonBdema :
-    BitwiseMoveable,
-    UsesBdemaAllocator
-{
-};
-
-struct traits_CopyTrivial :
-    BitwiseCopyable,
-    TrivialConstructor
-{
-};
-
 struct my_MoveAbandonBdema
 {
-    BSLALG_DECLARE_NESTED_TRAITS(my_MoveAbandonBdema, traits_MoveAbandonBdema);
+    BSLALG_DECLARE_NESTED_TRAITS2(my_MoveAbandonBdema,
+                                  BitwiseMoveable,
+                                  UsesBdemaAllocator);
     my_MoveAbandonBdema() { }
     my_MoveAbandonBdema(const my_MoveAbandonBdema&, bslma::Allocator*) { }
 };
 
 struct my_CopyTrivial
 {
-    BSLALG_DECLARE_NESTED_TRAITS(my_CopyTrivial, traits_CopyTrivial);
+    BSLALG_DECLARE_NESTED_TRAITS2(my_CopyTrivial,
+                                  BitwiseCopyable,
+                                  TrivialConstructor);
 };
 
 struct my_NoTraits

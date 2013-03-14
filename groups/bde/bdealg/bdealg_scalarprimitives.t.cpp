@@ -3,6 +3,7 @@
 #include <bdealg_scalarprimitives.h>
 
 #include <bslalg_autoscalardestructor.h>
+#include <bslalg_scalardestructionprimitives.h>
 #include <bslalg_typetraits.h>
 #include <bslalg_typetraitbitwisecopyable.h>
 #include <bslalg_typetraitbitwisemoveable.h>
@@ -29,14 +30,14 @@ using namespace bsl;
 //                              --------
 // This component provides primitive operations to construct and destroy
 // objects, abstracting the fact that the class constructors may or not take an
-// optional allocator argument of type 'bslma_Allocator'.  These primitives
+// optional allocator argument of type 'bslma::Allocator'.  These primitives
 // allow to write parameterized code (e.g., container) in a manner which makes
 // independent to whether the template parameters take optional allocators or
 // not.  In addition, the primitives use the most efficient implementation
 // (bit-wise copy) whenever possible.
 //
 // The general concerns of this component are the proper detection of traits
-// (using 'bslma_Allocator', using bit-wise copy) and the correct selection of
+// (using 'bslma::Allocator', using bit-wise copy) and the correct selection of
 // the implementation.  Some of these concerns are addressed by the compilation
 // (detecting the wrong traits will lead to compilation failure) and some
 // others are addressed by runtime detection of values after evaluation.  A
@@ -106,9 +107,9 @@ struct my_ClassDef {
     // Data members that give my_ClassX size and alignment.
 
     // DATA (exceptionally public, only in test driver)
-    int                         d_value;
-    int                        *d_data_p;
-    bslma_Allocator            *d_allocator_p;
+    int               d_value;
+    int              *d_data_p;
+    bslma::Allocator *d_allocator_p;
 };
 
                              // ===============
@@ -154,16 +155,16 @@ class my_Class2 {
   public:
     // CREATORS
     explicit
-    my_Class2(bslma_Allocator *a = 0) {
+    my_Class2(bslma::Allocator *a = 0) {
         d_def.d_value = 0;
         d_def.d_allocator_p = a;
     }
     explicit
-    my_Class2(int v, bslma_Allocator *a = 0) {
+    my_Class2(int v, bslma::Allocator *a = 0) {
         d_def.d_value = v;
         d_def.d_allocator_p = a;
     }
-    my_Class2(const my_Class2& rhs, bslma_Allocator *a = 0) {
+    my_Class2(const my_Class2& rhs, bslma::Allocator *a = 0) {
         d_def.d_value = rhs.d_def.d_value;
         d_def.d_allocator_p = a;
     }
@@ -185,10 +186,9 @@ class my_Class2 {
 
 // TRAITS
 namespace BloombergLP {
-
-template <>
-struct bslalg_TypeTraits<my_Class2> : bslalg_TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <> struct UsesBslmaAllocator<my_Class2> : bsl::true_type { };
+    } // close bslma namespace
 }  // close BloombergLP namespace
 
                              // ===================
@@ -245,15 +245,13 @@ int my_ClassFussy::assignmentInvocations            = 0;
 int my_ClassFussy::destructorInvocations            = 0;
 
 // TRAITS
-namespace BloombergLP {
+namespace bsl {
+    template <>
+    struct is_trivially_default_constructible<my_ClassFussy> : true_type { };
 
-template <>
-struct bslalg_TypeTraits<my_ClassFussy>
-: bslalg_TypeTraitHasTrivialDefaultConstructor
-, bslalg_TypeTraitBitwiseCopyable
-{ };
-
-}  // close BloombergLP namespace
+    template <>
+    struct is_trivially_copyable<my_ClassFussy> : true_type { };
+}  // close bsl namespace
 
                                  // =========
                                  // my_Class4
@@ -268,20 +266,20 @@ class my_Class4 {
 
   public:
     // CREATORS
-    my_Class4(bslma_Allocator *a = 0) {
-        d_def.d_allocator_p = bslma_Default::allocator(a);
+    explicit my_Class4(bslma::Allocator *a = 0) {
+        d_def.d_allocator_p = bslma::Default::allocator(a);
         d_def.d_data_p = (int*)(d_def.d_allocator_p)->allocate(sizeof(int));
         d_def.d_value = 0;
         *d_def.d_data_p = d_def.d_value;
     }
-    my_Class4(int v, bslma_Allocator *a = 0) {
-        d_def.d_allocator_p = bslma_Default::allocator(a);
+    my_Class4(int v, bslma::Allocator *a = 0) {
+        d_def.d_allocator_p = bslma::Default::allocator(a);
         d_def.d_data_p = (int*)(d_def.d_allocator_p)->allocate(sizeof(int));
         d_def.d_value = v;
         *d_def.d_data_p = d_def.d_value;
     }
-    my_Class4(const my_Class4& rhs, bslma_Allocator *a = 0) {
-        d_def.d_allocator_p = bslma_Default::allocator(a);
+    my_Class4(const my_Class4& rhs, bslma::Allocator *a = 0) {
+        d_def.d_allocator_p = bslma::Default::allocator(a);
         d_def.d_data_p = (int*)(d_def.d_allocator_p)->allocate(sizeof(int));
         d_def.d_value = rhs.d_def.d_value;
         *d_def.d_data_p = d_def.d_value;
@@ -312,10 +310,9 @@ class my_Class4 {
 
 // TRAITS
 namespace BloombergLP {
-
-template <> struct bslalg_TypeTraits<my_Class4>
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <> struct UsesBslmaAllocator<my_Class4> : bsl::true_type { };
+    }  // Close bslma namespace
 }  // close BloombergLP namespace
 
                                  // =========
@@ -329,21 +326,23 @@ class my_Class5 : public my_Class4 {
 
   public:
     // CREATORS
-    my_Class5(bslma_Allocator *a = 0) : my_Class4(a) {}
-    my_Class5(int v, bslma_Allocator *a = 0)  : my_Class4(v, a) {}
-    my_Class5(const my_Class4& rhs, bslma_Allocator *a = 0)
+    explicit my_Class5(bslma::Allocator *a = 0) : my_Class4(a) {}
+    my_Class5(int v, bslma::Allocator *a = 0)  : my_Class4(v, a) {}
+    my_Class5(const my_Class4& rhs, bslma::Allocator *a = 0)
         : my_Class4(rhs, a) {}
-    my_Class5(const my_Class5& rhs, bslma_Allocator *a = 0)
+    my_Class5(const my_Class5& rhs, bslma::Allocator *a = 0)
         : my_Class4(rhs, a) {}
 };
 
 // TRAITS
 namespace BloombergLP {
+    namespace bslma {
+        template <> struct UsesBslmaAllocator<my_Class5> : bsl::true_type { };
+    }  // close bslma namespace
 
-template <> struct bslalg_TypeTraits<my_Class5>
-    : bslalg_TypeTraitUsesBslmaAllocator
-    , bslalg_TypeTraitBitwiseMoveable { };
-
+    namespace bslmf {
+        template <> struct IsBitwiseMoveable<my_Class5> : bsl::true_type { };
+    }  // close bslmf namespace
 }  // close BloombergLP namespace
 
                              // =============
@@ -394,25 +393,24 @@ struct my_PairA {
 
     // CREATORS
     explicit
-    my_PairA(bslma_Allocator *a = 0) : first(), second(a) {}
+    my_PairA(bslma::Allocator *a = 0) : first(), second(a) {}
 
-    my_PairA(const T1& f, const T2& s, bslma_Allocator *a = 0)
+    my_PairA(const T1& f, const T2& s, bslma::Allocator *a = 0)
         : first(f), second(s, a) {}
 
-    my_PairA(const my_PairA& other, bslma_Allocator *a = 0)
+    my_PairA(const my_PairA& other, bslma::Allocator *a = 0)
         : first(other.first), second(other.second, a) {}
 
     template <typename U1, typename U2>
-    my_PairA(const my_PairA<U1, U2>& other, bslma_Allocator *a = 0)
+    my_PairA(const my_PairA<U1, U2>& other, bslma::Allocator *a = 0)
         : first(other.first), second(other.second, a) {}
 };
 
 namespace BloombergLP {
-
-template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairA<T1, T2> >
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <typename T1, typename T2>
+        struct UsesBslmaAllocator<my_PairA<T1, T2> > : bsl::true_type { };
+    }  // close bslma namespace
 }  // close BloombergLP namespace
 
                               // ===============
@@ -434,25 +432,24 @@ struct my_PairAA {
 
     // CREATORS
     explicit
-    my_PairAA(bslma_Allocator *a = 0) : first(a), second(a) {}
+    my_PairAA(bslma::Allocator *a = 0) : first(a), second(a) {}
 
-    my_PairAA(const T1& f, const T2& s, bslma_Allocator *a = 0)
+    my_PairAA(const T1& f, const T2& s, bslma::Allocator *a = 0)
         : first(f, a), second(s, a) {}
 
-    my_PairAA(const my_PairAA& other, bslma_Allocator *a = 0)
+    my_PairAA(const my_PairAA& other, bslma::Allocator *a = 0)
         : first(other.first, a), second(other.second, a) {}
 
     template <typename U1, typename U2>
-    my_PairAA(const my_PairAA<U1, U2>& other, bslma_Allocator *a = 0)
+    my_PairAA(const my_PairAA<U1, U2>& other, bslma::Allocator *a = 0)
         : first(other.first, a), second(other.second, a) {}
 };
 
 namespace BloombergLP {
-
-template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairAA<T1, T2> >
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <typename T1, typename T2>
+        struct UsesBslmaAllocator<my_PairAA<T1, T2> > : bsl::true_type { };
+    }  // close bslma namespace
 }  // close BloombergLP namespace
 
                               // ===============
@@ -476,7 +473,8 @@ struct my_PairBB {
     T2 second;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(my_PairBB, BloombergLP::bslalg_TypeTraitPair);
+    BSLALG_DECLARE_NESTED_TRAITS(my_PairBB,
+                                 BloombergLP::bslalg::TypeTraitPair);
 
     // CREATORS
     my_PairBB() {}
@@ -492,12 +490,12 @@ struct my_PairBB {
 };
 
 namespace BloombergLP {
-
-template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairBB<T1, T2> >
-    : bslalg_TypeTraitPair {};
-
+    namespace bslmf {
+        template <typename T1, typename T2>
+        struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
+    }  // close bslmf namespace
 }  // close BloombergLP namespace
+
 
                               // ===============
                               // macros TEST_OP*
@@ -506,9 +504,9 @@ struct  bslalg_TypeTraits<my_PairBB<T1, T2> >
 #define TEST_OP(typeNum, op, expVal, expAlloc) {                              \
     typedef my_Class ## typeNum Type;                                         \
     static const int EXP_VAL = (expVal);                                      \
-    bslma_Allocator *const EXP_ALLOC = (expAlloc);                            \
+    bslma::Allocator *const EXP_ALLOC = (expAlloc);                           \
     my_ClassDef rawBuf;                                                       \
-    bsl::memset(&rawBuf, 92, sizeof(rawBuf));                                \
+    bsl::memset(&rawBuf, 92, sizeof(rawBuf));                                 \
     Type *objPtr = (Type*) &rawBuf;                                           \
     pre(&rawBuf);                                                             \
     Obj:: op ;                                                                \
@@ -522,16 +520,58 @@ struct  bslalg_TypeTraits<my_PairBB<T1, T2> >
     // that the 'd_value' and 'd_allocator_p' members store the specified
     // 'expVal' and 'expAlloc' values after 'op' has been evaluated.
 
+#define TEST_OP2(typeNum, op, expVal, expAlloc) {                             \
+    typedef my_Class ## typeNum Type;                                         \
+    static const int EXP_VAL = (expVal);                                      \
+    bslma::Allocator *const EXP_ALLOC = (expAlloc);                           \
+    my_ClassDef rawBuf;                                                       \
+    bsl::memset(&rawBuf, 92, sizeof(rawBuf));                                 \
+    Type *objPtr = (Type*) &rawBuf;                                           \
+    pre(&rawBuf);                                                             \
+    op;                                                                       \
+    post(&rawBuf);                                                            \
+    ASSERT(EXP_VAL == rawBuf.d_value);                                        \
+    ASSERT(EXP_ALLOC == rawBuf.d_allocator_p);                                \
+  }
+    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // under test, involving the address 'objPtr' of an object of type
+    // 'my_ClassN' (where 'N' stands for the specified 'typeNum'), and verifies
+    // that the 'd_value' and 'd_allocator_p' members store the specified
+    // 'expVal' and 'expAlloc' values after 'op' has been evaluated.
+
 #define TEST_PAIR(op, expVal0, expA0, expVal1, expA1) {                       \
     static const int EXP_VAL0 = (expVal0);                                    \
-    bslma_Allocator *const EXP_ALLOC0 = (expA0);                              \
+    bslma::Allocator *const EXP_ALLOC0 = (expA0);                             \
     static const int EXP_VAL1 = (expVal1);                                    \
-    bslma_Allocator *const EXP_ALLOC1 = (expA1);                              \
+    bslma::Allocator *const EXP_ALLOC1 = (expA1);                             \
     my_ClassDef rawBuf[2];                                                    \
     bsl::memset(rawBuf, 92, sizeof(rawBuf));                                  \
     Type *objPtr = (Type*) rawBuf;                                            \
     pre(rawBuf);                                                              \
     Obj:: op ;                                                                \
+    post(rawBuf);                                                             \
+    ASSERT(EXP_VAL0 == rawBuf[0].d_value);                                    \
+    ASSERT(EXP_ALLOC0 == rawBuf[0].d_allocator_p);                            \
+    ASSERT(EXP_VAL1 == rawBuf[1].d_value);                                    \
+    ASSERT(EXP_ALLOC1 == rawBuf[1].d_allocator_p);                            \
+  }
+    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // under test, involving the address 'objPtr' of an object of the locally
+    // defined 'Type', and verifies that the 'd_value' and 'd_allocator_p'
+    // members store the specified 'expVal0' and 'expAlloc0' values for the
+    // first member and 'expVal0' and 'expAlloc0' values for the second member
+    // after 'op' has been evaluated.
+
+#define TEST_PAIR2(op, expVal0, expA0, expVal1, expA1) {                      \
+    static const int EXP_VAL0 = (expVal0);                                    \
+    bslma::Allocator *const EXP_ALLOC0 = (expA0);                             \
+    static const int EXP_VAL1 = (expVal1);                                    \
+    bslma::Allocator *const EXP_ALLOC1 = (expA1);                             \
+    my_ClassDef rawBuf[2];                                                    \
+    bsl::memset(rawBuf, 92, sizeof(rawBuf));                                  \
+    Type *objPtr = (Type*) rawBuf;                                            \
+    pre(rawBuf);                                                              \
+    op;                                                                       \
     post(rawBuf);                                                             \
     ASSERT(EXP_VAL0 == rawBuf[0].d_value);                                    \
     ASSERT(EXP_ALLOC0 == rawBuf[0].d_allocator_p);                            \
@@ -554,6 +594,15 @@ struct  bslalg_TypeTraits<my_PairBB<T1, T2> >
     // 'my_Pair_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
     // and 'typeNum1').  See the 'TEST_PAIR' macro above for details.
 
+#define TEST_PAIROP2(typeNum0, typeNum1, op, expVal0, expA0, expVal1, expA1) {\
+    typedef my_Pair_ ## typeNum0 ## _ ## typeNum1 Type;                       \
+    TEST_PAIR2(op, expVal0, expA0, expVal1, expA1);                           \
+  }
+    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // under test, involving the address 'objPtr' of an object of type
+    // 'my_Pair_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
+    // and 'typeNum1').  See the 'TEST_PAIR' macro above for details.
+
 #define TEST_PAIRAOP(typeNum0, typeNum1, op, expVal0, expA0, expVal1, expA1)  \
   {                                                                           \
     typedef my_PairA_ ## typeNum0 ## _ ## typeNum1 Type;                      \
@@ -564,10 +613,30 @@ struct  bslalg_TypeTraits<my_PairBB<T1, T2> >
     // 'my_Pair_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
     // and 'typeNum1').  See the 'TEST_PAIR' macro above for details.
 
+#define TEST_PAIRAOP2(typeNum0, typeNum1, op, expVal0, expA0, expVal1, expA1) \
+  {                                                                           \
+    typedef my_PairA_ ## typeNum0 ## _ ## typeNum1 Type;                      \
+    TEST_PAIR2(op, expVal0, expA0, expVal1, expA1);                           \
+  }
+    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // under test, involving the address 'objPtr' of an object of type
+    // 'my_Pair_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
+    // and 'typeNum1').  See the 'TEST_PAIR' macro above for details.
+
 #define TEST_PAIRAAOP(typeNum0, typeNum1, op, expVal0, expA0, expVal1, expA1) \
   {                                                                           \
     typedef my_PairAA_ ## typeNum0 ## _ ## typeNum1 Type;                     \
     TEST_PAIR(op, expVal0, expA0, expVal1, expA1);                            \
+  }
+    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // under test, involving the address 'objPtr' of an object of type
+    // 'my_PairAA_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
+    // and 'typeNum1').  See the 'TEST_PAIR' macro above for details.
+
+#define TEST_PAIRAAOP2(typeNum0, typeNum1, op, expVal0, expA0, expVal1, expA1)\
+  {                                                                           \
+    typedef my_PairAA_ ## typeNum0 ## _ ## typeNum1 Type;                     \
+    TEST_PAIR2(op, expVal0, expA0, expVal1, expA1);                           \
   }
     // This 'macro' evaluates the specified 'op' expression in the namespace
     // under test, involving the address 'objPtr' of an object of type
@@ -729,13 +798,13 @@ class ConstructTestArgAlloc : public my_ClassDef {
   public:
     // CREATORS
     explicit
-    ConstructTestArgAlloc(int value = -1, bslma_Allocator *allocator = 0);
+    ConstructTestArgAlloc(int value = -1, bslma::Allocator *allocator = 0);
         // Create an object having the specified 'value'.  Use the specified
         // 'allocator' to supply memory.  If 'allocator' is 0, use the
         // currently installed default allocator.
 
     ConstructTestArgAlloc(const ConstructTestArgAlloc&  original,
-                          bslma_Allocator              *allocator = 0);
+                          bslma::Allocator             *allocator = 0);
         // Create an object having the same value as the specified 'original'.
         // Use the specified 'allocator' to supply memory.  If 'allocator' is
         // 0, use the currently installed default allocator.
@@ -743,17 +812,17 @@ class ConstructTestArgAlloc : public my_ClassDef {
 
 // TRAITS
 namespace BloombergLP {
-
-template <int ID>
-struct bslalg_TypeTraits<ConstructTestArgAlloc<ID> >
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
-}  // close namespace BloombergLP
+    namespace bslma {
+        template <int ID>
+        struct UsesBslmaAllocator<ConstructTestArgAlloc<ID> > :
+            bsl::true_type { };
+    }  // close bslma namespace
+}  // close BloombergLP namespace
 
 // CREATORS
 template <int ID>
-ConstructTestArgAlloc<ID>::ConstructTestArgAlloc(int              value,
-                                                 bslma_Allocator *allocator)
+ConstructTestArgAlloc<ID>::ConstructTestArgAlloc(int               value,
+                                                 bslma::Allocator *allocator)
 {
     d_value = value;
     d_allocator_p = allocator;
@@ -762,7 +831,7 @@ ConstructTestArgAlloc<ID>::ConstructTestArgAlloc(int              value,
 template <int ID>
 ConstructTestArgAlloc<ID>::ConstructTestArgAlloc(
                                        const ConstructTestArgAlloc&  original,
-                                       bslma_Allocator              *allocator)
+                                       bslma::Allocator             *allocator)
 {
     d_value = original.d_value;
     d_allocator_p = allocator;
@@ -819,52 +888,52 @@ class ConstructTestTypeAlloc {
     Arg14 d_a14;
 
     // CREATORS (exceptionally in-line, only within a test driver)
-    ConstructTestTypeAlloc(Arg1  a1, bslma_Allocator *allocator = 0)
+    ConstructTestTypeAlloc(Arg1  a1, bslma::Allocator *allocator = 0)
         : d_a1(a1, allocator) {}
-    ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, bslma_Allocator *allocator = 0)
+    ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, bslma::Allocator *allocator = 0)
         : d_a1(a1, allocator), d_a2(a2, allocator) {}
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
         : d_a1(a1, allocator), d_a2(a2, allocator), d_a3(a3, allocator) {}
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3, Arg4  a4,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
         : d_a1(a1, allocator), d_a2(a2, allocator), d_a3(a3, allocator)
         , d_a4(a4, allocator) {}
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3, Arg4  a4, Arg5  a5,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
         : d_a1(a1, allocator), d_a2(a2, allocator), d_a3(a3, allocator)
         , d_a4(a4, allocator), d_a5(a5, allocator) {}
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3, Arg4  a4, Arg5  a5,
-                           Arg6  a6, bslma_Allocator *allocator = 0)
+                           Arg6  a6, bslma::Allocator *allocator = 0)
         : d_a1(a1, allocator), d_a2(a2, allocator), d_a3(a3, allocator)
         , d_a4(a4, allocator), d_a5(a5, allocator), d_a6(a6, allocator) {}
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3, Arg4  a4, Arg5  a5,
-                           Arg6  a6, Arg7  a7, bslma_Allocator *allocator = 0)
+                           Arg6  a6, Arg7  a7, bslma::Allocator *allocator = 0)
         : d_a1(a1, allocator), d_a2(a2, allocator), d_a3(a3, allocator)
         , d_a4(a4, allocator), d_a5(a5, allocator), d_a6(a6, allocator)
         , d_a7(a7, allocator) {}
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3, Arg4  a4, Arg5  a5,
                            Arg6  a6, Arg7  a7, Arg8  a8,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
         : d_a1(a1, allocator), d_a2(a2, allocator), d_a3(a3, allocator)
         , d_a4(a4, allocator), d_a5(a5, allocator), d_a6(a6, allocator)
         , d_a7(a7, allocator), d_a8(a8, allocator) {}
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3, Arg4  a4, Arg5  a5,
                            Arg6  a6, Arg7  a7, Arg8  a8, Arg9  a9,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
         : d_a1(a1, allocator), d_a2(a2, allocator), d_a3(a3, allocator)
         , d_a4(a4, allocator), d_a5(a5, allocator), d_a6(a6, allocator)
         , d_a7(a7, allocator), d_a8(a8, allocator), d_a9(a9, allocator) {}
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3, Arg4  a4, Arg5  a5,
                            Arg6  a6, Arg7  a7, Arg8  a8, Arg9  a9, Arg10 a10,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
         : d_a1 (a1,  allocator), d_a2 (a2,  allocator), d_a3 (a3,  allocator)
         , d_a4 (a4,  allocator), d_a5 (a5,  allocator), d_a6 (a6,  allocator)
         , d_a7 (a7,  allocator), d_a8 (a8,  allocator), d_a9 (a9,  allocator)
         , d_a10(a10, allocator) {}
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3, Arg4  a4, Arg5  a5,
                            Arg6  a6, Arg7  a7, Arg8  a8, Arg9  a9, Arg10 a10,
-                           Arg11 a11, bslma_Allocator *allocator = 0)
+                           Arg11 a11, bslma::Allocator *allocator = 0)
         : d_a1 (a1,  allocator), d_a2 (a2,  allocator), d_a3 (a3,  allocator)
         , d_a4 (a4,  allocator), d_a5 (a5,  allocator), d_a6 (a6,  allocator)
         , d_a7 (a7,  allocator), d_a8 (a8,  allocator), d_a9 (a9,  allocator)
@@ -872,7 +941,7 @@ class ConstructTestTypeAlloc {
     ConstructTestTypeAlloc(Arg1  a1, Arg2  a2, Arg3  a3, Arg4  a4, Arg5  a5,
                            Arg6  a6, Arg7  a7, Arg8  a8, Arg9  a9, Arg10 a10,
                            Arg11 a11, Arg12 a12,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
         : d_a1 (a1,  allocator), d_a2 (a2,  allocator), d_a3 (a3,  allocator)
         , d_a4 (a4,  allocator), d_a5 (a5,  allocator), d_a6 (a6,  allocator)
         , d_a7 (a7,  allocator), d_a8 (a8,  allocator), d_a9 (a9,  allocator)
@@ -881,7 +950,7 @@ class ConstructTestTypeAlloc {
     ConstructTestTypeAlloc(Arg1  a1,  Arg2  a2,  Arg3  a3, Arg4  a4, Arg5  a5,
                            Arg6  a6,  Arg7  a7,  Arg8  a8, Arg9  a9, Arg10 a10,
                            Arg11 a11, Arg12 a12, Arg13 a13,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
         : d_a1 (a1,  allocator), d_a2 (a2,  allocator), d_a3 (a3,  allocator)
         , d_a4 (a4,  allocator), d_a5 (a5,  allocator), d_a6 (a6,  allocator)
         , d_a7 (a7,  allocator), d_a8 (a8,  allocator), d_a9 (a9,  allocator)
@@ -890,7 +959,7 @@ class ConstructTestTypeAlloc {
     ConstructTestTypeAlloc(Arg1  a1,  Arg2  a2,  Arg3  a3, Arg4  a4, Arg5  a5,
                            Arg6  a6,  Arg7  a7,  Arg8  a8, Arg9  a9, Arg10 a10,
                            Arg11 a11, Arg12 a12, Arg13 a13, Arg14 a14,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
         : d_a1 (a1,  allocator), d_a2 (a2,  allocator), d_a3 (a3,  allocator)
         , d_a4 (a4,  allocator), d_a5 (a5,  allocator), d_a6 (a6,  allocator)
         , d_a7 (a7,  allocator), d_a8 (a8,  allocator), d_a9 (a9,  allocator)
@@ -900,12 +969,11 @@ class ConstructTestTypeAlloc {
 
 // TRAITS
 namespace BloombergLP {
-
-template <>
-struct bslalg_TypeTraits<ConstructTestTypeAlloc>
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
-}  // close namespace BloombergLP
+    namespace bslma {
+        template <>
+        struct UsesBslmaAllocator<ConstructTestTypeAlloc> : bsl::true_type { };
+    }  // close bslma namespace
+}  // close BloombergLP namespace
 
 // FREE OPERATORS
 bool operator==(const ConstructTestTypeAlloc& lhs,
@@ -1042,11 +1110,7 @@ template <typename TARGET_TYPE>
 inline
 void legacyDestruct(TARGET_TYPE *object)
 {
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    bslalg_ScalarPrimitives::destruct(object);
-#else
-    bslalg_ScalarDestructionPrimitives::destroy(object);
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+    bslalg::ScalarDestructionPrimitives::destroy(object);
 }
 
 //=============================================================================
@@ -1064,7 +1128,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 8: {
@@ -1092,11 +1156,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING swap"
                             "\n============\n");
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-        bslma_TestAllocator *const TA = &testAllocator;
-        bslma_TestAllocator testAllocator2(veryVeryVerbose);
-        bslma_TestAllocator *const TA1 = &testAllocator;
-        bslma_TestAllocator *const TA2 = &testAllocator2;
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator *const TA = &testAllocator;
+        bslma::TestAllocator testAllocator2(veryVeryVerbose);
+        bslma::TestAllocator *const TA1 = &testAllocator;
+        bslma::TestAllocator *const TA2 = &testAllocator2;
         int                 dummyAllocator;  // Dummy, non-bdema allocator
         int                 *const XA = &dummyAllocator;
 
@@ -1185,9 +1249,9 @@ int main(int argc, char *argv[])
             my_ClassDef  rawBuf[2];
             my_Class4   *objPtr = (my_Class4 *)&rawBuf[0];
             Obj::construct(&objPtr[0], 1, TA);
-            bslalg_AutoScalarDestructor<my_Class4> guard1(&objPtr[0]);
+            bslalg::AutoScalarDestructor<my_Class4> guard1(&objPtr[0]);
             Obj::construct(&objPtr[1], 2, TA);
-            bslalg_AutoScalarDestructor<my_Class4> guard2(&objPtr[1]);
+            bslalg::AutoScalarDestructor<my_Class4> guard2(&objPtr[1]);
             Obj::swap(objPtr[0], objPtr[1]);
             guard1.release();
             guard2.release();
@@ -1239,36 +1303,46 @@ int main(int argc, char *argv[])
         //   destruct(T *);
         // --------------------------------------------------------------------
 
+// When 'BDE_OMIT_TRANSITIONAL' is defined, which is effectively the case for
+// 'bsl' when building against opensource 'Bloomberg/bsl', 'destruct' is not
+// available.  Defining the following macro (thus not testing the method) is
+// preferred over reviving the entire implementation of
+// 'bdealg_ScalarPrimitives'.
+
+#ifdef destruct
+#undef destruct
+#endif
+#define destruct bslalg::ScalarDestructionPrimitives::destroy
+
         if (verbose) printf("\nTESTING destruct"
                             "\n================\n");
 
         if (verbose) printf("Value and allocator testing.\n");
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         // my_Class                   Expected
         //      #      Operation     Val Alloc
         //      == ================= === =====
-        TEST_OP(1, destruct(objPtr), 91, 0);
-        TEST_OP(2, destruct(objPtr), 92, 0);
+        TEST_OP2(1, destruct(objPtr), 91, 0);
+        TEST_OP2(2, destruct(objPtr), 92, 0);
 
         // my_Pair                           first     second
         //           #_#   Operation        Val Alloc Val Alloc
         //          == == ================= === ===== === =====
-        TEST_PAIROP(1, 1, destruct(objPtr), 91, 0,    91, 0);
-        TEST_PAIROP(1, 2, destruct(objPtr), 91, 0,    92, 0);
-        TEST_PAIROP(2, 1, destruct(objPtr), 92, 0,    91, 0);
-        TEST_PAIROP(2, 2, destruct(objPtr), 92, 0,    92, 0);
+        TEST_PAIROP2(1, 1, destruct(objPtr), 91, 0,    91, 0);
+        TEST_PAIROP2(1, 2, destruct(objPtr), 91, 0,    92, 0);
+        TEST_PAIROP2(2, 1, destruct(objPtr), 92, 0,    91, 0);
+        TEST_PAIROP2(2, 2, destruct(objPtr), 92, 0,    92, 0);
 
         // my_PairA                           first     second
         //            #_#  Operation         Val Alloc Val Alloc
         //            = =  ================= === ===== === =====
-        TEST_PAIRAOP(1, 2, destruct(objPtr), 91, 0,    92, 0);
-        TEST_PAIRAOP(2, 2, destruct(objPtr), 92, 0,    92, 0);
+        TEST_PAIRAOP2(1, 2, destruct(objPtr), 91, 0,    92, 0);
+        TEST_PAIRAOP2(2, 2, destruct(objPtr), 92, 0,    92, 0);
 
         // my_PairAA                           first     second
         //             #_#  Operation         Val Alloc Val Alloc
         //             = =  ================= === ===== === =====
-        TEST_PAIRAAOP(2, 2, destruct(objPtr), 92, 0,    92, 0);
+        TEST_PAIRAAOP2(2, 2, destruct(objPtr), 92, 0,    92, 0);
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -1279,7 +1353,7 @@ int main(int argc, char *argv[])
             ASSERT(DI == my_ClassFussy::destructorInvocations);
             if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
         }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#undef destruct
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1304,8 +1378,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING destructiveMove"
                             "\n=======================\n");
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-        bslma_TestAllocator *const TA = &testAllocator;
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator *const TA = &testAllocator;
         int                 dummyAllocator;  // Dummy, non-bdema allocator
         int                 *const XA = &dummyAllocator;
 
@@ -1354,7 +1428,7 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf[4];
             my_PairAA_4_4 *srcPtr = (my_PairAA_4_4 *)&rawBuf[0];
             Obj::copyConstruct(srcPtr, PAAV4V4, TA);
-            bslalg_AutoScalarDestructor<my_PairAA_4_4> guard(srcPtr);
+            bslalg::AutoScalarDestructor<my_PairAA_4_4> guard(srcPtr);
             my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)&rawBuf[2];
             Obj::destructiveMove(objPtr, srcPtr, TA);
             guard.release();
@@ -1400,7 +1474,7 @@ int main(int argc, char *argv[])
         //    number (typos could easily make a10 become the 11th argument to
         //    the constructor).
         //  o That allocators are forwarded appropriately according to the
-        //    traits and to the type (bslma_Allocator* or void*).
+        //    traits and to the type (bslma::Allocator* or void*).
         //  o That even though
         //
         // Plan: Construct an object in some uninitialized buffer, and verify
@@ -1415,8 +1489,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING construct"
                             "\n=================\n");
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-        bslma_TestAllocator *const TA = &testAllocator;
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator *const TA = &testAllocator;
         int                 dummyAllocator;  // Dummy, non-bdema allocator
         int                 *const XA = &dummyAllocator;
 
@@ -1503,7 +1577,7 @@ int main(int argc, char *argv[])
                       );
 
 
-        if (verbose) printf("TEST_CONSTRUCTA (with bslma_Allocator*).\n");
+        if (verbose) printf("TEST_CONSTRUCTA (with bslma::Allocator*).\n");
 
         // OP  = construct(&ConstructTestArgAlloc, VA[1--N], TA)
         // EXP = ConstructTestArgAlloc(VA[1--N])
@@ -1702,7 +1776,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
 
-        const int NUM_ALLOC1 = testAllocator.numAllocation();
+        const int NUM_ALLOC1 = testAllocator.numAllocations();
         BEGIN_BSLMA_EXCEPTION_TEST {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1713,9 +1787,9 @@ int main(int argc, char *argv[])
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } END_BSLMA_EXCEPTION_TEST
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocation());
+        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
 
-        const int NUM_ALLOC2 = testAllocator.numAllocation();
+        const int NUM_ALLOC2 = testAllocator.numAllocations();
         BEGIN_BSLMA_EXCEPTION_TEST {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1726,7 +1800,7 @@ int main(int argc, char *argv[])
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } END_BSLMA_EXCEPTION_TEST
-        ASSERT(NUM_ALLOC2 < testAllocator.numAllocation());
+        ASSERT(NUM_ALLOC2 < testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -1734,7 +1808,7 @@ int main(int argc, char *argv[])
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
             bsl::memset(&rawBuf, 92, sizeof rawBuf);
             const int CCI = my_ClassFussy::copyConstructorInvocations;
-            Obj::construct(objPtr, VF, (bslma_Allocator*)TA);
+            Obj::construct(objPtr, VF, (bslma::Allocator*)TA);
             ASSERT(CCI == my_ClassFussy::copyConstructorInvocations);
             ASSERT(3 == rawBuf.d_value);
             ASSERT(0 == rawBuf.d_allocator_p);
@@ -1748,7 +1822,7 @@ int main(int argc, char *argv[])
             const int CCI = my_ClassFussy::copyConstructorInvocations;
             const int CVI = my_ClassFussy::conversionConstructorInvocations;
             const int VF  = 3;
-            Obj::construct(objPtr, VF, (bslma_Allocator*)TA);
+            Obj::construct(objPtr, VF, (bslma::Allocator*)TA);
             ASSERT(CCI == my_ClassFussy::copyConstructorInvocations);
             ASSERT(CVI <  my_ClassFussy::conversionConstructorInvocations);
             ASSERT(3 == rawBuf.d_value);
@@ -1768,7 +1842,7 @@ int main(int argc, char *argv[])
         //
         // Plan: Construct a copy of pre-initialized objects into an
         //   uninitialized buffer, passing allocators of both types
-        //   'bslma_Allocator *' and 'void *' types, and verify that the values
+        //   'bslma::Allocator *' and 'void *', and verify that the values
         //   and allocator of the copy are as expected.  Using a fussy type
         //   that has the BitwiseCopyable trait, ensure that the copy
         //   constructor is not invoked.
@@ -1780,8 +1854,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING copyConstruct"
                             "\n=====================\n");
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-        bslma_TestAllocator *const TA = &testAllocator;
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator *const TA = &testAllocator;
         int                 dummyAllocator;  // Dummy, non-bdema allocator
         int                 *const XA = &dummyAllocator;
 
@@ -1810,7 +1884,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
 
-        const int NUM_ALLOC1 = testAllocator.numAllocation();
+        const int NUM_ALLOC1 = testAllocator.numAllocations();
         BEGIN_BSLMA_EXCEPTION_TEST {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1821,7 +1895,7 @@ int main(int argc, char *argv[])
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } END_BSLMA_EXCEPTION_TEST
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocation());
+        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -1851,7 +1925,7 @@ int main(int argc, char *argv[])
         //     appropriate.
         //
         // Plan: Construct an object into a default state into an uninitialized
-        //   buffer, passing allocators of both types 'bslma_Allocator *' and
+        //   buffer, passing allocators of both types 'bslma::Allocator *' and
         //   'void *', and verify that the value and allocator of the object
         //   are as expected.  Using a fussy type that has the
         //   TrivialDefaultConstructor trait (even though the default
@@ -1865,8 +1939,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING defaultConstruct"
                             "\n========================\n");
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-        bslma_TestAllocator *const TA = &testAllocator;
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator *const TA = &testAllocator;
         int                 dummyAllocator;  // dummy, non-bdema allocator
         int                 *const XA = &dummyAllocator;
 
@@ -1925,7 +1999,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
 
-        const int NUM_ALLOC1 = testAllocator.numAllocation();
+        const int NUM_ALLOC1 = testAllocator.numAllocations();
         BEGIN_BSLMA_EXCEPTION_TEST {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1936,7 +2010,7 @@ int main(int argc, char *argv[])
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } END_BSLMA_EXCEPTION_TEST
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocation());
+        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -2005,8 +2079,8 @@ int main(int argc, char *argv[])
         my_Class2 v2(2);        ASSERT(2 == v2.value());
 
         my_ClassDef rawBuf;
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-        bslma_Allocator *const theAlloc = &testAllocator;
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::Allocator *const theAlloc = &testAllocator;
 
         bsl::memset(&rawBuf, 92, sizeof(rawBuf));
         bdealg_ScalarPrimitives::defaultConstruct((my_Class1*) &rawBuf,

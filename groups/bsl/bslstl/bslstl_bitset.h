@@ -21,27 +21,6 @@ BSLS_IDENT("$Id: $")
 // implements a static bitset class that is suitable for use as an
 // implementation of the 'std::bitset' class template.
 //
-// Note that the bitset class here is based on STLPort's implementation, with
-// copyright notice as follows:
-//..
-//-----------------------------------------------------------------------------
-// Copyright (c) 1998
-// Silicon Graphics Computer Systems, Inc.
-//
-// Copyright (c) 1999
-// Boris Fomitchev
-//
-// This material is provided "as is", with absolutely no warranty expressed
-// or implied.  Any use is at your own risk.
-//
-// Permission to use or copy this software for any purpose is hereby granted
-// without fee, provided the above notices are retained on all copies.
-// Permission to modify the code and to distribute modified code is granted,
-// provided the above notices are retained, and a notice that the code was
-// modified is included with the above copyright notice.
-//-----------------------------------------------------------------------------
-//..
-//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -50,7 +29,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to write a function to determine whether or not a given
 // number is prime.  One way to implement this function is by using what's
-// called the Sieve of Erathosthenes.  The basic idea of this algorithm is to
+// called the Sieve of Eratosthenes.  The basic idea of this algorithm is to
 // repeatedly walk the sequence of integer values and mark any numbers up to
 // and including the particular value of interest that are integer multiples of
 // first 2, then 3, then 5, etc. (skipping 4 because it was previously marked
@@ -85,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
-// Next, we observe that a default-contructed 'bsl::bitset' has no flags set,
+// Next, we observe that a default-constructed 'bsl::bitset' has no flags set,
 // We can check this by asserting that the 'none' method returns true, by
 // asserting that the 'any' method returns false, or by asserting that the
 // 'count' of set bits is 0:
@@ -180,14 +159,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_STRING
 #include <bslstl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -327,8 +298,8 @@ class bitset {
         // Clear the bits unused by the bitset in 'd_data', namely, bits
         // 'BITSETSIZE * BITSPERINT - 1' to N (where bit count starts at 0).
 
-    void clearUnusedBits(BloombergLP::bslmf::MetaInt<0>);
-    void clearUnusedBits(BloombergLP::bslmf::MetaInt<1>);
+    void clearUnusedBits(bsl::false_type);
+    void clearUnusedBits(bsl::true_type);
         // Implementations of 'clearUnusedBits', overloaded by whether there
         // are any unused bits.
 
@@ -674,18 +645,18 @@ void bitset<N>::clearUnusedBits()
 {
     enum { VALUE = N % BITSPERINT ? 1 : 0 };
 
-    clearUnusedBits(BloombergLP::bslmf::MetaInt<VALUE>());
+    clearUnusedBits(bsl::integral_constant<bool, VALUE>());
 }
 
 template <std::size_t N>
 inline
-void bitset<N>::clearUnusedBits(BloombergLP::bslmf::MetaInt<0>)
+void bitset<N>::clearUnusedBits(bsl::false_type)
 {
 }
 
 template <std::size_t N>
 inline
-void bitset<N>::clearUnusedBits(BloombergLP::bslmf::MetaInt<1>)
+void bitset<N>::clearUnusedBits(bsl::true_type)
 {
     const unsigned int offset = N % BITSPERINT;  // never 0
 
@@ -1226,11 +1197,24 @@ operator<<(std::basic_ostream<CHAR_TYPE, TRAITS>& os, const bitset<N>& x)
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -153,20 +153,20 @@ int baedb_TestUserDb::isValidFirmRecord(const bdem_List& record)
 
 // CREATORS
 
-baedb_TestUserDb::baedb_TestUserDb(bslma_Allocator *basicAllocator)
+baedb_TestUserDb::baedb_TestUserDb(bslma::Allocator *basicAllocator)
 : d_db(TOP_LEVEL_ELEMENTS, NUM_TOP_LEVEL_ELEMENTS, basicAllocator)
 {
 }
 
-baedb_TestUserDb::baedb_TestUserDb(const char      *inputData,
-                                   bslma_Allocator *basicAllocator)
+baedb_TestUserDb::baedb_TestUserDb(const char       *inputData,
+                                   bslma::Allocator *basicAllocator)
 : d_db(TOP_LEVEL_ELEMENTS, NUM_TOP_LEVEL_ELEMENTS, basicAllocator)
 {
     addRecords(inputData);
 }
 
 baedb_TestUserDb::baedb_TestUserDb(const bdem_List&  inputUserRecords,
-                                   bslma_Allocator  *basicAllocator)
+                                   bslma::Allocator *basicAllocator)
 : d_db(TOP_LEVEL_ELEMENTS, NUM_TOP_LEVEL_ELEMENTS, basicAllocator)
 {
     {
@@ -191,7 +191,7 @@ baedb_TestUserDb::baedb_TestUserDb(const bdem_List&  inputUserRecords,
 
 baedb_TestUserDb::baedb_TestUserDb(const bdem_List&  inputFirmRecords,
                                    const bdem_List&  inputUserRecords,
-                                   bslma_Allocator  *basicAllocator)
+                                   bslma::Allocator *basicAllocator)
 : d_db(TOP_LEVEL_ELEMENTS, NUM_TOP_LEVEL_ELEMENTS, basicAllocator)
 {
     {

@@ -11,7 +11,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #if defined BSLS_PLATFORM_OS_UNIX
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
-    #include <sys/time.h>  // gethrtime()
     #include <sys/times.h> // struct tms, times()
     #include <unistd.h>    // sysconf(), _SC_CLK_TCK
 #elif defined BSLS_PLATFORM_OS_WINDOWS
@@ -20,6 +19,12 @@ BSLS_IDENT("$Id$ $CSID$")
     #include <sys/timeb.h> // ftime(struct timeb *)
 #else
     #error "Don't know how to get nanosecond time for this platform"
+#endif
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+    #include <sys/time.h>  // gethrtime()
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+    #include <sys/time.h>  // gettimeofday()
 #endif
 
 namespace BloombergLP {
@@ -71,7 +76,7 @@ void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
                                         clock_t *userTimer)
 {
     struct tms processTimes;
-    if (-1 == ::times(&processTimes)) {
+    if (static_cast<clock_t>(-1) == ::times(&processTimes)) {
         *systemTimer = 0;
         *userTimer   = 0;
         return;                                                       // RETURN
@@ -390,12 +395,12 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
 
         const bsls::Types::Int64 high32Bits =
             static_cast<bsls::Types::Int64>(rawTime >> 32);
-        const bsls::Types::Int64 low32Bits  =
+        const bsls::Types::Uint64 low32Bits  =
             static_cast<bsls::Types::Uint64> (rawTime & LOW_MASK);
 
         return high32Bits * highPartDivisionFactor +
-             ((high32Bits * highPartRemainderFactor + low32Bits * G)
-                                                  / timerFrequency);  // RETURN
+              (high32Bits * highPartRemainderFactor) / timerFrequency +
+              (low32Bits * G) / timerFrequency;                       // RETURN
 
         // Note that this code runs as fast as the original implementation.  It
         // works for counters representing time values up to 292 years (the
@@ -485,7 +490,7 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 
     return rawTime.d_opaque;
 
-#elif defined BSLS_PLATFORM_OS_LINUX
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     const Types::Int64 G = 1000000000;
     return ((Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
@@ -587,7 +592,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     Types::Int64 t2 = (Types::Int64) gethrtime();
     timeValue->d_opaque = t2 > t1 ? t2 : t1;
 
-#elif defined BSLS_PLATFORM_OS_LINUX
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
     // been observed to be non-monotonic when tested at better than 1 parts in
@@ -664,11 +669,24 @@ void TimeUtil::getProcessTimers(Types::Int64 *systemTimer,
 
 }  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

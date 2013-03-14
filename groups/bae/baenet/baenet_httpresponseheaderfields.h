@@ -1,4 +1,4 @@
-// baenet_httpresponseheaderfields.h   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
+// baenet_httpresponseheaderfields.h  -*-C++-*-   GENERATED FILE -- DO NOT EDIT
 #ifndef INCLUDED_BAENET_HTTPRESPONSEHEADERFIELDS
 #define INCLUDED_BAENET_HTTPRESPONSEHEADERFIELDS
 
@@ -45,6 +45,10 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdex_outstreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -63,10 +67,6 @@ BDES_IDENT_PRAGMA_ONCE
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -145,7 +145,7 @@ class baenet_HttpResponseHeaderFields {
 
     // CREATORS
     explicit baenet_HttpResponseHeaderFields(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'baenet_HttpResponseHeaderFields' having
         // the default value.  Use the optionally specified 'basicAllocator'
         // to supply memory.  If 'basicAllocator' is 0, the currently
@@ -153,7 +153,7 @@ class baenet_HttpResponseHeaderFields {
 
     baenet_HttpResponseHeaderFields(
                 const baenet_HttpResponseHeaderFields&  original,
-                bslma_Allocator                        *basicAllocator = 0);
+                bslma::Allocator                       *basicAllocator = 0);
         // Create an object of type 'baenet_HttpResponseHeaderFields' having
         // the value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator'
@@ -362,7 +362,8 @@ bsl::ostream& operator<<(bsl::ostream& stream,
 
 // TRAITS
 
-BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baenet_HttpResponseHeaderFields)
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
+                                               baenet_HttpResponseHeaderFields)
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS

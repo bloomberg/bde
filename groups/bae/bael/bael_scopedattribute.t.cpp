@@ -8,7 +8,8 @@
 #include <bcema_testallocator.h>
 
 #include <bslma_defaultallocatorguard.h>
-#include <bsls_platformutil.h>
+
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -92,8 +93,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bcema_TestAllocator         da("da", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&da);
+    bcema_TestAllocator          da("da", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
@@ -264,7 +265,7 @@ int main(int argc, char *argv[])
                 bael_AttributeContext   *ac =
                     bael_AttributeContext::getContext();
 
-                Obj mX("theInt64", bsls_PlatformUtil::Int64(987654321) * 10);
+                Obj mX("theInt64", bsls::Types::Int64(987654321) * 10);
                 ac->determineThresholdLevels(&tl, cat);
 
                 ASSERT(bael_Severity::BAEL_OFF   == tl.recordLevel());

@@ -102,7 +102,7 @@ bool baetzo_DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
 }
 
 // CREATORS
-baetzo_DataFileLoader::baetzo_DataFileLoader(bslma_Allocator *basicAllocator)
+baetzo_DataFileLoader::baetzo_DataFileLoader(bslma::Allocator *basicAllocator)
 : d_rootPath(INVALID_PATH, basicAllocator)
 {
 }

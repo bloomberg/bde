@@ -52,7 +52,7 @@ BDES_IDENT("$Id: $")
 //   template <class A1, class A2>
 //   class ConcreteDerivedClass : public bdefr_Vfunc2 <A1, A2> {
 //     public:
-//       ConcreteDerivedClass(bslma_Allocator *basicAllocator)
+//       ConcreteDerivedClass(bslma::Allocator *basicAllocator)
 //       : bdefr_Vfunc2(basicAllocator) { }
 //
 //       virtual void execute(const A1& argument1, const A2& argument2) const
@@ -117,7 +117,7 @@ BDES_IDENT("$Id: $")
 //
 //   typedef ConcreteDerivedClass<int, int> DerivedObj;
 //   typedef bdefr_Vfunc2<int, int> Obj;
-//   bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+//   bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 //
 //   Obj *x = new(myAllocator) DerivedObj(myAllocator);
 //   {
@@ -142,8 +142,8 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -164,8 +164,9 @@ class bdefr_Vfunc2 {
     // allows the derived classes to declare the destructor 'private', and
     // limit an object instantiation to the heap.
 
-    int d_count;                    // dumb data (number of active references)
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) memory allocator
+    int d_count;                     // dumb data (number of active references)
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) memory
+                                     // allocator
 
   private:
     bdefr_Vfunc2(const bdefr_Vfunc2&);                  // not implemented
@@ -189,7 +190,7 @@ class bdefr_Vfunc2 {
         // from its base class pointer.
 
     // CREATORS
-    bdefr_Vfunc2(bslma_Allocator *basicAllocator);
+    bdefr_Vfunc2(bslma::Allocator *basicAllocator);
         // Destroy the specified 'object' and use the memory allocator held by
         // 'object' to deallocate it.  The behavior is undefined unless
         // 'object' holds a valid memory allocator.
@@ -231,7 +232,7 @@ void bdefr_Vfunc2<A1, A2>::deleteObject(bdefr_Vfunc2 *object)
 
 // CREATORS
 template <class A1, class A2>
-inline bdefr_Vfunc2<A1, A2>::bdefr_Vfunc2(bslma_Allocator *basicAllocator)
+inline bdefr_Vfunc2<A1, A2>::bdefr_Vfunc2(bslma::Allocator *basicAllocator)
 : d_count(0)
 , d_allocator_p(basicAllocator)
 {

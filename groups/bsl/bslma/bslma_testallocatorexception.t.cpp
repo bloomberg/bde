@@ -232,52 +232,52 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
 // my_shortarray.t.cpp
 
 #ifdef BDE_BUILD_TARGET_EXC
-#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {                        \
-    {                                                                     \
-        static int firstTime = 1;                                         \
-        if (veryVerbose && firstTime) cout <<                             \
-            "### BSLMA EXCEPTION TEST -- (ENABLED) --" << endl;           \
-        firstTime = 0;                                                    \
-    }                                                                     \
-    if (veryVeryVerbose) cout <<                                          \
-        "### Begin bslma exception test." << endl;                        \
-    int bslmaExceptionCounter = 0;                                        \
-    static int bslmaExceptionLimit = 100;                                 \
-    testAllocator.setAllocationLimit(bslmaExceptionCounter);              \
-    do {                                                                  \
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {                          \
+    {                                                                       \
+        static int firstTime = 1;                                           \
+        if (veryVerbose && firstTime) cout <<                               \
+            "### BSLMA EXCEPTION TEST -- (ENABLED) --" << endl;             \
+        firstTime = 0;                                                      \
+    }                                                                       \
+    if (veryVeryVerbose) cout <<                                            \
+        "### Begin bslma exception test." << endl;                          \
+    int bslmaExceptionCounter = 0;                                          \
+    static int bslmaExceptionLimit = 100;                                   \
+    testAllocator.setAllocationLimit(bslmaExceptionCounter);                \
+    do {                                                                    \
         try {
 
-#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                            \
-        } catch (bslma::TestAllocatorException& e) {                      \
-            if (veryVerbose && bslmaExceptionLimit || veryVeryVerbose) {  \
-                --bslmaExceptionLimit;                                    \
-                cout << "(*** " << bslmaExceptionCounter << ')';          \
-                if (veryVeryVerbose) { cout << " BEDMA_EXCEPTION: "       \
-                    << "alloc limit = " << bslmaExceptionCounter << ", "  \
-                    << "last alloc size = " << e.numBytes();              \
-                }                                                         \
-                else if (0 == bslmaExceptionLimit) {                      \
-                    cout << " [ Note: 'bslmaExceptionLimit' reached. ]";  \
-                }                                                         \
-                cout << endl;                                             \
-            }                                                             \
-            testAllocator.setAllocationLimit(++bslmaExceptionCounter);    \
-            continue;                                                     \
-        }                                                                 \
-        testAllocator.setAllocationLimit(-1);                             \
-        break;                                                            \
-    } while (1);                                                          \
-    if (veryVeryVerbose) cout <<                                          \
-        "### End bslma exception test." << endl;                          \
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                              \
+        } catch (bslma::TestAllocatorException& e) {                        \
+            if ((veryVerbose && bslmaExceptionLimit) || veryVeryVerbose) {  \
+                --bslmaExceptionLimit;                                      \
+                cout << "(*** " << bslmaExceptionCounter << ')';            \
+                if (veryVeryVerbose) { cout << " BEDMA_EXCEPTION: "         \
+                    << "alloc limit = " << bslmaExceptionCounter << ", "    \
+                    << "last alloc size = " << e.numBytes();                \
+                }                                                           \
+                else if (0 == bslmaExceptionLimit) {                        \
+                    cout << " [ Note: 'bslmaExceptionLimit' reached. ]";    \
+                }                                                           \
+                cout << endl;                                               \
+            }                                                               \
+            testAllocator.setAllocationLimit(++bslmaExceptionCounter);      \
+            continue;                                                       \
+        }                                                                   \
+        testAllocator.setAllocationLimit(-1);                               \
+        break;                                                              \
+    } while (1);                                                            \
+    if (veryVeryVerbose) cout <<                                            \
+        "### End bslma exception test." << endl;                            \
 }
 #else
-#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN                          \
-{                                                                         \
-    static int firstTime = 1;                                             \
-    if (verbose && firstTime) { cout <<                                   \
-        "### BSLMA EXCEPTION TEST -- (NOT ENABLED) --" << endl;           \
-        firstTime = 0;                                                    \
-    }                                                                     \
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN                            \
+{                                                                           \
+    static int firstTime = 1;                                               \
+    if (verbose && firstTime) { cout <<                                     \
+        "### BSLMA EXCEPTION TEST -- (NOT ENABLED) --" << endl;             \
+        firstTime = 0;                                                      \
+    }                                                                       \
 }
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
@@ -395,11 +395,24 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

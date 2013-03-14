@@ -1,9 +1,12 @@
 // bsltf_simpletesttype.t.cpp                                         -*-C++-*-
 #include <bsltf_simpletesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -162,20 +165,18 @@ template <class TYPE>
 void printTypeTraits()
     // Prints the traits of the parameterized 'TYPE' to the console.
 {
-    if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg::TypeTraitUsesBslmaAllocator>::VALUE) {
-        printf("Type defines bslalg::TypeTraitUsesBslmaAllocator.\n");
+    if (bslma::UsesBslmaAllocator<TYPE>::value) {
+        printf("Type defines bslma::UsesBslmaAllocator.\n");
     }
     else {
-        printf("Type does not define bslalg::TypeTraitUsesBslmaAllocator.\n");
+        printf("Type does not define bslma::UsesBslmaAllocator.\n");
     }
 
-    if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg::TypeTraitBitwiseMoveable>::VALUE) {
-        printf("Type defines bslalg::TypeTraitBitwiseMoveable.\n");
+    if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+        printf("Type defines bslmf::IsBitwiseMoveable.\n");
     }
     else {
-        printf("Type does not define bslalg::TypeTraitBitwiseMoveable.\n");
+        printf("Type does not define bslmf::IsBitwiseMoveable.\n");
     }
 }
 //..
@@ -213,8 +214,8 @@ int main(int argc, char *argv[]) {
 //..
 // Finally, we observe the console output:
 //..
-//  Type does not define bslalg::TypeTraitUsesBslmaAllocator.
-//  Type does not define bslalg::TypeTraitBitwiseMoveable.
+//  Type does not define bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
 //..
       } break;
       case 10: {
@@ -636,7 +637,7 @@ int main(int argc, char *argv[]) {
         //:   violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' atrribute 'D', 'A',
+        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
         //:   the the boundary values.
         //:
@@ -645,7 +646,7 @@ int main(int argc, char *argv[]) {
         //:   default-constructed value.  (C-1)
         //:
         //: 3 Set and object's 'data' attribute to 'A' and 'B'.  Verify the
-        //:   state of object using the (as yet unproven) salient attriubte
+        //:   state of object using the (as yet unproven) salient attribute
         //:   accessors.  (C-2)
         //
         // Testing:
@@ -730,11 +731,24 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

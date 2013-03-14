@@ -20,6 +20,10 @@ BDES_IDENT("$Id: $")
 // conditional-compilation based on 'bce' version information.  The following
 // usage example illustrates this basic capability.
 //
+// Note that since 'bce' is always released in lock-step with 'bde', they
+// share common versioning, and the 'BCE_VERSION' will always equal the
+// 'BDE_VERSION'.
+//
 ///Usage
 ///-----
 // At compile time, the version of BCE can be used to select an older or newer
@@ -45,10 +49,10 @@ BDES_IDENT("$Id: $")
 #include <bdescm_versiontag.h>
 #endif
 
-#define BCE_VERSION_MAJOR 2
+#define BCE_VERSION_MAJOR BDE_VERSION_MAJOR
     // BCE release major version
 
-#define BCE_VERSION_MINOR 15
+#define BCE_VERSION_MINOR BDE_VERSION_MINOR
     // BCE release major version
 
 #define BCE_VERSION BDE_MAKE_VERSION(BCE_VERSION_MAJOR, \

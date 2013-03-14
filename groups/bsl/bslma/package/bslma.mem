@@ -10,6 +10,7 @@ bslma_defaultallocatorguard
 bslma_deleterhelper
 bslma_destructorguard
 bslma_destructorproctor
+bslma_exceptionguard
 bslma_infrequentdeleteblocklist
 bslma_mallocfreeallocator
 bslma_managedallocator
@@ -21,3 +22,4 @@ bslma_sequentialpool
 bslma_testallocator
 bslma_testallocatorexception
 bslma_testallocatormonitor
+bslma_usesbslmaallocator

@@ -23,18 +23,18 @@ int alignedAllocationSize(int numBytes, int sizeOfBlock)
     // guaranteed to be maximally aligned in the presense of a supplied
     // allocator returning naturally-aligned memory, the size of the overall
     // allocation will be rounded up to an integral multiple of
-    // 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+    // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 {
     ///IMPLEMENTATION NOTE
     ///-------------------
     //: 1 Append the size of the 'bdema_BlockList::Block' header:
-    //:   'numBytes += sizeof(Block) - bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'
+    //:   'numBytes += sizeof(Block) - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'
     //:
     //: 2 Round to the nearest multiple of MAX_ALIGNMENT (a power of 2):
     //:   'numBytes = (numBytes + MAX_ALIGNMENT - 1) & ~(MAX_ALIGNMENT - 1)'
 
     return (numBytes + sizeOfBlock - 1)
-           & ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+           & ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 }
 
                         // ---------------------
@@ -60,9 +60,9 @@ void *bdema_BlockList::allocate(int numBytes)
 
     Block *block = (Block *)d_allocator_p->allocate(numBytes);
 
-    BSLS_ASSERT(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
-                                      (void *)block,
-                                      bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT));
+    BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+                                     (void *)block,
+                                     bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
 
     block->d_next_p = (Block *)d_head_p;
     block->d_addrPrevNext = (Block **)&d_head_p;
@@ -71,9 +71,9 @@ void *bdema_BlockList::allocate(int numBytes)
     }
     d_head_p = block;
 
-    BSLS_ASSERT(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
-                                      (void *)&block->d_memory,
-                                      bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT));
+    BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+                                     (void *)&block->d_memory,
+                                     bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
     return (void *)&block->d_memory;
 }
 
@@ -81,7 +81,7 @@ void bdema_BlockList::deallocate(void *address)
 {
     if (address) {
         Block *block = (Block *)(void *)((char *)address - sizeof(Block) +
-                                       bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
         *block->d_addrPrevNext = block->d_next_p;
         if (block->d_next_p) {
             block->d_next_p->d_addrPrevNext = block->d_addrPrevNext;

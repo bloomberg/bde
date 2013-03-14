@@ -140,15 +140,15 @@ class bdema_ProtectableBlockList {
 
     // PRIVATE TYPES
     struct Block {
-        Block                              *d_next_p;  // next block
-        Block                              *d_prev_p;  // prev block
-        int                                 d_size;    // size of allocation
-        bsls_AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+        Block                               *d_next_p;  // next block
+        Block                               *d_prev_p;  // prev block
+        int                                  d_size;    // size of allocation
+        bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
     };
 
     enum {
         BLOCK_HEADER_SIZE =
-                         sizeof(Block) - bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
+                        sizeof(Block) - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
             // size of the header for allocated blocks.
     };
 

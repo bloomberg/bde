@@ -191,7 +191,7 @@ typedef bdem_ChoiceArrayItem     ChoiceItem;
 
 typedef bdeat_FormattingMode     Format;
 
-typedef bsls_Types::Int64        Int64;
+typedef bsls::Types::Int64       Int64;
 
 const int NUM_TYPES = EType::BDEM_NUM_TYPES;
 
@@ -2108,7 +2108,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                            "Shallow conformance of unconstrained aggregates\n";
 
-        bslma_TestAllocator ta(veryVeryVerbose), *Z = &ta;
+        bslma::TestAllocator ta(veryVeryVerbose), *Z = &ta;
 
         const char *schemaStrs[] = { ":*U*&NF", ":*V*&NF",
                                      ":*e*&NF", ":*f*&NF" };
@@ -2149,7 +2149,7 @@ int main(int argc, char *argv[])
         //   conformant to 'recB'.
         // ====================================================================
 
-        bslma_TestAllocator ta(veryVeryVerbose), *Z = &ta;
+        bslma::TestAllocator ta(veryVeryVerbose), *Z = &ta;
 
         Schema s(Z);    gg(&s, ":cA* :dB* :aA*+*c :bA*+*d");
 
@@ -2436,8 +2436,8 @@ int main(int argc, char *argv[])
         //   after creating lists, that the fields are indeed null.
         // ====================================================================
 
-        bslma_TestAllocator  testAllocator(veryVeryVerbose);
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::Allocator     *Z = &testAllocator;
 
         { // directly within a list
             // for all scalar and array types
@@ -2509,8 +2509,8 @@ int main(int argc, char *argv[])
         //   is null.
         // ====================================================================
 
-        bslma_TestAllocator  testAllocator(veryVeryVerbose);
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::Allocator     *Z = &testAllocator;
 
         { // directly within a list
             // for all scalar and array types
@@ -2774,8 +2774,8 @@ int main(int argc, char *argv[])
         //           and one element that matches constraints it passes checks.
         // ====================================================================
 
-        bslma_TestAllocator  testAllocator(veryVeryVerbose);
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::Allocator     *Z = &testAllocator;
 
         { // enumerated ints
             { // within list
@@ -3373,8 +3373,8 @@ int main(int argc, char *argv[])
         //   Record "m" will always be the "main" record of the schema.
         // ====================================================================
 
-        bslma_TestAllocator  testAllocator(veryVeryVerbose);
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::Allocator     *Z = &testAllocator;
 
         struct {
             int         d_lineNum;
@@ -3470,8 +3470,8 @@ int main(int argc, char *argv[])
         //    checks for matching type information.
         // ====================================================================
 
-        bslma_TestAllocator  testAllocator(veryVeryVerbose);
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::Allocator     *Z = &testAllocator;
         int                  fmt = Format::BDEAT_DEFAULT;
 
         Schema s(Z);
@@ -7670,8 +7670,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nCompare values produced by 'g' and 'gg' on "
                           << "various inputs." << endl;
 
-        bslma_TestAllocator  testAllocator(veryVeryVerbose);
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::Allocator     *Z = &testAllocator;
 
         for (int i = 0; i < NUM_SPECS; ++i) {
             const char *spec = testSpecs[i];
@@ -7705,8 +7705,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'gg'"
                           << "\n============" << endl;
 
-        bslma_TestAllocator  testAllocator(veryVeryVerbose);
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::Allocator     *Z = &testAllocator;
 
         Schema x1(Z);  const Schema& X1 = x1;
 

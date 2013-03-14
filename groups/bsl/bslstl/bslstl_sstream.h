@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide the C++03 compatible stringstream classes.
+//@PURPOSE: Provide C++03-compatible 'stringstream' classes.
 //
 //@SEE_ALSO: bslstl_stringbuf, bslstl_istringstream, bslstl_ostringstream,
 //           bslstl_stringstream
@@ -19,8 +19,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is for use by the 'bsl+stdhdrs' package.  Use
-// 'std::stringstream' directly.
+// This component is for use by the 'bsl+stdhdrs' package.
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -29,16 +28,20 @@ BSLS_IDENT("$Id: $")
 BSL_OVERRIDES_STD mode"
 #endif
 
-#ifndef INCLUDED_BSLSTL_STREAMBUF
-#include <bslstl_stringbuf.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ISTREAMSTREAM
+#ifndef INCLUDED_BSLSTL_ISTRINGSTREAM
 #include <bslstl_istringstream.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_OSTREAMSTREAM
+#ifndef INCLUDED_BSLSTL_OSTRINGSTREAM
 #include <bslstl_ostringstream.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_STRINGBUF
+#include <bslstl_stringbuf.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_STRINGSTREAM
@@ -47,11 +50,24 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

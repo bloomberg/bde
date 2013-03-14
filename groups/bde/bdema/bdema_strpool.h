@@ -32,11 +32,11 @@ BDES_IDENT("$Id: $")
 //  // my_cstrarray.h
 //
 //  class my_CstrArray {
-//      char            **d_array_p;     // dynamically allocated array
-//      int               d_size;        // physical capacity of this array
-//      int               d_length;      // logical length of this array
-//      bdema_StrPool     d_strPool;     // manages and supplies string memory
-//      bslma_Allocator  *d_allocator_p; // holds (but doesn't own) allocator
+//      char             **d_array_p;     // dynamically allocated array
+//      int                d_size;        // physical capacity of this array
+//      int                d_length;      // logical length of this array
+//      bdema_StrPool      d_strPool;     // manages and supplies string memory
+//      bslma::Allocator  *d_allocator_p; // holds (but doesn't own) allocator
 //
 //    private:  // not implemented.
 //      my_CstrArray(const my_CstrArray& original);
@@ -45,7 +45,7 @@ BDES_IDENT("$Id: $")
 //      void increaseSize();
 //
 //    public:
-//      my_CstrArray(bslma_Allocator *basicAllocator = 0);
+//      my_CstrArray(bslma::Allocator *basicAllocator = 0);
 //      ~my_CstrArray();
 //
 //      my_CstrArray& operator=(const my_CstrArray& rhs);
@@ -57,7 +57,7 @@ BDES_IDENT("$Id: $")
 //  // ...
 //
 //  // my_cstrarray.cpp
-//  #include <bdema_default.h>
+//  #include <bslma_default.h>
 //
 //  enum {
 //      MY_INITIAL_SIZE = 1, // initial physical capacity (number of elements)
@@ -72,11 +72,11 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //  static inline
-//  void reallocate(char            ***array,
-//                  int               *size,
-//                  int                newSize,
-//                  int                length,
-//                  bslma_Allocator   *basicAllocator)
+//  void reallocate(char             ***array,
+//                  int                *size,
+//                  int                 newSize,
+//                  int                 length,
+//                  bslma::Allocator   *basicAllocator)
 //      // Reallocate memory in the specified 'array' using the specified
 //      // 'basicAllocator' and update the specified size to the specified
 //      // 'newSize'.  The specified 'length' number of leading elements are
@@ -108,10 +108,10 @@ BDES_IDENT("$Id: $")
 //                 d_allocator_p);
 //  }
 //
-//  my_CstrArray::my_CstrArray(bslma_Allocator *basicAllocator)
+//  my_CstrArray::my_CstrArray(bslma::Allocator *basicAllocator)
 //  : d_size(MY_INITIAL_SIZE)
 //  , d_length(0)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  , d_strPool(basicAllocator)
 //  {
 //      assert(d_allocator_p)
@@ -172,8 +172,8 @@ BDES_IDENT("$Id: $")
 #include <bdema_infrequentdeleteblocklist.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 
@@ -216,7 +216,7 @@ class bdema_StrPool {
 
   public:
     // CREATORS
-    bdema_StrPool(bslma_Allocator *basicAllocator = 0);
+    bdema_StrPool(bslma::Allocator *basicAllocator = 0);
         // Create a string memory pool.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.

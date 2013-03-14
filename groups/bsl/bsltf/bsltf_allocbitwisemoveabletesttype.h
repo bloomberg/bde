@@ -19,8 +19,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'AllocBitwiseMoveableTestType', that is
 // bitwise-moveable, uses a 'bslma::Allocator' to allocate memory, and defines
-// the type traits 'bslalg::TypeTraitUsesBslmaAllocator' and
-// 'bslalg::TypeTraitBitwiseMoveable'.
+// the type traits 'bslma::UsesBslmaAllocator' and
+// 'bslmf::IsBitwiseMoveable'.
 //
 ///Attributes
 ///----------
@@ -46,24 +46,22 @@ BSLS_IDENT("$Id: $")
 //  void printTypeTraits()
 //      // Prints the traits of the parameterized 'TYPE' to the console.
 //  {
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitUsesBslmaAllocator>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitUsesBslmaAllocator.\n");
+//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//          printf("Type defines bslma::UsesBslmaAllocator.\n");
 //      }
 //      else {
 //          printf(
-//              "Type does not define bslalg::TypeTraitUsesBslmaAllocator.\n");
+//              "Type does not define bslma::UsesBslmaAllocator.\n");
 //      }
 //
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitBitwiseMoveable>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitBitwiseMoveable.\n");
+//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
 //      }
 //      else {
-//          printf("Type does not define bslalg::TypeTraitBitwiseMoveable.\n");
+//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
 //      }
 //  }
-// ..
+//..
 // Now, we invoke the 'printTypeTraits' function template using
 // 'AllocBitwiseMoveableTestType' as the parameterized 'TYPE':
 //..
@@ -71,12 +69,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe the console output:
 //..
-//  Type defines bslalg::TypeTraitUsesBslmaAllocator.
-//  Type defines bslalg::TypeTraitBitwiseMoveable.
+//  Type defines bslma::UsesBslmaAllocator.
+//  Type defines bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -85,6 +83,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 namespace BloombergLP {
@@ -97,8 +103,8 @@ namespace bsltf {
 class AllocBitwiseMoveableTestType {
     // This unconstrained (value-semantic) attribute class that is
     // bitwise-moveable, uses a 'bslma::Allocator' to allocate memory, and
-    // defines the type traits 'bslalg::TypeTraitUsesBslmaAllocator' and
-    // 'bslalg::TypeTraitBitwiseMoveable'.  See the Attributes section under
+    // defines the type traits 'bslma::UsesBslmaAllocator' and
+    // 'bslmf::IsBitwiseMoveable'.  See the Attributes section under
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.
 
@@ -109,11 +115,6 @@ class AllocBitwiseMoveableTestType {
                                      // not owned)
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(AllocBitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
-
     // CREATORS
     explicit AllocBitwiseMoveableTestType(
                                          bslma::Allocator *basicAllocator = 0);
@@ -262,31 +263,59 @@ bslma::Allocator *AllocBitwiseMoveableTestType::allocator() const
     return d_allocator_p;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const AllocBitwiseMoveableTestType& lhs,
-                const AllocBitwiseMoveableTestType& rhs)
+bool bsltf::operator==(const AllocBitwiseMoveableTestType& lhs,
+                       const AllocBitwiseMoveableTestType& rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const AllocBitwiseMoveableTestType& lhs,
-                const AllocBitwiseMoveableTestType& rhs)
+bool bsltf::operator!=(const AllocBitwiseMoveableTestType& lhs,
+                       const AllocBitwiseMoveableTestType& rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+
+// TRAITS
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<bsltf::AllocBitwiseMoveableTestType>
+    : bsl::true_type {};
+}  // close namespace bslma
+
+namespace bslmf {
+template <>
+struct IsBitwiseMoveable<bsltf::AllocBitwiseMoveableTestType>
+    : bsl::true_type {};
+}  // close namespace bslmf
+
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

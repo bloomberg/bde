@@ -35,8 +35,8 @@ BDES_IDENT("$Id: $")
 // The supported types and required content are listed in the table below.  All
 // of the fundamental types in the table may be input as scalar values or as
 // homogeneous arrays.  'bsl::string' is input as a logical scalar string.
-// Note that 'Int64' and 'Uint64' denote 'bsls_PlatformUtil::Int64' and
-// 'bsls_PlatformUtil::Uint64', which in turn are 'typedef' names for the
+// Note that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
+// 'bsls::Types::Uint64', which in turn are 'typedef' names for the
 // signed and unsigned 64-bit integer types, respectively, on the host
 // platform.
 //..
@@ -324,8 +324,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTRING
@@ -338,10 +338,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -381,7 +377,7 @@ class bdex_ByteInStream {
     // must all be initialized in the order declared below.  Don't
     // re-arrange these declarations!
     // DATA
-    bslma_Allocator            *d_allocator_p;  // holds memory allocator
+    bslma::Allocator           *d_allocator_p;  // holds memory allocator
     int                         d_length;       // length of 'd_buffer_p'
     char                       *d_buffer_p;     // bytes to be unexternalized
     bdesb_FixedMemInStreamBuf   d_streambuf;
@@ -400,22 +396,22 @@ class bdex_ByteInStream {
 
   private:
     // PRIVATE CLASS METHODS
-    static char *cloneBuffer(const char      *buffer,
-                             int              numBytes,
-                             bslma_Allocator *basicAllocator);
+    static char *cloneBuffer(const char       *buffer,
+                             int               numBytes,
+                             bslma::Allocator *basicAllocator);
         // Allocate 'numBytes' from 'basicAllocator' and copy the contents of
         // 'buffer' into the newly allocated memory.  Return the new memory.
 
   public:
     // CREATORS
-    bdex_ByteInStream(bslma_Allocator *basicAllocator = 0);
+    bdex_ByteInStream(bslma::Allocator *basicAllocator = 0);
         // Create an empty input byte stream.  Optionally specify the
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    bdex_ByteInStream(const char      *buffer,
-                      int              numBytes,
-                      bslma_Allocator *basicAllocator = 0);
+    bdex_ByteInStream(const char       *buffer,
+                      int               numBytes,
+                      bslma::Allocator *basicAllocator = 0);
         // Create an input byte stream containing the specified initial
         // 'numBytes' from the specified 'buffer'.  Optionally specify the
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -472,7 +468,7 @@ class bdex_ByteInStream {
 
                         // *** scalar integer values ***
 
-    bdex_ByteInStream& getInt64(bsls_PlatformUtil::Int64& variable);
+    bdex_ByteInStream& getInt64(bsls::Types::Int64& variable);
         // Consume a 64-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -485,7 +481,7 @@ class bdex_ByteInStream {
         // the bit pattern is sign extended on platforms where 'variable' is
         // more than 64 bits.
 
-    bdex_ByteInStream& getUint64(bsls_PlatformUtil::Uint64& variable);
+    bdex_ByteInStream& getUint64(bsls::Types::Uint64& variable);
         // Consume a 64-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -498,7 +494,7 @@ class bdex_ByteInStream {
         // the bit pattern is zero extended on platforms where 'variable' is
         // more than 64 bits.
 
-    bdex_ByteInStream& getInt56(bsls_PlatformUtil::Int64& variable);
+    bdex_ByteInStream& getInt56(bsls::Types::Int64& variable);
         // Consume a 56-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -509,7 +505,7 @@ class bdex_ByteInStream {
         // Consume seven bytes interpreted as a sign extended 64-bit signed
         // integer in network byte order to provide the value for 'variable'.
 
-    bdex_ByteInStream& getUint56(bsls_PlatformUtil::Uint64& variable);
+    bdex_ByteInStream& getUint56(bsls::Types::Uint64& variable);
         // Consume a 56-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -520,7 +516,7 @@ class bdex_ByteInStream {
         // Consume seven bytes interpreted as a zero extended 64-bit unsigned
         // integer in network byte order to provide the value for 'variable'.
 
-    bdex_ByteInStream& getInt48(bsls_PlatformUtil::Int64& variable);
+    bdex_ByteInStream& getInt48(bsls::Types::Int64& variable);
         // Consume a 48-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -531,7 +527,7 @@ class bdex_ByteInStream {
         // Consume six bytes interpreted as a sign extended 64-bit signed
         // integer in network byte order to provide the value for 'variable'.
 
-    bdex_ByteInStream& getUint48(bsls_PlatformUtil::Uint64& variable);
+    bdex_ByteInStream& getUint48(bsls::Types::Uint64& variable);
         // Consume a 48-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -542,7 +538,7 @@ class bdex_ByteInStream {
         // Consume six bytes interpreted as a zero extended 64-bit unsigned
         // integer in network byte order to provide the value for 'variable'.
 
-    bdex_ByteInStream& getInt40(bsls_PlatformUtil::Int64& variable);
+    bdex_ByteInStream& getInt40(bsls::Types::Int64& variable);
         // Consume a 40-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -553,7 +549,7 @@ class bdex_ByteInStream {
         // Consume five bytes interpreted as a sign extended 64-bit signed
         // integer in network byte order to provide the value for 'variable'.
 
-    bdex_ByteInStream& getUint40(bsls_PlatformUtil::Uint64& variable);
+    bdex_ByteInStream& getUint40(bsls::Types::Uint64& variable);
         // Consume a 40-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -709,8 +705,7 @@ class bdex_ByteInStream {
 
                         // *** arrays of integer values ***
 
-    bdex_ByteInStream& getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                     int                       length);
+    bdex_ByteInStream& getArrayInt64(bsls::Types::Int64 *array, int length);
         // Consume the 64-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -722,11 +717,10 @@ class bdex_ByteInStream {
         // For each of the 'length' elements of 'array', consume eight bytes
         // interpreted as a 64-bit signed integer in network byte order to
         // provide the value for that element.  Note that the bit pattern is
-        // sign extended on platforms where 'bsls_PlatformUtil::Int64' is more
+        // sign extended on platforms where 'bsls::Types::Int64' is more
         // than 64 bits.
 
-    bdex_ByteInStream& getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                      int                        length);
+    bdex_ByteInStream& getArrayUint64(bsls::Types::Uint64 *array, int length);
         // Consume the 64-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -738,11 +732,10 @@ class bdex_ByteInStream {
         // For each of the 'length' elements of 'array', consume eight bytes
         // interpreted as a 64-bit unsigned integer in network byte order to
         // provide the value for that element.  Note that the bit pattern is
-        // zero extended on platforms where 'bsls_PlatformUtil::Uint64' is more
+        // zero extended on platforms where 'bsls::Types::Uint64' is more
         // than 64 bits.
 
-    bdex_ByteInStream& getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                     int                       length);
+    bdex_ByteInStream& getArrayInt56(bsls::Types::Int64 *array, int length);
         // Consume the 56-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -755,8 +748,7 @@ class bdex_ByteInStream {
         // interpreted as a sign extended 64-bit signed integer in network byte
         // order to provide the value for that element.
 
-    bdex_ByteInStream& getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                      int                        length);
+    bdex_ByteInStream& getArrayUint56(bsls::Types::Uint64 *array, int length);
         // Consume the 56-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -769,8 +761,7 @@ class bdex_ByteInStream {
         // interpreted as a zero extended 64-bit unsigned integer in network
         // byte order to provide the value for that element.
 
-    bdex_ByteInStream& getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                     int                       length);
+    bdex_ByteInStream& getArrayInt48(bsls::Types::Int64 *array, int length);
         // Consume the 48-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -783,8 +774,7 @@ class bdex_ByteInStream {
         // interpreted as a sign extended 64-bit signed integer in network byte
         // order to provide the value for that element.
 
-    bdex_ByteInStream& getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                      int                        length);
+    bdex_ByteInStream& getArrayUint48(bsls::Types::Uint64 *array, int length);
         // Consume the 48-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -797,8 +787,7 @@ class bdex_ByteInStream {
         // interpreted as a zero extended 64-bit unsigned integer in network
         // byte order to provide the value for that element.
 
-    bdex_ByteInStream& getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                     int                       length);
+    bdex_ByteInStream& getArrayInt40(bsls::Types::Int64 *array, int length);
         // Consume the 40-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -811,8 +800,7 @@ class bdex_ByteInStream {
         // interpreted as a sign extended 64-bit signed integer in network byte
         // order to provide the value for that element.
 
-    bdex_ByteInStream& getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                      int                        length);
+    bdex_ByteInStream& getArrayUint40(bsls::Types::Uint64 *array, int length);
         // Consume the 40-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -1042,9 +1030,9 @@ bdex_ByteInStream& operator>>(bdex_ByteInStream& stream, OBJECT& object);
 
 // PRIVATE CLASS METHODS
 inline
-char *bdex_ByteInStream::cloneBuffer(const char      *buffer,
-                                     int              numBytes,
-                                     bslma_Allocator *basicAllocator)
+char *bdex_ByteInStream::cloneBuffer(const char       *buffer,
+                                     int               numBytes,
+                                     bslma::Allocator *basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 <= numBytes);
     BSLS_ASSERT_SAFE(basicAllocator);
@@ -1056,8 +1044,8 @@ char *bdex_ByteInStream::cloneBuffer(const char      *buffer,
 
 // CREATORS
 inline
-bdex_ByteInStream::bdex_ByteInStream(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+bdex_ByteInStream::bdex_ByteInStream(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_length(0)
 , d_buffer_p(0)
 , d_streambuf(d_buffer_p, 0)
@@ -1069,10 +1057,10 @@ bdex_ByteInStream::bdex_ByteInStream(bslma_Allocator *basicAllocator)
 }
 
 inline
-bdex_ByteInStream::bdex_ByteInStream(const char      *buffer,
-                                     int              numBytes,
-                                     bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+bdex_ByteInStream::bdex_ByteInStream(const char       *buffer,
+                                     int               numBytes,
+                                     bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_length(numBytes)
 , d_buffer_p(cloneBuffer(buffer, numBytes, d_allocator_p))
 , d_streambuf(d_buffer_p, numBytes)
@@ -1125,7 +1113,7 @@ bdex_ByteInStream& bdex_ByteInStream::getVersion(int& variable)
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getInt64(bsls_PlatformUtil::Int64& variable)
+bdex_ByteInStream::getInt64(bsls::Types::Int64& variable)
 {
     d_formatter.getInt64(variable);
     return *this;
@@ -1133,7 +1121,7 @@ bdex_ByteInStream::getInt64(bsls_PlatformUtil::Int64& variable)
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getUint64(bsls_PlatformUtil::Uint64& variable)
+bdex_ByteInStream::getUint64(bsls::Types::Uint64& variable)
 {
     d_formatter.getUint64(variable);
     return *this;
@@ -1141,7 +1129,7 @@ bdex_ByteInStream::getUint64(bsls_PlatformUtil::Uint64& variable)
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getInt56(bsls_PlatformUtil::Int64& variable)
+bdex_ByteInStream::getInt56(bsls::Types::Int64& variable)
 {
     d_formatter.getInt56(variable);
     return *this;
@@ -1149,7 +1137,7 @@ bdex_ByteInStream::getInt56(bsls_PlatformUtil::Int64& variable)
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getUint56(bsls_PlatformUtil::Uint64& variable)
+bdex_ByteInStream::getUint56(bsls::Types::Uint64& variable)
 {
     d_formatter.getUint56(variable);
     return *this;
@@ -1157,7 +1145,7 @@ bdex_ByteInStream::getUint56(bsls_PlatformUtil::Uint64& variable)
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getInt48(bsls_PlatformUtil::Int64& variable)
+bdex_ByteInStream::getInt48(bsls::Types::Int64& variable)
 {
     d_formatter.getInt48(variable);
     return *this;
@@ -1165,7 +1153,7 @@ bdex_ByteInStream::getInt48(bsls_PlatformUtil::Int64& variable)
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getUint48(bsls_PlatformUtil::Uint64& variable)
+bdex_ByteInStream::getUint48(bsls::Types::Uint64& variable)
 {
     d_formatter.getUint48(variable);
     return *this;
@@ -1173,7 +1161,7 @@ bdex_ByteInStream::getUint48(bsls_PlatformUtil::Uint64& variable)
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getInt40(bsls_PlatformUtil::Int64& variable)
+bdex_ByteInStream::getInt40(bsls::Types::Int64& variable)
 {
     d_formatter.getInt40(variable);
     return *this;
@@ -1181,7 +1169,7 @@ bdex_ByteInStream::getInt40(bsls_PlatformUtil::Int64& variable)
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getUint40(bsls_PlatformUtil::Uint64& variable)
+bdex_ByteInStream::getUint40(bsls::Types::Uint64& variable)
 {
     d_formatter.getUint40(variable);
     return *this;
@@ -1273,8 +1261,7 @@ bdex_ByteInStream& bdex_ByteInStream::getFloat32(float& variable)
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                 int                       numValues)
+bdex_ByteInStream::getArrayInt64(bsls::Types::Int64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1285,8 +1272,7 @@ bdex_ByteInStream::getArrayInt64(bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                  int                        numValues)
+bdex_ByteInStream::getArrayUint64(bsls::Types::Uint64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1297,8 +1283,7 @@ bdex_ByteInStream::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                 int                       numValues)
+bdex_ByteInStream::getArrayInt56(bsls::Types::Int64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1309,8 +1294,7 @@ bdex_ByteInStream::getArrayInt56(bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                  int                        numValues)
+bdex_ByteInStream::getArrayUint56(bsls::Types::Uint64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1321,8 +1305,7 @@ bdex_ByteInStream::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                 int                       numValues)
+bdex_ByteInStream::getArrayInt48(bsls::Types::Int64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1333,8 +1316,7 @@ bdex_ByteInStream::getArrayInt48(bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                  int                        numValues)
+bdex_ByteInStream::getArrayUint48(bsls::Types::Uint64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1345,8 +1327,7 @@ bdex_ByteInStream::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                 int                       numValues)
+bdex_ByteInStream::getArrayInt40(bsls::Types::Int64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1357,8 +1338,7 @@ bdex_ByteInStream::getArrayInt40(bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteInStream&
-bdex_ByteInStream::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                  int                        numValues)
+bdex_ByteInStream::getArrayUint40(bsls::Types::Uint64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);

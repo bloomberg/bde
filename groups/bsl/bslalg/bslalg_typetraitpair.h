@@ -43,6 +43,18 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include <bslmf_detectnestedtrait.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -59,6 +71,17 @@ struct TypeTraitPair {
     // if both 'first_type' and 'second_type' have the
     // 'TypeTraitBitwiseMoveable' trait.  User-defined types will rarely need
     // this trait.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bslmf::IsPair>
+    {
+        // This class template ties the 'bslalg::TypeTraitPair' trait tag to
+        // the 'bslmf::IsPair' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bslmf::IsPair<TYPE>::type { };
 };
 
 }  // close package namespace
@@ -76,11 +99,24 @@ typedef bslalg::TypeTraitPair bslalg_TypeTraitPair;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -8,13 +8,13 @@
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bslma_sequentialallocator.h>
 
 #include <bdeut_nullablevalue.h>
 
 #include <cstdlib>
 
 #include <bslalg_typetraits.h>
+#include <bdeat_typename.h>
 #include <bdeat_attributeinfo.h>
 #include <bdeat_selectioninfo.h>
 #include <bdeat_typetraits.h>
@@ -32,7 +32,9 @@
 #include <bdeu_printmethods.h>
 #include <bdeu_string.h>
 
+#include <bsl_vector.h>
 #include <bsls_assert.h>
+#include <bsl_cstring.h>
 
 #include <iomanip>
 #include <limits>
@@ -67,24 +69,24 @@ using bsl::endl;
 // [ 3] int enumFromInt(int value);
 // [ 3] int enumFromString(const char *stringValue, int stringLength);
 // [ 7] void makeValue();
-// [ 2] void loadSimple(char               *value);
-// [ 2] void loadSimple(unsigned char      *value);
-// [ 2] void loadSimple(short              *value);
-// [ 2] void loadSimple(int                *value);
-// [ 2] void loadSimple(bsls_Types::Int64  *value);
-// [ 2] void loadSimple(unsigned short     *value);
-// [ 2] void loadSimple(unsigned int       *value);
-// [ 2] void loadSimple(bsls_Types::Uint64 *value);
-// [ 2] void loadSimple(float              *value);
-// [ 2] void loadSimple(double             *value);
-// [ 2] void loadSimple(bsl::string        *value);
-// [ 2] void loadSimple(bdet_Datetime      *value);
-// [ 2] void loadSimple(bdet_Date          *value);
-// [ 2] void loadSimple(bdet_Time          *value);
-// [ 2] void loadSimple(bool               *value);
-// [ 2] void loadSimple(bdet_DatetimeTz    *value);
-// [ 2] void loadSimple(bdet_DateTz        *value);
-// [ 2] void loadSimple(bdet_TimeTz        *value);
+// [ 2] void loadSimple(char                *value);
+// [ 2] void loadSimple(unsigned char       *value);
+// [ 2] void loadSimple(short               *value);
+// [ 2] void loadSimple(int                 *value);
+// [ 2] void loadSimple(bsls::Types::Int64  *value);
+// [ 2] void loadSimple(unsigned short      *value);
+// [ 2] void loadSimple(unsigned int        *value);
+// [ 2] void loadSimple(bsls::Types::Uint64 *value);
+// [ 2] void loadSimple(float               *value);
+// [ 2] void loadSimple(double              *value);
+// [ 2] void loadSimple(bsl::string         *value);
+// [ 2] void loadSimple(bdet_Datetime       *value);
+// [ 2] void loadSimple(bdet_Date           *value);
+// [ 2] void loadSimple(bdet_Time           *value);
+// [ 2] void loadSimple(bool                *value);
+// [ 2] void loadSimple(bdet_DatetimeTz     *value);
+// [ 2] void loadSimple(bdet_DateTz         *value);
+// [ 2] void loadSimple(bdet_TimeTz         *value);
 // [ 5] loadChoice(int, void *, const SInfo *, const char *, Accessor);
 // [ 5] loadChoice(int, void *, const SInfo *, AccssrNExtrctr, Chooser);
 // [ 6] loadSequence(int, void *, const AInfo *, const char *, ElmtAccssr);
@@ -254,9 +256,9 @@ class bcem_Aggregate;
 namespace test { class Simple; }
 namespace test {
 
-                                // ============                                
-                                // class Simple                                
-                                // ============                                
+                                // ============
+                                // class Simple
+                                // ============
 
 class Simple {
 
@@ -462,9 +464,9 @@ BDEAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(test::Simple)
 
 namespace test {
 
-                                // ------------                                
-                                // class Simple                                
-                                // ------------                                
+                                // ------------
+                                // class Simple
+                                // ------------
 
 // CLASS METHODS
 inline
@@ -510,7 +512,8 @@ int Simple::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case ATTRIBUTE_ID_STATUS: {
-        return manipulator(&d_status, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS]);
+        return manipulator(&d_status,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS]);
       } break;
       default:
         return NOT_FOUND;
@@ -572,7 +575,8 @@ int Simple::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case ATTRIBUTE_ID_STATUS: {
-        return accessor(d_status, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS]);
+        return accessor(d_status,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS]);
       } break;
       default:
         return NOT_FOUND;
@@ -636,9 +640,9 @@ std::ostream& test::operator<<(
 namespace BloombergLP {
 namespace test {
 
-                                // ------------                                
-                                // class Simple                                
-                                // ------------                                
+                                // ------------
+                                // class Simple
+                                // ------------
 
 // CONSTANTS
 
@@ -1092,6 +1096,45 @@ struct SequenceManipulator {
     }
 };
 
+struct SequenceManipulator2 {
+    const baea_SerializableObjectProxy *d_proxy;
+    bdeat_TypeCategory::Value           d_category;
+    bdeat_AttributeInfo                 d_info;
+    int                                 d_rc;
+
+    // CREATORS
+    SequenceManipulator2()
+    : d_proxy(0)
+    , d_category(bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY)
+    , d_rc(0) {}
+
+    // MANIPULATORS
+    void reset()
+    {
+        d_proxy = 0;
+        d_category = bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY;
+        d_rc = 0;
+    }
+
+    int operator() (baea_SerializableObjectProxy *object,
+                    const bdeat_AttributeInfo&    info)
+    {
+        d_proxy = object;
+        d_category = object->category();
+        d_info = info;
+        return d_rc;
+    }
+
+    int operator() (baea_SerializableObjectProxy_NullableAdapter *object,
+                    const bdeat_AttributeInfo&                    info)
+    {
+        d_proxy = object->d_proxy_p;
+        d_category = object->d_proxy_p->category();
+        d_info = info;
+        return d_rc;
+    }
+};
+
 struct ChoiceAccessor {
     const baea_SerializableObjectProxy *d_proxy;
     const void                    *d_address;
@@ -1146,17 +1189,46 @@ struct ChoiceManipulator
     }
 };
 
+baea_SerializableObjectProxy   *s_selectionLoaderFn_proxy;
+void                           *s_selectionLoaderFn_object;
+const bdeat_SelectionInfo      *s_selectionLoaderFn_selectInfoPtr;
+int                             s_selectionLoaderFn_int;
+
+int selectionLoaderFn(baea_SerializableObjectProxy  *proxy,
+                       void                          *object,
+                       const bdeat_SelectionInfo    **selectInfoPtr)
+{
+    s_selectionLoaderFn_proxy = proxy;
+    s_selectionLoaderFn_object = object;
+    *selectInfoPtr = s_selectionLoaderFn_selectInfoPtr;
+    proxy->loadSimple(&s_selectionLoaderFn_int);
+    return 0;
+}
+
+int   s_chooserFn_rc = 0;
+void *s_chooserFn_object;
+int   s_chooserFn_id;
+int chooserFn(void *object, int selectionId)
+{
+    s_chooserFn_object = object;
+    s_chooserFn_id = selectionId;
+    return s_chooserFn_rc;
+}
+
 baea_SerializableObjectProxy *s_elementLoaderFn_proxy;
 const void                   *s_elementLoaderFn_object;
 int                           s_elementLoaderFn_int;
-int                           s_elementLoaderFn_index;
+int                           s_elementLoaderFn_id;
+
+bsl::vector<int>              s_elementLoaderFn_indexes;
 void elementLoaderFn(baea_SerializableObjectProxy        *proxy,
                      const baea_SerializableObjectProxy&  object,
-                     int                             index)
+                     int                                  id)
 {
     s_elementLoaderFn_proxy = proxy;
     s_elementLoaderFn_object = &object;
-    s_elementLoaderFn_index = index;
+    s_elementLoaderFn_id = id;
+    s_elementLoaderFn_indexes.push_back(id);
     proxy->loadSimple(&s_elementLoaderFn_int);
 }
 
@@ -1170,31 +1242,6 @@ void loaderFn(baea_SerializableObjectProxy *proxy, void* object)
     s_loaderFn_object = object;
     proxy->loadSimple(&s_loaderFn_int);
 }
-
-baea_SerializableObjectProxy   *s_selectionLoaderFn_proxy;
-void                           *s_selectionLoaderFn_object;
-const bdeat_SelectionInfo      *s_selectionLoaderFn_selectInfoPtr;
-int                             s_selectionLoaderFn_int;
-void selectionLoaderFn(baea_SerializableObjectProxy  *proxy,
-                       void                          *object,
-                       const bdeat_SelectionInfo    **selectInfoPtr)
-{
-    s_selectionLoaderFn_proxy = proxy;
-    s_selectionLoaderFn_object = object;
-    *selectInfoPtr = s_selectionLoaderFn_selectInfoPtr;
-    proxy->loadSimple(&s_selectionLoaderFn_int);
-}
-
-int   s_chooserFn_rc = 0;
-void *s_chooserFn_object;
-int   s_chooserFn_id;
-int chooserFn(void *object, int selectionId)
-{
-    s_chooserFn_object = object;
-    s_chooserFn_id = selectionId;
-    return s_chooserFn_rc;
-}
-
 
 template <typename NULLABLE>
 void nullableValueMaker(void *object)
@@ -1212,6 +1259,67 @@ void* nullableValueFetcher(void *object)
         return 0;                                                     // RETURN
     }
     return &nullableValue->value();
+}
+
+enum {
+    ANONCHOICE_NULLCHOICE_ID = 3,
+    ANONCHOICE_CHOICE_ID = 2,
+    ANONCHOICE_ELEMENT_ID = 1
+};
+
+const bdeat_SelectionInfo ANONCHOICE_SELINFO[] = {
+    { 4, "SELECTIONA", 10, "a",  0},
+    { 3, "SELECTIONB", 10, "ab", 0}
+};
+
+const bdeat_AttributeInfo ANONCHOICE_CHOICEINFO[] = {
+    { ANONCHOICE_CHOICE_ID, "Choice", 6,
+      "choice", bdeat_FormattingMode::BDEAT_UNTAGGED },
+
+    { ANONCHOICE_ELEMENT_ID, "Element", 7, "element", 0 }
+};
+
+const bdeat_AttributeInfo ANONCHOICE_CHOICEINFO_WITHNULL[] = {
+    { ANONCHOICE_CHOICE_ID, "Choice", 6,
+      "choice", bdeat_FormattingMode::BDEAT_UNTAGGED },
+
+    { ANONCHOICE_NULLCHOICE_ID, "NullChoice", 10,
+      "nullchoice", bdeat_FormattingMode::BDEAT_UNTAGGED },
+
+    { ANONCHOICE_ELEMENT_ID, "Element", 7, "element", 0 }
+};
+
+void anonChoiceElementLoaderFn(baea_SerializableObjectProxy        *proxy,
+                               const baea_SerializableObjectProxy&  object,
+                               int                                  id)
+{
+    s_elementLoaderFn_proxy = proxy;
+    s_elementLoaderFn_object = &object;
+    s_elementLoaderFn_id = id;
+    s_elementLoaderFn_indexes.push_back(id);
+
+    const int NUM_SELECTIONS = sizeof ANONCHOICE_SELINFO /
+        sizeof *ANONCHOICE_SELINFO;
+
+    switch (id) {
+    case ANONCHOICE_ELEMENT_ID:
+        proxy->loadSimple(&s_elementLoaderFn_int);
+        return;
+    case ANONCHOICE_NULLCHOICE_ID:
+        proxy->loadNullableForDecoding(
+                            &s_elementLoaderFn_int,
+                            &loaderFn<int>,
+                            &nullableValueMaker<bdeut_NullableValue<int> >,
+                            &nullableValueFetcher<bdeut_NullableValue<int> >);
+        return;
+    case ANONCHOICE_CHOICE_ID:
+        proxy->loadChoiceForDecoding(NUM_SELECTIONS, &s_elementLoaderFn_int,
+                                     ANONCHOICE_SELINFO,
+                                     &selectionLoaderFn,
+                                     &chooserFn);
+        return;
+    };
+    ASSERT(!"Unreachable");
 }
 
 void         *s_resizerFn_object  = 0;
@@ -1392,7 +1500,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0: // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1453,6 +1561,117 @@ int main(int argc, char *argv[])
     ASSERT(42 == result.status());
 //..
       } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING Anonymous Choices
+        //
+        // Concerns:
+        //: 1 A proxy representing a Sequence having an anonymous choice
+        //:   correctly answers "sequenceHasAttribute" for the selections
+        //:   in the anonymous choice.
+        //:
+        //: 2 sequenceManipulateAttribute accesses the anonymous choice if
+        //:   the name of the anonymous choice is specified.
+        //:
+        //: 3 in the case of an anonymous nullable choice,
+        //    sequenceManipulateAttribute accesses the nullable
+        //
+        // Plan:
+        //: 1 Load a Sequence value into a proxy where the AttributeInfo
+        //:   array specifies an element of UNTAGGED formatting mode (which
+        //:   is used for anonymous Choices) and another selement.
+        //:
+        //: 2 Invoke sequenceHasAttribute, and sequenceManipulateAttribute
+        //:   and verify the results.
+        //
+        // Testing:
+        //   bool sequenceHasAttribute
+        //   int  sequenceManipulateAttribute
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING Anonymous Choices" << endl
+                          << "=========================" << endl;
+        const int NUM_INFO = sizeof ANONCHOICE_CHOICEINFO /
+            sizeof *ANONCHOICE_CHOICEINFO;
+
+
+        int dummy;
+        Obj mX; const Obj& X = mX;
+        mX.loadSequence(NUM_INFO, &dummy,
+                        ANONCHOICE_CHOICEINFO, "foo",
+                        &anonChoiceElementLoaderFn);
+
+        ASSERT(mX.sequenceHasAttribute("Element", 7));
+        ASSERT(mX.sequenceHasAttribute("SELECTIONA", 10));
+        ASSERT(mX.sequenceHasAttribute("SELECTIONB", 10));
+        ASSERT(!mX.sequenceHasAttribute("SELECTIONC", 10));
+
+        SequenceManipulator2 manipulator;
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "Element", 7));
+        ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY ==
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("Element", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "SELECTIONA", 10));
+        ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY ==
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("Choice", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "SELECTIONB", 10));
+        ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY ==
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("Choice", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+        const int NUM_INFO_WITHNULL = sizeof ANONCHOICE_CHOICEINFO_WITHNULL /
+            sizeof *ANONCHOICE_CHOICEINFO_WITHNULL;
+
+
+        mX.loadSequence(NUM_INFO_WITHNULL, &dummy,
+                        ANONCHOICE_CHOICEINFO_WITHNULL, "foo",
+                        &anonChoiceElementLoaderFn);
+
+        ASSERT(mX.sequenceHasAttribute("Element", 7));
+        ASSERT(mX.sequenceHasAttribute("SELECTIONA", 10));
+        ASSERT(mX.sequenceHasAttribute("SELECTIONB", 10));
+        ASSERT(mX.sequenceHasAttribute("SELECTIONC", 10));
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "Element", 7));
+        ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY ==
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("Element", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "SELECTIONA", 10));
+        ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY ==
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("Choice", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "SELECTIONB", 10));
+        ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY ==
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("Choice", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "SELECTIONC", 10));
+        ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY ==
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("NullChoice", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+      } break;
+
       case 8: {
         // --------------------------------------------------------------------
         // TESTING 'baea_SerializableObjectProxy_NullableAdapter'
@@ -1589,8 +1808,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(0 == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 == bdeat_TypeName_Overloadable
-                                                ::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(true == X.isNull());
@@ -1609,8 +1827,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 == bdeat_TypeName_Overloadable
-                                                ::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(false == X.isNull());
@@ -1759,8 +1976,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == strcmp(CLASSNAME, X.className()));
-            ASSERTV(0 == strcmp(CLASSNAME, bdeat_TypeName_Overloadable
-                                               ::bdeat_TypeName_className(X)));
+            ASSERTV(0 == strcmp(CLASSNAME, bdeat_TypeName::className(X)));
             ASSERTV(false == X.isByteArrayValue());
 
             for (int ti = 0; ti < NUM_INFO; ++ti) {
@@ -1772,13 +1988,13 @@ int main(int argc, char *argv[])
                 accessor.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == X.sequenceAccessAttribute(accessor, ID));
 
                 ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
 
@@ -1786,7 +2002,7 @@ int main(int argc, char *argv[])
                 accessor.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == X.sequenceAccessAttribute(accessor,
                                                         NAME,
@@ -1794,7 +2010,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
 
@@ -1802,13 +2018,13 @@ int main(int argc, char *argv[])
                 accessor.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == bdeat_sequenceAccessAttribute(X, accessor, ID));
 
                 ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
 
@@ -1816,7 +2032,7 @@ int main(int argc, char *argv[])
                 accessor.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == bdeat_sequenceAccessAttribute(X,
                                                             accessor,
@@ -1825,10 +2041,19 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
             }
+
+            SequenceAccessor accessor;
+            s_elementLoaderFn_indexes.clear();
+            ASSERT(0 == bdeat_sequenceAccessAttributes(X, accessor));
+            ASSERT(NUM_INFO == s_elementLoaderFn_indexes.size());
+            for (int i = 0; i < s_elementLoaderFn_indexes.size(); ++i) {
+                LOOP_ASSERT(i, s_elementLoaderFn_indexes[i] == INFO[i].d_id);
+            }
+
         }
 
         if (verbose) cout << "\nTesting Sequence for decoding" << endl;
@@ -1858,13 +2083,13 @@ int main(int argc, char *argv[])
                 manipulator.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == mX.sequenceManipulateAttribute(manipulator, ID));
 
                 ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
                 ASSERTV(manipulator.d_info == INFO[ti]);
 
@@ -1872,7 +2097,7 @@ int main(int argc, char *argv[])
                 manipulator.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == mX.sequenceManipulateAttribute(manipulator,
                                                              NAME,
@@ -1880,7 +2105,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
                 ASSERTV(manipulator.d_info == INFO[ti]);
 
@@ -1888,7 +2113,7 @@ int main(int argc, char *argv[])
                 manipulator.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == bdeat_sequenceManipulateAttribute(&mX,
                                                                 manipulator,
@@ -1896,7 +2121,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
                 ASSERTV(manipulator.d_info == INFO[ti]);
 
@@ -1904,7 +2129,7 @@ int main(int argc, char *argv[])
                 manipulator.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == bdeat_sequenceManipulateAttribute(&mX,
                                                                 manipulator,
@@ -1913,10 +2138,19 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
                 ASSERTV(manipulator.d_info == INFO[ti]);
             }
+
+            SequenceManipulator manipulator;
+            s_elementLoaderFn_indexes.clear();
+            ASSERT(0 == bdeat_sequenceManipulateAttributes(&mX, manipulator));
+            ASSERT(NUM_INFO == s_elementLoaderFn_indexes.size());
+            for (int i = 0; i < s_elementLoaderFn_indexes.size(); ++i) {
+                LOOP_ASSERT(i, s_elementLoaderFn_indexes[i] == INFO[i].d_id);
+            }
+
         }
       } break;
       case 5: {
@@ -2011,8 +2245,7 @@ int main(int argc, char *argv[])
             ASSERTV(&obj == X.object());
             ASSERTV(0 == strcmp(CLASSNAME, X.className()));
             ASSERTV(0 == strcmp(CLASSNAME,
-                                bdeat_TypeName_Overloadable
-                                               ::bdeat_TypeName_className(X)));
+                                bdeat_TypeName::className(X)));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(ID == X.selectionId());
@@ -2055,8 +2288,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(false == X.choiceHasSelection(-1));
@@ -2181,8 +2413,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(obj.data() == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(SIZE  == (int)X.size());
@@ -2229,8 +2460,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(SIZE == (int)X.size());
@@ -2319,8 +2549,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
 
             ASSERTV(true == X.isByteArrayValue());
 
@@ -2405,8 +2634,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(0 == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(VALUE == X.enumToInt());
@@ -2437,8 +2665,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
@@ -2515,24 +2742,24 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int manipulateSimple(MANIPULATOR& manipulator);
-        //   void loadSimple(char               *value);
-        //   void loadSimple(unsigned char      *value);
-        //   void loadSimple(short              *value);
-        //   void loadSimple(int                *value);
-        //   void loadSimple(bsls_Types::Int64  *value);
-        //   void loadSimple(unsigned short     *value);
-        //   void loadSimple(unsigned int       *value);
-        //   void loadSimple(bsls_Types::Uint64 *value);
-        //   void loadSimple(float              *value);
-        //   void loadSimple(double             *value);
-        //   void loadSimple(bsl::string        *value);
-        //   void loadSimple(bdet_Datetime      *value);
-        //   void loadSimple(bdet_Date          *value);
-        //   void loadSimple(bdet_Time          *value);
-        //   void loadSimple(bool               *value);
-        //   void loadSimple(bdet_DatetimeTz    *value);
-        //   void loadSimple(bdet_DateTz        *value);
-        //   void loadSimple(bdet_TimeTz        *value);
+        //   void loadSimple(char                *value);
+        //   void loadSimple(unsigned char       *value);
+        //   void loadSimple(short               *value);
+        //   void loadSimple(int                 *value);
+        //   void loadSimple(bsls::Types::Int64  *value);
+        //   void loadSimple(unsigned short      *value);
+        //   void loadSimple(unsigned int        *value);
+        //   void loadSimple(bsls::Types::Uint64 *value);
+        //   void loadSimple(float               *value);
+        //   void loadSimple(double              *value);
+        //   void loadSimple(bsl::string         *value);
+        //   void loadSimple(bdet_Datetime       *value);
+        //   void loadSimple(bdet_Date           *value);
+        //   void loadSimple(bdet_Time           *value);
+        //   void loadSimple(bool                *value);
+        //   void loadSimple(bdet_DatetimeTz     *value);
+        //   void loadSimple(bdet_DateTz         *value);
+        //   void loadSimple(bdet_TimeTz         *value);
         //   int accessSimple(ACCESSOR& accessor) const;
         //   int bdeat_typeCategoryAccessSimple(const ObjProxy&, ACCESSOR& a);
         //   int bdeat_typeCategoryManipulateSimple(ObjProxy *, MANIPULATOR&);
@@ -2546,7 +2773,7 @@ int main(int argc, char *argv[])
         executeSimpleCategoryTest<unsigned char>("uchar");
         executeSimpleCategoryTest<short>("short");
         executeSimpleCategoryTest<int>("int");
-        executeSimpleCategoryTest<bsls_Types::Uint64>("uint64");
+        executeSimpleCategoryTest<bsls::Types::Uint64>("uint64");
         executeSimpleCategoryTest<float>("float");
         executeSimpleCategoryTest<double>("double");
         executeSimpleCategoryTest<bsl::string>("string");

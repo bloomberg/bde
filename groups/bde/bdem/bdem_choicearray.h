@@ -318,6 +318,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -328,10 +332,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -378,7 +378,7 @@ class bdem_ChoiceArray {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdem_ChoiceArray,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -387,10 +387,10 @@ class bdem_ChoiceArray {
         // information on 'bdex' streaming of container types.)
 
     // CREATORS
-    explicit bdem_ChoiceArray(bslma_Allocator *basicAllocator = 0);
+    explicit bdem_ChoiceArray(bslma::Allocator *basicAllocator = 0);
     explicit bdem_ChoiceArray(
                  bdem_AggregateOption::AllocationStrategy  allocMode,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a choice array with 0 items and having an empty types
         // catalog.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -404,12 +404,12 @@ class bdem_ChoiceArray {
     bdem_ChoiceArray(
                  const bdem_ElemType::Type                 typesCatalog[],
                  int                                       typesCatalogLen,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_ChoiceArray(
                  const bdem_ElemType::Type                 typesCatalog[],
                  int                                       typesCatalogLen,
                  bdem_AggregateOption::AllocationStrategy  allocMode,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a choice array with 0 items and having a types catalog as
         // indicated by the specified initial 'typesCatalogLen' types in the
         // specified 'typesCatalog' array.  Optionally specify a
@@ -423,11 +423,11 @@ class bdem_ChoiceArray {
 
     bdem_ChoiceArray(
                  const bsl::vector<bdem_ElemType::Type>&   typesCatalog,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_ChoiceArray(
                  const bsl::vector<bdem_ElemType::Type>&   typesCatalog,
                  bdem_AggregateOption::AllocationStrategy  allocMode,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a choice array with 0 items and having a types catalog as
         // indicated by the specified 'typesCatalog'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -438,11 +438,11 @@ class bdem_ChoiceArray {
 
     bdem_ChoiceArray(
                  const bdem_ChoiceArray&                   original,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
     bdem_ChoiceArray(
                  const bdem_ChoiceArray&                   original,
                  bdem_AggregateOption::AllocationStrategy  allocMode,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create a choice array having the value of the specified 'original'
         // choice array.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -746,7 +746,7 @@ int bdem_ChoiceArray::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-bdem_ChoiceArray::bdem_ChoiceArray(bslma_Allocator *basicAllocator)
+bdem_ChoiceArray::bdem_ChoiceArray(bslma::Allocator *basicAllocator)
 : d_arrayImp(basicAllocator)
 {
 }
@@ -754,7 +754,7 @@ bdem_ChoiceArray::bdem_ChoiceArray(bslma_Allocator *basicAllocator)
 inline
 bdem_ChoiceArray::bdem_ChoiceArray(
                       bdem_AggregateOption::AllocationStrategy  allocMode,
-                      bslma_Allocator                          *basicAllocator)
+                      bslma::Allocator                         *basicAllocator)
 : d_arrayImp(allocMode, basicAllocator)
 {
 }
@@ -762,7 +762,7 @@ bdem_ChoiceArray::bdem_ChoiceArray(
 inline
 bdem_ChoiceArray::bdem_ChoiceArray(const bdem_ElemType::Type  typesCatalog[],
                                    int                        typesCatalogLen,
-                                   bslma_Allocator           *basicAllocator)
+                                   bslma::Allocator          *basicAllocator)
 : d_arrayImp(typesCatalog,
              typesCatalogLen,
              bdem_ElemAttrLookup::lookupTable(),
@@ -777,7 +777,7 @@ bdem_ChoiceArray::bdem_ChoiceArray(
                      const bdem_ElemType::Type                 typesCatalog[],
                      int                                       typesCatalogLen,
                      bdem_AggregateOption::AllocationStrategy  allocMode,
-                     bslma_Allocator                          *basicAllocator)
+                     bslma::Allocator                         *basicAllocator)
 : d_arrayImp(typesCatalog,
              typesCatalogLen,
              bdem_ElemAttrLookup::lookupTable(),
@@ -790,7 +790,7 @@ bdem_ChoiceArray::bdem_ChoiceArray(
 inline
 bdem_ChoiceArray::bdem_ChoiceArray(
                        const bsl::vector<bdem_ElemType::Type>&  typesCatalog,
-                       bslma_Allocator                         *basicAllocator)
+                       bslma::Allocator                        *basicAllocator)
 : d_arrayImp(0 == typesCatalog.size() ? 0 : &typesCatalog[0],
              static_cast<int>(typesCatalog.size()),
              bdem_ElemAttrLookup::lookupTable(),
@@ -803,7 +803,7 @@ inline
 bdem_ChoiceArray::bdem_ChoiceArray(
                       const bsl::vector<bdem_ElemType::Type>&   typesCatalog,
                       bdem_AggregateOption::AllocationStrategy  allocMode,
-                      bslma_Allocator                          *basicAllocator)
+                      bslma::Allocator                         *basicAllocator)
 : d_arrayImp(0 == typesCatalog.size() ? 0 : &typesCatalog[0],
              static_cast<int>(typesCatalog.size()),
              bdem_ElemAttrLookup::lookupTable(),
@@ -814,7 +814,7 @@ bdem_ChoiceArray::bdem_ChoiceArray(
 
 inline
 bdem_ChoiceArray::bdem_ChoiceArray(const bdem_ChoiceArray&  original,
-                                   bslma_Allocator         *basicAllocator)
+                                   bslma::Allocator        *basicAllocator)
 : d_arrayImp(original.d_arrayImp, basicAllocator)
 {
 }
@@ -823,7 +823,7 @@ inline
 bdem_ChoiceArray::bdem_ChoiceArray(
                       const bdem_ChoiceArray&                   original,
                       bdem_AggregateOption::AllocationStrategy  allocMode,
-                      bslma_Allocator                          *basicAllocator)
+                      bslma::Allocator                         *basicAllocator)
 : d_arrayImp(original.d_arrayImp, allocMode, basicAllocator)
 {
 }

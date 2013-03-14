@@ -59,16 +59,16 @@ BDES_IDENT("$Id: $")
 // constructor that takes a pointer to an allocator as its sole argument, and
 // another version if the type provides only a default constructor.
 //
-// The first 'createObj' function takes a 'bslmf_MetaInt<0>' as its last
+// The first 'createObj' function takes a 'bslmf::MetaInt<0>' as its last
 // argument, whereas the second 'createObj' function takes a
-// 'bslmf_MetaInt<1>' object.  The result of the 'isConvertible'
+// 'bslmf::MetaInt<1>' object.  The result of the 'isConvertible'
 // meta-function (i.e., its 'Type' member) is used to create the last argument
 // to 'createObj'.  Neither version of 'createObj' makes use of this argument
 // -- it is used only to differentiate the argument list so we can overload
 // the function.
 //..
 //     template<class T>
-//     void createObj(T *space, MyAllocator *, bslmf_MetaInt<1>)
+//     void createObj(T *space, MyAllocator *, bslmf::MetaInt<1>)
 //     {
 //        // Use the type's default constructor if
 //        // bdemf_IsConvertible<MyAllocator*, T>::VALUE == 0 -- i.e., there is
@@ -78,7 +78,7 @@ BDES_IDENT("$Id: $")
 //     }
 //
 //     template<class T>
-//     void createObj(T *space, MyAllocator *alloc, bslmf_MetaInt<0>)
+//     void createObj(T *space, MyAllocator *alloc, bslmf::MetaInt<0>)
 //     {
 //        // Use the type's constructor that takes a pointer to an allocator if
 //        // bdemf_IsConvertible<MyAllocator*, T>::VALUE == 1, i.e., there is
@@ -122,7 +122,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_IsConvertible
-#define bdemf_IsConvertible   bslmf_IsConvertible
+#define bdemf_IsConvertible   bslmf::IsConvertible
     // Implement a meta function which computes -- at compile time -- whether
     // 'FROM_TYPE' is convertible to 'TO_TYPE'.  Note that if 'TO_TYPE' is not
     // a reference type, then the cv-qualification of 'TO_TYPE' is ignored.
@@ -135,10 +135,10 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_IsConvertible_Imp
-#define bdemf_IsConvertible_Imp bslmf_IsConvertible_Imp
+#define bdemf_IsConvertible_Imp bslmf::IsConvertible_Imp
     // Private class.
 
-    // General instance.  Implements 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>'
+    // General instance.  Implements 'bslmf::IsConvertible<FROM_TYPE, TO_TYPE>'
     // where conversion to 'TO_TYPE' is not necessarily the same as conversion
     // to 'const TO_TYPE&'.  Will not compile if 'TO_TYPE' is an incomplete
     // type (although it may be a pointer or reference to incomplete type).

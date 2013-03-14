@@ -28,13 +28,13 @@ enum {
 
 // STATIC HELPER FUNCTIONS
 static
-bslma_Allocator *init(
+bslma::Allocator *init(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   int                                       initialMemorySize,
-                  bslma_Allocator                          *originalAllocator)
+                  bslma::Allocator                         *originalAllocator)
     // TBD doc
 {
-    bslma_Allocator *internalAllocator;
+    bslma::Allocator *internalAllocator;
 
     switch (allocationStrategy) {
       case bdem_AggregateOption::BDEM_WRITE_MANY: {
@@ -43,7 +43,7 @@ bslma_Allocator *init(
                                                             NUM_POOLS,
                                                             originalAllocator);
 
-        bslma_RawDeleterProctor<bdema_MultipoolAllocator, bslma_Allocator>
+        bslma::RawDeleterProctor<bdema_MultipoolAllocator, bslma::Allocator>
                          deleterProctor(multipoolAllocator, originalAllocator);
 
         multipoolAllocator->reserveCapacity(1, initialMemorySize);
@@ -57,7 +57,7 @@ bslma_Allocator *init(
             new (*originalAllocator) bdema_SequentialAllocator(
                                                             originalAllocator);
 
-        bslma_RawDeleterProctor<bdema_SequentialAllocator, bslma_Allocator>
+        bslma::RawDeleterProctor<bdema_SequentialAllocator, bslma::Allocator>
                         deleterProctor(sequentialAllocator, originalAllocator);
 
         sequentialAllocator->reserveCapacity(initialMemorySize);
@@ -81,10 +81,10 @@ bslma_Allocator *init(
 // CREATORS
 bdem_AllocatorManager::bdem_AllocatorManager(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocationStrategy(allocationStrategy)
 , d_internalAllocator_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_internalAllocator_p = init(allocationStrategy,
                                  INITIAL_SIZE,
@@ -95,10 +95,10 @@ bdem_AllocatorManager::bdem_AllocatorManager(
 bdem_AllocatorManager::bdem_AllocatorManager(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   int                                       initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocationStrategy(allocationStrategy)
 , d_internalAllocator_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_internalAllocator_p = init(allocationStrategy,
                                  initialMemorySize,
@@ -115,7 +115,8 @@ bdem_AllocatorManager::~bdem_AllocatorManager()
                              & bdem_AggregateOption::BDEM_OWN_ALLOCATOR_FLAG) {
         BSLS_ASSERT(d_allocator_p != d_internalAllocator_p);
 
-        bslma_DeleterHelper::deleteObject(d_internalAllocator_p, d_allocator_p);
+        bslma::DeleterHelper::deleteObject(d_internalAllocator_p,
+                                           d_allocator_p);
     }
 }
 

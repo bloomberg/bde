@@ -43,7 +43,7 @@ BDES_IDENT("$Id: $")
 // 'bcec_SharedObjectPool' is templated on two types 'CREATOR' and 'RESETTER'
 // in addition to the underlying object 'TYPE'.  Objects of these types may be
 // provided at construction (or defaults may be used).  The creator will be
-// invoked as: 'void(*)(void*, bslma_Allocator*)'.  The resetter will be
+// invoked as: 'void(*)(void*, bslma::Allocator*)'.  The resetter will be
 // invoked as: 'void(*)(TYPE*);.  The creator functor will be called to
 // construct a new object of the parameterized 'TYPE' when the pool must be
 // expanded (and thus it will typically invoke placement new and pass its
@@ -67,7 +67,7 @@ BDES_IDENT("$Id: $")
 // method.  The 'CREATOR' functor defaults to an object that invokes the
 // default constructor with placement new, passing the allocator argument if
 // the type traits of the object indicate it uses an allocator (see
-// 'bdealg_typetraits').  If a custom creator functor or a custom 'CREATOR'
+// 'bslalg_typetraits').  If a custom creator functor or a custom 'CREATOR'
 // type is specified, it is the user's responsibility to ensure that it
 // correctly passes its allocator argument through to the constructor of
 // 'TYPE' if 'TYPE' uses allocator.
@@ -110,8 +110,8 @@ BDES_IDENT("$Id: $")
 //
 //     enum {BUFFER_SIZE=65536};
 //
-//     static void createBlob(void* address, bcema_BlobBufferFactory *factory,
-//                     bslma_Allocator *allocator) {
+//     static void createBlob(void *address, bcema_BlobBufferFactory *factory,
+//                            bslma::Allocator *allocator) {
 //         new (address) bcema_Blob(factory, allocator);
 //     }
 //
@@ -123,7 +123,7 @@ BDES_IDENT("$Id: $")
 //
 //   public:
 //
-//     SlowBlobPool(bslma_Allocator *basicAllocator = 0)
+//     SlowBlobPool(bslma::Allocator *basicAllocator = 0)
 //       : d_spAllocator(basicAllocator)
 //       , d_blobFactory(BUFFER_SIZE, basicAllocator)
 //       , d_blobPool(bdef_BindUtil::bind(
@@ -134,7 +134,8 @@ BDES_IDENT("$Id: $")
 //                    basicAllocator)
 //    {}
 //
-//    void getBlob(bcema_SharedPtr<bcema_Blob> *blob_sp) {
+//    void getBlob(bcema_SharedPtr<bcema_Blob> *blob_sp)
+//    {
 //        blob_sp->load(d_blobPool.getObject(),
 //                      bdef_BindUtil::bind(
 //                               &SlowBlobPool::resetAndReturnBlob,
@@ -163,14 +164,15 @@ BDES_IDENT("$Id: $")
 //
 //     enum {BUFFER_SIZE=65536};
 //
-//     static void createBlob(void* address, bcema_BlobBufferFactory *factory,
-//                     bslma_Allocator *allocator) {
+//     static void createBlob(void *address, bcema_BlobBufferFactory *factory,
+//                            bslma::Allocator *allocator)
+//     {
 //         new (address) bcema_Blob(factory, allocator);
 //     }
 //
 //   public:
 //
-//     FastBlobPool(bslma_Allocator *basicAllocator = 0)
+//     FastBlobPool(bslma::Allocator *basicAllocator = 0)
 //       : d_blobFactory(BUFFER_SIZE, basicAllocator)
 //       , d_blobPool(bdef_BindUtil::bind(
 //                                  &FastBlobPool::createBlob,
@@ -203,8 +205,8 @@ BDES_IDENT("$Id: $")
 //   slowPool.getBlob(&blob_sp); // throw away the first blob
 // }
 //
-// ASSERT(2 == slowAllocator.numAllocation());
-// ASSERT(1 == fastAllocator.numAllocation());
+// ASSERT(2 == slowAllocator.numAllocations());
+// ASSERT(1 == fastAllocator.numAllocations());
 // ASSERT(0 == slowAllocator.numBytesInUse());
 // ASSERT(0 == fastAllocator.numBytesInUse());
 //..
@@ -265,11 +267,11 @@ class bcec_SharedObjectPool_Rep: public bcema_SharedPtrRep {
                                                       PoolType;
 
     // DATA
-    bslalg_ConstructorProxy<RESETTER> d_objectResetter;
+    bslalg::ConstructorProxy<RESETTER> d_objectResetter;
 
-    PoolType                         *d_pool_p;   // object pool (held)
-    bsls_ObjectBuffer<TYPE>           d_instance; // area for embedded
-                                                  // instance
+    PoolType                          *d_pool_p;   // object pool (held)
+    bsls::ObjectBuffer<TYPE>           d_instance; // area for embedded
+                                                   // instance
 
     // NOT IMPLEMENTED
     bcec_SharedObjectPool_Rep(const bcec_SharedObjectPool_Rep&);
@@ -279,10 +281,10 @@ class bcec_SharedObjectPool_Rep: public bcema_SharedPtrRep {
     // CREATORS
     template <class CREATOR>
     bcec_SharedObjectPool_Rep(CREATOR*                         objectCreator,
-                              const bslalg_ConstructorProxy<RESETTER>&
+                              const bslalg::ConstructorProxy<RESETTER>&
                                                                objectResetter,
                               PoolType                        *pool,
-                              bslma_Allocator                 *basicAllocator);
+                              bslma::Allocator                *basicAllocator);
        // Construct a new rep object that, upon release, will invoke
        // the specified 'objectResetter' and return itself to the specified
        // 'pool'; then invoke 'objectCreator' to construct an object of
@@ -340,7 +342,7 @@ class bcec_SharedObjectPool {
     bcec_ObjectPool_CreatorProxy<CREATOR, TYPE>
                                 d_objectCreator; // functor for object creation
 
-    bslalg_ConstructorProxy<RESETTER>
+    bslalg::ConstructorProxy<RESETTER>
                                 d_objectResetter;  // functor to reset object
 
     PoolType                    d_pool;           // object pool (owned)
@@ -350,7 +352,7 @@ class bcec_SharedObjectPool {
     bcec_SharedObjectPool(const bcec_SharedObjectPool&);
     bcec_SharedObjectPool& operator=(const bcec_SharedObjectPool&);
 
-    void constructRepObject(void *mem, bslma_Allocator* alloc);
+    void constructRepObject(void *mem, bslma::Allocator *alloc);
         // Initializes a newly constructed bcec_SharedObjectPool_Rep object
 
   public:
@@ -360,30 +362,30 @@ class bcec_SharedObjectPool {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_SharedObjectPool,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
     bcec_SharedObjectPool(
             int                                    growBy = -1,
-            bslma_Allocator                       *basicAllocator = 0);
+            bslma::Allocator                      *basicAllocator = 0);
 
     explicit
     bcec_SharedObjectPool(
             const CREATOR&                         objectCreator,
             int                                    growBy = -1,
-            bslma_Allocator                       *basicAllocator = 0);
+            bslma::Allocator                      *basicAllocator = 0);
 
     explicit
     bcec_SharedObjectPool(
             const CREATOR&                         objectCreator,
-            bslma_Allocator                       *basicAllocator = 0);
+            bslma::Allocator                      *basicAllocator = 0);
 
     bcec_SharedObjectPool(
             const CREATOR&                         objectCreator,
             const RESETTER&                        objectResetter,
             int                                    growBy = -1,
-            bslma_Allocator                       *basicAllocator = 0);
+            bslma::Allocator                      *basicAllocator = 0);
 
         // Create an object pool that dispenses shared pointers to TYPE.
         // When the pool is depleted, it increases its capacity according to
@@ -456,10 +458,10 @@ template <class TYPE, class RESETTER>
 template <class CREATOR>
 inline
 bcec_SharedObjectPool_Rep<TYPE, RESETTER>::bcec_SharedObjectPool_Rep(
-    CREATOR*                                 objectCreator,
-    const bslalg_ConstructorProxy<RESETTER>& objectResetter,
-    PoolType                                *pool,
-    bslma_Allocator                         *basicAllocator)
+    CREATOR*                                   objectCreator,
+    const bslalg::ConstructorProxy<RESETTER>&  objectResetter,
+    PoolType                                  *pool,
+    bslma::Allocator                          *basicAllocator)
 : d_objectResetter(objectResetter,basicAllocator)
 , d_pool_p(pool)
 {
@@ -517,7 +519,7 @@ TYPE *bcec_SharedObjectPool_Rep<TYPE, RESETTER>::ptr()
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 void bcec_SharedObjectPool<TYPE, CREATOR, RESETTER>::constructRepObject(
-    void *mem, bslma_Allocator* alloc)
+    void *mem, bslma::Allocator *alloc)
 {
     RepType *r = new (mem) RepType(&d_objectCreator.object(),
                                    d_objectResetter,
@@ -542,7 +544,7 @@ bcec_SharedObjectPool<TYPE, CREATOR, RESETTER>::bcec_SharedObjectPool(
                                        const CREATOR&          objectCreator,
                                        const RESETTER&         objectResetter,
                                        int                     growBy,
-                                       bslma_Allocator        *basicAllocator)
+                                       bslma::Allocator       *basicAllocator)
 : d_objectCreator(objectCreator,basicAllocator)
 , d_objectResetter(objectResetter,basicAllocator)
 , d_pool(bdef_BindUtil::bind(&MyType::constructRepObject, this,
@@ -556,7 +558,7 @@ template <class TYPE, class CREATOR, class RESETTER>
 inline
 bcec_SharedObjectPool<TYPE, CREATOR, RESETTER>::bcec_SharedObjectPool(
                                        int                     growBy,
-                                       bslma_Allocator        *basicAllocator)
+                                       bslma::Allocator       *basicAllocator)
 : d_objectCreator(basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_pool(bdef_BindUtil::bind(&MyType::constructRepObject, this,
@@ -571,7 +573,7 @@ inline
 bcec_SharedObjectPool<TYPE, CREATOR, RESETTER>::bcec_SharedObjectPool(
                                        const CREATOR&          objectCreator,
                                        int                     growBy,
-                                       bslma_Allocator        *basicAllocator)
+                                       bslma::Allocator       *basicAllocator)
 : d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_pool(bdef_BindUtil::bind(&MyType::constructRepObject, this,
@@ -585,7 +587,7 @@ template <class TYPE, class CREATOR, class RESETTER>
 inline
 bcec_SharedObjectPool<TYPE, CREATOR, RESETTER>::bcec_SharedObjectPool(
                                        const CREATOR&          objectCreator,
-                                       bslma_Allocator        *basicAllocator)
+                                       bslma::Allocator       *basicAllocator)
 : d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_pool(bdef_BindUtil::bind(&MyType::constructRepObject, this,

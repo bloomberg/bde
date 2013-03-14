@@ -21,7 +21,7 @@ BDES_IDENT("$Id: $")
 // attributes are the socket handle and the event type.  The recognized events
 // are 'ACCEPT', 'CONNECT', 'READ', and 'WRITE'.  Accessors and manipulators
 // are provided for the socket handle and the event type.  In order to
-// facilitate storing 'bteso_Event' objects into 'bsl::hash_map' or other
+// facilitate storing 'bteso_Event' objects into 'bsl::unordered_map' or other
 // unordered associative containers, a hash functor, 'bteso_EventHash', is also
 // provided.
 
@@ -70,7 +70,7 @@ class bteso_Event {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_Event,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     bteso_Event(const bteso_Event& original);
@@ -116,8 +116,8 @@ bool operator!=(const bteso_Event& lhs, const bteso_Event& rhs);
 
 struct bteso_EventHash {
     // This 'struct' provides a functor that computes a hash value for a
-    // 'bteso_Event' object, and is suitable for use with 'bsl::hash_map' or
-    // other unordered associative containers.
+    // 'bteso_Event' object, and is suitable for use with 'bsl::unordered_map'
+    // or other unordered associative containers.
 
     // ACCESSORS
     bsl::size_t operator()(const bteso_Event& event) const;
