@@ -73,16 +73,16 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
     // Permit reliance on transitive includes within robo.
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 
