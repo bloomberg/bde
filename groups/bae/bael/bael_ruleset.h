@@ -101,14 +101,12 @@ BDES_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
     // Permit reliance on transitive includes within robo.
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef INCLUDED_BSL_UNORDERED_SET
 #include <bsl_unordered_set.h>

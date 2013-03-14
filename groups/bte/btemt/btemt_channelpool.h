@@ -623,14 +623,12 @@ BDES_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
     // Permit reliance on transitive includes within robo.
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>

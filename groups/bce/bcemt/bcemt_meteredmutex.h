@@ -174,14 +174,12 @@ BDES_IDENT("$Id: $")
 #include <bces_atomictypes.h>
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
     // Permit reliance on transitive includes within robo.
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef INCLUDED_BSLS_TIMEUTIL
 #include <bsls_timeutil.h>
