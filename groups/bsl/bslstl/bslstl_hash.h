@@ -64,12 +64,12 @@ BSLS_IDENT("$Id: $")
 // bits of the return value will change for a 1-bit change in the hashed value.
 // We then use the result of the hash function to index into our array of
 // 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
-// array of 'TYPE' objects.  We will resovle hash collisions in our array
-// through 'linear probing', where we will search consequetive buckets
-// following the bucket where the collision occurred, testing occupied buckets
-// for equality with the value we are searching on, and concluding that the
-// value is not in the table if we encounter an empty bucket before we
-// encounter one referring to an equal element.
+// array of 'TYPE' objects.  We will resolve hash collisions in our array
+// through 'linear probing', where we will search consecutive buckets following
+// the bucket where the collision occurred, testing occupied buckets for
+// equality with the value we are searching on, and concluding that the value
+// is not in the table if we encounter an empty bucket before we encounter one
+// referring to an equal element.
 //
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
@@ -1004,6 +1004,9 @@ struct hash<long double> {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
 
+#if 0  // This is the preferred version for BDE 2.18, slowly sun-setting the
+       // old specialization.
+
 #if !defined(BSL_HASH_CSTRINGS_AS_POINTERS)
 template <>
 struct hash<const char *>;
@@ -1016,10 +1019,48 @@ struct hash<const char *>;
     // 'bdeu_cstringhash'.  Otherwise, if your code expects that 'hash' to
     // act on the value of the pointer, you may define the macro
     // 'BSL_HASH_CSTRINGS_AS_POINTERS' to recompile your code selecting the
-    // partial sepcialization for pointers defined above.  In a subsequent
+    // partial specialization for pointers defined above.  In a subsequent
     // BDE release this usage will become the default, rather than an error, so
-    // that the explicit use of this macro should no longer be necesary.
+    // that the explicit use of this macro should no longer be necessary.
 #endif
+
+#else
+template <>
+struct hash<const char *> {
+    // Specialization of 'hash' for 'const char *' strings.  This explicit
+    // template specialization is non-standard, assuming that any
+    // 'const char *' pointer points to a null-terminated string, and
+    // providing a hash for the (assumed) string value, rather than the
+    // pointer value.
+
+    // STANDARD TYPEDEFS
+
+    typedef const char * argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect
+
+    // ACCESSORS
+    std::size_t operator()(const char *x) const;
+        // Return a hash value computed for the specified null-terminated
+        // string 'x'.
+};
+#endif  // 0
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
