@@ -11,3 +11,48 @@
 @DESCRIPTION: The 'bdetu' package provides utility functions for use with
  'bdet' types.  In this release, these are predominantly time-related
  functions.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdeut' package currently has 9 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  2. bdeut_bigendian
+     bdeut_nullableallocatedvalue
+     bdeut_nullablevalue
+     bdeut_nullinputiterator
+     bdeut_nulloutputiterator
+     bdeut_strtokeniter
+     bdeut_strtokenrefiter
+     bdeut_variant
+
+  1. bdeut_stringref
+..
+
+/Component Synopsis
+/------------------
+: 'bdeut_bigendian':
+:      Provide big-endian integer types.
+:
+: 'bdeut_nullableallocatedvalue':
+:      Provide a template for nullable allocated values.
+:
+: 'bdeut_nullablevalue':
+:      Provide a template for nullable types.
+:
+: 'bdeut_nullinputiterator':
+:      Provide a pure input iterator for an empty range.
+:
+: 'bdeut_nulloutputiterator':
+:      Provide a bit-bucket for functions that take output iterators.
+:
+: 'bdeut_strtokeniter':
+:      Provide access to user-described tokens in 'const char *' strings.
+:
+: 'bdeut_strtokenrefiter':
+:      Provide access to user-described tokens via string references.
+:
+: 'bdeut_variant':
+:      Provide a variant (discriminated 'union'-like) type.

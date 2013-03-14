@@ -10,3 +10,29 @@
  library, predominantly hash functions and other arithmetic computations.  It
  is intended for use only by the BDE library.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bdeimp' package currently has 4 components having 1 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  1. bdeimp_bitwisecopy
+     bdeimp_dateutil
+     bdeimp_fuzzy
+     bdeimp_prolepticdateutil
+..
+
+/Component Synopsis
+/------------------
+: 'bdeimp_bitwisecopy':
+:      Provide high-performance bitwise copy of objects.
+:
+: 'bdeimp_dateutil':
+:      Provide low-level support functions for date-value manipulation.
+:
+: 'bdeimp_fuzzy':
+:      Provide "fuzzy" equality/relational operations on 'double' values.
+:
+: 'bdeimp_prolepticdateutil':
+:      Provide low-level functions for proleptic date-value manipulation.

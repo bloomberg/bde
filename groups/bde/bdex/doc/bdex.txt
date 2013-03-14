@@ -22,88 +22,109 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bdex' currently has 22 components having seven levels of dependency.
- The table below shows the hierarchical ordering of the components.  The
- package prefix and underscore ('bdex_') are omitted from the full component
- names for layout efficiency.
+ The 'bdex' package currently has 24 components having 6 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
-  Level
-    7:  instreamadapter         outstreamadapter
-        testinstream
+  6. bdex_instreamadapter
+     bdex_outstreamadapter
+     bdex_testinstream
 
-    6:  byteinstream            testoutstream
-        byteinstreamraw
-        testinstreamformatter
+  5. bdex_byteinstream
+     bdex_byteinstreamraw
+     bdex_testinstreamformatter
+     bdex_testoutstream
 
-    5:  byteinstreamformatter   byteoutstream           testoutstreamformatter
-                                byteoutstreamraw
+  4. bdex_byteinstreamformatter
+     bdex_byteoutstream
+     bdex_testoutstreamformatter
 
-    4:  instream                outstream               byteoutstreamformatter
+  3. bdex_byteoutstreamformatter
+     bdex_byteoutstreamraw
+     bdex_genericbyteinstream
+     bdex_instreamfunctions
+     bdex_outstreamfunctions
+     bdex_testinstreamexception
 
-    3:  instreammethods         outstreammethods
+  2. bdex_bytestreamimputil
+     bdex_fieldcode
+     bdex_genericbyteoutstream
+     bdex_instream
+     bdex_outstream
+     bdex_versionfunctions
 
-    2:  instreamfunctions       outstreamfunctions      testinstreamexception
-
-    1:  bytestreamimputil       versionfunctions        fieldcode
+  1. bdex_instreammethods
+     bdex_outstreammethods
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bdex'.
-..
-  bdex_byteinstream            - primary production input stream
-  bdex_byteinstreamformatter   - production input formatter; extracts formatted
-                                 data from any 'std::streambuf'
-  bdex_byteinstreamraw         - input stream using user-supplieds buffer
-  bdex_byteoutstream           - primary production output stream
-  bdex_byteoutstreamformatter  - production output formatter; formats data to
-                                 any 'std::streambuf'
-                                 data from any 'std::streambuf'
-  bdex_byteoutstreamraw        - output stream using user-supplieds buffer
-  bdex_bytestreamimputil       - utilities to put/get fundamental and array
-                                 values to/from a character buffer
-  bdex_fieldcode               - enumeration of fundamental streamable types
-  bdex_instream                - abstract interface defining the 'bdex' input
-                                 contract; also contains templated 'operator>>'
-  bdex_instreamadapter         - parameterized input stream capable of
-                                 streaming polymorphic types.
-  bdex_instreamfunctions       - templated validator/wrapper for the
-                                 'bdexStreamIn' method required of
-                                 'bdex'-compliant components.
-  bdex_instreammethods         - templated validator/wrapper for the
-                                 'bdexStreamIn' method required of
-                                 'bdex'-compliant components; will be
-                                 deprecated in favor of
-                                 'bdex_instreamfunctions'.
-  bdex_outstream               - abstract interface defining the 'bdex' output
-                                 contract; also contains templated 'operator<<'
-  bdex_outstreamadapter        - parameterized output stream capable of
-                                 streaming polymorphic types.
-  bdex_outstreamfunctions      - templated validator/wrapper for the
-                                 'bdexStreamOut' method required of
-                                 'bdex'-compliant components.
-  bdex_outstreammethods        - templated validator/wrapper for the
-                                 'bdexStreamOut' method required of
-                                 'bdex'-compliant components; will be
-                                 deprecated in favor of
-                                 'bdex_outstreamfunctions'.
-  bdex_testinstream            - instrumented input stream, primarily for
-                                 testing
-  bdex_testinstreamexception   - exception object, primarily for testing
-  bdex_testinstreamformatter   - standard BDE test input formatter; extracts
-                                 test-format data from any 'std::streambuf'
-  bdex_testoutstream           - instrumented output stream, primarily for
-                                 testing
-  bdex_testoutstreamformatter  - standard BDE test output formatter; writes
-                                 data in test-format to any 'std::streambuf'
-  bdex_versionfunctions        - templated validator/wrapper for the
-                                 'maxSupportedBdexVersion' method required of
-                                 'bdex'-compliant components.
-..
- Components providing concrete streams define classes whose names are the
- appropriate mixed-case spellings of the component names.  For example,
- 'bdex_byteinstream' provides the 'bdex_ByteInStream' object, a concrete input
- stream.
+: 'bdex_byteinstream':
+:      Enable (un)externalization of fundamental types.
+:
+: 'bdex_byteinstreamformatter':
+:      Parse fundamental types from provided stream.
+:
+: 'bdex_byteinstreamraw':
+:      Enable (un)externalization of fundamental types.
+:
+: 'bdex_byteoutstream':
+:      Enable externalization of fundamental types to byte representation.
+:
+: 'bdex_byteoutstreamformatter':
+:      Format fundamental types for streaming to a 'streambuf'.
+:
+: 'bdex_byteoutstreamraw':
+:      Enable externalization of fundamental types to byte representation.
+:
+: 'bdex_bytestreamimputil':
+:      Support platform-independent representation of fundamental types.
+:
+: 'bdex_fieldcode':
+:      Enumerate all supported 'bdex' externalization types.
+:
+: 'bdex_genericbyteinstream':
+:      Parse fundamental types from provided memory.
+:
+: 'bdex_genericbyteoutstream':
+:      Format fundamental types for streaming to a parameterized stream.
+:
+: 'bdex_instream':
+:      Enable (un)externalization of fundamental types.
+:
+: 'bdex_instreamadapter':
+:      Provide parameterized adapter for streaming in polymorphic types.
+:
+: 'bdex_instreamfunctions':
+:      Enable uniform (un)externalization of user and fundamental types.
+:
+: 'bdex_outstream':
+:      Enable externalization of fundamental types.
+:
+: 'bdex_outstreamadapter':
+:      Provide parameterized adapter for streaming out polymorphic types.
+:
+: 'bdex_outstreamfunctions':
+:      Enable uniform externalization of user and fundamental types.
+:
+: 'bdex_testinstream':
+:      Enable unexternalization of fundamental types with identification.
+:
+: 'bdex_testinstreamexception':
+:      Provide exception class for (un)externalization operations.
+:
+: 'bdex_testinstreamformatter':
+:      Enable unexternalization of fundamental types with identification.
+:
+: 'bdex_testoutstream':
+:      Enable externalization of fundamental types with identification.
+:
+: 'bdex_testoutstreamformatter':
+:      Enable externalization of fundamental types with identification.
+:
+: 'bdex_versionfunctions':
+:      Provide functions to return version information for various types.
 
 /Externalization
 /---------------
@@ -130,9 +151,9 @@
 
 /Supported Types
 /---------------
- The supported types and required content are listed in the table below.
- All of the fundamental types in the table may be streamed as scalar values or
- as homogeneous arrays.  'std::string' is streamed as a logical scalar string.
+ The supported types and required content are listed in the table below.  All
+ of the fundamental types in the table may be streamed as scalar values or as
+ homogeneous arrays.  'std::string' is streamed as a logical scalar string.
  Note that 'Int64' and 'Uint64' denote 'bdes_PlatformUtil::Int64' and
  'bdes_PlatformUtil::Uint64', respectively, which in turn are 'typedef' names
  for the signed and unsigned 64-bit integer types, respectively, on the host
@@ -164,7 +185,8 @@
  bit patterns are sign-extended, so that correctly-written values will always
  be correctly read.
 
-@The 'bdex' Protocols
+/The 'bdex' Protocols
+/--------------------
  The 'bdex' protocol is primarily a "documentation-only" protocol whereby
  'bdex'-compliant value-semantic types and streams each adhere to a published
  documentation standard (this document) in order to interoperate correctly.
@@ -176,10 +198,10 @@
  the "documentation protocols" for input and output streams, respectively.
 
 /Requirements for a 'bdex'-Compliant Class to be Streamable
-/----------------------------------------------------------
+/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  In this section we give a brief synopsis of the required member functions for
- a class in order to be 'bdex'-streamable.  See the "Using 'bdex' with Your Own
- Class" section below for implementation details.
+ a class in order to be 'bdex'-streamable.  See the {Using 'bdex' with Your Own
+ Class} section below for implementation details.
 
  The required signatures and typical documentation (some behavioral details may
  be implementation-specific) of the three required methods for a
@@ -216,22 +238,17 @@
 ..
 
 /Requirements for a 'bdex'-Compliant Stream
-/------------------------------------------
-
+/ - - - - - - - - - - - - - - - - - - - - -
  Clients can rely on 'bdex'-compliant output and input streams to provide a
  full set of "put" and "get" methods, respectively.  These methods are
- described in detail in Appendix I and Appendix II, respectively.  Each 'bdex'
- compliant stream must also provide the appropriate templatized 'operator<<' or
- 'operator>>', implemented to cooperate with 'bdex' compliant value-semantic
- components.  These operators are also described in the Appendices below.
+ described in detail in {Appendix I} and {Appendix II}, respectively.  Each
+ 'bdex' compliant stream must also provide the appropriate templatized
+ 'operator<<' or 'operator>>', implemented to cooperate with 'bdex' compliant
+ value-semantic components.  These operators are also described in the
+ Appendices below.
 
-/Template Magic Makes it All Work
-/--------------------------------
-
-/Streaming Polymorphic Types
-/---------------------------
-
-@Two Aspects of 'bdex' "Usage"
+/Two Aspects of 'bdex' "Usage"
+/-----------------------------
  Broadly speaking, there are two distinct aspects to "using" 'bdex'.  One is
  using the 'bdex' facilities already incorporated into BDE components, and the
  other is incorporating 'bdex' into new components (whether in the BDE library
@@ -243,10 +260,10 @@
  clients are encouraged to ask for specific stream needs.  Future documentation
  will address this more advanced aspect of 'bdex' usage.  Clients are free to
  write special-purpose 'bdex'-compliant streams at need.  See the stream
- protocols in Appendix I and Appendix II below.
+ protocols in {Appendix I} and {Appendix II} below.
 
 /Using 'bdex' with Existing BDE Components
-/-----------------------------------------
+/- - - - - - - - - - - - - - - - - - - - -
  All BDE value semantic types (as part of the definition of being "value
  semantic") support 'bdex' externalization.  That is to say, their "values" can
  be uniquely represented as a sequence of 'bdex' primitive externalizations.
@@ -256,7 +273,7 @@
  can expect to generate one or more date values in-core, externalize those
  values, and restore (i.e., unexternalize) the same values locally or remotely,
  all with minimal effort.  'bdex' externalization is especially important when
- using 'bdem' messaging; see the 'bdem' package-level documentation and
+ using 'bdem' messaging; see the {'bdem'} package-level documentation and
  especially the "BDEM Lesson 1" Tutorial Usage Example on {BP BDED <GO>} for
  examples of using 'bdex' with other BDE code.
 
@@ -276,7 +293,7 @@
  existing 'bdex' streams.
 
 /Selection of Streams
-/- - - - - - - - - -
+/ -  -  -  -  -  -  -
  Several kinds of 'bdex'-compliant streams already exist, and many more are
  possible.  At present, there are three pairs of concrete streams in 'bdex':
 ..
@@ -299,13 +316,12 @@
  all use the same format.  The raw streams have in common that they do not
  manage or own the buffers that they use, but rather just copy pointers to
  user-supplied buffers on construction.  The ramifications of this design
- choice are rather different for input and output streams (see the specific
- Usage Warning sections in the 'bdex_byteoutstreamraw' and
- 'bdex_byteoutstreamraw' component documentation -- the raw out-stream is
- *very* dangerous, while the raw in-stream is only mildly so).  Therefore the
- user may wish to "mix and match" streams, depending upon that user's specific
- needs and risk tolerances.  Consult the component documentation carefully
- before choosing a raw stream.
+ choice are rather different for input and output streams (see
+ {'bdex_byteoutstreamraw'|Usage Warning} and {'bdex_byteinstreamraw'|Usage
+ Warning} -- the raw out-stream is *very* dangerous, while the raw in-stream is
+ only mildly so).  Therefore the user may wish to "mix and match" streams,
+ depending upon that user's specific needs and risk tolerances.  Consult the
+ component documentation carefully before choosing a raw stream.
 
  The typical user will probably be content to use the production streams for
  most purposes.  We will assume that the production stream is the "correct"
@@ -314,11 +330,11 @@
  other streams.
 
 /Using 'bdex' to Externalize a 'bdet_Date' Value
-/- - - - - - - - - - - - - - - - - - - - - - - -
+/ -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
  The following snippet of code, as simple as it appears, is really all that one
  needs to use 'bdex' under many practical circumstances.  First, create a
- 'bdet_Date' value 'birthday' (see the 'bdet_date' component documentation for
- details).
+ 'bdet_Date' value 'birthday' (see the {'bdet_date'} component documentation
+ for details).
 ..
      bdet_Date birthday(2004, 4, 30);
 ..
@@ -336,7 +352,7 @@
  anywhere at all that understands the 'bdex_ByteOutStream' format, simply
  extract the data buffer from 'outStream' (as a 'char*') and send that buffer
  (along with its length) to wherever it needs to go via your favorite transport
- mechanism (see, e.g., the 'bte' package group documentation for various
+ mechanism (see, e.g., the {'bte'} package group documentation for various
  transport mechanisms).  The 'data' and 'length' methods make this extraction
  straightforward.
 ..
@@ -368,13 +384,13 @@
  We're done; 'yourBirthday' is ready to use.
 
 /Using 'bdex' with Your Own Class
-/--------------------------------
+/ - - - - - - - - - - - - - - - -
  We will show a very brief example of a fictitious 'm_myapp_MyPoint' class
  whose intended purpose is to hold a pair of 'int' values representing a point
  in a two-dimensional rectilinear coordinate space.  We will first define the
  class without 'bdex' support and then add that support.  Note that, in this
  example, most of the required documentation and some required methods and free
- operators are omitted for ease of viewing.  See, e.g., the 'bdet_date'
+ operators are omitted for ease of viewing.  See, e.g., the {'bdet_date'}
  component for a real example of how to implement 'bdex' functionality in a
  proper value-semantic object.
 
@@ -576,10 +592,10 @@
  pattern of bits within the two 'int' data members represents a valid value.
  Since our BDE contract requires the state of an object to be valid in the face
  of a stream error (e.g., and exception being thrown during streaming in), the
- manipulator method 'bdexStreamIn' must validate the input data, set the
- object to some valid state in the case of an error, and invalidate the stream
- before returning.  See the 'bdet_date' implementation, for which not all bit
- patterns are valid, for an example of this case.
+ manipulator method 'bdexStreamIn' must validate the input data, set the object
+ to some valid state in the case of an error, and invalidate the stream before
+ returning.  See the 'bdet_date' implementation, for which not all bit patterns
+ are valid, for an example of this case.
 
  The second consideration is that if the new type being implemented has as a
  data member a type that is already 'bdex' compliant, the new implementation
@@ -588,7 +604,8 @@
  example of "sub-contracting" existing 'bdex' functionality in the
  implementation of the container object's 'bdex' functionality.
 
-@Appendix I: The 'bdex_OutStream' Protocol
+/Appendix I: The 'bdex_OutStream' Protocol
+/-----------------------------------------
  In this section we present the function documentation of 'bdex_OutStream',
  which serves as the actual base class for 'bdex_OutStreamAdapter', and also
  serves as the "documentation protocol" for all 'bdex'-compliant output
@@ -868,7 +885,8 @@ bdex_OutStream& operator<<(bdex_OutStream& stream, const OBJECT& object);
     // component.
 ..
 
-@Appendix II: The 'bdex_InStream' Protocol
+/Appendix II: The 'bdex_InStream' Protocol
+/-----------------------------------------
  In this section we present the function documentation of 'bdex_InStream',
  which serves as the actual base class for 'bdex_InStreamAdapter', and also
  serves as the "documentation protocol" for all 'bdex'-compliant input streams.

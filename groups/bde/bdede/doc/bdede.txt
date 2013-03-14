@@ -15,34 +15,55 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bdede' currently has six components forming two levels of dependency.
- The table below shows the hierarchical ordering of the components.
+ The 'bdede' package currently has 10 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
-  Level
-  -----
-  2.     bdede_base64decoder         bdede_quotedprintabledecoder
+  2. bdede_base64decoder
+     bdede_charconvertucs2
+     bdede_charconvertutf16
 
-  1.     bdede_base64encoder         bdede_quotedprintableencoder
-         bdede_crc32                 bdede_md5
+  1. bdede_base64encoder
+     bdede_charconvertstatus
+     bdede_crc32
+     bdede_md5
+     bdede_quotedprintabledecoder
+     bdede_quotedprintableencoder
+     bdede_utf8util
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bdede
-..
-  bdede_base64decoder          - provides a mechanism for decoding a dataset
-                                 using the MIME Base64 representation
-  bdede_base64encoder          - provides a mechanism for encoding a dataset
-                                 using the MIME Base64 representation
-  bdede_crc32                  - provides a mechanism for computing the CRC-32
-                                 checksum of a dataset
-  bdede_md5                    - provides a mechanism for computing the MD5
-                                 hash of a dataset
-  bdede_quotedprintabledecoder - provides a mechanism for decoding a dataset
-                                 using the MIME Quoted-Printable representation
-  bdede_quotedprintableencoder - provides a mechanism for encoding a dataset
-                                 using the MIME Quoted-Printable representation
-..
+: 'bdede_base64decoder':
+:      Provide automata for converting to and from Base64 encodings.
+:
+: 'bdede_base64encoder':
+:      Provide automata for converting to and from Base64 encodings.
+:
+: 'bdede_charconvertstatus':
+:      Enumerate masks for interpreting status from charconvert functions.
+:
+: 'bdede_charconvertucs2':
+:      Provide efficient conversions between UTF-8 and UCS-2 encodings.
+:
+: 'bdede_charconvertutf16':
+:      Provide fast, safe conversion between UTF-8 and UTF-16 encodings.
+:
+: 'bdede_crc32':
+:      Provide a mechanism for computing the CRC-32 checksum of a dataset.
+:
+: 'bdede_md5':
+:      Provide a value-semantic type encoding a message in an MD5 digest.
+:
+: 'bdede_quotedprintabledecoder':
+:      Provide automata converting to and from Quoted-Printable encodings.
+:
+: 'bdede_quotedprintableencoder':
+:      Provide automata converting to and from Quoted-Printable encodings.
+:
+: 'bdede_utf8util':
+:      Provide basic utilities for UTF-8 encodings.
 
 /Usage
 /-----

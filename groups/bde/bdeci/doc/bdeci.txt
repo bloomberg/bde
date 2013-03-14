@@ -11,3 +11,23 @@
 @SEE_ALSO: bdec, bdec2, bdecs
 
 @DESCRIPTION: The 'bdeci' package is *DEPRECATED* and should not be used.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdeci' package currently has 2 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  2. bdeci_hashtable
+
+  1. bdeci_hashtableimputil
+..
+
+/Component Synopsis
+/------------------
+: 'bdeci_hashtable':
+:      Provide a container of unique 'T' values.
+:
+: 'bdeci_hashtableimputil':
+:      Provide implementation support for precomputed hashtable sizes.

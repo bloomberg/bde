@@ -18,3 +18,47 @@
  as the following: an if-statement equivalent, whether a (template) argument
  is a fundamental type, whether an argument is an 'enum' type, whether two
  arguments have the same type, and more.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdemf' package currently has 8 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  2. bdemf_functionpointertraits
+     bdemf_removereference
+
+  1. bdemf_assert
+     bdemf_if
+     bdemf_isconvertible
+     bdemf_isenum
+     bdemf_issame
+     bdemf_nil
+..
+
+/Component Synopsis
+/------------------
+: 'bdemf_assert':
+:      Provide a compile-time-assert facility.
+:
+: 'bdemf_functionpointertraits':
+:      Provide a meta-function for determining function pointer traits.
+:
+: 'bdemf_if':
+:      Provide a compile-time 'if/else' (conditional) meta-function.
+:
+: 'bdemf_isconvertible':
+:      Provide a compile-time type conversion checker.
+:
+: 'bdemf_isenum':
+:      Provide compile-time detection of enumerated types
+:
+: 'bdemf_issame':
+:      Provide an meta-function for checking if two types are the same.
+:
+: 'bdemf_nil':
+:      Provide a nil type
+:
+: 'bdemf_removereference':
+:      Provide a meta-function for removing reference-ness from types.

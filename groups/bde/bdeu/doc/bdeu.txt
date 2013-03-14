@@ -9,25 +9,54 @@
 @DESCRIPTION: The 'bdeu' package provides various utilities classes and
  functions.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bdeu' package currently has 10 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  2. bdeu_bitstringutil
+     bdeu_cstringhash
+     bdeu_printmethods
+
+  1. bdeu_chartype
+     bdeu_cstringequalto
+     bdeu_cstringless
+     bdeu_hashutil
+     bdeu_print
+     bdeu_random
+     bdeu_string
+..
+
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bdeu'.
-..
-  'bdeu_bitstringutil' - Provide efficient operations on a sequence of bits.
-
-  'bdeu_chartype'      - Supply local-independent version of '<ctype.h>'
-                         functionality.
-
-  'bdeu_hashutil'      - Provide a utility of hash functions.
-
-  'bdeu_print'         - Provide platform-independent stream utilities.
-
-  'bdeu_printmethods'  - Provide methods for uniform printing of value-semantic
-                         types.
-
-  'bdeu_random'        - Provide a suite of procedures for random-number
-                         generation.
-
-  'bdeu_string'        - Provide utility functions on C-style and 'STL'
-                         strings.
-..
+: 'bdeu_bitstringutil':
+:      Provide efficient operations on a sequence of bits.
+:
+: 'bdeu_chartype':
+:      Supply local-independent version of <ctype.h> functionality.
+:
+: 'bdeu_cstringequalto':
+:      Provide a functor enabling C strings as unordered containers keys.
+:
+: 'bdeu_cstringhash':
+:      Provide a functor enabling C strings as unordered container keys.
+:
+: 'bdeu_cstringless':
+:      Provide a functor enabling C strings as associative container keys.
+:
+: 'bdeu_hashutil':
+:      Provide a utility of hash functions.
+:
+: 'bdeu_print':
+:      Provide platform-independent stream utilities.
+:
+: 'bdeu_printmethods':
+:      Provide methods for uniform printing of value-semantic types.
+:
+: 'bdeu_random':
+:      Provide a suite of procedures for random-number generation.
+:
+: 'bdeu_string':
+:      Provide utility functions on C-style and 'STL' strings.

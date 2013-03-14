@@ -11,3 +11,43 @@
 @SEE_ALSO: bslalg
 
 @DESCRIPTION: This package is *DEPRECATED* and should not be used.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdealg' package currently has 7 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  2. bdealg_typetraits
+
+  1. bdealg_constructorproxy
+     bdealg_scalarprimitives
+     bdealg_typetraithaspointersemantics
+     bdealg_typetraithastrivialdefaultconstructor
+     bdealg_typetraitnil
+     bdealg_typetraitusesbdemaallocator
+..
+
+/Component Synopsis
+/------------------
+: 'bdealg_constructorproxy':
+:      Provide a proxy for constructing and destroying objects.
+:
+: 'bdealg_scalarprimitives':
+:      Primitive algorithms that operate on single elements.
+:
+: 'bdealg_typetraithaspointersemantics':
+:      Provide a primitive type trait for classes with pointer semantics.
+:
+: 'bdealg_typetraithastrivialdefaultconstructor':
+:      Provide a primitive type trait for class with trivial default ctor.
+:
+: 'bdealg_typetraitnil':
+:      Provide a primitive type trait for bit-wise copyable classes.
+:
+: 'bdealg_typetraits':
+:      Provide facilities for associating types with compile-time traits.
+:
+: 'bdealg_typetraitusesbdemaallocator':
+:      Provide a primitive trait for types that use 'bdema' allocators.
