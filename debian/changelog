@@ -1,10 +1,17 @@
-bde-core (2.17.0.002) unstable; urgency=low
+bde-core (2.17.0.003) unstable; urgency=low
 
   * Bump changelog
+  * 072410f [APPROVAL] origin/review/restore-bsls_platformutil-transitive-includes-drqs-37361937 to master
+  * cf441df [APPROVAL] pending/master/revert_hash_const_char_intentional_breakage_drqs38592188 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 Mar 2013 10:56:32 -0400
+
+bde-core (BSL_FROZEN_2.17.0b) git; urgency=low
+
   * a100fe3 [APPROVAL] origin/review/remove_mallocfree_from_header_drqs39615021 to master
   * 4cbccff [APPROVAL] build-bbe-in-rules-drqs-39480694 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 12 Mar 2013 13:48:30 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 12 Mar 2013 13:52:09 -0400
 
 bde-core (BSL_FROZEN_2.17.0a) git; urgency=low
 
@@ -784,6 +791,8 @@ bde-core (BLP_LIB_BDE_BTE_2.7.1) git; urgency=low
   * 2d3156a [APPROVAL] remotes/origin/pending/master/gitignore-update to master
   * ab50752 [APPROVAL] remotes/origin/pending/master/remove_extra_files to master
   * 399ccfb [APPROVAL] remotes/origin/pending/master/version_tags_2.8.0_BETA_1 to master
+  * 95aeb5a scm files set to 2.8.0 BETA_1, adding groups/releases, and adding etc/default.opts
+  * f54a761 add default.opts and releases files
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 May 2011 14:35:33 -0400
 
