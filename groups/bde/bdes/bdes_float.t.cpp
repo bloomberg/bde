@@ -1,4 +1,4 @@
-// bdes_float.t.cpp                  -*-C++-*-
+// bdes_float.t.cpp                                                   -*-C++-*-
 
 #include <bdes_float.h>
 #include <bsls_platform.h>
@@ -140,7 +140,7 @@ typedef bdes_Float Obj;
 #if defined(BSLS_PLATFORM_CPU_POWERPC)
 const bool hasFSNan = false;
 const bool hasDSNan = true;
-#elif defined(BSLS_PLATFORM_CPU_X86)
+#elif defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
 // Some documentation of SNaN to QNaN conversions on x86 can be found in
 // section 4.8.3.5, Intel 64 Software Developers Manual, Volume 1,
 // http://download.intel.com/products/processor/manual/253665.pdf
@@ -151,7 +151,7 @@ const bool hasFSNan = true;
 const bool hasDSNan = true;
 #endif
 
-#if defined(BSLS_PLATFORM_CPU_X86)   && \
+#if (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)) && \
     defined(BSLS_PLATFORM_CMP_CLANG) && \
     defined(BDE_BUILD_TARGET_OPT)
 // Both x86 and AMD processors convert SNaNs to QNaNs when certain operations
