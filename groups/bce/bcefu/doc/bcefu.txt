@@ -23,6 +23,47 @@
  returning void.  Each component is used in conjunction with the corresponding
  'bcef' component.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bcefu' package currently has 7 components having 1 level of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  1. bcefu_vfunc0
+     bcefu_vfunc1
+     bcefu_vfunc2
+     bcefu_vfunc3
+     bcefu_vfunc4
+     bcefu_vfunc5
+     bcefu_vfunc6
+..
+
+/Component Synopsis
+/------------------
+: 'bcefu_vfunc0':
+:      Provide factory methods for populating 0-arg void function objects.
+:
+: 'bcefu_vfunc1':
+:      Provide factory methods for populating 1-arg void function objects.
+:
+: 'bcefu_vfunc2':
+:      Provide factory methods for populating 2-arg void function objects.
+:
+: 'bcefu_vfunc3':
+:      Provide factory methods for populating 3-arg void function objects.
+:
+: 'bcefu_vfunc4':
+:      Provide factory methods for populating 4-arg void function objects.
+:
+: 'bcefu_vfunc5':
+:      Provide factory methods for populating 5-arg void function objects.
+:
+: 'bcefu_vfunc6':
+:      Provide factory methods for populating 6-arg void function objects.
+
+/Component Overview
+/------------------
  Four families of populators are supported in each component.
 ..
    bcefu_Vfunc*::makeF:    Initialize the functor by embedding a function

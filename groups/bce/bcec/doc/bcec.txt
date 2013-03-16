@@ -34,30 +34,63 @@
  makes sense. Refer to the individual component documentation to understand how
  this general principle is carried out in specific components.
 
-@COMPONENTS
- bcec_queue:         Provides a thread-safe templatized queue, where the client
-                     supplies an element type as a template parameter.
- bcec_timequeue:     Provides a thread-safe templatized queue maintained in
-                     time order, where the client supplies an element type as
-                     a template parameter.
- bcec_objectcatalog: Provides a thread-safe templatized catalog of object
-                     supporting efficient insertion, removal and access, where
-                     the client supplies an element type as a template
-                     parameter.
- bcec_objectpool:    Provides a thread-safe templatized pool of object
-                     supporting creation and destruction, where the client
-                     supplies an element type as a template parameter.
+/Hierarchical Synopsis
+/---------------------
+ The 'bcec' package currently has 8 components having 3 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  3. bcec_sharedobjectpool
 
-/Component 'bcec_queue':
-/----------------------
+  2. bcec_objectpool
+
+  1. bcec_fixedqueue
+     bcec_multipriorityqueue
+     bcec_objectcatalog
+     bcec_queue
+     bcec_skiplist
+     bcec_timequeue
+..
+
+/Component Synopsis
+/------------------
+: 'bcec_fixedqueue':
+:      Provide a thread-enabled blocking fixed-size queue of values.
+:
+: 'bcec_multipriorityqueue':
+:      Provide a thread-enabled parameterized multi-priority queue.
+:
+: 'bcec_objectcatalog':
+:      Provide an efficient indexed, thread-safe object container.
+:
+: 'bcec_objectpool':
+:      Provide a thread-safe object pool.
+:
+: 'bcec_queue':
+:      Provide a thread-enabled queue of items of parameterized 'TYPE'.
+:
+: 'bcec_sharedobjectpool':
+:      Provide a thread-safe pool of shared objects.
+:
+: 'bcec_skiplist':
+:      Provide a generic thread-safe Skip List.
+:
+: 'bcec_timequeue':
+:      Provide an efficient queue for time events.
+
+/Component Overview
+/------------------
+/'bcec_queue':
+/- - - - - - -
  This component provides an in-place, indexable, double-ended queue.  Clients
  instantiate a template class, 'bcec_Queue<T>', where type 'T' is the data type
  of elements that the queue will hold.  Type 'T' must be defined to be copyable
  either by a copy constructor or by 'T::operator=()'; class 'bcec_Queue'
  places no additional requirements on 'T'.
 
-/Component 'bcec_timequeue':
-/-------------------------
+/'bcec_timequeue'
+/ - - - - - - - -
  This component provides an in-place, indexable queue, managed in time order.
  Clients instantiate a template class, 'bcec_TimeQueue<T>', where type 'T' is
  the data type of elements that the queue will hold.  Type 'T' must be defined
@@ -75,8 +108,8 @@
  can support frequent additions and removals more efficiently than traditional
  queue structures designed for sequential access.
 
-/Component 'bcec_objectcatalog':
-/-------------------------------
+/'bcec_objectcatalog'
+/ - - - - - - - - - -
  This component provides a thread-safe, indexable catalog of object.  Clients
  instantiate a template class, 'bcec_ObjectCatalog<T>', where type 'T' is the
  data type of elements that the catalog will hold.  Type 'T' must be defined to
@@ -96,9 +129,8 @@
  can support frequent additions and removals more efficiently than traditional
  queue structures designed for sequential access.
 
-/Component 'bcec_pool':
-/----------------------
-
+/'bcec_pool'
+/- - - - - -
  This component provides a thread-safe memory pool of objects from a
  parameterized type 'T'.  Clients instantiate a 'bcec_ObjectPool<T>' where the
  type 'T' has no requirements.  The pool owns the memory and objects it

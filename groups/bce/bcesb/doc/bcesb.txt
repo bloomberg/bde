@@ -14,20 +14,19 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bcesb' currently has one component having one level of dependency.  The table
- below shows the hierarchical ordering of the components.  The package prefix
- and underscore ('bcesb_') are omitted from the full component names for layout
- efficiency.
+ The 'bcesb' package currently has 2 components having 1 level of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
-  Level 1: pooledbufferchainstreambuf
+  1. bcesb_blobstreambuf
+     bcesb_pooledbufferchainstreambuf
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bcesb'.
-..
- bcesb_pooledbufferchainstreambuf - pooled-buffer-chain (i.e., indexed sequence
-                                    of fixed-size buffers) implementing the
-                                    'streambuf' interface
-..
-
+: 'bcesb_blobstreambuf':
+:      Provide blob implementing the 'streambuf' interface.
+:
+: 'bcesb_pooledbufferchainstreambuf':
+:      Provide pooled buffer chain implementing the 'streambuf' interface.

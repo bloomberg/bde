@@ -13,50 +13,41 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bces' currently has 8 components forming 3 levels of physical dependency.
- The table below shows the hierarchical ordering of the components.  The
- package prefix and underscore ('bces_') are omitted from the full component
- names for layout efficiency.  There are currently five components of the form
- 'bces_atomicutilimpl_XXX', which are specific to the architecture denoted by
- "XXX".  See the note within the table.
+ The 'bces' package currently has 4 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
-   Level 3:  atomictypes
+  2. bces_atomictypes
 
-   Level 2:  atomicutil
-
-   Level 1:  atomicutilimpl_XXX     platform
-
-   --------------
-   Note:  "XXX" is one of: (sparc32, sparcv9, powerpc, intel_pentium, ia64) 
+  1. bces_atomicutil
+     bces_platform
+     bces_threadlocalvariable
 ..
 
 /Component Synopsis
-/----------------
- The following is a brief synopsis of the components in 'bces'.
-..
-  bces_atomictypes            wrapper types for atomic operations on integers,
-                              64-bit integers, and pointers. 
-  bces_atomicutil             platform-independent atomic operations on
-                              integers and pointers; "spin" locks 
-  bces_atomicutilimpl_XXX     shorthand for five components providing
-                              'bces_atomicutil' utilities for the "XXX"
-                              architecture, where "XXX" represents one of:
-                                  32-bit Sun SPARC
-                                  64-bit Sun SPARC V9
-                                  PowerPC
-                                  Intel Pentium
-                                  Intel Itanium 64-bit
-  bces_platform               provide all platform concurrency traits
-..
+/------------------
+: 'bces_atomictypes':
+:      Provide wrappers for atomic operations.
+:
+: 'bces_atomicutil':
+:      Provide platform-independent atomic operations.
+:
+: 'bces_platform':
+:      Provide platform-dependent thread-related trait definitions.
+:
+: 'bces_threadlocalvariable':
+:      Provide a macro to declare a thread-local variable.
 
-/bces_platform
-/-------------
- Package 'bces_platform' defines a single canonical structure ('bces_Platform')
- that can be tested at compile time to determine the appropriate threading
- policy in the current compilation and execution environment.   Currently,
- 'bces_Platform' defines threading policies for Windows 32 and for POSIX
- threads.
- 
+
+/'bces_platform'
+/- - - - - - - -
+ Component 'bces_platform' defines a single canonical structure
+ ('bces_Platform') that can be tested at compile time to determine the
+ appropriate threading policy in the current compilation and execution
+ environment.  Currently, 'bces_Platform' defines threading policies for
+ Windows 32 and for POSIX threads.
+
  Clients of 'bces_platform' use template specialization to isolate code that
  contains calls specific to a given threading model.  A client class that needs
  to support multiple threading models will define its own "implementation"
@@ -77,17 +68,17 @@
     template <typename THREAD_POLICY> class my_ClassImpl;
 ..
  The implementation class is then specialized for each specific thread
- implementation.  
+ implementation.
 ..
     template <> class my_ClassImpl<bces_Platform::PosixThreads> {
         // POSIX-specific implementation
     };
 ..
 
-/bces_atomictypes
-/----------------
- Package 'bces_atomictypes' provides convenient wrappers for atomic integers
- and pointers. These atomic types are implemented so that simple arithmetic
+/'bces_atomictypes'
+/ - - - - - - - - -
+ Component 'bces_atomictypes' provides convenient wrappers for atomic integers
+ and pointers.  These atomic types are implemented so that simple arithmetic
  operations can be performed on them in a way that guarantees that the
  operations will be completed atomically (without interruption) in a
  multi-threaded environment.  These atomic operations are implemented to avoid
@@ -97,12 +88,11 @@
  code to wait actively for a resource to free, rather than blocking and
  allowing the operating system to do a context switch.
 
-/bces_atomicutil and bces_atomicutilimpl
-/---------------------------------------
- Packages 'bces_atomicutil' and 'bces_atomicutilimpl', taken together, provide
- low-level support for atomic operations needed by component
+/'bces_atomicutil' and 'bces_atomicutilimpl'
+/- - - - - - - - - - - - - - - - - - - - - -
+ Components 'bces_atomicutil' and 'bces_atomicutilimpl', taken together,
+ provide low-level support for atomic operations needed by component
  'bces_atomictypes'.  Package 'bces_atomicutilimpl' is specialized for the
  various supported BDE platforms; a platform-specific implementation is
  selected via template specialization based upon the template parameter
  '<bdes_Platform::CPU>'.
-
