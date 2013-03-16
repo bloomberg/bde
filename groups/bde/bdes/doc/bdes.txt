@@ -28,19 +28,35 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdes' package currently has 3 components having 2 levels of physical
+ The 'bdes' package currently has 11 components having 4 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
 ..
-  2. bdes_bitutil
+  4. bdes_stopwatch
+
+  3. bdes_alignment
+     bdes_objectbuffer
+     bdes_timeutil
+
+  2. bdes_assert
+     bdes_bitutil
      bdes_float
+     bdes_int64
+     bdes_platform
+     bdes_platformutil
 
   1. bdes_ident
 ..
 
 /Component Synopsis
 /------------------
+: 'bdes_alignment':
+:      Provide platform-specific alignment information.
+:
+: 'bdes_assert':
+:      Provide macros and setting mechanisms for user-defined "asserts".
+:
 : 'bdes_bitutil':
 :      Provide bit-manipulation functionality for 32- and 64-bit integers.
 :
@@ -49,6 +65,24 @@
 :
 : 'bdes_ident':
 :      Provide macros for inserting SCM Ids into source files.
+:
+: 'bdes_int64':
+:      Provide namespace for platform-dependent 64-bit integer types.
+:
+: 'bdes_objectbuffer':
+:      Provide raw buffer with size and alignment of user-specified type.
+:
+: 'bdes_platform':
+:      Provide preprocessor support for platform identification.
+:
+: 'bdes_platformutil':
+:      Encapsulate platform-dependent operations behind stable interface.
+:
+: 'bdes_stopwatch':
+:      Provide access to user, system, and wall times of current process.
+:
+: 'bdes_timeutil':
+:      Provide a platform-neutral functional interface to system clocks.
 
 /Component Overview
 /------------------

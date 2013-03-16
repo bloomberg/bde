@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdema' package currently has 28 components having 7 levels of physical
+ The 'bdema' package currently has 35 components having 7 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
@@ -26,7 +26,8 @@
   7. bdema_multipoolallocator
      bdema_strallocator
 
-  6. bdema_multipool
+  6. bdema_chararray
+     bdema_multipool
      bdema_protectablememoryscopedguard
      bdema_strpool
 
@@ -35,28 +36,34 @@
      bdema_sequentialallocator
 
   4. bdema_bufferedsequentialpool
+     bdema_defaultallocatorguard
      bdema_nativeprotectableblockdispenser
      bdema_sequentialpool
      bdema_testprotectableblockdispenser
 
   3. bdema_buffermanager
+     bdema_default
      bdema_managedptr
      bdema_pool
      bdema_protectableblockdispenser
 
   2. bdema_alignedallocator
+     bdema_allocator
      bdema_autoreleaser
      bdema_blocklist
+     bdema_bufferallocator
      bdema_bufferimputil
      bdema_heapbypassallocator
      bdema_infrequentdeleteblocklist
      bdema_managedallocator
      bdema_managedptrdeleter
      bdema_memoryblockdescriptor
+     bdema_newdeleteallocator
+     bdema_testallocator
+     bdema_testallocatorexception
 
   1. bdema_managedptr_factorydeleter
      bdema_managedptr_members
-     bdema_newdeleteallocator
 ..
 
 /Component Synopsis
@@ -64,11 +71,17 @@
 : 'bdema_alignedallocator':
 :      Provide a protocol for memory allocators that support alignment.
 :
+: 'bdema_allocator':
+:      Provide a protocol for memory allocation and deallocation.
+:
 : 'bdema_autoreleaser':
 :      Release memory from a managed allocator or a pool at destruction.
 :
 : 'bdema_blocklist':
 :      Provide allocation and management of a sequence of memory blocks.
+:
+: 'bdema_bufferallocator':
+:      Support efficient memory allocation from a user-supplied buffer.
 :
 : 'bdema_bufferedsequentialallocator':
 :      Provide an efficient managed allocator using an external buffer.
@@ -81,6 +94,15 @@
 :
 : 'bdema_buffermanager':
 :      Provide a memory manager that manages an external buffer.
+:
+: 'bdema_chararray':
+:      Provide an in-place array of 'char' values.
+:
+: 'bdema_default':
+:      Provide utilities to set/fetch the default and global allocators.
+:
+: 'bdema_defaultallocatorguard':
+:      Provide scoped guard to temporarily change the default allocator.
 :
 : 'bdema_heapbypassallocator':
 :      Support memory allocation directly from virtual memory.
@@ -109,6 +131,9 @@
 : 'bdema_nativeprotectableblockdispenser':
 :      Provide a platform-specific dispenser of protectable blocks.
 :
+: 'bdema_newdeleteallocator':
+:      Provide new/delete adaptor to 'bslma::Allocator' protocol.
+:
 : 'bdema_pool':
 :      Provide efficient allocation of memory blocks of uniform size.
 :
@@ -132,6 +157,12 @@
 :
 : 'bdema_strpool':
 :      Provide fast allocation and management for unaligned string memory.
+:
+: 'bdema_testallocator':
+:      Provide concrete test allocator that maintains blocks and bytes.
+:
+: 'bdema_testallocatorexception':
+:      Provide exception class for memory allocation operations.
 :
 : 'bdema_testprotectableblockdispenser':
 :      Provide a concrete protectable block dispenser for testing.

@@ -22,40 +22,42 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdex' package currently has 24 components having 6 levels of physical
+ The 'bdex' package currently has 24 components having 8 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
 ..
-  6. bdex_instreamadapter
+  8. bdex_instreamadapter
      bdex_outstreamadapter
      bdex_testinstream
 
-  5. bdex_byteinstream
+  7. bdex_byteinstream
      bdex_byteinstreamraw
      bdex_testinstreamformatter
      bdex_testoutstream
 
-  4. bdex_byteinstreamformatter
+  6. bdex_byteinstreamformatter
      bdex_byteoutstream
      bdex_testoutstreamformatter
 
-  3. bdex_byteoutstreamformatter
+  5. bdex_byteoutstreamformatter
      bdex_byteoutstreamraw
      bdex_genericbyteinstream
-     bdex_instreamfunctions
+
+  4. bdex_genericbyteoutstream
+     bdex_instream
+     bdex_outstream
+
+  3. bdex_instreammethods
+     bdex_outstreammethods
+
+  2. bdex_instreamfunctions
      bdex_outstreamfunctions
      bdex_testinstreamexception
 
-  2. bdex_bytestreamimputil
+  1. bdex_bytestreamimputil
      bdex_fieldcode
-     bdex_genericbyteoutstream
-     bdex_instream
-     bdex_outstream
      bdex_versionfunctions
-
-  1. bdex_instreammethods
-     bdex_outstreammethods
 ..
 
 /Component Synopsis
@@ -99,6 +101,9 @@
 : 'bdex_instreamfunctions':
 :      Enable uniform (un)externalization of user and fundamental types.
 :
+: 'bdex_instreammethods':
+:      Enable uniform (un)externalization of user and fundamental types.
+:
 : 'bdex_outstream':
 :      Enable externalization of fundamental types.
 :
@@ -106,6 +111,9 @@
 :      Provide parameterized adapter for streaming out polymorphic types.
 :
 : 'bdex_outstreamfunctions':
+:      Enable uniform externalization of user and fundamental types.
+:
+: 'bdex_outstreammethods':
 :      Enable uniform externalization of user and fundamental types.
 :
 : 'bdex_testinstream':

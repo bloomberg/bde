@@ -14,45 +14,63 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdeut' package currently has 9 components having 2 levels of physical
+ The 'bdetu' package currently has 12 components having 5 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
 ..
-  2. bdeut_bigendian
-     bdeut_nullableallocatedvalue
-     bdeut_nullablevalue
-     bdeut_nullinputiterator
-     bdeut_nulloutputiterator
-     bdeut_strtokeniter
-     bdeut_strtokenrefiter
-     bdeut_variant
+  5. bdetu_time
 
-  1. bdeut_stringref
+  4. bdetu_systemtime
+
+  3. bdetu_datetime
+
+  2. bdetu_epoch
+
+  1. bdetu_date
+     bdetu_datetimeinterval
+     bdetu_dayofmonth
+     bdetu_dayofweek
+     bdetu_informixdatetime
+     bdetu_month
+     bdetu_timeinterval
+     bdetu_unset
 ..
 
 /Component Synopsis
 /------------------
-: 'bdeut_bigendian':
-:      Provide big-endian integer types.
+: 'bdetu_date':
+:      Provide common non-primitive operations on 'bdet_Date'.
 :
-: 'bdeut_nullableallocatedvalue':
-:      Provide a template for nullable allocated values.
+: 'bdetu_datetime':
+:      Provide common non-primitive operations on 'bdet_Datetime'.
 :
-: 'bdeut_nullablevalue':
-:      Provide a template for nullable types.
+: 'bdetu_datetimeinterval':
+:      Provide non-primitive procedures on 'bdet_DatetimeInterval'.
 :
-: 'bdeut_nullinputiterator':
-:      Provide a pure input iterator for an empty range.
+: 'bdetu_dayofmonth':
+:      Provide non-primitive functionality on days of the month.
 :
-: 'bdeut_nulloutputiterator':
-:      Provide a bit-bucket for functions that take output iterators.
+: 'bdetu_dayofweek':
+:      Provide non-primitive functionality on days of the week.
 :
-: 'bdeut_strtokeniter':
-:      Provide access to user-described tokens in 'const char *' strings.
+: 'bdetu_epoch':
+:      Conversion between absolute/relative time with respect to epoch.
 :
-: 'bdeut_strtokenrefiter':
-:      Provide access to user-described tokens via string references.
+: 'bdetu_informixdatetime':
+:      Supply informix datetime operations on 'bdet_Datetime'.
 :
-: 'bdeut_variant':
-:      Provide a variant (discriminated 'union'-like) type.
+: 'bdetu_month':
+:      Provide non-primitive functionality on months of the year.
+:
+: 'bdetu_systemtime':
+:      Provide utilities to retrieve the system time.
+:
+: 'bdetu_time':
+:      Provide common non-primitive operations on 'bdet_Time'.
+:
+: 'bdetu_timeinterval':
+:      Provide non-primitive procedures on 'bdet_TimeInterval'.
+:
+: 'bdetu_unset':
+:      Define arbitrary "unset" values for fundamental and 'bdet' types.

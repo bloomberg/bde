@@ -14,7 +14,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdet' package currently has 10 components having 5 levels of physical
+ The 'bdet' package currently has 11 components having 5 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
@@ -27,6 +27,7 @@
      bdet_timetz
 
   2. bdet_date
+     bdet_month
      bdet_time
 
   1. bdet_datetimeinterval
@@ -54,6 +55,9 @@
 :
 : 'bdet_dayofweek':
 :      Provide an enumeration of (and oprations on) day-of-week values.
+:
+: 'bdet_month':
+:      Provide a namespace for representing month-of-year values.
 :
 : 'bdet_monthofyear':
 :      Provide a namespace for representing month-of-year values.

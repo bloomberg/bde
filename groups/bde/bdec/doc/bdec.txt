@@ -13,12 +13,28 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdec' package currently has 1 component.
+ The 'bdec' package currently has 4 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
+  2. bdec_ptrqueue
+
   1. bdec_dayofweekset
+     bdec_queue
+     bdec_voidptrqueue
 ..
 
 /Component Synopsis
 /------------------
 : 'bdec_dayofweekset':
 :      Provide an ordered set of (unique) 'bdet_DayOfWeek::Day' values.
+:
+: 'bdec_ptrqueue':
+:      Provide an in-place double-ended queue of 'T *' values.
+:
+: 'bdec_queue':
+:      Provide an in-place double-ended queue of 'T' values.
+:
+: 'bdec_voidptrqueue':
+:      Provide an in-place double-ended queue of 'void *' values.
