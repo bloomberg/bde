@@ -2,107 +2,81 @@
 
 #include <bsls_alignment.h>
 
-#include <cstring>     // strcmp()
-#include <cstdlib>     // atoi()
-#include <iostream>
+#include <bsls_bsltestutil.h>      // for testing only
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// Most of what this component implements are compile-time computations that
-// differ among platforms.  The tests do assume that alignment of 'char' is 1,
-// 'short' is 2, 'int' is 4, and 'double' is at least 4.  In addition, certain
-// invariants are tested, including:
-//
-// 1. That all alignment calculations result in a power of 2.
-// 2. That all alignment-to-type calculations result are reversible, so that
-//    the alignment of the resulting type equals the original input.
-// 3. That the alignment of a 'struct' equals the alignment of its
-//    most-strictly aligned member.
-// 4. That 'bsls::Alignment::MAX_ALIGNMENT' really is the largest value that
-//    will be produced by the alignment calculations and that
-//    'bsls::Alignment::MaxAlignedType' is aligned at
-//    'bsls::Alignment::MAX_ALIGNMENT'.
-//
-// For the few run-time functions provided in this component, we establish
-// post-conditions and test that the postconditions hold over a reasonable
-// range of inputs.
+// The component under test implements a single enumeration having sequential
+// enumerator values that start from 0.  We will therefore follow our standard
+// approach to testing enumeration types.
 //-----------------------------------------------------------------------------
-// [ 1] bsls_AlignmentOf<T>::VALUE (deprecated)
-// [ 2] bsls::AlignmentToType<N>::Type (deprecated)
-// [ 2] bsls_AlignmentOf<T>::Type (deprecated)
-// [ 3] bsls::Alignment::MAX_ALIGNMENT (deprecated)
-// [ 4] bsls::Alignment::MaxAlignedType (deprecated)
-// [ 4] bsls::Alignment::Align (deprecated)
+// TYPES
+// [ 1] enum Strategy { ... };
 //
-// [ 5] int bsls::Alignment::calculateAlignmentFromSize(int size); (deprecated)
-// [ 6] int bsls::Alignment::calculateAlignmentOffset(void*, int); (deprecated)
-// [ 7] bool bsls::Alignment::is2ByteAligned(const void *); (deprecated)
-// [ 7] bool bsls::Alignment::is4ByteAligned(const void *); (deprecated)
-// [ 7] bool bsls::Alignment::is8ByteAligned(const void *); (deprecated)
-// [ 8] enum Strategy { ... };
-// [ 8] char *toAscii(Type value);
+// CLASS METHODS
+// [ 1] const char *toAscii(Alignment::Strategy value);
 //-----------------------------------------------------------------------------
-// [ 3] PRINT ALIGNMENTS -- Display alignment values (very verbose mode only).
-// [ 9] USAGE EXAMPLE -- Ensure the usage example compiles and works.
-//=============================================================================
+// [ 2] USAGE EXAMPLE
 
-//-----------------------------------------------------------------------------
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                      SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define A(X) cout << #X " = " << ((void *) X) << endl;  // Print address
-#define A_(X) cout << #X " = " << ((void *) X) << ", " << flush;
-#define L_ __LINE__                           // current Line number
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-//==========================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//--------------------------------------------------------------------------
+// ============================================================================
+//                        GLOBAL TYPEDEFS FOR TESTING
+// ----------------------------------------------------------------------------
 
-typedef bsls::Alignment Obj;
+typedef bsls::Alignment::Strategy Enum;
+typedef bsls::Alignment           Obj;
 
-//==========================================================================
+// ============================================================================
+//                       GLOBAL CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+
+const int NUM_ENUMERATORS = 3;
+
+#define UNKNOWN_FORMAT "(* UNKNOWN *)"
+
+//=============================================================================
 //                               USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -113,9 +87,9 @@ typedef bsls::Alignment Obj;
 // wholly contained within the buffer, having the specified size and alignment.
 // As a side-effect, the cursor is updated to refer to the next available free
 // byte in the buffer.  Such a function could be used by a memory manager to
-// satisfy allocate requests from internally-managed buffers.  Clients of this
-// function indicate which alignment strategy to use based on their specific
-// requirements.
+// satisfy allocation requests from internally-managed buffers.  Clients of
+// this function indicate which alignment strategy to use based on their
+// specific requirements.
 //
 // Our 'allocateFromBuffer' function depends on an alignment utility,
 // 'my_AlignmentUtil', whose minimal interface is limited to that required by
@@ -154,13 +128,13 @@ typedef bsls::Alignment Obj;
             // and 'alignment' is a non-negative, integral power of 2.
     };
 //..
-// The definition of our 'allocateFromBuffer function is as follows:
+// The definition of our 'allocateFromBuffer' function is as follows:
 //..
-    static void *allocateFromBuffer(int                      *cursor,
-                                    char                     *buffer,
-                                    int                       bufferSize,
-                                    int                       size,
-                                    bsls::Alignment::Strategy strategy)
+    static void *allocateFromBuffer(int                       *cursor,
+                                    char                      *buffer,
+                                    int                        bufferSize,
+                                    int                        size,
+                                    bsls::Alignment::Strategy  strategy)
         // Allocate a memory block of the specified 'size' (in bytes) from the
         // specified 'buffer' having the specified 'bufferSize' at the
         // specified 'cursor' position, using the specified alignment
@@ -184,12 +158,15 @@ typedef bsls::Alignment Obj;
 // that can satisfy the allocation request.  In the case of
 // 'bsls::Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
 // 'bsls::Alignment::BSLS_MAXIMUM', we use the platform-dependent
-// 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value:
+// 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value; and for
+// 'bsls::Alignment::BSLS_MINIMUM', we simply use 1:
 //..
         const int alignment =
                            strategy == bsls::Alignment::BSLS_NATURAL
                            ? my_AlignmentUtil::calculateAlignmentFromSize(size)
-                           : my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT;
+                           : strategy == bsls::Alignment::BSLS_MAXIMUM
+                             ? my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT
+                             : 1;
 //..
 // Now we calculate the offset from the current 'cursor' value that can satisfy
 // the 'alignment' requirements:
@@ -197,7 +174,7 @@ typedef bsls::Alignment Obj;
         const int offset = my_AlignmentUtil::calculateAlignmentOffset(
                                                               buffer + *cursor,
                                                               alignment);
-//
+
 //..
 // Next we check if the available free memory in 'buffer' can satisfy the
 // allocation request; 0 is returned if the request cannot be satisfied:
@@ -233,101 +210,135 @@ int my_AlignmentUtil::calculateAlignmentOffset(const void *, int)
     return 0;
 }
 
-//==========================================================================
+//=============================================================================
 //                              MAIN PROGRAM
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
-    switch (test) { case 0:
+    switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
+        //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run as shown.  (P-1)
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
-        //   a buffer to test programmatically the printing examples.
+        //: 1 Incorporate usage example from header into test driver, replace
+        //:   leading comment characters with spaces, replace 'assert' with
+        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
+        //:   operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Examples"
-                          << "\n======================" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
       } break;
       case 1: {
-        // -------------------------------------------------------------------
-        // BASIC TEST:
-        //   Iterate over a set of table-generated test vectors of varying
-        //   enumerator value and verify that 'toAscii' generates the expected
-        //   format.
+        // --------------------------------------------------------------------
+        // TESTING 'enum' AND 'toAscii'
+        //
+        // Concerns:
+        //: 1 The enumerator values are sequential, starting from 0.  (P-1)
+        //: 2 The 'toAscii' method returns the expected string representation
+        //:   for each enumerator.  (P-2)
+        //: 3 The 'toAscii' method returns a distinguished string when passed
+        //:   an out-of-band value.  (P-3)
+        //: 4 The string returned by 'toAscii' is non-modifiable.  (P-4)
+        //: 5 The 'toAscii' method has the expected signature.  (P-4)
+        //
+        // Plan:
+        //: 1 Verify that the enumerator values are sequential, starting from
+        //:   0.  (C-1)
+        //: 2 Verify that the 'toAscii' method returns the expected string
+        //:   representation for each enumerator.  (C-2)
+        //: 3 Verify that the 'toAscii' method returns a distinguished string
+        //:   when passed an out-of-band value.  (C-3)
+        //: 4 Take the address of the 'toAscii' (class) method and use the
+        //:   result to initialize a variable of the appropriate type.
+        //:   (C-4, C-5)
         //
         // Testing:
-        //   const char *toAscii(code);
-        // -------------------------------------------------------------------
+        //   enum Strategy { ... };
+        //   const char *toAscii(Alignment::Strategy value);
+        // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BASIC TEST" << endl
-                                  << "==========" << endl;
+        if (verbose) printf("\nTesting 'enum' and 'toAscii'"
+                            "\n============================\n");
 
-        struct {
-            int            d_line;
-            Obj::Strategy  d_code;
-            const char    *d_exp;
+        static const struct {
+            int         d_lineNum;  // source line number
+            Enum        d_value;    // enumerator value
+            const char *d_exp;      // expected result
         } DATA[] = {
-           // line    code                           expected output
-           // ----    ---------                      ---------------
-            { L_,     Obj::BSLS_MAXIMUM,            "MAXIMUM"      },
-            { L_,     Obj::BSLS_NATURAL,            "NATURAL"      },
-            { L_,     (Obj::Strategy)  2,          "(* UNKNOWN *)" },
-            { L_,     (Obj::Strategy) -2,          "(* UNKNOWN *)" },
-            { L_,     (Obj::Strategy) -5,          "(* UNKNOWN *)" },
-            { L_,     (Obj::Strategy) 10,          "(* UNKNOWN *)" }
-        };
+            // line         enumerator value            expected result
+            // ----    ---------------------------     -----------------
+            {  L_,     Obj::BSLS_MAXIMUM,              "MAXIMUM"         },
+            {  L_,     Obj::BSLS_NATURAL,              "NATURAL"         },
+            {  L_,     Obj::BSLS_MINIMUM,              "MINIMUM"         },
 
+            {  L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT    },
+            {  L_,     (Enum)-1,                       UNKNOWN_FORMAT    },
+            {  L_,     (Enum)-5,                       UNKNOWN_FORMAT    },
+            {  L_,     (Enum)99,                       UNKNOWN_FORMAT    }
+        };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout <<
-                          "\nVerify enumerator values are sequential." << endl;
+        if (verbose) printf("\nVerify enumerator values are sequential.\n");
 
-        for (int i = 0; i < 2; ++i) {
-            LOOP_ASSERT(i, i == DATA[i].d_code);
+        for (int ti = 0; ti < NUM_ENUMERATORS; ++ti) {
+            const Enum VALUE = DATA[ti].d_value;
+
+            if (veryVerbose) { T_; P_(ti); P(VALUE); }
+
+            LOOP_ASSERT(ti, ti == VALUE);
         }
 
-        if (verbose) cout << "Testing 'toAscii'." << endl;
+        if (verbose) printf("\nTesting 'toAscii'.\n");
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE  = DATA[ti].d_lineNum;
+            const Enum  VALUE = DATA[ti].d_value;
+            const char *EXP   = DATA[ti].d_exp;
+
+            const char *result = Obj::toAscii(VALUE);
+
+            if (veryVerbose) { T_; P_(ti); P_(VALUE); P_(EXP); P(result); }
+
+            LOOP2_ASSERT(LINE, ti, strlen(EXP) == strlen(result));
+            LOOP2_ASSERT(LINE, ti,           0 == strcmp(EXP, result));
+        }
+
+        if (verbose) printf("\nVerify 'toAscii' signature.\n");
+
         {
-            for (int i = 0 ; i < NUM_DATA; ++i) {
-                const int            LINE = DATA[i].d_line;
-                const Obj::Strategy  CODE = DATA[i].d_code;
-                const char          *EXP  = DATA[i].d_exp;
+            typedef const char *(*FuncPtr)(Enum);
 
-                const char *res = Obj::toAscii(CODE);
-                if (veryVerbose) { cout << '\t'; P_(i); P_(CODE); P(res); }
-                LOOP2_ASSERT(LINE, i, strlen(EXP) == strlen(res));
-                LOOP2_ASSERT(LINE, i, 0 == strcmp(EXP, res));
-            }
+            const FuncPtr FP = &Obj::toAscii;
         }
+
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 
