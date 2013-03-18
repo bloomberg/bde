@@ -614,9 +614,10 @@ void baexml_Formatter::addAttribute(const bdeut_StringRef& name,
         bsl::ostream ss(&sb);
 
         baexml_TypesPrintUtil::print(ss, value, formattingMode);
-
-//      overzealous assert - some inputs result in stream being invalidated
-//      BSLS_ASSERT_SAFE(ss.good());
+        if (!ss.good()) {
+            d_outputStream.setstate(bsl::ios_base::failbit);
+            return;                                                   // RETURN
+        }
 
         doAddAttribute(name, bdeut_StringRef(sb.data(), (int)sb.length()));
     }
@@ -645,9 +646,10 @@ void baexml_Formatter::addData(const TYPE& value, int formattingMode)
         bsl::ostream ss(&sb);
 
         baexml_TypesPrintUtil::print(ss, value, formattingMode);
-
-//      overzealous assert - some inputs result in stream being invalidated
-//      BSLS_ASSERT_SAFE(ss.good());
+        if (!ss.good()) {
+            d_outputStream.setstate(bsl::ios_base::failbit);
+            return;                                                   // RETURN
+        }
 
         doAddData(bdeut_StringRef(sb.data(), (int)sb.length()), false);
     }
@@ -676,9 +678,10 @@ void baexml_Formatter::addListData(const TYPE& value, int formattingMode)
         bsl::ostream ss(&sb);
 
         baexml_TypesPrintUtil::print(ss, value, formattingMode);
-
-//      overzealous assert - some inputs result in stream being invalidated
-//      BSLS_ASSERT_SAFE(ss.good());
+        if (!ss.good()) {
+            d_outputStream.setstate(bsl::ios_base::failbit);
+            return;                                                   // RETURN
+        }
 
         doAddData(bdeut_StringRef(sb.data(), (int)sb.length()), true);
     }
