@@ -3,12 +3,12 @@
 #include <bslmf_ispolymorphic.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
                             "\n==================================\n");
 
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC) || \
-    defined(BSLS_PLATFORM__CMP_IBM)
+    defined(BSLS_PLATFORM_CMP_IBM)
         static const int EXP = 0;
 #else
         static const int EXP = 1;

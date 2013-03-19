@@ -82,7 +82,7 @@ struct add_rvalue_reference<void> {
     typedef void type;
         // This 'typedef' is an alias to the return value of this
         // meta-function.
-}
+};
 
 template <>
 struct add_rvalue_reference<void const> {
@@ -93,7 +93,7 @@ struct add_rvalue_reference<void const> {
     typedef void const type;
         // This 'typedef' is an alias to the return value of this
         // meta-function.
-}
+};
 
 template <>
 struct add_rvalue_reference<void volatile> {
@@ -104,7 +104,7 @@ struct add_rvalue_reference<void volatile> {
     typedef void volatile type;
         // This 'typedef' is an alias to the return value of this
         // meta-function.
-}
+};
 
 template <>
 struct add_rvalue_reference<void const volatile> {
@@ -115,7 +115,7 @@ struct add_rvalue_reference<void const volatile> {
     typedef void const volatile type;
         // This 'typedef' is an alias to the return value of this
         // meta-function.
-}
+};
 
 #endif
 

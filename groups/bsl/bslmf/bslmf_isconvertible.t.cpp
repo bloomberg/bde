@@ -4,9 +4,9 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <cstdio>      // 'printf'
-#include <cstdlib>     // 'atoi'
-#include <cstring>     // 'strcmp'
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
+#include <string.h>     // 'strcmp'
 
 // These 4 compilers cannot handle conversions to/from cv-qualified types
 // in all cases.
@@ -18,7 +18,6 @@
 #endif
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -299,7 +298,7 @@ int convertToInt(TYPE *object)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
 //  int veryVerbose = argc > 3;
 

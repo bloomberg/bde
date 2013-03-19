@@ -6,11 +6,14 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <cstdio>     // 'printf'
-#include <cstdlib>    // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4181)  // 'const' applied to reference type
+#endif
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN

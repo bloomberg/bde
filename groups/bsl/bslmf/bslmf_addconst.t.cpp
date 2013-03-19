@@ -5,15 +5,11 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::atoi;
-using std::fprintf;
-using std::printf;
 
 //=============================================================================
 //                                TEST PLAN
@@ -81,7 +77,6 @@ struct TestType {
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
-
 
 int main(int argc, char *argv[])
 {

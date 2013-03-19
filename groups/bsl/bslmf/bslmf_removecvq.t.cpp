@@ -5,8 +5,8 @@
 #include <bslmf_assert.h>   // for testing only
 #include <bslmf_issame.h>   // for testing only
 
-#include <cstdlib>     // atoi()
-#include <cstring>     // strcmp()
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 #include <iostream>
 
 using namespace BloombergLP;

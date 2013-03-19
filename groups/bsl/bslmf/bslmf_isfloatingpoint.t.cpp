@@ -3,10 +3,9 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 
-using namespace std;
 using namespace BloombergLP;
 
 //=============================================================================

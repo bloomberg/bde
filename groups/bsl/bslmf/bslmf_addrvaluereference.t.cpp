@@ -6,11 +6,10 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -351,7 +350,7 @@ int main(int argc, char *argv[])
         ASSERT_RVALUE_REF_FALSE(Incomplete* );
         ASSERT_RVALUE_REF_SAME (Incomplete*&&);
 
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
         // Some function types are not compilable on AIX.
 
         typedef int F(int);
