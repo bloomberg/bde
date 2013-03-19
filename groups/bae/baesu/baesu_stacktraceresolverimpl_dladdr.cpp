@@ -19,31 +19,38 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_dladdr,"$Id$ $CSID$")
 #include <dlfcn.h>
 
 // The following is an excerpt from '#include <cxxabi.h>'.  Unfortunately, that
-// include file forward defines a class 'std::type_info' that conflicts with 
+// include file forward defines a class 'std::type_info' that conflicts with
 // the one defined in bsl so we can't include it here and we have to resort to
 // an extern.  It looks like there's just no way to include 'cxxabi.h' on
 // Darwin and still compile.  Probably someone will fix it at some later date.
 
 namespace __cxxabiv1 {
-  extern "C"  {
-    // 3.4 Demangler API
-    extern char* __cxa_demangle(const char* mangled_name,
-                                char*       output_buffer,
-                                size_t*     length,
-                                int*        status);
-  } // extern "C"
-} // namespace __cxxabiv1
+    extern "C"  {
+        // 3.4 Demangler API
+        extern char* __cxa_demangle(const char* mangled_name,
+                                    char*       output_buffer,
+                                    size_t*     length,
+                                    int*        status);
+            // Demangle the mangled symbol name in the specified buffer
+            // 'mangled_name' writing to the specified buffer 'output_buffer'
+            // of specified length '*length', setting the specified '*status'
+            // to the 0 on success and a non-zero value on failure.  If the
+            // symbol was a static symbol, 'output_buffer' will contain "" and
+            // -2 will be returned.  '*length' will be set to the length of the
+            // output, which will also be zero terminated.
+    } // extern "C"
+}  // close namespace __cxxabiv1
 namespace abi = __cxxabiv1;
 
 ///Implementation Notes:
 ///--------------------
-//
-// Given an address in memory within a code segment 'dladdr' will find the
-// symbol for the close function that begins preceding it.  'dladdr' populates
-// a 'Dl_info' 'struct', which has the following fields:
+// Given an address in memroy referring to a code segment, the 'dladdr'
+// function will find the closest symbol preceding it.  'dladdr' populates a
+// 'Dl_info' 'struct', which has the following fields:
 //..
 //   const char* dli_fname     The pathname of the shared object containing
-//                             the address.
+//                             the address, or the name of the executable if
+//                             the code was not in a shared library.
 //
 //   void* dli_fbase           The base address (mach_header) at which the
 //                             image is mapped into the address space of the
@@ -69,7 +76,7 @@ namespace abi = __cxxabiv1;
 namespace BloombergLP {
 
 namespace {
-namespace Local {
+namespace local {
 
 enum {
     DEMANGLING_BUFFER_LENGTH = (32 * 1024) - 64   // length in bytes of
@@ -81,11 +88,11 @@ enum {
 typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr>
                                                             StackTraceResolver;
 
-}  // close namespace Local
+}  // close namespace local
 }  // close unnamed namespace
 
 // CREATORS
-Local::StackTraceResolver::baesu_StackTraceResolverImpl(
+local::StackTraceResolver::baesu_StackTraceResolverImpl(
                                      baesu_StackTrace *stackTrace,
                                      bool              demanglingPreferredFlag)
 : d_stackTrace_p(stackTrace)
@@ -93,16 +100,16 @@ Local::StackTraceResolver::baesu_StackTraceResolverImpl(
 , d_hbpAlloc()
 {
     d_demangleBuf_p = (char *) d_hbpAlloc.allocate(
-                                              Local::DEMANGLING_BUFFER_LENGTH);
+                                              local::DEMANGLING_BUFFER_LENGTH);
 }
 
-Local::StackTraceResolver::~baesu_StackTraceResolverImpl()
+local::StackTraceResolver::~baesu_StackTraceResolverImpl()
 {
     d_hbpAlloc.deallocate(d_demangleBuf_p);
 }
 
 // PRIVATE MANIPULATORS
-int Local::StackTraceResolver::resolveFrame(baesu_StackTraceFrame *frame)
+int local::StackTraceResolver::resolveFrame(baesu_StackTraceFrame *frame)
 {
     Dl_info info;
     bsl::memset(&info, 0, sizeof(info));
@@ -128,7 +135,7 @@ int Local::StackTraceResolver::resolveFrame(baesu_StackTraceFrame *frame)
     int rc = 0;
     frame->setSymbolName("");
     if (d_demangleFlag) {
-        size_t length = Local::DEMANGLING_BUFFER_LENGTH;
+        size_t length = local::DEMANGLING_BUFFER_LENGTH;
         frame->setSymbolName(abi::__cxa_demangle(
                                             frame->mangledSymbolName().c_str(),
                                             d_demangleBuf_p,
@@ -153,12 +160,12 @@ int Local::StackTraceResolver::resolveFrame(baesu_StackTraceFrame *frame)
 }
 
 // CLASS METHODS
-int Local::StackTraceResolver::resolve(
+int local::StackTraceResolver::resolve(
                                      baesu_StackTrace *stackTrace,
                                      bool              demanglingPreferredFlag)
 {
     int retRc = 0;
-    Local::StackTraceResolver resolver(stackTrace,
+    local::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);
 
     for (int i = 0; i < stackTrace->length(); ++i) {

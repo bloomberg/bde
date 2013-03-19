@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide utility resolving symbols in a stack trace using 'dladdr'.
+//@PURPOSE: Provide function resolving symbols in a stack trace using 'dladdr'.
 //
 //@CLASSES:
 //   baesu_StackTraceResolverImpl<Dladdr>: symbol resolution using 'dladdr'
@@ -22,15 +22,17 @@ BDES_IDENT("$Id: $")
 // 'baesu_StackTraceResolver<Dladdr>', that, given a vector of
 // 'baesu_StackTraceFrame' objects that have only their 'address' fields set,
 // resolves some of the other fields in those frames.  This resolver will work
-// for any platform that supports the 'dladdr' call (doc available via
-// 'man dladdr'.
+// for any platform that supports the 'dladdr' function (e.g. Darwin and
+// supported platforms).  Note that 'dladdr' is not a standard system function,
+// but documentation is frequently available via 'man dladdr' on supported
+// platforms.
 //
-// At the time of this writing, it is used for the operating systems based on
-// the Mach kernel, in particular Apple Mac OSX.
+// Note that this resolving implementation is currently for the operating
+// systems based on the Mach kernel, in particular Apple Mac OSX.
 //
 // In addition to 'dladdr', this code uses the 'abi::__cxa_demangle' function
-// supplied by the gnu and clang compilers for demangling.  Documentation can
-// be found:
+// supplied by the gnu and clang compilers for demangling symbol names.
+// Documentation can be found:
 //: o /usr/include/cxxabi.h
 //: o 'http://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html'
 //
@@ -130,7 +132,12 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> {
         // 'd_demangleFlag' is true, 'symbolName()' will be a demangled form of
         // 'mangledSymbolName(), otherwise the two fields will be identical.
         // Return 0 on success and a non-zero value if any problems were
-        // encountered.
+        // encountered.  Note that this function is defined as a member
+        // function to make use of the 'd_demanglingBuf_p' buffer, and avoid
+        // the use of a stack or heap allocated buffer for demangling symbols
+        // -- using additional stack or heap memory may cause problems when
+        // generating a stack trace to capture the state of a thread that has
+        // failed due to stack or heap corruption.
 
   public:
     // CLASS METHODS
