@@ -193,17 +193,7 @@ class baejsn_Tokenizer {
         BAEJSN_ARRAY_CONTEXT               // array context
     };
 
-    // CONSTANTS
-    enum {
-        BAEJSN_BUFSIZE         = 1024,
-        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE
-                                  - 1 - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
-    };
-
-    char                               d_buffer[BAEJSN_BUFSIZE];  // data
-                                                                  // buffer
-                                                                  // (owned)
-
+    // DATA
     bdema_BufferedSequentialAllocator  d_allocator;               // allocater
                                                                   // (owned)
 
@@ -223,6 +213,10 @@ class baejsn_Tokenizer {
 
     bsl::size_t                        d_valueEnd;                // cursor for
                                                                   // end of
+                                                                  // value
+
+    bsl::size_t                        d_valueIter;               // cursor for
+                                                                  // iterating
                                                                   // value
 
     TokenType                          d_tokenType;               // token type
@@ -250,11 +244,10 @@ class baejsn_Tokenizer {
         // update the cursor to the new read location.  Return the number of
         // bytes read from the 'streamBuf'.
 
-    int resizeBufferForLargeValue(bsl::size_t position);
+    int resizeBufferForLargeValue();
         // Resize the string buffer with new data read from the underlying
-        // 'streambuf' and written starting at the specified 'position' so that
-        // it can hold a value larger than the internal buffer's size.  Return
-        // 0 on success and a non-zero value otherwise.
+        // 'streambuf' so that it can hold a value larger than the internal
+        // buffer's size.  Return 0 on success and a non-zero value otherwise.
 
     int skipWhitespace();
         // Skip all whitespace characters and position the cursor onto the
@@ -305,18 +298,6 @@ class baejsn_Tokenizer {
 
 // CREATORS
 inline
-baejsn_Tokenizer::baejsn_Tokenizer(bslma::Allocator *basicAllocator)
-: d_allocator(d_buffer, BAEJSN_BUFSIZE, basicAllocator)
-, d_stringBuffer(&d_allocator)
-, d_streamBuf_p(0)
-, d_cursor(0)
-, d_tokenType(BAEJSN_BEGIN)
-, d_context(BAEJSN_OBJECT_CONTEXT)
-{
-    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
-}
-
-inline
 baejsn_Tokenizer::~baejsn_Tokenizer()
 {
 }
@@ -330,6 +311,7 @@ void baejsn_Tokenizer::reset(bsl::streambuf *streamBuf)
     d_cursor      = 0;
     d_valueBegin  = 0;
     d_valueEnd    = 0;
+    d_valueIter   = 0;
     d_tokenType   = BAEJSN_BEGIN;
 }
 

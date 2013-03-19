@@ -575,7 +575,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING that large values (greater than 1K) are handled correctly
+        // TESTING that large values (greater than 8K) are handled correctly
         //
         // Concerns:
         //: 1 Values of larger sizes are handled correctly.
@@ -606,29 +606,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING that large values (greater than 1K) "
+                          << "TESTING that large values (greater than 8K) "
                           << "are handled correctly" << endl;
-
-        const bsl::string LARGE_STRING =
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "element5-980123-980123element62012-08-18T132500.000+0000ement2tue"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemesdfnt1"
-            "trueelement31.51.5element4el";
-
-#if 0
-        // TBD: Use this large string when we move to the 8K buffer
 
         const bsl::string LARGE_STRING =
             "\"selection11selection1element1255element43123123123elementasdd52"
@@ -757,7 +736,6 @@ int main(int argc, char *argv[])
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
             "2012-08-18T132500.000+0000element7element6LOND";
-#endif
 
         const struct {
             int               d_line;

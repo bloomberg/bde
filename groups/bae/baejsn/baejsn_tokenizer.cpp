@@ -56,6 +56,14 @@ namespace BloombergLP {
 namespace {
     const char *WHITESPACE = " \n\t\v\f\r";
     const char *TOKENS     = "{}[]:,";
+
+    // Intermediate data buffer used for reading data from the stream.
+
+    const int BAEJSN_BUFSIZE = 1024 * 8;
+    const int BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE
+                                 - 1 - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
+    char buffer[BAEJSN_BUFSIZE];
 }
 
                             // -----------------------
@@ -73,31 +81,32 @@ int baejsn_Tokenizer::reloadStringBuffer()
     return numRead;
 }
 
-int baejsn_Tokenizer::resizeBufferForLargeValue(bsl::size_t position)
+int baejsn_Tokenizer::resizeBufferForLargeValue()
 {
     d_stringBuffer.resize(d_stringBuffer.length() + BAEJSN_MAX_STRING_SIZE);
 
-    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[position],
+    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[d_valueIter],
                                              BAEJSN_MAX_STRING_SIZE);
     return numRead ? 0 : -1;
 }
 
 int baejsn_Tokenizer::moveValueCharsToStartAndReloadBuffer()
 {
-    const bsl::size_t iter = d_stringBuffer.length() - d_valueBegin;
-
     d_stringBuffer.erase(d_stringBuffer.begin(),
                          d_stringBuffer.begin() + d_valueBegin);
     d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
 
-    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[iter],
-                                             BAEJSN_MAX_STRING_SIZE - iter);
+    d_valueIter = d_valueIter - d_valueBegin;
+
+    const int numRead = d_streamBuf_p->sgetn(
+                                         &d_stringBuffer[d_valueIter],
+                                         BAEJSN_MAX_STRING_SIZE - d_valueIter);
 
     if (0 == numRead) {
         return -1;                                                    // RETURN
     }
 
-    d_stringBuffer.resize(iter + numRead);
+    d_stringBuffer.resize(d_valueIter + numRead);
     d_valueBegin = 0;
 
     return 0;
@@ -123,28 +132,24 @@ int baejsn_Tokenizer::skipWhitespace()
 
 int baejsn_Tokenizer::extractStringValue()
 {
-    bsl::size_t iter         = BAEJSN_ELEMENT_NAME == d_tokenType
-                               ? d_valueBegin
-                               : d_valueBegin + 1;
-    bool        firstTime    = true;
-    char        previousChar = 0;
+    bool firstTime    = true;
+    char previousChar = 0;
 
     while (true) {
-        while (iter < d_stringBuffer.length()
-            && '"' != d_stringBuffer[iter]) {
-            ++iter;
-            previousChar = d_stringBuffer[iter - 1];
+        while (d_valueIter < d_stringBuffer.length()
+            && '"' != d_stringBuffer[d_valueIter]) {
+            ++d_valueIter;
+            previousChar = d_stringBuffer[d_valueIter - 1];
         }
 
-        if (iter >= d_stringBuffer.length()) {
+        if (d_valueIter >= d_stringBuffer.length()) {
             if (!firstTime) {
-                const int rc = resizeBufferForLargeValue(iter);
+                const int rc = resizeBufferForLargeValue();
                 if (rc) {
                     return rc;                                        // RETURN
                 }
             }
             else {
-                iter = iter - d_valueBegin;
                 const int rc = moveValueCharsToStartAndReloadBuffer();
                 if (rc) {
                     return rc;                                        // RETURN
@@ -154,11 +159,11 @@ int baejsn_Tokenizer::extractStringValue()
         }
         else {
             if ('\\' == previousChar) {
-                ++iter;
+                ++d_valueIter;
                 previousChar = 0;
                 continue;
             }
-            d_valueEnd = iter;
+            d_valueEnd = d_valueIter;
             return 0;                                                 // RETURN
         }
     }
@@ -167,25 +172,23 @@ int baejsn_Tokenizer::extractStringValue()
 
 int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
 {
-    bsl::size_t iter      = d_cursor + 1;
-    bool        firstTime = true;
+    bool firstTime = true;
 
     while (true) {
-        while (iter < d_stringBuffer.length()
-            && !bdeu_CharType::isSpace(d_stringBuffer[iter])
-            && !bsl::strchr(TOKENS, d_stringBuffer[iter])) {
-            ++iter;
+        while (d_valueIter < d_stringBuffer.length()
+            && !bdeu_CharType::isSpace(d_stringBuffer[d_valueIter])
+            && !bsl::strchr(TOKENS, d_stringBuffer[d_valueIter])) {
+            ++d_valueIter;
         }
 
-        if (iter >= d_stringBuffer.length()) {
+        if (d_valueIter >= d_stringBuffer.length()) {
             if (!firstTime) {
-                const int rc = resizeBufferForLargeValue(iter);
+                const int rc = resizeBufferForLargeValue();
                 if (rc) {
                     return rc;                                        // RETURN
                 }
             }
             else {
-                iter = iter - d_valueBegin;
                 const int rc = moveValueCharsToStartAndReloadBuffer();
                 if (rc) {
                     return rc;                                        // RETURN
@@ -194,11 +197,26 @@ int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
             }
         }
         else {
-            d_valueEnd = iter;
+            d_valueEnd = d_valueIter;
             return 0;                                                 // RETURN
         }
     }
     return 0;
+}
+
+// CREATORS
+baejsn_Tokenizer::baejsn_Tokenizer(bslma::Allocator *basicAllocator)
+: d_allocator(buffer, BAEJSN_BUFSIZE, basicAllocator)
+, d_stringBuffer(&d_allocator)
+, d_streamBuf_p(0)
+, d_cursor(0)
+, d_valueBegin(0)
+, d_valueEnd(0)
+, d_valueIter(0)
+, d_tokenType(BAEJSN_BEGIN)
+, d_context(BAEJSN_OBJECT_CONTEXT)
+{
+    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
 }
 
 // MANIPULATORS
@@ -352,6 +370,7 @@ int baejsn_Tokenizer::advanceToNextToken()
                && BAEJSN_OBJECT_CONTEXT == d_context)) {
                 d_tokenType  = BAEJSN_ELEMENT_NAME;
                 d_valueBegin = d_cursor + 1;
+                d_valueIter  = d_valueBegin;
             }
             else if (BAEJSN_START_ARRAY    == d_tokenType
                   || (BAEJSN_ELEMENT_NAME  == d_tokenType
@@ -361,6 +380,7 @@ int baejsn_Tokenizer::advanceToNextToken()
                    && BAEJSN_ARRAY_CONTEXT == d_context)) {
                 d_tokenType  = BAEJSN_ELEMENT_VALUE;
                 d_valueBegin = d_cursor;
+                d_valueIter  = d_valueBegin + 1;
             }
             else {
                 d_tokenType = BAEJSN_ERROR;
@@ -398,6 +418,8 @@ int baejsn_Tokenizer::advanceToNextToken()
 
                 d_valueBegin = d_cursor;
                 d_valueEnd   = 0;
+                d_valueIter  = d_valueBegin + 1;
+
                 const int rc = skipNonWhitespaceOrTillToken();
                 if (rc) {
                     d_tokenType = BAEJSN_ERROR;
