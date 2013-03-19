@@ -1,7 +1,7 @@
 // bslmf_addlvaluereference.t.cpp                                     -*-C++-*-
 #include <bslmf_addlvaluereference.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
 

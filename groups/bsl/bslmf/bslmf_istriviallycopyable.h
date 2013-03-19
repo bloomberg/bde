@@ -7,12 +7,12 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for determining trivially copyable types
+//@PURPOSE: Provide a meta-function for determining trivially copyable types.
 //
 //@CLASSES:
 //  bsl::is_trivially_copyable: type-traits meta-function
 //
-//@SEE_ALSO:  bslmf_integerconstant, bslmf_nestedtraitdeclaration
+//@SEE_ALSO: bslmf_integralconstant, bslmf_nestedtraitdeclaration
 //
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::is_trivially_copyable', that may be used to query whether a type is
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 //  -------------        ---------------------
 //  reference types      false
 //  fundamental types    true
-//  enums                true
+//  enumerated types     true
 //  pointers             true
 //  pointers to members  true
 //..
@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //:   'bsl::true_type'.
 //:
 //: 2 Use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro to define
-//:   'bsl::is_trivially_copyable' as the trait in the class definition of the
+//:   'bsl::is_trivially_copyable' as a trait in the class definition of the
 //:   type.
 //
 ///Usage
@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 //  template <>
 //  struct is_trivially_copyable<MyTriviallyCopyableType> : bsl::true_type {
 //      // This template specialization for 'is_trivially_copyable' indicates
-//      // that 'MyTriviallyCopyableType' is a trivially copyable.
+//      // that 'MyTriviallyCopyableType' is a trivially copyable type.
 //  };
 //
 //  }  // close namespace bsl
@@ -86,10 +86,14 @@ BSLS_IDENT("$Id: $")
 //  assert(true  == bsl::is_trivially_copyable<MyFundamentalType>::value);
 //  assert(false == bsl::is_trivially_copyable<
 //                                         MyFundamentalTypeReference>::value);
-//  assert(true  == bsl::is_trivially_copyable<MyTriviallyCopyableType>::value);
+//  assert(true  == bsl::is_trivially_copyable<
+//                                            MyTriviallyCopyableType>::value);
 //  assert(false == bsl::is_trivially_copyable<
 //                                         MyNonTriviallyCopyableType>::value);
 //..
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
@@ -145,7 +149,7 @@ struct IsTriviallyCopyable_Imp
           && (  IsFundamental<TYPE>::value
              || IsEnum<TYPE>::value
              || bsl::is_pointer<TYPE>::value
-             || bslmf::IsPointerToMember<TYPE>::value
+             || IsPointerToMember<TYPE>::value
              || DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::value)> {
     // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
@@ -171,16 +175,17 @@ struct is_trivially_copyable
     // syntax as the 'is_trivially_copyable' meta-function defined in the C++11
     // standard [meta.unary.prop]; however, this meta-function can
     // automatically determine the value for the following types only:
-    // reference types, fundamental types, enums, pointers to members, and
-    // types declared to have the 'bsl::is_trivially_copyable' trait using the
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro (and the value for other types
-    // defaults to 'false').  To support other trivially copyable types, this
-    // template must be specialized to inherit from 'bsl::true_type' for them.
+    // reference types, fundamental types, enumerated types, pointers to
+    // members, and types declared to have the 'bsl::is_trivially_copyable'
+    // trait using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro (the value for
+    // other types defaults to 'false').  To support other trivially copyable
+    // types, this template must be specialized to inherit from
+    // 'bsl::true_type' for them.
 };
 
 }  // close namespace bsl
 
-#endif // ! defined(INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE)
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.

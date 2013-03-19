@@ -1,9 +1,10 @@
 // bslmf_addrvaluereference.t.cpp                                     -*-C++-*-
 #include <bslmf_addrvaluereference.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <cstdio>   // 'printf'
 #include <cstdlib>  // 'atoi'
@@ -16,13 +17,13 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::add_rvalue_reference', which
-// transform a template parameter 'TYPE' to its rvalue reference type.  Thus,
-// we need to ensure that the value returned by this meta-functions is correct
-// for each possible category of types.
+// The component under test defines a meta-function,
+// 'bsl::add_rvalue_reference', that transforms a template parameter 'TYPE' to
+// its rvalue reference type.  Thus, we need to ensure that the values returned
+// by this meta-function are correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
+// PUBLIC TYPES
 // [ 1] bsl::add_rvalue_reference::type
 //
 // ----------------------------------------------------------------------------
@@ -205,9 +206,8 @@ int main(int argc, char *argv[])
 // Suppose that we want to transform a couple of types to rvalue reference
 // types.
 //
-// Now, we instantiate the 'bsl::add_rvalue_reference' template for these
-// types, and use the 'bsl::is_same' meta-function to assert the 'type' static
-// data member of each instantiation:
+// Now, for a set of types, we transform each type to the corresponding rvalue
+// reference of that type using 'bsl::remove_reference' and verify the result:
 //..
   #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     ASSERT(true  ==
@@ -229,16 +229,16 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::add_rvalue_reference::type'
-        //   Ensure that the static data member 'type' of
-        //   'bsl::add_rvalue_reference' instantiations having various
-        //   (template parameter) 'TYPE' has the correct value.
+        //   Ensure that the 'typedef' 'type' of 'bsl::add_rvalue_reference'
+        //   instantiations having various (template parameter) 'TYPE's has the
+        //   correct value.
         //
         // Concerns:
-        //: 1 'add_rvalue_reference::type' correctly transforms 'TYPE' to its
+        //: 1 'add_rvalue_reference' correctly transforms 'TYPE' to its
         //:   rvalue reference type when 'TYPE' is an object or a function.
         //:
-        //: 2 'add_rvalue_reference::type' does not transform 'TYPE' when
-        //:   'TYPE' is neither an object nor function.
+        //: 2 'add_rvalue_reference' does not transform 'TYPE' when 'TYPE' is
+        //:   neither an object nor a function.
         //
         // Plan:
         //   Instantiate 'bsl::add_rvalue_reference' with various types and
@@ -248,8 +248,8 @@ int main(int argc, char *argv[])
         //   bsl::add_rvalue_reference::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::add_rvalue_reference\n"
-                            "=========================\n");
+        if (verbose) printf("bsl::add_rvalue_reference::type\n"
+                            "===============================\n");
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 

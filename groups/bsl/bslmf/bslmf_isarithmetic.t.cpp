@@ -14,9 +14,9 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::is_arithmetic', that
+// The component under test defines a meta-function, 'bsl::is_arithmetic', that
 // determines whether a template parameter type is an arithmetic type.  Thus,
-// we need to ensure that the value returned by this meta-functions is correct
+// we need to ensure that the value returned by this meta-function is correct
 // for each possible category of types.
 //
 // ----------------------------------------------------------------------------
@@ -183,9 +183,9 @@ int main(int argc, char *argv[])
 // Now, we instantiate the 'bsl::is_arithmetic' template for these types, and
 // assert the 'value' static data member of each instantiation:
 //..
-    ASSERT(false == bsl::is_arithmetic<int&>::value);
-    ASSERT(false == bsl::is_arithmetic<int*>::value);
-    ASSERT(true  == bsl::is_arithmetic<int >::value);
+    ASSERT(false == bsl::is_arithmetic<int& >::value);
+    ASSERT(false == bsl::is_arithmetic<int *>::value);
+    ASSERT(true  == bsl::is_arithmetic<int  >::value);
 //..
 
       } break;
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
         //: 1 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) primitive type other than arithmetic type.
         //:
-        //: 2 'is_arithmetic::value' is 'true' when 'TYPE' is an (possibly
+        //: 2 'is_arithmetic::value' is 'true' when 'TYPE' is a (possibly
         //:   cv-qualified) arithmetic type.
         //:
         //: 3 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
@@ -230,12 +230,17 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, void,         false);
 
         // C-2
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, bool,          true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, char,          true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, unsigned char, true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, wchar_t,       true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, short,         true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                              bsl::is_arithmetic, value, unsigned short, true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, int,           true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, unsigned int,  true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, float,         true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, double,        true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, unsigned int,  true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, long,          true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, long long,     true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, long double,   true);

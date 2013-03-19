@@ -1,7 +1,7 @@
 // bslmf_addpointer.t.cpp                                             -*-C++-*-
 #include <bslmf_addpointer.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 #include <bsls_compilerfeatures.h>
 
 #include <cstdlib>

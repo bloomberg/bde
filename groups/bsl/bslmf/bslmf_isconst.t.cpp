@@ -18,7 +18,7 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The components under test defines a meta-function, 'bsl::is_const', that
+// The component under test defines a meta-function, 'bsl::is_const', that
 // determines whether a template parameter type is a 'const'-qualified type.
 // Thus, we need to ensure that the value returned by the meta-function is
 // correct for each possible category of types.
