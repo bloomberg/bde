@@ -61,12 +61,12 @@ BSLS_IDENT("$Id: $")
 // bits of the return value will change for a 1-bit change in the hashed value.
 // We then use the result of the hash function to index into our array of
 // 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
-// array of 'TYPE' objects.  We will resovle hash collisions in our array
-// through 'linear probing', where we will search consequetive buckets
-// following the bucket where the collision occurred, testing occupied buckets
-// for equality with the value we are searching on, and concluding that the
-// value is not in the table if we encounter an empty bucket before we
-// encounter one referring to an equal element.
+// array of 'TYPE' objects.  We will resolve hash collisions in our array
+// through 'linear probing', where we will search consecutive buckets following
+// the bucket where the collision occurred, testing occupied buckets for
+// equality with the value we are searching on, and concluding that the value
+// is not in the table if we encounter an empty bucket before we encounter one
+// referring to an equal element.
 //
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.

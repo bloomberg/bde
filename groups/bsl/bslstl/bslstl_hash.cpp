@@ -4,9 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-namespace bsl {
 
-}  // close namespace bsl
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.
 //
