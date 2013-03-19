@@ -1,17 +1,15 @@
 // bslmf_addvolatile.t.cpp                                            -*-C++-*-
 #include <bslmf_addvolatile.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
-#include <cstdlib>
-#include <cstdio>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::atoi;
 
 //=============================================================================
 //                                TEST PLAN
@@ -20,7 +18,7 @@ using std::atoi;
 //                                --------
 // The component under test defines a meta-function, 'bsl::add_volatile', that
 // adds a top-level 'volatile'-qualifier to a template parameter type.  Thus,
-// we need to ensure that the values returned by the meta-function is correct
+// we need to ensure that the values returned by the meta-function are correct
 // for each possible category of types.
 //
 // ----------------------------------------------------------------------------
@@ -116,7 +114,7 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding a 'volatile'-qualifier to a Type
+///Example 1: Adding a 'volatile'-Qualifier to a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to add a 'volatile'-qualifier to a particular type.
 //
@@ -157,7 +155,7 @@ int main(int argc, char *argv[])
         //   bsl::add_volatile::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::remove_volatile'\n"
+        if (verbose) printf("\n'bsl::add_volatile'\n"
                             "\n===================\n");
 
         // C-1
@@ -189,7 +187,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

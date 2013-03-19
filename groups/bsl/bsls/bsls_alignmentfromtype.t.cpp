@@ -124,7 +124,7 @@ namespace {
 // having the same alignment requirement as 'TYPE'.  The class definition of
 // 'my_AlignedBuffer' is as follows:
 //..
-    template <typename TYPE>
+    template <class TYPE>
     union my_AlignedBuffer {
       private:
         // DATA
@@ -158,14 +158,14 @@ namespace {
 // The function definitions of 'my_AlignedBuffer' are as follows:
 //..
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     char *my_AlignedBuffer<TYPE>::buffer()
     {
         return d_buffer;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     inline
     TYPE& my_AlignedBuffer<TYPE>::object()
     {
@@ -173,14 +173,14 @@ namespace {
     }
 
     // ACCESSORS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     const char *my_AlignedBuffer<TYPE>::buffer() const
     {
         return d_buffer;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     inline
     const TYPE& my_AlignedBuffer<TYPE>::object() const
     {
@@ -457,21 +457,21 @@ union  U1 { char d_c; int *d_pointer; };
 //                  CLASSES AND FUNCTIONS USED IN TESTS
 //-----------------------------------------------------------------------------
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, void *)
 {
     return false;
 }
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, T *)
 {
     return true;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool sameType(T1 t1, T2 t2)
 {
@@ -838,7 +838,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

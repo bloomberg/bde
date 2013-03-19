@@ -106,7 +106,7 @@ namespace {
 // having the 'ALIGNMENT' requirement.  The class definition of
 // 'my_AlignedBuffer' is as follows:
 //..
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     union my_AlignedBuffer {
       private:
         // DATA
@@ -141,14 +141,14 @@ namespace {
 // The function definitions of 'my_AlignedBuffer' are as follows:
 //..
     // MANIPULATORS
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     inline
     char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer()
     {
         return d_buffer;
     }
 
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     inline
     TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object()
     {
@@ -156,14 +156,14 @@ namespace {
     }
 
     // ACCESSORS
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     inline
     const char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer() const
     {
         return d_buffer;
     }
 
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     inline
     const TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object() const
     {
@@ -432,21 +432,21 @@ const char *string::EMPTY_STRING = "";
 //                  CLASSES AND FUNCTIONS USED IN TESTS
 //-----------------------------------------------------------------------------
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, void *)
 {
     return false;
 }
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, T *)
 {
     return true;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool sameType(T1 t1, T2 t2)
 {
@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

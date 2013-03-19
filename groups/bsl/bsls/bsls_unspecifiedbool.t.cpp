@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
             struct MemberTest {
                 bool data;
 
-                MemberTest(BoolType b) : data(b) {}
+                MemberTest(BoolType b) : data(b) {}                 // IMPLICIT
             } bmt = bt;
             ASSERT(!bmt.data);
 
@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
             struct MemberTest {
                 bool data;
 
-                MemberTest(Booleable b) : data(b) {}
+                MemberTest(Booleable b) : data(b) {}                // IMPLICIT
             } bmt = babel;
             ASSERT(!bmt.data);
 
@@ -765,7 +765,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

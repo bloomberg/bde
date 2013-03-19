@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // '<bsl_iosfwd.h>' instead.
 
 #if defined(std)
-#define BSLSTL_IOSFWD_STD std
+#define BSLSTL_IOSFWD_STD_DEFINED
 #undef std
 #endif
 
@@ -82,15 +82,15 @@ typedef basic_stringstream <wchar_t, char_traits<wchar_t>,
 
 }  // close namespace bsl
 
-#if defined(BSLSTL_IOSFWD_STD)
-#define std BSLSTL_IOSFWD_STD
-#undef BSLSTL_IOSFWD_STD
+#if defined(BSLSTL_IOSFWD_STD_DEFINED)
+#define std bsl
+#undef BSLSTL_IOSFWD_STD_DEFINED
 #endif
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

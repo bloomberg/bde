@@ -3,22 +3,18 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::atoi;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The components under test defines a meta-function, 'bsl::is_const', that
+// The component under test defines a meta-function, 'bsl::is_const', that
 // determines whether a template parameter type is a 'const'-qualified type.
 // Thus, we need to ensure that the value returned by the meta-function is
 // correct for each possible category of types.
@@ -179,7 +175,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

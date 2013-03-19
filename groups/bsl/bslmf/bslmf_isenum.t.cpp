@@ -3,11 +3,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -125,6 +124,11 @@ struct ConvertToEnumTestType {
     // type.
 
     operator EnumTestType() { return ENUM_TEST_VALUE0; }
+};
+
+struct ConvertToAnyType {
+    template <class T>
+    operator T() { return T(); }
 };
 
 }  // close unnamed namespace
@@ -300,6 +304,13 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToIntTestType,  0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, ConvertToEnumTestType, 0);
         TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToEnumTestType, 0);
+
+        // can't use TYPE_ASSERT_CVQ because it adds volatile and
+        // ConvertibleToAny doesn't have a volatile operator()
+        ASSERT(! bslmf::IsEnum<ConvertToAnyType>::value);
+        ASSERT(! bslmf::IsEnum<ConvertToAnyType const>::value);
+        ASSERT(! bslmf::IsEnum<ConvertToAnyType &>::value);
+        ASSERT(! bslmf::IsEnum<ConvertToAnyType const &>::value);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -389,6 +400,13 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToIntTestType,  false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, ConvertToEnumTestType, false);
         TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToEnumTestType, false);
+
+        // can't use TYPE_ASSERT_CVQ because it adds volatile and
+        // ConvertibleToAny doesn't have a volatile operator()
+        ASSERT(! bsl::is_enum<ConvertToAnyType>::value);
+        ASSERT(! bsl::is_enum<ConvertToAnyType const>::value);
+        ASSERT(! bsl::is_enum<ConvertToAnyType &>::value);
+        ASSERT(! bsl::is_enum<ConvertToAnyType const &>::value);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -404,7 +422,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -3,31 +3,32 @@
 #include <bslmf_ispolymorphic.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
-#include <cstdlib>
-#include <cstdio>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under defines two meta-functions, 'bsl::is_polymorphic' and
-// 'bslmf::IsPolymorphic', that determine whether a template parameter type is
-// a polymorphic type.  Thus, we need to ensure that the values returned by
+// The component under test defines two meta-functions, 'bsl::is_polymorphic'
+// and 'bslmf::IsPolymorphic', that determine whether a template parameter type
+// is a polymorphic type.  Thus, we need to ensure that the values returned by
 // these meta-functions are correct for each possible category of types.  Since
 // the two meta-functions are functionally equivalent, we will use the same set
 // of types for both.
 //
 //-----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-// [ 2] BloombergLP::bslmf::IsPolymorphic
-// [ 4] bsl::is_polymorphic
+// [ 1] BloombergLP::bslmf::IsPolymorphic::VALUE
+// [ 3] bsl::is_polymorphic::value
 //
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// [ 2] 'bslmf::IsPolymorphic' Corner Cases
+// [ 4] 'bsl::is_polymorphic' Corner Cases
 // [ 5] USAGE EXAMPLE
 
 //=============================================================================
@@ -195,30 +196,17 @@ struct MyDerivedStruct : public MyStruct {
 // 'MyDerivedClass':
 //..
 class MyClass {
+  public:
     MyClass();
     virtual ~MyClass();  // makes 'MyClass' polymorphic
 };
 
 class MyDerivedClass : public MyClass {
+  public:
     MyDerivedClass();
-    ~MyDerivedClass();
+    virtual ~MyDerivedClass();
 };
-
-// ... continued below
-
-// Finally, note that the following class is detected as polymorphic by this
-// component, but should really have a virtual destructor ('gcc' issues a
-// warning for such infractions):
 //..
-
-class MyIncorrectPolymorphicClass {
-
-    MyIncorrectPolymorphicClass();
-    ~MyIncorrectPolymorphicClass();
-    virtual void virtualMethod();
-};
-
-// ... continued below
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -252,11 +240,10 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE\n"
                             "\n=============\n");
-
 //..
 // Now, assert that the two types in the non-polymorphic hierarchy are not
-// polymorphic, and the two types in the polymorphic hierarchy are polymorphic
-// using 'bsl::is_polymorphic':
+// polymorphic, and that the two types in the polymorphic hierarchy are
+// polymorphic using 'bsl::is_polymorphic':
 //..
         ASSERT(false == bsl::is_polymorphic<MyStruct          >::value);
         ASSERT(false == bsl::is_polymorphic<MyStruct         *>::value);
@@ -269,10 +256,6 @@ int main(int argc, char *argv[])
         ASSERT(false == bsl::is_polymorphic<MyDerivedClass&  >::value);
         ASSERT(false == bsl::is_polymorphic<MyDerivedClass  *>::value);
 //..
-        ASSERT(0 ==
-                  bslmf::IsPolymorphic<MyIncorrectPolymorphicClass&  >::value);
-        ASSERT(0 ==
-                  bslmf::IsPolymorphic<MyIncorrectPolymorphicClass  *>::value);
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -283,24 +266,38 @@ int main(int argc, char *argv[])
         //   component in corner cases, so we add tests for known issues as
         //   they arise.
         //
+        // Concerns:
+        //: 1 'bsl::is_polymorphic' returns 'false' (correctly) for
+        //:   non-polymorphic types using virtual inheritance on AIX only; on
+        //:   other platforms, the meta-function returns 'true' (incorrectly).
+        //:
+        //: 2 'bsl::is_polymorphic' returns 'false' for non-polymorphic types
+        //:   using multiple inheritance.
+        //:
+        //: 3 'bsl::is_polymorphic' returns 'true' for polymorphic types using
+        //:   virtual inheritance.
+        //:
+        //: 4 'bsl::is_polymorphic' returns 'true' for polymorphic types that
+        //:   multiply inherit from (possibly a combination of) base types
+        //:   that use virtual inheritance and/or regular inheritance.
+        //
         // Plan:
-        //   Ensure that types using (possibly a combination of) virtual
-        //   inheritance and multiple inheritance is evaluated correctly for
-        //   different types of compilers.
+        //   Verify that 'bslmf::IsPolymorphic' returns the correct values
+        //   for each concern.
         //
         // Tactics:
         //   - Add-Hoc Data Selection Method
         //   - Brute-Force implementation technique
         //
         // Testing:
-        //   bsl::is_polymorphic
+        //   bsl::is_polymorphic::value
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'bsl::is_polymorphic' Corner Cases\n"
                             "\n==================================\n");
 
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC) || \
-    defined(BSLS_PLATFORM__CMP_IBM)
+    defined(BSLS_PLATFORM_CMP_IBM)
         static const int EXP = 0;
 #else
         static const int EXP = 1;
@@ -343,7 +340,6 @@ int main(int argc, char *argv[])
                                      VirtuallyDerived *volatile      >::value);
         ASSERT(0 == bsl::is_polymorphic<
                                      VirtuallyDerived *const volatile>::value);
-
 
         ASSERT(0 == bsl::is_polymorphic<Multi1               >::value);
         ASSERT(0 == bsl::is_polymorphic<Multi1 const         >::value);
@@ -506,7 +502,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == bsl::is_polymorphic<
                                VirtuallyDerivedMixed2 *const volatile>::value);
 
-
         ASSERT(1 == bsl::is_polymorphic<
                                   PolyVirtuallyDerived               >::value);
         ASSERT(1 == bsl::is_polymorphic<
@@ -536,18 +531,36 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'bsl::is_polymorphic'
+        // 'bsl::is_polymorphic::value'
+        //   Ensure that 'bsl::is_polymorphic' returns the correct values for a
+        //   variety of template parameter types.
+        //
+        // Concerns:
+        //:  1 'is_polymorphic' returns 0 for primitive types.
+        //:
+        //:  2 'is_polymorphic' returns 0 for pointer or reference types.
+        //:
+        //:  3 'is_polymorphic' returns 0 for Enum types.
+        //:
+        //:  4 'is_polymorphic' reutrns 0 for Union types.
+        //:
+        //:  5 'is_polymorphic' returns 0 for non-polymorphic class type.
+        //:
+        //:  6 'is_polymorphic' returns 0 for polymorphic class types.
+        //:
+        //:  7 'is_polymorphic' returns the same value if the argument type is
+        //:    cv-qualified.
         //
         // Test Plan:
-        //   Instantiate 'bsl::is_polymorphic' with various types and verify
-        //   that their 'value' member is initialized properly.
+        //   Verify that 'bsl::is_polymorphic' returns the correct values
+        //   for each concern.
         //
         // Testing:
-        //   bsl::is_polymorphic
+        //   bsl::is_polymorphic::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::is_polymorphic'\n"
-                            "\n=====================\n");
+        if (verbose) printf("\n'bsl::is_polymorphic::value'\n"
+                            "\n============================\n");
 
         ASSERT(0 == bsl::is_polymorphic<void>::value);
 
@@ -615,7 +628,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bsl::is_polymorphic<Struct *const volatile>::value);
 
 // The following cases fail to compile on platforms that do not support an
-// instrinsic operation to check this trait.  It may be possible to detect
+// intrinsic operation to check this trait.  It may be possible to detect
 // 'union' types in C++11 with extended SFINAE, but all compilers known to
 // implement extended SFINAE also provide an appropriate traits intrinsic.
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)
@@ -844,12 +857,25 @@ int main(int argc, char *argv[])
         //   review.  However, it is important to record the limits of this
         //   component in corner cases, so we add tests for known issues as
         //   they arise.
+        //
         // Concerns:
+        //: 1 'bslmf::IsPolymorphic' returns 'false' (correctly) for
+        //:   non-polymorphic types using virtual inheritance on AIX only; on
+        //:   other platforms, the meta-function returns 'true' (incorrectly).
+        //:
+        //: 2 'bslmf::IsPolymorphic' returns 'false' for non-polymorphic types
+        //:   using multiple inheritance.
+        //:
+        //: 3 'bslmf::IsPolymorphic' returns 'true' for polymorphic types using
+        //:   virtual inheritance.
+        //:
+        //: 4 'bslmf::IsPolymorphic' returns 'true' for polymorphic types that
+        //:   multiply inherit from (possibly a combination of) base types
+        //:   that use virtual inheritance and/or regular inheritance.
         //
         // Plan:
-        //   Ensure that types using (possibly a combination of) virtual
-        //   inheritance and multiple inheritance is evaluated correctly for
-        //   different types of compilers.
+        //   Verify that 'bslmf::IsPolymorphic' returns the correct values
+        //   for each concern.
         //
         // Tactics:
         //   - Add-Hoc Data Selection Method
@@ -955,7 +981,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == bslmf::IsPolymorphic<MultiplyDerived *volatile>::value);
         ASSERT(0 ==
                 bslmf::IsPolymorphic<MultiplyDerived *const volatile>::value);
-
 
         ASSERT(1 == bslmf::IsPolymorphic<Poly1               >::value);
         ASSERT(1 == bslmf::IsPolymorphic<Poly1 const         >::value);
@@ -1099,18 +1124,36 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsPolymorphic'
+        // 'bslmf::IsPolymorphic::VALUE'
+        //   Ensure that 'bslmf::IsPolymorphic' returns the correct values for
+        //   a variety of template parameter types.
+        //
+        // Concerns:
+        //:  1 'IsPolymorphic' returns 0 for primitive types.
+        //:
+        //:  2 'IsPolymorphic' returns 0 for pointer or reference types.
+        //:
+        //:  3 'IsPolymorphic' returns 0 for Enum types.
+        //:
+        //:  4 'IsPolymorphic' reutrns 0 for Union types.
+        //:
+        //:  5 'IsPolymorphic' returns 0 for non-polymorphic class type.
+        //:
+        //:  6 'IsPolymorphic' returns 0 for polymorphic class types.
+        //:
+        //:  7 'IsPolymorphic' returns the same value if the argument type is
+        //:    cv-qualified.
         //
         // Test Plan:
-        //   Instantiate 'bslmf::IsPolymorphic' with various types and verify
-        //   that their 'VALUE' member is initialized properly.
+        //   Verify that 'bslmf::IsPolymorphic' returns the correct values
+        //   for each concern.
         //
         // Testing:
-        //   bslmf::IsPolymorphic
+        //   bslmf::IsPolymorphic::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bslmf::IsPolymorphic'\n"
-                            "\n======================\n");
+        if (verbose) printf("\n'bslmf::IsPolymorphic::VALUE'\n"
+                            "\n=============================\n");
 
         ASSERT(0 == bslmf::IsPolymorphic<void>::value);
 
@@ -1178,7 +1221,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bslmf::IsPolymorphic<Struct *const volatile>::value);
 
 // The following cases fail to compile on platforms that do not support an
-// instrinsic operation to check this trait.  It may be possible to detect
+// intrinsic operation to check this trait.  It may be possible to detect
 // 'union' types in C++11 with extended SFINAE, but all compilers known to
 // implement extended SFINAE also provide an appropriate traits intrinsic.
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)
@@ -1412,7 +1455,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

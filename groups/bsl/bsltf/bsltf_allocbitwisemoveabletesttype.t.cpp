@@ -1071,7 +1071,7 @@ int main(int argc, char *argv[]) {
                       } break;
                       default: {
                         ASSERTV(CONFIG, !"Bad allocator config.");
-                      } break;
+                      } return testStatus;                            // RETURN
                     }
                     ASSERTV(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
@@ -1154,7 +1154,7 @@ int main(int argc, char *argv[]) {
         //:   violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' atrribute 'D', 'A',
+        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
         //:   the the boundary values.
         //:
@@ -1181,7 +1181,7 @@ int main(int argc, char *argv[]) {
         //:     (C-2..4)
         //:
         //:   4 Use the appropriate test allocators to verify that the
-        //:     approporiate amount of memory is allocated by the default
+        //:     appropriate amount of memory is allocated by the default
         //:     constructor.  (C-9)
         //:
         //:   5 Use the individual (as yet unproven) salient attribute
@@ -1230,7 +1230,6 @@ int main(int argc, char *argv[]) {
             switch (CONFIG) {
               case 'a': {
                 objAllocatorPtr = &da;
-
               } break;
               case 'b': {
                 objAllocatorPtr = &da;
@@ -1240,7 +1239,7 @@ int main(int argc, char *argv[]) {
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
-              } break;
+              } return testStatus;                                    // RETURN
             }
 
             bslma::TestAllocator&  oa = *objAllocatorPtr;
@@ -1262,7 +1261,7 @@ int main(int argc, char *argv[]) {
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                  } break;
+                  } return testStatus;                                // RETURN
                 }
                 ASSERTV(CONFIG, tam.isInUseUp());
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
@@ -1373,7 +1372,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

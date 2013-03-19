@@ -719,7 +719,6 @@ bslma::Allocator *Customer::allocator() const
 
 ..
  Again for simplicity the rest of the implementation is not provided.
-..
 
 /Example 2: Implementing Templates That May Be Supplied Allocating Types
 /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

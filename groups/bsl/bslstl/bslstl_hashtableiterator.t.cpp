@@ -980,7 +980,7 @@ void TestDriver<VALUE>::testCase4()
         const Obj& X = mX;
         ASSERTV(ti, X.node() == nodes[ti]);
         ASSERTV(ti, *X == nodes[ti]->value());
-        ASSERTV(ti, X.operator->() == BSLS_UTIL_ADDRESSOF(nodes[ti]->value()));
+        ASSERTV(ti, X.operator->() == bsls::Util::addressOf(nodes[ti]->value()));
     }
 
     // Clean up the nodes.
@@ -1382,7 +1382,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

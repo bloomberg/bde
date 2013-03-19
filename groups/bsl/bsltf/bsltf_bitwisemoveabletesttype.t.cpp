@@ -1,9 +1,10 @@
 // bsltf_bitwisemoveabletesttype.t.cpp                                -*-C++-*-
 #include <bsltf_bitwisemoveabletesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
@@ -301,8 +302,8 @@ int main(int argc, char *argv[]) {
         //:     same value as 'ZZ'.  (C-5)
         //
         // Testing:
-        //   BitwiseMoveableTestType& operator=(const BitwiseMoveableTestType& rhs);
-        // --------------------------------------------------------------------
+        //  BitwiseMoveableTestType& operator=(const BitwiseMoveableTestType&);
+        // -------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
                             "\n========================\n");
@@ -648,7 +649,7 @@ int main(int argc, char *argv[]) {
         //:   violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' atrribute 'D', 'A',
+        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
         //:   the the boundary values.
         //:
@@ -657,7 +658,7 @@ int main(int argc, char *argv[]) {
         //:   default-constructed value.  (C-1)
         //:
         //: 3 Set and object's 'data' attribute to 'A' and 'B'.  Verify the
-        //:   state of object using the (as yet unproven) salient attriubte
+        //:   state of object using the (as yet unproven) salient attribute
         //:   accessors.  (C-2)
         //
         // Testing:
@@ -743,7 +744,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

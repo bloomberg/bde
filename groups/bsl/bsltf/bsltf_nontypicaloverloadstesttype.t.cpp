@@ -1,9 +1,9 @@
 // bsltf_nontypicaloverloadstesttype.t.cpp                            -*-C++-*-
 #include <bsltf_nontypicaloverloadstesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -195,7 +195,7 @@ int main(int argc, char *argv[]) {
 // assertion:
 //..
           NonTypicalOverloadsTestType obj;
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete &obj);
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete bsls::Util::addressOf(obj));
 //..
 
       } break;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
           BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
 
           NonTypicalOverloadsTestType obj;
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete &obj);
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete bsls::Util::addressOf(obj));
 
 
           bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -231,11 +231,13 @@ int main(int argc, char *argv[]) {
 
           scratch.deallocate(reinterpret_cast<void*>(arr));
 
-#ifdef BSLS_PLATFORM_CMP_MSVC
+#if defined(BSLS_PLATFORM_CMP_MSVC) && 0
+          // If 'operator&' is private, this test is not necessary, and in fact
+          // will not compile.
+
           NonTypicalOverloadsTestType X;
           BSLS_ASSERTTEST_ASSERT_OPT_FAIL(&X);
 #endif
-
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -658,7 +660,7 @@ int main(int argc, char *argv[]) {
         //:   violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' atrribute 'D', 'A',
+        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
         //:   the the boundary values.
         //:
@@ -667,7 +669,7 @@ int main(int argc, char *argv[]) {
         //:   default-constructed value.  (C-1)
         //:
         //: 3 Set and object's 'data' attribute to 'A' and 'B'.  Verify the
-        //:   state of object using the (as yet unproven) salient attriubte
+        //:   state of object using the (as yet unproven) salient attribute
         //:   accessors.  (C-2)
         //
         // Testing:
@@ -751,7 +753,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

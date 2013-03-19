@@ -591,9 +591,10 @@ ProtocolTestImp<BSLS_PROTOCOL>::operator->()
 
 template <class BSLS_PROTOCOL>
 inline
-void ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(ProtocolTest_Status *status)
+void
+ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(ProtocolTest_Status *testStatus)
 {
-    d_status = status;
+    d_status = testStatus;
 }
 
 template <class BSLS_PROTOCOL>
@@ -758,7 +759,7 @@ bool ProtocolTest<BSLS_TESTIMP>::lastStatus() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

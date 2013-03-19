@@ -1,19 +1,16 @@
 // bslmf_removepointer.t.cpp                                          -*-C++-*-
 #include <bslmf_removepointer.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::atoi;
 
 //=============================================================================
 //                                TEST PLAN
@@ -78,10 +75,10 @@ struct TestType {
 
 void funcWithDefaultArg(int arg = 0);
 
-template <typename TYPE>
+template <class TYPE>
 void testFuncPtrType(TYPE)
     // Removing a pointer from some function pointer types can be problematic
-    // for some compilers (e.g. AIX xlC).
+    // for some compilers (e.g., AIX xlC).
 {
     // First remove the pointer from the function pointer type and make sure it
     // compiles.
@@ -215,7 +212,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

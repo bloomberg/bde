@@ -689,7 +689,7 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CPU_X86)
 
-#   if defined(BSLS_PLATFORM_CMP_GNU)
+#   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #       include <bsls_atomicoperations_x86_all_gcc.h>
 #   elif defined(BSLS_PLATFORM_CMP_MSVC)
 #       include <bsls_atomicoperations_x86_win_msvc.h>
@@ -699,7 +699,7 @@ BSLS_IDENT("$Id: $")
 
 #elif defined(BSLS_PLATFORM_CPU_X86_64)
 
-#   if defined(BSLS_PLATFORM_CMP_GNU)
+#   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #       include <bsls_atomicoperations_x64_all_gcc.h>
 #   elif defined(BSLS_PLATFORM_CMP_MSVC)
 #       include <bsls_atomicoperations_x64_win_msvc.h>
@@ -1506,7 +1506,7 @@ void *AtomicOperations::testAndSwapPtrAcqRel(
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

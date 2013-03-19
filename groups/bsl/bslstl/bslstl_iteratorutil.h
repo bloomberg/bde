@@ -61,11 +61,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
-
 namespace BloombergLP {
 namespace bslstl {
 
@@ -78,8 +73,8 @@ struct IteratorUtil {
     // iterator ranges.
 
     template <class InputIterator>
-    static native_std::size_t insertDistance(InputIterator first,
-                                             InputIterator last);
+    static typename bsl::iterator_traits<InputIterator>::difference_type
+    insertDistance(InputIterator first, InputIterator last);
         // Return 0 if the (template parameter) type 'InputIterator' is limited
         // to the standard input-iterator category, otherwise return the number
         // of elements that is reachable from the specified 'first' to (but not
@@ -101,8 +96,8 @@ struct IteratorUtil {
                     // ------------------
 
 template <class InputIterator>
-native_std::size_t IteratorUtil::insertDistance(InputIterator first,
-                                                InputIterator last)
+typename bsl::iterator_traits<InputIterator>::difference_type
+IteratorUtil::insertDistance(InputIterator first, InputIterator last)
 {
     struct impl {
         // This local class provides a utility to estimate the maximum
@@ -110,16 +105,18 @@ native_std::size_t IteratorUtil::insertDistance(InputIterator first,
         // operation on a standard container, by performing tag dispatch
         // on the iterator's category type.
 
-        static native_std::size_t calc(InputIterator, // first
-                                       InputIterator, // last
-                                       native_std::input_iterator_tag)
+        static
+        typename bsl::iterator_traits<InputIterator>::difference_type
+        calc(InputIterator, InputIterator, native_std::input_iterator_tag)
         {
             return 0;
         }
 
-        static native_std::size_t calc(InputIterator first,
-                                       InputIterator last,
-                                       native_std::forward_iterator_tag)
+        static
+        typename bsl::iterator_traits<InputIterator>::difference_type
+        calc(InputIterator first,
+             InputIterator last,
+             native_std::forward_iterator_tag)
         {
             return bsl::distance(first, last);
         }
@@ -136,7 +133,7 @@ native_std::size_t IteratorUtil::insertDistance(InputIterator first,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

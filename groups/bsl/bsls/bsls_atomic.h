@@ -236,8 +236,8 @@ BSLS_IDENT("$Id: $")
 //  class my_CountedHandleRep {
 //
 //      // DATA
-//      bsls::AtomicInt  d_count;        // number of active references
 //      INSTANCE        *d_instance_p;   // address of managed instance
+//      bsls::AtomicInt  d_count;        // number of active references
 //
 //      // FRIENDS
 //      friend class my_CountedHandle<INSTANCE>;
@@ -1474,7 +1474,7 @@ TYPE *AtomicPointer<TYPE>::loadAcquire() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

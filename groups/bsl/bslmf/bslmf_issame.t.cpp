@@ -3,11 +3,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -16,7 +15,7 @@ using namespace std;
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_same' and
 // 'bslmf::IsSame', that determine whether two template parameter types are
-// same.  Thus, we need to ensure that the value returned by these
+// same.  Thus, we need to ensure that the values returned by these
 // meta-functions are correct for each possible pair of types.  Since the two
 // meta-functions are functionally equivalent, we will use the same set of
 // types for both.
@@ -101,7 +100,6 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void) verbose;          // eliminate unused variable warning
     (void) veryVerbose;      // eliminate unused variable warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
@@ -133,10 +131,10 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Determine Same Types
 ///- - - - - - - - - - - - - - - -
-// Suppose that we have a couple of pairs of types and want to assert whether
-// the types in each pair are same.
+// Suppose that we have several pairs of types and want to assert whether the
+// types in each pair are the same.
 //
-// First, we create some 'typedef's to define some types:
+// First, we define several 'typedef's:
 //..
     typedef       int    INT;
     typedef       double DOUBLE;
@@ -145,7 +143,7 @@ int main(int argc, char *argv[])
     typedef       int    INT;
     typedef       int&   INT_REF;
 //..
-// Now, we instantiate the 'bsl::is_same' template for a certain pairs of the
+// Now, we instantiate the 'bsl::is_same' template for certain pairs of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
     ASSERT(true  == (bsl::is_same<INT, INT>::value));
@@ -170,11 +168,11 @@ int main(int argc, char *argv[])
         //   'TYPE2' has the correct value.
         //
         // Concerns:
-        //: 1 'IsSame::VALUE' is '1' when the two template parameters types are
-        //:   of same type.
+        //: 1 'IsSame::VALUE' is 1 when the two template parameter types are
+        //:   the same.
         //:
-        //: 2 'IsSame::VALUE' is '0' when the two template parameters types are
-        //:   not of the same type.
+        //: 2 'IsSame::VALUE' is 0 when the two template parameter types are
+        //:   not the same.
         //
         // Plan:
         //   Instantiate 'bslmf::IsSame' with various combinations of types and
@@ -184,8 +182,8 @@ int main(int argc, char *argv[])
         //   bslmf::IsSame::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bslmf::IsSame\n"
-                            "=============\n");
+        if (verbose) printf("bslmf::IsSame::VALUE\n"
+                            "====================\n");
 
         ASSERT(1 == (bslmf::IsSame<int, int>::VALUE));
         ASSERT(1 == (bslmf::IsSame<short, short>::VALUE));
@@ -266,11 +264,11 @@ int main(int argc, char *argv[])
         //   'TYPE2' has the correct value.
         //
         // Concerns:
-        //: 1 'is_same::value' is 'true' when the two template parameters types
-        //:   are of same type.
+        //: 1 'is_same::value' is 'true' when the two template parameter types
+        //:   are the same.
         //:
-        //: 2 'is_same::value' is 'false' when the two template parameters
-        //:   types are not of the same type.
+        //: 2 'is_same::value' is 'false' when the two template parameter types
+        //:   are not the same.
         //
         // Plan:
         //   Instantiate 'bsl::is_same' with various combinations of types and
@@ -280,8 +278,8 @@ int main(int argc, char *argv[])
         //   bsl::is_same::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_same\n"
-                            "============\n");
+        if (verbose) printf("bsl::is_same::value\n"
+                            "===================\n");
 
         ASSERT(true  == (bsl::is_same<int, int>::value));
         ASSERT(true  == (bsl::is_same<short, short>::value));
@@ -367,7 +365,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

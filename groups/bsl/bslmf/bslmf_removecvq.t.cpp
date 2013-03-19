@@ -2,11 +2,11 @@
 
 #include <bslmf_removecvq.h>
 
-#include <bslmf_issame.h>   // for testing only
 #include <bslmf_assert.h>   // for testing only
+#include <bslmf_issame.h>   // for testing only
 
-#include <cstdlib>     // atoi()
-#include <cstring>     // strcmp()
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 #include <iostream>
 
 using namespace BloombergLP;
@@ -58,12 +58,12 @@ static void aSsErT(int c, const char *s, int i) {
 
 struct MyType {};
 
-template <typename TYPE>
+template <class TYPE>
 bool isSame(TYPE& a, TYPE& b) { return true; }
-template <typename TYPEA, typename TYPEB>
+template <class TYPEA, class TYPEB>
 bool isSame(TYPEA& a, TYPEB& b) { return false; }
 
-template <typename TYPEA, typename TYPEB>
+template <class TYPEA, class TYPEB>
 bool isSortaSame(TYPEA& a, TYPEB& b)
 {
     typename bslmf::RemoveCvq<TYPEA>::Type aa = a;
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -214,11 +214,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_util.h>
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
-
 namespace BloombergLP {
 namespace bslstl {
 
@@ -251,6 +246,9 @@ class BidirectionalNodePool {
     // PUBLIC TYPE
     typedef typename Pool::AllocatorType AllocatorType;
         // Alias for the allocator type defined by 'SimplePool'.
+
+    typedef typename AllocatorTraits::size_type size_type;
+        // Alias for the 'size_type' of the allocator defined by 'SimplePool'.
 
   public:
     // CREATORS
@@ -318,9 +316,10 @@ class BidirectionalNodePool {
         // The behavior is undefined unless 'node' refers to a
         // 'bslalg::BidirectionalNode<VALUE>' that was allocated by this pool.
 
-    void reserveNodes(native_std::size_t numNodes);
+    void reserveNodes(size_type numNodes);
         // Reserve memory from this pool to satisfy memory requests for at
-        // least the specified 'numNodes' before the pool replenishes.
+        // least the specified 'numNodes' before the pool replenishes.  The
+        // behavior is undefined unless '0 < numNodes'.
 
     void swapRetainAllocators(BidirectionalNodePool& other);
         // Efficiently exchange the nodes of this object with those of the
@@ -403,7 +402,7 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::createNode()
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
-                               BSLS_UTIL_ADDRESSOF(node->value()));
+                               bsls::Util::addressOf(node->value()));
 
     proctor.release();
     return node;
@@ -419,7 +418,7 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::createNode(const SOURCE& value)
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
-                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               bsls::Util::addressOf(node->value()),
                                value);
     proctor.release();
     return node;
@@ -436,7 +435,7 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::createNode(const FIRST_ARG&  first,
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
-                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               bsls::Util::addressOf(node->value()),
                                first,
                                second);
     proctor.release();
@@ -463,14 +462,13 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::deleteNode(
     bslalg::BidirectionalNode<VALUE> *node =
                      static_cast<bslalg::BidirectionalNode<VALUE> *>(linkNode);
     AllocatorTraits::destroy(allocator(),
-                             BSLS_UTIL_ADDRESSOF(node->value()));
+                             bsls::Util::addressOf(node->value()));
     d_pool.deallocate(node);
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
-void BidirectionalNodePool<VALUE, ALLOCATOR>::reserveNodes(
-                                                   native_std::size_t numNodes)
+void BidirectionalNodePool<VALUE, ALLOCATOR>::reserveNodes(size_type numNodes)
 {
     BSLS_ASSERT_SAFE(0 < numNodes);
 
@@ -521,7 +519,7 @@ void bslstl::swap(bslstl::BidirectionalNodePool<VALUE, ALLOCATOR>& a,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

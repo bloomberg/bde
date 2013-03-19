@@ -5,27 +5,33 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bslma_default.h>
 #include <bslma_allocator.h>
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_mallocfreeallocator.h>
+#include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
+#include <bslmf_issame.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_objectbuffer.h>
 
-#include <stdexcept>
-#include <algorithm>
-#include <functional>
-
+#include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
-#include <bsltf_stdtestallocator.h>
+
+#include <algorithm>
+#include <functional>
+#include <stdexcept>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -753,18 +759,46 @@ class DummyAllocator {
                        // =========================
 
 template <class KEY, class VALUE>
-class CharToPairConverter {
+struct CharToPairConverter {
     // Convert a 'char' value to a 'bsl::pair' of the parameterized 'KEY' and
     // 'VALUE' type.
 
-  public:
-    bsl::pair<const KEY, VALUE> operator()(char value)
+    // CLASS METHODS
+    static void createInplace(bsl::pair<const KEY, VALUE> *address,
+                              char                         value,
+                              bslma::Allocator            *allocator)
     {
-        // Use different values for 'KEY' and 'VALUE'
+        BSLS_ASSERT(address);
+        BSLS_ASSERT(allocator);
+        BSLS_ASSERT(0 < value);
+        BSLS_ASSERT(value < 128);
 
-        return bsl::pair<const KEY, VALUE> (
-                bsltf::TemplateTestFacility::create<KEY>(value),
-                bsltf::TemplateTestFacility::create<VALUE>(value - 'A' + '0'));
+        // If creating the 'key' and 'value' temporary objects requires an
+        // allocator, it should not be the default allocator as that will
+        // confuse the arithmetic of our test machinery.  Therefore, we will
+        // use the global MallocFree allocator, as being the simplest, least
+        // obtrusive allocator that is also unlikely to be employed by an end
+        // user.
+
+        bslma::Allocator *privateAllocator =
+                                      &bslma::MallocFreeAllocator::singleton();
+        
+        bsls::ObjectBuffer<KEY> tempKey;
+        bsltf::TemplateTestFacility::emplace(
+                                       bsls::Util::addressOf(tempKey.object()),
+                                       value,
+                                       privateAllocator);
+
+        bsls::ObjectBuffer<VALUE> tempValue;
+        bsltf::TemplateTestFacility::emplace(
+                                     bsls::Util::addressOf(tempValue.object()),
+                                     value - 'A' + '0',
+                                     privateAllocator);
+
+        bslalg::ScalarPrimitives::construct(address,
+                                            tempKey.object(),
+                                            tempValue.object(),
+                                            allocator);
     }
 };
 
@@ -977,6 +1011,13 @@ class TestDriver {
         // *test* nothing.
 };
 
+template <class KEY, class VALUE = KEY>
+class StdAllocTestDriver : public TestDriver<KEY,
+                                             VALUE,
+                                             TestComparator<KEY>,
+                                             bsltf::StdTestAllocator<KEY> > {
+};
+
                                // --------------
                                // TEST APPARATUS
                                // --------------
@@ -986,8 +1027,6 @@ int TestDriver<KEY, VALUE, COMP, ALLOC>::ggg(Obj        *object,
                                       const char *spec,
                                       int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(
-                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1526,6 +1565,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
 
             ASSERTV(LINE, 0 == da.numBlocksTotal());
 
+#if defined(BDE_BUILD_TARGET_EXC)
             if (veryVeryVerbose) printf("Test correct exception is thrown\n");
             {
                 bool exceptionCaught = false;
@@ -1576,6 +1616,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
                 }
                 ASSERTV(LINE, SIZE, SIZE + 1 == X.size());
             }
+#endif
 
             ASSERTV(LINE, 0 == da.numBlocksInUse());
         }
@@ -6601,10 +6642,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STL ALLOCATOR
         // --------------------------------------------------------------------
-        RUN_EACH_TYPE(TestDriver,
+        RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase22,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        TestDriver<TestKeyType, TestValueType>::testCase22();
+        StdAllocTestDriver<TestKeyType, TestValueType>::testCase22();
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -6883,7 +6924,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -75,7 +75,7 @@ struct is_const : false_type {
 template <class TYPE>
 struct is_const<TYPE const> : true_type {
      // This partial specialization of 'is_const', for when the (template
-     // parameter) TYPE is 'const'-qualified, derives from 'bsl::true_type'.
+     // parameter) 'TYPE' is 'const'-qualified, derives from 'bsl::true_type'.
 };
 
 }  // close namespace bsl
@@ -83,7 +83,7 @@ struct is_const<TYPE const> : true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

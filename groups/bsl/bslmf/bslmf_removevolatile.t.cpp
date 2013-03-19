@@ -1,27 +1,25 @@
 // bslmf_removevolatile.t.cpp                                         -*-C++-*-
 #include <bslmf_removevolatile.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
-#include <cstdlib>
-#include <cstdio>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::atoi;
-using std::printf;
-using std::fprintf;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-functions, 'bsl::remove_volatile',
+// The component under test defines a meta-function, 'bsl::remove_volatile',
 // that removes any top-level 'volatile'-qualifier from a template parameter
 // type.  Thus, we need to ensure that the values returned by the meta-function
-// is correct for each possible category of types.
+// are correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -145,7 +143,8 @@ int main(int argc, char *argv[])
         //: 1 'bsl::remove_volatile' leaves types that are not
         //:   'volatile'-qualified at the top-level as-is.
         //:
-        //: 2 'bsl::remove_volatile' remove any top-level 'volatile'-qualifier.
+        //: 2 'bsl::remove_volatile' removes any top-level
+        //:   'volatile'-qualifier.
         //
         // Plan:
         //   Verify that 'bsl::remove_volatile::type' has the correct type for
@@ -193,7 +192,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

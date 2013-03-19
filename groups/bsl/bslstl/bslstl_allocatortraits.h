@@ -392,12 +392,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
-#include <bslalg_scalarprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #include <bslalg_scalardestructionprimitives.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -412,9 +412,13 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_nativestd.h>
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
 #ifndef INCLUDED_UTILITY
 #include <utility>         // 'std::forward'
 #define INCLUDED_UTILITY
+#endif
+
 #endif
 
 
@@ -490,7 +494,7 @@ struct allocator_traits {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template <class ELEMENT_TYPE>
     using rebind_alloc =
-           typename ALLOCATOR_TYPE::template rebind<Alloc,ELEMENT_TYPE>::other;
+                 typename ALLOCATOR_TYPE::template rebind<ELEMENT_TYPE>::other;
 
     template <class ELEMENT_TYPE>
     using rebind_traits = allocator_traits<rebind_alloc<ELEMENT_TYPE> >;
@@ -760,7 +764,7 @@ typename allocator_traits<ALLOCATOR_TYPE>::pointer
 allocator_traits<ALLOCATOR_TYPE>::allocate(ALLOCATOR_TYPE& allocator,
                                            size_type n)
 {
-    return allocator.allocate(n, 0);
+    return allocator.allocate(n);
 }
 
 template <class ALLOCATOR_TYPE>
@@ -973,7 +977,7 @@ allocator_traits<ALLOCATOR_TYPE>::select_on_container_copy_construction(
 #endif // ! defined(INCLUDED_BSLSTL_ALLOCATORTRAITS)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

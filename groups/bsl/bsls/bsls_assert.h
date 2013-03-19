@@ -1300,8 +1300,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // A nested include guard is needed to support the test driver implementation.
-#ifndef INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
-#define INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
+#ifndef RECUSRSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
+#define RECUSRSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
 
 #ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
 #define BSLS_ASSERT_NORETURN_INVOKE_HANDLER  BSLS_ASSERT_NORETURN
@@ -1527,7 +1527,7 @@ class AssertFailureHandlerGuard {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -755,9 +755,13 @@ int main(int argc, char *argv[])
                     bsls::AssertTest::failTestDriver);
 
             int * null = 0;
+            (void) null;  // Suppress 'unused variable' warnings
+                          // in non-SAFE modes
             ASSERT_SAFE_FAIL(Obj::destroy(null));
 
             int x = 0;
+            (void) x;     // Suppress 'unused variable' warnings
+                          // in non-SAFE modes
             ASSERT_SAFE_PASS(Obj::destroy(&x));
         }
       } break;
@@ -844,7 +848,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

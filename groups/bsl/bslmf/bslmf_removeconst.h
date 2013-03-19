@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing the 'const'-qualifier of a Type
+///Example 1: Removing the 'const'-Qualifier of a Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to remove any top-level 'const'-qualifier from a
 // particular type.
@@ -53,7 +53,7 @@ namespace bsl {
                          // struct remove_const
                          // ===================
 
-template <typename TYPE>
+template <class TYPE>
 struct remove_const {
     // This 'struct' template implements the 'remove_const' meta-function
     // defined in the C++11 standard [meta.trans.cv], providing an alias,
@@ -73,17 +73,16 @@ struct remove_const {
                          // struct remove_const<TYPE const>
                          // ===============================
 
-template <typename TYPE>
+template <class TYPE>
 struct remove_const<TYPE const> {
      // This partial specialization of 'bsl::remove_const', for when the
-     // (template parameter) 'TYPE' is 'const'-qualified, provides a 'typedef'
-     // 'type' that has the 'const'-qualifier removed.
+     // (template parameter) 'TYPE' is 'const'-qualified, provides a 'typedef',
+     // 'type', that has the 'const'-qualifier removed.
 
     // PUBLIC TYPES
     typedef TYPE type;
-        // This 'typedef' to a type that is the same as the (template
+        // This 'typedef' is an alias to the same type as the (template
         // parameter) 'TYPE' except with the 'const'-qualifier removed.
-
 };
 
 }  // close namespace bsl
@@ -91,7 +90,7 @@ struct remove_const<TYPE const> {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

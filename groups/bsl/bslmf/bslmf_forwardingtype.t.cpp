@@ -1,11 +1,12 @@
 // bslmf_forwardingtype.t.cpp                                         -*-C++-*-
 #include <bslmf_forwardingtype.h>
 
+#include <bslmf_isarray.h>
 #include <bslmf_issame.h>          // for testing only
 
-#include <bslmf_isarray.h>
+#include <bsls_platform.h>
 
-#include <cstdlib>    // atoi()
+#include <stdlib.h>    // atoi()
 #include <iostream>
 #include <typeinfo>
 
@@ -322,7 +323,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

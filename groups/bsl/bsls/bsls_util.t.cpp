@@ -118,22 +118,28 @@ enum CvQualification {
     CVQ_CONST_VOLATILE
 };
 
-template <typename T>
+template <class T>
 inline
 CvQualification cvqOfPtr(T *) { return CVQ_UNQUALIFIED; }
 
-template <typename T>
+template <class T>
 inline
 CvQualification cvqOfPtr(const T *) { return CVQ_CONST; }
 
-template <typename T>
+template <class T>
 inline
 CvQualification cvqOfPtr(volatile T *) { return CVQ_VOLATILE; }
 
-template <typename T>
+template <class T>
 inline
 CvQualification cvqOfPtr(const volatile T *) { return CVQ_CONST_VOLATILE; }
 
+namespace TestFuncs
+{
+void a() {}
+int b(double&) { return 0; }
+double *c(const int &, volatile double) { return 0; }
+}  // close namespace TestFuncs
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -159,7 +165,7 @@ CvQualification cvqOfPtr(const volatile T *) { return CVQ_CONST_VOLATILE; }
 
       public:
         // CREATORS
-        BitReference(char *byteptr = 0, int bitpos = 0)
+        BitReference(char *byteptr = 0, int bitpos = 0)             // IMPLICIT
         : d_byte_p(byteptr)
         , d_bitpos(bitpos)
         {
@@ -182,7 +188,7 @@ CvQualification cvqOfPtr(const volatile T *) { return CVQ_CONST_VOLATILE; }
 
       public:
         // CREATORS
-        BitPointer(char *byteptr = 0, int bitpos = 0)
+        BitPointer(char *byteptr = 0, int bitpos = 0)               // IMPLICIT
         : d_byte_p(byteptr)
         , d_bitpos(bitpos)
         {
@@ -408,6 +414,10 @@ int main(int argc, char *argv[])
         ASSERT(CVQ_CONST          == cvqOfPtr(bsls::Util::addressOf( crx)));
         ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls::Util::addressOf( vrx)));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls::Util::addressOf(cvrx)));
+
+        ASSERT(TestFuncs::a == bsls::Util::addressOf(TestFuncs::a));
+        ASSERT(TestFuncs::b == bsls::Util::addressOf(TestFuncs::b));
+        ASSERT(TestFuncs::c == bsls::Util::addressOf(TestFuncs::c));
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -497,7 +507,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

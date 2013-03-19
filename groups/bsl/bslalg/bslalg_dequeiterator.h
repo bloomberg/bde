@@ -369,28 +369,6 @@ class DequeIterator<VALUE_TYPE, 1> {
     VALUE_TYPE *valuePtr() const;
 };
 
-}  // close package namespace
-
-}  // close enterprise namespace
-
-// ===========================================================================
-//                                TYPE TRAITS
-// ===========================================================================
-
-namespace bsl {
-
-template <typename VALUE_TYPE, int BLOCK_LENGTH>
-struct is_trivially_copyable<BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
-                                                                BLOCK_LENGTH> >
-    : true_type
-{};
-
-}  // close namespace bsl
-
-namespace BloombergLP {
-
-namespace bslalg {
-
 // ===========================================================================
 //                         INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -856,10 +834,24 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
 
 }  // close enterprise namespace
 
+// ===========================================================================
+//                                TYPE TRAITS
+// ===========================================================================
+
+namespace bsl {
+
+template <typename VALUE_TYPE, int BLOCK_LENGTH>
+struct is_trivially_copyable<BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
+                                                                BLOCK_LENGTH> >
+    : true_type
+{};
+
+}  // close namespace bsl
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

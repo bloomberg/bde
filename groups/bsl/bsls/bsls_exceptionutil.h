@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 // Next, we declare the 'vector' template and its template parameters (note
 // that the majority of the implementation is elided, for clarity):
 //..
-//  template <typename VALUE, typename ALLOCATOR /* ... */>
+//  template <class VALUE, class ALLOCATOR /* ... */>
 //  class vector {
 //      // DATA
 //      VALUE *d_begin_p;
@@ -307,7 +307,7 @@ namespace BloombergLP
 #endif // ! defined(INCLUDED_BSLS_EXCEPTIONUTIL)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

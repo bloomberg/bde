@@ -102,12 +102,12 @@ namespace bslmf {
 struct MatchAnyType {
     // Any type can be converted into this type.
 
-    template <typename TYPE> MatchAnyType(const TYPE&) { }
+    template <class TYPE> MatchAnyType(const TYPE&) { }             // IMPLICIT
         // This constructor will match any rvalue or any non-volatile lvalue.
         // A non-const version of this constructor is not necessary and will
         // cause some compilers to complain of ambiguities.
 
-    template <typename TYPE> MatchAnyType(const volatile TYPE&) { }
+    template <class TYPE> MatchAnyType(const volatile TYPE&) { }    // IMPLICIT
         // This constructor will match any volatile lvalue.  According to the
         // standard, it should NOT match an rvalue.  A non-const version of
         // this constructor is not necessary and will cause some compilers to
@@ -118,7 +118,7 @@ struct MatchAnyType {
                         // class TypeRep
                         // =============
 
-template <typename TYPE>
+template <class TYPE>
 struct TypeRep {
     // Generate a reference to 'TYPE' for use in meta-functions.
 
@@ -128,7 +128,7 @@ struct TypeRep {
         // 'TYPE' has a default constructor or not.
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct TypeRep<TYPE&> {
     // Generate a reference to 'TYPE' for use in meta-functions.  This is a
     // partial specialization of 'TypeRep' instantiated with a reference.
@@ -147,7 +147,7 @@ struct TypeRep<TYPE&> {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

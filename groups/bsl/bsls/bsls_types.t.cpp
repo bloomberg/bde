@@ -532,14 +532,11 @@ int main(int argc, char *argv[])
         //     Since the size_type is generated, it is possible that the
         //     typedef statements concerned for those types were wrong.  We
         //     must ensure that:
-        //     - 'size_type' is a signed integer type
         //     - a size_type is at least as wide as an int.
-        //     - a size_type can contain the difference between two pointers.
         //
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
-        //   least as wide as an int.  Then cast a few values of different
-        //   signs to it, and assert that the sign is correct.
+        //   least as wide as an int.
         //
         // Testing:
         //   size_type
@@ -560,15 +557,15 @@ int main(int argc, char *argv[])
         ASSERT(sizeof(Types::size_type) >= sizeof(int));
 #endif
 
-        // Must be convertible (without error or warning) from a difference of
-        // two pointers.  Use some arbitrary values for this.
+        // Must be convertible (with possible change of sign) from a difference
+        // of two pointers.  Use some arbitrary values for this.
         Types::size_type zero     = std::ptrdiff_t(0);
         Types::size_type minusOne = std::ptrdiff_t(-1);
         Types::size_type posValue = std::ptrdiff_t(1048576);
 
-        // Must be signed.
+        // Must be unsigned
         ASSERT(0 == zero);
-        ASSERT(minusOne < 0);
+        ASSERT(minusOne > 0);
         ASSERT(0 <  posValue);
 
       } break;
@@ -629,7 +626,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

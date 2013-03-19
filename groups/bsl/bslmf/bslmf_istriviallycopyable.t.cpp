@@ -1,15 +1,14 @@
 // bslmf_istriviallycopyable.t.cpp                                    -*-C++-*-
 
-#include "bslmf_istriviallycopyable.h"
+#include <bslmf_istriviallycopyable.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::atoi;
 
 //=============================================================================
 //                                TEST PLAN
@@ -18,7 +17,7 @@ using std::atoi;
 //                                --------
 // The component under test defines a meta-function,
 // 'bsl::is_trivially_copyable', that determines whether a template parameter
-// type is trivially copyable.  By defualt, the meta-function supports a
+// type is trivially copyable.  By default, the meta-function supports a
 // restricted set of type categories and can be extended to support other types
 // through either template specialization or use of the
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
@@ -35,53 +34,40 @@ using std::atoi;
 //
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
-// [ 2] EXTENDING bsl::is_trivially_copyable::value
+// [ 2] EXTENDING bsl::is_trivially_copyable
 
 //=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
+//                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
-int testStatus = 0;
+static int testStatus = 0;
 
-namespace {
-    void aSsErT(int c, const char *s, int i) {
-    if (c) {
+void aSsErT(bool b, const char *s, int i)
+{
+    if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-}
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and be called during exception testing.
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s: %d\n", #I, I); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %d\n", #I, I, #J, J); \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %c\t%s: %c\n", #I, I, #J, J, #K, K); \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\t%s: %d\n", \
-                #I, I, #J, J, #K, K, #L, L); aSsErT(1, #X, __LINE__); } }
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  SEMI-STANDARD NEGATIVE-TESTING MACROS
@@ -169,9 +155,6 @@ int main(int argc, char *argv[])
 {
     int test                = argc > 1 ? atoi(argv[1]) : 0;
     int verbose             = argc > 2;
-    int veryVerbose         = argc > 3;
-    int veryVeryVerbose     = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -194,7 +177,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
-                              "\n=============\n");
+                            "\n=============\n");
 
 ///Usage
 ///-----
@@ -225,7 +208,7 @@ int main(int argc, char *argv[])
 //  template <>
 //  struct is_trivially_copyable<MyTriviallyCopyableType> : bsl::true_type {
 //      // This template specialization for 'is_trivially_copyable' indicates
-//      // that 'MyTriviallyCopyableType' is a trivially copyable.
+//      // that 'MyTriviallyCopyableType' is a trivially copyable type.
 //  };
 //
 //  }  // close namespace bsl
@@ -294,7 +277,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 The meta-function returns 'true' for fundamental types.
         //:
-        //: 3 The meta-function returns 'true' for enum types.
+        //: 3 The meta-function returns 'true' for enumerated types.
         //:
         //: 4 The meta-function returns 'true' for pointer types.
         //:
@@ -343,7 +326,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -1,6 +1,8 @@
 // bsls_buildtarget.cpp                                               -*-C++-*-
 #include <bsls_buildtarget.h>
 
+#include <bsls_bsltestutil.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
@@ -31,7 +33,7 @@ const int bsls::BuildTargetMtNo::s_isBuildTargetMt = 0;
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

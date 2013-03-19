@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify Member Function Object Types
-/// - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Verify Member Object Pointer Types
+///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are pointers to member
 // object types.
 //
@@ -121,7 +121,7 @@ struct is_member_object_pointer
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
