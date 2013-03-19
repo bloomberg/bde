@@ -17,7 +17,7 @@ using namespace std;
 // The component under test defines a meta-function,
 // 'bslmf::IsConvertibleToAny', that determines whether a template parameter
 // type can be converted to any type.  Thus, we need to ensure that the value
-// returned by this meta-function is correct for the type with the appropriate
+// returned by this meta-function is correct for the type with a template
 // conversion operator.
 //
 //-----------------------------------------------------------------------------
@@ -76,32 +76,18 @@ struct ConvertibleToAnyConst {
 //
 ///Example 1: Determine If a Class Has a Template Conversion Operator
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a class 'ValueInitializer' defined as follows:
+// Suppose that we want to assert whether a particular type has a template
+// conversion operator.
+//
+// First, we define a type with the template conversion operator:
 //..
-class ValueInitializer {
-    // This class provides a way to portably and predictably
-    // value-initialize objects of any type.
-
-  public:
-    template <typename TYPE>
-    operator TYPE() {
-        return TYPE();
-    }
-};
+    struct TypeWithTemplateConversion {
+        template <typename TYPE>
+        operator TYPE() {
+            return TYPE();
+        }
+    };
 //..
-// Possible purpose of such class could be to provide a convenient way to
-// value-initialize an object of any type.  For example:
-//..
-struct MyStruct {
-    int d_val;
-};
-
-// initialize an object of a generic type
-template <typename T>
-void foo() {
-    T val = ValueInitializer();
-    ASSERT(val == T());
-}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -136,24 +122,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// initialize an object of a fundamental type
-int val1 = ValueInitializer();
-ASSERT(val1 == 0);
-
-// initialize an object of an aggregate type
-MyStruct val2 = ValueInitializer();
-ASSERT(val2.d_val == 0);
-
-// initialize an object of a generic type
-foo<int>();
-foo<double>();
+// Now, we instantiate the 'bslmf::IsConvertibleToAny' template for
+// 'TypeWithTemplateConversion' and assert the 'value' of the instantiation:
 //..
-// To make the above code work 'ValueInitializer' needs to have a conversion
-// operator that allows to convert it to any type.  The existance of such
-// conversion operator can be checked with the 'bslmf::IsConvertibleToAny'
-// meta-function.
-//..
-ASSERT(bslmf::IsConvertibleToAny<ValueInitializer>::value);
+    ASSERT(bslmf::IsConvertibleToAny<TypeWithTemplateConversion>::value);
 //..
 
       } break;

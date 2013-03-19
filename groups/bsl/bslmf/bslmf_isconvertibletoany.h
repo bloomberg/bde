@@ -7,16 +7,17 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check type conversion to any other type.
+//@PURPOSE: Provide a compile-time check for types convertible to any type.
 //
 //@CLASSES:
-//  bslmf::IsConvertibleToAny: meta-function for checking conversion
+//  bslmf::IsConvertibleToAny: meta-function for detecting conversion
 //
 //@SEE_ALSO: bslmf_isconvertible, bslmf_integralconstant
 //
-//@DESCRIPTION: This component provides a meta-function that allows to check at
-// compile-time if the specified type can be converted to any other type using
-// a template conversion operator.
+//@DESCRIPTION: This component provides a meta-function,
+// 'bslmf::IsConvertibleToAny', that may be used to query (at compile-time)
+// whether a type has a templatized conversion operator allowing it to be
+// converted to any other type.
 //
 ///Usage
 //------
@@ -24,50 +25,22 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Determine If a Class Has a Template Conversion Operator
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a class 'ValueInitializer' defined as follows:
-//..
-//  class ValueInitializer {
-//      // This class provides a way to portably and predictably
-//      // value-initialize objects of any type.
+// Suppose that we want to assert whether a particular type has a template
+// conversion operator.
 //
-//    public:
+// First, we define a type with the template conversion operator:
+//..
+//  struct TypeWithTemplateConversion {
 //      template <typename TYPE>
 //      operator TYPE() {
 //          return TYPE();
 //      }
 //  };
 //..
-// Possible purpose of such class could be to provide a convenient way to
-// value-initialize an object of any type.  For example:
+// Now, we instantiate the 'bslmf::IsConvertibleToAny' template for
+// 'TypeWithTemplateConversion' and assert the 'value' of the instantiation:
 //..
-//  // initialize an object of a fundamental type
-//  int val1 = ValueInitializer();
-//  assert(val1 == 0);
-//
-//  // initialize an object of an aggregate type
-//  struct MyStruct {
-//      int d_val;
-//  };
-//
-//  MyStruct val2 = ValueInitializer();
-//  assert(val2.d_val == 0);
-//
-//  // initialize an object of a generic type
-//  template <typename T>
-//  void foo() {
-//      T val = ValueInitializer();
-//      assert(val == T());
-//  }
-//
-//  foo<int>();
-//  foo<double>();
-//..
-// To make the above code work 'ValueInitializer' needs to have a conversion
-// operator that allows to convert it to any type.  The existance of such
-// conversion operator can be checked with the 'bslmf::IsConvertibleToAny'
-// meta-function.
-//..
-//  assert(bslmf::IsConvertibleToAny<ValueInitializer>::value);
+//  assert(bslmf::IsConvertibleToAny<TypeWithTemplateConversion>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -92,11 +65,12 @@ namespace bslmf {
 
 template <typename TYPE>
 class IsConvertibleToAny_Imp {
-    // Implementation of the test if 'TYPE' is convertible to any type by
-    // trying to convert it to a privately defined type.
+    // This class template implements a component-private meta-function to
+    // determine if the (template parameter) 'TYPE' is convertible to any other
+    // type.
 
     struct UniqueType {
-        // A class convertible to this private type must have a template
+        // A type convertible to this private type must have a template
         // conversion operator.
     };
 
@@ -108,9 +82,10 @@ public:
 
 template <typename TYPE>
 struct IsConvertibleToAny : IsConvertibleToAny_Imp<TYPE>::Type {
-    // A meta-function to check if the template parameter 'TYPE' is convertible
-    // to any type.  'IsConvertibleToAny<TYPE>' derives from 'bsl::true_type'
-    // if 'TYPE' is convertible to any type and 'bsl::false_type' otherwise.
+    // This 'struct' template implements a meta-function to determine if the
+    // (template parameter) 'TYPE' is convertible to any other type.  This
+    // 'struct' derives from 'bsl::true_type' if 'TYPE' is convertible to any
+    // type, and 'bsl::false_type' otherwise.
 };
 
 }  // close package namespace

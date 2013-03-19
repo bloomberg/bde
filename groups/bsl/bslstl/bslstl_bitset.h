@@ -18,7 +18,6 @@ BSLS_IDENT("$Id: $")
 // '<bsl_bitset.h>' instead and use 'bsl::bitset' directly.  This component
 // implements a static bitset class that is suitable for use as an
 // implementation of the 'std::bitset' class template.
-//..
 //
 ///Usage
 ///-----
