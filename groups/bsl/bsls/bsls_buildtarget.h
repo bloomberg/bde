@@ -25,6 +25,10 @@ BSLS_IDENT("$Id: $")
 // and whether it was multi-threaded or not (it is enabled unless overridden by
 // defining the 'BDE_BUILD_TARGET_NO_MT' macro).  The types defined by this
 // component should not be used directly.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
