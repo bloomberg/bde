@@ -14,14 +14,22 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements ...
-//
+// The component under test implements a type that should be usable in contexts
+// where a boolean value is expected, but offers the minimal set of supported
+// operations.  There are two kinds of tests we are interested in to validate
+// this class:
+//: o It correctly acts like a 'bool' in a variety of contexts.
+//: o It supports only a restricted interface, and attempts to use many regular
+//:   operations should fail to compile.
+// The second set of tests are difficult to automate, as compilation failures
+// will break the test driver.  Hence, these tests will be moved below the line
+// as negative test numbers, explicitly enabled and run manually.
 //-----------------------------------------------------------------------------
 //*[  ] EvilBooleanType(bool value);
 //*[  ] operator BoolResult() const;
 //*[  ] EvilBooleanType operator!() const;
-//*[  ] EvilBooleanType operator==(const EvilBooleanType&, const EvilBooleanType&);
-//*[  ] EvilBooleanType operator!=(const EvilBooleanType&, const EvilBooleanType&);
+//*[  ] EvilBooleanType operator==(EvilBooleanType, EvilBooleanType);
+//*[  ] EvilBooleanType operator!=(EvilBooleanType, EvilBooleanType);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 //*[ 2] USAGE EXAMPLE
@@ -32,7 +40,8 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -75,11 +84,12 @@ static void aSsErT(bool b, const char *s, int i) {
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose         = argc > 2;
-    int veryVerbose     = argc > 3;
-    int veryVeryVerbose = argc > 4;
+int main(int argc, char *argv[])
+{
+    int  test            = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

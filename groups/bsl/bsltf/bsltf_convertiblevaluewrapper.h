@@ -7,14 +7,20 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an enumerated test type.
+//@PURPOSE: Provide a wrapper class, convertible to a supplied value.
 //
 //@CLASSES:
 //   bsltf::ConvertibleValueWrapper: wrapper of a value semantic class
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@DESCRIPTION: This component provides ... (TBD)
+//@DESCRIPTION: This component provides a 'struct' that holds an object of a
+// template parameter type, and provides implicit conversions to, and from,
+// that type.  A 'bsltf::ConvertibleValueWrapper' facilitates testing of
+// function templates whose contract requires a type that is "convertible to
+// the specified type".  It also ensures that this uses up the one user-defined
+// conversion in permitted in the conversion sequence, rather than accidentally
+// relying on a built-in conversion such as type promotion.
 //
 ///Usage
 ///-----
@@ -22,7 +28,6 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: (TBD)
 /// - - - - - - - - - - - - - - - -
-// First, we ...
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -38,6 +43,12 @@ namespace bsltf {
 
 template <class TYPE>
 struct ConvertibleValueWrapper {
+    // This class provides a wrapper around an object of the specified
+    // (template parameter) 'TYPE'.  'TYPE' shall be CopyConstructible.  If
+    // 'TYPE' is a value-semantic type, then this class will also be value
+    // semantic.  Objects of this type are implicitly convertible to and from
+    // objects of the specified 'TYPE'.
+
   private:
     // DATA
     TYPE d_value;
@@ -45,12 +56,15 @@ struct ConvertibleValueWrapper {
   public:
     // CREATORS
     ConvertibleValueWrapper(const TYPE& value);                     // IMPLICIT
+        // Create an object wrapping the specified 'value'.
 
     // MANIPULATORS
     operator       TYPE&();
+        // Return a reference to the (modifiable) wrapped value.
 
     // ACCESSORS
     operator const TYPE&() const;
+        // Return a reference to the (non-modifiable) wrapped value.
 };
 
 

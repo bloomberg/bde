@@ -8,6 +8,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <limits.h>
+
 namespace
 {
 // STATIC DATA
@@ -40,6 +42,15 @@ void StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
     BSLS_ASSERT_OPT(basicAllocator);
 
     s_StdTestAllocatorConfiguration_allocator_p = basicAllocator;
+}
+
+                        // -----------------------
+                        // struct StdTestAllocator
+                        // -----------------------
+
+unsigned int StdTestAllocator_CommonUtil::maxSize(size_t elementSize)
+{
+    return UINT_MAX  / elementSize;
 }
 
                         // ----------------------

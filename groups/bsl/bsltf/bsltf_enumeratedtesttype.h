@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // EnumeratedTestType::Enum first = EnumeratedTestType::FIRST;
 // assert(static_cast<int>(first) == 0);
 //..
-// Finally, we create an 'EnumeratedTestType::Enum' value and initilize it to
+// Finally, we create an 'EnumeratedTestType::Enum' value and initialize it to
 // the last possible value:
 //..
 // EnumeratedTestType::Enum last = EnumeratedTestType::LAST;
@@ -50,7 +50,7 @@ namespace bsltf {
 
 struct EnumeratedTestType {
     // This 'struct' provides a namespace for defining an 'enum' type that
-    // supports explict conversion to and from an integeral type for values
+    // supports explicit conversion to and from an integral type for values
     // from 0 to 127 (according to 7.2.7 of the C++11 standard).
 
   public:

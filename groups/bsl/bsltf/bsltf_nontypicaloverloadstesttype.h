@@ -80,11 +80,11 @@ class NonTypicalOverloadsTestType {
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.
 
-  private:  
+  private:
     // DATA
     int d_data;
 
-  private:  
+  private:
     // PRIVATE MANIPULATORS
 #ifdef BSLS_PLATFORM_CMP_MSVC
     NonTypicalOverloadsTestType* operator&();

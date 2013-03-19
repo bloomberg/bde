@@ -92,7 +92,7 @@ BSLS_IDENT("$Id: $")
 //: o 'TEST_TYPES_ALL':           list of all of the types
 //
 // The 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE' macro refers to a
-// representative set of primivite types that are useful for testing:
+// representative set of primitive types that are useful for testing:
 //..
 //  Type                                Description
 //  ----                                -----------
@@ -151,7 +151,7 @@ BSLS_IDENT("$Id: $")
 // designed to work within the regular operating conditions of a typical
 // template.  Typically, a test driver for a template instantiates its tests
 // (using the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro) for all of the
-// types refered by 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR'.
+// types referred by 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR'.
 //
 // The 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD' macro refers to a set of
 // types that have certain attributes that make them unlikely to work for all
@@ -349,7 +349,7 @@ BSLS_IDENT("$Id: $")
 //      //:   has the same value.  (C-2, 4)
 //      //:
 //      //: 3 Using the loop-based approach, for each identifier in a range of
-//      //:   integer identifieres:
+//      //:   integer identifiers:
 //      //:
 //      //:   1 Default-construct a modifiable object, 'mL', and use the (as
 //      //:     yet unproven) salient attribute accessors to verify the value
@@ -707,7 +707,7 @@ void debugprint(const NonEqualComparableTestType& obj);
         N
 
 // The 'BSLTF_TEMPLATETESTFACILITY_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
+// pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in
 // the definition of some macros.
 #define BSLTF_TEMPLATETESTFACILITY_EXPAND(X)                                  \
         X

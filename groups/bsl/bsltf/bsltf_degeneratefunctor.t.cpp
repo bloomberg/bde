@@ -7,15 +7,23 @@
 #include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace BloombergLP::bsltf;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements ... (TBD)
-//
+// The component under test implements a wrapper for generic functors, that
+// offers the minimal set of operations.  There are two kinds of tests we are
+// interested in to validate this class template:
+//: o It correctly wraps and support use of arbitrary functors satisfying the
+//:   minimal contract of this type.
+//:
+//: o It supports only a restricted interface, and attempts to use many regular
+//:   operations should fail to compile.
+// The second set of tests are difficult to automate, as compilation failures
+// will break the test driver.  Hence, these tests will be moved below the line
+// as negative test numbers, explicitly enabled and run manually.
 //-----------------------------------------------------------------------------
 // TYPES
 //*[ ] DegenerateFunctor cloneBaseObject(const FUNCTOR& base);
@@ -33,7 +41,8 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -73,14 +82,33 @@ static void aSsErT(bool b, const char *s, int i) {
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
+//                          HELPER CLASS FOR TESTING
+//-----------------------------------------------------------------------------
+
+template <class TYPE>
+struct Compare {
+    bool operator()(const TYPE& a, const TYPE& b) const;
+        // Return 'true' if the specified 'a' compares equal to the specified
+        // 'b' using the operator '=='.
+};
+
+template <class TYPE>
+inline
+bool Compare<TYPE>::operator()(const TYPE& a, const TYPE& b) const
+{
+    return a == b;
+}
+
+//=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose         = argc > 2;
-    int veryVerbose     = argc > 3;
-    int veryVeryVerbose = argc > 4;
+int main(int argc, char *argv[])
+{
+    int  test            = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -111,6 +139,18 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+
+        typedef bsltf::DegenerateFunctor<Compare<int> > ComparatorType;
+        typedef bsltf::DegenerateFunctor<Compare<int>, true > SwappableType;
+
+        const ComparatorType x = ComparatorType::cloneBaseObject(
+                                                               Compare<int>());
+        ASSERT(( x(1, 1)));
+        ASSERT((!x(1, 2)));
+
+        ComparatorType y = ComparatorType::cloneBaseObject(Compare<int>());
+        ComparatorType z = ComparatorType::cloneBaseObject(Compare<int>());
+        swap(y, z);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

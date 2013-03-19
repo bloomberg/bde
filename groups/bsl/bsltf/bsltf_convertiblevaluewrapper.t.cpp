@@ -1,6 +1,8 @@
 // bsltf_convertiblevaluewrapper.t.cpp                                -*-C++-*-
 #include <bsltf_convertiblevaluewrapper.h>
 
+#include <bsltf_templatetestfacility.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
@@ -14,7 +16,21 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements ... (TBD)
+// The component under test implements a simple object wrapper, wrapping an
+// object of a type specified by the user, and implicitly convertible both to
+// and from objects of that type.  If the wrapped type is value semantic, then
+// so is the wrapper type, courtesy of the implicit conversions.
+//
+// In order to validate the behavior, we must first demonstrate that the class
+// successfully wraps the user supplied object, and does not merely form a
+// reference to it.  We should confirm this for a variety of user-supplied
+// types, both value-semantic, and deliberately designed to have the minimal
+// supported interface.  Our final concerns are to demonstrate the value-
+// semantic properties when the class being wrapped is a value-semantic type.
+//
+// As this type is not in any of the standard pre-defined collections of types
+// used by the 'bsltf_TemplateTestFacility' component, we use that component to
+// automate testing over a variety of interesting types.
 //
 //-----------------------------------------------------------------------------
 //*[  ] ConvertibleValueWrapper(const TYPE& value);
@@ -30,7 +46,8 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -73,11 +90,12 @@ static void aSsErT(bool b, const char *s, int i) {
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose         = argc > 2;
-    int veryVerbose     = argc > 3;
-    int veryVeryVerbose = argc > 4;
+int main(int argc, char *argv[])
+{
+    int  test            = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -107,6 +125,29 @@ int main(int argc, char *argv[]) {
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
+
+        bsltf::ConvertibleValueWrapper<int>    mX = 13;
+        bsltf::ConvertibleValueWrapper<double> mY = 3.14159;
+        const bsltf::ConvertibleValueWrapper<int>    X = mX;
+        const bsltf::ConvertibleValueWrapper<double> Y = mY;
+
+        int i = X;
+        ASSERTV(i, 13 == i);
+
+        double d = Y;
+        ASSERTV(d, 3.14159 == d);
+
+        ASSERT(mX ==  X);
+        ASSERT( Y == mY);
+        ASSERT(13 == mX);
+
+        struct LocalFunction {
+            static void call(const bsltf::ConvertibleValueWrapper<int> &) {}
+                // Dummy function to simply take a value convertible from an
+                // 'int'.  Note that there is no observable behavior.
+        };
+
+        LocalFunction::call(42);
 
       } break;
       default: {

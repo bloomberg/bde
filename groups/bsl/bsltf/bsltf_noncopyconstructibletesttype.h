@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an attribute class that is not copy constructable.
+//@PURPOSE: Provide an attribute class that is not copy constructible.
 //
 //@CLASSES:
 //   bsltf::NonCopyConstructibleTestType: non-copy-constructible test type

@@ -1,16 +1,13 @@
 // bsltf_convertiblevaluewrapper.cpp                                  -*-C++-*-
 #include <bsltf_convertiblevaluewrapper.h>
 
+#include <bsltf_templatetestfacility.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bsltf {
-
-                        // ------------------------
-                        // class EnumeratedTestType
-                        // ------------------------
-
 
 }  // close package namespace
 }  // close enterprise namespace

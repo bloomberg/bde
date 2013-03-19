@@ -15,6 +15,7 @@
 
 #include <limits>
 
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -270,11 +271,11 @@ class TestType {
 
 int main(int argc, char *argv[])
 {
-    int test                = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose             = argc > 2;
-    int veryVerbose         = argc > 3;
-    int veryVeryVerbose     = argc > 4;
-    int veryVeryVeryVerbose = argc > 4;
+    int  test                = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose             = argc > 2;
+    bool veryVerbose         = argc > 3;
+    bool veryVeryVerbose     = argc > 4;
+    bool veryVeryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -328,34 +329,7 @@ int main(int argc, char *argv[])
         // This part has been copied from bslstl_allocator's test driver and
         // had been originally written by Pablo.
 
-#if 0
-        typedef bslma::Allocator::size_type bsize;
-
-        enum {
-            BSLMA_SIZE_IS_SIGNED = ~bslma::Allocator::size_type(0) < 0,
-            MAX_NUM_BYTES = ~std::size_t(0) /
-            (BSLMA_SIZE_IS_SIGNED ? 2 : 1),
-            MAX_ELEMENTS1 = MAX_NUM_BYTES / sizeof(char),
-            MAX_ELEMENTS2 = (std::size_t)MAX_NUM_BYTES / sizeof(char)
-        };
-
-        if (verbose) {
-            printf("Illustrating the reason for the cast in the"
-                   " enumeration (on AIX 64-bit mode):\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", (int)BSLMA_SIZE_IS_SIGNED);
-            printf("\tMAX_NUM_BYTES = %ld\n", (bsize)MAX_NUM_BYTES);
-            printf("\tMAX_ELEMENTS1 = %ld\n", (bsize)MAX_ELEMENTS1);
-            printf("\tMAX_ELEMENTS2 = %ld\n", (bsize)MAX_ELEMENTS2);
-
-            printf("Printing the same values as unsigned:\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", (int)BSLMA_SIZE_IS_SIGNED);
-            printf("\tMAX_NUM_BYTES = %lu\n", (bsize)MAX_NUM_BYTES);
-            printf("\tMAX_ELEMENTS1 = %lu\n", (bsize)MAX_ELEMENTS1);
-            printf("\tMAX_ELEMENTS2 = %lu\n", (bsize)MAX_ELEMENTS2);
-        }
-#else
         typedef StdTestAllocator<char>::size_type bsize;
-#endif
 
         StdTestAllocator<char> X;
         bsize cas = X.max_size();
@@ -509,7 +483,7 @@ int main(int argc, char *argv[])
         //:   by the C++03 standard for template instances parameterized on the
         //:   'void' and other types .
         //:
-        //: 2 'size_type' is unsigned while 'difference_type' is signed.
+        //: 2 'size_type' is 'unsigned int' while 'difference_type' is 'int'.
         //:
         //: 3 'rebind<OTHER_TYPE>::other' defines a template instance for
         //:   'StdTestAllocator' parameterized on the 'OTHER_TYPE' type.
@@ -551,25 +525,6 @@ int main(int argc, char *argv[])
         typedef StdTestAllocator<float> AF;
         typedef StdTestAllocator<void>  AV;
 
-#if 0
-        if (verbose) printf("\tTesting 'size_type'.\n");
-        {
-            ASSERT(sizeof(AI::size_type) == sizeof(int*));
-            ASSERT(sizeof(AV::size_type) == sizeof(void*));
-
-            ASSERT(0 < ~(AI::size_type)0);
-            ASSERT(0 < ~(AV::size_type)0);
-        }
-
-        if (verbose) printf("\tTesting 'difference_type'.\n");
-        {
-            ASSERT(sizeof(AI::difference_type) == sizeof(int*));
-            ASSERT(sizeof(AV::difference_type) == sizeof(void*));
-
-            ASSERT(0 > ~(AI::difference_type)0);
-            ASSERT(0 > ~(AV::difference_type)0);
-        }
-#else
         if (verbose) printf("\tTesting 'size_type'.\n");
         {
             ASSERT((bsl::is_same<AI::size_type, unsigned int>::value));
@@ -581,7 +536,6 @@ int main(int argc, char *argv[])
             ASSERT((bsl::is_same<AI::difference_type, int>::value));
             ASSERT((bsl::is_same<AV::difference_type, int>::value));
         }
-#endif
 
         if (verbose) printf("\tTesting 'pointer'.\n");
         {
