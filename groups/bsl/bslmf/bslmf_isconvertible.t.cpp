@@ -108,7 +108,7 @@ class ConvertibleFrom {
   public:
     // CREATORS
     ConvertibleFrom() : d_value() { }
-    ConvertibleFrom(TYPE value) : d_value(value) { }                // IMPLICIT
+    ConvertibleFrom(TYPE value) : d_value(value) { }
 };
 
 class my_Class {
@@ -119,7 +119,7 @@ class my_Class {
 
   public:
     // CREATORS
-    my_Class(int i) : d_i(i) {}                                     // IMPLICIT
+    my_Class(int i) : d_i(i) {}
 };
 
 class my_OtherClass {
@@ -133,7 +133,7 @@ class my_ThirdClass {
     // This class is convertible from 'my_Class'.
 
   public:
-    my_ThirdClass(const my_Class&);                                 // IMPLICIT
+    my_ThirdClass(const my_Class&);
 };
 
 class my_AbstractClass {
@@ -179,7 +179,7 @@ class my_StlAllocator {
 
   public:
     // CREATORS
-    my_StlAllocator(my_BslmaAllocator*);                            // IMPLICIT
+    my_StlAllocator(my_BslmaAllocator*);
 };
 
 struct my_PlacementNew {
@@ -189,7 +189,7 @@ struct my_PlacementNew {
     void *d_p;
 
     // CREATORS
-    my_PlacementNew(void *p) : d_p(p) {}                            // IMPLICIT
+    my_PlacementNew(void *p) : d_p(p) {}
 };
 
 void *operator new(size_t, my_PlacementNew p)

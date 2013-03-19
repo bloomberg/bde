@@ -1221,7 +1221,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bslmf::IsPolymorphic<Struct *const volatile>::value);
 
 // The following cases fail to compile on platforms that do not support an
-// intrinsic operation to check this trait.  It may be possible to detect
+// instrinsic operation to check this trait.  It may be possible to detect
 // 'union' types in C++11 with extended SFINAE, but all compilers known to
 // implement extended SFINAE also provide an appropriate traits intrinsic.
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)

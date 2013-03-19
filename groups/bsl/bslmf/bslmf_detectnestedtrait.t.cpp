@@ -148,7 +148,7 @@ struct ConvertibleToAny
     // the "convert to anything" operator shouldn't interfere with the nested
     // trait logic.
 {
-    template <class T>
+    template <typename T>
     operator T() const { return T(); }
 };
 
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // Plan:
-        //
+	//
         // Testing:
         //
         // --------------------------------------------------------------------

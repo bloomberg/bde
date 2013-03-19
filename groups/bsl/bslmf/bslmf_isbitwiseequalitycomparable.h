@@ -1,4 +1,4 @@
-// bslmf_isbitwiseequalitycomparable.h                                -*-C++-*-
+// bslmf_isbitwiseequalitycomparable.h                  -*-C++-*-
 #ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 #define INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 
@@ -14,24 +14,16 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION:
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
-#include <bslmf_detectnestedtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISENUM
-#include <bslmf_isenum.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISENUM
+#include <bslmf_isenum.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -42,12 +34,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointertomember.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISREFERENCE
-#include <bslmf_isreference.h>
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include <bslmf_detectnestedtrait.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
 #endif
 
 
@@ -55,10 +51,10 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-template <class TYPE>
+template <typename TYPE>
 struct IsBitwiseEqualityComparable;
 
-template <class TYPE>
+template <typename TYPE>
 struct IsBitwiseEqualityComparable_Imp
     : bsl::integral_constant<bool,
                              !bsl::is_reference<TYPE>::value
@@ -74,7 +70,7 @@ struct IsBitwiseEqualityComparable_Imp
                      // struct IsBitwiseEqualityComparable
                      // ==================================
 
-template <class TYPE>
+template <typename TYPE>
 struct IsBitwiseEqualityComparable
     : IsBitwiseEqualityComparable_Imp<typename bsl::remove_cv<TYPE>::type>
 {

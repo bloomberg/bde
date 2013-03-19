@@ -63,7 +63,7 @@ namespace bsl {
                          // struct add_lvalue_reference
                          // ===========================
 
-template <class TYPE>
+template <typename TYPE>
 struct add_lvalue_reference {
     // This 'struct' template implements a meta-function to transform the
     // the (template parameter) 'TYPE' to its lvalue reference type.
@@ -74,7 +74,7 @@ struct add_lvalue_reference {
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-template <class TYPE>
+template <typename TYPE>
 struct add_lvalue_reference<TYPE&> {
     // This partial specialization of 'add_lvalue_reference' defines a return
     // type when it is instantiated with an lvalue reference type.

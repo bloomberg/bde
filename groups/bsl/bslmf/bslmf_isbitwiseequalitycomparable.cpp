@@ -1,4 +1,4 @@
-// bslmf_isbitwiseequalitycomparable.cpp                              -*-C++-*-
+// bslmf_isbitwiseequalitycomparable.cpp                  -*-C++-*-
 
 #include <bslmf_isbitwiseequalitycomparable.h>
 

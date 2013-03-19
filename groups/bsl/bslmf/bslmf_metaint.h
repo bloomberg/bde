@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to map integral constants to unique types.
 //
-//@DEPRECATED: Use 'bslmf_integralconstant' instead.
+//@DEPRECATED: Use 'bslstt_integral_constant' instead.
 //
 //@CLASSES:
 //  bslmf::MetaInt: meta-function mapping integral constants to C++ types
@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended usage of this component
+// This section illustates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -101,12 +101,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_TAG
 #include <bslmf_tag.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 namespace BloombergLP {
@@ -137,7 +137,7 @@ struct MetaInt : public bsl::integral_constant<int, INT_VALUE> {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bsl::integral_constant<int, INT_VALUE>);                // IMPLICIT
+    MetaInt(bsl::integral_constant<int, INT_VALUE>);
         // Convert from a 'bsl::integral_constant<int, INT_VALUE>'.
 
     //! MetaInt(const MetaInt&) = default;
@@ -171,7 +171,7 @@ struct MetaInt<0> : public bsl::false_type {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bsl::false_type);                                       // IMPLICIT
+    MetaInt(bsl::false_type);
         // Convert from a 'bsl::false_type'.
 
     //! MetaInt(const MetaInt&) = default;
@@ -209,7 +209,7 @@ struct MetaInt<1> : public bsl::true_type {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bsl::true_type);                                        // IMPLICIT
+    MetaInt(bsl::true_type);
         // Convert from a 'bsl::true_type'.
 
     //! MetaInt(const MetaInt&) = default;

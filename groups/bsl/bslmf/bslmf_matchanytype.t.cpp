@@ -62,15 +62,15 @@ struct Y {};
 
 struct HasHorridCtorX : public X {
     HasHorridCtorX(int, double, X, char, char *, void *) {}
-        // It is inconvenient to actually create an instance of this type
-        // because the constructor takes so many arguments.  It is also
-        // impossible because the constructor is undefined.
+        // It's inconvenient to actually create an instance of this type
+        // because the constructor takes so many arguments.  It's also
+        // impossible because the c'tor is undefined.
 };
 struct HasHorridCtorY : public Y {
     HasHorridCtorY(int, double, X, char, char *, void *) {}
-        // It is inconvenient to actually create an instance of this type
-        // because the constructor takes so many arguments.  It is also
-        // impossible because the constructor is undefined.
+        // It's inconvenient to actually create an instance of this type
+        // because the construnctor takes so many arguments.  It's also
+        // impossible because the c'tor is undefined.
 };
 
 template <int i>

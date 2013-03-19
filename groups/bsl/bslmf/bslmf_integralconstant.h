@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component describes a simple class template,
-// 'integral_constant', that is used to map an integer constant to a C++ type.
+// 'integral_constant', that is used to map an inteeger constant to a C++ type.
 // 'integral_constant<TYPE, VAL>' generates a unique type for each distinct
 // compile-time integral 'TYPE' and constant integer 'VAL' parameter.  That
 // is, instantiations with different integer types and values form distinct
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended usage of this component
+// This section illustates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not
 // legal.  The power of this approach is that the compiler will not attempt
-// semantic analysis on the implementation that does not match the appropriate
+// semantic anlysis on the implementation that does not match the appropriate
 // 'integral_constant' argument.
 //..
 //    int main()
@@ -141,10 +141,6 @@ BSLS_IDENT("$Id: $")
 //        return 0;
 //    }
 //..
-
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmf {

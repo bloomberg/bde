@@ -1,4 +1,4 @@
-// bslmf_haspointersemantics.t.cpp                                    -*-C++-*-
+// bslmf_haspointersemantics.t.cpp                                      -*-C++-*-
 
 #include <bslmf_haspointersemantics.h>
 

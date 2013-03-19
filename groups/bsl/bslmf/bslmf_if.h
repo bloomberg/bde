@@ -101,12 +101,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_CONDITIONAL
-#include <bslmf_conditional.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
 #endif
 
 namespace BloombergLP {

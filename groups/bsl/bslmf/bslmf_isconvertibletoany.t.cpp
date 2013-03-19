@@ -55,12 +55,12 @@ struct ConvertibleToSome {
 };
 
 struct ConvertibleToAny {
-    template <class T>
+    template <typename T>
     operator T() { return T(); }
 };
 
 struct ConvertibleToAnyConst {
-    template <class T>
+    template <typename T>
     operator T() const { return T(); }
 };
 
@@ -82,7 +82,7 @@ struct ConvertibleToAnyConst {
 // First, we define a type with the template conversion operator:
 //..
     struct TypeWithTemplateConversion {
-        template <class TYPE>
+        template <typename TYPE>
         operator TYPE() {
             return TYPE();
         }

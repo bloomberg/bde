@@ -1,11 +1,11 @@
-// bslmf_isbitwisemoveable.t.cpp                                      -*-C++-*-
+// bslmf_isbitwisemoveable.t.cpp                  -*-C++-*-
 
 #include <bslmf_isbitwisemoveable.h>
 
+#include <new>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <new>
 
 using namespace BloombergLP;
 using namespace std;
@@ -136,20 +136,14 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     namespace BloombergLP {
 
     template <class TYPE>
-    void destructiveMoveArrayImp(TYPE *to,
-                                 TYPE *from,
-                                 int   size,
-                                 bsl::true_type)
+    void destructiveMoveArrayImp(TYPE *to, TYPE *from, int size, bsl::true_type)
     {
-        // Bitwise moveable types can be moved using memcpy
+        // Bitwize moveable types can be moved using memcpy
         std::memcpy(to, from, size * sizeof(TYPE));
     }
 
     template <class TYPE>
-    void destructiveMoveArrayImp(TYPE *to,
-                                 TYPE *from,
-                                 int   size,
-                                 bsl::false_type)
+    void destructiveMoveArrayImp(TYPE *to, TYPE *from, int size, bsl::false_type)
     {
         for (int i = 0; i < size; ++i) {
             ::new(to + i) TYPE(from[i]);
@@ -223,8 +217,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     int MoveableClass1::d_dtorCount = 0;
 
     namespace bslmf {
-        template <> struct IsBitwiseMoveable<MoveableClass1> : bsl::true_type {
-        };
+        template <> struct IsBitwiseMoveable<MoveableClass1> : bsl::true_type { };
     }
 //..
 // The third class is also declared to be bitwise moveable, but this time we
@@ -404,8 +397,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
     namespace bslmf {
         template <class TYPE>
-        struct IsBitwiseMoveable<MoveableTemplate1<TYPE> > : bsl::true_type {
-        };
+        struct IsBitwiseMoveable<MoveableTemplate1<TYPE> > : bsl::true_type { };
     }
 //..
 // Third, we define 'MoveableTemplate2', which uses the
@@ -422,7 +414,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // Fourth, we define 'MoveableTemplate3', which is bit-wise moveable iff its
 // 'TYPE' template parameter is bit-wise moveable.  There is no way to get
 // this effect using 'BSLMF_NESTED_TRAITS_DECLARATION', so we use partial
-// specialization combined with inheritance to "inherit" the trait from
+// specialization combined with inheritence to "inherit" the trait from
 // 'TYPE':
 //..
     template <class TYPE>
@@ -557,7 +549,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // Plan:
-        //
+	//
         // Testing:
         //
         // --------------------------------------------------------------------

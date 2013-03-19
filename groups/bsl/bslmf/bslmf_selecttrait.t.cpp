@@ -2,10 +2,10 @@
 
 #include <bslmf_selecttrait.h>
 
+#include <new>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <new>
 
 using namespace BloombergLP;
 using namespace std;
@@ -124,9 +124,9 @@ template <> struct IsLong<long>     : bsl::true_type { };
 template <class TYPE> struct IsFloat : bsl::false_type { };
 template <> struct IsFloat<float>    : bsl::true_type { };
 
-int whichTrait(bslmf::SelectTraitCase<>)        { return 0; }
-int whichTrait(bslmf::SelectTraitCase<IsBool>)  { return 1; }
-int whichTrait(bslmf::SelectTraitCase<IsChar>)  { return 2; }
+int whichTrait(bslmf::SelectTraitCase<>) 		{ return 0; }
+int whichTrait(bslmf::SelectTraitCase<IsBool>) 	{ return 1; }
+int whichTrait(bslmf::SelectTraitCase<IsChar>) 	{ return 2; }
 int whichTrait(bslmf::SelectTraitCase<IsShort>) { return 3; }
 int whichTrait(bslmf::SelectTraitCase<IsLong>)  { return 4; }
 int whichTrait(bslmf::SelectTraitCase<IsFloat>) { return 5; }
@@ -207,15 +207,15 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // might be bitwise copyable, or have an allocator that can be different in
 // the copy than in the original object, or that the original might be a pair
 // type, where the correct method of copying 'first' and 'second' is
-// (recursively) governed by the same concerns.
+// (recursively) goverened by the same concerns.
 //
 // The old (legacy) 'bsls::HasTrait' mechanism has a clumsy mechanism for
-// dispatching on multiple traits at once.  For example, the
+// dispatching on multple traits at once.  For example, the
 // 'bslalg::scalarprimitives::copyConstruct', function uses four different
 // implementations, depending on the traits of the object being copied.  The
 // existing code looks like this:
 //..
-//  template <class TARGET_TYPE>
+//  template <typename TARGET_TYPE>
 //  inline
 //  void
 //  ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
@@ -262,7 +262,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
     namespace bslalg {
     struct ScalarPrimitives {
-        template <class TARGET_TYPE>
+        template <typename TARGET_TYPE>
         static void copyConstruct(TARGET_TYPE        *address,
                                   const TARGET_TYPE&  original,
                                   bslma::Allocator   *allocator);
@@ -272,7 +272,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // different trait specialization. A fourth overload takes 'false_type'
 // instead of a trait specialization, for those types that don't match any
 // traits.  For testing purposes, in addition to copying the data member, each
-// overload also increments a separate counter.  These implementations are
+// overload also increments a separate counter.  These implemenations are
 // slightly simplified for readability:
 //..
     struct Imp {
@@ -290,7 +290,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
             d_isBitwiseCopyableCounter = 0;
         }
 
-        template <class TARGET_TYPE>
+        template <typename TARGET_TYPE>
         static void
         copyConstruct(TARGET_TYPE                                 *address,
                       const TARGET_TYPE&                           original,
@@ -301,7 +301,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
             ++d_usesBslmaAllocatorCounter;
         }
 
-        template <class TARGET_TYPE>
+        template <typename TARGET_TYPE>
         static void
         copyConstruct(TARGET_TYPE                 *address,
                       const TARGET_TYPE&           original,
@@ -315,7 +315,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
             ++d_isPairCounter;
         }
 
-        template <class TARGET_TYPE>
+        template <typename TARGET_TYPE>
         static void
         copyConstruct(TARGET_TYPE                             *address,
                       const TARGET_TYPE&                       original,
@@ -326,7 +326,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
             ++d_isBitwiseCopyableCounter;
         }
 
-        template <class TARGET_TYPE>
+        template <typename TARGET_TYPE>
         static void
         copyConstruct(TARGET_TYPE                *address,
                       const TARGET_TYPE&          original,
@@ -345,7 +345,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
 // Then, we implement 'ScalarPrimitives::copyConstruct':
 //..
-    template <class TARGET_TYPE>
+    template <typename TARGET_TYPE>
     inline void
     ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
                                     const TARGET_TYPE&  original,
@@ -379,7 +379,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         int               d_value;
         bslma::Allocator *d_alloc;
     public:
-        TypeWithAllocator(int v = 0, bslma::Allocator *a = 0)       // IMPLICIT
+        TypeWithAllocator(int v = 0, bslma::Allocator *a = 0)
             : d_value(v), d_alloc(a) { }
         TypeWithAllocator(const TypeWithAllocator& other,
                           bslma::Allocator *a = 0)
@@ -392,12 +392,12 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     template <> struct UsesBslmaAllocator<TypeWithAllocator>
         : bsl::true_type { };
 //..
-// The second class is associated with the 'IsBitwiseCopyable' trait:
+// The second class is associated with the 'IsBitwiseCopyiable' trait:
 //..
     class BitwiseCopyableType {
         int d_value;
     public:
-        BitwiseCopyableType(int v = 0) : d_value(v) { }             // IMPLICIT
+        BitwiseCopyableType(int v = 0) : d_value(v) { }
         int value() const { return d_value; }
     };
 
@@ -416,7 +416,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     template <> struct IsPair<PairType> : bsl::true_type { };
 //..
 // The fourth class is associated with both the the 'IsPair' and
-// 'IsBitwiseCopyable' traits:
+// 'IsBitwiseCopyiable' traits:
 //..
     struct BitwiseCopyablePairType {
         BitwiseCopyableType first;
@@ -434,7 +434,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     class TypeWithNoTraits {
         int d_value;
     public:
-        TypeWithNoTraits(int v = 0) : d_value(v) { }                // IMPLICIT
+        TypeWithNoTraits(int v = 0) : d_value(v) { }
         int value() const { return d_value; }
     };
 //..
@@ -569,7 +569,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // Plan:
-        //
+	//
         // Testing:
         //
         // --------------------------------------------------------------------

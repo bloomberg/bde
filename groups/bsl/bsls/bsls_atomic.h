@@ -236,8 +236,8 @@ BSLS_IDENT("$Id: $")
 //  class my_CountedHandleRep {
 //
 //      // DATA
-//      bsls::AtomicInt  d_count;        // number of active references
 //      INSTANCE        *d_instance_p;   // address of managed instance
+//      bsls::AtomicInt  d_count;        // number of active references
 //
 //      // FRIENDS
 //      friend class my_CountedHandle<INSTANCE>;

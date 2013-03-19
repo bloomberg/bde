@@ -31,15 +31,15 @@ BSLS_IDENT("$Id: $")
 // might be bitwise copyable, or have an allocator that can be different in
 // the copy than in the original object, or that the original might be a pair
 // type, where the correct method of copying 'first' and 'second' is
-// (recursively) governed by the same concerns.
+// (recursively) goverened by the same concerns.
 //
 // The old (legacy) 'bsls::HasTrait' mechanism has a clumsy mechanism for
-// dispatching on multiple traits at once.  For example, the
+// dispatching on multple traits at once.  For example, the
 // 'bslalg::scalarprimitives::copyConstruct', function uses four different
 // implementations, depending on the traits of the object being copied.  The
 // existing code looks like this:
 //..
-//  template <class TARGET_TYPE>
+//  template <typename TARGET_TYPE>
 //  inline
 //  void
 //  ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //
 //  namespace bslalg {
 //  struct ScalarPrimitives {
-//      template <class TARGET_TYPE>
+//      template <typename TARGET_TYPE>
 //      static void copyConstruct(TARGET_TYPE        *address,
 //                                const TARGET_TYPE&  original,
 //                                bslma::Allocator   *allocator);
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 // different trait specialization. A fourth overload takes 'false_type'
 // instead of a trait specialization, for those types that don't match any
 // traits.  For testing purposes, in addition to copying the data member, each
-// overload also increments a separate counter.  These implementations are
+// overload also increments a separate counter.  These implemenations are
 // slightly simplified for readability:
 //..
 //  struct Imp {
@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 //          d_isBitwiseCopyableCounter = 0;
 //      }
 //
-//      template <class TARGET_TYPE>
+//      template <typename TARGET_TYPE>
 //      static void
 //      copyConstruct(TARGET_TYPE                                 *address,
 //                    const TARGET_TYPE&                           original,
@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //          ++d_usesBslmaAllocatorCounter;
 //      }
 //
-//      template <class TARGET_TYPE>
+//      template <typename TARGET_TYPE>
 //      static void
 //      copyConstruct(TARGET_TYPE                 *address,
 //                    const TARGET_TYPE&           original,
@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 //          ++d_isPairCounter;
 //      }
 //
-//      template <class TARGET_TYPE>
+//      template <typename TARGET_TYPE>
 //      static void
 //      copyConstruct(TARGET_TYPE                             *address,
 //                    const TARGET_TYPE&                       original,
@@ -150,7 +150,7 @@ BSLS_IDENT("$Id: $")
 //          ++d_isBitwiseCopyableCounter;
 //      }
 //
-//      template <class TARGET_TYPE>
+//      template <typename TARGET_TYPE>
 //      static void
 //      copyConstruct(TARGET_TYPE                *address,
 //                    const TARGET_TYPE&          original,
@@ -169,7 +169,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we implement 'ScalarPrimitives::copyConstruct':
 //..
-//  template <class TARGET_TYPE>
+//  template <typename TARGET_TYPE>
 //  inline void
 //  ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
 //                                  const TARGET_TYPE&  original,
@@ -203,7 +203,7 @@ BSLS_IDENT("$Id: $")
 //      int               d_value;
 //      bslma::Allocator *d_alloc;
 //  public:
-//      TypeWithAllocator(int v = 0, bslma::Allocator *a = 0)       // IMPLICIT
+//      TypeWithAllocator(int v = 0, bslma::Allocator *a = 0)
 //          : d_value(v), d_alloc(a) { }
 //      TypeWithAllocator(const TypeWithAllocator& other,
 //                        bslma::Allocator *a = 0)
@@ -216,12 +216,12 @@ BSLS_IDENT("$Id: $")
 //  template <> struct UsesBslmaAllocator<TypeWithAllocator>
 //      : bsl::true_type { };
 //..
-// The second class is associated with the 'IsBitwiseCopyable' trait:
+// The second class is associated with the 'IsBitwiseCopyiable' trait:
 //..
 //  class BitwiseCopyableType {
 //      int d_value;
 //  public:
-//      BitwiseCopyableType(int v = 0) : d_value(v) { }             // IMPLICIT
+//      BitwiseCopyableType(int v = 0) : d_value(v) { }
 //      int value() const { return d_value; }
 //  };
 //
@@ -240,7 +240,7 @@ BSLS_IDENT("$Id: $")
 //  template <> struct IsPair<PairType> : bsl::true_type { };
 //..
 // The fourth class is associated with both the the 'IsPair' and
-// 'IsBitwiseCopyable' traits:
+// 'IsBitwiseCopyiable' traits:
 //..
 //  struct BitwiseCopyablePairType {
 //      BitwiseCopyableType first;
@@ -258,7 +258,7 @@ BSLS_IDENT("$Id: $")
 //  class TypeWithNoTraits {
 //      int d_value;
 //  public:
-//      TypeWithNoTraits(int v = 0) : d_value(v) { }                // IMPLICIT
+//      TypeWithNoTraits(int v = 0) : d_value(v) { }
 //      int value() const { return d_value; }
 //  };
 //..
@@ -361,10 +361,6 @@ BSLS_IDENT("$Id: $")
 // the overloaded functions.  When inlining is in effect, the result is very
 // efficient.
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -401,7 +397,7 @@ struct SelectTraitCase
     // pointer-to-metafunction that holds the identity of a metafunction
     // similar to the way a pointer-to-function holds (at run-time) the
     // identity of a function.  As in the pointer-to-function case, a
-    // 'SelectTraitCase' can also be used indirectly to evaluate 'TRAIT' (at
+    // 'SelectTraitCase' can also be used indrectly to evaluate 'TRAIT' (at
     // compile time).  Also note that, when 'SelectTraitCase' is specialized
     // with the default 'TRAIT' type parameter, 'SelectTrait_False', it
     // essentially means that none of the traits specified to 'SelectTrait'

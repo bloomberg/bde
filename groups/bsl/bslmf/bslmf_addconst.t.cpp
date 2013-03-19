@@ -131,8 +131,8 @@ int main(int argc, char *argv[])
 // Now, we add a 'const'-qualifier to 'MyType' using 'bsl::add_const' and
 // verify that the resulting type is the same as 'MyConstType':
 //..
-        ASSERT(true == (bsl::is_same<bsl::add_const<MyType>::type,
-                                                         MyConstType>::value));
+        ASSERT(true ==
+               (bsl::is_same<bsl::add_const<MyType>::type, MyConstType>::value));
 //..
 
       } break;

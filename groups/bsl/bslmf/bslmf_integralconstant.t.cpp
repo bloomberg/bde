@@ -219,7 +219,7 @@ template <class T> inline bool isConst(const T&) { return true; }
 
 ///Usage
 ///-----
-// This section illustrates intended usage of this component
+// This section illustates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -264,7 +264,7 @@ template <class T> inline bool isConst(const T&) { return true; }
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not
 // legal.  The power of this approach is that the compiler will not attempt
-// semantic analysis on the implementation that does not match the appropriate
+// semantic anlysis on the implementation that does not match the appropriate
 // 'integral_constant' argument.
 //..
       int usageExample1()
@@ -337,7 +337,7 @@ template <class T> inline bool isConst(const T&) { return true; }
 
 template <class TYPE, TYPE VAL>
 void fullTest(const char TYPENAME[])
-    // Perform the full suite of tests on 'integral_constant' instantiated with
+    // Preform the full suite of tests on 'integral_constant' instantiated with
     // the specified 'TYPE' and 'VAL'.  The specified 'TYPENAME' string
     // contains a printable representation of the name of 'TYPE'.  This
     // function reads the global 'verbose' variable and (if an error is
@@ -686,7 +686,7 @@ int main(int argc, char *argv[])
         //:   exists and can hold 'value', and that an object of
         //:   'integral_constant' can be constructed and is convertible to the
         //:   specified 'TYPE'.  (C-1)
-        //
+	//
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------

@@ -122,14 +122,14 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-template <class TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
+template <typename TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
 struct ForwardingType_Imp;
 
                         // ====================
                         // class ForwardingType
                         // ====================
 
-template <class TYPE>
+template <typename TYPE>
 struct ForwardingType {
     // This template is used to specialize 'TYPE' such that arguments of type
     // 'TYPE' can be efficiently forwarded by reference or pointer.
@@ -148,7 +148,7 @@ struct ForwardingType {
 };
 
 // PARTIAL SPECIALIZATIONS
-template <class TYPE>
+template <typename TYPE>
 struct ForwardingType<const TYPE&> {
     // This specialization is used when the template parameter of
     // 'ForwardingType' is a 'const T&' and 'T' is not a volatile type.  In
@@ -168,7 +168,7 @@ struct ForwardingType<const TYPE&> {
         ForwardingType_Imp<const TYPE, IS_BASIC_TYPE, 0 >::Type Type;
 };
 
-template <class TYPE>
+template <typename TYPE>
 struct ForwardingType<const volatile TYPE&> {
     // This specialization is used when the template parameter of
     // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
@@ -179,7 +179,7 @@ struct ForwardingType<const volatile TYPE&> {
     typedef const volatile TYPE& Type;
 };
 
-template <class TYPE>
+template <typename TYPE>
 struct ForwardingType<volatile TYPE&> {
     // This specialization is used when the template parameter of
     // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
@@ -190,7 +190,7 @@ struct ForwardingType<volatile TYPE&> {
     typedef volatile TYPE* Type;
 };
 
-template <class TYPE>
+template <typename TYPE>
 struct ForwardingType<TYPE&>
 : public ForwardingType_Imp<TYPE, 0, 1> {
     // This specialization is used when the template parameter of
@@ -199,7 +199,7 @@ struct ForwardingType<TYPE&>
     enum { BSLMF_FORWARDING_TYPE_ID = 5 };  // For testing only.
 };
 
-template <class TYPE>
+template <typename TYPE>
 struct ForwardingType<TYPE*> {
     // Pointer rvalues should not be forwarded any other way.
 
@@ -207,7 +207,7 @@ struct ForwardingType<TYPE*> {
     typedef TYPE* Type;
 };
 
-template <class TYPE>
+template <typename TYPE>
 struct ForwardingType<TYPE* const&> {
     // Pointer rvalues should not be forwarded any other way.
 
@@ -219,7 +219,7 @@ struct ForwardingType<TYPE* const&> {
                         // class ConstForwardingType
                         // =========================
 
-template <class TYPE>
+template <typename TYPE>
 struct ConstForwardingType : public ForwardingType<const TYPE>{
     // Use 'ConstForwardingType<TYPE>' for forwarding an rvalue of the given
     // 'TYPE'.  Note that for lvalues and pointer types,
@@ -228,11 +228,11 @@ struct ConstForwardingType : public ForwardingType<const TYPE>{
 };
 
 // PARTIAL SPECIALIZATIONS
-template <class TYPE>
+template <typename TYPE>
 struct ConstForwardingType<TYPE&> : public ForwardingType<TYPE&>{
 };
 
-template <class TYPE>
+template <typename TYPE>
 struct ConstForwardingType<TYPE*> : public ForwardingType<TYPE*>{
 };
 
@@ -240,28 +240,28 @@ struct ConstForwardingType<TYPE*> : public ForwardingType<TYPE*>{
                         // class ForwardingType_Imp
                         // ========================
 
-template <class TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
+template <typename TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
 struct ForwardingType_Imp {
     typedef TYPE& Type;
 };
 
 // PARTIAL SPECIALIZATIONS
-template <class TYPE>
+template <typename TYPE>
 struct ForwardingType_Imp<TYPE,0,0> {
     typedef const TYPE& Type;
 };
 
-template <class TYPE, std::size_t NUM_ELEMENTS>
+template <typename TYPE, std::size_t NUM_ELEMENTS>
 struct ForwardingType_Imp<TYPE [NUM_ELEMENTS], 0, 0> {
     typedef TYPE *Type;
 };
 
-template <class TYPE, std::size_t NUM_ELEMENTS>
+template <typename TYPE, std::size_t NUM_ELEMENTS>
 struct ForwardingType_Imp<TYPE [NUM_ELEMENTS], 0, 1> {
     typedef TYPE *Type;
 };
 
-template <class TYPE>
+template <typename TYPE>
 struct ForwardingType_Imp<TYPE,1, 0> {
     typedef typename bsl::remove_cv<TYPE>::type Type;
 };

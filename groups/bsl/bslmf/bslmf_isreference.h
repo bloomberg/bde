@@ -65,7 +65,7 @@ namespace bsl {
                          // struct is_reference
                          // ===================
 
-template <class TYPE>
+template <typename TYPE>
 struct is_reference : integral_constant<bool,
                                         is_lvalue_reference<TYPE>::value
                                      || is_rvalue_reference<TYPE>::value> {

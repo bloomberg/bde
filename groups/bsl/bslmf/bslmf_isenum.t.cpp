@@ -128,7 +128,7 @@ struct ConvertToEnumTestType {
 };
 
 struct ConvertToAnyType {
-    template <class T>
+    template <typename T>
     operator T() { return T(); }
 };
 

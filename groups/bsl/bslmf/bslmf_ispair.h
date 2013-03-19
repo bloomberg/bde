@@ -30,7 +30,7 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-template <class TYPE>
+template <typename TYPE>
 struct IsPair : bsl::false_type {};
 
 }  // close package namespace

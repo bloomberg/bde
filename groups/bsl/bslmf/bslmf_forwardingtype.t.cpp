@@ -1,8 +1,9 @@
 // bslmf_forwardingtype.t.cpp                                         -*-C++-*-
 #include <bslmf_forwardingtype.h>
 
-#include <bslmf_isarray.h>
 #include <bslmf_issame.h>          // for testing only
+
+#include <bslmf_isarray.h>
 
 #include <cstdlib>    // atoi()
 #include <iostream>

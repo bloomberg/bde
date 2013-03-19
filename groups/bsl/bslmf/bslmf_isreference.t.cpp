@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
     ASSERT(true  == bsl::is_reference<int&&>::value);
   #endif
 //..
-// Note that rvalue reference is a feature introduced in the C++11 standard,
+// Note that rvalue reference is a feature introduced in the C++11 standand,
 // and may not be supported by all compilers.
 
 
