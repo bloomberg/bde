@@ -119,6 +119,19 @@ namespace BloombergLP {
 
 namespace bsls {
 
+template <class TYPE>
+struct Util_Identity {
+    // This class template provides an easy way to alias a function pointer
+    // type when used as the return type of a function.  The syntax for a
+    // function returning a function pointer is otherwise quite obscure, and
+    // difficult to read.  As we want to return function pointers taking
+    // parameters and returning a result specified by template parameters
+    // below, it is not possible to define a simple typedef to the function
+    // type outside the function template itself.
+
+    typedef TYPE type;  // alias of the template parameter 'TYPE'.
+};
+
                                  // ===========
                                  // struct Util
                                  // ===========
@@ -138,6 +151,18 @@ struct Util {
         // section [specialized.addressof] (20.6.12.1) of the C++11 standard,
         // except that function types, which are not object types, are
         // supported by 'std::addressof' in C++11.
+
+    template <class RESULT>
+    static
+    typename Util_Identity<RESULT()>::type *addressOf(RESULT (&fn)());
+    template <class RESULT, class ARG>
+    static
+    typename Util_Identity<RESULT(ARG)>::type *addressOf(RESULT (&fn)(ARG));
+    template <class RESULT, class ARG1, class ARG2>
+    static
+    typename Util_Identity<RESULT(ARG1, ARG2)>::type *addressOf(
+                                                     RESULT (&fn)(ARG1, ARG2));
+        // Return the address of the specified function 'fn'.
 };
 
 }  // close package namespace
@@ -182,6 +207,30 @@ BSLS_TYPE *Util::addressOf(BSLS_TYPE& obj)
     return static_cast<BSLS_TYPE *>(
         static_cast<void *>(
             const_cast<char *>(&reinterpret_cast<const volatile char&>(obj))));
+}
+
+template <class RESULT>
+inline
+typename Util_Identity<RESULT()>::type *
+Util::addressOf(RESULT (&fn)())
+{
+    return fn;
+}
+
+template <class RESULT, class ARG>
+inline
+typename Util_Identity<RESULT(ARG)>::type *
+Util::addressOf(RESULT (&fn)(ARG))
+{
+    return fn;
+}
+
+template <class RESULT, class ARG1, class ARG2>
+inline
+typename Util_Identity<RESULT(ARG1, ARG2)>::type *
+Util::addressOf(RESULT (&fn)(ARG1, ARG2))
+{
+    return fn;
 }
 
 }  // close package namespace

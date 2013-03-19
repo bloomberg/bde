@@ -1,6 +1,6 @@
 // bsltf_nontypicaloverloadstesttype.h                                -*-C++-*-
-#ifndef INCLUDED_BSLSTL_NONTYPICALOVERLOADSTESTTYPE
-#define INCLUDED_BSLSTL_NONTYPICALOVERLOADSTESTTYPE
+#ifndef INCLUDED_BSLTF_NONTYPICALOVERLOADSTESTTYPE
+#define INCLUDED_BSLTF_NONTYPICALOVERLOADSTESTTYPE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -49,6 +49,10 @@ BSLS_IDENT("$Id: $")
 //  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj);
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -76,8 +80,22 @@ class NonTypicalOverloadsTestType {
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.
 
+  private:  
     // DATA
     int d_data;
+
+  private:  
+    // PRIVATE MANIPULATORS
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    NonTypicalOverloadsTestType* operator&();
+        // Overload 'operator&' and assert this method is not called.  This is
+        // defined only on the Microsoft platform, because we in general do not
+        // support types that overrides 'operator&' in our standard containers
+        // implementation except on Windows.  See the component-level
+        // documentation of bsls_util for more information.  Note that this
+        // method is deliverable *not* declared as 'const' in order to increase
+        // the opportunities to provoke issues at the time of compilation.
+#endif
 
   public:
     // CLASS METHODS
@@ -91,14 +109,14 @@ class NonTypicalOverloadsTestType {
         // Overload 'operator delete' and assert this method is not called.
 
     // CREATORS
-    explicit NonTypicalOverloadsTestType();
+    NonTypicalOverloadsTestType();
         // Create a 'NonTypicalOverloadsTestType' object having the (default)
         // attribute values:
         //..
         //  data() == 0
         //..
 
-    NonTypicalOverloadsTestType(int data);
+    explicit NonTypicalOverloadsTestType(int data);
         // Create a 'NonTypicalOverloadsTestType' object having the specified
         // 'data' attribute value.
 
@@ -115,21 +133,10 @@ class NonTypicalOverloadsTestType {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-
     void setData(int value);
         // Set the 'data' attribute of this object to the specified 'value'.
 
-
-#ifdef BSLS_PLATFORM_CMP_MSVC
     // ACCESSORS
-    NonTypicalOverloadsTestType* operator&();
-        // Overload 'operator&' and assert this method is not called.  This is
-        // defined only on the Microsoft platform, because we in general do not
-        // support types that overrides 'operator&' in our standard containers
-        // implementation except on Windows.  See the component-level
-        // documentation of bsls_util for more information.
-#endif
-
     int data() const;
         // Return the value of the 'data' attribute of this object.
 };
@@ -161,6 +168,7 @@ inline
 void* NonTypicalOverloadsTestType::operator new(std::size_t size)
 {
     BSLS_ASSERT_OPT(0);
+
     return ::operator new(size);
 }
 
@@ -168,6 +176,7 @@ inline
 void* NonTypicalOverloadsTestType::operator new(std::size_t, void *ptr)
 {
     BSLS_ASSERT_OPT(0);
+
     return ptr;
 }
 
@@ -213,15 +222,16 @@ void NonTypicalOverloadsTestType::setData(int value)
 }
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
-// ACCESSORS
 inline
 NonTypicalOverloadsTestType* NonTypicalOverloadsTestType::operator&()
 {
     BSLS_ASSERT_OPT(0);
+
     return 0;
 }
 #endif
 
+// ACCESSORS
 inline
 int NonTypicalOverloadsTestType::data() const
 {

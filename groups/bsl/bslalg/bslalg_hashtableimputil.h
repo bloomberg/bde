@@ -550,6 +550,41 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslalg {
 
+    
+                    // =======================================
+                    // class HashTableImpUtil_ExtractKeyResult
+                    // =======================================
+
+template <class KEY_CONFIG>
+struct HashTableImpUtil_ExtractKeyResult {
+
+    typedef typename KEY_CONFIG::KeyType   KeyType;
+    typedef typename KEY_CONFIG::ValueType ValueType;
+
+    struct ConstMatch      { char dummy[ 1]; };
+    struct NonConstMatch   { char dummy[17]; };
+    struct ConversionMatch { char dummy[65]; };
+
+    struct Impl {
+        template <class ARG>
+        static ConstMatch test(const KeyType& (*)(const ARG &));
+
+        template<class ARG>
+        static NonConstMatch test(KeyType& (*)(ARG &));
+
+        template<class RESULT, class ARG>
+        static ConversionMatch test(RESULT (*)(ARG));
+    };
+
+    enum { RESULT_SELECTOR = sizeof(Impl::test(&KEY_CONFIG::extractKey)) };
+
+    typedef typename bsl::conditional<RESULT_SELECTOR == sizeof(ConstMatch),
+                                      const KeyType&,
+            typename bsl::conditional<RESULT_SELECTOR == sizeof(NonConstMatch),
+                                      KeyType&,
+                                      KeyType>::type>::type Type;
+};
+
                           // ======================
                           // class HashTableImpUtil
                           // ======================
@@ -581,8 +616,8 @@ struct HashTableImpUtil {
         // '[bucket.first(), bucket.last()]'.
 
     template<class KEY_CONFIG>
-    static const typename KEY_CONFIG::KeyType& extractKey(
-                                                const BidirectionalLink *link);
+    static typename HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type
+                                           extractKey(BidirectionalLink *link);
         // Return a reference providing non-modifiable access to the
         // key (of type 'KEY_CONFIG::KeyType') held by the specified
         // 'link'.  The behavior is undefined unless 'link' refers to a node
@@ -694,10 +729,10 @@ struct HashTableImpUtil {
 
     template <class KEY_CONFIG, class KEY_EQUAL>
     static BidirectionalLink *find(
-                           const HashTableAnchor&              anchor,
-                           const typename KEY_CONFIG::KeyType& key,
-                           const KEY_EQUAL&                    equalityFunctor,
-                           native_std::size_t                  hashCode);
+              const HashTableAnchor&                                    anchor,
+              typename HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type key,
+              const KEY_EQUAL&                                 equalityFunctor,
+              native_std::size_t                                     hashCode);
         // Return the address of the first link in the list element of
         // the specified 'anchor', having a value matching (according to the
         // specified 'equalityFunctor') the specified 'key' in the bucket that
@@ -806,24 +841,24 @@ typename KEY_CONFIG::ValueType& HashTableImpUtil::extractValue(
 
 template<class KEY_CONFIG>
 inline
-const typename KEY_CONFIG::KeyType& HashTableImpUtil::extractKey(
-                                                 const BidirectionalLink *link)
+typename HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type
+HashTableImpUtil::extractKey(BidirectionalLink *link)
 {
     BSLS_ASSERT_SAFE(link);
 
     typedef BidirectionalNode<typename KEY_CONFIG::ValueType> BNode;
 
-    const BNode *node = static_cast<const BNode *>(link);
+    BNode *node = static_cast<BNode *>(link);
     return KEY_CONFIG::extractKey(node->value());
 }
 
 template <class KEY_CONFIG, class KEY_EQUAL>
 inline
 BidirectionalLink *HashTableImpUtil::find(
-                           const HashTableAnchor&              anchor,
-                           const typename KEY_CONFIG::KeyType& key,
-                           const KEY_EQUAL&                    equalityFunctor,
-                           native_std::size_t                  hashCode)
+  const HashTableAnchor&                                       anchor,
+  typename HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type key,
+  const KEY_EQUAL&                                             equalityFunctor,
+  native_std::size_t                                           hashCode)
 {
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());

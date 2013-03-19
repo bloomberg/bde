@@ -1,9 +1,9 @@
 // bsltf_enumeratedtesttype.t.cpp                                     -*-C++-*-
 #include <bsltf_enumeratedtesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>

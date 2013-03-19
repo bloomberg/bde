@@ -70,6 +70,10 @@ BSLS_IDENT("$Id: $")
 //  Type defines bslmf::IsBitwiseMoveable.
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -129,16 +133,6 @@ class BitwiseMoveableTestType {
         // Return the value of the 'data' attribute of this object.
 };
 
-}
-
-// TRAITS
-namespace bslmf {
-template <> struct IsBitwiseMoveable<bsltf::BitwiseMoveableTestType>
-    : bsl::true_type {};
-}
-
-namespace bsltf {
-
 // FREE OPERATORS
 bool operator==(const BitwiseMoveableTestType& lhs,
                 const BitwiseMoveableTestType& rhs);
@@ -189,23 +183,30 @@ int BitwiseMoveableTestType::data() const
     return d_data;
 }
 
+}  // close package namespace
 
 // FREE OPERATORS
 inline
-bool operator==(const bsltf::BitwiseMoveableTestType& lhs,
-                const bsltf::BitwiseMoveableTestType& rhs)
+bool bsltf::operator==(const bsltf::BitwiseMoveableTestType& lhs,
+                       const bsltf::BitwiseMoveableTestType& rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const bsltf::BitwiseMoveableTestType& lhs,
-                const bsltf::BitwiseMoveableTestType& rhs)
+bool bsltf::operator!=(const bsltf::BitwiseMoveableTestType& lhs,
+                       const bsltf::BitwiseMoveableTestType& rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+// TRAITS
+namespace bslmf {
+template <>
+struct IsBitwiseMoveable<bsltf::BitwiseMoveableTestType>
+    : bsl::true_type {};
+}  // close namespace bslmf
+
 }  // close enterprise namespace
 
 #endif

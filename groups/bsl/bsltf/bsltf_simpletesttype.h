@@ -73,6 +73,10 @@ BSLS_IDENT("$Id: $")
 //  Type does not define bslmf::IsBitwiseMoveable.
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 namespace BloombergLP {
 namespace bsltf {
 

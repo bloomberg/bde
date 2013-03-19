@@ -980,7 +980,7 @@ void TestDriver<VALUE>::testCase4()
         const Obj& X = mX;
         ASSERTV(ti, X.node() == nodes[ti]);
         ASSERTV(ti, *X == nodes[ti]->value());
-        ASSERTV(ti, X.operator->() == BSLS_UTIL_ADDRESSOF(nodes[ti]->value()));
+        ASSERTV(ti, X.operator->() == bsls::Util::addressOf(nodes[ti]->value()));
     }
 
     // Clean up the nodes.

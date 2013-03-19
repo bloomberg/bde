@@ -135,6 +135,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -152,14 +156,17 @@ namespace bslstl
                           // class HashTableIterator
                           // =======================
 
-template <class VALUE_TYPE, class DIFFERENCE_TYPE>
-class HashTableIterator
 #ifdef BSLS_PLATFORM_OS_SOLARIS
-: public native_std::iterator<native_std::forward_iterator_tag, VALUE_TYPE>
 // On Solaris just to keep studio12-v4 happy, since algorithms take only
 // iterators inheriting from 'std::iterator'.
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE>
+class HashTableIterator
+: public native_std::iterator<native_std::forward_iterator_tag, VALUE_TYPE> {
+#else
+template <class VALUE_TYPE, class DIFFERENCE_TYPE>
+class HashTableIterator {
 #endif
-{
     // This class template implements an in-core value semantic type that is an
     // standard-conforming forward iterator (see section 24.2.5
     // [forward.iterators] of the C++11 standard) over a list of

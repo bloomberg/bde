@@ -5557,7 +5557,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("\t\tCreating object of "); P(LENGTH);
                 }
 
-                try {
+                BSLS_TRY {
                     const int TB = (int) defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
                     ASSERT(TB == defaultAllocator_p->numBytesInUse());
@@ -5571,7 +5571,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (std::bad_alloc) {
+                BSLS_CATCH(const std::bad_alloc&) {
                     break;
                 }
 
@@ -5594,7 +5594,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("using "); P(VALUE);
                 }
 
-                try {
+                BSLS_TRY {
                     const int TB = (int) defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
                     ASSERT(TB == defaultAllocator_p->numBytesInUse());
@@ -5608,7 +5608,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (std::bad_alloc) {
+                BSLS_CATCH(const std::bad_alloc&) {
                     break;
                 }
 

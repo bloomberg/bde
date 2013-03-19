@@ -36,6 +36,10 @@ BSLS_IDENT("$Id: $")
 // assert(static_cast<int>(last) == 127);
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bsltf {

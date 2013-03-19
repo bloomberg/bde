@@ -2,9 +2,9 @@
 
 #include <bsltf_testvaluesarray.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -42,7 +42,7 @@ void aSsErT(bool b, const char *s, int i) {
     }
 }
 
-}  // end anonymous namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS

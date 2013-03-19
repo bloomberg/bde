@@ -392,12 +392,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
-#include <bslalg_scalarprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #include <bslalg_scalardestructionprimitives.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -412,9 +412,13 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_nativestd.h>
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
 #ifndef INCLUDED_UTILITY
 #include <utility>         // 'std::forward'
 #define INCLUDED_UTILITY
+#endif
+
 #endif
 
 
@@ -760,7 +764,7 @@ typename allocator_traits<ALLOCATOR_TYPE>::pointer
 allocator_traits<ALLOCATOR_TYPE>::allocate(ALLOCATOR_TYPE& allocator,
                                            size_type n)
 {
-    return allocator.allocate(n, 0);
+    return allocator.allocate(n);
 }
 
 template <class ALLOCATOR_TYPE>

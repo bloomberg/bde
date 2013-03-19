@@ -217,18 +217,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_RBTREENODE
-#include <bslalg_rbtreenode.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
-#include <bslma_deallocatorproctor.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
-#include <bsls_util.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
 #endif
@@ -239,6 +227,18 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_TREENODE
 #include <bslstl_treenode.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include <bslalg_rbtreenode.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
+#include <bslma_deallocatorproctor.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 namespace BloombergLP {
@@ -276,6 +276,9 @@ class TreeNodePool {
     typedef typename Pool::AllocatorType AllocatorType;
         // Alias for the allocator type defined by 'SimplePool'.
 
+    typedef typename AllocatorTraits::size_type size_type;
+        // Alias for the 'size_type' of the allocator defined by 'SimplePool'.
+
   public:
     // CREATORS
     explicit TreeNodePool(const ALLOCATOR& allocator);
@@ -305,10 +308,10 @@ class TreeNodePool {
         // memory footprint of 'node' to this pool for potential reuse.  The
         // behavior is undefined unless 'node' refers to a 'TreeNode<VALUE>'.
 
-    void reserveNodes(std::size_t numNodes);
+    void reserveNodes(size_type numNodes);
         // Reserve memory from this pool to satisfy memory requests for at
-        // least the specified 'numBlocks' before the pool replenishes.  The
-        // behavior is undefined unless '0 < numBlocks'.
+        // least the specified 'numNodes' before the pool replenishes.  The
+        // behavior is undefined unless '0 < numNodes'.
 
     void swap(TreeNodePool<VALUE, ALLOCATOR>& other);
         // Efficiently exchange the management of nodes of this object and
@@ -395,7 +398,7 @@ void TreeNodePool<VALUE, ALLOCATOR>::deleteNode(bslalg::RbTreeNode *node)
 
 template <class VALUE, class ALLOCATOR>
 inline
-void TreeNodePool<VALUE, ALLOCATOR>::reserveNodes(std::size_t numNodes)
+void TreeNodePool<VALUE, ALLOCATOR>::reserveNodes(size_type numNodes)
 {
     BSLS_ASSERT_SAFE(0 < numNodes);
 

@@ -31,22 +31,22 @@
      bslstl_multiset
      bslstl_set
      bslstl_sstream
+     bslstl_unorderedmap
+     bslstl_unorderedmultimap
+     bslstl_unorderedmultiset
+     bslstl_unorderedset
 
-  5. bslstl_istringstream
+  5. bslstl_hashtable
+     bslstl_istringstream
      bslstl_mapcomparator
      bslstl_ostringstream
      bslstl_randomaccessiterator
      bslstl_setcomparator
      bslstl_stringstream
      bslstl_treenodepool
-     bslstl_unorderedmap
-     bslstl_unorderedmultimap
-     bslstl_unorderedmultiset
-     bslstl_unorderedset
 
   4. bslstl_bidirectionaliterator
      bslstl_bitset
-     bslstl_hashtable
      bslstl_hashtablebucketiterator
      bslstl_hashtableiterator
      bslstl_priorityqueue

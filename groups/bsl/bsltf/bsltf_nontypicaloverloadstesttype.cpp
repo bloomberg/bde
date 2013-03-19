@@ -1,4 +1,4 @@
-// bsltf_nontypicaloverloadstesttype.cpp                             -*-C++-*-
+// bsltf_nontypicaloverloadstesttype.cpp                              -*-C++-*-
 #include <bsltf_nontypicaloverloadstesttype.h>
 
 #include <bsls_ident.h>
