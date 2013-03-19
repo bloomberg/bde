@@ -700,9 +700,12 @@ int main(int argc, char *argv[])
         const char *C_STRING_2 = STRING_2;
         ASSERT(C_STRING_1 != C_STRING_2);
 
+#if defined(BDE_OMIT_TRANSITIONAL) || defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         const ::bsl::hash<const char *> C_STRING_HASH =
                                                    ::bsl::hash<const char *>();
+
         ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
+#endif        
       } break;
       case 2: {
         // --------------------------------------------------------------------
