@@ -462,26 +462,9 @@ class ConstructorProxy {
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
-}  // close namespace bslalg
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-namespace bslma {
-
-template <typename OBJECT_TYPE>
-struct UsesBslmaAllocator<bslalg::ConstructorProxy<OBJECT_TYPE> >
-    : bsl::true_type
-{};
-
-}  // close namespace bslma
-
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
-
-namespace bslalg {
 
                         // ----------------------
                         // class ConstructorProxy
@@ -741,6 +724,19 @@ const OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() const
 {
     return d_objectBuffer.object();
 }
+
+}  // close package namespace
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace bslma {
+
+template <typename OBJECT_TYPE>
+struct UsesBslmaAllocator<bslalg::ConstructorProxy<OBJECT_TYPE> >
+    : bsl::true_type
+{};
 
 }  // close package namespace
 
