@@ -1,4 +1,4 @@
-// bslmf_nestedtraitdeclaration.cpp                  -*-C++-*-
+// bslmf_nestedtraitdeclaration.cpp                                   -*-C++-*-
 
 #include <bslmf_nestedtraitdeclaration.h>
 

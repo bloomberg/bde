@@ -1,4 +1,4 @@
-// bslmf_detectnestedtrait.h                  -*-C++-*-
+// bslmf_detectnestedtrait.h                                          -*-C++-*-
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #define INCLUDED_BSLMF_DETECTNESTEDTRAIT
 
@@ -19,12 +19,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
-#include <bslmf_matchanytype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
@@ -37,6 +33,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
 #include <bslmf_isconvertibletoany.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 namespace BloombergLP {

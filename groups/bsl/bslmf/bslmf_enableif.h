@@ -438,6 +438,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 namespace bsl {
 
                          // ================

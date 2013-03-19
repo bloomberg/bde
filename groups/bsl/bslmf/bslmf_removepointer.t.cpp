@@ -78,10 +78,10 @@ struct TestType {
 
 void funcWithDefaultArg(int arg = 0);
 
-template <typename TYPE>
+template <class TYPE>
 void testFuncPtrType(TYPE)
     // Removing a pointer from some function pointer types can be problematic
-    // for some compilers (e.g. AIX xlC).
+    // for some compilers (e.g., AIX xlC).
 {
     // First remove the pointer from the function pointer type and make sure it
     // compiles.

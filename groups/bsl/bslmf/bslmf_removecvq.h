@@ -38,16 +38,16 @@ BSLS_IDENT("$Id: $")
 // First, we create a template that will determine whether two objects are
 // EXACTLY the same type:
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  bool isSame(TYPE& a, TYPE& b) { return true; }
-//  template <typename TYPEA, typename TYPEB>
+//  template <class TYPEA, class TYPEB>
 //  bool isSame(TYPEA& a, TYPEB& b) { return false; }
 //..
 // Next, we combine that template function with the use of 'bslmf::RemoveCvq'
 // to create a template that will determine whether two objects are the same
 // type, ignoring 'const' and 'volatile' qualifiers:
 //..
-//  template <typename TYPEA, typename TYPEB>
+//  template <class TYPEA, class TYPEB>
 //  bool isSortaSame(TYPEA& a, TYPEB& b)
 //  {
 //      typename bslmf::RemoveCvq<TYPEA>::Type aa = a;
@@ -105,7 +105,7 @@ namespace bslmf {
                            // struct RemoveCvq
                            // ================
 
-template <typename TYPE>
+template <class TYPE>
 struct RemoveCvq
 {
     // This class implements a meta-function for stripping top-level

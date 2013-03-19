@@ -2,8 +2,8 @@
 
 #include <bslmf_removecvq.h>
 
-#include <bslmf_issame.h>   // for testing only
 #include <bslmf_assert.h>   // for testing only
+#include <bslmf_issame.h>   // for testing only
 
 #include <cstdlib>     // atoi()
 #include <cstring>     // strcmp()
@@ -58,12 +58,12 @@ static void aSsErT(int c, const char *s, int i) {
 
 struct MyType {};
 
-template <typename TYPE>
+template <class TYPE>
 bool isSame(TYPE& a, TYPE& b) { return true; }
-template <typename TYPEA, typename TYPEB>
+template <class TYPEA, class TYPEB>
 bool isSame(TYPEA& a, TYPEB& b) { return false; }
 
-template <typename TYPEA, typename TYPEB>
+template <class TYPEA, class TYPEB>
 bool isSortaSame(TYPEA& a, TYPEB& b)
 {
     typename bslmf::RemoveCvq<TYPEA>::Type aa = a;

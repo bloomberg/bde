@@ -59,10 +59,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
 #include <bslmf_ismemberfunctionpointer.h>
 #endif
@@ -75,6 +71,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ismemberpointer.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -82,7 +82,7 @@ namespace bslmf {
                       // struct IsPointerToMemberFunction
                       // ================================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPointerToMemberFunction : bsl::is_member_function_pointer<TYPE>::type
 {
     // Metafunction to test if 'TYPE' is a pointer to a member function.  Note
@@ -93,7 +93,7 @@ struct IsPointerToMemberFunction : bsl::is_member_function_pointer<TYPE>::type
                       // struct IsPointerToMemberData
                       // ============================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPointerToMemberData : bsl::is_member_object_pointer<TYPE>::type
 {
     // Metafunction to test if 'TYPE' is a pointer to a member object.  Note
@@ -104,7 +104,7 @@ struct IsPointerToMemberData : bsl::is_member_object_pointer<TYPE>::type
                       // struct IsPointerToMember
                       // ========================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPointerToMember : bsl::is_member_pointer<TYPE>::type
 {
     // Metafunction to test if 'TYPE' is a pointer to member (function or
