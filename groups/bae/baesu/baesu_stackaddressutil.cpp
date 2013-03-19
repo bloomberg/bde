@@ -36,7 +36,6 @@ BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
 
 #include <execinfo.h>
-// #include <link.h> -- needed for Linux?  I don't think so
 
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
