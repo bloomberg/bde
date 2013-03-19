@@ -104,6 +104,11 @@ typedef bsls_Types::UintPtr                                          UintPtr;
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+static int phonyCompare(const void *, const void*)
+{
+    return 0;
+}
+
 inline
 UintPtr foilOptimizer(const UintPtr u)
     // The function just returns 'u', but only after putting it through a
@@ -385,7 +390,7 @@ int main(int argc, char *argv[])
 
         for (bool demangle = false; true; demangle = true) {
             baesu_StackTrace stackTrace;
-            stackTrace.resize(4);
+            stackTrace.resize(5);
             stackTrace[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
             stackTrace[1].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
 
@@ -401,10 +406,6 @@ int main(int argc, char *argv[])
             ASSERT(result > 10000);
             stackTrace[2].setAddress(addFixedOffset(testFuncPtr));
 
-#if 0
-            // TBD: This didn't work on ELF, it might work on Darwin.
-            // Uncomment and see at some point.
-
             // Testing '&qsort' doesn't work.  The similar test in
             // baesu_stacktraceutil.t.cpp works.  I think what's happening is
             // &qsort doesn't properly point to 'qsort', it points to a thunk
@@ -417,10 +418,8 @@ int main(int argc, char *argv[])
                 int ints[] = { 0, 1 };
                 bsl::qsort(&ints, 2, sizeof(ints[0]), &phonyCompare);
             }
-            stackTrace[3].setAddress(addFixedOffset((UintPtr) &bsl::qsort));
-#endif
-
-            stackTrace[3].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
+            stackTrace[3].setAddress(addFixedOffset((UintPtr) &qsort));
+            stackTrace[4].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
 
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {
@@ -465,6 +464,7 @@ int main(int argc, char *argv[])
             const char *libName = stackTrace[0].libraryFileName().c_str();
             libName = safeBaseName(libName);
             const char *thisLib = "baesu_stacktraceresolverimpl_dladdr.t";
+            const char *qsLib = "libsystem_c";
 #undef  GOOD_LIBNAME
 #define GOOD_LIBNAME(func, exp, match)                                        \
             LOOP3_ASSERT(#func, safeBaseName(exp), ng(match),                 \
@@ -476,8 +476,10 @@ int main(int argc, char *argv[])
                              stackTrace[1].libraryFileName().c_str(), libName);
             GOOD_LIBNAME(safeCmp,
                              stackTrace[2].libraryFileName().c_str(), libName);
-            GOOD_LIBNAME(safeCmp,
-                             stackTrace[3].libraryFileName().c_str(), libName);
+            GOOD_LIBNAME(safeStrStr,
+                             stackTrace[3].libraryFileName().c_str(), qsLib);
+            GOOD_LIBNAME(safeStrStr,
+                             stackTrace[4].libraryFileName().c_str(), thisLib);
 #undef  GOOD_LIBNAME
 
             // frame[1] was pointing to a static, the ELF resolver should have
@@ -513,18 +515,20 @@ int main(int argc, char *argv[])
             SM(stackTrace[0].mangledSymbolName(), "funcGlobalOne");
             SM(stackTrace[1].mangledSymbolName(), "funcStaticOne");
             SM(stackTrace[2].mangledSymbolName(), "funcStaticInlineOne");
-            SM(stackTrace[3].mangledSymbolName(), "resolve");
+            SM(stackTrace[3].mangledSymbolName(), "qsort");
+            SM(stackTrace[4].mangledSymbolName(), "resolve");
 
             SM(stackTrace[0].symbolName(), "funcGlobalOne");
             SM(stackTrace[1].symbolName(), "funcStaticOne");
             SM(stackTrace[2].symbolName(), "funcStaticInlineOne");
-            SM(stackTrace[3].symbolName(), "resolve");
+            SM(stackTrace[3].symbolName(), "qsort");
+            SM(stackTrace[4].symbolName(), "resolve");
 
             if (demangle) {
 #undef  SM
-#define SM(i, match) {                                                 \
+#define SM(i, match) {                                                     \
                     const char *name = stackTrace[i].symbolName().c_str(); \
-                    LOOP_ASSERT(name, safeCmp(name, match));           \
+                    LOOP_ASSERT(name, safeCmp(name, match));               \
                 }
 
                 SM(0, "funcGlobalOne(int)");
@@ -532,15 +536,16 @@ int main(int argc, char *argv[])
                                                 // statics
 //              SM(2, "funcStaticInlineOne(int)");    // Darwin doesn't
                                                       // demangle statics
+                SM(3, "qsort");
                 const char *resName = "BloombergLP::"
                                       "baesu_StackTraceResolverImpl"
                                       "<BloombergLP::"
                                       "baesu_ObjectFileFormat::Dladdr>::"
                                       "resolve(";
                 int resNameLen = (int) bsl::strlen(resName);
-                const char *name3 = stackTrace[3].symbolName().c_str();
-                LOOP2_ASSERT(name3, resName,
-                                          safeCmp(name3, resName, resNameLen));
+                const char *name4 = stackTrace[4].symbolName().c_str();
+                LOOP2_ASSERT(name4, resName,
+                                          safeCmp(name4, resName, resNameLen));
                 break;
             }
 
