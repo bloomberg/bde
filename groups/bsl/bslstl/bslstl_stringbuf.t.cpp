@@ -654,11 +654,11 @@ namespace {
     bsl::string toString(unsigned int from)
     {
         bsl::stringbuf out;
-  
+
         for (; from != 0; from /= 10) {
             out.sputc('0' + from % 10);
         }
-  
+
         bsl::string result(out.str());
         std::reverse(result.begin(), result.end());
         return result;
@@ -671,11 +671,11 @@ namespace {
     unsigned int fromString(const bsl::string& from)
     {
         unsigned int result = 0;
-  
+
         for (bsl::stringbuf in(from); in.in_avail(); ) {
             result = result * 10 + (in.sbumpc() - '0');
         }
-  
+
         return result;
     }
 //..
