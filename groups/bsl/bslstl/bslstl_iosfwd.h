@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // '<bsl_iosfwd.h>' instead.
 
 #if defined(std)
-#define BSLSTL_IOSFWD_STD std
+#define BSLSTL_IOSFWD_STD_DEFINED
 #undef std
 #endif
 
@@ -82,9 +82,9 @@ typedef basic_stringstream <wchar_t, char_traits<wchar_t>,
 
 }  // close namespace bsl
 
-#if defined(BSLSTL_IOSFWD_STD)
-#define std BSLSTL_IOSFWD_STD
-#undef BSLSTL_IOSFWD_STD
+#if defined(BSLSTL_IOSFWD_STD_DEFINED)
+#define std bsl
+#undef BSLSTL_IOSFWD_STD_DEFINED
 #endif
 
 #endif
