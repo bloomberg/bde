@@ -237,7 +237,7 @@ public:
             bsl::ios_base::seekdir DIR = DATA[i].dir;
             bsl::ios_base::openmode MODE = DATA[i].mode;
 
-            for (std::size_t pos = 0; pos != initialStr.size(); ++pos) {
+            for (std::streamoff pos = 0; pos != initialStr.size(); ++pos) {
                 StringBufTest strBuf(initialStr, MODE);
 
                 std::streamoff seekOff
@@ -266,7 +266,7 @@ public:
     {
         bsl::string initialStr("initial state");
 
-        for (std::size_t pos = 0; pos != initialStr.size(); ++pos) {
+        for (std::streamoff pos = 0; pos != initialStr.size(); ++pos) {
             StringBufTest strBuf(initialStr, mode);
 
             strBuf.pubseekpos(pos, mode);
@@ -571,7 +571,7 @@ void testPutCharInTheMiddle(SeekFunc seekpos)
 {
     bsl::stringbuf buf("abcde");
 
-    std::streamoff res = seekpos(buf);
+    int res = seekpos(buf);
     ASSERT(res != -1);
 
     res = buf.sputc('3');
@@ -586,7 +586,7 @@ void testPutCharsInTheMiddle(SeekFunc seekpos)
     bsl::stringbuf buf("abcde");
     bsl::string what("34");
 
-    std::streamoff res1 = seekpos(buf);
+    int res1 = seekpos(buf);
     ASSERT(res1 != -1);
 
     std::streamsize res2 = buf.sputn(what.data(), what.size());
@@ -654,11 +654,11 @@ namespace {
     bsl::string toString(unsigned int from)
     {
         bsl::stringbuf out;
-
+  
         for (; from != 0; from /= 10) {
-            out.sputc(char('0' + from % 10));
+            out.sputc('0' + from % 10);
         }
-
+  
         bsl::string result(out.str());
         std::reverse(result.begin(), result.end());
         return result;
@@ -671,11 +671,11 @@ namespace {
     unsigned int fromString(const bsl::string& from)
     {
         unsigned int result = 0;
-
+  
         for (bsl::stringbuf in(from); in.in_avail(); ) {
             result = result * 10 + (in.sbumpc() - '0');
         }
-
+  
         return result;
     }
 //..
@@ -964,20 +964,20 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf("abc");
-            int c = buf.sbumpc();
+            char c(buf.sbumpc());
             ASSERT(c == 'a');
 
-            int res = buf.sputbackc(char(c));
+            int res = buf.sputbackc(c);
             ASSERT(res == c);
 
-            c = buf.sbumpc();
+            c = static_cast<char>(buf.sbumpc());
             ASSERT(c == res);
 
             buf.pubseekpos(3);
             res = buf.sputbackc('c');
             ASSERT(res == 'c');
 
-            c = buf.sbumpc();
+            c = static_cast<char>(buf.sbumpc());
             ASSERT(c == res);
         }
 
@@ -989,20 +989,20 @@ int main(int argc, char *argv[])
             ASSERT(resEmpty == EOF);
 
             bsl::stringbuf buf("abc");
-            int c = buf.sbumpc();
+            char c(buf.sbumpc());
             ASSERT(c == 'a');
 
             int res = buf.sputbackc('1');
             ASSERT(res == '1');
 
-            c = buf.sbumpc();
+            c = static_cast<char>(buf.sbumpc());
             ASSERT(c == res);
 
             buf.pubseekpos(3);
             res = buf.sputbackc('3');
             ASSERT(res == '3');
 
-            c = buf.sbumpc();
+            c = static_cast<char>(buf.sbumpc());
             ASSERT(c == res);
 
             bsl::stringbuf bufReadonly("abc", std::ios_base::in);

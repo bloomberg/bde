@@ -63,6 +63,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
+#include <bslmf_isconvertibletoany.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
 #endif
@@ -128,7 +132,8 @@ struct is_enum
         !is_fundamental<typename remove_cv<TYPE>::type>::value
         && !is_reference<TYPE>::value
         && is_convertible<TYPE,
-                        BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value> {
+                        BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value
+        && !BloombergLP::bslmf::IsConvertibleToAny<TYPE>::value> {
     // This 'struct' template implements the 'is_enum' meta-function defined in
     // the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from

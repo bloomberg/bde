@@ -136,12 +136,32 @@ struct DerivedAllocator : bslma::Allocator
 {
 };
 
+struct ConvertibleToAny
+    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
+    // assign it any traits.  The concern is that since
+    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
+    // the "convert to anything" operator shouldn't interfere with the nested
+    // trait logic.
+{
+    template <typename T>
+    operator T() const { return T(); }
+};
+
 }
 
 namespace BloombergLP {
 namespace bslma {
+
 template <>
 struct UsesBslmaAllocator<ClassUsingBslmaAllocator> : bsl::true_type {};
+
+template <>
+struct UsesBslmaAllocator<ConvertibleToAny> : bsl::true_type {
+    // Even though the nested trait logic is disabled by the template
+    // conversion operator, the out-of-class trait specialization should still
+    // work.
+};
+
 }
 }
 
@@ -199,6 +219,8 @@ int main(int argc, char *argv[])
         ASSERT(! bslma::UsesBslmaAllocator<bslma::Allocator volatile *>::value);
 
         ASSERT(! bslma::UsesBslmaAllocator<DerivedAllocator *>::value);
+
+        ASSERT(bslma::UsesBslmaAllocator<ConvertibleToAny>::value);
       } break;
 
       default: {
