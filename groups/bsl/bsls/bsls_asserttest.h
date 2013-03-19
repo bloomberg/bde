@@ -695,8 +695,8 @@ BSLS_IDENT("$Id: $")
 // which will deliberately '#undef' the main include-guard to achieve this
 // effect.  The deeper include-guard protects the non-macro parts of this
 // header that cannot be defined more than once.
-#ifndef INCLUDED_BSLS_ASSERTTEST_TEST_GUARD
-#define INCLUDED_BSLS_ASSERTTEST_TEST_GUARD
+#ifndef RECURSIVELY_INCLUDED_BSLS_ASSERTTEST_TEST_GUARD
+#define RECURSIVELY_INCLUDED_BSLS_ASSERTTEST_TEST_GUARD
 
 namespace BloombergLP {
 

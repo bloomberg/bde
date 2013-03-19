@@ -429,7 +429,18 @@ struct bsls_Platform_Assert;
     #pragma warning(disable : 4290)  // MSVC ignores exception specifications
     #pragma warning(disable : 4673)  // warns that warning 4670 follows
     #pragma warning(disable : 4670)  // thrown exception has inaccessible base
-    #endif
+    // These warnings added with VC2012 'all' warnings build
+    #pragma warning(disable : 4514)  // unused inline function removed
+    #pragma warning(disable : 4625)  // could not generate copy constructor
+    #pragma warning(disable : 4626)  // could not generate assignment operator
+    #pragma warning(disable : 4668)  // #if on undefined names substitutes 0
+    #pragma warning(disable : 4710)  // function not inlined
+    #pragma warning(disable : 4820)  // add padding bytes after data member
+    #pragma warning(disable : 4350)  // Compiler fix:no longer bind temp to ref
+    #pragma warning(disable : 4574)  // #ifdef macro defined as 0 (in yvals.h)
+    #pragma warning(disable : 4548)  // left of comma has no effect (in winapi)
+    #pragma warning(disable : 4686)  // change of return ABI for some templates
+    #endif // BDE_DO_NOT_HIDE_PEDANTIC_WINDOWS_WARNINGS
 
     #ifdef BDE_HIDE_COMMON_WINDOWS_WARNINGS // config macro name
     // Short-term noise reduction: These warnings are noisy but should be
@@ -438,12 +449,12 @@ struct bsls_Platform_Assert;
     #pragma warning(disable : 4389)  // signed/unsigned mismatch operator==
     #pragma warning(disable : 4245)  // signed/unsigned mismatch in conversion
     #pragma warning(disable : 4244)  // conversion may lose data
-    #pragma warning(disable : 4310)  // cast truncates constant value
-    #pragma warning(disable : 4309)  // initialization truncates constant value
     #pragma warning(disable : 4305)  // initialization truncates in conversion
-    #pragma warning(disable : 4189)  // unused local variable is initialized
-    #pragma warning(disable : 4101)  // local variable is not used
+    #pragma warning(disable : 4309)  // initialization truncates constant value
+    #pragma warning(disable : 4310)  // cast truncates constant value
     #pragma warning(disable : 4100)  // unused function parameter
+    #pragma warning(disable : 4101)  // local variable is not used
+    #pragma warning(disable : 4189)  // unused local variable is initialized
     #pragma warning(disable : 4805)  // unsafe mix of bool
     #pragma warning(disable : 4702)  // unreachable code (likely in templates)
     #pragma warning(disable : 4505)  // unreferenced local function removed
@@ -461,7 +472,12 @@ struct bsls_Platform_Assert;
     // be dealt with, but for now we are silencing them.  This pragma should be
     // removed and the warnings addressed in a future release.
     #pragma warning(disable : 4267)  // conversion from 'size_t' to int
-    #endif
+
+    // TBD
+    // This warning becomes prevalent after installing VC2012, and should be
+    // cleared up properly, rather than simply silencing like this.
+    #pragma warning(disable : 4365)  // signed/unsigned size_t/bsls::SizeType
+    #endif // BDE_HIDE_COMMON_WINDOWS_WARNINGS
 // ---------------------------------------------------------------------------
 #elif defined(__GNUC__) || defined(__EDG__)
 

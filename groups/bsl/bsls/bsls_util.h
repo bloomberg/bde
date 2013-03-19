@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      BitReference(char *byteptr = 0, int bitpos = 0)
+//      BitReference(char *byteptr = 0, int bitpos = 0)             // IMPLICIT
 //      : d_byte_p(byteptr)
 //      , d_bitpos(bitpos)
 //      {
@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      BitPointer(char *byteptr = 0, int bitpos = 0)
+//      BitPointer(char *byteptr = 0, int bitpos = 0)               // IMPLICIT
 //      : d_byte_p(byteptr)
 //      , d_bitpos(bitpos)
 //      {

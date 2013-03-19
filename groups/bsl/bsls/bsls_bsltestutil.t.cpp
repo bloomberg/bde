@@ -507,7 +507,7 @@ static int verbose, veryVerbose, veryVeryVerbose;
 # define snprintf _snprintf
 #endif
 
-template <typename ITYPE>
+template <class ITYPE>
 int printDatum(FILE        *outStream,
                const char  *identifierI,
                const char  *connector,
@@ -592,7 +592,7 @@ int printDatum(FILE        *outStream,
     }
 }
 
-template <typename ITYPE>
+template <class ITYPE>
 int printDatum(FILE        *outStream,
                const char  *identifierI,
                const char  *connector,
@@ -1160,7 +1160,7 @@ void debugprint(const BrokenTestType& obj)
 
 }  // close namespace xyzb
 
-template <typename TEST_TYPE>
+template <class TEST_TYPE>
 struct DataRow {
     int         d_line;              // line number
 
@@ -1196,7 +1196,7 @@ struct TestDriver {
     static void testCase8(OutputRedirector *output);
         // Test 'BSLS_BSLTESTUTIL_LOOP*_ASSERT' macros.
 
-    template <typename TEST_TYPE, size_t NUM_DATA>
+    template <class TEST_TYPE, size_t NUM_DATA>
     static void testCase3(OutputRedirector           *output,
                           const DataRow<TEST_TYPE>(&  DATA)[NUM_DATA],
                           const char                 *formatString);
@@ -1619,7 +1619,7 @@ void TestDriver::testCase8(OutputRedirector *output)
     }
 }
 
-template <typename TEST_TYPE, size_t NUM_DATA>
+template <class TEST_TYPE, size_t NUM_DATA>
 void TestDriver::testCase3(OutputRedirector                   *output,
                                    const DataRow<TEST_TYPE>(&  DATA)[NUM_DATA],
                                    const char                 *formatString)
