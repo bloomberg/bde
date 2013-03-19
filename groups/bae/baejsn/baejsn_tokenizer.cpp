@@ -143,18 +143,18 @@ int baejsn_Tokenizer::extractStringValue()
         }
 
         if (d_valueIter >= d_stringBuffer.length()) {
-            if (!firstTime) {
-                const int rc = resizeBufferForLargeValue();
-                if (rc) {
-                    return rc;                                        // RETURN
-                }
-            }
-            else {
+            if (firstTime) {
                 const int rc = moveValueCharsToStartAndReloadBuffer();
                 if (rc) {
                     return rc;                                        // RETURN
                 }
                 firstTime = false;
+            }
+            else {
+                const int rc = resizeBufferForLargeValue();
+                if (rc) {
+                    return rc;                                        // RETURN
+                }
             }
         }
         else {
@@ -182,18 +182,18 @@ int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
         }
 
         if (d_valueIter >= d_stringBuffer.length()) {
-            if (!firstTime) {
-                const int rc = resizeBufferForLargeValue();
-                if (rc) {
-                    return rc;                                        // RETURN
-                }
-            }
-            else {
+            if (firstTime) {
                 const int rc = moveValueCharsToStartAndReloadBuffer();
                 if (rc) {
                     return rc;                                        // RETURN
                 }
                 firstTime = false;
+            }
+            else {
+                const int rc = resizeBufferForLargeValue();
+                if (rc) {
+                    return rc;                                        // RETURN
+                }
             }
         }
         else {

@@ -235,7 +235,7 @@ class baejsn_Tokenizer {
         // Move the sequence of characters representing the value to the start
         // of the internal string buffer, erasing the characters preceding it.
         // Load new data after the last value character from the
-        // internally-held 'streambuf' and upto the maximum internal buffer
+        // internally-held 'streambuf' and up to the maximum internal buffer
         // size.  Return 0 on success and a non-zero value otherwise.
 
     int reloadStringBuffer();
@@ -246,8 +246,9 @@ class baejsn_Tokenizer {
 
     int resizeBufferForLargeValue();
         // Resize the string buffer with new data read from the underlying
-        // 'streambuf' so that it can hold a value larger than the internal
-        // buffer's size.  Return 0 on success and a non-zero value otherwise.
+        // 'streambuf' at the internally-held value iter position (so that it
+        // can hold a value larger than the internal previous buffer's size).
+        // Return 0 on success and a non-zero value otherwise.
 
     int skipWhitespace();
         // Skip all whitespace characters and position the cursor onto the
