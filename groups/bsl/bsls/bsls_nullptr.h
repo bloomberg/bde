@@ -96,16 +96,18 @@ BSLS_IDENT("$Id: $")
 //      TARGET_TYPE *d_target_p;    // wrapped pointer
 //      DeleterFn   *d_deleter_fn;  // deleter function
 //
-//      // Objects of this type cannot be copied.
-//      ScopedPointer(const ScopedPointer&);
-//      ScopedPointer& operator=(const ScopedPointer&);
-//
 //      template<class SOURCE_TYPE>
 //      static void defaultDeleteFn(TARGET_TYPE *ptr);
 //          // Destroy the specified '*ptr' by calling 'delete' on the pointer
 //          // cast to the parameterized 'SOURCE_TYPE*'.  It is an error to
 //          // instantiate this template with a 'SOURCE_TYPE' that is not
 //          // derived from (and cv-compatible with) 'TARGET_TYPE'.
+//
+//     private:
+//      // NOT IMPLEMENTED
+//      ScopedPointer(const ScopedPointer&);
+//      ScopedPointer& operator=(const ScopedPointer&);
+//          // Objects of this type cannot be copied.
 //
 //    public:
 //      template<class SOURCE_TYPE>
@@ -176,6 +178,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 #  if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
     // We currently know of no platform that supports 'nullptr' and does not
@@ -188,7 +194,16 @@ namespace bsl
 {
     // We must define this 'typedef' appropriately for platforms that support
     // 'nullptr' to avoid accidental clashes in 'BSL_OVERRIDES_STD' mode.
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(__cplusplus_cli)
+    // MSVC in /clr mode defines 'nullptr' as the .NET null pointer type, which
+    // is different from C++11 'nullptr'.  To resolve this conflict MSVC
+    // provides '__nullptr' for C++11 'nullptr'.
+
+    typedef decltype(__nullptr) nullptr_t;
+#else
     typedef decltype(nullptr) nullptr_t;
+#endif
 }
 #  endif
 #else
