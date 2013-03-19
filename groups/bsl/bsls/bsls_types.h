@@ -89,19 +89,9 @@ struct Types{
     // platform-dependent types.
 
     // TYPES
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-    typedef std::ptrdiff_t size_type;
-#else
-    typedef int            size_type;
-#endif
+    typedef std::size_t size_type;
         // The alias 'size_type' refers to the preferred type for denoting a
         // number of elements in either 'bslma' allocators or container types.
-        // Note that this type is signed, as negative values may make sense in
-        // certain contexts.  Also note that the standard-compliant allocators
-        // (e.g., 'bslstl::Allocator' and 'std::allocator') use an *unsigned*
-        // size type, but that is fine because they also have a mechanism
-        // ('max_size') to determine overflows resulting from converting from
-        // one size type to the other.
 
     typedef std::size_t    UintPtr;
     typedef std::ptrdiff_t IntPtr;
