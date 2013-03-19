@@ -1058,28 +1058,6 @@ bcem_AggregateRaw::bcem_AggregateRaw(const bcem_AggregateRaw& original)
 {
 }
 
-#ifdef BDE_BUILD_TARGET_SAFE
-bcem_AggregateRaw::~bcem_AggregateRaw()
-{
-    // Assert invariants (see member variable description in class definition)
-    if (d_dataType != bdem_ElemType::BDEM_VOID) {
-        BSLS_ASSERT(d_schema_p || (!d_recordDef_p && !d_fieldDef_p));
-
-        BSLS_ASSERT(!d_schema_p || (d_recordDef_p || d_fieldDef_p));
-
-        BSLS_ASSERT(! d_recordDef_p || &d_recordDef_p->schema() == d_schema_p);
-
-        // Cannot easily test that 'd_fieldDef_p' is within 'd_schema_p'
-        BSLS_ASSERT(! d_fieldDef_p
-                    || d_fieldDef_p->elemType() == d_dataType
-                    || d_fieldDef_p->elemType() ==
-                            bdem_ElemType::toArrayType(d_dataType));
-        BSLS_ASSERT(! d_fieldDef_p
-                    || d_recordDef_p  == d_fieldDef_p->recordConstraint());
-    }
-}
-#endif
-
 // MANIPULATORS
 bcem_AggregateRaw& bcem_AggregateRaw::operator=(const bcem_AggregateRaw& rhs)
 {
