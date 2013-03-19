@@ -196,7 +196,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         MyContainer(const MyContainer&);
         MyContainer& operator=(const MyContainer&);
 
-    public:
+      public:
         MyContainer(const T& value, int n);
             // Create a 'MyContainer' object having the specified 'n' copies of
             // the specified 'value'.
@@ -402,12 +402,12 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         MyVector(const MyVector&);
         MyVector& operator=(const MyVector&);
 
-    public:
+      public:
         MyVector(const T& value, int n);
             // Create a 'MyVector' object having the specified 'n' copies of
             // the specified 'value'.
 
-        template<typename FORWARD_ITERATOR>
+        template<class FORWARD_ITERATOR>
         MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
                     typename bsl::enable_if<
                         !bsl::is_fundamental<FORWARD_ITERATOR>::value

@@ -56,15 +56,15 @@ namespace bslmf {
                             // struct ArrayToPointer
                             // =====================
 
-template <typename TYPE, typename ORIGINAL_TYPE>
+template <class TYPE, class ORIGINAL_TYPE>
 struct ArrayToPointer_Imp;
 
-template <typename TYPE>
+template <class TYPE>
 struct ArrayToPointer {
     typedef typename ArrayToPointer_Imp<TYPE, TYPE>::Type Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct ArrayToPointer<TYPE &> {
     typedef typename ArrayToPointer_Imp<TYPE, TYPE &>::Type Type;
 };
@@ -73,12 +73,12 @@ struct ArrayToPointer<TYPE &> {
                           // struct ArrayToConstPointer
                           // ==========================
 
-template <typename TYPE>
+template <class TYPE>
 struct ArrayToConstPointer {
     typedef typename ArrayToPointer_Imp<const TYPE, TYPE>::Type Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct ArrayToConstPointer<TYPE &> {
     typedef typename ArrayToPointer_Imp<const TYPE, TYPE &>::Type Type;
 };
@@ -87,17 +87,17 @@ struct ArrayToConstPointer<TYPE &> {
                          // struct ArrayToPointer_Imp
                          // =========================
 
-template <typename TYPE, typename ORIGINAL_TYPE>
+template <class TYPE, class ORIGINAL_TYPE>
 struct ArrayToPointer_Imp {
     typedef ORIGINAL_TYPE Type;
 };
 
-template <typename TYPE, std::size_t NUM_ELEMENTS, typename UNUSED>
+template <class TYPE, std::size_t NUM_ELEMENTS, class UNUSED>
 struct ArrayToPointer_Imp<TYPE [NUM_ELEMENTS], UNUSED> {
     typedef TYPE *Type;
 };
 
-template <typename TYPE, typename UNUSED>
+template <class TYPE, class UNUSED>
 struct ArrayToPointer_Imp<TYPE [], UNUSED> {
     typedef TYPE *Type;
 };

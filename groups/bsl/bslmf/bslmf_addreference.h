@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 //      typedef typename bslmf::AddReference<TYPE>::Type WrappedType;
 //
 //      // CREATORS
-//      Wrapper(TYPE value) : d_data(value) {}
+//      Wrapper(TYPE value) : d_data(value) {}                      // IMPLICIT
 //          // Create a 'Wrapper' object having the specified 'value'.
 //
 //      //! ~Wrapper() = default;

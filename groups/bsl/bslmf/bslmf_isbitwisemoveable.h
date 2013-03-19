@@ -1,4 +1,4 @@
-// bslmf_isbitwisemoveable.h                  -*-C++-*-
+// bslmf_isbitwisemoveable.h                                          -*-C++-*-
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #define INCLUDED_BSLMF_ISBITWISEMOVEABLE
 
@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // 'IsBitwiseMoveable<TYPE>' will inherit from 'true_type' if 'TYPE' is a
 // fundamental type, enumeration type, or pointer type.  Most user-defined
 // classes are are bitwise moveable, but generic code must assume that an
-// arbrary 'TYPE' is not bitwise-moveable, as bitwise moving a type that is
+// arbitrary 'TYPE' is not bitwise-moveable, as bitwise moving a type that is
 // not bitwise moveable is likely to result in a dangling pointer.  Thus, it
 // is necessary to explicitly associate the bitwise moveable trait with a
 // class (via template specialization or by use of the
@@ -56,8 +56,8 @@ BSLS_IDENT("$Id: $")
 //: o Its address is one of the salient attributes that comprise its value.
 //: o It contains a pointer that might (directly or indirectly) point to
 //:   itself or to one of its own members.  For example, a list implementation
-//:   that includes an embedded sentinal node such that the last node in the
-//:   list points back to the sentinal node within the list class object is
+//:   that includes an embedded sentinel node such that the last node in the
+//:   list points back to the sentinel node within the list class object is
 //:   not bitwise moveable.
 //: o Its constructor registers a pointer to itself in some static registry.
 //: o It contains a data member that is not bitwise moveable.
@@ -74,54 +74,59 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
-#include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
-#include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISENUM
-#include <bslmf_isenum.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include <bslmf_removecv.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISENUM
+#include <bslmf_isenum.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include <bslmf_isfundamental.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
 
-template <typename TYPE>
+template <class TYPE>
 struct IsBitwiseMoveable;
 
-template <typename TYPE>
+template <class TYPE>
 struct IsBitwiseMoveable_Imp
     : bsl::integral_constant<bool,
                             !bsl::is_reference<TYPE>::value
                          && (  bsl::is_trivially_copyable<TYPE>::value
-                            || DetectNestedTrait<TYPE, IsBitwiseMoveable>::value)>
+                            || DetectNestedTrait<TYPE,
+                                                 IsBitwiseMoveable>::value)>
 {};
 
                         // ========================
                         // struct IsBitwiseMoveable
                         // ========================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsBitwiseMoveable
    : IsBitwiseMoveable_Imp<typename bsl::remove_cv<TYPE>::type>::type
 {

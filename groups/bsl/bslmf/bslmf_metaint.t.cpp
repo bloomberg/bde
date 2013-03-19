@@ -2,10 +2,10 @@
 
 #include <bslmf_metaint.h>
 
+#include <climits>
+#include <cstdio>
 #include <cstdlib>      // atoi()
 #include <cstring>      // strcmp()
-#include <cstdio>
-#include <climits>
 
 using namespace BloombergLP;
 using namespace std;
@@ -107,7 +107,7 @@ struct AnyType
 {
     // Type convertible from any other type.
     template <class TYPE>
-    AnyType(const TYPE&) { }
+    AnyType(const TYPE&) { }                                        // IMPLICIT
 };
 
 template <int VALUE>
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //      implicit upcast to bsl::integral_constant<int, INT_VALUE>
-        //      inheritence from bsl::integral_constant<int, INT_VALUE>
+        //      inheritance from bsl::integral_constant<int, INT_VALUE>
         //      operator bsl::false_type() const;  // MetaInt<0> only
         //      operator bsl::true_type() const;   // MetaInt<1> only
         // --------------------------------------------------------------------
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //      implicit upcast to bsl::integral_constant<int, INT_VALUE>
-        //      inheritence from bsl::integral_constant<int, INT_VALUE>
+        //      inheritance from bsl::integral_constant<int, INT_VALUE>
         //      operator bsl::false_type() const;  // MetaInt<0> only
         //      operator bsl::true_type() const;   // MetaInt<1> only
         // --------------------------------------------------------------------
