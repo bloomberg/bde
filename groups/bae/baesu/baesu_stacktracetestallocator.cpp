@@ -517,16 +517,20 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
 
         traceVec.clear();
         traceVec.insert(traceVec.end(), startTrace, endTrace);
-#if 0
-        // This would be a better way to do it, but 'bsl::map' uses the
-        // default allocator to implement 'operator[]'.  We want to avoid using
-        // the default allocator in a test allocator since the client may be
-        // debugging memory issues, and may want to closely monitor traffic on
-        // the default allocator.  What's more, *THIS* *ALLOCATOR* may be the
+
+        // We avoid using:
+        //.. 
+        //  ++stackTraceVecMap[traceVec];
+        //.. 
+        // Because 'bsl::map' uses the default allocator to create a temporary
+        // object in 'operator[]', and we want to avoid using the default
+        // allocator in a test allocator since the client may be debugging
+        // memory issues, and may want to closely monitor traffic on the
+        // default allocator.  What's more, *THIS* *ALLOCATOR* may be the
         // default allocator, which would cause a mutex deadlock.
 
         ++stackTraceVecMap[traceVec];
-#else
+
         StackTraceVecMap::iterator stmit = stackTraceVecMap.find(traceVec);
         if (stackTraceVecMap.end() == stmit) {
             StackTraceVecMap::value_type pr(traceVec, 1, d_allocator_p);
@@ -535,7 +539,6 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
         else {
             ++stmit->second;
         }
-#endif
 
         ++numBlocksInUse;
     }

@@ -524,7 +524,8 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
     enum AllocatorMagic { STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
 
     struct BlockHeader;                            // information stored in
-                                                   // each block
+                                                   // each block (defined in
+                                                   // .cpp)
 
     // DATA
     AllocatorMagic            d_magic;             // magic # to identify type
