@@ -2034,7 +2034,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
 {
     int rc = getField(field, errorDescription, true, fieldSelector1);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2053,7 +2053,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector1,
                       fieldSelector2);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2074,7 +2074,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector2,
                       fieldSelector3);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2097,7 +2097,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector3,
                       fieldSelector4);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2122,7 +2122,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector4,
                       fieldSelector5);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2149,7 +2149,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector5,
                       fieldSelector6);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2178,7 +2178,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector6,
                       fieldSelector7);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2209,7 +2209,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector7,
                       fieldSelector8);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2242,7 +2242,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector8,
                       fieldSelector9);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2277,7 +2277,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector9,
                       fieldSelector10);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
