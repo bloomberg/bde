@@ -529,8 +529,6 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
         // default allocator.  What's more, *THIS* *ALLOCATOR* may be the
         // default allocator, which would cause a mutex deadlock.
 
-        ++stackTraceVecMap[traceVec];
-
         StackTraceVecMap::iterator stmit = stackTraceVecMap.find(traceVec);
         if (stackTraceVecMap.end() == stmit) {
             StackTraceVecMap::value_type pr(traceVec, 1, d_allocator_p);
