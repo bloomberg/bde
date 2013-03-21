@@ -60,8 +60,8 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dummy>
   public:
     // PUBLIC CLASS METHODS
     static
-    int resolve(baesu_StackTrace *stackTrace,
-                bool              demangle)
+    int resolve(baesu_StackTrace *,
+                bool              )
         // Populate information for the specified 'stackFrames', a vector of
         // stack trace frames in a stack trace object.  Specify 'demangle', to
         // determine whether demangling is to occur, and 'basicAllocator',
