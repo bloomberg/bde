@@ -1,6 +1,6 @@
 // bdef_bind_test11.t.cpp                                             -*-C++-*-
 
-#include <bdef_bind_test12.h>
+#include <bdef_bind_test11.h>
 
 #include <bdef_bind.h>
 #include <bdef_bind_test.h>

@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a test apparatus for bdef_bind
+//@PURPOSE: Provide a test apparatus for bdef_bind.
 //
 //@CLASSES:
 //            bdef_Bind_TestSlots: utility class for static test methods
@@ -291,12 +291,12 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDIO
@@ -457,10 +457,11 @@ class bdef_Bind_TestTypeNoAlloc {
     };
 
     // CREATORS
-    explicit bdef_Bind_TestTypeNoAlloc(Arg1  a1  = N1, Arg2  a2  = N1, Arg3  a3  = N1,
-              Arg4  a4  = N1, Arg5  a5  = N1, Arg6  a6  = N1, Arg7  a7  = N1,
-              Arg8  a8  = N1, Arg9  a9  = N1, Arg10 a10 = N1, Arg11 a11 = N1,
-              Arg12 a12 = N1, Arg13 a13 = N1, Arg14 a14 = N1);
+    explicit bdef_Bind_TestTypeNoAlloc(
+                Arg1  a1  = N1, Arg2  a2  = N1, Arg3  a3  = N1, Arg4  a4  = N1,
+                Arg5  a5  = N1, Arg6  a6  = N1, Arg7  a7  = N1, Arg8  a8  = N1,
+                Arg9  a9  = N1, Arg10 a10 = N1, Arg11 a11 = N1, Arg12 a12 = N1,
+                Arg13 a13 = N1, Arg14 a14 = N1);
         // Create a test object having the same value as the specified
         // 'original'.
 
@@ -741,11 +742,11 @@ class bdef_Bind_TestArgAlloc {
 #if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
     // TBD: This is probably an IBM xlC compiler bug.  Reproduce in a small
     // test case later.
-    bdef_Bind_TestArgAlloc(int value);                               // IMPLICT
-    bdef_Bind_TestArgAlloc(int value, bslma_Allocator *allocator);
+    bdef_Bind_TestArgAlloc(int value);                              // IMPLICIT
+    bdef_Bind_TestArgAlloc(int value, bslma::Allocator *allocator);
 #else
     bdef_Bind_TestArgAlloc(int value,
-                           bslma_Allocator *allocator = 0);         // IMPLICIT
+                           bslma::Allocator *allocator = 0);        // IMPLICIT
 #endif
         // Create an object having the specified 'value'.  Use the specified
         // 'allocator' to supply memory.  If 'allocator' is 0, use the
@@ -858,7 +859,7 @@ class bdef_Bind_TestTypeAlloc {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bdef_Bind_TestTypeAlloc(bslma_Allocator *allocator = 0,
+    explicit bdef_Bind_TestTypeAlloc(bslma::Allocator *allocator = 0,
             Arg1  a1  = N1, Arg2  a2  = N1, Arg3  a3  = N1,
             Arg4  a4  = N1, Arg5  a5  = N1, Arg6  a6  = N1,
             Arg7  a7  = N1, Arg8  a8  = N1, Arg9  a9  = N1,
@@ -2583,9 +2584,7 @@ int bdef_Bind_TestFunctionsAlloc::func14(bdef_Bind_TestTypeAlloc *o,
                          a13, a14);
 }
 
-} // close namespace BloombergLP
-
-
+}  // close namespace BloombergLP
 
 #endif
 

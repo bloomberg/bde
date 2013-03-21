@@ -224,7 +224,7 @@ namespace BloombergLP {
         }
     };
 
-    template <typename T>
+    template <class T>
     class bdef_Bind_Tuple1
     {
         // This 'class' holds an integer argument.
