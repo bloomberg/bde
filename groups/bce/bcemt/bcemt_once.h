@@ -50,10 +50,11 @@ BDES_IDENT("$Id: $")
 // An even easier way to use the facilities of this component is to use the
 // 'BCEMT_ONCE_DO' macro.  This macro behaves like an 'if' statement --
 // executing the following [compound] statement the first time the control
-// passes through it in the course of a program's execution.  Thus,
-// bracketing arbitrary code in a 'BCEMT_ONCE_DO' construct is the easiest
-// way to ensure that code will be executed only once for a program.  The
-// 'BCEMT_ONCE_DO' behaves correctly even if there are 'return' statements
+// passes through it in the course of a program's execution, and blocking
+// other calling threads until the [compound] statement is executed the first
+// time.  Thus, bracketing arbitrary code in a 'BCEMT_ONCE_DO' construct is the
+// easiest way to ensure that code will be executed only once for a program.
+// The 'BCEMT_ONCE_DO' behaves correctly even if there are 'return' statements
 // within the one-time code block.
 //
 // The implementation of this component uses appropriate memory barriers so
@@ -265,7 +266,7 @@ BDES_IDENT("$Id: $")
 //
 ///Using the Semaphore Implementations
 ///- - - - - - - - - - - - - - - - - -
-// The following pair of functions, 'thread1func' and 'thread2func  which will
+// The following pair of functions, 'thread1func' and 'thread2func' which will
 // be run by different threads:
 //..
 //  void *thread1func(void *)
@@ -300,7 +301,7 @@ BDES_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-// Both threads attempt to initialize the four singletons.  In our  example,
+// Both threads attempt to initialize the four singletons.  In our example,
 // each thread passes a distinct argument to the singleton, allowing us to
 // identify the thread that initializes the singleton.  (In practice, the
 // arguments passed to a specific singleton are almost always fixed and most
@@ -401,6 +402,7 @@ class bcemt_Once {
     // PRIVATE TYPES
     enum { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };
 
+  private:
     // NOT IMPLEMENTED
     bcemt_Once& operator=(const bcemt_Once&);
         // Copy-assignment is not allowed.  We cannot declare a private copy
@@ -490,7 +492,7 @@ class bcemt_OnceGuard {
 
   public:
     // CREATORS
-    bcemt_OnceGuard(bcemt_Once *once = 0);
+    explicit bcemt_OnceGuard(bcemt_Once *once = 0);
         // Initialize this object to guard the (optionally) specified 'once'
         // object.  If 'once' is not specified, then it must be set later using
         // the 'setOnce' method before other methods may be called.
@@ -580,6 +582,7 @@ inline
 void bcemt_OnceGuard::setOnce(bcemt_Once *once)
 {
     BSLS_ASSERT_SAFE(BCEMT_IN_PROGRESS != d_state);
+
     d_once = once;
     d_state = BCEMT_NOT_ENTERED;
 }
