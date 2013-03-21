@@ -1,7 +1,14 @@
-// dummy.cpp                                                          -*-C++-*-
+// bslhdrs_dummy.cpp                                                  -*-C++-*-
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Workaround for build tool.
+//
+//@AUTHOR: Mike Giroux (mgiroux)
+//
+//@DESCRIPTION: This is a workaround for the build tool since the tool requires
+// at least one implementation file in a package.
 
 // This symbol exists to avoid 'getarsym' errors when linking tests against the
 // 'bsl+bslhdrs' package library on SunOS with gcc.
