@@ -1,4 +1,4 @@
-// bdef_bind_test.t.cpp                 -*-C++-*-
+// bdef_bind_test.t.cpp                                               -*-C++-*-
 
 #include <bdef_bind_test.h>
 #include <bdef_placeholder.h>
@@ -6,12 +6,12 @@
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraits.h>
 
-#include <bslmf_nil.h>
-
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bslmf_nil.h>
 
 #include <bsls_platform.h>
 

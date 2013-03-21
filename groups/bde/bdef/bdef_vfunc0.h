@@ -1,4 +1,4 @@
-// bdef_vfunc0.h                -*-C++-*-
+// bdef_vfunc0.h                                                      -*-C++-*-
 #ifndef INCLUDED_BDEF_VFUNC0
 #define INCLUDED_BDEF_VFUNC0
 
@@ -100,7 +100,7 @@ class bdef_Vfunc0 {
         // Create an uninitialized functor.  The resulting functor cannot be
         // invoked, but may subsequently be assigned an invokable value.
 
-    bdef_Vfunc0(bdefr_Vfunc0 *representation);
+    bdef_Vfunc0(bdefr_Vfunc0 *representation);                      // IMPLICIT
         // Create a functor that assumes shared ownership of the specified,
         // dynamically allocated, reference-counted representation.  If 0 is
         // specified, the functor is created in a null state (i.e., cannot be
@@ -153,16 +153,16 @@ inline bdef_Vfunc0::bdef_Vfunc0()
 {
 }
 
-inline bdef_Vfunc0::bdef_Vfunc0(bdefr_Vfunc0 *rep)
-: d_rep_p(rep)
+inline bdef_Vfunc0::bdef_Vfunc0(bdefr_Vfunc0 *representation)
+: d_rep_p(representation)
 {
     if (d_rep_p) {
         d_rep_p->increment();
     }
 }
 
-inline bdef_Vfunc0::bdef_Vfunc0(const bdef_Vfunc0& functor)
-: d_rep_p(functor.d_rep_p)
+inline bdef_Vfunc0::bdef_Vfunc0(const bdef_Vfunc0& functionObject)
+: d_rep_p(functionObject.d_rep_p)
 {
     if (d_rep_p) {
         d_rep_p->increment();
@@ -176,13 +176,13 @@ inline bdef_Vfunc0::~bdef_Vfunc0()
     }
 }
 
-inline bdef_Vfunc0& bdef_Vfunc0::operator=(const bdef_Vfunc0& rhs)
+inline bdef_Vfunc0& bdef_Vfunc0::operator=(const bdef_Vfunc0& functionObject)
 {
-    if (d_rep_p != rhs.d_rep_p) {
+    if (d_rep_p != functionObject.d_rep_p) {
         if (d_rep_p && 0 == d_rep_p->decrement()) {
             bdefr_Vfunc0::deleteObject(d_rep_p);
         }
-        d_rep_p = rhs.d_rep_p;
+        d_rep_p = functionObject.d_rep_p;
         if (d_rep_p) {
             d_rep_p->increment();
         }
