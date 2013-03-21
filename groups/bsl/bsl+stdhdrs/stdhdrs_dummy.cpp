@@ -1,8 +1,6 @@
-// dummy.cpp                                                          -*-C++-*-
+// stdhdrs_dummy.cpp                                                  -*-C++-*-
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Workaround for build tool.
