@@ -7,7 +7,8 @@
 #include <bdeimp_inthash.h>
 #include <bdeimp_strhash.h>
 
-#include <bslma_bufferallocator.h>              // for testing only
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
