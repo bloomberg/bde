@@ -219,8 +219,8 @@ int main(int argc, char *argv[])
 
         ASSERT(patch == osvi.szCSDVersion);
 #else
-        utsname unameInfo;
-        ASSERT(0 == uname(&unameInfo));
+        struct utsname unameInfo;
+        ASSERT(uname(&unameInfo) >= 0);
         ASSERT(name == unameInfo.sysname);
         ASSERT(version == unameInfo.release);
         ASSERT(patch == unameInfo.version);

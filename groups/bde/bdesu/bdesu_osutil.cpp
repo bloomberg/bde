@@ -70,7 +70,7 @@ int OsUtil::getOsInfo(bsl::string *osName,
     BSLS_ASSERT(osVersion);
     BSLS_ASSERT(osPatch);
 
-    utsname unameInfo;
+    struct utsname unameInfo;
     if (-1 == uname(&unameInfo)) {
         return -1;
     }
