@@ -214,10 +214,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //      for (int i = 0; i < NUM_NODES; ++i) {
 //          int comparisonResult;
+//          SimpleIntNodeValueComparator comparator;
 //          RbTreeNode *insertLocation = RbTreeUtil::findUniqueInsertLocation(
 //                                              &comparisonResult,
 //                                              &tree,
-//                                              SimpleIntNodeValueComparator(),
+//                                              comparator,
 //                                              nodes[i].d_value);
 //          BSLS_ASSERT(comparisonResult);
 //          RbTreeUtil::insertAt(&tree,
@@ -226,12 +227,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //                               &nodes[i]);
 //      }
 //..
-// And verify the resulting 'tree' holds 5 nodes, the first node has
-// the value 0, and the last node has the value 4:
+// And verify the resulting 'tree' holds 5 nodes, and the first node has
+// the value 0:
 //..
 //      assert(5 == tree.numNodes());
 //      assert(0 == static_cast<SimpleIntNode *>(tree.firstNode())->d_value);
-//      assert(4 == static_cast<SimpleIntNode *>(tree.lastNode())->d_value);
 //..
 // Finally, we use 'RbTreeUtil' to iterate through the nodes of 'tree', and
 // write the value of each node to the console:
