@@ -29,13 +29,13 @@ using bsl::endl;
 //
 // The component has only one public function, 'resolve'.  There are two ways
 // to test it:
-//: 1 supplying the stack trace with valid code address, and after resolution
+//: 1 supplying the stack trace with valid code addresses, and after resolution
 //:   we will confirm that the symbol names it has resolved are correct.
-//: 2 supplying the stack trace with a large number garbage addresses, to see
-//:   if any addresses cause undefined behavior such as a segfault or crash.
-//:   This is important because most of the work is being done by the 'dladdr'
-//:   function, which is supplied to us by the operating system, and for which
-//:   we have no source and over which we have no control.
+//: 2 supplying the stack trace with a large number of garbage addresses, to
+//:   see if any addresses cause undefined behavior such as a segfault or
+//:   crash.  This is important because most of the work is being done by the
+//:   'dladdr' function, which is supplied to us by the operating system, and
+//:   for which we have no source and over which we have no control.
 //-----------------------------------------------------------------------------
 // [ 2] resolve maliciously chosen garbage code addresses
 // [ 1] resolve valid code addresses
@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // GARBAGE TEST
         //
@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
             }
         }
       }  break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
         // baesu_StackTraceResolverImp<Dladdr> BREATHING TEST
         //
@@ -556,6 +556,25 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(0 == defaultAllocator.numAllocations());
+      }  break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        // --------------------------------------------------------------------
+
+        baesu_StackTrace stackTrace;
+        stackTrace.resize(1);
+
+        UintPtr funcUintPtr = (UintPtr) &funcGlobalOne;
+        stackTrace[0].setAddress((void *) (funcUintPtr + 20));
+
+        Obj::resolve(&stackTrace, false);
+
+        ASSERT(1 == stackTrace.length());
+        ASSERT(bsl::string::npos != stackTrace[0].symbolName().find(
+                                                            "funcGlobalOne"));
+        ASSERT(bsl::string::npos != stackTrace[0].libraryFileName().find(
+                                    "baesu_stacktraceresolverimpl_dladdr.t"));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

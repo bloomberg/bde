@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide function resolving symbols in a stack trace using 'dladdr'.
+//@PURPOSE: Functions for resolving symbols in a stack trace using 'dladdr'.
 //
 //@CLASSES:
 //   baesu_StackTraceResolverImpl<Dladdr>: symbol resolution using 'dladdr'
@@ -25,9 +25,9 @@ BDES_IDENT("$Id: $")
 // for any platform that supports the 'dladdr' function (e.g. Darwin and
 // supported platforms).  Note that 'dladdr' is not a standard system function,
 // but documentation is frequently available via 'man dladdr' on supported
-// platforms.
+// platforms such as Linux and Apple Mac OSX.
 //
-// Note that this resolving implementation is currently for the operating
+// Note that this resolving implementation is currently used for the operating
 // systems based on the Mach kernel, in particular Apple Mac OSX.
 //
 // In addition to 'dladdr', this code uses the 'abi::__cxa_demangle' function
@@ -97,8 +97,8 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> {
                                             // possible.
 
     char              *d_demangleBuf_p;     // scratch space for demangling,
-                                            // length is 'DEMANGLE_BUF_LEN' in
-                                            // the imp file.
+                                            // length is 'DEMANGLING_BUF_LEN'
+                                            // in the imp file.
 
     bool               d_demangleFlag;      // whether we demangle names
 
