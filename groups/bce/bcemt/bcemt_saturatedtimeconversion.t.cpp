@@ -178,15 +178,7 @@ void testSignedTimespec(const char *timeSpecName)
     TIMESPEC tm;
 
     tm.tv_sec = -1;
-    if (tm.tv_sec < 0) {
-        if (verbose) {
-            bsl::string outStr(bsl::string("'") + timeSpecName +
-                                           "::tv_sec' IS SIGNED -- TESTING\n");
-            outStr.append(outStr.length() - 1, '=');
-            cout << outStr << endl;
-        }
-    }
-    else {
+    if (tm.tv_sec > 0) {
         if (verbose) {
             bsl::string outStr(bsl::string("'") + timeSpecName +
                                "::tv_sec' IS UNSIGNED -- NO SIGNED TESTING\n");
@@ -194,6 +186,14 @@ void testSignedTimespec(const char *timeSpecName)
             cout << outStr << endl;
         }
         return;                                                       // RETURN
+    }
+    else {
+        if (verbose) {
+            bsl::string outStr(bsl::string("'") + timeSpecName +
+                                           "::tv_sec' IS SIGNED -- TESTING\n");
+            outStr.append(outStr.length() - 1, '=');
+            cout << outStr << endl;
+        }
     }
 
     if (veryVerbose) P(sizeof(tm.tv_sec));
@@ -350,7 +350,15 @@ void testUnsignedTimespec(const char *timeSpecName)
     TIMESPEC tm;
 
     tm.tv_sec = -1;
-    if (tm.tv_sec < 0) {
+    if (tm.tv_sec > 0) {
+        if (verbose) {
+            bsl::string outStr(bsl::string("'") + timeSpecName +
+                                         "::tv_sec' IS UNSIGNED -- TESTING\n");
+            outStr.append(outStr.length() - 1, '=');
+            cout << outStr << endl;
+        }
+    }
+    else {
         if (verbose) {
             bsl::string outStr(bsl::string("'") + timeSpecName +
                                "::tv_sec' IS SIGNED -- NO UNSIGNED TESTING\n");
@@ -358,14 +366,6 @@ void testUnsignedTimespec(const char *timeSpecName)
             cout << outStr << endl;
         }
         return;                                                       // RETURN
-    }
-    else {
-        if (verbose) {
-            bsl::string outStr(bsl::string("'") + timeSpecName +
-                                         "::tv_sec' IS UNSIGNED -- TESTING\n");
-            outStr.append(outStr.length() - 1, '=');
-            cout << outStr << endl;
-        }
     }
 
     int ns, ct;
@@ -397,19 +397,20 @@ void testUnsignedTimespec(const char *timeSpecName)
 
         if (veryVerbose) Q(Vary across positive saturating range);
         ns = 500 * MILLION, ct = 0;
-        for (Int64 i = uintMax; i < int64Max - i48; i += i48, ++ns, ++ct) {
+        for (Int64 i = (Int64) uintMax + 1; i < int64Max - i48;
+                                                        i += i48, ++ns, ++ct) {
             bdet_TimeInterval ti(i, ns * sign(i));
 
             Obj::toTimeSpec(&tm, ti);
 
-            ASSERT(tm.tv_sec == uintMax);
-            ASSERT(tm.tv_nsec == ns * sign(i));
+            ASSERT(tm.tv_sec  == uintMax);
+            ASSERT(tm.tv_nsec == BILLION - 1);
         }
         ASSERT(ct > 32000);
 
         if (veryVerbose) Q(Vary across negative saturating range);
         ns = 500 * MILLION, ct = 0;
-        for (Int64 i = 0; i > int64Min + i48; i -= i48, ++ns, ++ct) {
+        for (Int64 i = -1; i > int64Min + i48; i -= i48, ++ns, ++ct) {
             bdet_TimeInterval ti(i, ns * sign(i));
 
             Obj::toTimeSpec(&tm, ti);

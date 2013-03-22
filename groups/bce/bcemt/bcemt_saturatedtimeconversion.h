@@ -133,6 +133,15 @@ BDES_IDENT("$Id: $")
 #include <bsl_ctime.h>
 #endif
 
+#ifdef BSLS_PLATFORM_OS_DARWIN
+
+#ifndef INCLUDED_MACH_CLOCK_TYPES
+#define INCLUDED_MACH_CLOCK_TYPES
+#include <mach/clock_types.h>    // for 'mach_timespec_t'
+#endif
+
+#endif
+
 #endif
 
 namespace BloombergLP {

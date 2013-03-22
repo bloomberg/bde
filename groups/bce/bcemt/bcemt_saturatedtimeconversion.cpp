@@ -158,9 +158,9 @@ void bcemt_SaturatedTimeConversion::toTimeSpec(mach_timespec_t          *dst,
     // 'dst->tv_sec' is unsigned, which may change.
 
     dst->tv_sec = -1;
-    const bool secSigned = dst->tv_sec < 0;
+    const bool secSigned = !(dst->tv_sec > 0);
 
-    toTimeTImp(&dst->tv_sec, srcseconds());
+    toTimeTImp(&dst->tv_sec, src.seconds());
 
     if (secSigned) {
 #ifdef BDE_BUILD_TARGET_SAFE
