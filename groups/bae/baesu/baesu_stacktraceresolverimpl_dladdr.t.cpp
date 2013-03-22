@@ -5,6 +5,8 @@
 
 #include <baesu_objectfileformat.h>
 
+#include <bdes_bitutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_types.h>
@@ -37,8 +39,9 @@ using bsl::endl;
 //:   'dladdr' function, which is supplied to us by the operating system, and
 //:   for which we have no source and over which we have no control.
 //-----------------------------------------------------------------------------
-// [ 2] resolve maliciously chosen garbage code addresses
-// [ 1] resolve valid code addresses
+// [ 3] resolve maliciously chosen garbage code addresses
+// [ 2] resolve valid code addresses of 6 different types
+// [ 1] breathing test
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -328,13 +331,19 @@ int main(int argc, char *argv[])
         // GARBAGE TEST
         //
         // Concerns:
-        //   That the resolver won't segfault given garbage data.
+        //   That, given garbage data, the stack trace facility won't:
+        //: 1 Segfault.
+        //: 2 Fail an assert.
+        //: 3 Return a non-zero status.
         //
         // Plan:
-        //   Seed a long stackTrace of StackTraceFrames with maliciously chosen
-        //   garbase addresses, then resolve the stackTrace, seeing if it
-        //   segfaults or fails an assert.  Then stream out the frames to see
-        //   if any problems are encountered streaming out.
+        //: 1 Seed a long stackTrace of StackTraceFrames with a combination of
+        //:   random and maliciously chosen garbase addresses.
+        //: 2 Resolve it.
+        //: 3 Observe if it segfaults or fails any asserts
+        //: 4 Observe if it returns a non-zero return code.
+        //: 5 Stream all the frames to a stringstream to see if the stream
+        //:   operator causes any segfaults of failed asserts
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Garbage Test\n"
@@ -345,7 +354,8 @@ int main(int argc, char *argv[])
         baesu_StackTrace stackTrace(&ta);
         stuffRandomAddresses(&stackTrace);
 
-        (void) Obj::resolve(&stackTrace, true);
+        int rc = Obj::resolve(&stackTrace, true);
+        ASSERT(0 == rc);
 
         ASSERT(0 == defaultAllocator.numAllocations());
 
@@ -355,32 +365,44 @@ int main(int argc, char *argv[])
 
         for (int vecIndex = 0; vecIndex < (int) stackTrace.length();
                                                              vecIndex += 128) {
-            bsl::ostringstream ss(&ta);
+            bsl::ostringstream oss(&ta);
 
             int vecIndexLim = bsl::min(vecIndex + 127,
                                        (int) stackTrace.length());
             for (int j = vecIndex; j < vecIndexLim; ++j) {
-                ss << stackTrace[j] << endl;
+                oss << stackTrace[j] << endl;
             }
         }
       }  break;
       case 2: {
         // --------------------------------------------------------------------
-        // baesu_StackTraceResolverImp<Dladdr> BREATHING TEST
+        // SUCCESSFUL RESOLVE TEST
         //
         // Concerns:
-        //   That 'resolve' can corectly resolve code pointers into symbol
-        //   names
+        //   That 'resolve' can corectly resolve code pointers of several types
+        //   into symbol information.
+        //: 1 Global symbol in this file
+        //: 2 Static out of line routine in this file
+        //: 3 Static inline in this file
+        //: 4 Symbol in a shared library
+        //: 5 Global symbol in a different file
+        //: 6 Global inline in another file
         //
         // Plan:
-        //   Seed a 'baesu_StackTrace' object with several code pointers
-        //   pointeing into known functions, call 'resolve', and verify that
-        //   the data fields calculated are as they should be.
+        //: 1 Populate a 'baesu_StackTrace' object with several code pointers
+        //:   of all the different types outlined in 'Concerns".
+        //: 2 Verify all fields other than the 'address' fields are 'unknown'.
+        //: 3 Call 'resolve' on the stack trace object
+        //: 4 Verify some of the expected fields are known
+        //: 5 Verify the 'libraryFileName' fields are as expected
+        //: 6 Verify the 'sourceFileName' fields are as expected
+        //: 7 Verify the 'mangledSymbolName' and 'symbolName' fields are as
+        //:   expected.
+        //: 8 For the non-static symbols, verify they demangled properly.
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-                       "baesu_StackTraceResolverImpl<Dladdr> breathing test\n"
-                       "===================================================\n";
+        if (verbose) cout << "SUCCESSFUL RESOLVE TEST\n"
+                             "=======================\n";
 
         // There seems to be a problem with taking a pointer to an function in
         // a shared library.  We'll leave the testing of symbols in shared
@@ -388,11 +410,20 @@ int main(int argc, char *argv[])
 
         typedef bsls_Types::UintPtr UintPtr;
 
-        for (bool demangle = false; true; demangle = true) {
+        for (int ti = 0; ti < 2; ++ti) {
+            const bool demangle = ti;
             baesu_StackTrace stackTrace;
-            stackTrace.resize(5);
+            stackTrace.resize(6);
+
+            // Global symbol in this file
+
             stackTrace[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
+
+            // Static out of line routine in this file
+
             stackTrace[1].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
+
+            // Static inline in this file
 
             UintPtr testFuncPtr = (UintPtr) &funcStaticInlineOne;
 
@@ -406,11 +437,7 @@ int main(int argc, char *argv[])
             ASSERT(result > 10000);
             stackTrace[2].setAddress(addFixedOffset(testFuncPtr));
 
-            // Testing '&qsort' doesn't work.  The similar test in
-            // baesu_stacktraceutil.t.cpp works.  I think what's happening is
-            // &qsort doesn't properly point to 'qsort', it points to a thunk
-            // that dynamically loads qsort and then calls it.  So when the
-            // resolver tries to resolve the ptr to the thunk, it can't.
+            // Symbol in a shared library
 
             {
                 // make sure the component contain 'qsort' is loaded
@@ -419,7 +446,15 @@ int main(int argc, char *argv[])
                 bsl::qsort(&ints, 2, sizeof(ints[0]), &phonyCompare);
             }
             stackTrace[3].setAddress(addFixedOffset((UintPtr) &qsort));
+
+            // Global symbol in a different file
+
             stackTrace[4].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
+
+            // Global inline in another file
+
+            stackTrace[5].setAddress(addFixedOffset((UintPtr)
+                                                       &bdes_BitUtil::eqMask));
 
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {
@@ -439,8 +474,8 @@ int main(int argc, char *argv[])
 #undef IS_UNKNOWN
             }
 
-            Obj::resolve(&stackTrace,
-                         demangle);
+            int rc = Obj::resolve(&stackTrace, demangle);
+            ASSERT(0 == rc);
 
             if (veryVerbose) {
                 cout << "Pass " << (int) demangle << endl;
@@ -480,6 +515,8 @@ int main(int argc, char *argv[])
                              stackTrace[3].libraryFileName().c_str(), qsLib);
             GOOD_LIBNAME(safeStrStr,
                              stackTrace[4].libraryFileName().c_str(), thisLib);
+            GOOD_LIBNAME(safeStrStr,
+                             stackTrace[5].libraryFileName().c_str(), thisLib);
 #undef  GOOD_LIBNAME
 
             // frame[1] was pointing to a static, the ELF resolver should have
@@ -517,12 +554,14 @@ int main(int argc, char *argv[])
             SM(stackTrace[2].mangledSymbolName(), "funcStaticInlineOne");
             SM(stackTrace[3].mangledSymbolName(), "qsort");
             SM(stackTrace[4].mangledSymbolName(), "resolve");
+            SM(stackTrace[5].mangledSymbolName(), "eqMask");
 
             SM(stackTrace[0].symbolName(), "funcGlobalOne");
             SM(stackTrace[1].symbolName(), "funcStaticOne");
             SM(stackTrace[2].symbolName(), "funcStaticInlineOne");
             SM(stackTrace[3].symbolName(), "qsort");
             SM(stackTrace[4].symbolName(), "resolve");
+            SM(stackTrace[5].symbolName(), "eqMask");
 
             if (demangle) {
 #undef  SM
@@ -546,13 +585,12 @@ int main(int argc, char *argv[])
                 const char *name4 = stackTrace[4].symbolName().c_str();
                 LOOP2_ASSERT(name4, resName,
                                           safeCmp(name4, resName, resNameLen));
-                break;
+                resName = "BloombergLP::bdes_BitUtil::eqMask(";
+                resNameLen = (int) bsl::strlen(resName);
+                const char *name5 = stackTrace[5].symbolName().c_str();
+                LOOP2_ASSERT(name5, resName,
+                                          safeCmp(name5, resName, resNameLen));
             }
-
-#if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
-            // Sun CC, won't demangle
-            break;
-#endif
         }
 
         ASSERT(0 == defaultAllocator.numAllocations());
@@ -560,7 +598,18 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //
+        // Concerns:
+        //   Exercise basic functionality.
+        //
+        // Plan:
+        //: 1 Load a single function pointer into a stack trace object.
+        //: 2 Resolve it.
+        //: 3 Check some of the symbol information for correctness.
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "BREATHING TEST\n"
+                             "==============\n";
 
         baesu_StackTrace stackTrace;
         stackTrace.resize(1);
