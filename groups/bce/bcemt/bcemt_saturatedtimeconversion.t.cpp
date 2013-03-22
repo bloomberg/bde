@@ -7,6 +7,11 @@
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
+#include <bsl_string.h>
+
+#ifdef BCES_PLATFORM_WIN32_THREADS
+#include <windows.h>
+#endif
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -19,13 +24,27 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
+// The component consists of a number of independent class methods which may
+// be tested independently -- none depend on each other.
+//-----------------------------------------------------------------------------
+// CLASS METHODS
+// [6] USAGE
+// [5] 'toMillisec'
+// [4] 'toTimeT'
+// [3] 'toTimeSpec' -- case where 'tv_sec' is unsigned.
+// [2] 'toTimeSpec' -- case where 'tv_sec' is signed.
+// [1] Breathing test (none)
+//-----------------------------------------------------------------------------
+
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -34,6 +53,8 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
@@ -121,12 +142,358 @@ const Int64 i32         = ((Int64) 1 << 32);
 const Int64 i48         = ((Int64) 1 << 48);
 
 //=============================================================================
+//                               GLOBAL VARIABLES
+//-----------------------------------------------------------------------------
+
+int verbose;
+int veryVerbose;
+// int veryVeryVerbose;
+
+//=============================================================================
 //                              STATIC FUNCTIONS
 //-----------------------------------------------------------------------------
 
 static int sign(Int64 value)
 {
     return value < 0 ? -1 : 1;
+}
+
+                              // --------------
+                              // timespec tests
+                              // --------------
+
+// These tests are templated to allow easy repetition for testing of both
+// 'Obj::TimeSpec' and 'mach_timespec_t'.
+
+                             // 'tv_sec' is signed
+
+template <typename TIMESPEC>
+void testSignedTimespec(const char *timeSpecName)
+    // Check if the specified 'TIMESPEC' type is signed, and if so, test it
+    // accordingly.
+{
+    enum { MILLION = 1000 * 1000,
+           BILLION = MILLION * 1000 };
+
+    TIMESPEC tm;
+
+    tm.tv_sec = -1;
+    if (tm.tv_sec < 0) {
+        if (verbose) {
+            bsl::string outStr(bsl::string("'") + timeSpecName +
+                                           "::tv_sec' IS SIGNED -- TESTING\n");
+            outStr.append(outStr.length() - 1, '=');
+            cout << outStr << endl;
+        }
+    }
+    else {
+        if (verbose) {
+            bsl::string outStr(bsl::string("'") + timeSpecName +
+                               "::tv_sec' IS UNSIGNED -- NO SIGNED TESTING\n");
+            outStr.append(outStr.length() - 1, '=');
+            cout << outStr << endl;
+        }
+        return;                                                       // RETURN
+    }
+
+    if (veryVerbose) P(sizeof(tm.tv_sec));
+
+    int ns, ct;
+
+    if (sizeof(tm.tv_sec) == 4) {
+        if (veryVerbose) Q(Vary secondss across non-saturating range);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = intMin; i <= intMax; i += i16, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == i);
+            ASSERT(tm.tv_nsec == ns * sign(i));
+
+            ti.setInterval(i, 0);
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == i);
+            ASSERT(tm.tv_nsec == 0);
+        }
+        ASSERT(ct > 65000);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = intMax; i >= intMin; i -= i16, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERTV(tm.tv_sec, i,   tm.tv_sec  ==  i);
+            ASSERTV(tm.tv_nsec, ns, tm.tv_nsec == ns * sign(i));
+
+            ti.setInterval(i, 0);
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == i);
+            ASSERT(tm.tv_nsec == 0);
+        }
+        ASSERT(ct > 65000);
+
+        if (veryVerbose) Q(Vary seconds across positive saturating range);
+        ns = 0, ct = 0;
+        for (Int64 i = intMax; i < int64Max - i48; i += i48, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == intMax);
+            ASSERT(tm.tv_nsec == (i == intMax ? ns : BILLION - 1));
+
+            ti.setInterval(i, 0);
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == intMax);
+            ASSERT(tm.tv_nsec == (i == intMax ? 0 : BILLION - 1));
+        }
+        ASSERT(ct > 32000);
+
+        if (veryVerbose) Q(Vary seconds across negative saturating range);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = intMin; i > int64Min + i48; i -= i48, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == intMin);
+            ASSERT(tm.tv_nsec == (i == intMin ? ns * sign(i)
+                                              : -(BILLION - 1)));
+
+            ti.setInterval(i, 0);
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == intMin);
+            ASSERT(tm.tv_nsec == (i == intMin ? 0
+                                              : -(BILLION - 1)));
+        }
+        ASSERT(ct > 32000);
+
+        if (veryVerbose) Q(Try min and max values for 'seconds');
+        {
+            bdet_TimeInterval ti;
+
+            ns = 500 * MILLION;;
+            ti.setInterval(int64Max, ns);
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec  == intMax);
+            ASSERT(tm.tv_nsec == BILLION - 1);
+
+            ti.setInterval(int64Min, -ns);
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec  == intMin);
+            ASSERT(tm.tv_nsec == -(BILLION - 1));
+        }
+    }
+    else {
+        ASSERTV(sizeof(tm.tv_sec), sizeof(tm.tv_sec) == 8);
+
+        if (veryVerbose) Q(Vary seconds across full range with no saturation);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = int64Min; i < int64Max - i48; i += i48, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec  == i);
+            ASSERT(tm.tv_nsec == ns * sign(i));
+        }
+        ASSERT(ct > 65000);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = int64Max; i > int64Min + i48; i -= i48, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == i);
+            ASSERT(tm.tv_nsec == ns * sign(i));
+        }
+        ASSERT(ct > 65000);
+
+        if (veryVerbose) Q(Try min and max values for seconds);
+        {
+            bdet_TimeInterval ti(int64Max, ns);
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec  == int64Max);
+            ASSERT(tm.tv_nsec == ns);
+        }
+
+        {
+            bdet_TimeInterval ti(int64Min, -ns);
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec  == int64Min);
+            ASSERT(tm.tv_nsec == -ns);
+        }
+    }
+}
+
+                             // 'tv_sec' is unsigned
+
+template <typename TIMESPEC>
+void testUnsignedTimespec(const char *timeSpecName)
+    // Check if the specified 'TIMESPEC' type is unsigned, and if so, test it
+    // accordingly.
+{
+    enum { MILLION = 1000 * 1000,
+           BILLION = 1000 * MILLION };
+
+    TIMESPEC tm;
+
+    tm.tv_sec = -1;
+    if (tm.tv_sec < 0) {
+        if (verbose) {
+            bsl::string outStr(bsl::string("'") + timeSpecName +
+                               "::tv_sec' IS SIGNED -- NO UNSIGNED TESTING\n");
+            outStr.append(outStr.length() - 1, '=');
+            cout << outStr << endl;
+        }
+        return;                                                       // RETURN
+    }
+    else {
+        if (verbose) {
+            bsl::string outStr(bsl::string("'") + timeSpecName +
+                                         "::tv_sec' IS UNSIGNED -- TESTING\n");
+            outStr.append(outStr.length() - 1, '=');
+            cout << outStr << endl;
+        }
+    }
+
+    int ns, ct;
+
+    if (veryVerbose) P(sizeof(tm.tv_sec));
+
+    if (sizeof(tm.tv_sec) == 4) {
+        if (veryVerbose) Q(Vary across full non-saturating range);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = 0; i <= uintMax; i += i16, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == i);
+            ASSERT(tm.tv_nsec == ns * sign(i));
+        }
+        ASSERT(ct > 65000);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = uintMax; i >= 0; i -= i16, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == i);
+            ASSERT(tm.tv_nsec == ns * sign(i));
+        }
+        ASSERT(ct > 65000);
+
+        if (veryVerbose) Q(Vary across positive saturating range);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = uintMax; i < int64Max - i48; i += i48, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == uintMax);
+            ASSERT(tm.tv_nsec == ns * sign(i));
+        }
+        ASSERT(ct > 32000);
+
+        if (veryVerbose) Q(Vary across negative saturating range);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = 0; i > int64Min + i48; i -= i48, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec == 0);
+            ASSERT(tm.tv_nsec == 0);
+        }
+        ASSERT(ct > 32000);
+
+        if (veryVerbose) Q(Test exact min and max values of seconds);
+        {
+            bdet_TimeInterval ti;
+
+            ti.setInterval(int64Max, 310);
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec  == uintMax);
+            ASSERT(tm.tv_nsec == BILLION - 1);
+
+            ti.setInterval(int64Min, -237);
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec  == 0);
+            ASSERT(tm.tv_nsec == 0);
+        }
+    }
+    else {
+        ASSERT(sizeof(tm.tv_sec) == 8);
+
+        if (veryVerbose) {
+            Q(Test across full range:);
+            Q(... saturates on negative and no saturatiion on positive);
+        }
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = int64Min; i < int64Max - i48; i += i48, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            if (i >= 0) {
+                ASSERT(tm.tv_sec  == i);
+                ASSERT(tm.tv_nsec == ns);
+            }
+            else {
+                ASSERT(tm.tv_sec  == 0);
+                ASSERT(tm.tv_nsec == 0);
+            }
+        }
+        ASSERT(ct > 65000);
+        ns = 500 * MILLION, ct = 0;
+        for (Int64 i = int64Max; i > int64Min + i48; i -= i48, ++ns, ++ct) {
+            bdet_TimeInterval ti(i, ns * sign(i));
+
+            Obj::toTimeSpec(&tm, ti);
+
+            if (i >= 0) {
+                ASSERT(tm.tv_sec  == i);
+                ASSERT(tm.tv_nsec == ns);
+            }
+            else {
+                ASSERT(tm.tv_sec  == 0);
+                ASSERT(tm.tv_nsec == 0);
+            }
+        }
+        ASSERT(ct > 65000);
+
+        if (veryVerbose) Q(Try exact max and min second values);
+        {
+            bdet_TimeInterval ti(int64Max, ns);
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT((Uint64) tm.tv_sec == (Uint64) int64Max);
+
+            ASSERT(tm.tv_nsec == ns);
+
+            ti.setInterval(int64Min, -ns);
+
+            Obj::toTimeSpec(&tm, ti);
+
+            ASSERT(tm.tv_sec  == 0);
+            ASSERT(tm.tv_nsec == 0);
+        }
+    }
 }
 
 //=============================================================================
@@ -136,111 +503,111 @@ static int sign(Int64 value)
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    // veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
       case 6: {
         // --------------------------------------------------------------------
-        // USAGE
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 Demonstrate the principle of 'saturation'.
+        //
+        // Plan:
+        //: 1 Assign values from an 'Int64' to an 'unsigned int' using
+        //:   'toMillisec', demonstrating that values within range are
+        //:   undistorted while values above and below range are saturated.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-#if !defined(BCES_PLATFORM_POSIX_THREADS)
-        if (verbose) cout << "NOT UNIX -- USAGE NOT TESTED\n"
-                             "========================\n";
-#else
-        // Suppose we have a 'timespec' which is a popular way to store a time
-        // quantify on Unix.  It has two fields, 'tv_sec' which indicates
-        // seconds, and 'tv_nsec', which indicates nanonseconds.  The size
-        // of these fields can vary depending up on the platform for the
-        // purposes of our usage example they are both 32 bit signed values.
+        // Suppose we need to assign a value held in a 'bdet_TimeInterval' to
+        // an 'unsigned int', where the 'unsigned int' is to contain the time
+        // in milliseconds.  A 'bdet_TimeInterval' is able to represent many
+        // values that cannot be represented in such an 'unsigned int', and
+        // what we want to do in the event of such values is 'saturation', that
+        // is, the value assigned will be the maximum or minimum value the
+        // destination can represent, whichever is closer to the value that
+        // should be assigned.
 
-        timespec tm;
-        if (sizeof(tm.tv_sec) != sizeof(int)) {
-            cout << "USAGE: TV_SEC != 32 BITS -- NO TEST\n"
-                    "===================================\n";
-            break;
-        }
-        ASSERT(sizeof(tm.tv_sec) == sizeof(int));   // tm.tv_sec (on this
-                                                    // platform) is 'int' or 32
-                                                    // bit 'long'
-        tm.tv_sec = -1;
-        if (tm.tv_sec > 0) {
-            cout << "USAGE: TV_SEC NOT SIGNED -- NO TEST\n"
-                    "===================================\n";
-            break;
-        }
-        ASSERT(tm.tv_sec < 0);                      // 'tm.tv_sec' is signed on
-                                                    // this platform.
-        tm.tv_nsec = -1;
-        ASSERTV(tm.tv_nsec < 0);                    // 'tm.tv_nsec' is signed
-                                                    // on this platform.
+        typedef bcemt_SaturatedTimeConversion STC;
+        typedef bsls::Types::Int64            Int64;
 
-        if (verbose) cout << "TESTING USAGE EXAMPLE\n"
-                             "=====================\n";
+        unsigned int dest;
+        bdet_TimeInterval timeInt;
 
-        // First, we take a 'bdet_TimeInterval' representing a time that can
-        // be represented in a 'timespec'.  Our 'toTimeSpec' will convert one
-        // to the other without modification.
+        // First, we try a value that does not require saturation and observe
+        // that 'toMillisec' converts it properly:
 
-        bdet_TimeInterval ti(12345678, 987654321);
+        timeInt.setInterval(4, 321000000);
+        STC::toMillisec(&dest, timeInt);
+        ASSERT(4321 == dest);
 
-        ASSERT(ti.seconds()     ==  12345678);
-        ASSERT(ti.nanoseconds() == 987654321);
+        // Then, we calculate the max legal value that can be stored and verify
+        // that it translates to the maximum value:
 
-        bcemt_SaturatedTimeConversion::toTimeSpec(&tm, ti);
+        const unsigned int maxDest = bsl::numeric_limits<unsigned int>::max();
+        bdet_TimeInterval borderTimeInt(maxDest / 1000,
+                                        (maxDest % 1000) * 1000 * 1000);
+        STC::toMillisec(&dest, borderTimeInt);
+        ASSERT(maxDest == dest);
 
-        ASSERT((bsls::Types::Int64) tm.tv_sec == ti.seconds());
-        ASSERT(tm.tv_nsec                     == ti.nanoseconds());
+        // Next, we translate a value that should translate to 'maxDest - 1':
 
-        // Then, we set our time interval to a value to high to be represented
-        // by the 'timespec':
+        timeInt = borderTimeInt - bdet_TimeInterval(0, 1000 * 1000);
+        STC::toMillisec(&dest, timeInt);
+        ASSERT(maxDest - 1 == dest);
 
-        bsls::Types::Int64 usageMaxInt = bsl::numeric_limits<int>::max();
-        ti.setInterval(usageMaxInt + 100000, 500 * 1000 * 1000);
+        // Now, we try values higher than 'borderTimeInt' and observe
+        // saturation:
 
-        ASSERT(ti.seconds()     == usageMaxInt + 100000);
-        ASSERT(ti.nanoseconds() == 500 * 1000 * 1000);
+        timeInt = borderTimeInt + bdet_TimeInterval(0, 1000 * 1000);
+        STC::toMillisec(&dest, timeInt);
+        ASSERT(maxDest == dest);
 
-        // Next, we use 'toTimeSpec' to assign its value to 'tm':
+        timeInt.setInterval(bsl::numeric_limits<Int64>::max(), 999999999);
+        STC::toMillisec(&dest, timeInt);
+        ASSERT(maxDest == dest);
 
-        bcemt_SaturatedTimeConversion::toTimeSpec(&tm, ti);
+        timeInt.setInterval(1000 * 1000 * 1000, 0);
+        STC::toMillisec(&dest, timeInt);
+        ASSERT(maxDest == dest);
 
-        // Then, we observe that 'tm' has been 'saturated' -- it has been set
-        // to the highest value that a 'timespec' is capable of representing:
+        // Finally, we try some negative values and observe our result is
+        // saturated to 0:
 
-        ASSERT(tm.tv_sec  == usageMaxInt);
-        ASSERT(tm.tv_nsec == 999999999);
+        timeInt.setInterval(0, - 1000 * 1000);
+        STC::toMillisec(&dest, timeInt);
+        ASSERT(0 == dest);
 
-        // Now, we set our time interval to a value too low to be represented
-        // by a 'timespec':
+        timeInt.setInterval(-1000, 0);
+        STC::toMillisec(&dest, timeInt);
+        ASSERT(0 == dest);
 
-        bsls::Types::Int64 usageMinInt = bsl::numeric_limits<int>::min();
-        ti.setInterval(usageMinInt - 100000, -500 * 1000 * 1000);
+        timeInt.setInterval(-1000 * 1000 * 1000, -999 * 1000 * 1000);
+        STC::toMillisec(&dest, timeInt);
+        ASSERT(0 == dest);
 
-        ASSERT(ti.seconds()     == usageMinInt - 100000);
-        ASSERT(ti.nanoseconds() == -500 * 1000 * 1000);
-
-        // Finally, we do the conversion and observe that 'tm' has been
-        // saturated and now is set to the lowest value that it can represent:
-
-        bcemt_SaturatedTimeConversion::toTimeSpec(&tm, ti);
-
-        ASSERT(tm.tv_sec  == usageMinInt);
-        ASSERT(tm.tv_nsec == -999999999);
-#endif
+        timeInt.setInterval(bsl::numeric_limits<Int64>::min(), -999999999);
+        STC::toMillisec(&dest, timeInt);
+        ASSERT(0 == dest);
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING DWORD
+        // TESTING 'toMillisec'
         //
         // Concerns:
-        //   That 'toMilliSec' copies and saturates properly.  Note that
-        //   'DWORD' is a typedef to 'unsigned long' on Windows, and 'long'
-        //   on Windows is always 4 bytes.
+        //: 1 That 'toMilliSec' copies values that are in range without
+        //:   distortion.
+        //: 2 That for values above the range that can be copied properly,
+        //:   '*dst' is set to its max value;
+        //: 3 That for values below the range that can be copied properly,
+        //:   '*dst' is set to 0 (its min value);
         //
         // Plan:
         //: o Calculate 'maxSec' and 'maxNSec', the 'seconds' and 'nanoSeconds'
@@ -266,7 +633,7 @@ int main(int argc, char *argv[])
         //:   lower values down to 0, observing that no saturation occurs.
         //: o Set nanoseconds to a negative value and vary seconds from 0 down
         //:   to 'int64Min' by increments of '(1 << 48)', observing that
-        //:   saturatioon always occurs.
+        //:   saturation always occurs.
         //: o Set nanoseconds to 'maxNSec' and slowly increment it while
         //:   setting seconds to 'maxSec' and incrementing it by '(1 << 48)'
         //:   and observe that saturation always occurs.
@@ -276,130 +643,174 @@ int main(int argc, char *argv[])
         //: o Set seconds to the max and min possible values, varying
         //:   nanoseconds over the full possible range by increments of a
         //:   million, and observe that saturation always properly occurs.
+        //
+        // Testing:
+        //   'toMillisec'
         // --------------------------------------------------------------------
 
-#ifndef BCES_PLATFORM_WIN32_THREADS
-        if (verbose) cout << "NOT WINDOWS -- DWORD TEST NOT RUN\n"
-                             "=================================\n";
+        if (verbose) cout << "TESTING 'toMilliseec'\n"
+                             "=====================\n";
+
+#ifdef BCES_PLATFORM_POSIX_THREADS
+        typedef unsigned int DWORD;
 #else
-        if (verbose) cout << "DWORD TEST\n"
-                             "==========\n";
+        BSLMF_ASSERT((bsl::is_same<DWORD, unsigned long>::value));
+
+#endif
+
+        BSLMF_ASSERT(sizeof(DWORD) == sizeof(unsigned int));
 
         enum { MILLION = 1000 * 1000,
                BILLION = 1000 * MILLION };
 
-        DWORD d;
+        DWORD dst;
 
         const Int64 maxSec  = uintMax / 1000;
         const int   maxNSec = (uintMax % 1000) * MILLION;
 
         ASSERT(uintMax == maxSec * 1000 + maxNSec / MILLION);
 
+        if (veryVerbose) {
+            Q(Vary nsec values of input around the top saturating range);
+        }
         for (int ns = BILLION - 1; ns >= 0; ns -= MILLION) {
             bdet_TimeInterval ti(maxSec, ns);
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
             Int64 expected = ns > maxNSec ? uintMax
                                           : 1000 * maxSec + ns / MILLION;
-            ASSERTV(uintMax, maxNSec, ns, d, expected, (Int64) d == expected);
+            ASSERTV(uintMax, maxNSec, ns, dst, expected,
+                                                      (Int64) dst == expected);
         }
 
+        if (veryVerbose) {
+            Q(Vary sec values of input around the top saturating range);
+        }
         for (Int64 i = maxSec - 1000; i < maxSec + 1000; ++i) {
             bdet_TimeInterval ti(i, 0);
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
-            ASSERT((Int64) d == (i > maxSec ? uintMax : i * 1000));
+            ASSERT((Int64) dst == (i > maxSec ? uintMax : i * 1000));
         }
 
+        if (veryVerbose) {
+            Q(Vary sec values of input around the top saturating range);
+            Q(... with nanoseconds above exactly saturating level);
+        }
         Int64 nsDiv = maxNSec / MILLION + 1;
         ASSERT(nsDiv < 1000);
         for (Int64 i = maxSec - 1000; i < maxSec + 1000; ++i) {
             bdet_TimeInterval ti(i, maxNSec + MILLION);
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
-            ASSERT((Int64) d == (i >= maxSec ? uintMax : i * 1000 + nsDiv));
+            ASSERT((Int64) dst == (i >= maxSec ? uintMax : i * 1000 + nsDiv));
         }
 
+        if (veryVerbose) {
+            Q(Vary sec values from 0 to above saturating by 1000s);
+        }
         Int64 stopAt = maxSec + 2 * MILLION;
         int ns = 0;
         for (Int64 i = 0; i < stopAt; i += 1000, ++ns) {
             bdet_TimeInterval ti(i, ns);
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
-            ASSERT((Int64) d == (i < maxSec || i == maxSec && ns <= maxNSec
-                               ? i * 1000 + ns / MILLION
-                               : uintMax));
+            Int64 expected = i * 1000 + ns / MILLION;
+            if (i > maxSec || (i == maxSec && ns > maxNSec)) {
+                expected = uintMax;
+            }
+            ASSERT(expected >= 0 && expected <= uintMax);
+
+            ASSERT((Int64) dst == expected);
         }
 
+        if (veryVerbose) {
+            Q(Vary sec values from 0 to above saturating by 1000s);
+            Q(... with nsecs at exactly saturating level);
+        }
         ns = maxNSec;
         nsDiv = ns / MILLION;
         for (Int64 i = maxSec; i >= 0; i -= 1000) {
             bdet_TimeInterval ti(i, ns);
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
-            ASSERT(d == i * 1000 + nsDiv);
+            ASSERT(dst == i * 1000 + nsDiv);
         }
 
+        if (veryVerbose) {
+            Q(Vary sec values from 0 down to large negative values);
+        }
         ns = -MILLION;
         for (Int64 i = 0; i > -i48; i -= i32, --ns) {
             bdet_TimeInterval ti(i, ns);
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
-            ASSERT(d == 0);
+            ASSERT(dst == 0);
         }
 
+        if (veryVerbose) {
+            Q(Vary sec values from maxSec up to large positive values);
+        }
         ns = maxNSec;
-        for (Int64 i = maxSec; i < -i48; i += i32, ++ns) {
+        for (Int64 i = maxSec; i < i48; i += i32, ++ns) {
             bdet_TimeInterval ti(i, ns);
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
-            ASSERT(d == uintMax);
+            ASSERT(dst == uintMax);
         }
 
+        if (veryVerbose) {
+            Q(Hold sec at Zero and vary nsec across full range);
+        }
         for (ns = -BILLION + MILLION; ns < BILLION; ns += MILLION / 4) {
             bdet_TimeInterval ti(0, ns);
             ASSERT(ti.nanoseconds() == ns);
 
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
             if (ns <= 0) {
-                ASSERT(0 == d);
+                ASSERT(0 == dst);
             }
             else {
                 ASSERT(ns / MILLION >= 0);
-                ASSERT((DWORD) (ns / MILLION) == d);
+                ASSERT((DWORD) (ns / MILLION) == dst);
             }
         }
 
+        if (veryVerbose) {
+            Q(Hold sec at max and vary nsec over full range);
+        }
         ns = 0;
         for (ns = 0; ns < BILLION; ns += MILLION) {
             bdet_TimeInterval ti(int64Max, ns);
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
-            ASSERT(d == uintMax);
+            ASSERT(dst == uintMax);
         }
 
+        if (veryVerbose) {
+            Q(Hold sec at min and vary nsec over full range);
+        }
         ns = 0;
         for (ns = 0; ns > -BILLION; ns -= MILLION) {
             bdet_TimeInterval ti(int64Min, ns);
-            Obj::toMillisec(&d, ti);
+            Obj::toMillisec(&dst, ti);
 
-            ASSERT(d == 0);
+            ASSERT(dst == 0);
         }
-#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING TIME_T
+        // TESTING 'toTimeT'
         //
         // Concerns:
+        //   Note that the exact type of 'time_t' is not clearly specified
+        //   and may vary with the platform.  We must test for possibilities
+        //   of 'time_t' being signed or unsigned, 4 or 8 bit.
         //: 1 That 'toTimeT' assigns 'Int64's to 'time_t's properly, exactly
-        //:   copying values whenever possible, and correctly saturating
-        //:   otherwise.
-        //: 2 Note that the exact type of 'time_t' is not clearly specified
-        //:   and may vary with the platform.  It is also unclear whether it
-        //:   is a 4 or 8 bit quantify, so we have to set up separate tests
-        //:   for every case
+        //:   copying values whenever possible.
+        //: 2 That 'toTimeT' correctly saturating when it is not possible to
+        //:   copy a value exactly.
         //
         // Plan:
         //: 1 32-bit signed
@@ -417,7 +828,7 @@ int main(int argc, char *argv[])
         //:   o iterate from the min of the input range to the max of the
         //:     input range in increments of (1 << 48), observing that values
         //:     are assigned without modification.
-        //:   o iterate from the max of the input range to the min of te
+        //:   o iterate from the max of the input range to the min of the
         //:     input range in increments of (1 << 48), observing that values
         //:     are assigned without modification.
         //: 3 32-bit unsigned
@@ -435,12 +846,12 @@ int main(int argc, char *argv[])
         //:   o traverse the input range in (1 << 48) increments, taking care
         //:     to include both the absolute min and max values, observing
         //:     that non-negative values are copied without modification,
-        //:     and negative values are satuated as 0.
+        //:     and negative values are saturated as 0.
+        //
+        // TESTING
+        //   'toTimeT'
         // --------------------------------------------------------------------
 
-#ifndef BCES_PLATFORM_POSIX_THREADS
-        if (verbose) cout << "NOT UNIX -- NO TESTING OF TIME_T\n";
-#else
         if (verbose) cout << "TESTING TIME_T\n"
                              "==============\n";
 
@@ -454,6 +865,9 @@ int main(int argc, char *argv[])
         }
 
         if (tt < 0 && sizeof(tt) == 4) {
+            if (verbose) Q(Signed and 4 bytes);
+
+            if (veryVerbose) Q(Vary across full non-saturating range);
             ct = 0;
             for (Int64 i = intMin; i <= intMax; i += i16, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -468,6 +882,8 @@ int main(int argc, char *argv[])
                 ASSERT((Int64) tt == i);
             }
             ASSERT(ct > 65000);
+
+            if (veryVerbose) Q(Vary across full positve-saturating range);
             ct = 0;
             for (Int64 i = intMax; i < int64Max - i48; i += i48, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -475,6 +891,8 @@ int main(int argc, char *argv[])
                 ASSERT((Int64) tt == intMax);
             }
             ASSERT(ct > 32000);
+
+            if (veryVerbose) Q(Vary across full negatve-saturating range);
             ct = 0;
             for (Int64 i = intMin; i > int64Min + i48; i -= i48, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -483,6 +901,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(ct > 32000);
 
+            if (veryVerbose) Q(Try max & min inputs);
             Obj::toTimeT(&tt, int64Max);
             ASSERT((Int64) tt == intMax);
 
@@ -490,6 +909,9 @@ int main(int argc, char *argv[])
             ASSERT((Int64) tt == intMin);
         }
         else if (tt < 0 && sizeof(tt) == 8) {
+            if (verbose) Q(Signed and 8 bytes);
+
+            if (veryVerbose) Q(Vary across full range with no saturation);
             ct = 0;
             for (Int64 i = int64Min; i < int64Max - i48; i += i48, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -506,6 +928,9 @@ int main(int argc, char *argv[])
             ASSERT(ct > 65000);
         }
         else if (tt > 0 && sizeof(tt) == 4) {
+            if (verbose) Q(Unsigned and 4 bytes);
+
+            if (veryVerbose) Q(Vary across full non-saturating range);
             ct = 0;
             for (Int64 i = 0; i <= uintMax; i += i16, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -520,6 +945,8 @@ int main(int argc, char *argv[])
                 ASSERT(i >= 0 && (Uint64) tt == (Uint64) i);
             }
             ASSERT(ct > 65000);
+
+            if (veryVerbose) Q(Vary across positive saturating range);
             ct = 0;
             for (Int64 i = uintMax; i < int64Max - i48; i += i48, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -527,6 +954,8 @@ int main(int argc, char *argv[])
                 ASSERT((Uint64) tt == (Uint64) uintMax);
             }
             ASSERT(ct > 32000);
+
+            if (veryVerbose) Q(Vary across negative saturating range);
             ct = 0;
             for (Int64 i = 0; i > int64Min + i48; i -= i48, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -535,6 +964,8 @@ int main(int argc, char *argv[])
             }
             ASSERT(ct > 32000);
 
+            if (veryVerbose) Q(Try exact max and min inputs);
+
             Obj::toTimeT(&tt, int64Max);
             ASSERT((Uint64) tt == (Uint64) uintMax);
 
@@ -542,6 +973,9 @@ int main(int argc, char *argv[])
             ASSERT(tt == 0);
         }
         else if (tt > 0 && sizeof(tt) == 8) {
+            if (verbose) Q(Unsigned and 8 bytes);
+
+            if (veryVerbose) Q(Vary across full range with no saturation);
             ct = 0;
             for (Int64 i = int64Min; i < int64Max - i48; i += i48, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -570,25 +1004,21 @@ int main(int argc, char *argv[])
         else {
             ASSERT(0);
         }
-#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING TIMESPEC -- UNSIGNED TV_SEC
         //
         // Concerns:
+        //   This test case concerns the case where the 'tv_sec' field of
+        //   'timespec' is unsigned.
         //: 1 That 'toTimeSpec' will properly assign a value from a
-        //:   'bdet_TimeInterval' to a 'timespec', and that if values can be,
-        //:   they are assigned without modification, and if not, that proper
-        //:   saturation occurs.
-        //: 2 In 2038, a signed, 32-bit 'tv_sec' will no longer be able to
-        //:   represent the current time.  While it is anticipated that all
-        //:   platforms will evolve to a 64-bit signed 'tv_sec', it is not
-        //:   impossible that someone, somewhere may decide to extend the life
-        //:   of 'timespec' by 68 years by simply making 'tv_sec' 32-bit
-        //:   unsigned.
-        //: 3 Note this code will not be tested until someone creates a
-        //:   'timespec' with an unsigned 'tv_sec'.
+        //:   'bdet_TimeInterval' to a 'timespec' if the 'bdet_TimeInterval's
+        //:   value can be exactly represented by the 'timespec'.
+        //: 2 That if a value is too high or too low to be represented by the
+        //:   'timespec', the 'timespec' is assigned the highest or lowest
+        //:   value it can represent, whichever is closer to the intended
+        //:   value.
         //
         // Plan:
         //: 1 sizeof(tv_sec) == 4
@@ -603,141 +1033,17 @@ int main(int argc, char *argv[])
         //:     maximum values, and verify the results are as they should be.
         //: 2 sizeof(tv_sec) == 8
         //:   o Iterate from the minimum to the maximum values of
-        //:     'timeInteval.seconds()', verifying that 'tv_sec' is always
+        //:     'timeInterval.seconds()', verifying that 'tv_sec' is always
         //:     exactly equal to the '.seconds()' value.
+        //
+        // TESTING
+        //   toTimeSpec
         // --------------------------------------------------------------------
 
-#ifndef BCES_PLATFORM_POSIX_THREADS
-        if (verbose) cout << "NOT UNIX -- TESTING TIMESPEC DISABLED\n"
-                             "=====================================\n";
-#else
-        enum { MILLION = 1000 * 1000,
-               BILLION = 1000 * MILLION };
+        testUnsignedTimespec<Obj::TimeSpec>("TimeSpec");
 
-        timespec tm;
-
-        tm.tv_sec = -1;
-        if (tm.tv_sec < 0) {
-            if (verbose) cout << "TV_SEC IS SIGNED -- NO UNSIGNED TESTING\n"
-                                 "=======================================\n";
-
-            break;
-        }
-
-        if (verbose) cout << "TESTING TIMESPEC -- UNSIGNED TV_SEC\n"
-                             "===================================\n";
-
-        int ns, ct;
-
-        if (verbose) P(sizeof(tm.tv_sec));
-
-        if (sizeof(tm.tv_sec) == 4) {
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = 0; i <= uintMax; i += i16, ++ns, ++ct) {
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == i);
-                ASSERT(tm.tv_nsec == ns * sign(i));
-            }
-            ASSERT(ct > 65000);
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = uintMax; i >= 0; i -= i16, ++ns, ++ct) {
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == i);
-                ASSERT(tm.tv_nsec == ns * sign(i));
-            }
-            ASSERT(ct > 65000);
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = uintMax; i < int64Max - i48; i += i48, ++ns, ++ct) {
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == uintMax);
-                ASSERT(tm.tv_nsec == ns * sign(i));
-            }
-            ASSERT(ct > 32000);
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = 0; i > int64Min + i48; i -= i48, ++ns, ++ct) {
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == 0);
-                ASSERT(tm.tv_nsec == 0);
-            }
-            ASSERT(ct > 32000);
-
-            {
-                bdet_TimeInterval ti;
-
-                ti.setInterval(int64Max, 310);
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec  == uintMax);
-                ASSERT(tm.tv_nsec == 310);
-
-                ti.setInterval(int64Min, -237);
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec  == 0);
-                ASSERT(tm.tv_nsec == 0);
-            }
-        }
-        else {
-            ASSERT(sizeof(tm.tv_sec) == 8);
-
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = int64Min; i < int64Max - i48; i += i48, ++ns, ++ct){
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == i);
-                ASSERT(tm.tv_nsec == ns * sign(i));
-            }
-            ASSERT(ct > 65000);
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = int64Max; i > int64Min + i48; i -= i48, ++ns, ++ct){
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                if (i >= 0) {
-                    ASSERT(tm.tv_sec == i);
-                    ASSERT(tm.tv_nsec == ns);
-                }
-                else {
-                    ASSERT(tm.tv_sec  == 0);
-                    ASSERT(tm.tv_nsec == 0);
-                }
-            }
-            ASSERT(ct > 65000);
-
-            {
-                bdet_TimeInterval ti(int64Max, ns);
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT((Uint64) tm.tv_sec == (Uint64) int64Max);
-
-                ASSERT(tm.tv_nsec == ns);
-            }
-
-            {
-                bdet_TimeInterval ti(int64Min, -ns);
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec  == 0);
-                ASSERT(tm.tv_nsec == 0);
-            }
-        }
+#ifdef BSLS_PLATFORM_OS_DARWIN
+        testUnsignedTimespec<mach_timespec_t>("mach_timespec_t");
 #endif
       } break;
       case 2: {
@@ -745,10 +1051,15 @@ int main(int argc, char *argv[])
         // TESTING TIMESPEC -- SIGNED TV_SEC
         //
         // Concerns:
-        //: o That 'toTimeSpec' will properly assign a value from a
-        //:   'bdet_TimeInterval' to a 'timespec', and that if values can be,
-        //:    they are assigned without modification, and if not, that proper
-        //:    saturation occurs.
+        //   This test case concerns the case where the 'tv_sec' field of
+        //   'timespec' is signed.
+        //: 1 That 'toTimeSpec' will properly assign a value from a
+        //:   'bdet_TimeInterval' to a 'timespec' if the 'bdet_TimeInterval's
+        //:   value can be exactly represented by the 'timespec'.
+        //: 2 That if a value is too high or too low to be represented by the
+        //:   'timespec', the 'timespec' is assigned the highest or lowest
+        //:   value it can represent, whichever is closer to the intended
+        //:   value.
         //
         // Plan:
         //: 1 sizeof(tv_sec) == 4
@@ -763,161 +1074,17 @@ int main(int argc, char *argv[])
         //:     maximum values, and verify the results are as they should be.
         //: 1 sizeof(tv_sec) == 8
         //:   o Iterate from the minimum to the maximum values of
-        //:     'timeInteval.seconds()', verifying that 'tv_sec' is always
+        //:     'timeInterval.seconds()', verifying that 'tv_sec' is always
         //:     exactly equal to the '.seconds()' value.
+        //
+        // TESTING
+        //   toTimeSpec
         // --------------------------------------------------------------------
 
-#ifndef BCES_PLATFORM_POSIX_THREADS
-        if (verbose) cout << "NOT UNIX -- TESTING TIMESPEC DISABLED\n"
-                             "=====================================\n";
-#else
-        enum { MILLION = 1000 * 1000,
-               BILLION = MILLION * 1000 };
+        testSignedTimespec<Obj::TimeSpec>("TimeSpec");
 
-        timespec tm;
-
-        tm.tv_sec = -1;
-        if (tm.tv_sec > 0) {
-            if (verbose) cout << "TV_SEC IS UNSIGNED -- NO SIGNED TESTING\n"
-                                 "=======================================\n";
-
-            break;
-        }
-
-        if (verbose) cout << "TESTING TIMESPEC -- SIGNED TV_SEC\n"
-                             "=================================\n";
-
-        if (verbose) P(sizeof(tm.tv_sec));
-
-        int ns, ct;
-
-        if (sizeof(tm.tv_sec) == 4) {
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = intMin; i <= intMax; i += i16, ++ns, ++ct) {
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == i);
-                ASSERT(tm.tv_nsec == ns * sign(i));
-
-                ti.setInterval(i, 0);
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == i);
-                ASSERT(tm.tv_nsec == 0);
-            }
-            ASSERT(ct > 65000);
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = intMax; i >= intMin; i -= i16, ++ns, ++ct) {
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERTV(tm.tv_sec, i,   tm.tv_sec  ==  i);
-                ASSERTV(tm.tv_nsec, ns, tm.tv_nsec == ns * sign(i));
-
-                ti.setInterval(i, 0);
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == i);
-                ASSERT(tm.tv_nsec == 0);
-            }
-            ASSERT(ct > 65000);
-            ns = 0, ct = 0;
-            for (Int64 i = intMax; i < int64Max - i48; i += i48, ++ns, ++ct) {
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == intMax);
-                ASSERT(tm.tv_nsec == (i == intMax ? ns : BILLION - 1));
-
-                ti.setInterval(i, 0);
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == intMax);
-                ASSERT(tm.tv_nsec == (i == intMax ? 0 : BILLION - 1));
-            }
-            ASSERT(ct > 32000);
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = intMin; i > int64Min + i48; i -= i48, ++ns, ++ct) {
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == intMin);
-                ASSERT(tm.tv_nsec == (i == intMin ? ns * sign(i)
-                                                  : -(BILLION - 1)));
-
-                ti.setInterval(i, 0);
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == intMin);
-                ASSERT(tm.tv_nsec == (i == intMin ? 0
-                                                  : -(BILLION - 1)));
-            }
-            ASSERT(ct > 32000);
-
-            {
-                bdet_TimeInterval ti;
-
-                ns = 500 * MILLION;;
-                ti.setInterval(int64Max, ns);
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec  == intMax);
-                ASSERT(tm.tv_nsec == BILLION - 1);
-
-                ti.setInterval(int64Min, -ns);
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec  == intMin);
-                ASSERT(tm.tv_nsec == -(BILLION - 1));
-            }
-        }
-        else {
-            ASSERTV(sizeof(tm.tv_sec), sizeof(tm.tv_sec) == 8);
-
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = int64Min; i < int64Max - i48; i += i48, ++ns, ++ct){
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec  == i);
-                ASSERT(tm.tv_nsec == ns * sign(i));
-            }
-            ASSERT(ct > 65000);
-            ns = 500 * MILLION, ct = 0;
-            for (Int64 i = int64Max; i > int64Min + i48; i -= i48, ++ns, ++ct){
-                bdet_TimeInterval ti(i, ns * sign(i));
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec == i);
-                ASSERT(tm.tv_nsec == ns * sign(i));
-            }
-            ASSERT(ct > 65000);
-
-            {
-                bdet_TimeInterval ti(int64Max, ns);
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec  == int64Max);
-                ASSERT(tm.tv_nsec == ns);
-            }
-
-            {
-                bdet_TimeInterval ti(int64Min, -ns);
-
-                Obj::toTimeSpec(&tm, ti);
-
-                ASSERT(tm.tv_sec  == int64Min);
-                ASSERT(tm.tv_nsec == -ns);
-            }
-        }
+#ifdef BSLS_PLATFORM_OS_DARWIN
+        testSignedTimespec<mach_timespec_t>("mach_timespec_t");
 #endif
       } break;
       case 1: {
@@ -925,13 +1092,117 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
+        //   Demonstrate basic functionality, which will vary depending upon
+        //   the type of 'TimeSpec'.
         //
         // Plan:
+        //: 1 Demonstrate assignment on all platforms with no saturation..
+        //: 2 Demonstrate saturation if 'tv_sec' is 4 byte unsigned.
+        //: 3 Demonstrate saturation if 'tv_sec' is 4 byte signed.
+        //: 4 Demonstrate assignment & saturation if 'tv_sec' is 8 byte
+        //:   unsigned.
+        //: 5 Demonstrate more assignment (no saturation possible) if 'tv_sec'
+        //:   is 8 byte signed.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
+        typedef bsls::Types::Int64  Int64;
+        typedef bsls::Types::Uint64 Uint64;
+
+        enum { MAX_NANOSECONDS = 1000 * 1000 * 1000 - 1 };
+
+        Obj::TimeSpec ts;
+
+        if (veryVerbose) Q(Demonstrate assignment with no saturation);
+
+        Obj::toTimeSpec(&ts, bdet_TimeInterval(123456, 987654321));
+        ASSERT(123456    == ts.tv_sec);
+        ASSERT(987654321 == ts.tv_nsec);
+
+        Obj::toTimeSpec(&ts, bdet_TimeInterval(0, 0));
+        ASSERT(0 == ts.tv_sec);
+        ASSERT(0 == ts.tv_nsec);
+
+        ts.tv_sec = -1;
+
+        // We sometimes have to introduce a 'matcher' variable to avoid
+        // compiler warnings when code intended for one type of 'timespec'
+        // gets compiled on a platform where 'timespec' has a different type.
+
+        if (4 == sizeof(ts.tv_sec)) {
+            if (ts.tv_sec > 0) {
+                if (veryVerbose) Q(Demonstrate saturation on 4 byte unsigned);
+
+                unsigned int matcher = 0;
+                matcher += bsl::numeric_limits<unsigned int>::max();
+
+                Obj::toTimeSpec(&ts, bdet_TimeInterval((Int64) 1 << 48,
+                                                       987654321));
+                ASSERT(matcher         == (unsigned int) ts.tv_sec);
+                ASSERT(MAX_NANOSECONDS == ts.tv_nsec);
+
+                Obj::toTimeSpec(&ts, bdet_TimeInterval((Int64) -1 << 48,
+                                                       -987654321));
+                ASSERT(0 == ts.tv_sec);
+                ASSERT(0 == ts.tv_nsec);
+            }
+            else {
+                if (veryVerbose) Q(Demonstrate saturation with 4 byte signed);
+
+                Obj::toTimeSpec(&ts, bdet_TimeInterval((Int64) 1 << 48,
+                                                       987654321));
+                ASSERT(bsl::numeric_limits<int>::max() == ts.tv_sec);
+                ASSERT(MAX_NANOSECONDS                 == ts.tv_nsec);
+
+                int matcher = bsl::numeric_limits<int>::max();
+                matcher = -matcher - 1;    // numeric_limites::min
+
+                Obj::toTimeSpec(&ts, bdet_TimeInterval((Int64) -1 << 48,
+                                                       -987654321));
+                ASSERT(matcher          == (int) ts.tv_sec);
+                ASSERT(-MAX_NANOSECONDS == ts.tv_nsec);
+            }
+        }
+        else {
+            ASSERT(8 == sizeof(ts.tv_sec));
+
+            if (ts.tv_sec > 0) {
+                if (veryVerbose) Q(Demonstrate assignment on 8 byte unsigned);
+
+                Uint64 matcher = 1;
+                matcher <<= 48;
+
+                Obj::toTimeSpec(&ts, bdet_TimeInterval(matcher, 987654321));
+                ASSERT(matcher   == (Uint64) ts.tv_sec);
+                ASSERT(987654321 == ts.tv_nsec);
+
+                if (veryVerbose) Q(Demonstrate saturation on 8 byte unsigned);
+
+                Obj::toTimeSpec(&ts, bdet_TimeInterval((Int64) -1 << 48,
+                                                        -987654321));
+                ASSERT(0 == ts.tv_sec);
+                ASSERT(0 == ts.tv_nsec);
+            }
+            else {
+                if (veryVerbose) Q(Demonstrate assignment with 8 byte signed);
+
+                Int64 matcher = 1;
+                matcher <<= 48;
+
+                Obj::toTimeSpec(&ts, bdet_TimeInterval(matcher, 987654321));
+                ASSERT(matcher   == (Int64) ts.tv_sec);
+                ASSERT(987654321 == ts.tv_nsec);
+
+                matcher = -1;
+                matcher <<= 48;
+
+                Obj::toTimeSpec(&ts, bdet_TimeInterval(matcher, -987654321));
+                ASSERT(matcher    == (Int64) ts.tv_sec);
+                ASSERT(-987654321 == ts.tv_nsec);
+            }
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

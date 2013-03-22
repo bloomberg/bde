@@ -7,90 +7,92 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide saturating converssions for time values.
+//@PURPOSE: Conversions setting times out of a representable range to min/max.
 //
 //@CLASSES:
-//   bcemt_SaturatedTimeConversion: namespace for saturating time conversions.
+//   bcemt_SaturatedTimeConversionImpUtil: saturating time conversions.
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component defines a namespace containing static functions
-// suitable for performing narrowing conversions of numbers such that if an
-// attempt is made to assign a value that is outside the range that is
-// representable by the destination variable, the destination variable will
+// suitable for performing narrowing conversions of time-related types such
+// that if an attempt is made to assign a value that is outside the range that
+// is representable by the destination variable, the destination variable will
 // take on its maximum or minimum value, whichever is closer to the value being
 // assigned.
 //
 ///Usage
 ///-----
-// Suppose we have a 'timespec' which is a popular way to store a time quantify
-// on Unix.  It has two fields, 'tv_sec' which indicates seconds, and
-// 'tv_nsec', which indicates nanonseconds.  The size of these fields can vary
-// depending up on the platform for the purposes of our usage example they are
-// both 32 bit signed values.
+// Suppose we need to assign a value held in a 'bdet_TimeInterval' to an
+// 'unsigned int', where the 'unsigned int' is to contain the time in
+// milliseconds.  A 'bdet_TimeInterval' is able to represent many values that
+// cannot be represented in such an 'unsigned int', and what we want to do in
+// the event of such values is 'saturation', that is, the value assigned will
+// be the maximum or minimum value the destination can represent, whichever is
+// closer to the value that should be assigned.
 //..
-//  timespec tm;
-//  assert(sizeof(tm.tv_sec) == sizeof(int));   // tm.tv_sec (on this
-//                                              // platform) is 'int' or 32
-//                                              // bit 'long'
-//  tm.tv_sec = -1;
-//  assert(tm.tv_sec < 0);                      // 'tm.tv_sec' is signed on
-//                                              // this platform.
-//  tm.tv_nsec = -1;
-//  ASSERTV(tm.tv_nsec < 0);                    // 'tm.tv_nsec' is signed
-//                                              // on this platform.
-//..
-// First, we take a 'bdet_TimeInterval' representing a time that can be
-// represented in a 'timespec'.  Our 'toTimeSpec' will convert one to the other
-// without modification.
-//..
-//  bdet_TimeInterval ti(12345678, 987654321);
+//  typedef bcemt_SaturatedTimeConversion STC;
+//  typedef bsls::Types::Int64            Int64;
 //
-//  assert(ti.seconds()     ==  12345678);
-//  assert(ti.nanoseconds() == 987654321);
+//  unsigned int dest;
+//  bdet_TimeInterval timeInt;
+//..
+// First, we try a value that does not require saturation and observe that
+// 'toMillisec' converts it properly:
+//..
+//  timeInt.setInterval(4, 321000000);
+//  STC::toMillisec(&dest, timeInt);
+//  assert(4321 == dest);
+//..
+// Then, we calculate the max legal value that can be stored and verify that it
+// translates to the maximum value:
+//..
+//  const unsigned int maxDest = bsl::numeric_limits<unsigned int>::max();
+//  bdet_TimeInterval borderTimeInt(maxDest / 1000,
+//                                  (maxDest % 1000) * 1000 * 1000);
+//  STC::toMillisec(&dest, borderTimeInt);
+//  assert(maxDest == dest);
+//..
+// Next, we translate a value that should translate to 'maxDest - 1':
+//..
+//  timeInt = borderTimeInt - bdet_TimeInterval(0, 1000 * 1000);
+//  STC::toMillisec(&dest, timeInt);
+//  assert(maxDest - 1 == dest);
+//..
+// Now, we try values higher than 'borderTimeInt' and observe saturation:
+//..
+//  timeInt = borderTimeInt + bdet_TimeInterval(0, 1000 * 1000);
+//  STC::toMillisec(&dest, timeInt);
+//  assert(maxDest == dest);
 //
-//  bcemt_SaturatedTimeConversion::toTimeSpec(&tm, ti);
+//  timeInt.setInterval(bsl::numeric_limits<Int64>::max(), 999999999);
+//  STC::toMillisec(&dest, timeInt);
+//  assert(maxDest == dest);
 //
-//  assert((bsls::Types::Int64) tm.tv_sec == ti.seconds());
-//  assert(tm.tv_nsec                     == ti.nanoseconds());
+//  timeInt.setInterval(1000 * 1000 * 1000, 0);
+//  STC::toMillisec(&dest, timeInt);
+//  assert(maxDest == dest);
 //..
-// Then, we set our time interval to a value to high to be represented by the
-// 'timespec':
+// Finally, we try some negative values and observe our result is saturated to
+// 0:
 //..
-//  bsls::Types::Int64 usageMaxInt = bsl::numeric_limits<int>::max();
-//  ti.setInterval(usageMaxInt + 100000, 500 * 1000 * 1000);
+//  timeInt.setInterval(0, - 1000 * 1000);
+//  STC::toMillisec(&dest, timeInt);
+//  assert(0 == dest);
 //
-//  assert(ti.seconds()     == usageMaxInt + 100000);
-//  assert(ti.nanoseconds() == 500 * 1000 * 1000);
-//..
-// Next, we use 'toTimeSpec' to assign its value to 'tm':
-//..
-//  bcemt_SaturatedTimeConversion::toTimeSpec(&tm, ti);
-//..
-// Then, we observe that 'tm' has been 'saturated' -- it has been set to the
-// highest value that a 'timespec' is capable of representing:
-//..
-//  assert(tm.tv_sec  == usageMaxInt);
-//  assert(tm.tv_nsec == 999999999);
-//..
-// Now, we set our time interval to a value too low to be represented by a
-// 'timespec':
-//..
-//  bsls::Types::Int64 usageMinInt = bsl::numeric_limits<int>::min();
-//  ti.setInterval(usageMinInt - 100000, -500 * 1000 * 1000);
+//  timeInt.setInterval(-1000, 0);
+//  STC::toMillisec(&dest, timeInt);
+//  assert(0 == dest);
 //
-//  assert(ti.seconds()     == usageMinInt - 100000);
-//  assert(ti.nanoseconds() == -500 * 1000 * 1000);
-//..
-// Finally, we do the conversion and observe that 'tm' has been saturated and
-// now is set to the lowest value that it can represent:
-//..
-//  bcemt_SaturatedTimeConversion::toTimeSpec(&tm, ti);
+//  timeInt.setInterval(-1000 * 1000 * 1000, -999 * 1000 * 1000);
+//  STC::toMillisec(&dest, timeInt);
+//  assert(0 == dest);
 //
-//  assert(tm.tv_sec  == usageMinInt);
-//  assert(tm.tv_nsec == -999999999);
+//  timeInt.setInterval(bsl::numeric_limits<Int64>::min(), -999999999);
+//  STC::toMillisec(&dest, timeInt);
+//  assert(0 == dest);
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION
@@ -127,31 +129,17 @@ BDES_IDENT("$Id: $")
 
 #ifdef BCES_PLATFORM_POSIX_THREADS
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-#define BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT 1
-#endif
-
 #ifndef INCLUDED_BSL_CTIME
 #include <bsl_ctime.h>
 #endif
 
 #endif
 
-#ifdef BCES_PLATFORM_WIN32_THREADS
-
-// 'long' is 32 bit on 64 bit Windows
-
-#ifndef INCLUDED_WINDOWS
-#include <windows.h>
-#endif
-
-#endif
-
 namespace BloombergLP {
 
-                             // ===================
-                             // class bcemt_Barrier
-                             // ===================
+                 // ==========================================
+                 // class bcemt_SaturatedTimeConversionImpUtil
+                 // ==========================================
 
 class bcemt_SaturatedTimeConversion {
     // Namespace class for the platform-dependent class methods 'toTimeSpec',
@@ -159,220 +147,80 @@ class bcemt_SaturatedTimeConversion {
     // times stored as 'bdet_TimeInterval' to other types used by underlying
     // threading platforms.
 
-    // PRIVATE TYPE
-    typedef bsls::Types::Int64 Int64;
+  public:
+    // PUBLIC TYPES
 
-    // COMPILE-TIME ASSERTS
+    // Here we define type 'TimeSpec' -- an alias to 'timespec' on Unix, but
+    // defined as a struct on Windows, to guarantee that 'TimeSpec' exists on
+    // all platforms.
 
-#ifdef BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT
-    BSLMF_ASSERT(sizeof(long) == sizeof(Int64));
+#ifdef BCES_PLATFORM_POSIX_THREADS
+    typedef timespec TimeSpec;
 #else
-    BSLMF_ASSERT(sizeof(long) == sizeof(int));
+    struct TimeSpec {
+        // Provide type for Windows platform
+
+        int tv_sec;
+        int tv_nsec;
+    };
 #endif
-
-    BSLMF_ASSERT(sizeof(long long) == sizeof(Int64));
-    BSLMF_ASSERT(sizeof(int)       <  sizeof(Int64));
-
-    // PRIVATE CLASS METHODS
-    template <typename TYPE>
-    static TYPE maxOf(const TYPE& value);
-        // Return the maximum value that can be represented by the type of the
-        // specifired 'value'.
-
-    template <typename TYPE>
-    static TYPE minOf(const TYPE& value);
-        // Return the minimum value that can be represented by the type of the
-        // specifired 'value'.
-
-    static void toTimeTImp(int                *dst, Int64 src);
-    static void toTimeTImp(long               *dst, Int64 src);
-    static void toTimeTImp(long long          *dst, Int64 src);
-    static void toTimeTImp(unsigned int       *dst, Int64 src);
-    static void toTimeTImp(unsigned long      *dst, Int64 src);
-    static void toTimeTImp(unsigned long long *dst, Int64 src);
-        // Assign to the specified '*dst' the value that it can represent that
-        // is the closest possible value to the value of the specified 'src'.
 
   public:
     // CLASS METHODS
-#ifdef BCES_PLATFORM_POSIX_THREADS
-    template <typename TIMESPEC>
-    static void toTimeSpec(TIMESPEC *dst, const bdet_TimeInterval& src);
-        // Assign to the specified '*dst' the value that it can represent that
-        // is the closest possible value to the value of the specified 'src'.
-        // This is a template function to also accommodate alternatively named
-        // timespec types such as 'mach_timespec_t' on Darwn.  The type
-        // 'TIMESPEC' must be a 'struct' containing an integral 'tv_sec'
-        // representing seconds, and 'tv_nsec' representing nanoseconds.  If
-        // both fields constain non-zero value, they will both have the same
-        // sign.
+    static void toTimeSpec(TimeSpec *dst, const bdet_TimeInterval& src);
+        // Assign to the specified 'dst' the value of the sepcified 'src', and
+        // if 'src' is less than the lowest representable 'Timespec' value, set
+        // 'dst' to the minimum 'Timespec' value, and if 'src' is greater than
+        // the highest representable 'Timespec' value, set 'dst' to the maximum
+        // 'Timespec' value.
 
-    static void toTimeT(bsl::time_t *dst, const bsls::Types::Int64 src);
-        // Assign to the specified '*dst' the value that it can represent that
-        // is the closest possible value to the value of the specified 'src'.
+#if BSLS_PLATFORM_OS_DARWIN
+    static void toTimeSpec(mach_timespec_t *dst, const bdet_TimeInterval& src);
+        // Assign to the specified 'dst' the value of the sepcified 'src', and
+        // if 'src' is less than the lowest representable 'Timespec' value, set
+        // 'dst' to the minimum 'Timespec' value, and if 'src' is greater than
+        // the highest representable 'Timespec' value, set 'dst' to the maximum
+        // 'Timespec' value.
 #endif
 
-#ifdef BCES_PLATFORM_WIN32_THREADS
-    static void toMillisec(DWORD *dst, const bdet_TimeInterval& src);
+    static void toTimeT(bsl::time_t *dst, const bsls::Types::Int64 src);
+        // Assign to the specified 'dst' the value of the sepcified 'src', and
+        // if 'src' is less than the lowest representable 'time_t' value, set
+        // 'dst' to the minimum 'time_t' value, and if 'src' is greater than
+        // the highest representable 'time_t' value, set 'dst' to the maximum
+        // 'time_t' value.
+
+    static void toMillisec(unsigned int *dst, const bdet_TimeInterval& src);
         // Assign to the specified '*dst' the value that it can represent that
         // is the closest possible value to the value of the specified 'src',
         // translated to milliseconds.
+
+#ifdef BCES_PLATFORM_WIN32_THREADS
+    static void toMillisec(unsigned long *dst, const bdet_TimeInterval& src);
+        // Assign to the specified '*dst' (which is of type
+        // 'DWORD == unsigned long' on Windows) the value that it can represent
+        // that is the closest possible value to the value of the specified
+        // 'src', translated to milliseconds.
 #endif
 };
 
-// ===========================================================================
+//=============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
-
-// PRIVATE CLASS METHODS
-template <typename TYPE>
-inline
-TYPE bcemt_SaturatedTimeConversion::maxOf(const TYPE&)
-{
-    return bsl::numeric_limits<TYPE>::max();
-};
-
-template <typename TYPE>
-inline
-TYPE bcemt_SaturatedTimeConversion::minOf(const TYPE&)
-{
-    return bsl::numeric_limits<TYPE>::min();
-};
-
-inline
-void bcemt_SaturatedTimeConversion::toTimeTImp(int                *dst,
-                                               bsls::Types::Int64  src)
-{
-    *dst = src > maxOf(*dst) ? maxOf(*dst)
-                             : (src < minOf(*dst) ? minOf(*dst) : (int) src);
-}
-inline
-void bcemt_SaturatedTimeConversion::toTimeTImp(long               *dst,
-                                               bsls::Types::Int64  src)
-{
-#ifdef BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT
-    *dst = src;
-#else
-    *dst = src > maxOf(*dst) ? maxOf(*dst)
-                             : (src < minOf(*dst) ? minOf(*dst)
-                                                  : (long) src);
-#endif
-}
-
-inline
-void bcemt_SaturatedTimeConversion::toTimeTImp(long long          *dst,
-                                               bsls::Types::Int64  src)
-{
-    *dst = src;
-}
-
-inline
-void bcemt_SaturatedTimeConversion::toTimeTImp(unsigned int       *dst,
-                                               bsls::Types::Int64  src)
-{
-    *dst = src > maxOf(*dst) ? maxOf(*dst)
-                             : (src < 0 ? 0 : (unsigned int) src);
-}
-
-inline
-void bcemt_SaturatedTimeConversion::toTimeTImp(unsigned long      *dst,
-                                               bsls::Types::Int64  src)
-{
-#ifdef BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT
-    *dst = src < 0 ? 0 : src;
-#else
-    *dst = src > maxOf(*dst) ? maxOf(*dst)
-                             : (src < 0 ? 0 : (unsigned long) src);
-#endif
-}
-
-inline
-void bcemt_SaturatedTimeConversion::toTimeTImp(unsigned long long *dst,
-                                               bsls::Types::Int64  src)
-{
-    *dst = src < 0 ? 0 : (unsigned long long) src;
-}
-
-#ifdef BCES_PLATFORM_POSIX_THREADS
-
-template <typename TIMESPEC>
-inline
-void bcemt_SaturatedTimeConversion::toTimeSpec(TIMESPEC                 *dst,
-                                               const bdet_TimeInterval&  src)
-{
-    enum { BILLION = 1000 * 1000 * 1000 };
-
-    dst->tv_sec = -1;
-    const bool secSigned = dst->tv_sec < 0;
-
-    Int64 sec = src.seconds();
-    toTimeTImp(&dst->tv_sec, sec);
-    Int64 tvSec = dst->tv_sec;    // we want to compare 'tv_sec' to 'src',
-                                  // convert to an 'Int64' to avoid weirdness
-                                  // arising from compares with 'dst->tv_sec'
-                                  // which has an unknown type
-
-    if (secSigned) {
-#ifdef BDE_BUILD_TARGET_SAFE
-        // tv_nxec must also be signed
-
-        dst->tv_nsec = -1;
-        BSLS_ASSERT_SAFE(dst->tv_nsec < 0);
-#endif
-
-        dst->tv_nsec = sec > tvSec ? BILLION - 1
-                                   : sec < tvSec ? - (BILLION - 1)
-                                                 : src.nanoseconds();
-    }
-    else {
-        // dst->tv_sec is unsigned.  Therefore, 'TIMESPEC' is not intended to
-        // represent a negative quantity, so dst->nsec should never be -ve.
-        // Note that 'bdet_TimeInterval' guarantees that 'src.seconds()' and
-        // 'src.nanoseconds()' will never have opposite signs.
-
-        dst->tv_nsec = sec > tvSec ? BILLION - 1
-                                   : src.nanoseconds() < 0 ? 0
-                                                           : src.nanoseconds();
-    }
-}
-
-inline
-void bcemt_SaturatedTimeConversion::toTimeT(bsl::time_t              *dst,
-                                            const bsls::Types::Int64  src)
-{
-    toTimeTImp(dst, src);
-}
-
-#endif
+//=============================================================================
 
 #ifdef BCES_PLATFORM_WIN32_THREADS
 
 inline
-void bcemt_SaturatedTimeConversion::toMillisec(DWORD                    *dst,
+void bcemt_SaturatedTimeConversion::toMillisec(unsigned long            *dst,
                                                const bdet_TimeInterval&  src)
 {
-    enum { MILLION = 1000 * 1000 };
+    // 'long' is always 32-bit on Windows, in 32 or 64 bit executables.
 
-    BSLMF_ASSERT((bsl::is_same<DWORD, unsigned long>::value));
-    BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));     // 'long' is 4 bytes on
-                                                    // windows, 32 or 64 bit
-    BSLMF_ASSERT((DWORD) -1 > 0);
+    BSLMF_ASSERT(sizeof(unsigned int) == sizeof(unsigned long));
 
-    const Int64 sec = src.seconds();
-    const int nanoMilliSeconds = src.nanoseconds() / MILLION;
+    // See other asserts about 'DWORD' type in imp file.
 
-    if (sec > maxOf(*dst)) {
-        *dst = maxOf(*dst);
-    }
-    else if (sec <= 0) {
-        *dst = sec < 0 || nanoMilliSeconds < 0 ? 0 : nanoMilliSeconds;
-    }
-    else {
-        // 'sec < 2^32', therefore 'sec * 1000 + 999 < 2^63', so this will
-        // work.  We also know that 'sec >= 1', so 'nanoMilliSeconds >= 0'.
-
-        toTimeTImp(dst, sec * 1000 + nanoMilliSeconds);
-    }
+    toMillisec((unsigned int *) dst, src);
 }
 
 #endif
