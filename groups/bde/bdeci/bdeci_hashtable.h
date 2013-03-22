@@ -173,20 +173,16 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BDECI_HASHTABLEIMPUTIL
+#include <bdeci_hashtableimputil.h>
+#endif
+
 #ifndef INCLUDED_BDEMA_POOL
 #include <bdema_pool.h>
 #endif
 
 #ifndef INCLUDED_BDEU_PRINT
 #include <bdeu_print.h>
-#endif
-
-#ifndef INCLUDED_BDEIMP_DUFFSDEVICE
-#include <bdeimp_duffsdevice.h>
-#endif
-
-#ifndef INCLUDED_BDECI_HASHTABLEIMPUTIL
-#include <bdeci_hashtableimputil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
@@ -232,6 +228,8 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
+
 template <class T, class HASH>
 class bdeci_HashtableSlotIter;
 
@@ -262,17 +260,6 @@ struct bdeci_Hashtable_Link {
                          bslma::Allocator     *allocator);
     T& value() { return d_memory.object(); }
 };
-
-template <class T>
-inline
-bdeci_Hashtable_Link<T>::
-                 bdeci_Hashtable_Link(const T&              value,
-                                      bdeci_Hashtable_Link *next,
-                                      bslma::Allocator     *allocator)
-: d_memory(value, allocator)
-, d_next_p(next)
-{
-}
 
                            // =====================
                            // class bdeci_Hashtable
@@ -734,9 +721,83 @@ class bdeci_HashtableSlotManip {
         // with this manipulator is valid, and 0 otherwise.
 };
 
+                        // =============================
+                        // class bdeci_Hashtable_ImpUtil
+                        // =============================
+
+template <class VALUE_TYPE>
+struct bdeci_Hashtable_ImpUtil {
+    // This class contains a single utility function uses to initialize arrays
+    // of pointers that is copied from a long-depcrated and recently removed
+    // component providing an implementation of "Duff's Device".  In principle
+    // these utility should be replace by use of 'bslalg::ArrayPrimitives'
+    // instead.
+
+    static void initializeRaw(VALUE_TYPE *array,
+                              VALUE_TYPE  value,
+                              int         numElements);
+        // Initialize the specified 'numElements' of the specified 'array' to
+        // the specified 'value'.  The behavior is undefined unless
+        // 0 < numElements and 'array' has sufficient capacity to store at
+        // least 'numElements' values.
+};
+
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+                        // --------------------------
+                        // class bdeci_Hashtable_Link
+                        // --------------------------
+
+template <class T>
+inline
+bdeci_Hashtable_Link<T>::
+                 bdeci_Hashtable_Link(const T&                      value,
+                                      bdeci_Hashtable_Link         *next,
+                                      bslma_Allocator              *allocator)
+: d_memory(value, allocator)
+, d_next_p(next)
+{
+}
+
+                        // -----------------------------
+                        // class bdeci_Hashtable_ImpUtil
+                        // -----------------------------
+
+template <class VALUE_TYPE>
+void bdeci_Hashtable_ImpUtil<VALUE_TYPE>::initializeRaw(VALUE_TYPE *array,
+                                                        VALUE_TYPE  value,
+                                                        int         numElements)
+{
+    switch (numElements % 8) {
+      case 7: *array = value; ++array;
+      case 6: *array = value; ++array;
+      case 5: *array = value; ++array;
+      case 4: *array = value; ++array;
+      case 3: *array = value; ++array;
+      case 2: *array = value; ++array;
+      case 1: *array = value; ++array;
+      default: ;
+    }
+
+    int n = numElements / 8;
+    while (n) {
+        *array = value; ++array;
+        *array = value; ++array;
+        *array = value; ++array;
+        *array = value; ++array;
+        *array = value; ++array;
+        *array = value; ++array;
+        *array = value; ++array;
+        *array = value; ++array;
+        --n;
+    }
+}
+
+                           // ---------------------
+                           // class bdeci_Hashtable
+                           // ---------------------
 
 // PRIVATE MANIPULATORS
 template <class T, class HASH>
@@ -754,7 +815,7 @@ void bdeci_Hashtable<T, HASH>::
             pool->deallocate(tmp);
         }
     }
-    bdeimp_DuffsDevice<bdeci_Hashtable_Link<T> *>::
+    bdeci_Hashtable_ImpUtil<bdeci_Hashtable_Link<T> *>::
                                              initializeRaw(table, 0, numSlots);
 }
 
@@ -788,7 +849,7 @@ void bdeci_Hashtable<T, HASH>::
 
             // Zero the new table's slots.
 
-            bdeimp_DuffsDevice<bdeci_Hashtable_Link<T> *>::
+            bdeci_Hashtable_ImpUtil<bdeci_Hashtable_Link<T> *>::
                                        initializeRaw(newTable, 0, newNumSlots);
 
             // Copy the data to the new table.
@@ -834,7 +895,7 @@ void bdeci_Hashtable<T, HASH>::
 
             // Zero new table slots.
 
-            bdeimp_DuffsDevice<bdeci_Hashtable_Link<T> *>::
+            bdeci_Hashtable_ImpUtil<bdeci_Hashtable_Link<T> *>::
                     initializeRaw(table + numSlots, 0, newNumSlots - numSlots);
 
             // Replace the data.
@@ -873,12 +934,12 @@ void bdeci_Hashtable<T, HASH>::
             allocator->deallocate(*addrTable);
             *addrTable = ht;
             *addrSizeIndex = newNumSlotsIndex;
-            bdeimp_DuffsDevice<bdeci_Hashtable_Link<T> *>::
+            bdeci_Hashtable_ImpUtil<bdeci_Hashtable_Link<T> *>::
                                      initializeRaw(*addrTable, 0, newNumSlots);
         }
         else {
             const int numSlots = *addrNumSlots;
-            bdeimp_DuffsDevice<bdeci_Hashtable_Link<T> *>::
+            bdeci_Hashtable_ImpUtil<bdeci_Hashtable_Link<T> *>::
                                          initializeRaw(*addrTable + numSlots,
                                                        0,
                                                        newNumSlots - numSlots);
@@ -900,7 +961,7 @@ bdeci_Hashtable<T, HASH>::bdeci_Hashtable(bslma::Allocator *basicAllocator)
     d_numSlots = bdeci_HashtableImpUtil::lookup(0);  // 0 == d_numSlotsIndex
     d_table_p = (bdeci_Hashtable_Link<T> **)
                        d_allocator_p->allocate(d_numSlots * sizeof *d_table_p);
-    bdeimp_DuffsDevice<bdeci_Hashtable_Link<T> *>::
+    bdeci_Hashtable_ImpUtil<bdeci_Hashtable_Link<T> *>::
                                        initializeRaw(d_table_p, 0, d_numSlots);
 }
 
@@ -923,7 +984,7 @@ bdeci_Hashtable<T, HASH>::
     d_pool.reserveCapacity(numElements.d_i);
     d_table_p = (bdeci_Hashtable_Link<T> **)
                        d_allocator_p->allocate(d_numSlots * sizeof *d_table_p);
-    bdeimp_DuffsDevice<bdeci_Hashtable_Link<T> *>::
+    bdeci_Hashtable_ImpUtil<bdeci_Hashtable_Link<T> *>::
                                        initializeRaw(d_table_p, 0, d_numSlots);
 }
 
@@ -943,7 +1004,7 @@ bdeci_Hashtable<T, HASH>::
                        d_allocator_p->allocate(d_numSlots * sizeof *d_table_p);
     bslma::DeallocatorProctor<bslma::Allocator> autoTableDeallocator(d_table_p,
                                                                 d_allocator_p);
-    bdeimp_DuffsDevice<bdeci_Hashtable_Link<T> *>::
+    bdeci_Hashtable_ImpUtil<bdeci_Hashtable_Link<T> *>::
                                        initializeRaw(d_table_p, 0, d_numSlots);
 
     // Copy the data while maintaining order.
@@ -1145,7 +1206,7 @@ void bdeci_Hashtable<T, HASH>::removeAll()
     d_numElements = 0;
     d_numSlotsIndex = 0;
     d_numSlots = bdeci_HashtableImpUtil::lookup(0);  // 0 == d_numSlotsIndex
-    bdeimp_DuffsDevice<bdeci_Hashtable_Link<T> *>::
+    bdeci_Hashtable_ImpUtil<bdeci_Hashtable_Link<T> *>::
                                        initializeRaw(d_table_p, 0, d_numSlots);
 }
 
