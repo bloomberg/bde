@@ -1362,9 +1362,12 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
     // modes.  As this function assumes that 'value' is valid, it is possible
     // to encode an invalid 'bdet_Date' without returning an error.  Decoding
     // the corresponding output can result in hard-to-trace decoding errors.
-    // So to identify such errors early, we assert that 'value' is valid.
+    // So to identify such errors early, we return an error if 'value' is not
+    // valid.
 
-    BSLS_ASSERT_OPT(0 == const_cast<bdet_Date&>(value).addDaysIfValid(0));
+    if (0 != const_cast<bdet_Date&>(value).addDaysIfValid(0)) {
+        return -1;                                                    // RETURN
+    }
 
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDateValue(streamBuf, value)
@@ -1379,15 +1382,17 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
     // build modes.  As this function assumes that 'value' is valid, it is
     // possible to encode an invalid 'bdet_Datetime' without returning an
     // error.  Decoding the corresponding output can result in hard-to-trace
-    // decoding errors.  So to identify such errors early, we assert that
-    // 'value' is valid.
+    // decoding errors.  So to identify such errors early, we return an error
+    // if 'value' is not valid.
 
     const bdet_Time& time = value.time();
-    BSLS_ASSERT_OPT(0 == value.date().addDaysIfValid(0)
-                 && bdet_Time::isValid(time.hour(),
-                                       time.minute(),
-                                       time.second(),
-                                       time.millisecond()));
+    if (0 != value.date().addDaysIfValid(0)
+     || !bdet_Time::isValid(time.hour(),
+                            time.minute(),
+                            time.second(),
+                            time.millisecond())) {
+        return -1;                                                    // RETURN
+    }
 
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDatetimeValue(streamBuf, value)
@@ -1402,14 +1407,16 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
     // build modes.  As this function assumes that 'value' is valid, it is
     // possible to encode an invalid 'bdet_DatetimeTz' without returning an
     // error.  Decoding the corresponding output can result in hard-to-trace
-    // decoding errors.  So to identify such errors early, we assert that
-    // 'value' is valid.
+    // decoding errors.  So to identify such errors early, we return an error
+    // if 'value' is not valid.
 
     const bdet_DateTz& dateTz = value.dateTz();
     const bdet_TimeTz& timeTz = value.timeTz();
-    BSLS_ASSERT_OPT(0 == dateTz.localDate().addDaysIfValid(0)
-                 && bdet_DateTz::isValid(dateTz.localDate(), dateTz.offset())
-                 && bdet_TimeTz::isValid(timeTz.utcTime(), timeTz.offset()));
+    if (0 != dateTz.localDate().addDaysIfValid(0)
+     || !bdet_DateTz::isValid(dateTz.localDate(), dateTz.offset())
+     || !bdet_TimeTz::isValid(timeTz.utcTime(), timeTz.offset())) {
+        return -1;                                                    // RETURN
+    }
 
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDatetimeTzValue(streamBuf, value)
@@ -1424,10 +1431,13 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
     // modes.  As this function assumes that 'value' is valid, it is possible
     // to encode an invalid 'bdet_DateTz' without returning an error.  Decoding
     // the corresponding output can result in hard-to-trace decoding errors.
-    // So to identify such errors early, we assert that 'value' is valid.
+    // So to identify such errors early, we return an error if 'value' is not
+    // valid.
 
-    BSLS_ASSERT_OPT(0 == value.localDate().addDaysIfValid(0)
-                 && bdet_DateTz::isValid(value.localDate(), value.offset()));
+    if (0 != value.localDate().addDaysIfValid(0)
+     || !bdet_DateTz::isValid(value.localDate(), value.offset())) {
+        return -1;                                                    // RETURN
+    }
 
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDateTzValue(streamBuf, value)
@@ -1438,17 +1448,6 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_Time&              value,
                                const bdem_BerEncoderOptions *options)
 {
-    // Applications can create invalid 'bdet_Time' objects in optimized build
-    // modes.  As this function assumes that 'value' is valid, it is possible
-    // to encode an invalid 'bdet_Time' without returning an error.  Decoding
-    // the corresponding output can result in hard-to-trace decoding errors.
-    // So to identify such errors early, we assert that 'value' is valid.
-
-    BSLS_ASSERT_OPT(bdet_Time::isValid(value.hour(),
-                                       value.minute(),
-                                       value.second(),
-                                       value.millisecond()));
-
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryTimeValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
@@ -1458,14 +1457,6 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_TimeTz&            value,
                                const bdem_BerEncoderOptions *options)
 {
-    // Applications can create invalid 'bdet_TimeTz' objects in optimized build
-    // modes.  As this function assumes that 'value' is valid, it is possible
-    // to encode an invalid 'bdet_TimeTz' without returning an error.  Decoding
-    // the corresponding output can result in hard-to-trace decoding errors.
-    // So to identify such errors early, we assert that 'value' is valid.
-
-    BSLS_ASSERT_OPT(bdet_TimeTz::isValid(value.utcTime(), value.offset()));
-
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryTimeTzValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);

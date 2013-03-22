@@ -218,6 +218,10 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
     }
 }
 
+void ignoreAssertHandler(const char *, const char *, int)
+{
+}
+
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -3407,6 +3411,29 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(VALUE, value, VALUE == value);
                 }
             }
+
+            // Invalid value returns an error
+            {
+                bsls::AssertFailureHandlerGuard guard(&ignoreAssertHandler);
+                const Type VALUE1(0, 1, 1);
+                const Type VALUE2(1, 0, 1);
+                const Type VALUE3(1, 1, 0);
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 != Util::putValue(&osb, VALUE1));
+                ASSERT(0 != Util::putValue(&osb, VALUE1, &options));
+
+                // The date value is converted to a valid date in this case
+                // and the error remains undetected.  This is fine since the
+                // user is already in undefined behavior and our error is at
+                // best a convenience and not contractually required.
+
+//                 ASSERT(0 != Util::putValue(&osb, VALUE2));
+//                 ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
+
+                ASSERT(0 != Util::putValue(&osb, VALUE3));
+                ASSERT(0 != Util::putValue(&osb, VALUE3, &options));
+            }
         }
 
         if (verbose) bsl::cout << "\nTesting 'bdet_DateTz'." << bsl::endl;
@@ -3461,6 +3488,38 @@ int main(int argc, char *argv[])
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP2_ASSERT(VALUE, value, VALUE == value);
                 }
+            }
+
+            // Invalid value returns an error
+            {
+                bsls::AssertFailureHandlerGuard guard(&ignoreAssertHandler);
+                const Type VALUE1(bdet_Date(0, 1, 1), 0);
+                const Type VALUE2(bdet_Date(0, 1, 1), 2000);
+                const Type VALUE3(bdet_Date(1, 0, 1), 0);
+                const Type VALUE4(bdet_Date(1, 0, 1), 2000);
+                const Type VALUE5(bdet_Date(1, 1, 0), 0);
+                const Type VALUE6(bdet_Date(1, 1, 0), 2000);
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 != Util::putValue(&osb, VALUE1));
+                ASSERT(0 != Util::putValue(&osb, VALUE1, &options));
+                ASSERT(0 != Util::putValue(&osb, VALUE2));
+                ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
+
+                // The date value is converted to a valid date in this case
+                // and the error remains undetected.  This is fine since the
+                // user is already in undefined behavior and our error is at
+                // best a convenience and not contractually required.
+
+//                 ASSERT(0 != Util::putValue(&osb, VALUE3));
+//                 ASSERT(0 != Util::putValue(&osb, VALUE3, &options));
+
+                ASSERT(0 != Util::putValue(&osb, VALUE4));
+                ASSERT(0 != Util::putValue(&osb, VALUE4, &options));
+                ASSERT(0 != Util::putValue(&osb, VALUE5));
+                ASSERT(0 != Util::putValue(&osb, VALUE5, &options));
+                ASSERT(0 != Util::putValue(&osb, VALUE6));
+                ASSERT(0 != Util::putValue(&osb, VALUE6, &options));
             }
         }
 
@@ -3631,6 +3690,32 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
             }
+
+            // Invalid value returns an error
+            {
+                bsls::AssertFailureHandlerGuard guard(&ignoreAssertHandler);
+                const Type VALUE1(bdet_Datetime(bdet_Date(0, 1, 1),
+                                                bdet_Time(0, 0, 0, 0)));
+                const Type VALUE2(bdet_Datetime(bdet_Date(1, 0, 1),
+                                                bdet_Time(0, 0, 0, 0)));
+                const Type VALUE3(bdet_Datetime(bdet_Date(1, 1, 0),
+                                                bdet_Time(0, 0, 0, 0)));
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 != Util::putValue(&osb, VALUE1));
+                ASSERT(0 != Util::putValue(&osb, VALUE1, &options));
+
+                // The date value is converted to a valid date in this case
+                // and the error remains undetected.  This is fine since the
+                // user is already in undefined behavior and our error is at
+                // best a convenience and not contractually required.
+
+//                 ASSERT(0 != Util::putValue(&osb, VALUE2));
+//                 ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
+
+                ASSERT(0 != Util::putValue(&osb, VALUE3));
+                ASSERT(0 != Util::putValue(&osb, VALUE3, &options));
+            }
         }
 
         if (verbose) bsl::cout << "\nTesting 'bdet_DatetimeTz'." << bsl::endl;
@@ -3690,6 +3775,50 @@ int main(int argc, char *argv[])
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
+            }
+
+            // Invalid value returns an error
+            {
+                bsls::AssertFailureHandlerGuard guard(&ignoreAssertHandler);
+                const Type VALUE1(bdet_Datetime(bdet_Date(0, 1, 1),
+                                                bdet_Time(0, 0, 0, 0)),
+                                                0);
+                const Type VALUE2(bdet_Datetime(bdet_Date(0, 1, 1),
+                                                bdet_Time(0, 0, 0, 0)),
+                                                2000);
+                const Type VALUE3(bdet_Datetime(bdet_Date(1, 0, 1),
+                                                bdet_Time(0, 0, 0, 0)),
+                                                0);
+                const Type VALUE4(bdet_Datetime(bdet_Date(1, 0, 1),
+                                                bdet_Time(0, 0, 0, 0)),
+                                                2000);
+                const Type VALUE5(bdet_Datetime(bdet_Date(1, 1, 0),
+                                                bdet_Time(0, 0, 0, 0)),
+                                                0);
+                const Type VALUE6(bdet_Datetime(bdet_Date(1, 1, 0),
+                                                bdet_Time(0, 0, 0, 0)),
+                                                2000);
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 != Util::putValue(&osb, VALUE1));
+                ASSERT(0 != Util::putValue(&osb, VALUE1, &options));
+                ASSERT(0 != Util::putValue(&osb, VALUE2));
+                ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
+
+                // The date value is converted to a valid date in this case
+                // and the error remains undetected.  This is fine since the
+                // user is already in undefined behavior and our error is at
+                // best a convenience and not contractually required.
+
+//                 ASSERT(0 != Util::putValue(&osb, VALUE3));
+//                 ASSERT(0 != Util::putValue(&osb, VALUE3, &options));
+//                 ASSERT(0 != Util::putValue(&osb, VALUE4));
+//                 ASSERT(0 != Util::putValue(&osb, VALUE4, &options));
+
+                ASSERT(0 != Util::putValue(&osb, VALUE5));
+                ASSERT(0 != Util::putValue(&osb, VALUE5, &options));
+                ASSERT(0 != Util::putValue(&osb, VALUE6));
+                ASSERT(0 != Util::putValue(&osb, VALUE6, &options));
             }
         }
       } break;
