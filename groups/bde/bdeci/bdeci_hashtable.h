@@ -779,13 +779,13 @@ void bdeci_Hashtable_ImpUtil<VALUE_TYPE>::initializeRaw(
     BSLS_ASSERT(0 <= numElements);
 
     switch (numElements % 8) {
-      case 7: *array = value; ++array;  // FALL THROUGH
-      case 6: *array = value; ++array;  // FALL THROUGH
-      case 5: *array = value; ++array;  // FALL THROUGH
-      case 4: *array = value; ++array;  // FALL THROUGH
-      case 3: *array = value; ++array;  // FALL THROUGH
-      case 2: *array = value; ++array;  // FALL THROUGH
-      case 1: *array = value; ++array;  // FALL THROUGH
+      case 7: *array = value; ++array;                          // FALL THROUGH
+      case 6: *array = value; ++array;                          // FALL THROUGH
+      case 5: *array = value; ++array;                          // FALL THROUGH
+      case 4: *array = value; ++array;                          // FALL THROUGH
+      case 3: *array = value; ++array;                          // FALL THROUGH
+      case 2: *array = value; ++array;                          // FALL THROUGH
+      case 1: *array = value; ++array;                          // FALL THROUGH
       default: ;
     }
 
