@@ -1,4 +1,4 @@
-// bdeci_hashtable.h                -*-C++-*-
+// bdeci_hashtable.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDECI_HASHTABLE
 #define INCLUDED_BDECI_HASHTABLE
 
@@ -207,6 +207,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
@@ -727,18 +731,18 @@ class bdeci_HashtableSlotManip {
 
 template <class VALUE_TYPE>
 struct bdeci_Hashtable_ImpUtil {
-    // This class contains a single utility function uses to initialize arrays
-    // of pointers that is copied from a long-depcrated and recently removed
-    // component providing an implementation of "Duff's Device".  In principle
-    // these utility should be replace by use of 'bslalg::ArrayPrimitives'
-    // instead.
+    // This class contains a single utility function used to initialize arrays
+    // of pointers.  This code is copied from a long-depcrated and recently
+    // removed component providing an implementation of "Duff's Device".  In
+    // principle this utility should be replaced by use of
+    // 'bslalg::ArrayPrimitives' instead.
 
     static void initializeRaw(VALUE_TYPE *array,
                               VALUE_TYPE  value,
                               int         numElements);
         // Initialize the specified 'numElements' of the specified 'array' to
         // the specified 'value'.  The behavior is undefined unless
-        // 0 < numElements and 'array' has sufficient capacity to store at
+        // '0 <= numElements' and 'array' has sufficient capacity to store at
         // least 'numElements' values.
 };
 
@@ -766,18 +770,22 @@ bdeci_Hashtable_Link<T>::
                         // -----------------------------
 
 template <class VALUE_TYPE>
-void bdeci_Hashtable_ImpUtil<VALUE_TYPE>::initializeRaw(VALUE_TYPE *array,
-                                                        VALUE_TYPE  value,
-                                                        int         numElements)
+void bdeci_Hashtable_ImpUtil<VALUE_TYPE>::initializeRaw(
+                                                       VALUE_TYPE *array,
+                                                       VALUE_TYPE  value,
+                                                       int         numElements)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= numElements);
+
     switch (numElements % 8) {
-      case 7: *array = value; ++array;
-      case 6: *array = value; ++array;
-      case 5: *array = value; ++array;
-      case 4: *array = value; ++array;
-      case 3: *array = value; ++array;
-      case 2: *array = value; ++array;
-      case 1: *array = value; ++array;
+      case 7: *array = value; ++array;  // FALL THROUGH
+      case 6: *array = value; ++array;  // FALL THROUGH
+      case 5: *array = value; ++array;  // FALL THROUGH
+      case 4: *array = value; ++array;  // FALL THROUGH
+      case 3: *array = value; ++array;  // FALL THROUGH
+      case 2: *array = value; ++array;  // FALL THROUGH
+      case 1: *array = value; ++array;  // FALL THROUGH
       default: ;
     }
 

@@ -1,4 +1,4 @@
-// bdeci_hashtable.t.cpp           -*-C++-*-
+// bdeci_hashtable.t.cpp                                              -*-C++-*-
 
 #include <bdeci_hashtable.h>
 #include <bdeci_hashtableimputil.h>
@@ -495,7 +495,6 @@ int main(int argc, char *argv[])
         //   'areEqual'.  Repeat the process with various element types.
         //
         // Testing:
-        //   void initialize(T *array, T value, int numElements);
         //   void initializeRaw(T *array, T value, int numElements);
         // --------------------------------------------------------------------
 
