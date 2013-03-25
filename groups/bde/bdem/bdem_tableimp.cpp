@@ -57,28 +57,6 @@ int nullBitsArraySize(int numBits)
     return arraySize ? arraySize : 1;
 }
 
-template <typename VEC>
-static
-void geometricReserve(VEC *vec, bsl::size_t numElements)
-{
-    bsl::size_t capacity = vec->capacity();
-
-    if (numElements <= capacity) {
-        return;                                                       // RETURN
-    }
-
-    if (!capacity) {
-        capacity = 1;
-    }
-    while (capacity < numElements) {
-        bsl::size_t newCapacity = 2 * capacity;
-        BSLS_ASSERT_OPT(newCapacity / 2 == capacity);
-        capacity = newCapacity;
-    }
-
-    vec->reserve(capacity);
-}
-
                         // =============================
                         // class bdem_TableImp_AttrFuncs
                         // =============================
@@ -99,7 +77,7 @@ struct bdem_TableImp_AttrFuncs {
     static
     void copyConstruct(
                   void                                     *obj,
-                  const void                               *rhs,
+                  const void                               *original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   bslma_Allocator                          *alloc);
         // Copy construct a table object into raw memory.  The prototype for
@@ -136,15 +114,16 @@ void bdem_TableImp_AttrFuncs::defaultConstruct(
 
 void bdem_TableImp_AttrFuncs::copyConstruct(
                   void                                     *obj,
-                  const void                               *rhs,
+                  const void                               *original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   bslma_Allocator                          *alloc)
 {
     BSLS_ASSERT(obj);
-    BSLS_ASSERT(rhs);
+    BSLS_ASSERT(original);
 
-    const bdem_TableImp& rhsTable = *static_cast<const bdem_TableImp *>(rhs);
-    new (obj) bdem_TableImp(rhsTable, allocationStrategy, alloc);
+    const bdem_TableImp& origTable = *static_cast<const bdem_TableImp *>(
+                                                                     original);
+    new (obj) bdem_TableImp(origTable, allocationStrategy, alloc);
 }
 
 bool bdem_TableImp_AttrFuncs::isEmpty(const void *obj)
@@ -597,19 +576,20 @@ bdem_RowData& bdem_TableImp::insertRow(int                 dstRowIndex,
     if (!geometricMemoryGrowthFlag) {
         d_rows.reserve(numRows() + 1);
     }
-    else {
-        geometricReserve(&d_rows, numRows() + 1);
-    }
 
     bdem_RowData *newRow = new (d_rowPool) bdem_RowData(
                                        d_rowLayout_p,
                                        srcRow,
                                        d_allocatorManager.allocationStrategy(),
                                        d_allocatorManager.internalAllocator());
+    bslma::RawDeleterProctor<bdem_RowData, bdema_Pool>
+                                                   proctor(newRow, &d_rowPool);
+
+    d_rows.insert(d_rows.begin() + dstRowIndex, newRow);
 
     // We won't throw after this.
 
-    d_rows.insert(d_rows.begin() + dstRowIndex, newRow);
+    proctor.release();
 
     // Make the newly-added row non-null, since 'srcRow' can't indicate
     // otherwise.
@@ -664,9 +644,6 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
     if (!geometricMemoryGrowthFlag) {
         d_rows.reserve(originalSize + numRows);
     }
-    else {
-        geometricReserve(&d_rows, originalSize + numRows);
-    }
 
     bsl::vector<bdem_RowData *> tempRows;
     tempRows.resize(numRows);
@@ -685,7 +662,7 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
         ++rowsAutoDel;
     }
 
-    // This won't throw, but it would be OK if it did.
+    // this might throw
 
     d_rows.insert(d_rows.begin() + dstRowIndex,
                   tempRows.begin(),
@@ -751,9 +728,6 @@ void bdem_TableImp::insertNullRows(int dstRowIndex, int numRows)
     if (!geometricMemoryGrowthFlag) {
         d_rows.reserve(this->numRows() + numRows);
     }
-    else {
-        geometricReserve(&d_rows, this->numRows() + numRows);
-    }
 
     for (int i = 0; i < numRows; ++i) {
         // 'bdem_RowData' c'tor might allocate and might throw, but 'd_rows'
@@ -764,9 +738,16 @@ void bdem_TableImp::insertNullRows(int dstRowIndex, int numRows)
                                        d_allocatorManager.allocationStrategy(),
                                        d_allocatorManager.internalAllocator());
 
-        // won't throw after this for the rest of the loop
+        bslma::RawDeleterProctor<bdem_RowData, bdema_Pool>
+                                                   proctor(newRow, &d_rowPool);
+
+        // might throw
 
         d_rows.insert(d_rows.begin() + dstRowIndex + i, newRow);
+
+        // won't throw for rest of loop
+
+        proctor.release();
 
         bdeu_BitstringUtil::insert1(&d_nullBits.front(),
                                     d_rows.size() - 1,
@@ -1028,7 +1009,7 @@ bool operator==(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
                                       rhsNullbits,
                                       0,
                                       numRows)) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     // Check for same element values, in non-null rows only.
