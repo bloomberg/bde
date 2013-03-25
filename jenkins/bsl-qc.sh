@@ -31,10 +31,10 @@ git clean -fdx
 
 # Run a build using Clang for warnings analysis
 python tools/bsl_gyp.py
-make -k -C build CXX="ccache /usr/bin/clang++" BUILDTYPE=Release all_libs 2>&1 | tee /tmp/clang-3.1-libs.log
+make -k -C build CXX="ccache /usr/bin/clang++" BUILDTYPE=Release all_libs 2>&1 | tee /tmp/clang-libs.log
 make_result=${PIPESTATUS[0]}
 if [ $make_result -ne 0 ]; then exit $make_result; fi
-make -k -C build CXX="ccache /usr/bin/clang++" BUILDTYPE=Release all_tests_build 2>&1 | tee /tmp/clang-3.1-tests.log
+make -k -C build CXX="ccache /usr/bin/clang++" BUILDTYPE=Release all_tests_build 2>&1 | tee /tmp/clang-tests.log
 make_result=${PIPESTATUS[0]}
 if [ $make_result -ne 0 ]; then exit $make_result; fi
 
@@ -43,10 +43,10 @@ git clean -fdx
 
 # Run a build using GCC for warning analysis
 python tools/bsl_gyp.py
-make -k -C build CXX="ccache /usr/bin/g++-4.7" BUILDTYPE=Release all_libs 2>&1 | tee /tmp/gcc-4.7-libs.log
+make -k -C build CXX="ccache /usr/bin/g++" BUILDTYPE=Release all_libs 2>&1 | tee /tmp/gcc-libs.log
 make_result=${PIPESTATUS[0]}
 if [ $make_result -ne 0 ]; then exit $make_result; fi
-make -k -C build CXX="ccache /usr/bin/g++-4.7" BUILDTYPE=Release all_tests_build 2>&1 | tee /tmp/gcc-4.7-tests.log
+make -k -C build CXX="ccache /usr/bin/g++" BUILDTYPE=Release all_tests_build 2>&1 | tee /tmp/gcc-tests.log
 make_result=${PIPESTATUS[0]}
 if [ $make_result -ne 0 ]; then exit $make_result; fi
 
@@ -58,7 +58,7 @@ git clean -fdx
 
 # Run a build using GCC for code coverage analysis
 python tools/bsl_gyp.py
-make -k -j${NUMCPUS} -C build CXX="ccache /usr/bin/g++-4.7" BUILDTYPE=Profile all_tests_build
+make -k -j${NUMCPUS} -C build CXX="ccache /usr/bin/g++" BUILDTYPE=Profile all_tests_build
 make_result=${PIPESTATUS[0]}
 if [ $make_result -ne 0 ]; then exit $make_result; fi
 
@@ -85,8 +85,8 @@ echo "test: \$(result-list)" >> unit-tests.mk
 make -j${NUMCPUS} -f unit-tests.mk test
 
 # Move logs from /tmp to workspace for analysis
-mv /tmp/gcc-4.7-*.log .
-mv /tmp/clang-3.1-*.log .
+mv /tmp/gcc-*.log .
+mv /tmp/clang-*.log .
 
 # Compute SLOC
 sloccount --wide --details groups > sloccount.sc
