@@ -9,7 +9,7 @@ BDES_IDENT_RCSID(bcemt_timedsemaphoreimpl_posixadv_cpp,"$Id$ $CSID$")
 
 #ifdef BCES_PLATFORM_POSIXADV_TIMEDSEMAPHORE
 
-#include <bcemt_saturatedtimeconversion.h>
+#include <bcemt_saturatedtimeconversionimputil.h>
 
 #include <bdet_timeinterval.h>
 
@@ -35,7 +35,7 @@ int bcemt_TimedSemaphoreImpl<bces_Platform::PosixAdvTimedSemaphore>::timedWait(
                                               const bdet_TimeInterval& timeout)
 {
     timespec ts;
-    bcemt_SaturatedTimeConversion::toTimeSpec(&ts, timeout);
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&ts, timeout);
 
     while (0 != ::sem_timedwait(&d_sem, &ts)) {
         if (EINTR != errno) {

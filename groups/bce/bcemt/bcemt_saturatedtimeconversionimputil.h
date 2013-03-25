@@ -1,6 +1,6 @@
-// bcemt_saturatedtimeconversion.h                                    -*-C++-*-
-#ifndef INCLUDED_BCEMT_SATURATEDTIMECONVERSION
-#define INCLUDED_BCEMT_SATURATEDTIMECONVERSION
+// bcemt_saturatedtimeconversionimputil.h                             -*-C++-*-
+#ifndef INCLUDED_BCEMT_SATURATEDTIMECONVERSIONIMPUTIL
+#define INCLUDED_BCEMT_SATURATEDTIMECONVERSIONIMPUTIL
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -33,8 +33,8 @@ BDES_IDENT("$Id: $")
 // be the maximum or minimum value the destination can represent, whichever is
 // closer to the value that should be assigned.
 //..
-//  typedef bcemt_SaturatedTimeConversion STC;
-//  typedef bsls::Types::Int64            Int64;
+//  typedef bcemt_SaturatedTimeConversionImpUtil STC;
+//  typedef bsls::Types::Int64                   Int64;
 //
 //  unsigned int dest;
 //  bdet_TimeInterval timeInt;
@@ -150,14 +150,16 @@ namespace BloombergLP {
                  // class bcemt_SaturatedTimeConversionImpUtil
                  // ==========================================
 
-class bcemt_SaturatedTimeConversion {
-    // Namespace class for the platform-dependent class methods 'toTimeSpec',
-    // 'toTimeT', and 'toMillisec', used for saturating conversions of
-    // times stored as 'bdet_TimeInterval' to other types used by underlying
-    // threading platforms.
+struct bcemt_SaturatedTimeConversionImpUtil {
+    // This 'struct' provides a namespace for utility functions that convert
+    // time values between different time representations, and "saturate" when
+    // values are outside the range of values that may be represented in the
+    // destination type (meaning that values above the maximum representable
+    // value of the result type are set to the maximum value of the result
+    // type, and values below the minimum representable value of the result
+    // type are set to the minimum value fo the result type).
 
-  public:
-    // PUBLIC TYPES
+    // TYPES
 
     // Here we define type 'TimeSpec' -- an alias to 'timespec' on Unix, but
     // defined as a struct on Windows, to guarantee that 'TimeSpec' exists on
@@ -169,12 +171,11 @@ class bcemt_SaturatedTimeConversion {
     struct TimeSpec {
         // Provide type for Windows platform
 
-        int tv_sec;
-        int tv_nsec;
+        bsls::Types::Int64 tv_sec;
+        int                tv_nsec;
     };
 #endif
 
-  public:
     // CLASS METHODS
     static void toTimeSpec(TimeSpec *dst, const bdet_TimeInterval& src);
         // Assign to the specified 'dst' the value of the sepcified 'src', and
@@ -200,16 +201,17 @@ class bcemt_SaturatedTimeConversion {
         // 'time_t' value.
 
     static void toMillisec(unsigned int *dst, const bdet_TimeInterval& src);
-        // Assign to the specified '*dst' the value that it can represent that
-        // is the closest possible value to the value of the specified 'src',
-        // translated to milliseconds.
+        // Assign to the specified 'dst' the value of the specified 'src'
+        // converted to milliseconds, and if that value is a negative time
+        // interval, set 'dst' to 0, and if that value is greater 'UINT_MAX'
+        // milliseconds set dest to 'UNIT_MAX'.
 
 #ifdef BCES_PLATFORM_WIN32_THREADS
     static void toMillisec(unsigned long *dst, const bdet_TimeInterval& src);
-        // Assign to the specified '*dst' (which is of type
-        // 'DWORD == unsigned long' on Windows) the value that it can represent
-        // that is the closest possible value to the value of the specified
-        // 'src', translated to milliseconds.
+        // Assign to the specified 'dst' the value of the specified 'src'
+        // converted to milliseconds, and if that value is a negative time
+        // interval, set 'dst' to 0, and if that value is greater 'ULONG_MAX'
+        // milliseconds set dest to 'ULONG_MAX'.
 #endif
 };
 
@@ -220,14 +222,15 @@ class bcemt_SaturatedTimeConversion {
 #ifdef BCES_PLATFORM_WIN32_THREADS
 
 inline
-void bcemt_SaturatedTimeConversion::toMillisec(unsigned long            *dst,
-                                               const bdet_TimeInterval&  src)
+void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+                                                 unsigned long            *dst,
+                                                 const bdet_TimeInterval&  src)
 {
     // 'long' is always 32-bit on Windows, in 32 or 64 bit executables.
 
     BSLMF_ASSERT(sizeof(unsigned int) == sizeof(unsigned long));
 
-    // See other asserts about 'DWORD' type in imp file.
+    // See other asserts about 'DWORD' type in the test driver.
 
     toMillisec((unsigned int *) dst, src);
 }

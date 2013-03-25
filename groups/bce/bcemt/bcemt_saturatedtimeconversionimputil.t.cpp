@@ -1,6 +1,6 @@
-// bcemt_saturatedtimeconversion.t.cpp                                -*-C++-*-
+// bcemt_saturatedtimeconversionimputil.t.cpp                         -*-C++-*-
 
-#include <bcemt_saturatedtimeconversion.h>
+#include <bcemt_saturatedtimeconversionimputil.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -28,12 +28,13 @@ using bsl::flush;
 // be tested independently -- none depend on each other.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [6] USAGE
-// [5] 'toMillisec'
-// [4] 'toTimeT'
-// [3] 'toTimeSpec' -- case where 'tv_sec' is unsigned.
-// [2] 'toTimeSpec' -- case where 'tv_sec' is signed.
-// [1] Breathing test (none)
+// [ 6] USAGE
+// [ 5] toMillisec(unsigned int  *, const bdet_TimeInterval&);
+// [ 5] toMillisec(unsigned long *, const bdet_TimeInterval&);
+// [ 4] toTimeT(bsl::time_t *, const bsls::Types::Int64);
+// [ 3] toTimeSpec(TIMESPEC *, const bdet_TimeInterval&); -- tv_sec unsigned.
+// [ 2] toTimeSpec(TIMESPEC *, const bdet_TimeInterval&); -- tv_sec signed.
+// [ 1] Breathing test
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -124,9 +125,9 @@ void aSsErT(int c, const char *s, int i)
 //                               GLOBAL TYPEDEF
 //-----------------------------------------------------------------------------
 
-typedef bcemt_SaturatedTimeConversion Obj;
-typedef bsls::Types::Int64            Int64;
-typedef bsls::Types::Uint64           Uint64;
+typedef bcemt_SaturatedTimeConversionImpUtil Obj;
+typedef bsls::Types::Int64                   Int64;
+typedef bsls::Types::Uint64                  Uint64;
 
 //=============================================================================
 //                               GLOBAL CONSTANTS
@@ -148,6 +149,30 @@ const Int64 i48         = ((Int64) 1 << 48);
 int verbose;
 int veryVerbose;
 // int veryVeryVerbose;
+
+//=============================================================================
+//                            ASSERTS ABOUT TYPES
+//-----------------------------------------------------------------------------
+
+#ifdef BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT
+BSLMF_ASSERT(sizeof(long) == sizeof(bsls::Types::Int64));
+#else
+BSLMF_ASSERT(sizeof(long) == sizeof(int));
+#endif
+
+BSLMF_ASSERT(sizeof(long long) == sizeof(bsls::Types::Int64));
+BSLMF_ASSERT(sizeof(int)       <  sizeof(bsls::Types::Int64));
+
+#ifdef BCES_PLATFORM_WIN32_THREADS
+
+                        // * asserts about 'DWORD'
+
+BSLMF_ASSERT((bsl::is_same<DWORD, unsigned long>::value));
+BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));     // 'long' is 4 bytes on
+                                                // windows, 32 or 64 bit
+BSLMF_ASSERT((DWORD) -1 > 0);
+
+#endif
 
 //=============================================================================
 //                              STATIC FUNCTIONS
@@ -511,7 +536,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -528,75 +553,108 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         // Suppose we need to assign a value held in a 'bdet_TimeInterval' to
-        // an 'unsigned int', where the 'unsigned int' is to contain the time
-        // in milliseconds.  A 'bdet_TimeInterval' is able to represent many
-        // values that cannot be represented in such an 'unsigned int', and
-        // what we want to do in the event of such values is 'saturation', that
-        // is, the value assigned will be the maximum or minimum value the
-        // destination can represent, whichever is closer to the value that
-        // should be assigned.
+        // an 'unsigned int', where the 'unsigned int' is to contain an
+        // equilavent time interval expressed in milliseconds.  A
+        // 'bdet_TimeInterval' can represent a positive time interval that is
+        // longer than that which can be represented with an 'unsigned int'
+        // holding milliseconds.  Similarly, 'bdet_TimeInterval' can represent
+        // a negative time interval, which also cannot be expressed with an
+        // 'unsigned int'.  In the cases where the source value is outside of
+        // the representable range of the destination type, the conversions
+        // provided by 'bcemt_saturatedtimeconversionimputil' will "saturate",
+        // meaning values below the minimum value are set to the minimum value
+        // of the result type, and values above the maximum value are set to
+        // the maximum value of the result type.
 
-        typedef bcemt_SaturatedTimeConversion STC;
-        typedef bsls::Types::Int64            Int64;
+        // First, we define variables of our source ('bdet_TimeInterval') and
+        // destination ('unsigned int') types:
 
-        unsigned int dest;
-        bdet_TimeInterval timeInt;
+        unsigned int destinationInterval;
+        bdet_TimeInterval sourceInterval;
 
-        // First, we try a value that does not require saturation and observe
-        // that 'toMillisec' converts it properly:
+        // Then, we try a value that does not require saturation and observe
+        // that 'toMillisec' converts it without modification (beyond loss of
+        // precision:
 
-        timeInt.setInterval(4, 321000000);
-        STC::toMillisec(&dest, timeInt);
-        ASSERT(4321 == dest);
+        sourceInterval.setInterval(4, 321000000);
+        bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+                                         &destinationInterval, sourceInterval);
+        ASSERT(4321 == destinationInterval);
 
-        // Then, we calculate the max legal value that can be stored and verify
-        // that it translates to the maximum value:
+        // Next, we calculate the maximum value that can be represented in an
+        // 'usngined int' number of milliseconds, and verify that converting an
+        // equivalent 'bdet_TimeInterval' does not modify the value:
 
-        const unsigned int maxDest = bsl::numeric_limits<unsigned int>::max();
-        bdet_TimeInterval borderTimeInt(maxDest / 1000,
-                                        (maxDest % 1000) * 1000 * 1000);
-        STC::toMillisec(&dest, borderTimeInt);
-        ASSERT(maxDest == dest);
+        const unsigned int maxDestinationInterval =
+                                      bsl::numeric_limits<unsigned int>::max();
+        bdet_TimeInterval maxiumumTimeInterval(
+                                maxDestinationInterval / 1000,
+                                (maxDestinationInterval % 1000) * 1000 * 1000);
+        bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+                                   &destinationInterval, maxiumumTimeInterval);
+        ASSERT(maxDestinationInterval == destinationInterval);
 
-        // Next, we translate a value that should translate to 'maxDest - 1':
+        // Now, we attempt to convert a value higher than the maximum
+        // representable in an 'unsigned int' milliseconds and verify that the
+        // resulting value is the maximum representable 'unsigned int' value:
 
-        timeInt = borderTimeInt - bdet_TimeInterval(0, 1000 * 1000);
-        STC::toMillisec(&dest, timeInt);
-        ASSERT(maxDest - 1 == dest);
+        bdet_TimeInterval aboveMaxInterval = maxiumumTimeInterval +
+                                             bdet_TimeInterval(0, 1000 * 1000);
+        bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+                                       &destinationInterval, aboveMaxInterval);
+        ASSERT(maxDestinationInterval == destinationInterval);
 
-        // Now, we try values higher than 'borderTimeInt' and observe
-        // saturation:
+        // Finally, we try a value less than 0 and observe the result of the
+        // saturated conversion is 0:
 
-        timeInt = borderTimeInt + bdet_TimeInterval(0, 1000 * 1000);
-        STC::toMillisec(&dest, timeInt);
-        ASSERT(maxDest == dest);
+        bdet_TimeInterval belowMinimumInterval(-1, 0);
+        bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+                                   &destinationInterval, belowMinimumInterval);
+        ASSERT(0 == destinationInterval);
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // ASSERTS ABOUT 'TimeSpec' and 'mach_timespec_t'
+        //
+        // Concerns:
+        //    Our implementations of 'toTimeSpec' make assumptions about
+        //    whether the destination values are signed or unsigned.  Verify
+        //    thse assumptions here.
+        //
+        // Plan:
+        //    Assign '-t' to both fields of 'TimeSpec' and verify that the
+        //    values are negative, also verify that 'TimeSpec::tv_nsec' can
+        //    can handle values to +- one billion, and that
+        //    'mach_timespec_t::tv_nsec' can handle up to one billion.
+        // --------------------------------------------------------------------
 
-        timeInt.setInterval(bsl::numeric_limits<Int64>::max(), 999999999);
-        STC::toMillisec(&dest, timeInt);
-        ASSERT(maxDest == dest);
+        if (verbose) cout <<
+                            "ASSERTS ABOUT 'TimeSpec' and 'mach_timespec_t'\n"
+                            "==============================================\n";
 
-        timeInt.setInterval(1000 * 1000 * 1000, 0);
-        STC::toMillisec(&dest, timeInt);
-        ASSERT(maxDest == dest);
+        enum { BILLION = 1000 * 1000 * 1000 };
 
-        // Finally, we try some negative values and observe our result is
-        // saturated to 0:
+        Obj::TimeSpec ts;
 
-        timeInt.setInterval(0, - 1000 * 1000);
-        STC::toMillisec(&dest, timeInt);
-        ASSERT(0 == dest);
+        ts.tv_sec  = -1;
+        ASSERT(ts.tv_sec  < 0);
+        ts.tv_nsec = -1;
+        ASSERT(ts.tv_nsec < 0);
 
-        timeInt.setInterval(-1000, 0);
-        STC::toMillisec(&dest, timeInt);
-        ASSERT(0 == dest);
+        ts.tv_nsec = -BILLION;
+        ASSERT(-BILLION == (Int64) ts.tv_nsec)
+        ts.tv_nsec =  BILLION;
+        ASSERT( BILLION == (Int64) ts.tv_nsec)
 
-        timeInt.setInterval(-1000 * 1000 * 1000, -999 * 1000 * 1000);
-        STC::toMillisec(&dest, timeInt);
-        ASSERT(0 == dest);
+#ifdef BSLS_PLATFORM_OS_DARWIN
+        mach_timespec_t mts;
 
-        timeInt.setInterval(bsl::numeric_limits<Int64>::min(), -999999999);
-        STC::toMillisec(&dest, timeInt);
-        ASSERT(0 == dest);
+        mts.tv_sec = -1;
+        ASSERT(mts.tv_sec > 0);
+
+        mts.tv_nsec = BILLION;
+        ASSERT(BILLION == (Int64) mts.tv_nsec)
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------

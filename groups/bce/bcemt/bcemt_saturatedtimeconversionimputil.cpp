@@ -1,5 +1,5 @@
-// bcemt_saturatedtimeconversion.cpp                                  -*-C++-*-
-#include <bcemt_saturatedtimeconversion.h>
+// bcemt_saturatedtimeconversionimputil.cpp                           -*-C++-*-
+#include <bcemt_saturatedtimeconversionimputil.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_barrier_cpp,"$Id$ $CSID$")
@@ -14,24 +14,6 @@ BDES_IDENT_RCSID(bcemt_barrier_cpp,"$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
-
-#ifdef BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT
-BSLMF_ASSERT(sizeof(long) == sizeof(bsls::Types::Int64));
-#else
-BSLMF_ASSERT(sizeof(long) == sizeof(int));
-#endif
-
-BSLMF_ASSERT(sizeof(long long) == sizeof(bsls::Types::Int64));
-BSLMF_ASSERT(sizeof(int)       <  sizeof(bsls::Types::Int64));
-
-#ifdef BCES_PLATFORM_WIN32_THREADS
-
-BSLMF_ASSERT((bsl::is_same<DWORD, unsigned long>::value));
-BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));     // 'long' is 4 bytes on
-                                                // windows, 32 or 64 bit
-BSLMF_ASSERT((DWORD) -1 > 0);
-
-#endif
 
 // PRIVATE CLASS METHODS
 template <typename TYPE>
@@ -124,21 +106,15 @@ void toTimeTImp(unsigned long long *dst, bsls::Types::Int64 src)
 }
 
 // PUBLIC CLASS METHODS
-void bcemt_SaturatedTimeConversion::toTimeSpec(TimeSpec                 *dst,
-                                               const bdet_TimeInterval&  src)
+void bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(
+                                                 TimeSpec                 *dst,
+                                                 const bdet_TimeInterval&  src)
 {
     enum { MAX_NANOSECONDS = 1000 * 1000 * 1000 - 1 };
 
-#ifdef BDE_BUILD_TARGET_SAFE
-    // On Windows, 'tv_sec' is a signed int.  On POSIX, it should be a
-    // 'time_t', which should be some sort of signed int, but I can't find
-    // anybody guaranteeing that.  Make sure.
-
-    dst->tv_sec  = -1;
-    BSLS_ASSERT_SAFE(dst->tv_sec  < 0);
-    dst->tv_nsec = -1;
-    BSLS_ASSERT_SAFE(dst->tv_nsec < 0);
-#endif
+    // In the test driver, in the test case "ASSERTS ABOUT 'TimeSpec' and
+    // 'mach_timespec_t'" we verify that 'TimeSpec' can contain negative
+    // values.
 
     toTimeTImp(&dst->tv_sec, src.seconds());
 
@@ -150,55 +126,35 @@ void bcemt_SaturatedTimeConversion::toTimeSpec(TimeSpec                 *dst,
 }
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
-void bcemt_SaturatedTimeConversion::toTimeSpec(mach_timespec_t          *dst,
-                                               const bdet_TimeInterval&  src)
+void bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(
+                                                 mach_timespec_t          *dst,
+                                                 const bdet_TimeInterval&  src)
 {
     enum { MAX_NANOSECONDS = 1000 * 1000 * 1000 - 1 };
 
-    // 'dst->tv_sec' is unsigned, which may change.
-
-    dst->tv_sec = -1;
-    const bool secSigned = !(dst->tv_sec > 0);
+    // 'dst->tv_sec' is unsigned, which is verified in the test driver in test
+    // case "ASSERTS ABOUT 'TimeSpec' and 'mach_timespec_t'.".
 
     toTimeTImp(&dst->tv_sec, src.seconds());
 
-    if (secSigned) {
-#ifdef BDE_BUILD_TARGET_SAFE
-        // tv_nsec must also be signed
-
-        dst->tv_nsec = -1;
-        BSLS_ASSERT_SAFE(dst->tv_nsec < 0);
-#endif
-
-        dst->tv_nsec = src.seconds() > (bsls::Types::Int64) dst->tv_sec
-                     ? MAX_NANOSECONDS
-                     : src.seconds() < (bsls::Types::Int64) dst->tv_sec
-                     ? -MAX_NANOSECONDS
-                     : src.nanoseconds();
-    }
-    else {
-        // dst->tv_sec is unsigned.  Therefore, 'TIMESPEC' is not intended to
-        // represent a negative quantity, so dst->nsec should never be -ve.
-        // Note that 'bdet_TimeInterval' guarantees that 'src.seconds()' and
-        // 'src.nanoseconds()' will never have opposite signs.
-
-        dst->tv_nsec = src.seconds() > (bsls::Types::Int64) dst->tv_sec
-                     ? MAX_NANOSECONDS
-                     : src.nanoseconds() < 0
-                     ? 0
-                     : src.nanoseconds();
-    }
+    dst->tv_nsec = src.seconds() > (bsls::Types::Int64) dst->tv_sec
+                 ? MAX_NANOSECONDS
+                 : src.nanoseconds() < 0
+                 ? 0
+                 : src.nanoseconds();
 }
 #endif
 
-void bcemt_SaturatedTimeConversion::toTimeT(bsl::time_t              *dst,
-                                            const bsls::Types::Int64  src)
+void bcemt_SaturatedTimeConversionImpUtil::toTimeT(
+                                                 bsl::time_t              *dst,
+                                                 const bsls::Types::Int64  src)
 {
     toTimeTImp(dst, src);
 }
 
-void bcemt_SaturatedTimeConversion::toMillisec(unsigned int             *dst,
-                                               const bdet_TimeInterval&  src)
+void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+                                                 unsigned int             *dst,
+                                                 const bdet_TimeInterval&  src)
 {
     enum { MILLION = 1000 * 1000 };
 

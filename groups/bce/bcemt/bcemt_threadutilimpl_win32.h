@@ -46,8 +46,8 @@ BDES_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BCEMT_SATURATEDTIMECONVERSION
-#include <bcemt_saturatedtimeconversion.h>
+#ifndef INCLUDED_BCEMT_SATURATEDTIMECONVERSIONIMPUTIL
+#include <bcemt_saturatedtimeconversionimputil.h>
 #endif
 
 #ifndef INCLUDED_BCEMT_THREADATTRIBUTES
@@ -394,7 +394,7 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleep(
 
 {
     DWORD milliSeconds;
-    bcemt_SaturatedTimeConversion::toMillisec(&milliSeconds, sleepTime);
+    bcemt_SaturatedTimeConversionImpUtil::toMillisec(&milliSeconds, sleepTime);
 
     ::Sleep(milliSeconds);
 }
@@ -409,7 +409,7 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::microSleep(
     bdet_TimeInterval ti((microsecs / MILLION) + seconds,
                          (microsecs % MILLION) * 1000);
     DWORD milliSeconds;
-    bcemt_SaturatedTimeConversion::toMillisec(&milliSeconds, ti);
+    bcemt_SaturatedTimeConversionImpUtil::toMillisec(&milliSeconds, ti);
 
     ::Sleep(milliSeconds);
 }

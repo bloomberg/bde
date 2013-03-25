@@ -6,7 +6,7 @@ BDES_IDENT_RCSID(bcemt_timedsemaphoreimpl_win32_cpp,"$Id$ $CSID$")
 
 #ifdef BCES_PLATFORM_WIN32_THREADS
 
-#include <bcemt_SaturatedTimeConversion.h>
+#include <bcemt_SaturatedTimeConversionimputil.h>
 
 #include <bcemt_lockguard.h>     // for testing only
 #include <bcemt_mutex.h>         // for testing only
@@ -27,7 +27,8 @@ bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore>::timedWait(
     bdet_TimeInterval now = bdetu_SystemTime::now();
     if (timeout > now) {
         bdet_TimeInterval reltime = timeout - now;
-        bcemt_SaturatedTimeConversion::toMillisec(&milliTimeout, reltime);
+        bcemt_SaturatedTimeConversionImpUtil::toMillisec(&milliTimeout,
+                                                         reltime);
     }
 
     return WaitForSingleObject(d_handle, milliTimeout);

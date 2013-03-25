@@ -5,7 +5,7 @@
 BDES_IDENT_RCSID(bcemt_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bcemt_muteximpl_pthread.h>   // for testing only
-#include <bcemt_saturatedtimeconversion.h>
+#include <bcemt_saturatedtimeconversionimputil.h>
 #include <bcemt_threadutil.h>
 
 #include <bdet_timeinterval.h>
@@ -89,7 +89,7 @@ int bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::timedWait(
     }
 
     timespec ts;
-    bcemt_SaturatedTimeConversion::toTimeSpec(&ts, timeout);
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&ts, timeout);
 
     int ret = 0;
     pthread_mutex_lock(&d_lock);

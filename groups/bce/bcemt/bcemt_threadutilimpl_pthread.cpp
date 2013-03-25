@@ -6,7 +6,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bcemt_configuration.h>
 #include <bcemt_threadattributes.h>
-#include <bcemt_saturatedtimeconversion.h>
+#include <bcemt_saturatedtimeconversionimputil.h>
 
 #include <bces_platform.h>
 
@@ -420,7 +420,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleep(
 {
     timespec naptime;
     timespec unslept_time;
-    bcemt_SaturatedTimeConversion::toTimeSpec(&naptime, sleepTime);
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&naptime, sleepTime);
 
     const int result = nanosleep(&naptime, unsleeptTime ? &unslept_time : 0);
     if (result && unsleeptTime) {
@@ -441,7 +441,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::microSleep(
                                 (microsecs % MILLION) * 1000);
     timespec naptime;
     timespec unslept;
-    bcemt_SaturatedTimeConversion::toTimeSpec(&naptime, sleepTime);
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&naptime, sleepTime);
 
     const int result = nanosleep(&naptime, unsleptTime ? &unslept : 0);
     if (result && unsleptTime) {
@@ -510,7 +510,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     mach_timespec_t clockTime;
     mach_timespec_t resultTime;
 
-    bcemt_SaturatedTimeConversion::toTimeSpec(&clockTime, systemTime);
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, systemTime);
 
     status = clock_sleep(clock, TIME_ABSOLUTE, clockTime, &resultTime);
 
@@ -518,7 +518,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
 
 #else
     timespec clockTime;
-    bcemt_SaturatedTimeConversion::toTimeSpec(&clockTime, absoluteTime);
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, absoluteTime);
 
     int result;
     do {
