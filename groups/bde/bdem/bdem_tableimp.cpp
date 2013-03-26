@@ -24,7 +24,7 @@ BDES_IDENT_RCSID(bdem_tableimp_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 // LOCAL VARIABLES
 
-static bool geometricMemoryGrowthFlag = false;
+static bool geometricMemoryGrowthFlag = true;
 
 // LOCAL CONSTANTS
 enum {
@@ -77,7 +77,7 @@ struct bdem_TableImp_AttrFuncs {
     static
     void copyConstruct(
                   void                                     *obj,
-                  const void                               *rhs,
+                  const void                               *original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   bslma::Allocator                         *alloc);
         // Copy construct a table object into raw memory.  The prototype for
@@ -114,15 +114,16 @@ void bdem_TableImp_AttrFuncs::defaultConstruct(
 
 void bdem_TableImp_AttrFuncs::copyConstruct(
                   void                                     *obj,
-                  const void                               *rhs,
+                  const void                               *original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   bslma::Allocator                         *alloc)
 {
     BSLS_ASSERT(obj);
-    BSLS_ASSERT(rhs);
+    BSLS_ASSERT(original);
 
-    const bdem_TableImp& rhsTable = *static_cast<const bdem_TableImp *>(rhs);
-    new (obj) bdem_TableImp(rhsTable, allocationStrategy, alloc);
+    const bdem_TableImp& origTable = *static_cast<const bdem_TableImp *>(
+                                                                     original);
+    new (obj) bdem_TableImp(origTable, allocationStrategy, alloc);
 }
 
 bool bdem_TableImp_AttrFuncs::isEmpty(const void *obj)
@@ -568,9 +569,13 @@ bdem_RowData& bdem_TableImp::insertRow(int                 dstRowIndex,
         d_nullBits.resize(newSize, 0);
     }
 
+    // Reserve capacity of 'd_rowPool' and 'd_rows' to ensure that 'new' and
+    // 'insert' won't throw below.  Note that the 'bdem_RowData' c'tor,
+    // however, may allocate and might throw.
+
+    d_rowPool.reserveCapacity(1);
     if (!geometricMemoryGrowthFlag) {
         d_rows.reserve(numRows() + 1);
-        d_rowPool.reserveCapacity(1);
     }
 
     bdem_RowData *newRow = new (d_rowPool) bdem_RowData(
@@ -578,8 +583,14 @@ bdem_RowData& bdem_TableImp::insertRow(int                 dstRowIndex,
                                        srcRow,
                                        d_allocatorManager.allocationStrategy(),
                                        d_allocatorManager.internalAllocator());
+    bslma::RawDeleterProctor<bdem_RowData, bdema_Pool>
+                                                   proctor(newRow, &d_rowPool);
 
     d_rows.insert(d_rows.begin() + dstRowIndex, newRow);
+
+    // We won't throw after this.
+
+    proctor.release();
 
     // Make the newly-added row non-null, since 'srcRow' can't indicate
     // otherwise.
@@ -626,10 +637,13 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
 
     // 'tempRows' is used to address aliasing concerns.
 
+    // Reserve capacity of 'd_rowPool' and 'd_rows' to ensure that 'new' and
+    // 'insert' won't throw below.  Note that the 'bdem_RowData' c'tor,
+    // however, may allocate and might throw.
 
+    d_rowPool.reserveCapacity(numRows);
     if (!geometricMemoryGrowthFlag) {
         d_rows.reserve(originalSize + numRows);
-        d_rowPool.reserveCapacity(numRows);
     }
 
     bsl::vector<bdem_RowData *> tempRows;
@@ -639,6 +653,8 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
                                       rowsAutoDel(&tempRows[0], &d_rowPool, 0);
 
     for (int i = 0; i < numRows; ++i) {
+        // Bear in mind 'bdem_RowData' c'tor might throw.
+
         tempRows[i] = new (d_rowPool) bdem_RowData(
                                        d_rowLayout_p,
                                        *srcTable.d_rows[srcRowIndex + i],
@@ -646,6 +662,8 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
                                        d_allocatorManager.internalAllocator());
         ++rowsAutoDel;
     }
+
+    // this might throw
 
     d_rows.insert(d_rows.begin() + dstRowIndex,
                   tempRows.begin(),
@@ -656,7 +674,6 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
     rowsAutoDel.release();
 
     if (isAliasPossible) {
-
         // Copy nullness bits of source rows to temporary.
 
         bdeu_BitstringUtil::copyRaw(&tempNullBits.front(),
@@ -704,23 +721,34 @@ void bdem_TableImp::insertNullRows(int dstRowIndex, int numRows)
         d_nullBits.resize(newSize, 0);
     }
 
+    // Reserve capacity of 'd_rowPool' and 'd_rows' to ensure that 'new' and
+    // 'insert' won't throw below.  Note that the 'bdem_RowData' c'tor,
+    // however, may allocate and might throw.
 
+    d_rowPool.reserveCapacity(numRows);
     if (!geometricMemoryGrowthFlag) {
-        d_rowPool.reserveCapacity(numRows);
         d_rows.reserve(this->numRows() + numRows);
     }
 
     for (int i = 0; i < numRows; ++i) {
-        // If allocate() or constructor throws an exception,
-        // previously-inserted rows will be unaffected and table will remain
-        // in a valid state.
+        // 'bdem_RowData' c'tor might allocate and might throw, but 'd_rows'
+        // and 'd_nullBits' will be in a valid state if it does.
 
         bdem_RowData *newRow = new (d_rowPool) bdem_RowData(
                                        d_rowLayout_p,
                                        d_allocatorManager.allocationStrategy(),
                                        d_allocatorManager.internalAllocator());
 
+        bslma::RawDeleterProctor<bdem_RowData, bdema_Pool>
+                                                   proctor(newRow, &d_rowPool);
+
+        // might throw
+
         d_rows.insert(d_rows.begin() + dstRowIndex + i, newRow);
+
+        // won't throw for rest of loop
+
+        proctor.release();
 
         bdeu_BitstringUtil::insert1(&d_nullBits.front(),
                                     d_rows.size() - 1,
@@ -982,7 +1010,7 @@ bool operator==(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
                                       rhsNullbits,
                                       0,
                                       numRows)) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     // Check for same element values, in non-null rows only.

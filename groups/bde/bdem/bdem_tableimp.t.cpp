@@ -593,14 +593,19 @@ int main(int argc, char *argv[])
             const int NUM_ROWS = 1024;
 
             for (int i = 0; i < STRATEGY_LEN; ++i) {
+
                 bslma::TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
                 Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
 
-                for (int j = 0; j < NUM_ROWS; ++j) {
-                    mX.insertNullRows(j, 1);
-                    LOOP2_ASSERT(j,
+                for (int j = 0; j < DATA_LEN; j++) {
+                    const int POSITION     = DATA[j].d_position;
+                    const int EXP_CAPACITY = DATA[j].d_expectedCapacity;
+                    mX.insertNullRows(POSITION, 1);
+                    LOOP4_ASSERT(i,
+                                 j,
+                                 EXP_CAPACITY,
                                  X.capacityRaw(),
-                                 j + 1 == X.capacityRaw());
+                                 EXP_CAPACITY == X.capacityRaw());
                 }
             }
         }
@@ -730,6 +735,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tTesting all allocation strategies\n"
                               << endl;
+
+        bdem_TableImp_disableGeometricMemoryGrowth();
 
         for (int i = 0; i < STRATEGY_LEN; ++i) {
 
