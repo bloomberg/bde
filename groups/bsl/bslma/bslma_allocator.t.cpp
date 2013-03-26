@@ -841,7 +841,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == leftBaseObjectCount);
             ASSERT(1 == virtualBaseObjectCount);
 
-            ASSERT((void *) pRightCONST != (void *) pMost);
+            ASSERT((void const *) pRightCONST != (void const *) pMost);
 
             a.deleteObject(pRightCONST);
             ASSERT(6 == myA.getCount());

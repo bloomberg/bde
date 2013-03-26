@@ -663,7 +663,7 @@ int main(int argc, char *argv[])
 
         {
 
-        const void *DATA[] = {(void *) 1, (void *) 2, (void *) 3 };
+        void *DATA[] = {(void *) 1, (void *) 2, (void *) 3 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (verbose) printf("\tTesting constructor\n");
@@ -671,8 +671,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             TestAllocator t;
             const TestAllocator& T = t;
-            void *memory       = (void *) DATA[i];
-            const void *MEMORY = (void *) memory;
+            void *memory       = DATA[i];
+            const void *MEMORY = memory;
 
             LOOP_ASSERT(i, false == T.isDeallocateCalled());
             LOOP_ASSERT(i, 0     == T.lastDeallocateAddress());
@@ -730,14 +730,14 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'TestAllocator'.\n");
 
-        const void *DATA[] = {(void *) 0, (void *) 1, (void *) 2, (void *) 3 };
+        void *DATA[] = {(void *) 0, (void *) 1, (void *) 2, (void *) 3 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         TestAllocator mX;    const TestAllocator &X = mX;
         ASSERT(0 == X.lastDeallocateAddress());
         ASSERT(!X.isDeallocateCalled());
         for (int di = 0; di < NUM_DATA; ++di) {
-            void *addr = (void *) DATA[di];    const void *ADDR = addr;
+            void *addr = DATA[di];    const void *ADDR = addr;
             mX.deallocate(addr);
             if (veryVerbose) { T_ P_(di) P(ADDR) }
             LOOP_ASSERT(di, ADDR == X.lastDeallocateAddress());

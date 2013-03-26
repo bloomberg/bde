@@ -318,14 +318,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCTOR / DTOR TEST"
                             "\n================\n");
 
-        const void *DATA[] = {(void *) 1, (void *) 2, (void *) 3 };
+        void *DATA[] = {(void *) 1, (void *) 2, (void *) 3 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (verbose) printf("Testing constructor.\n");
         int di;
         for (di = 0; di < NUM_DATA; ++di) {
-            TestAllocator a;                   const TestAllocator &A = a;
-            void *addr = (void *) DATA[di];    const void *ADDR = addr;
+            TestAllocator a;          const TestAllocator &A = a;
+            void *addr = DATA[di];    const void *ADDR = addr;
             {
                 const bslma::DeallocatorGuard<TestAllocator> X(addr, &a);
             }
@@ -363,14 +363,14 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Testing 'TestAllocator'.\n");
 
-        const void *DATA[] = {(void *) 0, (void *) 1, (void *) 2, (void *) 3 };
+        void *DATA[] = {(void *) 0, (void *) 1, (void *) 2, (void *) 3 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         TestAllocator mX;    const TestAllocator &X = mX;
         ASSERT(0 == X.lastDeallocateAddress());
         ASSERT(!X.isDeallocateCalled());
         for (int di = 0; di < NUM_DATA; ++di) {
-            void *addr = (void *) DATA[di];    const void *ADDR = addr;
+            void *addr = DATA[di];    const void *ADDR = addr;
             mX.deallocate(addr);
             if (veryVerbose) { T_ P(ADDR); }
             LOOP_ASSERT(di, ADDR == X.lastDeallocateAddress());
