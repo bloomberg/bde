@@ -157,11 +157,12 @@ BDES_IDENT("$Id: $")
 //          // allocator is in an unprotected state.
 //      {
 //          int      *oldData = d_data_p;
-//          SizeType  oldSize = d_maxSize;
+//          int       oldSize = d_maxSize;
 //          d_maxSize *= GROW_FACTOR;
-//          d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
-//          memcpy(d_data_p, oldData, sizeof(int) * oldSize);
+//          d_data_p = new(&d_allocator) int[d_maxSize];
+//          bsl::copy(oldData, oldData + oldSize, d_data_p);
 //      }
+//
 //
 //    public:
 //
@@ -269,6 +270,11 @@ class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
     // both 'allocate' and 'deallocate' is undefined unless the allocator is in
     // the unprotected state.
 
+  public:
+    // PUBLIC TYPES
+    typedef bslma::Allocator::size_type size_type;
+
+  private:
     // DATA
     mutable bcemt_Mutex    d_mutex;       // synchronize access to data
 
