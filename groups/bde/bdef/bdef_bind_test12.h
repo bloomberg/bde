@@ -1,8 +1,8 @@
-// bdef_bind_test12.h       -*-C++-*-
+// bdef_bind_test12.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDEF_BIND_TEST12
 #define INCLUDED_BDEF_BIND_TEST12
 
-//@PURPOSE: Provide a test sequence for 'bdef_bind' with 12 arguments
+//@PURPOSE: Provide a test sequence for 'bdef_bind' with 12 arguments.
 //
 //@CLASSES:
 //

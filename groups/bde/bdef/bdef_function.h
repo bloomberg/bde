@@ -538,7 +538,7 @@ class bdef_Function_Rep {
     };
 
     // CREATORS
-    bdef_Function_Rep(bslma::Allocator *allocator = 0);
+    explicit bdef_Function_Rep(bslma::Allocator *allocator = 0);
         // Create an unset functor using the specified 'allocator' to supply
         // memory.  If 'allocator' is 0, the currently installed default
         // allocator is used.
@@ -889,6 +889,17 @@ class bdef_Function {
         return &Invoker::template invoke<FUNC>;
     }
 
+
+  private:
+    // NOT IMPLEMENTED
+    void operator==(const bdef_Function&) const; // = delete;
+    void operator!=(const bdef_Function&) const; // = delete;
+        // 'bdef_Function' objects cannot be compared for equality, as the
+        // function objects they wrap might not support the equality comparison
+        // operator to delegate to.  However, if these methods are not declared
+        // as private, then both 'bdef_Function' objects will be implicitly
+        // converted to their boolean value, and those values compared instead.
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_Function,
@@ -939,7 +950,7 @@ class bdef_Function {
         // Assign to this object the invocable of the specified 'rhs' and
         // return a reference to this modifiable function object.
 
-    template <typename FUNC>
+    template <class FUNC>
     bdef_Function<PROTOTYPE>& operator=(const FUNC& func);
         // Assign to this function object the 'func' invocable object of the
         // parameterized 'FUNC' type, and return a reference to this modifiable
@@ -2217,7 +2228,7 @@ bdef_Function<PROTOTYPE>::operator=(const bdef_Function<PROTOTYPE>& rhs)
 }
 
 template <class PROTOTYPE>
-template <typename FUNC>
+template <class FUNC>
 inline
 bdef_Function<PROTOTYPE>&
 bdef_Function<PROTOTYPE>::operator=(const FUNC& func)
