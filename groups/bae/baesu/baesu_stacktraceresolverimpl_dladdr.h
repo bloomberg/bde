@@ -22,10 +22,10 @@ BDES_IDENT("$Id: $")
 // 'baesu_StackTraceResolver<Dladdr>', that, given a vector of
 // 'baesu_StackTraceFrame' objects that have only their 'address' fields set,
 // resolves some of the other fields in those frames.  This resolver will work
-// for any platform that supports the 'dladdr' function (e.g. Darwin and
-// supported platforms).  Note that 'dladdr' is not a standard system function,
-// but documentation is frequently available via 'man dladdr' on supported
-// platforms such as Linux and Apple Mac OSX.
+// for any platform that supports the 'dladdr' function (e.g.  Darwin, Linux,
+// and other supported platforms).  Note that 'dladdr' is not a standard system
+// function, but documentation is frequently available via 'man dladdr' on
+// supported platforms such as Linux and Apple Mac OSX.
 //
 // Note that this resolving implementation is currently used for the operating
 // systems based on the Mach kernel, in particular Apple Mac OSX.

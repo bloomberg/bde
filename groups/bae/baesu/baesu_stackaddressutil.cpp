@@ -430,6 +430,12 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
     stackFrame.AddrStack.Mode = AddrModeFlat;
     int stackFrameIndex;
     HANDLE currentThread = GetCurrentThread();
+
+    // In this loop, we begin our iterations at -1, since the first frame we
+    // encounter will be our own frame, which is of no interest to us.  So
+    // we do not record stack frame '-1' into the buffer, but start recorrding
+    // stack frames at 0.
+
     for (stackFrameIndex = -1; stackFrameIndex < maxFrames; ++stackFrameIndex){
         bool rc = baesu_DbghelpDllImpl_Windows::stackWalk64(MACHINE,
                                                             currentThread,

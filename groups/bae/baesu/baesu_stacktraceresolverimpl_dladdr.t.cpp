@@ -38,10 +38,12 @@ using bsl::endl;
 //:   crash.  This is important because most of the work is being done by the
 //:   'dladdr' function, which is supplied to us by the operating system, and
 //:   for which we have no source and over which we have no control.
-//-----------------------------------------------------------------------------
-// [ 3] resolve maliciously chosen garbage code addresses
-// [ 2] resolve valid code addresses of 6 different types
-// [ 1] breathing test
+// ----------------------------------------------------------------------------
+// CLASS METHoDS
+// [ 2] static int resolve(baesu_StackTrace *, bool);
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 3] CONCERN: Resolving Invalid Input
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -328,26 +330,34 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
-        // GARBAGE TEST
+        // INVALID INPUT TEST
         //
         // Concerns:
-        //   That, given garbage data, the stack trace facility won't:
-        //: 1 Segfault.
-        //: 2 Fail an assert.
-        //: 3 Return a non-zero status.
+        //: 1 That, given invalid data, the stack trace facility won't
+        //:   segfault.
+	//:
+        //: 2 That, given invalid data, the stack trace facility won't fail an
+        //:   assert.
+	//:
+        //: 3 That, given invalid data, the stack trace facility won't return a
+        //:   non-zero status.
         //
         // Plan:
         //: 1 Seed a long stackTrace of StackTraceFrames with a combination of
         //:   random and maliciously chosen garbase addresses.
+	//:
         //: 2 Resolve it.
-        //: 3 Observe if it segfaults or fails any asserts
+	//:
+        //: 3 Observe if it segfaults or fails any asserts.
+	//:
         //: 4 Observe if it returns a non-zero return code.
+	//:
         //: 5 Stream all the frames to a stringstream to see if the stream
-        //:   operator causes any segfaults of failed asserts
+        //:   operator causes any segfaults of failed asserts.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Garbage Test\n"
-                             "============\n";
+        if (verbose) cout << "Invalid Input Test\n"
+                             "==================\n";
 
         bslma_TestAllocator ta;
 
@@ -376,29 +386,48 @@ int main(int argc, char *argv[])
       }  break;
       case 2: {
         // --------------------------------------------------------------------
-        // SUCCESSFUL RESOLVE TEST
+        // TESTING: RESOLVE
         //
         // Concerns:
-        //   That 'resolve' can corectly resolve code pointers of several types
-        //   into symbol information.
-        //: 1 Global symbol in this file
-        //: 2 Static out of line routine in this file
-        //: 3 Static inline in this file
-        //: 4 Symbol in a shared library
-        //: 5 Global symbol in a different file
-        //: 6 Global inline in another file
+        //: 1 That 'resolve' can corectly resolve the address of alobal symbol
+        //:   in this file.
+        //:
+        //: 2 That 'resolve' can corectly resolve the address of a static
+        //:   non-inline function in this file.
+        //:
+        //: 3 That 'resolve' can corectly resolve the address of static inline
+        //:   function in this file.
+        //:
+        //: 4 That 'resolve' can corectly resolve the address of a function in
+        //:   a shared library.
+        //:
+        //: 5 That 'resolve' can corectly resolve the address of global
+        //:   function in a different file.
+        //:
+        //: 6 That 'resolve' can corectly resolve the address of global inline
+        //:   function in another file.
         //
         // Plan:
         //: 1 Populate a 'baesu_StackTrace' object with several code pointers
         //:   of all the different types outlined in 'Concerns".
+        //:
         //: 2 Verify all fields other than the 'address' fields are 'unknown'.
+        //:
         //: 3 Call 'resolve' on the stack trace object
+        //:
         //: 4 Verify some of the expected fields are known
+        //:
         //: 5 Verify the 'libraryFileName' fields are as expected
+        //:
         //: 6 Verify the 'sourceFileName' fields are as expected
+        //:
         //: 7 Verify the 'mangledSymbolName' and 'symbolName' fields are as
         //:   expected.
+        //:
         //: 8 For the non-static symbols, verify they demangled properly.
+	//
+	// TESTING:
+	//    static int resolve(baesu_StackTrace *, bool);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "SUCCESSFUL RESOLVE TEST\n"
