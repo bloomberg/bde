@@ -252,8 +252,8 @@ double my_Timer::elapsedSystemTime()
 //          return ((ticks - self.initialTime) * billion) / self.frequency
 //
 //      def ticks(self, nanoseconds):
-//          return (nanoseconds * self.frequency) / billion \
-//              + self.initialTime
+//          return ((nanoseconds * self.frequency) / billion +
+//              self.initialTime)
 //
 //  class Generator:
 //      """Provide a driver to generate nanosecond conversions of a number of
@@ -302,34 +302,34 @@ double my_Timer::elapsedSystemTime()
 //              nanoseconds = t.nanoseconds(ticks)
 //              if (nanoseconds != 0 and nanoseconds <= max64):
 //                  if self.verbose:
-//                      print 'Init: f=%d, t=%d, i=%d' \
-//                          % (frequency, ticks, initialTime)
+//                      print ('Init: f=%d, t=%d, i=%d' %
+//                          (frequency, ticks, initialTime))
 //
 //                      print 'Ticks: %d' % (t.ticks(nanoseconds))
 //                      print 'Nanoseconds: %d' % (nanoseconds)
 //
-//                  print ',{ L_, %d, %d, %d, %d }' \
-//                      % (ticks, initialTime, frequency, nanoseconds)
+//                  print (',{ L_, %d, %d, %d, %d }' %
+//                      (ticks, initialTime, frequency, nanoseconds))
 //
 //                  if self.verbose:
 //                      print
 //              elif self.verbose:
 //                  if nanoseconds == 0:
-//                      print 'SKIP: %s f=%d, t=%d, i=%d' \
-//                          % ("zero", frequency, ticks, initialTime)
+//                      print ('SKIP: %s f=%d, t=%d, i=%d' %
+//                          ("zero", frequency, ticks, initialTime))
 //                  else:
-//                      print 'SKIP: %s f=%d, t=%d, i=%d' \
-//                          % ("overflow", frequency, ticks, initialTime)
+//                      print ('SKIP: %s f=%d, t=%d, i=%d' %
+//                          ("overflow", frequency, ticks, initialTime))
 //          elif self.verbose:
-//              print 'SKIP: bad init f=%d, t=%d, i=%d' \
-//                  % (frequency, ticks, initialTime)
+//              print ('SKIP: bad init f=%d, t=%d, i=%d' %
+//                  (frequency, ticks, initialTime))
 //
 //      def generate(self):
 //          for frequency in self.frequencies:
 //              initialTime = ((frequency) * 7) / 5
 //              print
-//              print '// Frequency: %d, Initial Time: %d' \
-//                  % (frequency, initialTime)
+//              print ('// Frequency: %d, Initial Time: %d' %
+//                  (frequency, initialTime))
 //              self.report(frequency, initialTime + 1, initialTime)
 //              self.report(frequency,
 //                          (1 << 32) - 1 + initialTime,
