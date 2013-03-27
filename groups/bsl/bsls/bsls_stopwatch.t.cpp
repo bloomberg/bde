@@ -1,16 +1,12 @@
 // bsls_stopwatch.t.cpp                                               -*-C++-*-
-
 #include <bsls_stopwatch.h>
 
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>   // getTimer() (used in delay generation)
 
-#include <algorithm>
-#include <cstdio>            // printf()
-#include <cstdlib>           // atoi()
-#include <iomanip>
-#include <iostream>
-#include <string>
+#include <stdio.h>           // printf()
+#include <stdlib.h>          // atoi()
 
 // The following OS-dependent includes are for the 'osSystemCall' helper
 // function below.
@@ -23,7 +19,7 @@
 #endif
 
 using namespace BloombergLP;
-using namespace std;
+
 
 //=============================================================================
 //                                 TEST PLAN
@@ -50,44 +46,48 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // [ 1] Breathing Test
 // [ 2] State Transitions
-// [ 6] USAGE Example
+// [ 7] USAGE Example
+// [ 6] Reproduce bug from test case 
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                         STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                    STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool b, const char *s, int i)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);} }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 //=============================================================================
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define P64(X) printf(#X " = %lld\n", (X));   // Print 64-bit integer id & val
-#define P64_(X) printf(#X " = %lld,  ", (X)); // Print 64-bit integer w/o '\n'
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -121,6 +121,16 @@ void busyFunction()
     }
 }
 
+void exchangeInts(int *a, int *b)
+    // Exchange the value of the 'int's stored in the specified addresses 'a'
+    // and 'b, in a manner that minimizes the chance of the operation being
+    // optimized away by a smart compiler.
+{
+    volatile int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
 // Do some work here, as we need to consume user time.  The more we do the
 // better, so we are intentionally inefficient.
 
@@ -135,11 +145,11 @@ Int64 osUserCall(RawTimerFunction timerFn)
             for (int j = i+1; j < 17; ++j) {
                 if (   (k%2 == 0 && array[i] < array[j]++)
                     || (k%2 != 0 && array[i] > array[j]++)) {
-                    std::swap(array[i], array[j]);
+                    exchangeInts(&array[i], &array[j]);
                 }
             }
         }
-        std::cout.flush();
+        fflush(stdout);
     }
     return timerFn();
 }
@@ -201,15 +211,17 @@ static inline Int64 delaySystem(double delayTime)
     return delay(delayTime, &TU::getProcessSystemTimer, &osSystemCall);
 }
 
-//=============================================================================
-//                                MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+//  bool     veryVeryVerbose = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
 
     //=====================================================================
@@ -221,7 +233,7 @@ int main(int argc, char *argv[])
     struct {
         AccumulatedTimeMethod d_method;
         Int64 (*d_delayFunction)(double);
-        std::string d_methodName;
+        const char           *d_methodName;
     } const TimeMethods[] = {
         { &Obj::accumulatedSystemTime, &delaySystem,
                                                  "accumulatedSystemTime" },
@@ -234,7 +246,7 @@ int main(int argc, char *argv[])
     size_t const TimeMethodsCount =
                                   sizeof TimeMethods / sizeof *TimeMethods;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 7: {
@@ -252,8 +264,8 @@ int main(int argc, char *argv[])
         //   USAGE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example"
-                          << "\n=====================" << endl;
+        if (verbose) printf("\nTesting Usage Example"
+                            "\n=====================\n");
 
         bsls::Stopwatch s;
         const double t0s = s.accumulatedSystemTime();  ASSERT(0.0 == t0s);
@@ -296,8 +308,8 @@ int main(int argc, char *argv[])
         //   negative time.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Attempt to reproduce negative times bug\n"
-                             "=======================================\n";
+        if (verbose) printf("\nAttempt to reproduce negative times bug"
+                            "\n=======================================\n");
 
         bsls::Stopwatch mX;    const bsls::Stopwatch& X = mX;
 
@@ -368,6 +380,9 @@ int main(int argc, char *argv[])
         //   void accumulatedTimes(double*, double*, double*) const;
         // --------------------------------------------------------------------
 
+        if (verbose) printf("\nTESTING 'accumulatedTimes'"
+                            "\n==========================\n");
+
         double const delayTime = 2; // seconds
         double const precision = 1e-3; // 1 msec
         double const finePrecision = 1e-8; // 10 nsecs
@@ -393,8 +408,10 @@ int main(int argc, char *argv[])
         ASSERT(ut1 + finePrecision > ut2);
         ASSERT(wt1 +     precision > wt2);
 
-        if (verbose) cout << st1 << ", " << ut1 << ", " << wt1 << std::endl
-                          << st2 << ", " << ut2 << ", " << wt2 << std::endl;
+        if (verbose) {
+            P_(st1) P_(ut1) P(wt1)
+            P_(st2) P_(ut2) P(wt2);
+        }
 
         pt.stop();
 
@@ -408,9 +425,10 @@ int main(int argc, char *argv[])
         ASSERT(ut3 == ut4);
         ASSERT(wt3 == wt4);
 
-        if (verbose) cout << st3 << ", " << ut3 << ", " << wt3 << std::endl
-                          << st4 << ", " << ut4 << ", " << wt4 << std::endl;
-
+        if (verbose) {
+            P_(st3) P_(ut3) P(wt3)
+            P_(st4) P_(ut4) P(wt4);
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -435,23 +453,26 @@ int main(int argc, char *argv[])
         //   double elapsedTime() const;
         // --------------------------------------------------------------------
 
-        for (size_t t = 0; t < TimeMethodsCount; ++t) {
-            if (verbose) cout << "\nTesting '"
-                              << TimeMethods[t].d_methodName
-                              << "'"
-                              << "\n=======================" << endl;
+        if (verbose) printf("\nTESTING accumulated time functions"
+                            "\n==================================\n");
 
-            if (verbose) cout << "\nConfirm the value returned by"
-                              << "'"
-                              << TimeMethods[t].d_methodName
-                              << "'." << endl;
+        for (size_t t = 0; t < TimeMethodsCount; ++t) {
+            if (verbose) bsls::BslTestUtil::callDebugprint(
+                                               TimeMethods[t].d_methodName,
+                                               "\nTesting '",
+                                               "'\n=======================\n");
+
+            if (verbose) bsls::BslTestUtil::callDebugprint(
+                                         TimeMethods[t].d_methodName,
+                                         "\"\nConfirm the value returned by '",
+                                         "'.\n");
             {
                 const double TIME_STEP = 0.20;
                 const int    NUM_STEPS = 5;
 
                 Obj x;  const Obj& X = x;
 
-                if (verbose) cout << "\tFrom the RUNNING state:" << endl;
+                if (verbose) printf("\tFrom the RUNNING state:\n");
                 for (int i = 1; i <= NUM_STEPS; ++i) {
                     x.start(true);
                     TimeMethods[t].d_delayFunction(TIME_STEP);
@@ -460,7 +481,7 @@ int main(int argc, char *argv[])
                     x.stop();
 
                     if (veryVerbose) {
-                        T_(); T_(); P_(t); P_(i * TIME_STEP); P(elapsedTime);
+                        T_; T_; P_(t); P_(i * TIME_STEP); P(elapsedTime);
                     }
 
                     LOOP2_ASSERT(t, i, (i - 1) * TIME_STEP <  elapsedTime);
@@ -475,13 +496,13 @@ int main(int argc, char *argv[])
                     // conditions.
                 }
 
-                if (verbose) cout << "\tAfter 'reset':" << endl;
+                if (verbose) printf("\tAfter 'reset':\n");
                 x.reset();
                 if (veryVerbose)
-                    { T_();  T_();  P((X.*(TimeMethods[t].d_method))()); }
+                    { T_;  T_;  P((X.*(TimeMethods[t].d_method))()); }
                 ASSERT(0.0 == (X.*(TimeMethods[t].d_method))());
 
-                if (verbose) cout << "\tFrom the STOPPED state:" << endl;
+                if (verbose) printf("\tFrom the STOPPED state:\n");
                 x.start(true);
                 for (int j = 1; j <= NUM_STEPS; ++j) {
                     TimeMethods[t].d_delayFunction(TIME_STEP);
@@ -490,7 +511,7 @@ int main(int argc, char *argv[])
                         (X.*(TimeMethods[t].d_method))();
 
                     if (veryVerbose) {
-                        T_();  T_();  P_(j * TIME_STEP);  P(elapsedTime);
+                        T_;  T_;  P_(j * TIME_STEP);  P(elapsedTime);
                     }
 
                     LOOP2_ASSERT(t, j, (j - 1) * TIME_STEP <  elapsedTime);
@@ -535,13 +556,12 @@ int main(int argc, char *argv[])
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'start', 'stop', and 'reset'"
-                          << "\n=========================================="
-                          << endl;
+        if (verbose) printf("\nTesting 'start', 'stop', and 'reset'"
+                            "\n====================================\n");
 
         const double DELAY_TIME = 0.05;
 
-        if (verbose) cout << "\nConfirm the behavior of 'start()" << endl;
+        if (verbose) printf("\nConfirm the behavior of 'start()\n");
         {
             for (size_t t = 0; t < TimeMethodsCount; ++t) {
                 Obj x;  const Obj& X = x;
@@ -554,14 +574,14 @@ int main(int argc, char *argv[])
                 TimeMethods[t].d_delayFunction(DELAY_TIME);
                 const double t3 = (X.*(TimeMethods[t].d_method))();
 
-                if (veryVerbose) { T_();  P_(t1);  P_(t2);  P(t3); }
+                if (veryVerbose) { T_;  P_(t1);  P_(t2);  P(t3); }
                 LOOP_ASSERT(t,  0 < t1);
                 LOOP_ASSERT(t, t1 < t2);
                 LOOP_ASSERT(t, t2 < t3);
             }
         }
 
-        if (verbose) cout << "\nConfirm the behavior of 'stop()" << endl;
+        if (verbose) printf("\nConfirm the behavior of 'stop()\n");
         {
             for (size_t t = 0; t < TimeMethodsCount; ++t) {
                 Obj x;  const Obj& X = x;
@@ -575,14 +595,14 @@ int main(int argc, char *argv[])
                 TimeMethods[t].d_delayFunction(DELAY_TIME);
                 const double t3 = (X.*(TimeMethods[t].d_method))();
 
-                if (veryVerbose) { T_();  P_(t1);  P_(t2);  P(t3); }
+                if (veryVerbose) { T_;  P_(t1);  P_(t2);  P(t3); }
                 LOOP_ASSERT(t,  0 <  t1);
                 LOOP_ASSERT(t, t1 == t2);
                 LOOP_ASSERT(t, t2 == t3);
             }
         }
 
-        if (verbose) cout << "\nConfirm the behavior of 'reset()" << endl;
+        if (verbose) printf("\nConfirm the behavior of 'reset()\n");
         {
             for (size_t t = 0; t < TimeMethodsCount; ++t) {
                 Obj x;  const Obj& X = x;
@@ -596,7 +616,7 @@ int main(int argc, char *argv[])
                 TimeMethods[t].d_delayFunction(DELAY_TIME);
                 const double t3 = (X.*(TimeMethods[t].d_method))();
 
-                if (veryVerbose) { T_();  P_(t1);  P_(t2);  P(t3); }
+                if (veryVerbose) { T_;  P_(t1);  P_(t2);  P(t3); }
                 LOOP_ASSERT(t, 0 == t1);
                 LOOP_ASSERT(t, 0 == t2);
                 LOOP_ASSERT(t, 0 == t3);
@@ -623,11 +643,12 @@ int main(int argc, char *argv[])
         //   bool isRunning();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nState Transition Tests"
-                          << "\n======================" << endl;
+        if (verbose) printf("\nState Transition Tests"
+                            "\n======================\n");
 
-        if (verbose) cout << "\nConfirm the object state after"
-                             "'start', 'stop', and 'reset'." << endl;
+        if (verbose) printf("\nConfirm the object state after"
+                            "'start', 'stop', and 'reset'.\n");
+
         {
             Obj x;  const Obj& X = x;  ASSERT(false == X.isRunning());
             x.start();                 ASSERT(true  == X.isRunning());
@@ -680,10 +701,10 @@ int main(int argc, char *argv[])
         //   This test *exercises* basic functionality.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nBREATHING TEST"
-                          << "\n==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
-        if (verbose) cout << "\nCreate and exercise three objects." << endl;
+        if (verbose) printf("\nCreate and exercise three objects.\n");
 
         Obj x1;  const Obj& X1 = x1;
         Obj x2;  const Obj& X2 = x2;
@@ -712,8 +733,8 @@ int main(int argc, char *argv[])
                 t3 = (X3.*(TimeMethods[t].d_method))();
 
                 if (verbose) {
-                    T_();  P(i);  T_();  P_(t1);  P_(t2); P(t3);
-                    T_();  P_(t1 - t2);  P(t2 - t3);
+                    T_;  P(i);  T_;  P_(t1);  P_(t2); P(t3);
+                    T_;  P_(t1 - t2);  P(t2 - t3);
                 }
             }
         }
@@ -772,8 +793,9 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        cout << "Profiling using start() (wall-time mode) to *measure*:"
-             << std::endl;
+        if (verbose) printf(
+                 "\nProfiling using start() (wall-time mode) to *measure*:\n");
+
         const int    numTrials     = verbose ? atoi(argv[2]) : 10000;
         const double toNanoseconds = 1.0e9 / (double)numTrials;
 
@@ -787,8 +809,8 @@ int main(int argc, char *argv[])
         const double baselineTime = baselineWatch.elapsedTime();
 
         {
-            cout << "\tProfiling use of start()/stop()/elapsedTime():"
-                 << std::endl;
+            if (verbose) printf(
+                         "\tProfiling use of start()/stop()/elapsedTime():\n");
             bsls::Stopwatch watch;
             watch.start();
             for (int i = 0; i < numTrials; ++i) {
@@ -800,14 +822,14 @@ int main(int argc, char *argv[])
             }
             watch.stop();
             const double testTime = watch.elapsedTime();
-            cout << "\t  + Net cost per loop iteration is "
-                 << (testTime - baselineTime) * toNanoseconds
-                 << " nsec"
-                 << std::endl;
+            if (verbose) bsls::BslTestUtil::callDebugprint(
+                                     (testTime - baselineTime) * toNanoseconds,
+                                     "\t  + Net cost per loop iteration is ",
+                                     " nsec\n");
         }
         {
-            cout << "\tProfiling use of start(true)/stop()/accumulatedTimes():"
-                 << std::endl;
+            if (verbose) printf(
+                "\tProfiling use of start(true)/stop()/accumulatedTimes():\n");
             bsls::Stopwatch watch;
             watch.start();
             bsls::Stopwatch w;
@@ -820,10 +842,10 @@ int main(int argc, char *argv[])
             }
             watch.stop();
             const double testTime = watch.elapsedTime();
-            cout << "\t  + Net cost per loop iteration is "
-                 << (testTime - baselineTime) * toNanoseconds
-                 << " nsec"
-                 << std::endl;
+            if (verbose) bsls::BslTestUtil::callDebugprint(
+                                     (testTime - baselineTime) * toNanoseconds,
+                                     "\t  + Net cost per loop iteration is ",
+                                     " nsec\n");
         }
       } break;
       case -2: {
@@ -864,8 +886,9 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        cout << "Profiling using start(true) (CPU-time mode) to *measure*:"
-             << std::endl;
+        if (verbose) printf(
+              "\nProfiling using start(true) (CPU-time mode) to *measure*:\n");
+
         const int    numTrials     = verbose ? atoi(argv[2]) : 10000;
         const double toNanoseconds = 1.0e9 / (double)numTrials;
 
@@ -879,12 +902,14 @@ int main(int argc, char *argv[])
         const double baselineTimeSys  = baselineWatch.accumulatedSystemTime();
         const double baselineTimeUser = baselineWatch.accumulatedUserTime();
         const double baselineTime     = baselineTimeSys + baselineTimeUser;
-        if (veryVerbose) cout << "\tTotal reference time = " << baselineTime
-                              << std::endl;
+
+        if (veryVerbose) bsls::BslTestUtil::callDebugprint(
+                                                   baselineTime,
+                                                   "\tTotal reference time = ",
+                                                   "\n");
 
         {
-            cout << "\tProfiling use of start()/stop()/elapsedTime():"
-                 << std::endl;
+            printf("\tProfiling use of start()/stop()/elapsedTime():\n");
             bsls::Stopwatch testWatch;
             testWatch.start(true);
             for (int i = 0; i < numTrials; ++i) {
@@ -898,16 +923,19 @@ int main(int argc, char *argv[])
             const double testTimeSys  = testWatch.accumulatedSystemTime();
             const double testTimeUser = testWatch.accumulatedUserTime();
             const double testTime     = testTimeSys + testTimeUser;
-            if (veryVerbose) cout << "\tTotal test time = " << testTime
-                                  << std::endl;
-            cout << "\t  + Net cost per loop iteration is "
-                 << (testTime - baselineTime) * toNanoseconds
-                 << " nsec"
-                 << std::endl;
+
+            if (veryVerbose) bsls::BslTestUtil::callDebugprint(
+                                                        testTime,
+                                                        "\tTotal test time = ",
+                                                        "\n");
+            bsls::BslTestUtil::callDebugprint(
+                                     (testTime - baselineTime) * toNanoseconds,
+                                     "\t  + Net cost per loop iteration is ",
+                                     " nsec\n");
         }
         {
-            cout << "\tProfiling use of start(true)/stop()/accumulatedTimes():"
-                 << std::endl;
+            printf(
+                "\tProfiling use of start(true)/stop()/accumulatedTimes():\n");
             bsls::Stopwatch testWatch;
             testWatch.start(true);
             bsls::Stopwatch w;
@@ -922,31 +950,47 @@ int main(int argc, char *argv[])
             const double testTimeSys  = testWatch.accumulatedSystemTime();
             const double testTimeUser = testWatch.accumulatedUserTime();
             const double testTime     = testTimeSys + testTimeUser;
-            if (veryVerbose) cout << "\tTotal test time = " << testTime
-                                  << std::endl;
-            cout << "\t  + Net cost per loop iteration is "
-                 << (testTime - baselineTime) * toNanoseconds
-                 << " nsec"
-                 << std::endl;
+            if (veryVerbose) bsls::BslTestUtil::callDebugprint(
+                                                        testTime,
+                                                        "\tTotal test time = ",
+                                                        "\n");
+            bsls::BslTestUtil::callDebugprint(
+                                     (testTime - baselineTime) * toNanoseconds,
+                                     "\t  + Net cost per loop iteration is ",
+                                     " nsec\n");
         }
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function for removing top-level cv-qualifiers.
 //
 //@CLASSES:
-//  bsl::remove_const: meta-function for removing top-level cv-qualifiers
+//  bsl::remove_cv: meta-function for removing top-level cv-qualifiers
 //
 //@SEE_ALSO: bslmf_addcv
 //
@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 // may be used to remove any top-level cv-qualifiers ('const'-qualifier and
 // 'volatile'-qualifier) from a type.
 //
-// 'bsl::remove_const' meets the requirements of the 'remove_cv' template
-// defined in the C++11 standard [meta.trans.cv].
+// 'bsl::remove_cv' meets the requirements of the 'remove_cv' template defined
+// in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create two 'typedef's -- a 'const'-qualified and
 // 'volatile'-qualified type ('MyCvType') and the same type without the
-// cv-qualifier ('MyType'):
+// cv-qualifiers ('MyType'):
 //..
 //  typedef int                MyType;
 //  typedef const volatile int MyCvType;
@@ -63,12 +63,12 @@ namespace bsl {
                          // struct remove_cv
                          // ================
 
-template <typename TYPE>
+template <class TYPE>
 struct remove_cv {
     // This 'struct' template implements the 'remove_cv' meta-function defined
     // in the C++11 standard [meta.trans.cv], providing an alias, 'type', that
     // returns the result.  'type' has the same type as the (template
-    // parameter) 'TYPE' except that any top-level cv-qualifiers has been
+    // parameter) 'TYPE' except that any top-level cv-qualifiers have been
     // removed.
 
     // PUBLIC TYPES
@@ -83,11 +83,24 @@ struct remove_cv {
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

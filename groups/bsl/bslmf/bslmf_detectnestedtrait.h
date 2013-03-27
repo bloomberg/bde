@@ -1,4 +1,4 @@
-// bslmf_detectnestedtrait.h                  -*-C++-*-
+// bslmf_detectnestedtrait.h                                          -*-C++-*-
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #define INCLUDED_BSLMF_DETECTNESTEDTRAIT
 
@@ -21,16 +21,28 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
+#include <bslmf_isconvertibletoany.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
 #endif
 
 namespace BloombergLP {
@@ -62,10 +74,16 @@ class DetectNestedTrait_Imp {
     DetectNestedTrait_Imp(const DetectNestedTrait_Imp&);
     ~DetectNestedTrait_Imp();
 
+    enum {
+        CONVERTIBLE_TO_NESTED_TRAIT = sizeof(check(TypeRep<TYPE>::rep(), 0))
+                                      == sizeof(char),
+        CONVERTIBLE_TO_ANY_TYPE     = IsConvertibleToAny<TYPE>::value
+    };
+
   public:
     // PUBLIC CONSTANTS
 
-    enum { VALUE = (1 == sizeof(check(TypeRep<TYPE>::rep(), 0))) };
+    enum { VALUE = CONVERTIBLE_TO_NESTED_TRAIT && !CONVERTIBLE_TO_ANY_TYPE };
         // Non-zero if 'TRAIT' is associated with 'TYPE' using the nested type
         // trait mechanism; otherwise zero.
 
@@ -98,11 +116,24 @@ struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::Type {
 
 #endif // ! defined(INCLUDED_BSLMF_DETECTNESTEDTRAIT)
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

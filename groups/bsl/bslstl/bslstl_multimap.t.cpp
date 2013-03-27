@@ -3,10 +3,11 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bslma_default.h>
 #include <bslma_allocator.h>
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_mallocfreeallocator.h>
+#include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -14,8 +15,10 @@
 #include <bslmf_haspointersemantics.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_objectbuffer.h>
 
 #include <algorithm>
 #include <functional>
@@ -747,15 +750,46 @@ class DummyAllocator {
                        // =========================
 
 template <class KEY, class VALUE>
-class CharToPairConverter {
-  public:
-    bsl::pair<const KEY, VALUE> operator()(char value)
-    {
-        // Use different values for 'KEY' and 'VALUE'
+struct CharToPairConverter {
+    // Convert a 'char' value to a 'bsl::pair' of the parameterized 'KEY' and
+    // 'VALUE' type.
 
-        return bsl::pair<const KEY, VALUE> (
-                bsltf::TemplateTestFacility::create<KEY>(value),
-                bsltf::TemplateTestFacility::create<VALUE>(value - 'A' + '0'));
+    // CLASS METHODS
+    static void createInplace(bsl::pair<const KEY, VALUE> *address,
+                              char                         value,
+                              bslma::Allocator            *allocator)
+    {
+        BSLS_ASSERT(address);
+        BSLS_ASSERT(allocator);
+        BSLS_ASSERT(0 < value);
+        BSLS_ASSERT(value < 128);
+
+        // If creating the 'key' and 'value' temporary objects requires an
+        // allocator, it should not be the default allocator as that will
+        // confuse the arithmetic of our test machinery.  Therefore, we will
+        // use the global MallocFree allocator, as being the simplest, least
+        // obtrusive allocator that is also unlikely to be employed by an end
+        // user.
+
+        bslma::Allocator *privateAllocator =
+                                      &bslma::MallocFreeAllocator::singleton();
+        
+        bsls::ObjectBuffer<KEY> tempKey;
+        bsltf::TemplateTestFacility::emplace(
+                                       bsls::Util::addressOf(tempKey.object()),
+                                       value,
+                                       privateAllocator);
+
+        bsls::ObjectBuffer<VALUE> tempValue;
+        bsltf::TemplateTestFacility::emplace(
+                                     bsls::Util::addressOf(tempValue.object()),
+                                     value - 'A' + '0',
+                                     privateAllocator);
+
+        bslalg::ScalarPrimitives::construct(address,
+                                            tempKey.object(),
+                                            tempValue.object(),
+                                            allocator);
     }
 };
 
@@ -965,6 +999,13 @@ class TestDriver {
         // *test* nothing.
 };
 
+template <class KEY, class VALUE = KEY>
+class StdAllocTestDriver : public TestDriver<KEY,
+                                             VALUE,
+                                             TestComparator<KEY>,
+                                             bsltf::StdTestAllocator<KEY> > {
+};
+
                                // --------------
                                // TEST APPARATUS
                                // --------------
@@ -974,8 +1015,6 @@ int TestDriver<KEY, VALUE, COMP, ALLOC>::ggg(Obj        *object,
                                       const char *spec,
                                       int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(
-                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -6556,10 +6595,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STL ALLOCATOR
         // --------------------------------------------------------------------
-        RUN_EACH_TYPE(TestDriver,
+        RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase22,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        TestDriver<TestKeyType, TestValueType>::testCase22();
+        StdAllocTestDriver<TestKeyType, TestValueType>::testCase22();
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -6833,10 +6872,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

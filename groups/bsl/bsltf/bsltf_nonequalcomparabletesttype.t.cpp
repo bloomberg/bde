@@ -1,9 +1,10 @@
 // bsltf_nonequalcomparabletesttype.t.cpp                             -*-C++-*-
 #include <bsltf_nonequalcomparabletesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
@@ -61,7 +62,7 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] USAGE EXAMPLE
-// [ 6] TEST APARATUS
+// [ 6] TEST APPARATUS
 // [ *] CONCERN: No memory is ever allocated.
 // [ 6] CONCERN: 'operator==' is not defined
 // [ 6] CONCERN: 'operator!=' is not defined
@@ -168,16 +169,16 @@ bool isNotEqual(const bsltf::NonEqualComparableTestType& lhs,
 namespace check {
 
 typedef char no[7];
-template<typename T> no& operator == (const T&, const T&);
-template<typename T> no& operator != (const T&, const T&);
+template<class T> no& operator == (const T&, const T&);
+template<class T> no& operator != (const T&, const T&);
 
-template <typename T>
+template <class T>
 struct op_equal_exist
 {
     enum { value = (sizeof(*(T*)(0) == *(T*)(0)) != sizeof(no)) };
 };
 
-template <typename T>
+template <class T>
 struct op_not_equal_exist
 {
     enum { value = (sizeof(*(T*)(0) != *(T*)(0)) != sizeof(no)) };
@@ -494,7 +495,7 @@ int main(int argc, char *argv[]) {
         //:       value for both '==' and '!='.  (C-1, 4..6)
         //
         // Testing:
-        //   TEST APARATUS
+        //   TEST APPARATUS
         //   CONCERN: 'operator==' is not defined
         //   CONCERN: 'operator!=' is not defined
         // --------------------------------------------------------------------
@@ -657,7 +658,7 @@ int main(int argc, char *argv[]) {
         //:   violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' atrribute 'D', 'A',
+        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
         //:   the the boundary values.
         //:
@@ -666,7 +667,7 @@ int main(int argc, char *argv[]) {
         //:   default-constructed value.  (C-1)
         //:
         //: 3 Set and object's 'data' attribute to 'A' and 'B'.  Verify the
-        //:   state of object using the (as yet unproven) salient attriubte
+        //:   state of object using the (as yet unproven) salient attribute
         //:   accessors.  (C-2)
         //
         // Testing:
@@ -743,11 +744,24 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
