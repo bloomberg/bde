@@ -81,7 +81,7 @@ int baejsn_Tokenizer::reloadStringBuffer()
     return numRead;
 }
 
-int baejsn_Tokenizer::resizeBufferForLargeValue()
+int baejsn_Tokenizer::expandBufferForLargeValue()
 {
     d_stringBuffer.resize(d_stringBuffer.length() + BAEJSN_MAX_STRING_SIZE);
 
@@ -143,6 +143,13 @@ int baejsn_Tokenizer::extractStringValue()
         }
 
         if (d_valueIter >= d_stringBuffer.length()) {
+
+            // There isn't enough room in the internal buffer to hold the
+            // value.  If this is the first time through the loop, we move the
+            // current sequence of characters being processed to the front of
+            // the internal buffer, otherwise we must expand the internal
+            // buffer to hold additional characters.
+
             if (firstTime) {
                 const int rc = moveValueCharsToStartAndReloadBuffer();
                 if (rc) {
@@ -151,7 +158,7 @@ int baejsn_Tokenizer::extractStringValue()
                 firstTime = false;
             }
             else {
-                const int rc = resizeBufferForLargeValue();
+                const int rc = expandBufferForLargeValue();
                 if (rc) {
                     return rc;                                        // RETURN
                 }
@@ -182,6 +189,13 @@ int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
         }
 
         if (d_valueIter >= d_stringBuffer.length()) {
+
+            // There isn't enough room in the internal buffer to hold the
+            // value.  If this is the first time through the loop, we move the
+            // current sequence of characters being processed to the front of
+            // the internal buffer, otherwise we must expand the internal
+            // buffer to hold additional characters.
+
             if (firstTime) {
                 const int rc = moveValueCharsToStartAndReloadBuffer();
                 if (rc) {
@@ -190,7 +204,7 @@ int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
                 firstTime = false;
             }
             else {
-                const int rc = resizeBufferForLargeValue();
+                const int rc = expandBufferForLargeValue();
                 if (rc) {
                     return rc;                                        // RETURN
                 }
