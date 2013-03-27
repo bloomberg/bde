@@ -9,6 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a manager of pools of memory that can be write-protected.
 //
+//@DEPRECATED:
+//
 //@CLASSES:
 //   bcema_ProtectableMultipool: protectable pools of memory
 //
