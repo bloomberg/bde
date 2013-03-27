@@ -37391,6 +37391,8 @@ int main(int argc, char *argv[])
             rc = xmlDecoder.decode(&data, &exp);
             ASSERTV(LINE, !rc);
 
+            P(LINE) P(PRETTY.size())
+
             if (veryVerbose) {
                 bsl::string S(DATA);
                 P(ti) P(LINE) P(PRETTY) P(S)
@@ -37449,6 +37451,8 @@ int main(int argc, char *argv[])
 
             bcem_Aggregate exp(schemaPtr, "Obj");
             rc = xmlDecoder.decode(&data, &exp);
+
+            P(LINE) P(COMPACT.size())
 
             if (veryVerbose) {
                 P(ti) P(LINE) P(COMPACT)
@@ -37552,6 +37556,8 @@ int main(int argc, char *argv[])
             const bsl::string& PRETTY = JSON_PRETTY_MESSAGES[ti].d_input_p;
             const baea::FeatureTestMessage& EXP = testObjects[ti];
 
+            P(LINE) P(PRETTY.size())
+
             if (veryVerbose) {
                 P(ti) P(LINE) P(PRETTY)
                 EXP.print(bsl::cout, 1, 4);
@@ -37589,6 +37595,8 @@ int main(int argc, char *argv[])
             const int          LINE    = JSON_COMPACT_MESSAGES[ti].d_line;
             const bsl::string& COMPACT = JSON_COMPACT_MESSAGES[ti].d_input_p;
             const baea::FeatureTestMessage& EXP = testObjects[ti];
+
+            P(LINE) P(COMPACT.size())
 
             if (veryVerbose) {
                 P(ti) P(LINE) P(COMPACT)
