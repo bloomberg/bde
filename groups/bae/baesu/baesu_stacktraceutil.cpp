@@ -7,6 +7,7 @@ BDES_IDENT_RCSID(baesu_stacktraceutil_cpp,"$Id$ $CSID$")
 #include <baesu_objectfileformat.h>
 #include <baesu_stackaddressutil.h>
 #include <baesu_stacktraceframe.h>
+#include <baesu_stacktraceresolverimpl_dladdr.h>
 #include <baesu_stacktraceresolverimpl_elf.h>
 #include <baesu_stacktraceresolverimpl_xcoff.h>
 #include <baesu_stacktraceresolverimpl_windows.h>
@@ -60,8 +61,8 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dummy>
   public:
     // PUBLIC CLASS METHODS
     static
-    int resolve(baesu_StackTrace *,
-                bool              )
+    int resolve(baesu_StackTrace *,    // 'stackTrace'
+                bool              )    // 'demangle'
         // Populate information for the specified 'stackFrames', a vector of
         // stack trace frames in a stack trace object.  Specify 'demangle', to
         // determine whether demangling is to occur, and 'basicAllocator',
