@@ -57,8 +57,8 @@ BDES_IDENT("$Id: $")
 //  assert(0 == strcmp("America/New_York",
 //                     baetzo_LocalTimeOffsetUtil::timezone()));
 //..
-// Notice that the value returned by the 'updateCount' method is increased
-// by one after then time zone information has been set.
+// Notice that the value returned by the 'updateCount' method is increased by
+// one after then time zone information has been set.
 //
 // Then, use the 'setLoadLocalTimeOffsetCallback' method to set the
 // 'loadLocalTimeOffset' of 'baetzo_LocalTimeOffsetUtil' as the local time
@@ -70,12 +70,12 @@ BDES_IDENT("$Id: $")
 //  assert(&baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset
 //      == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
 //..
-// Notice that previously installed callback was saved so we can restore it,
-// if needed.
+// Notice that previously installed callback was saved so we can restore it, if
+// needed.
 //
 // Now, calls to 'bdetu_SystemTime' methods will use the method we installed.
-// For example, we can check the time offset in New York for three dates
-// of interest:
+// For example, we can check the time offset in New York for three dates of
+// interest:
 //..
 //  int offsetInSeconds;
 //
@@ -88,7 +88,7 @@ BDES_IDENT("$Id: $")
 //  assert(        1 == baetzo_LocalTimeOffsetUtil::updateCount());
 //  assert(        0 == strcmp("America/New_York",
 //                              baetzo_LocalTimeOffsetUtil::timezone()));
-//  
+//
 //  status = bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
 //                                                 bdet_Datetime(2013,
 //                                                                  7,
@@ -98,7 +98,7 @@ BDES_IDENT("$Id: $")
 //  assert(        2 == baetzo_LocalTimeOffsetUtil::updateCount());
 //  assert(        0 == strcmp("America/New_York",
 //                              baetzo_LocalTimeOffsetUtil::timezone()));
-// 
+//
 //  status = bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
 //                                                 bdet_Datetime(2013,
 //                                                                 12,
@@ -169,57 +169,58 @@ struct baetzo_LocalTimeOffsetUtil {
     // PRIVATE CLASS METHODS
     static int setTimezone_imp(const char           *timezone,
                                const bdet_Datetime&  utcDatetime);
-       // Set the local time period information used by the
-       // 'loadLocalTimeOffset' method according to the specified 'timezone' at
-       // the specified 'utcDatetime'.  Return 0 on success, and a non-zero
-       // value otherwise.  This method is *not* thread-safe.
+        // Set the local time period information used by the
+        // 'loadLocalTimeOffset' method according to the specified 'timezone'
+        // at the specified 'utcDatetime'.  Return 0 on success, and a non-zero
+        // value otherwise.  This method is *not* thread-safe.
 
     // CLASS METHODS
   public:
-   static int loadLocalTimeOffset(int                  *result,
-                                  const bdet_Datetime&  utcDatetime);
-       // Efficiently load to the specified 'result' the offset of the local
-       // time from UTC for the specified 'utcDatetime'.  Return 0 on success,
-       // and a non-zero value otherwise.  This function is thread-safe.  The
-       // behavior is undefined unless the local time zone has been previously
-       // established by a call to the 'setTimezone' method.
+    static int loadLocalTimeOffset(int                  *result,
+                                   const bdet_Datetime&  utcDatetime);
+        // Efficiently load to the specified 'result' the offset of the local
+        // time from UTC for the specified 'utcDatetime'.  Return 0 on success,
+        // and a non-zero value otherwise.  This function is thread-safe.  The
+        // behavior is undefined unless the local time zone has been previously
+        // established by a call to the 'setTimezone' method.
 
-   static const baetzo_LocalTimePeriod& localTimePeriod();
-       // Return a reference providing unmodifiable access to the local time
-       // period information currently used by the 'loadLocalTimeOffset'
-       // method.  That information is updated when 'loadLocalTimeOffset' is
-       // called with a 'utcDatetime' outside the range
-       // 'localTimePeriod().utcStartTime()' (inclusive)
-       // 'localTimePeriod().utcEndTime()' (exclusive).
+    static const baetzo_LocalTimePeriod& localTimePeriod();
+        // Return a reference providing non-modifiable access to the local time
+        // period information currently used by the 'loadLocalTimeOffset'
+        // method.  That information is updated when 'loadLocalTimeOffset' is
+        // called with a 'utcDatetime' outside the range
+        // 'localTimePeriod().utcStartTime()' (inclusive)
+        // 'localTimePeriod().utcEndTime()' (exclusive).
 
-   static bdetu_SystemTime::LoadLocalTimeOffsetCallback
+    static bdetu_SystemTime::LoadLocalTimeOffsetCallback
                                               setLoadLocalTimeOffsetCallback();
-       // Set 'loadLocalTimeOffset' as the local time offset callback of
-       // 'bdetu_SystemTime'.  Return the previously installed callback.
+        // Set 'loadLocalTimeOffset' as the local time offset callback of
+        // 'bdetu_SystemTime'.  Return the previously installed callback.
 
-   static int setTimezone();
-   static int setTimezone(const char           *timezone);
-   static int setTimezone(const char           *timezone,
-                          const bdet_Datetime&  utcDatetime);
-       // Set the local time period information used by the
-       // 'loadLocalTimeOffset' method according to the time zone in the 'TZ'
-       // environment variable using the current UTC datetime.  Return 0 on
-       // success, and a non-zero value otherwise.  Optionally specify
-       // 'timezone'.  Optionally specify 'utcDatetime'.  These methods are
-       // thread-safe.  The behavior is undefined unless 'timezone' remains
-       // valid.  When 'timezone' is obtained from the environment, it can be
-       // invalidated by a call to the 'putenv' POSIX function.
+    static int setTimezone();
+    static int setTimezone(const char           *timezone);
+    static int setTimezone(const char           *timezone,
+                           const bdet_Datetime&  utcDatetime);
+        // Set the local time period information used by the
+        // 'loadLocalTimeOffset' method to that for the time zone in the 'TZ'
+        // environment variable at the current UTC datetime.  Return 0 on
+        // success, and a non-zero value otherwise.  Optionally specify
+        // 'timezone'.  Optionally specify the 'utcDatetime' of the local time
+        // period information.  These methods are thread-safe.  The behavior is
+        // undefined unless 'timezone' remains valid.  When 'timezone' is
+        // obtained from the environment, it can be invalidated by a call to
+        // the 'putenv' POSIX function.
 
-   static const char *timezone();
-       // Return the time zone identifier used to determine the local time
-       // offset from UTC.
+    static const char *timezone();
+        // Return the time zone identifier used to determine the local time
+        // offset from UTC.
 
-   static int updateCount();
-       // Return the number of successful updates of the local time period
-       // information since the start of the process.  This count is
-       // incremented on calls to any of the 'setTimeZone' methods and when
-       // 'loadLocalTimePeriod' is called with a 'utcDatetime' outside the
-       // range of the current local time period information.
+    static int updateCount();
+        // Return the number of successful updates of the local time period
+        // information since the start of the process.  This count is
+        // incremented on calls to any of the 'setTimeZone' methods and when
+        // 'loadLocalTimePeriod' is called with a 'utcDatetime' outside the
+        // range of the current local time period information.
 };
 
 // ============================================================================
@@ -235,7 +236,7 @@ inline
 const baetzo_LocalTimePeriod& baetzo_LocalTimeOffsetUtil::localTimePeriod()
 {
     return s_localTimePeriod;
-} 
+}
 
 inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback

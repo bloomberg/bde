@@ -157,8 +157,6 @@ BDES_IDENT("$Id: $")
 // First, create a utility class that provides a method of type
 // 'bdetu_SystemTime::LoadLocalTimeOffsetCallback' that is valid for the
 // location of interest (New York) for the period of interest (the year 2013).
-// Note that the transition times into and out of daylight savings for
-// New York are given in UTC.
 //..
 //  struct MyLocalTimeOffsetUtilNewYork2013 {
 //
@@ -215,8 +213,10 @@ BDES_IDENT("$Id: $")
 //      return s_useCount;
 //  }
 //..
-// Notice that we do not attempt to make the 'loadLocalTimeOffset' method
-// 'inline', since we must take its address to install it as the callback.
+// Note that the transition times into and out of daylight savings for New York
+// are given in UTC.  Also notice that we do not attempt to make the
+// 'loadLocalTimeOffset' method 'inline', since we must take its address to
+// install it as the callback.
 //
 // Next, we install this 'loadLocalTimeOffset' as the local time offset
 // callback.
@@ -297,28 +297,29 @@ namespace BloombergLP {
                             // ======================
 
 struct bdetu_SystemTime {
-    // This class provides a namespace for stateful system-time-retrieval
+    // This 'struct' provides a namespace for stateful system-time-retrieval
     // procedures.  These methods are alias-safe and exception-neutral.  These
     // procedures are *not* thread-safe.  The behavior is undefined if an
     // application attempts to set a callback mechanism via
-    // 'setSystemTimeCallback' in a multi-threaded environment after threads
-    // have been started.  The behavior is also undefined if an application
-    // attempts to retrieve the system time by calling either 'now',
-    // 'nowAsDatetimeUtc', or 'loadCurrentTime' methods while another thread
-    // attempts to setup a new callback mechanism.  To avoid runtime issues in
-    // a multi-threaded environment, 'setSystemTimeCallback' should be called
-    // at most once in 'main' before any threads have been started.
+    // 'setSystemTimeCallback' or 'setLoadLocalTimeOffsetCallback' in a
+    // multi-threaded environment after threads have been started.  The
+    // behavior is also undefined if an application attempts to retrieve the
+    // system time by calling either 'now', 'nowAsDatetimeUtc', or
+    // 'loadCurrentTime' methods while another thread attempts to setup a new
+    // callback mechanism.  To avoid runtime issues in a multi-threaded
+    // environment, 'setSystemTimeCallback' should be called at most once in
+    // 'main' before any threads have been started.
 
     // TYPES
     typedef int (*LoadLocalTimeOffsetCallback)(
                                      int                   *offsetInSecondsPtr,
                                      const bdet_Datetime&   utcDatetime);
-        // 'LoadLocalTimeOffsetCallback' is a function that loads to the
-        // specified 'offsetInSecondsPtr' the offset of the local time from UTC
-        // time for the specified 'utcDatetime'.  The function returns 0 on
-        // success, and a non-zero value otherwise.  Note that the installed
-        // callback function must have geographic information specifying the
-        // local timezone.
+        // 'LoadLocalTimeOffsetCallback' is an alias for the type of a function
+        // that loads to the specified 'offsetInSecondsPtr' the offset of the
+        // local time from UTC time for the specified 'utcDatetime'.  The
+        // function returns 0 on success, and a non-zero value otherwise.  Note
+        // that the installed callback function must have geographic
+        // information specifying the local timezone.
 
     typedef void (*SystemTimeCallback)(bdet_TimeInterval *result);
         // 'SystemTimeCallback' is a callback function pointer for a callback
@@ -364,14 +365,14 @@ struct bdetu_SystemTime {
 
     static bdet_Datetime nowAsDatetimeLocal();
         // Return a 'bdet_Datetime' value representing the current system time
-        // in the local time zone using the currently installed callback
-        // function consistent with 'now' and the currently installed callback
-        // function for obtaining the local time offset from UTC.
+        // in the local time zone using the currently installed system-time and
+        // local time offset callbacks.
 
     static bdet_DatetimeInterval localTimeOffset();
-        // Return a 'bdet_DatetimeInterval' value representing the current
-        // difference between the local time and the UTC time.  This method
-        // uses the currently installed local-time-offset callback mechanism.
+        // Return a 'bdet_DatetimeInterval' value representing the difference
+        // between the current local time and the current UTC time.  This
+        // method uses the currently installed local-time-offset callback
+        // mechanism.
 
                         // ** load methods **
 
@@ -382,9 +383,9 @@ struct bdetu_SystemTime {
     static int loadLocalTimeOffset(int                   *result,
                                    const bdet_Datetime&  utcDatetime);
         // Load into the specified 'result' the offset in seconds between the
-        // local time and the UTC time for the specified 'utcDatetime'.  Return
-        // 0 on success, and a non-zero value otherwise.  This method uses the
-        // currently installed local-time-offset callback mechanism.
+        // local time and the UTC time for the specified 'utcDatetime' using
+        // the currently installed local time offset callback mechanism.
+        // Return 0 on success, and a non-zero value otherwise.
 
                         // ** default callbacks **
 
@@ -417,9 +418,9 @@ struct bdetu_SystemTime {
     setSystemTimeCallback(SystemTimeCallback callback);
         // Install the user-specified custom 'callback' function to retrieve
         // the system time.  Return the previously installed callback function.
-        // The behavior of other methods in this component will be corrupted
-        // unless 'callback' returns an absolute offset since the epoch time
-        // 00:00 UTC, January 1, 1970.
+        // The behavior of other methods in this component is undefined unless
+        // 'callback' returns an absolute offset since the epoch time 00:00
+        // UTC, January 1, 1970.
 
                         // ** get current callbacks **
 
