@@ -809,24 +809,41 @@ int main(int argc, char *argv[])
                                    const_cast<const char *>(getenv("TZ"))));
                 tzset();
 
-                bdet_Datetime now = bdetu_SystemTime:: nowAsDatetimeUtc();
+                bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
                 int offset;
                 bdetu_SystemTime::loadLocalTimeOffsetDefault(&offset, now);
     
                 if (veryVeryVerbose) { T_() P_(now) P(offset) }
     
-                time_t    currentTime;
+                time_t currentTime;
                 bdetu_Datetime::convertToTimeT(&currentTime, now);
     
                 struct tm gmtTM =    *gmtime(&currentTime);
                 struct tm lclTM = *localtime(&currentTime);
-                time_t    gmt   = mktime(&gmtTM);
-                time_t    lcl   = mktime(&lclTM);
-                double    diff  = difftime(lcl, gmt);
-    
-                if (veryVeryVerbose) { T_() P_(currentTime) P(diff) }
-    
-                ASSERT(static_cast<int>(difftime(lcl, gmt)) == offset);
+
+                bdet_Datetime         gmtDatetime(gmtTM.tm_year + 1900,
+                                                  gmtTM.tm_mon  +    1,
+                                                  gmtTM.tm_mday,
+                                                  gmtTM.tm_hour,
+                                                  gmtTM.tm_min,
+                                                  gmtTM.tm_sec);
+
+                bdet_Datetime         lclDatetime(lclTM.tm_year + 1900,
+                                                  lclTM.tm_mon  +    1,
+                                                  lclTM.tm_mday,
+                                                  lclTM.tm_hour,
+                                                  lclTM.tm_min,
+                                                  lclTM.tm_sec);
+
+                bdet_DatetimeInterval diffInterval = lclDatetime - gmtDatetime;
+
+                if (veryVeryVerbose) {
+                    P(gmtDatetime)
+                    P(lclDatetime)
+                    P(diffInterval);
+                }
+
+                ASSERT(diffInterval.totalSeconds() == offset);
             }
         }
          
