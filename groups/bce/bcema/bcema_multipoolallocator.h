@@ -282,9 +282,9 @@ namespace BloombergLP {
                      // ==============================
 
 class bcema_MultipoolAllocator : public bdema_ManagedAllocator {
-    // This class implements the 'bdema_ManagedAllocator' protocol to provide
-    // a thread-enabled allocator that maintains a configurable number of
-    // 'bcema_Pool' objects,  each dispensing memory blocks of a unique size.
+    // This class implements the 'bdema_ManagedAllocator' protocol to provide a
+    // thread-safe allocator that maintains a configurable number of
+    // 'bcema_Pool' objects, each dispensing memory blocks of a unique size.
     // The 'bcema_Pool' objects are placed in an array, with each successive
     // pool managing memory blocks of size twice that of the previous pool.
     // Each multipool allocation (deallocation) request allocates memory from
