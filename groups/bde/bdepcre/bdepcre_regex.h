@@ -347,7 +347,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 namespace BloombergLP {
+
+namespace bslma { class Allocator; }
 
                              // ===================
                              // class bdepcre_RegEx
@@ -365,15 +371,22 @@ class bdepcre_RegEx {
     // PRIVATE TYPES
     struct Pcre;  // opaque type for the PCRE library
 
+    // CLASS DATA
+    static
+    bsls::AtomicInt  s_depthLimit;   // process-wide default maximum evaluation
+                                     // recursion depth
+
     // PRIVATE DATA
     int               d_flags;        // prepare/match flags
     bsl::string       d_pattern;      // regular expression pattern
     Pcre             *d_pcre_p;       // PCRE's internal data structure (owned)
+    int               d_depthLimit;   // maximum evaluation recursion depth
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
-    bdepcre_RegEx(const bdepcre_RegEx& original);
-    bdepcre_RegEx& operator=(const bdepcre_RegEx& rhs);
+    bdepcre_RegEx(const bdepcre_RegEx&);
+    bdepcre_RegEx& operator=(const bdepcre_RegEx&);
 
   public:
     // PUBLIC TYPES
@@ -397,8 +410,16 @@ class bdepcre_RegEx {
         // This enumeration defines the flags that may be supplied to the
         // 'prepare' method to effect specific pattern matching behavior.
 
+    // CLASS METHODS
+    static int defaultDepthLimit();
+        // Returns the process-wide default evaluation recursion depth limit.
+
+    static int setDefaultDepthLimit(int depthLimit);
+        // Set the process-wide default evaluation recursion depth limit to the
+        // specified 'depthLimit'.  Returns the previous depth limit.
+
     // CREATORS
-    bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);
+    bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);            // IMPLICIT
         // Create a regular-expression object in the "unprepared" state.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -434,6 +455,11 @@ class bdepcre_RegEx {
         //  BDEPCRE_FLAG_UTF8
         //..
 
+    int setDepthLimit(int depthLimit);
+        // Set the evaluation recursion depth limit for this regular-expression
+        // object to the specified 'depthLimit'.  Return the previous depth
+        // limit.
+
     // ACCESSORS
     int flags() const;
         // Return the flags that were supplied to the most recent successful
@@ -448,6 +474,10 @@ class bdepcre_RegEx {
         //  BDEPCRE_FLAG_UTF8
         //..
 
+    int depthLimit() const;
+        // Returns the evaluation recursion depth limit for this
+        // regular-expression object.
+
     bool isPrepared() const;
         // Return 'true' if this regular-expression object is in the "prepared"
         // state, and 'false' otherwise.
@@ -460,13 +490,13 @@ class bdepcre_RegEx {
         // ('pattern()').  Begin matching at the optionally-specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
         // then begin matching from the start of 'subject'.  Return 0 on
-        // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless 'isPrepared() == true', '0 <= subjectLength',
-        // '0 <= subjectOffset', and 'subjectOffset <= subjectLength'.  The
-        // behavior is also undefined if 'pattern()' was prepared with
-        // 'BDEPCRE_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note that
-        // 'subject' need not be null-terminated and may contain embedded null
-        // characters.
+        // success, 1 if the depth limit was exceeded, and another non-zero
+        // value otherwise.  The behavior is undefined unless 'isPrepared() ==
+        // true', '0 <= subjectLength', '0 <= subjectOffset', and
+        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
+        // 'pattern()' was prepared with 'BDEPCRE_FLAG_UTF8', but 'subject' is
+        // not valid UTF-8.  Note that 'subject' need not be null-terminated
+        // and may contain embedded null characters.
 
     int match(bsl::pair<int, int> *result,
               const char          *subject,
@@ -479,9 +509,10 @@ class bdepcre_RegEx {
         // then begin matching from the start of 'subject'.  On success, load
         // the specified 'result' with the '(offset, length)' pair indicating
         // the leftmost match of 'pattern()', and return 0.  Otherwise, return
-        // a non-zero value with no effect on 'result'.  The behavior is
-        // undefined unless 'isPrepared() == true', '0 <= subjectLength',
-        // '0 <= subjectOffset', and 'subjectOffset <= subjectLength'.  The
+        // a non-zero value with no effect on 'result'.  The return value is 1
+        // if the failure is caused by exceeding the depth limit.  The behavior
+        // is undefined unless 'isPrepared() == true', '0 <= subjectLength', '0
+        // <= subjectOffset', and 'subjectOffset <= subjectLength'.  The
         // behavior is also undefined if 'pattern()' was prepared with
         // 'BDEPCRE_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note that
         // 'subject' need not be null-terminated and may contain embedded null
@@ -505,13 +536,14 @@ class bdepcre_RegEx {
         // matching multiple times have their respective 'result' elements
         // loaded with the pairs indicating the rightmost match), and (3)
         // return 0.  Otherwise, return a non-zero value with no effect on
-        // 'result'.  The behavior is undefined unless 'isPrepared() == true',
-        // '0 <= subjectLength', '0 <= subjectOffset', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'BDEPCRE_FLAG_UTF8', but 'subject' is
-        // not valid UTF-8.  Note that 'subject' need not be null-terminated
-        // and may contain embedded null characters.  Also note that after a
-        // successful call, 'result' will contain exactly
+        // 'result'.  The return value is 1 if the failure is caused by
+        // exceeding the depth limit.  The behavior is undefined unless
+        // 'isPrepared() == true', '0 <= subjectLength', '0 <= subjectOffset',
+        // and 'subjectOffset <= subjectLength'.  The behavior is also
+        // undefined if 'pattern()' was prepared with 'BDEPCRE_FLAG_UTF8', but
+        // 'subject' is not valid UTF-8.  Note that 'subject' need not be
+        // null-terminated and may contain embedded null characters.  Also note
+        // that after a successful call, 'result' will contain exactly
         // 'numSubpatterns() + 1' elements.
 
     int numSubpatterns() const;
@@ -542,6 +574,23 @@ class bdepcre_RegEx {
                              // class bdepcre_RegEx
                              // -------------------
 
+// CLASS METHODS
+inline
+int bdepcre_RegEx::defaultDepthLimit()
+{
+    return s_depthLimit;
+}
+
+inline
+int bdepcre_RegEx::setDefaultDepthLimit(int depthLimit)
+{
+    int previous = s_depthLimit;
+
+    s_depthLimit = depthLimit;
+
+    return previous;
+}
+
 // CREATORS
 inline
 bdepcre_RegEx::~bdepcre_RegEx()
@@ -549,11 +598,28 @@ bdepcre_RegEx::~bdepcre_RegEx()
     clear();
 }
 
+// MANIPULATORS
+inline
+int bdepcre_RegEx::setDepthLimit(int depthLimit)
+{
+    int previous = d_depthLimit;
+
+    d_depthLimit = depthLimit;
+
+    return previous;
+}
+
 // ACCESSORS
 inline
 int bdepcre_RegEx::flags() const
 {
     return d_flags;
+}
+
+inline
+int bdepcre_RegEx::depthLimit() const
+{
+    return d_depthLimit;
 }
 
 inline
