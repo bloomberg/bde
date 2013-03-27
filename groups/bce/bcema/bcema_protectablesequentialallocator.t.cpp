@@ -389,7 +389,8 @@ extern "C" void *workerThread(void *arg)
             int      *oldData = d_data_p;
             int       oldSize = d_maxSize;
             d_maxSize *= GROW_FACTOR;
-            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
+            d_data_p = static_cast<int *>(d_allocator.allocate(
+                                                     d_maxSize * sizeof(int)));
             bsl::copy(oldData, oldData + oldSize, d_data_p);		
         }
 
@@ -408,7 +409,8 @@ extern "C" void *workerThread(void *arg)
         , d_maxSize(INITIAL_SIZE)
         , d_allocator(protectedDispenser)
         {
-            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
+            d_data_p = static_cast<int *>(d_allocator.allocate(
+                                                     d_maxSize * sizeof(int)));
             d_allocator.protect();
         }
 
