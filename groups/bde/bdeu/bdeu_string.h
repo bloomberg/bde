@@ -194,11 +194,11 @@ struct bdeu_String {
         // zero length) after this operation.
 
     static void rtrim(const char *string, int *length);
-        // Load, into the specified 'length', the number of characters from the
-        // left-most character to the right-most character that is not a
-        // whitespace in the specified 'string'.  Note that 'length' will be
-        // set to the length of 'string' if all whitespace characters at the
-        // right edge of 'string' have been removed.
+        // Determine in the specified 'string' having the specified 'length'
+        // the number of characters from the left-most character to the last
+        // non-whitespace character.  Load the results into '*length'.  Note
+        // that 'length' is both an input and output parameter.  Also note that
+        // this method does not modify the contents of 'string'.
 
     static const char *strstr(const char *string,
                               int         stringLen,
