@@ -1463,7 +1463,7 @@ class my_PtrStack {
     // PRIVATE MANIPULATORS
     Node *allocateNode();
     void freeNode(Node *node);
-    void deleteNodes(Node *node);
+    void deleteNodes(const Node *node);
 
   public:
     // CREATORS
@@ -1492,7 +1492,7 @@ inline my_PtrStack<TYPE>::my_PtrStack()
 // can be executed in only a single thread:
 //..
 template <class TYPE>
-inline void my_PtrStack<TYPE>::deleteNodes(Node *node)
+inline void my_PtrStack<TYPE>::deleteNodes(const Node *node)
 {
     while (node) {
         Node *next = node->d_next_p;
@@ -1505,9 +1505,9 @@ template <class TYPE>
 inline my_PtrStack<TYPE>::~my_PtrStack()
 {
     deleteNodes(
-       (Node *) bsls::AtomicOperations::getPtrRelaxed(&d_list_p));
+       (const Node *) bsls::AtomicOperations::getPtrRelaxed(&d_list_p));
     deleteNodes(
-       (Node *) bsls::AtomicOperations::getPtrRelaxed(&d_freeList_p));
+       (const Node *) bsls::AtomicOperations::getPtrRelaxed(&d_freeList_p));
 }
 //..
 // Then, we define method 'allocateNode' to get a node from the free list in
