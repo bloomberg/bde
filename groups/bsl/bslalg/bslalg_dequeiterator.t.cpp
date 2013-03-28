@@ -10,6 +10,10 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <bsls_bsltestutil.h>
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
 using namespace BloombergLP;
 using namespace std;
 
@@ -80,7 +84,7 @@ inline void dbg_print(unsigned short val) {
     printf("%d", (int)val); fflush(stdout);
 }
 inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(size_t val) { printf("%u", val); fflush(stdout); }
+inline void dbg_print(size_t val) { printf(ZU, val); fflush(stdout); }
 inline void dbg_print(float val) {
     printf("'%f'", (double)val); fflush(stdout);
 }
@@ -94,10 +98,10 @@ dbg_print(const bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
 {
     if (iter.blockPtr() && iter.valuePtr()) {
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-        printf("[0x%016p,0x%016p]", iter.blockPtr(), iter.valuePtr());
+        printf("[0x%16p,0x%16p]", iter.blockPtr(), iter.valuePtr());
         fflush(stdout);
 #else
-        printf("[0x%08p,0x%08p]", iter.blockPtr(), iter.valuePtr());
+        printf("[0x%8p,0x%8p]", iter.blockPtr(), iter.valuePtr());
         fflush(stdout);
 #endif
     }

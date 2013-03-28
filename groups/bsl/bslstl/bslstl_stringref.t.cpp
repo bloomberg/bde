@@ -14,6 +14,10 @@
 #include <stdlib.h>      // atoi()
 #include <string.h>
 
+#include <bsls_bsltestutil.h>
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -1537,7 +1541,7 @@ int main(int argc, char *argv[])
             std::size_t hash_value = hash_function(o);
 
             if (veryVerbose) {
-                printf("%4d: STR=%-20s, HASH=%x\n",LINE, STR, hash_value);
+                printf("%4d: STR=%-20s, HASH=" ZU "\n",LINE, STR, hash_value);
             }
 
             hash_results[o] = hash_value;

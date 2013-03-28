@@ -159,7 +159,7 @@ namespace BloombergLP {
 namespace bslalg {
 
 void debugprint(const Obj& val) {
-    printf("color=%d, parent=0x%x, left=0x%x, right=0x%x",
+    printf("color=%d, parent=0x%p, left=0x%p, right=0x%p",
             val.color(), val.parent(), val.leftChild(), val.rightChild());
 }
 

@@ -5702,7 +5702,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             }
             if (0 < LENGTH) {
                 if (veryVerbose) printf(
-                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
+                       "\t\tOn an object of initial length " ZU ".\n",
+                       (size_t) LENGTH);
 
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
                         oa->numBlocksTotal(),   oa->numBlocksInUse(),
@@ -5779,7 +5780,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             }
             if (0 < LENGTH) {
                 if (veryVerbose) printf(
-                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
+                       "\t\tOn an object of initial length " ZU ".\n",
+                       (size_t) LENGTH);
 
                 for (SizeType tj = 0; tj < LENGTH - 1; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);

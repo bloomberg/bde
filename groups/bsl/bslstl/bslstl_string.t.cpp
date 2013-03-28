@@ -434,7 +434,7 @@ inline void dbg_print(float val) {
 }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(void* val) { printf("\"%x\"", val); fflush(stdout); }
+inline void dbg_print(void* val) { printf("\"%p\"", val); fflush(stdout); }
 
 // String-specific print function.
 template <typename TYPE, typename TRAITS, typename ALLOC>
