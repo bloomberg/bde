@@ -399,7 +399,7 @@ class my_AllocatingClass {
         d_memory_p = d_allocator_p->allocate(1);
     }
 
-    my_AllocatingClass(const my_AllocatingClass&  object,
+    my_AllocatingClass(const my_AllocatingClass&  /*object*/,
                        bslma::Allocator          *basicAllocator = 0)
         // Create a 'my_AllocatingClass' that as the same counter and allocator
         // as the specified 'object'.

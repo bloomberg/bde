@@ -60,6 +60,7 @@ struct MyType {};
 
 template <class TYPE>
 bool isSame(TYPE& /* a */, TYPE& /* b */) { return true; }
+
 template <class TYPEA, class TYPEB>
 bool isSame(TYPEA& /* a */, TYPEB& /* b */) { return false; }
 
