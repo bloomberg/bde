@@ -79,31 +79,23 @@ BDES_IDENT("$Id: $")
 //..
 //  int offsetInSeconds;
 //
-//  status = bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
-//                                                 bdet_Datetime(2013,
-//                                                                  2,
-//                                                                 26));
+//  bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
+//                                        bdet_Datetime(2013,  2, 26));
 //  assert(        0 == status);
 //  assert(-5 * 3600 == offsetInSeconds);
 //  assert(        1 == baetzo_LocalTimeOffsetUtil::updateCount());
 //  assert(        0 == strcmp("America/New_York",
 //                              baetzo_LocalTimeOffsetUtil::timezone()));
 //
-//  status = bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
-//                                                 bdet_Datetime(2013,
-//                                                                  7,
-//                                                                  4));
-//  assert(        0 == status);
+//  bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
+//                                        bdet_Datetime(2013,  7,  4));
 //  assert(-4 * 3600 == offsetInSeconds);
 //  assert(        2 == baetzo_LocalTimeOffsetUtil::updateCount());
 //  assert(        0 == strcmp("America/New_York",
 //                              baetzo_LocalTimeOffsetUtil::timezone()));
 //
-//  status = bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
-//                                                 bdet_Datetime(2013,
-//                                                                 12,
-//                                                                 21));
-//  assert(        0 == status);
+//  bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
+//                                        bdet_Datetime(2013, 12, 21));
 //  assert(-5 * 3600 == offsetInSeconds);
 //  assert(        3 == baetzo_LocalTimeOffsetUtil::updateCount());
 //  assert(        0 == strcmp("America/New_York",

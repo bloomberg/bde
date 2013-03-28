@@ -268,8 +268,8 @@ void main1()
     ASSERT(0 == strcmp("America/New_York",
                        baetzo_LocalTimeOffsetUtil::timezone()));
 //..
-// Notice that the value returned by the 'updateCount' method is increased
-// by one after then time zone information has been set.
+// Notice that the value returned by the 'updateCount' method is increased by
+// one after then time zone information has been set.
 //
 // Then, use the 'setLoadLocalTimeOffsetCallback' method to set the
 // 'loadLocalTimeOffset' of 'baetzo_LocalTimeOffsetUtil' as the local time
@@ -281,12 +281,12 @@ void main1()
     ASSERT(&baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset
         == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
 //..
-// Notice that previously installed callback was saved so we can restore it,
-// if needed.
+// Notice that previously installed callback was saved so we can restore it, if
+// needed.
 //
 // Now, calls to 'bdetu_SystemTime' methods will use the method we installed.
-// For example, we can check the time offset in New York for three dates
-// of interest:
+// For example, we can check the time offset in New York for three dates of
+// interest:
 //..
     int offsetInSeconds;
 
