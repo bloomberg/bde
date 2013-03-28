@@ -11,15 +11,14 @@ namespace BloombergLP {
                         // ---------------------------------
 
 // PRIVATE CLASS METHODS
-int baetzo_LocalTimeOffsetUtil::setTimezone_imp(
-                                             const char           *timezone,
+int baetzo_LocalTimeOffsetUtil::configureImp(const char           *timezone,
                                              const bdet_Datetime&  utcDatetime)
 {
     BSLS_ASSERT(timezone);
     int retval = baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(
-                                                          &s_localTimePeriod,
-                                                          timezone,
-                                                          utcDatetime);
+                                                       staticLocalTimePeriod(),
+                                                       timezone,
+                                                       utcDatetime);
     if (retval) {
         return retval;                                                // RETURN
     }
@@ -29,44 +28,33 @@ int baetzo_LocalTimeOffsetUtil::setTimezone_imp(
 }
 
 // CLASS DATA
-baetzo_LocalTimePeriod  baetzo_LocalTimeOffsetUtil::s_localTimePeriod(
-                                            bslma::Default::globalAllocator());
-
-bcemt_QLock             baetzo_LocalTimeOffsetUtil::s_lock     =
+bcemt_QLock      baetzo_LocalTimeOffsetUtil::s_lock     =
                                                        BCEMT_QLOCK_INITIALIZER;
-
-const char             *baetzo_LocalTimeOffsetUtil::s_timezone = 0;
-
-bsls::AtomicInt         baetzo_LocalTimeOffsetUtil::s_updateCount(0);
+const char      *baetzo_LocalTimeOffsetUtil::s_timezone = 0;
+bsls::AtomicInt  baetzo_LocalTimeOffsetUtil::s_updateCount(0);
 
 // CLASS METHODS
-int baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
+void baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
                                              int                  *result,
                                              const bdet_Datetime&  utcDatetime)
 {
     BSLS_ASSERT(result);
 
-    int status = 0;
+    bcemt_QLockGuard qLockGuard(&s_lock);
 
-    {
-       bcemt_QLockGuard qLockGuard(&s_lock);
+    const baetzo_LocalTimePeriod *localTimePeriod = staticLocalTimePeriod();
     
-       if (utcDatetime <  s_localTimePeriod.utcStartTime()
-        || utcDatetime >= s_localTimePeriod.utcEndTime()) {
+    if (utcDatetime <  localTimePeriod->utcStartTime()
+        || utcDatetime >= localTimePeriod->utcEndTime()) {
 
-           status = setTimezone_imp(s_timezone, utcDatetime);
-       }
+        int status = configureImp(s_timezone, utcDatetime);
+        BSLS_ASSERT(0 == status);
     }
 
-    if (status) {
-        return status;                                                // RETURN
-    }
-
-    *result = s_localTimePeriod.descriptor().utcOffsetInSeconds();
-    return 0;
+    *result = localTimePeriod->descriptor().utcOffsetInSeconds();
 }
 
-int  baetzo_LocalTimeOffsetUtil::setTimezone()
+int  baetzo_LocalTimeOffsetUtil::configure()
 {
     const char *timezone = getenv("TZ");
     if (!timezone) {
@@ -74,22 +62,24 @@ int  baetzo_LocalTimeOffsetUtil::setTimezone()
     }
 
     bcemt_QLockGuard qLockGuard(&s_lock);
-    return setTimezone_imp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
+    return configureImp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
 }
 
-int baetzo_LocalTimeOffsetUtil::setTimezone(const char *timezone)
+int baetzo_LocalTimeOffsetUtil::configure(const char *timezone)
 {
     BSLS_ASSERT_SAFE(timezone);
+
     bcemt_QLockGuard qLockGuard(&s_lock);
-    return setTimezone_imp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
+    return configureImp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
 }
 
-int baetzo_LocalTimeOffsetUtil::setTimezone(const char           *timezone,
-                                            const bdet_Datetime&  utcDatetime)
+int baetzo_LocalTimeOffsetUtil::configure(const char           *timezone,
+                                          const bdet_Datetime&  utcDatetime)
 {
     BSLS_ASSERT_SAFE(timezone);
+
     bcemt_QLockGuard qLockGuard(&s_lock);
-    return setTimezone_imp(timezone, utcDatetime);
+    return configureImp(timezone, utcDatetime);
 }
 
 }  // close enterprise namespace

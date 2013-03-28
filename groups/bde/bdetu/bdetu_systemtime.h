@@ -311,15 +311,14 @@ struct bdetu_SystemTime {
     // 'main' before any threads have been started.
 
     // TYPES
-    typedef int (*LoadLocalTimeOffsetCallback)(
+    typedef void (*LoadLocalTimeOffsetCallback)(
                                      int                   *offsetInSecondsPtr,
                                      const bdet_Datetime&   utcDatetime);
         // 'LoadLocalTimeOffsetCallback' is an alias for the type of a function
         // that loads to the specified 'offsetInSecondsPtr' the offset of the
-        // local time from UTC time for the specified 'utcDatetime'.  The
-        // function returns 0 on success, and a non-zero value otherwise.  Note
-        // that the installed callback function must have geographic
-        // information specifying the local timezone.
+        // local time from UTC time for the specified 'utcDatetime'.  Note that
+        // the installed callback function must have geographic information
+        // specifying the local timezone.
 
     typedef void (*SystemTimeCallback)(bdet_TimeInterval *result);
         // 'SystemTimeCallback' is a callback function pointer for a callback
@@ -380,22 +379,20 @@ struct bdetu_SystemTime {
         // Load into the specified 'result', the current system time using
         // the currently installed system-time callback mechanism.
 
-    static int loadLocalTimeOffset(int                   *result,
-                                   const bdet_Datetime&  utcDatetime);
+    static void loadLocalTimeOffset(int                   *result,
+                                    const bdet_Datetime&  utcDatetime);
         // Load into the specified 'result' the offset in seconds between the
         // local time and the UTC time for the specified 'utcDatetime' using
         // the currently installed local time offset callback mechanism.
-        // Return 0 on success, and a non-zero value otherwise.
 
                         // ** default callbacks **
 
-    static int loadLocalTimeOffsetDefault(int                  *result,
-                                          const bdet_Datetime&  utcDatetime);
+    static void loadLocalTimeOffsetDefault(int                  *result,
+                                           const bdet_Datetime&  utcDatetime);
         // Load into the specified 'result' offset in seconds of the local time
-        // from UTC time for the specified 'utcDatetime'.  Return 0 on success,
-        // and a non-zero value otherwise.  Note that the local time zone is
-        // determined by the 'TZ' environment variable in the same manner as
-        // the 'localtime' POSIX function.
+        // from UTC time for the specified 'utcDatetime'.  Note that the local
+        // time zone is determined by the 'TZ' environment variable in the same
+        // manner as the 'localtime' POSIX function.
 
     static void loadSystemTimeDefault(bdet_TimeInterval *result);
         // Load into the specified 'result' the current system time.  This is
@@ -484,10 +481,7 @@ bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
     BSLS_ASSERT_SAFE(s_loadLocalTimeOffsetCallback_p);
 
     int offsetInSeconds;
-    int status = (*s_loadLocalTimeOffsetCallback_p)(&offsetInSeconds,
-                                                    nowAsDatetimeUtc());
-    BSLS_ASSERT_SAFE(0 == status);
-
+    (*s_loadLocalTimeOffsetCallback_p)(&offsetInSeconds, nowAsDatetimeUtc());
     return bdet_DatetimeInterval(0, 0, 0, offsetInSeconds);
 }
 
@@ -503,13 +497,13 @@ void bdetu_SystemTime::loadCurrentTime(bdet_TimeInterval *result)
 }
 
 inline
-int bdetu_SystemTime::loadLocalTimeOffset(int                  *result,
-                                          const bdet_Datetime&  utcDatetime)
+void bdetu_SystemTime::loadLocalTimeOffset(int                  *result,
+                                           const bdet_Datetime&  utcDatetime)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(s_loadLocalTimeOffsetCallback_p);
 
-    return (*s_loadLocalTimeOffsetCallback_p)(result, utcDatetime);
+    (*s_loadLocalTimeOffsetCallback_p)(result, utcDatetime);
 }
 
                         // ** set callbacks **

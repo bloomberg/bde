@@ -41,17 +41,16 @@ bdetu_SystemTime::s_loadLocalTimeOffsetCallback_p =
 bdet_Datetime bdetu_SystemTime::nowAsDatetimeLocal()
 {
     int           offsetInSeconds;
-    bdet_Datetime now    = nowAsDatetimeUtc();
-    int           status = (*s_loadLocalTimeOffsetCallback_p)(&offsetInSeconds,
-                                                              now);
-    BSLS_ASSERT_SAFE(0 == status);
+    bdet_Datetime now = nowAsDatetimeUtc();
+
+    (*s_loadLocalTimeOffsetCallback_p)(&offsetInSeconds, now);
 
     return now + bdet_DatetimeInterval(0, 0, 0, offsetInSeconds);
 }
 
                        // ** default callbacks **
 
-int bdetu_SystemTime::loadLocalTimeOffsetDefault(
+void bdetu_SystemTime::loadLocalTimeOffsetDefault(
                                              int                  *result,
                                              const bdet_Datetime&  utcDatetime)
 {
@@ -60,9 +59,7 @@ int bdetu_SystemTime::loadLocalTimeOffsetDefault(
     bsl::time_t currentTime;
     int         status = bdetu_Epoch::convertToTimeT(&currentTime,
                                                      utcDatetime);
-    if (status) {
-        return status;                                                // RETURN
-    }
+    BSLS_ASSERT(0 == status);
 
     struct tm localTm;
     struct tm   gmtTm;
@@ -82,8 +79,6 @@ int bdetu_SystemTime::loadLocalTimeOffsetDefault(
     bdet_DatetimeInterval offset = localDatetime - gmtDatetime;
 
     *result = static_cast<int>(offset.totalSecondsAsDouble());
-
-    return 0;
 }
 
 void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
