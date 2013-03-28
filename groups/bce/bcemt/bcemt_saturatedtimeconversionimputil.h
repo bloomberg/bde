@@ -127,10 +127,15 @@ BDES_IDENT("$Id: $")
 #include <bsl_limits.h>
 #endif
 
-#ifdef BCES_PLATFORM_POSIX_THREADS
-
 #ifndef INCLUDED_BSL_CTIME
 #include <bsl_ctime.h>
+#endif
+
+#ifdef BCES_PLATFORM_POSIX_THREADS
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+// Note that 'long' is not 64 bit on Windows.
+#define BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT 1
 #endif
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
