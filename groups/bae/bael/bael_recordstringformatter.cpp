@@ -160,7 +160,8 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     // in order to ensure only a single allocation occurs.
 
     const int BUFFER_SIZE        = 512;
-    const int STRING_RESERVATION = BUFFER_SIZE - 16;
+    const int STRING_RESERVATION = BUFFER_SIZE - 
+                                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
     char fixedBuffer[BUFFER_SIZE];
     bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer, 
