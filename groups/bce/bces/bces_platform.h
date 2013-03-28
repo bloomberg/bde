@@ -71,8 +71,9 @@ struct bces_Platform {
 
                        // 'SemaphorePolicy' trait
 
-    struct CountedPosixSemaphore {};
+    struct CountedSemaphore {};
     struct PosixSemaphore {};
+    struct DarwinSemaphore {};
     struct Win32Semaphore {};
 
     #ifdef BSLS_PLATFORM_OS_UNIX
@@ -85,13 +86,17 @@ struct bces_Platform {
     // that maintains the count in a separate atomic integer to enable
     // consistent semaphore usage across platforms.
 
-    typedef CountedPosixSemaphore SemaphorePolicy;
+    typedef CountedSemaphore SemaphorePolicy;
+    typedef PosixSemaphore CountedSemaphoreImplPolicy;
+    #define BCES_PLATFORM_COUNTED_SEMAPHORE
 
     #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
     // Darwin doesn't implement sem_getvalue.
 
-    typedef CountedPosixSemaphore SemaphorePolicy;
+    typedef CountedSemaphore SemaphorePolicy;
+    typedef DarwinSemaphore CountedSemaphoreImplPolicy;
+    #define BCES_PLATFORM_COUNTED_SEMAPHORE
 
     #else
 
