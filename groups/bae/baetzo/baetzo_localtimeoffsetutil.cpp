@@ -1,6 +1,8 @@
 // baetzo_localtimeoffsetutil.cpp                                     -*-C++-*-
 #include <baetzo_localtimeoffsetutil.h>
 
+#include <bcemt_readlockguard.h>
+#include <bcemt_writelockguard.h>
 #include <bdet_datetime.h>
 #include <bslma_default.h>
 
@@ -29,8 +31,6 @@ int baetzo_LocalTimeOffsetUtil::configureImp(const char           *timezone,
 }
 
 // CLASS DATA
-bcemt_QLock      baetzo_LocalTimeOffsetUtil::s_lock     =
-                                                       BCEMT_QLOCK_INITIALIZER;
 const char      *baetzo_LocalTimeOffsetUtil::s_timezone = 0;
 bsls::AtomicInt  baetzo_LocalTimeOffsetUtil::s_updateCount(0);
 
@@ -41,18 +41,30 @@ void baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
 {
     BSLS_ASSERT(result);
 
-    bcemt_QLockGuard qLockGuard(&s_lock);
+    bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(staticLock());
 
     const baetzo_LocalTimePeriod *localTimePeriod = staticLocalTimePeriod();
 
     if (utcDatetime <  localTimePeriod->utcStartTime()
-        || utcDatetime >= localTimePeriod->utcEndTime()) {
+     || utcDatetime >= localTimePeriod->utcEndTime()) {
 
-        int status = configureImp(s_timezone, utcDatetime);
-        BSLS_ASSERT(0 == status);
+        readLockGuard.release()->unlock();
+        
+        {
+            bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(staticLock());
+
+            if (utcDatetime <  localTimePeriod->utcStartTime()
+             || utcDatetime >= localTimePeriod->utcEndTime()) {
+
+                int status = configureImp(s_timezone, utcDatetime);
+                BSLS_ASSERT(0 == status);
+            }
+
+            *result = localTimePeriod->descriptor().utcOffsetInSeconds();
+        }
+    } else {
+        *result = localTimePeriod->descriptor().utcOffsetInSeconds();
     }
-
-    *result = localTimePeriod->descriptor().utcOffsetInSeconds();
 }
 
 int  baetzo_LocalTimeOffsetUtil::configure()
@@ -62,7 +74,7 @@ int  baetzo_LocalTimeOffsetUtil::configure()
         return -1;                                                    // RETURN
     }
 
-    bcemt_QLockGuard qLockGuard(&s_lock);
+    bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(staticLock());
     return configureImp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
 }
 
@@ -70,7 +82,7 @@ int baetzo_LocalTimeOffsetUtil::configure(const char *timezone)
 {
     BSLS_ASSERT_SAFE(timezone);
 
-    bcemt_QLockGuard qLockGuard(&s_lock);
+    bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(staticLock());
     return configureImp(timezone, bdetu_SystemTime::nowAsDatetimeUtc());
 }
 
@@ -79,7 +91,7 @@ int baetzo_LocalTimeOffsetUtil::configure(const char           *timezone,
 {
     BSLS_ASSERT_SAFE(timezone);
 
-    bcemt_QLockGuard qLockGuard(&s_lock);
+    bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(staticLock());
     return configureImp(timezone, utcDatetime);
 }
 

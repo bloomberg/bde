@@ -138,8 +138,8 @@ BDES_IDENT("$Id: $")
 #include <bdetu_systemtime.h>
 #endif
 
-#ifndef INCLUDED_BCEMT_QLOCK
-#include <bcemt_qlock.h>
+#ifndef INCLUDED_BCEMT_RWMUTEX
+#include <bcemt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -161,7 +161,6 @@ struct baetzo_LocalTimeOffsetUtil {
 
     // CLASS DATA
   private:
-    static bcemt_QLock      s_lock;
     static const char      *s_timezone;
     static bsls::AtomicInt  s_updateCount;
 
@@ -175,6 +174,10 @@ struct baetzo_LocalTimeOffsetUtil {
 
     static baetzo_LocalTimePeriod *staticLocalTimePeriod();
         // Return the address of the current local time period information.
+
+    static bcemt_RWMutex *staticLock();
+        // Return the address of the lock controlling access to the local
+        // time period information.
 
     // CLASS METHODS
   public:
@@ -191,7 +194,9 @@ struct baetzo_LocalTimeOffsetUtil {
         // method.  That information is updated when 'loadLocalTimeOffset' is
         // called with a 'utcDatetime' outside the range
         // 'localTimePeriod().utcStartTime()' (inclusive)
-        // 'localTimePeriod().utcEndTime()' (exclusive).
+        // 'localTimePeriod().utcEndTime()' (exclusive).  This method is
+        // thread-safe.  The behavior is undefined if this method is invoked
+        // before the successful invocation of a 'configure' method.
 
     static bdetu_SystemTime::LoadLocalTimeOffsetCallback
                                               setLoadLocalTimeOffsetCallback();
@@ -199,18 +204,29 @@ struct baetzo_LocalTimeOffsetUtil {
         // 'bdetu_SystemTime'.  Return the previously installed callback.
 
     static int configure();
-    static int configure(const char           *timezone);
-    static int configure(const char           *timezone,
-                         const bdet_Datetime&  utcDatetime);
         // Set the local time period information used by the
         // 'loadLocalTimeOffset' method to that for the time zone in the 'TZ'
         // environment variable at the current UTC datetime.  Return 0 on
-        // success, and a non-zero value otherwise.  Optionally specify
-        // 'timezone'.  Optionally specify the 'utcDatetime' of the local time
-        // period information.  These methods are thread-safe.  The behavior is
-        // undefined unless 'timezone' remains valid.  When 'timezone' is
-        // obtained from the environment, it can be invalidated by a call to
-        // the 'putenv' POSIX function.
+        // success, and a non-zero value otherwise.  The behavior is undefined
+        // if the environment changes (e.g., a call to the 'putenv' POSIX
+        // function) during the invocation of this method.  Otherwise, this
+        // method is thread-safe after the first invocation of some 'configure'
+        // method.
+
+    static int configure(const char *timezone);
+        // Set the local time period information used by the
+        // 'loadLocalTimeOffset' method to that for specified 'timezone' at the
+        // current UTC datetime.  Return 0 on success, and a non-zero value
+        // otherwise.  This method is thread-safe after the first invocation of
+        // some 'configure' method.
+
+    static int configure(const char           *timezone,
+                         const bdet_Datetime&  utcDatetime);
+        // Set the local time period information used by the
+        // 'loadLocalTimeOffset' method to that for the specified 'timezone' at
+        // the specified 'utcDatetim'.  Return 0 on success, and a non-zero
+        // value otherwise.  This method is thread-safe after the first
+        // invocation of 'timezone'.
 
     static const char *timezone();
         // Return the time zone identifier used to determine the local time
@@ -238,6 +254,13 @@ baetzo_LocalTimePeriod *baetzo_LocalTimeOffsetUtil::staticLocalTimePeriod()
 {
     static baetzo_LocalTimePeriod localTimePeriod;
     return &localTimePeriod;
+}
+
+inline
+bcemt_RWMutex *baetzo_LocalTimeOffsetUtil::staticLock()
+{
+    static bcemt_RWMutex lock;
+    return &lock;
 }
 
 // CLASS METHODS
