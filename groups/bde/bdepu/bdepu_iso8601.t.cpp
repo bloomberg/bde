@@ -1418,7 +1418,7 @@ int main(int argc, char *argv[])
 
             expected.addTime(0, 0, 0, 345);
             expectedTz.setDatetimeTz(expected, 120);
-            
+
             parsedTz = garbageTz;
             rc = myParse(&parsedTz, "0001-01-01T23:59:60.345+02:00");
             ASSERT(0 == rc);

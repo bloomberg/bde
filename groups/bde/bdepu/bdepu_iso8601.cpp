@@ -793,7 +793,7 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
                                                 hour, minute, second)) {
         return -1;                                                    // RETURN
     }
-    if (millisecond | leapSecond) {
+    if (millisecond || leapSecond) {
         localDatetime.addTime(0, 0, leapSecond, millisecond);
     }
 
@@ -982,7 +982,7 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
                                                 hour, minute, second)) {
         return -1;                                                    // RETURN
     }
-    if (millisecond | leapSecond) {
+    if (millisecond || leapSecond) {
         localDatetime.addTime(0, 0, leapSecond, millisecond);
     }
 
