@@ -35,7 +35,7 @@ using namespace std;
 // [ 3] bool isPlausibleZoneinfoRootPath(const char *path);
 //
 // CREATORS
-// [ 2] baetzo_DataFileLoader(bslma_Allocator *basicAllocator = 0);
+// [ 2] baetzo_DataFileLoader(bslma::Allocator *basicAllocator = 0);
 // [ 2] ~baetzo_DataFileLoader();
 //
 // MANIPULATORS
@@ -506,10 +506,10 @@ int main(int argc, char *argv[])
         bdesu_FileUtil::remove("test/GMT");
     }
 
-    bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
-    static bslma_TestAllocator defaultAllocator;
+    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
+    static bslma::TestAllocator defaultAllocator;
 
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
     if (veryVeryVerbose) {
         defaultAllocator.setVerbose(true);
     }
@@ -1126,7 +1126,7 @@ int main(int argc, char *argv[])
         //: 3 Verify the correct memory allocator is used.
         //
         // Testing:
-        //   baetzo_DataFileLoader(bslma_Allocator *basicAllocator = 0);
+        //   baetzo_DataFileLoader(bslma::Allocator *basicAllocator = 0);
         //   void configureRootPath(const char *path);
         //   ~baetzo_DataFileLoader();
         // --------------------------------------------------------------------
@@ -1145,18 +1145,19 @@ int main(int argc, char *argv[])
                           << endl;
 
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             const char CONFIG = cfg;  // (how we specify the allocator)
 
-            bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
-            bslma_TestAllocator da("default",   veryVeryVeryVerbose);
-            bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma_Default::setDefaultAllocatorRaw(&da);
+            bslma::Default::setDefaultAllocatorRaw(&da);
 
-            Obj                 *objPtr;
-            bslma_TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
 
             switch (CONFIG) {
               case 'a': {
@@ -1177,8 +1178,8 @@ int main(int argc, char *argv[])
             }
 
             Obj& mX = *objPtr; const Obj& X = mX;
-            bslma_TestAllocator& oa = *objAllocatorPtr;
-            bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            bslma::TestAllocator& oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // -------------------------------------
             // Verify the object's attribute values.

@@ -60,10 +60,11 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>    // TBD DEPRECATED
+#include <bsls_platformutil.h>
 #endif
-#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -168,10 +169,10 @@ class baecs_JournalHeader {
 
   private:
     // DATA
-    bsls_Types::Int64  d_currentTransactionId;
-    bsls_Types::Int64  d_committedTransactionId;
-    int                d_activeStateIndex;      // must be in writable memory
-    OnDisk            *d_persistent_p;          // could be in read-only memory
+    bsls::Types::Int64  d_currentTransactionId;
+    bsls::Types::Int64  d_committedTransactionId;
+    int                 d_activeStateIndex;     // must be in writable memory
+    OnDisk             *d_persistent_p;         // could be in read-only memory
 
   public:
     // CREATORS
@@ -220,11 +221,11 @@ class baecs_JournalHeader {
     int blocksPerPage() const;
 
     bdesu_FileUtil::Offset calculateFileSize(int numPages);
-    bsls_Types::Int64 creationTime() const;
-    bsls_Types::Int64 currentTransactionId() const;
-    bsls_Types::Int64 committedTransactionId() const;
+    bsls::Types::Int64 creationTime() const;
+    bsls::Types::Int64 currentTransactionId() const;
+    bsls::Types::Int64 committedTransactionId() const;
     int headerSize() const;
-    bsls_Types::Int64 modificationTime() const;
+    bsls::Types::Int64 modificationTime() const;
     int numPages() const;
     int numPageSets(int numPages) const;
 
@@ -394,13 +395,13 @@ const baecs_JournalHeaderRecordList&
 }
 
 inline
-bsls_Types::Int64 baecs_JournalHeader::modificationTime() const
+bsls::Types::Int64 baecs_JournalHeader::modificationTime() const
 {
     return d_persistent_p->d_state[d_activeStateIndex].d_modificationTime;
 }
 
 inline
-bsls_Types::Int64 baecs_JournalHeader::creationTime() const
+bsls::Types::Int64 baecs_JournalHeader::creationTime() const
 {
     return d_persistent_p->d_creationTime;
 }
@@ -459,13 +460,13 @@ bdesu_FileUtil::Offset baecs_JournalHeader::calculateFileSize(int numPages)
 }
 
 inline
-bsls_Types::Int64 baecs_JournalHeader::currentTransactionId() const
+bsls::Types::Int64 baecs_JournalHeader::currentTransactionId() const
 {
     return d_currentTransactionId;
 }
 
 inline
-bsls_Types::Int64 baecs_JournalHeader::committedTransactionId() const
+bsls::Types::Int64 baecs_JournalHeader::committedTransactionId() const
 {
     return d_committedTransactionId;
 }

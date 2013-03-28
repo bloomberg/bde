@@ -630,12 +630,16 @@ BDES_IDENT("$Id: $")
 #include <bdex_instreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STREAMBUF
@@ -650,9 +654,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstdio.h>     // for printing in macros
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -837,7 +844,7 @@ class bdex_TestInStreamFormatter {
 
                         // *** scalar integer values ***
 
-    bdex_TestInStreamFormatter& getInt64(bsls_PlatformUtil::Int64& variable);
+    bdex_TestInStreamFormatter& getInt64(bsls::Types::Int64& variable);
         // Verify the type of the next value in this stream, consume that
         // 64-bit signed integer value into the specified 'variable' if its
         // type is appropriate, and return a reference to this modifiable
@@ -847,7 +854,7 @@ class bdex_TestInStreamFormatter {
         // otherwise fails to extract a valid value, this stream is marked
         // invalid and the value of 'variable' is undefined.
 
-    bdex_TestInStreamFormatter& getUint64(bsls_PlatformUtil::Uint64& variable);
+    bdex_TestInStreamFormatter& getUint64(bsls::Types::Uint64& variable);
         // Verify the type of the next value in this stream, consume that
         // 64-bit unsigned integer value into the specified 'variable' if its
         // type is appropriate, and return a reference to this modifiable
@@ -857,7 +864,7 @@ class bdex_TestInStreamFormatter {
         // otherwise fails to extract a valid value, this stream is marked
         // invalid and the value of 'variable' is undefined.
 
-    bdex_TestInStreamFormatter& getInt56(bsls_PlatformUtil::Int64& variable);
+    bdex_TestInStreamFormatter& getInt56(bsls::Types::Int64& variable);
         // Verify the type of the next value in this stream, consume that
         // 56-bit signed integer value into the specified 'variable' if its
         // type is appropriate, and return a reference to this modifiable
@@ -867,7 +874,7 @@ class bdex_TestInStreamFormatter {
         // otherwise fails to extract a valid value, this stream is marked
         // invalid and the value of 'variable' is undefined.
 
-    bdex_TestInStreamFormatter& getUint56(bsls_PlatformUtil::Uint64& variable);
+    bdex_TestInStreamFormatter& getUint56(bsls::Types::Uint64& variable);
         // Verify the type of the next value in this stream, consume that
         // 56-bit unsigned integer value into the specified 'variable' if its
         // type is appropriate, and return a reference to this modifiable
@@ -877,7 +884,7 @@ class bdex_TestInStreamFormatter {
         // otherwise fails to extract a valid value, this stream is marked
         // invalid and the value of 'variable' is undefined.
 
-    bdex_TestInStreamFormatter& getInt48(bsls_PlatformUtil::Int64& variable);
+    bdex_TestInStreamFormatter& getInt48(bsls::Types::Int64& variable);
         // Verify the type of the next value in this stream, consume that
         // 48-bit signed integer value into the specified 'variable' if its
         // type is appropriate, and return a reference to this modifiable
@@ -887,7 +894,7 @@ class bdex_TestInStreamFormatter {
         // otherwise fails to extract a valid value, this stream is marked
         // invalid and the value of 'variable' is undefined.
 
-    bdex_TestInStreamFormatter& getUint48(bsls_PlatformUtil::Uint64& variable);
+    bdex_TestInStreamFormatter& getUint48(bsls::Types::Uint64& variable);
         // Verify the type of the next value in this stream, consume that
         // 48-bit unsigned integer value into the specified 'variable' if its
         // type is appropriate, and return a reference to this modifiable
@@ -897,7 +904,7 @@ class bdex_TestInStreamFormatter {
         // otherwise fails to extract a valid value, this stream is marked
         // invalid and the value of 'variable' is undefined.
 
-    bdex_TestInStreamFormatter& getInt40(bsls_PlatformUtil::Int64& variable);
+    bdex_TestInStreamFormatter& getInt40(bsls::Types::Int64& variable);
         // Verify the type of the next value in this stream, consume that
         // 40-bit signed integer value into the specified 'variable' if its
         // type is appropriate, and return a reference to this modifiable
@@ -907,7 +914,7 @@ class bdex_TestInStreamFormatter {
         // otherwise fails to extract a valid value, this stream is marked
         // invalid and the value of 'variable' is undefined.
 
-    bdex_TestInStreamFormatter& getUint40(bsls_PlatformUtil::Uint64& variable);
+    bdex_TestInStreamFormatter& getUint40(bsls::Types::Uint64& variable);
         // Verify the type of the next value in this stream, consume that
         // 40-bit unsigned integer value into the specified 'variable' if its
         // type is appropriate, and return a reference to this modifiable
@@ -1026,7 +1033,7 @@ class bdex_TestInStreamFormatter {
                         // *** arrayed integer values ***
 
     bdex_TestInStreamFormatter&
-    getArrayInt64(bsls_PlatformUtil::Int64 *array, int length);
+    getArrayInt64(bsls::Types::Int64 *array, int length);
         // Verify the type of the next value in this stream, consume that
         // 64-bit signed integer array value into the specified 'array' of the
         // specified 'length' if its type and length are appropriate, and
@@ -1039,7 +1046,7 @@ class bdex_TestInStreamFormatter {
         // '0 <= length'.
 
     bdex_TestInStreamFormatter&
-    getArrayUint64(bsls_PlatformUtil::Uint64 *array, int length);
+    getArrayUint64(bsls::Types::Uint64 *array, int length);
         // Verify the type of the next value in this stream, consume that
         // 64-bit signed integer array value into the specified 'array' of the
         // specified 'length' if its type and length are appropriate, and
@@ -1052,7 +1059,7 @@ class bdex_TestInStreamFormatter {
         // '0 <= length'.
 
     bdex_TestInStreamFormatter&
-    getArrayInt56(bsls_PlatformUtil::Int64 *array, int length);
+    getArrayInt56(bsls::Types::Int64 *array, int length);
         // Verify the type of the next value in this stream, consume that
         // 56-bit signed integer array value into the specified 'array' of the
         // specified 'length' if its type and length are appropriate, and
@@ -1065,7 +1072,7 @@ class bdex_TestInStreamFormatter {
         // '0 <= length'.
 
     bdex_TestInStreamFormatter&
-    getArrayUint56(bsls_PlatformUtil::Uint64 *array, int length);
+    getArrayUint56(bsls::Types::Uint64 *array, int length);
         // Verify the type of the next value in this stream, consume that
         // 56-bit signed integer array value into the specified 'array' of the
         // specified 'length' if its type and length are appropriate, and
@@ -1078,7 +1085,7 @@ class bdex_TestInStreamFormatter {
         // '0 <= length'.
 
     bdex_TestInStreamFormatter&
-    getArrayInt48(bsls_PlatformUtil::Int64 *array, int length);
+    getArrayInt48(bsls::Types::Int64 *array, int length);
         // Verify the type of the next value in this stream, consume that
         // 48-bit signed integer array value into the specified 'array' of the
         // specified 'length' if its type and length are appropriate, and
@@ -1091,7 +1098,7 @@ class bdex_TestInStreamFormatter {
         // '0 <= length'.
 
     bdex_TestInStreamFormatter&
-    getArrayUint48(bsls_PlatformUtil::Uint64 *array, int length);
+    getArrayUint48(bsls::Types::Uint64 *array, int length);
         // Verify the type of the next value in this stream, consume that
         // 48-bit signed integer array value into the specified 'array' of the
         // specified 'length' if its type and length are appropriate, and
@@ -1104,7 +1111,7 @@ class bdex_TestInStreamFormatter {
         // '0 <= length'.
 
     bdex_TestInStreamFormatter&
-    getArrayInt40(bsls_PlatformUtil::Int64 *array, int length);
+    getArrayInt40(bsls::Types::Int64 *array, int length);
         // Verify the type of the next value in this stream, consume that
         // 40-bit signed integer array value into the specified 'array' of the
         // specified 'length' if its type and length are appropriate, and
@@ -1117,7 +1124,7 @@ class bdex_TestInStreamFormatter {
         // '0 <= length'.
 
     bdex_TestInStreamFormatter&
-    getArrayUint40(bsls_PlatformUtil::Uint64 *array, int length);
+    getArrayUint40(bsls::Types::Uint64 *array, int length);
         // Verify the type of the next value in this stream, consume that
         // 40-bit signed integer array value into the specified 'array' of the
         // specified 'length' if its type and length are appropriate, and

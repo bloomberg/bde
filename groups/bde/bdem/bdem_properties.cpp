@@ -28,14 +28,14 @@ namespace {
 
     void voidUnsetConstruct(void                                     *,
                             bdem_AggregateOption::AllocationStrategy  ,
-                            bslma_Allocator                          *)
+                            bslma::Allocator                         *)
     {
     }
 
     void voidCopyConstruct(void                                     *,
                            const void                               *,
                            bdem_AggregateOption::AllocationStrategy  ,
-                           bslma_Allocator                          *)
+                           bslma::Allocator                         *)
     {
     }
 
@@ -99,7 +99,7 @@ const bdem_Descriptor bdem_Properties::d_voidAttr = {
 #define BDEM_SCALAR_DESCRIPTOR_INIT(T, ENUM)            \
     ENUM,                                               \
     sizeof(T),                                          \
-    bsls_AlignmentFromType<T>::VALUE,                   \
+    bsls::AlignmentFromType<T>::VALUE,                  \
     &bdem_FunctionTemplates::unsetConstruct<T>,         \
     &bdem_FunctionTemplates::copyConstruct<T>,          \
     &bdem_FunctionTemplates::destroy<T>,                \
@@ -115,7 +115,7 @@ const bdem_Descriptor bdem_Properties::d_voidAttr = {
 #define BDEM_ARRAY_DESCRIPTOR_INIT(T, ENUM)             \
     ENUM,                                               \
     sizeof(T),                                          \
-    bsls_AlignmentFromType<T >::VALUE,                  \
+    bsls::AlignmentFromType<T >::VALUE,                 \
     &bdem_FunctionTemplates::defaultConstruct<T >,      \
     &bdem_FunctionTemplates::copyConstruct<T >,         \
     &bdem_FunctionTemplates::destroy<T >,               \
@@ -143,7 +143,7 @@ const bdem_Descriptor bdem_Properties::d_intAttr = {
 };
 
 const bdem_Descriptor bdem_Properties::d_int64Attr = {
-    BDEM_SCALAR_DESCRIPTOR_INIT(bsls_Types::Int64, bdem_ElemType::BDEM_INT64)
+    BDEM_SCALAR_DESCRIPTOR_INIT(bsls::Types::Int64, bdem_ElemType::BDEM_INT64)
 };
 
 const bdem_Descriptor bdem_Properties::d_floatAttr = {
@@ -203,7 +203,7 @@ const bdem_Descriptor bdem_Properties::d_intArrayAttr = {
 };
 
 const bdem_Descriptor bdem_Properties::d_int64ArrayAttr = {
-    BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bsls_Types::Int64>,
+    BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bsls::Types::Int64>,
                                bdem_ElemType::BDEM_INT64_ARRAY)
 };
 

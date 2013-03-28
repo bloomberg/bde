@@ -32,7 +32,7 @@ static void aSsErT(int c, const char *s, int i) {
 // The following function tests the functionality of one of the bdem types:
 //..
     void testType(bdem_ElemType::Type objType, const void* otherObj) {
-        bslma_TestAllocator testAlloc;
+        bslma::TestAllocator testAlloc;
 //..
 // First, we look up the descriptor for 'objType' in the 'bdem_ElemAttrLookup'
 // lookup table:

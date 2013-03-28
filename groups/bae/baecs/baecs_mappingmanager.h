@@ -256,7 +256,7 @@ class baecs_MappingManager {
     static const Handle INVALID_HANDLE;
 
     BSLALG_DECLARE_NESTED_TRAITS(baecs_MappingManager,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
   private:
     // PRIVATE TYPES
     typedef baecs_MappingManager_PageList PageList;
@@ -277,9 +277,9 @@ class baecs_MappingManager {
     baecs_MappingManager& operator=(const baecs_MappingManager&);
   public:
     // CREATORS
-    explicit baecs_MappingManager(bsl::size_t      mappingLimit,
-                                  int              numPriorityLevels,
-                                  bslma_Allocator *basicAllocator = 0);
+    explicit baecs_MappingManager(bsl::size_t       mappingLimit,
+                                  int               numPriorityLevels,
+                                  bslma::Allocator *basicAllocator = 0);
         // Create an empty 'baecs_MappingManager' with the specified
         // 'mappingLimit' and the specified 'numPriorityLevels' number of
         // priority levels.  Optionally specify a 'basicAllocator' used to

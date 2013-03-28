@@ -839,7 +839,7 @@ typedef bdet_DatetimeTz                   DatetimeTz;
 typedef bdet_DateTz                       DateTz;
 typedef bdet_TimeTz                       TimeTz;
 
-typedef bsls_Types::Int64                 Int64;
+typedef bsls::Types::Int64                Int64;
 
 const int NUM_TYPES = ElemType::BDEM_NUM_TYPES;
 

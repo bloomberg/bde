@@ -10,10 +10,10 @@
 #include <bdex_testinstreamexception.h>         // for testing only
 #include <bdex_testoutstream.h>                 // for testing only
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
-#include <bsls_platform.h>                      // for testing only
-#include <bsls_platformutil.h>                  // for testing only
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
@@ -56,7 +56,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // 'bael_RecordAttributes' public interface:
 // [ 3] static int maxSupportedBdexVersion();
-// [ 2] bael_RecordAttributes(bslma_Allocator *ba = 0);
+// [ 2] bael_RecordAttributes(bslma::Allocator *ba = 0);
 // [ 4] bael_RecordAttributes(ts, pid, tid, fn, ln, cat, sev, msg, *ba=0);
 // [ 2] bael_RecordAttributes(const bael_RecordAttributes& orig, *ba = 0);
 // [ 2] ~bael_RecordAttributes();
@@ -67,17 +67,17 @@ using namespace bsl;  // automatically added by script
 // [ 2] void setMessage(const char *message);
 // [ 2] void setProcessID(int processID);
 // [ 2] void setSeverity(int severity);
-// [ 2] void setThreadID(bsls_PlatformUtil::Uint64 threadID);
+// [ 2] void setThreadID(bsls::Types::Uint64 threadID);
 // [ 2] void setTimestamp(const bdet_Datetime& timestamp);
 // [ 3] STREAM& bdexStreamIn(STREAM& is, int version);
 // [ 2] const char *category() const;
 // [ 2] const char *fileName() const;
 // [ 2] int lineNumber() const;
 // [ 2] const char *message() const;
-// [ 2] bslstl_StringRef messageRef() const;
+// [ 2] bslstl::StringRef messageRef() const;
 // [ 2] int processID() const;
 // [ 2] int severity() const;
-// [ 2] bsls_PlatformUtil::Uint64 threadID() const;
+// [ 2] bsls::Types::Uint64 threadID() const;
 // [ 2] const bdet_Datetime& timestamp() const;
 // [ 2] void clearMessage();
 // [ 2] bdesb_MemOutStreamBuf& messageStreamBuf();
@@ -158,14 +158,14 @@ typedef bdex_TestInStream     In;
 typedef bdex_TestOutStream    Out;
 
 struct my_RecordAttributes {
-    bdet_Datetime              timestamp;
-    int                        processID;
-    bsls_PlatformUtil::Uint64  threadID;
-    const char                *fileName;
-    int                        lineNumber;
-    const char                *category;
-    int                        severity;
-    const char                *message;
+    bdet_Datetime        timestamp;
+    int                  processID;
+    bsls::Types::Uint64  threadID;
+    const char          *fileName;
+    int                  lineNumber;
+    const char          *category;
+    int                  severity;
+    const char          *message;
 };
 
 struct my_TestMessage {
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -932,7 +932,7 @@ int main(int argc, char *argv[])
         // Basic Attribute Test
         //
         // Testing:
-        //   bael_RecordAttributes(bslma_Allocator *ba = 0);
+        //   bael_RecordAttributes(bslma::Allocator *ba = 0);
         //   bael_RecordAttributes(const bael_RecordAttributes& orig, *ba = 0);
         //   ~bael_RecordAttributes();
         //   bael_RecordAttributes& operator=(const bael_RecordAttributes&);
@@ -942,16 +942,16 @@ int main(int argc, char *argv[])
         //   void setMessage(const char *message);
         //   void setProcessID(int processID);
         //   void setSeverity(int severity);
-        //   void setThreadID(bsls_PlatformUtil::Uint64 threadID);
+        //   void setThreadID(bsls::Types::Uint64 threadID);
         //   void setTimestamp(const bdet_Datetime& timestamp);
         //   const char *category() const;
         //   const char *fileName() const;
         //   int lineNumber() const;
         //   const char *message() const;
-        //   bslstl_StringRef messageRef() const;
+        //   bslstl::StringRef messageRef() const;
         //   int processID() const;
         //   int severity() const;
-        //   bsls_PlatformUtil::Uint64 threadID() const;
+        //   bsls::Types::Uint64 threadID() const;
         //   const bdet_Datetime& timestamp() const;
         //   void clearMessage();
         //   bdesb_MemOutStreamBuf& messageStreamBuf();
@@ -1079,15 +1079,16 @@ int main(int argc, char *argv[])
              cout << "\tTesting 'messageRef'" << endl;
         }
         {
-            bslstl_StringRef emptyMsgRef("", 0);
+            bslstl::StringRef emptyMsgRef("", 0);
             for (int i = 0;i < NUM_TEST_MSGS; ++i) {
                 Obj mA;
-                bslstl_StringRef testMsgRef(testMsgs[i].msg, testMsgs[i].len2);
+                bslstl::StringRef testMsgRef(testMsgs[i].msg,
+                                             testMsgs[i].len2);
                 ASSERT(emptyMsgRef == mA.messageRef());
                 mA.messageStreamBuf().pubseekpos(0);
                 mA.messageStreamBuf().sputn(testMsgs[i].msg, testMsgs[i].len2);
 
-                bslstl_StringRef message = mA.messageRef();
+                bslstl::StringRef message = mA.messageRef();
 
                 if (veryVeryVerbose) {
                     P_(testMsgRef); P_(testMsgRef.length()); P_(message);

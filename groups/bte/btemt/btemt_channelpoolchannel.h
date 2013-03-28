@@ -51,8 +51,8 @@ BDES_IDENT("$Id: $")
 #include <bdeut_variant.h>
 #endif
 
-#ifndef INCLUDED_BSL_LIST
-#include <bsl_list.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
@@ -63,8 +63,8 @@ BDES_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_LIST
+#include <bsl_list.h>
 #endif
 
 namespace BloombergLP {
@@ -104,12 +104,12 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
 
         int                   d_numBytesNeeded;  // number of bytes needed
                                                  // before to invoke the read
-                                                 // callback 
+                                                 // callback
 
         int                   d_progress;        // status of read request,
                                                  // one of
                                                  // AsyncChannel::ReadResult
-                                                 // (SUCCESS, TIMEOUT or 
+                                                 // (SUCCESS, TIMEOUT or
                                                  // CANCELED)
     };
 
@@ -161,7 +161,7 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
 
     bteso_IPv4Address     d_localAddress;         // cached local address
 
-    bslma_Allocator      *d_allocator_p;          // allocator (held, not
+    bslma::Allocator     *d_allocator_p;          // allocator (held, not
                                                   // owned)
 
   private:
@@ -215,7 +215,7 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                   bcema_PooledBufferChainFactory *bufferChainFactory,
                   bcema_PooledBlobBufferFactory  *blobBufferFactory,
                   bcema_PoolAllocator            *spAllocator,
-                  bslma_Allocator                *allocator,
+                  bslma::Allocator               *allocator,
                   bool                            useBlobForDataReads = false);
 
         // Create a 'btemt_AsyncChannel' concrete implementation reading from
@@ -243,7 +243,7 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                         btemt_ChannelPool              *channelPool,
                         bcema_PooledBufferChainFactory *bufferChainFactory,
                         bcema_PoolAllocator            *spAllocator,
-                        bslma_Allocator                *allocator,
+                        bslma::Allocator               *allocator,
                         bcema_PooledBlobBufferFactory  *blobBufferFactory = 0);
         // Create a 'btemt_AsyncChannel' concrete implementation reading from
         // and writing to the channel referenced by the specified 'channelId'
@@ -264,7 +264,7 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                        btemt_ChannelPool              *channelPool,
                        bcema_PooledBlobBufferFactory  *blobBufferFactory,
                        bcema_PoolAllocator            *spAllocator,
-                       bslma_Allocator                *allocator,
+                       bslma::Allocator               *allocator,
                        bcema_PooledBufferChainFactory *bufferChainFactory = 0);
         // Create a 'btemt_AsyncChannel' concrete implementation reading from
         // and writing to the channel referenced by the specified 'channelId'
@@ -290,8 +290,9 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // read operation was already initiated.  When at least the specified
         // 'numBytes' of data are available after all previous requests have
         // been processed, if any, the specified 'readCallback' will be invoked
-        // (with 'SUCCESS').  Return zero on success, and a non-zero value
-        // otherwise.
+        // (with 'SUCCESS').  Return 0 on success, and a non-zero value
+        // otherwise.  On error, the return value *may* equal to one of the
+        // enumerators in 'btemt_ChannelStatus::Enum'.
 
     virtual int read(int                           numBytes,
                      const BlobBasedReadCallback&  readCallback);
@@ -299,9 +300,10 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // this request to the currently pending requests if an asynchronous
         // read operation was already initiated.  When at least the specified
         // 'numBytes' of data are available after all previous requests have
-        // been processed, if any, the specified 'readCallback' will be
-        // invoked (with 'SUCCESS').  Return zero on success, and a non-zero
-        // value otherwise.
+        // been processed, if any, the specified 'readCallback' will be invoked
+        // (with 'SUCCESS').  Return 0 on success, and a non-zero value
+        // otherwise.  On error, the return value *may* equal to one of the
+        // enumerators in 'btemt_ChannelStatus::Enum'.
 
     virtual int timedRead(int                      numBytes,
                           const bdet_TimeInterval& timeOut,
@@ -313,8 +315,9 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // specified 'numBytes' of data are available after all previous
         // requests have been processed, if any, or when the 'timeOut' is
         // reached, the specified 'readCallback' will be invoked (with either
-        // 'SUCCESS' or 'TIMEOUT', respectively).  Return zero on success, and
-        // a non-zero value otherwise.
+        // 'SUCCESS' or 'TIMEOUT', respectively).  Return 0 on success, and a
+        // non-zero value otherwise.  On error, the return value *may* equal to
+        // one of the enumerators in 'btemt_ChannelStatus::Enum'.
 
     virtual int timedRead(int                          numBytes,
                           const bdet_TimeInterval&     timeOut,
@@ -326,8 +329,9 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // specified 'numBytes' of data are available after all previous
         // requests have been processed, if any, or when the 'timeOut' is
         // reached, the specified 'readCallback' will be invoked (with either
-        // 'SUCCESS' or 'TIMEOUT', respectively).  Return zero on success,
-        // and a non-zero value otherwise.
+        // 'SUCCESS' or 'TIMEOUT', respectively).  Return 0 on success, and a
+        // non-zero value otherwise.  On error, the return value *may* equal to
+        // one of the enumerators in 'btemt_ChannelStatus::Enum'.
 
     virtual int write(const bcema_Blob&    blob,
                       int                  highWaterMark = INT_MAX);
@@ -336,14 +340,14 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // Enqueue the specified 'blob' message to be written to this channel.
         // Optionally provide 'highWaterMark' to specify the maximum data size
         // that can be enqueued.  If 'highWaterMark' is not specified then
-        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value if
-        // there is a write failure or if the enqueued data size exceeds the
-        // high watermark.  Note that success does not imply that the data has
-        // been written or will be successfully written to the underlying
-        // stream used by this channel.  Also note that in addition to
-        // 'highWatermark' the enqueued portion must also be less than a high
-        // watermark value supplied at the construction of this channel for the
-        // write to succeed.
+        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value
+        // otherwise.  On error, the return value *may* equal to one of the
+        // enumerators in 'btemt_ChannelStatus::Enum'.  Note that success does
+        // not imply that the data has been written or will be successfully
+        // written to the underlying stream used by this channel.  Also note
+        // that in addition to 'highWatermark' the enqueued portion must also
+        // be less than a high watermark value supplied at the construction of
+        // this channel for the write to succeed.
 
     virtual int write(const btemt_DataMsg&  data,
                       btemt_BlobMsg        *msg = 0);
@@ -353,15 +357,15 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // Enqueue the specified 'data' message to be written to this channel.
         // Optionally provide 'highWaterMark' to specify the maximum data size
         // that can be enqueued.  If 'highWaterMark' is not specified then
-        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value if
-        // there is a write failure or if the enqueued data size exceeds the
-        // high watermark.  Note that success does not imply that the data has
-        // been written or will be successfully written to the underlying
-        // stream used by this channel.  Also note that in addition to
-        // 'highWatermark' the enqueued portion must also be less than a high
-        // watermark value supplied at the construction of this channel for the
-        // write to succeed.  Also note that the specified blob 'msg' is
-        // ignored.
+        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value
+        // otherwise.  On error, the return value *may* equal to one of the
+        // enumerators in 'btemt_ChannelStatus::Enum'.  Note that success does
+        // not imply that the data has been written or will be successfully
+        // written to the underlying stream used by this channel.  Also note
+        // that in addition to 'highWatermark' the enqueued portion must also
+        // be less than a high watermark value supplied at the construction of
+        // this channel for the write to succeed.  Also note that the specified
+        // blob 'msg' is ignored.
 
     virtual int setSocketOption(int option, int level, int value);
         // Set the specified 'option' (of the specified 'level') socket option

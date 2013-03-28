@@ -7,6 +7,7 @@ BDES_IDENT_RCSID(baesu_stacktraceutil_cpp,"$Id$ $CSID$")
 #include <baesu_objectfileformat.h>
 #include <baesu_stackaddressutil.h>
 #include <baesu_stacktraceframe.h>
+#include <baesu_stacktraceresolverimpl_dladdr.h>
 #include <baesu_stacktraceresolverimpl_elf.h>
 #include <baesu_stacktraceresolverimpl_xcoff.h>
 #include <baesu_stacktraceresolverimpl_windows.h>
@@ -60,8 +61,8 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dummy>
   public:
     // PUBLIC CLASS METHODS
     static
-    int resolve(baesu_StackTrace *stackTrace,
-                bool              demangle)
+    int resolve(baesu_StackTrace *,    // 'stackTrace'
+                bool              )    // 'demangle'
         // Populate information for the specified 'stackFrames', a vector of
         // stack trace frames in a stack trace object.  Specify 'demangle', to
         // determine whether demangling is to occur, and 'basicAllocator',
@@ -126,8 +127,8 @@ int baesu_StackTraceUtil::loadStackTraceFromStack(
 
     void **addresses = (void **)
                      result->allocator()->allocate(maxFrames * sizeof(void *));
-    bslma_DeallocatorGuard<bslma_Allocator> guard(addresses,
-                                                  result->allocator());
+    bslma::DeallocatorGuard<bslma::Allocator> guard(addresses,
+                                                   result->allocator());
 
 #if !defined(BSLS_PLATFORM_OS_CYGWIN)
     int numAddresses = baesu_StackAddressUtil::getStackAddresses(addresses,
@@ -183,7 +184,7 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
         stream << "+0x" << stackTraceFrame.offsetFromSymbol();
     }
     if (stackTraceFrame.isAddressKnown()) {
-        stream << " at 0x" << (bsls_Types::UintPtr) stackTraceFrame.address();
+        stream << " at 0x" << (bsls::Types::UintPtr) stackTraceFrame.address();
     }
     stream.flags(save);
 

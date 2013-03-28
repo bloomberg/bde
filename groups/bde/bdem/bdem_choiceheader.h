@@ -219,6 +219,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNEDBUFFER
 #include <bsls_alignedbuffer.h>
 #endif
@@ -233,10 +237,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -265,7 +265,7 @@ class bdem_ChoiceHeader {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdem_ChoiceHeader,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // PUBLIC TYPES
     typedef bsl::vector<const bdem_Descriptor *> DescriptorCatalog;
@@ -292,7 +292,7 @@ class bdem_ChoiceHeader {
         // 'bdem_Choice', 'bdem_ChoiceArray', and 'bdem_Table', which are
         // allocated out-of-place and addressed by 'd_selection_p'.
 
-        bsls_AlignedBuffer<8 * sizeof(void *)> d_selectionBuf;
+        bsls::AlignedBuffer<8 * sizeof(void *)> d_selectionBuf;
 
         void *d_selection_p;  // allocated object if 'd_selectionBuf' too small
     };
@@ -474,7 +474,7 @@ class bdem_ChoiceHeader {
         // Return the address of the non-modifiable descriptor catalog stored
         // by this choice header.
 
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the address of the modifiable allocator used by this choice
         // header.
 
@@ -726,7 +726,7 @@ bdem_ChoiceHeader::catalog() const
 }
 
 inline
-bslma_Allocator *bdem_ChoiceHeader::allocator() const
+bslma::Allocator *bdem_ChoiceHeader::allocator() const
 {
     return d_catalog_p->get_allocator().mechanism();
 }

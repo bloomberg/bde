@@ -222,10 +222,14 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-    // No symbol is defined here (see the 'bsls_objectbuffer' component).
-    // No alias for the 'bdes_ObjectBuffer' type is defined here, instead it is
-    // defined in 'bsls_objectbuffer' so that clients that rely on it via
-    // transitive includes may still have that alias defined.
+                        // =======================
+                        // union bdes_ObjectBuffer
+                        // =======================
+
+#ifndef bdes_ObjectBuffer
+#define bdes_ObjectBuffer bsls::ObjectBuffer
+#endif
+    // This alias is defined for backward compatibility.
 
 }  // close namespace BloombergLP
 

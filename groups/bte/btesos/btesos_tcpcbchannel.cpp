@@ -72,8 +72,8 @@ public:
     };
 
     union {
-        char                               d_arena[ARENA_SIZE];
-        bsls_AlignmentUtil::MaxAlignedType d_align;  // for alignment
+        char                                d_arena[ARENA_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;  // for alignment
     } d_cb;
 
     // Data for the I/O operation
@@ -211,14 +211,14 @@ btesos_TcpCbChannel_RReg::~btesos_TcpCbChannel_RReg() {
                     (bdef_Function<void (*)(const char *, int, int)> *)
                         (void *)d_cb.d_arena;
 
-        bslalg_ScalarDestructionPrimitives::destroy(cb);
+        bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
     else {
         BSLS_ASSERT(d_callbackType == VFUNC2);
         bdef_Function<void (*)(int, int)> *cb =
             (bdef_Function<void (*)(int, int)> *) (void *) d_cb.d_arena;
 
-        bslalg_ScalarDestructionPrimitives::destroy(cb);
+        bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
 }
 
@@ -1315,7 +1315,7 @@ void btesos_TcpCbChannel::writeCb() {
 btesos_TcpCbChannel::btesos_TcpCbChannel(
         bteso_StreamSocket<bteso_IPv4Address> *sSocket,
         bteso_TimerEventManager               *manager,
-        bslma_Allocator                       *basicAllocator)
+        bslma::Allocator                      *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(manager)
 , d_wManager_p(manager)
@@ -1363,7 +1363,7 @@ btesos_TcpCbChannel::btesos_TcpCbChannel(
         bteso_StreamSocket<bteso_IPv4Address> *sSocket,
         bteso_TimerEventManager               *rManager,
         bteso_TimerEventManager               *wManager,
-        bslma_Allocator                       *basicAllocator)
+        bslma::Allocator                      *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(rManager)
 , d_wManager_p(wManager)

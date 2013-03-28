@@ -85,7 +85,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
     // methods in this class are private.
 
     // TYPES
-    typedef bsls_Types::UintPtr UintPtr;    // 32 bit unsigned on 32 bit, 64
+    typedef bsls::Types::UintPtr UintPtr;   // 32 bit unsigned on 32 bit, 64
                                             // bit unsigned on 64 bit, usually
                                             // used for absolute offsets into a
                                             // file
@@ -191,53 +191,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
         // success and a non-zero value otherwise.  Note that this method is
         // not to be called by external users of this component, it is only
         // public so a static routine in the implementation file can call it.
-
-    static
-    int testFunc();
-        // For testing only.  Do some random garbage and return a line number
-        // within this routine.
 };
-
-                         // ----------------------------------
-                         // class baesu_StackTraceResolverImpl
-                         // ----------------------------------
-
-inline
-int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf>::testFunc()
-{
-    // Do some random garbage to generate some code, then return a line number
-    // within this routine
-
-    int line = 0, lineCopy = 0;
-
-    for (int i = 0; true; ++i) {
-        BSLS_ASSERT_OPT(line == lineCopy);
-
-        const int loopGuard = 0x8edf0000;    // garbage with a lot of trailing
-                                             // 0's.
-        const int mask      = 0xa72c3dca;    // pure garbage
-
-        enum { LINE = __LINE__ };
-
-        for (int i = 0; !(i & loopGuard); ++i) {
-            line ^= (i & mask);
-        }
-
-        // The above loop will leave the value of 'line' unchanged.  See
-        // 'foilOptimizer' in the test driver.
-
-        BSLS_ASSERT_OPT(line == lineCopy);
-
-        if (line != 0) {
-            break;
-        }
-
-        line = LINE;
-        lineCopy = line;
-    }
-
-    return line;
-}
 
 #endif
 

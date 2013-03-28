@@ -116,7 +116,8 @@ BDES_IDENT("$Id: $")
 //      static bteso_IpResolutionCache *singletonCachePtr = 0;
 //      BCEMT_ONCE_DO {
 //          if (0 == singletonCachePtr) {
-//              bslma_Allocator *allocator = bslma_Default::globalAllocator();
+//              bslma::Allocator *allocator =
+//                                           bslma::Default::globalAllocator();
 //              static bteso_IpResolutionCache cache(allocator);
 //              singletonCachePtr = &cache;
 //          }
@@ -195,16 +196,16 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetimeinterval.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 
@@ -334,7 +335,7 @@ class bteso_IpResolutionCache {
 
     ResolveByNameCallback  d_resolverCallback;  // callback to get data
 
-    bslma_Allocator       *d_allocator_p;       // allocator (held, not owned)
+    bslma::Allocator      *d_allocator_p;       // allocator (held, not owned)
 
   private:
     int getCacheData(bteso_IpResolutionCache_Entry::DataPtr *result,
@@ -358,14 +359,14 @@ class bteso_IpResolutionCache {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_IpResolutionCache,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit bteso_IpResolutionCache(
-                                    bslma_Allocator       *basicAllocator = 0);
+                                    bslma::Allocator      *basicAllocator = 0);
     explicit bteso_IpResolutionCache(
                                     ResolveByNameCallback  resolverCallback,
-                                    bslma_Allocator       *basicAllocator = 0);
+                                    bslma::Allocator      *basicAllocator = 0);
         // Create a 'bteso_IpResolutionCache' object.  Optionally specify
         // 'resolverCallback' used to resolve the IP addresses from a hostname.
         // If 'resolverCallback' is not specified,
@@ -403,7 +404,7 @@ class bteso_IpResolutionCache {
         // will affect data that is already cached.
 
     // ACCESSORS
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.
 
     int lookupAddressRaw(
@@ -498,7 +499,7 @@ void bteso_IpResolutionCache::setTimeToLive(const bdet_DatetimeInterval& value)
 
 // ACCESSORS
 inline
-bslma_Allocator *bteso_IpResolutionCache::allocator() const
+bslma::Allocator *bteso_IpResolutionCache::allocator() const
 {
     return d_allocator_p;
 }

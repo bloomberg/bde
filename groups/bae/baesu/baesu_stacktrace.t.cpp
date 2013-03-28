@@ -1,7 +1,8 @@
 // baesu_stacktrace.t.cpp                                             -*-C++-*-
 #include <baesu_stacktrace.h>
 
-#include <bslma_bufferallocator.h>
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -11,6 +12,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -50,7 +52,7 @@ using namespace bsl;
 // to facilitate perturbation of internal state (e.g., capacity).  Note that
 // each manipulator must support aliasing, and those that perform memory
 // allocation must be tested for exception neutrality via the
-// 'bdema_testallocator' component.
+// 'bslma_testallocator' component.
 //
 // The usual, quantitative tests on memory allocations are not practical here
 // since, in this implementation, those details are encapsulated in an
@@ -93,7 +95,7 @@ using namespace bsl;
 //:   o swap
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] baesu_StackTrace(bslma_Allocator *bA = 0);
+// [ 2] baesu_StackTrace(bslma::Allocator *bA = 0);
 // [ 7] baesu_StackTrace(const baesu_StackTrace& o, *bA = 0);
 //
 // MANIPULATORS
@@ -107,7 +109,7 @@ using namespace bsl;
 // ACCESSORS
 // [ 4] const baesu_StackTraceFrame& operator[](int index) const;
 // [ 4] int length() const;
-// [ 4] bslma_Allocator *allocator() const;
+// [ 4] bslma::Allocator *allocator() const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -199,7 +201,7 @@ static void aSsErT(int c, const char *s, int i)
 typedef baesu_StackTrace      Obj;
 typedef baesu_StackTraceFrame Frame;
 typedef Frame                 Element;
-typedef bsls_Types::Int64     Int64;
+typedef bsls::Types::Int64    Int64;
 
 const Frame VALUES[]   = {
 
@@ -264,10 +266,10 @@ const Element &V0 = VALUES[0],  &VA = V0, // 'V0', 'V1', ... are used in
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT((bslalg_HasTrait<Obj,
-                              bslalg_TypeTraitBitwiseMoveable>::VALUE));
-BSLMF_ASSERT((bslalg_HasTrait<Obj,
-                              bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+BSLMF_ASSERT((bslalg::HasTrait<Obj,
+                               bslalg::TypeTraitBitwiseMoveable>::VALUE));
+BSLMF_ASSERT((bslalg::HasTrait<Obj,
+                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
 // ============================================================================
 //                               TEST APPARATUS
@@ -282,12 +284,12 @@ class TestAllocatorMonitor {
     Int64                              d_lastInUse;
     Int64                              d_lastMax;
     Int64                              d_lastTotal;
-    const bslma_TestAllocator *const d_allocator_p;
+    const bslma::TestAllocator *const d_allocator_p;
 
   public:
     // CREATORS
     explicit
-    TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
+    TestAllocatorMonitor(const bslma::TestAllocator& basicAllocator);
         // TBD
 
     ~TestAllocatorMonitor();
@@ -316,7 +318,7 @@ class TestAllocatorMonitor {
 // CREATORS
 inline
 TestAllocatorMonitor::TestAllocatorMonitor(
-                                     const bslma_TestAllocator& basicAllocator)
+                                    const bslma::TestAllocator& basicAllocator)
 : d_lastInUse(basicAllocator.numBlocksInUse())
 , d_lastMax(basicAllocator.numBlocksMax())
 , d_lastTotal(basicAllocator.numBlocksTotal())
@@ -487,7 +489,7 @@ Obj& gg(Obj *object, const char *spec)
 Obj g(const char *spec)
     // Return, by value, a new object corresponding to the specified 'spec'.
 {
-    Obj object((bslma_Allocator *)0);
+    Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -537,11 +539,11 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
       case 20: {
@@ -579,8 +581,8 @@ int main(int argc, char *argv[])
 // start by setting the default allocator to a test allocator so we can verify
 // later that it was unused:
 //..
-    bslma_TestAllocator         da;
-    bslma_DefaultAllocatorGuard guard(&da);
+    bslma::TestAllocator         da;
+    bslma::DefaultAllocatorGuard guard(&da);
 //..
 // Then, we create a stack-trace object.  Note that when we don't specify an
 // allocator, the default allocator is not used -- rather, a heap-bypass
@@ -641,7 +643,9 @@ int main(int argc, char *argv[])
 //..
 // Next, we output the stack-trace object:
 //..
-    stackTrace.print(cout, 1, 2);
+    if (verbose) {
+        stackTrace.print(cout, 1, 2);
+    }
 //..
 // Finally, we observe the default allocator was never used.
 //..
@@ -703,7 +707,7 @@ int main(int argc, char *argv[])
         //:   and free-function pointers having the appropriate signatures and
         //:   return types.  (C-4)
         //:
-        //: 2 Create a 'bslma_TestAllocator' object, and install it as the
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
         //:   already installed as the global allocator).
         //:
@@ -723,7 +727,7 @@ int main(int argc, char *argv[])
         //:
         //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 5)
         //:
-        //:   1 Create a 'bslma_TestAllocator' object, 'oa'.
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
         //:   2 Use the value constructor and 'oa' to create a modifiable
         //:     'Obj', 'mW', having the value described by 'R1'; also use the
@@ -767,7 +771,7 @@ int main(int argc, char *argv[])
         //:     corresponding to the default-constructed object, choosing
         //:     values that allocate memory if possible.
         //:
-        //:   2 Create a 'bslma_TestAllocator' object, 'oa'.
+        //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
         //:   3 Use the default constructor and 'oa' to create a modifiable
         //:     'Obj' 'mX' (having default attribute values); also use the copy
@@ -822,8 +826,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::Default::setDefaultAllocatorRaw(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -858,8 +862,8 @@ int main(int argc, char *argv[])
             const int            LINE1   = DATA[ti].d_lineNum;
             const char *const    SPEC1   = DATA[ti].d_spec_p;
 
-            bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
-            bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                   Obj mW(&oa);
             const Obj& W = gg(&mW, SPEC1);
@@ -952,8 +956,8 @@ int main(int argc, char *argv[])
         {
             // 'A' values: Should cause memory allocation if possible.
 
-            bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
-            bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                   Obj mX(&oa);  const Obj& X = mX;
             const Obj XX(X, &scratch);
@@ -981,12 +985,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\t'swap' member function" << endl;
             {
-                bslma_TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma_TestAllocator oa2("object2", veryVeryVeryVerbose);
+                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
+                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
 
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
@@ -997,8 +1002,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'swap' free function" << endl;
             {
-                bslma_TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma_TestAllocator oa2("object2", veryVeryVeryVerbose);
+                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
+                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
 
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
@@ -1352,7 +1357,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             Int64 oldDepth = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -1668,7 +1673,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             Int64 oldDepth = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -2071,7 +2076,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             Int64 oldDepth = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -2465,7 +2470,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             int oldDepth = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -2599,7 +2604,7 @@ int main(int argc, char *argv[])
                  0 // Null string required as last element.
             };
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_TESTS; ++i) {
                 const int   a1   = lengths[i];
@@ -2738,7 +2743,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             int uOldLen = -1;
             for (int ui = 0; SPECS[ui]; ++ui) {
@@ -2828,7 +2833,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             int oldLen = -1;
             for (int ti = 0; SPECS[ti]; ++ti) {
@@ -2901,7 +2906,7 @@ int main(int argc, char *argv[])
             "", "~", "A", "B", "C", "D", "E", "A~B~C~D~E", "ABCDE", "ABC~DE",
         0}; // Null string required as last element.
 
-        bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+        bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
         if (verbose) cout <<
             "\nCompare values produced by 'g' and 'gg' for various inputs."
@@ -2972,14 +2977,15 @@ int main(int argc, char *argv[])
         //:
         //: 2 To address C-5, we will perform each of the above tests in the
         //:   presence of exceptions during memory allocations using a
-        //:   'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //:   'bslma::TestAllocator' and varying its *allocation* *limit*.
         //:
         //: 3 To address C-6, we will repeat the above tests:
         //:   1 When passing in no allocator.
-        //:   2 When passing in a null pointer: (bslma_Allocator *)0.
+        //:   2 When passing in a null pointer: (bslma::Allocator *)0.
         //:   3 When passing in a test allocator (see concern 5).
         //:   4 Where the object is constructed entirely in static memory
-        //:     (using a 'bslma_BufferAllocator') and never destroyed.
+        //:     (using a 'bdema_BufferedSequentialAllocator') and never
+        //:     destroyed.
         //:   5 After the (dynamically allocated) source object is deleted and
         //:     its footprint erased (see concern 4).
         //
@@ -3004,7 +3010,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             int oldLen = -1;
             for (int ti = 0; SPECS[ti]; ++ti) {
@@ -3047,7 +3053,7 @@ int main(int argc, char *argv[])
                     {
                         if (veryVeryVerbose) { cout <<
                                               "\t\t\tNull Allocator" << endl; }
-                        const Obj Y1(X, (bslma_Allocator *) 0);
+                        const Obj Y1(X, (bslma::Allocator *) 0);
                         if (veryVerbose) { cout << "\t\t\t"; P(Y1); }
                         LOOP2_ASSERT(SPEC, N, W == Y1);
                         LOOP2_ASSERT(SPEC, N, W == X);
@@ -3066,7 +3072,8 @@ int main(int argc, char *argv[])
                         if (veryVeryVerbose) { cout <<
                                             "\t\t\tBuffer Allocator" << endl; }
                         char memory[128 * 1024];
-                        bslma_BufferAllocator a(memory, sizeof memory);
+                        bdema_BufferedSequentialAllocator a(memory,
+                                                            sizeof memory);
                         Obj *Y = new(a.allocate(sizeof(Obj))) Obj(X, &a);
                         if (veryVerbose) { cout << "\t\t\t"; P(*Y); }
                         LOOP2_ASSERT(SPEC, N, W == *Y);
@@ -3159,7 +3166,7 @@ int main(int argc, char *argv[])
                 "AAAAAAAAAA",       "AAABAAAAAA",       "AAAAABAAAA",
             0}; // Null string required as last element.
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             int oldLen = -1;
             for (int ti = 0; SPECS[ti]; ++ti) {
@@ -3204,7 +3211,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             int oldLen = -1;
             for (int ti = 0; SPECS[ti]; ++ti) {
@@ -3321,7 +3328,7 @@ int main(int argc, char *argv[])
                           << "PRINT AND OUTPUT OPERATOR" << endl
                           << "=========================" << endl;
 
-        bslma_TestAllocator ta("object", veryVeryVeryVerbose);
+        bslma::TestAllocator ta("object", veryVeryVeryVerbose);
 
         Frame mFA(&ta);      const Frame& FA = mFA;
         mFA.setAddress((void *) 0x12ab);
@@ -3563,7 +3570,7 @@ int main(int argc, char *argv[])
                 // 'str()' method of 'os' will return a string by value, which
                 // will use the default allocator.
 
-                bslma_DefaultAllocatorGuard tmpGuard(&ta);
+                bslma::DefaultAllocatorGuard tmpGuard(&ta);
 
                 if (veryVeryVerbose) { P(os.str()) }
 
@@ -3647,7 +3654,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             Obj mY(&testAllocator);  // object with extended internal capacity
             const int EXTEND = 50; stretch(&mY, EXTEND); ASSERT(mY.length());
@@ -3706,7 +3713,7 @@ int main(int argc, char *argv[])
                                                               t1.allocator()));
 
             if (veryVerbose) cout << "\tSupply object allocator." << endl;
-            bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             Obj t2(&oa);
             ASSERT(&oa == t2.allocator());
         }
@@ -3824,7 +3831,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
             int oldLen = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -3905,8 +3912,8 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator testAllocator("oa-validSpecs",
-                                              veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("oa-validSpecs",
+                                               veryVeryVeryVerbose);
 
             int oldLen = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -3979,8 +3986,8 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator testAllocator("oa-stretch",
-                                              veryVeryVeryVerbose);
+            bslma::TestAllocator testAllocator("oa-stretch",
+                                               veryVeryVeryVerbose);
 
             int oldDepth = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -4121,9 +4128,10 @@ int main(int argc, char *argv[])
         //:   default constructor:
         //:   1 with and without passing in an allocator.
         //:   2 in the presence of exceptions during memory allocations using a
-        //:     'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //:     'bslma::TestAllocator' and varying its *allocation* *limit*.
         //:   3 where the object is constructed entirely in static memory
-        //:     (using a 'bslma_BufferAllocator') and never destroyed.
+        //:     (using a 'bdema_BufferedSequentialAllocator') and never
+        //:     destroyed.
         //:
         //: 2 To address C-3.1, C-3.2, and C-3.3, construct a series of
         //:   independent objects, ordered by increasing length.  In each test,
@@ -4131,7 +4139,7 @@ int main(int argc, char *argv[])
         //:   that the destructor asserts internal object invariants
         //:   appropriately.  After the final append operation in each test,
         //:   use the (untested) basic accessors to cross-check the value of
-        //:   the object and the 'bslma_TestAllocator' to confirm whether a
+        //:   the object and the 'bslma::TestAllocator' to confirm whether a
         //:   resize has occurred.
         //:
         //: 3 To address C-4.1, C-4.2, and C-4.3, construct a similar test,
@@ -4157,12 +4165,12 @@ int main(int argc, char *argv[])
         //:
         //:   The first test acts as a "control" in that 'removeAll' is not
         //:   called; if only the second test produces an error, we know that
-        //:   'removeAll' is to blame.  We will rely on 'bslma_TestAllocator'
+        //:   'removeAll' is to blame.  We will rely on 'bslma::TestAllocator'
         //:   and purify to address concern 2, and on the object invariant
         //:   assertions in the destructor to address C-3.4 and C-4.4.
         //
         // Testing:
-        //   baesu_StackTrace(bslma_Allocator *bA = 0);
+        //   baesu_StackTrace(bslma::Allocator *bA = 0);
         //   void append(int item); // bootstrap:  no aliasing
         //   void removeAll();
         // --------------------------------------------------------------------
@@ -4173,7 +4181,7 @@ int main(int argc, char *argv[])
 
 
 
-        bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+        bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
         if (verbose) cout << "\nTesting default ctor (thoroughly)." << endl;
 
@@ -4211,7 +4219,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             if (veryVerbose) { cout << "\t\t"; P(X); }
             ASSERT(0 == X.length());
         }
@@ -4238,7 +4246,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
             char memory[1024];
-            bslma_BufferAllocator a(memory, sizeof memory);
+            bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             void *doNotDelete = new(a.allocate(sizeof(Obj))) Obj(&a);
             ASSERT(doNotDelete);
 
@@ -4527,7 +4535,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bslma_TestAllocator testAllocator(veryVeryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
         Frame A;
         A.setAddress((void *) 0x12ab);

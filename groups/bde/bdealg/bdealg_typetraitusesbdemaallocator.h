@@ -20,12 +20,12 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION:  This component provides a single traits class,
 // 'bdealg_TypeTraitUsesBdemaAllocator'.  A type 'T' with this trait uses an
-// allocator derived from 'bdema_Allocator' to allocate memory.  Such a type
+// allocator derived from 'bslma::Allocator' to allocate memory.  Such a type
 // *must* have a "copy" constructor with prototype 'T(const T&,
-// bdema_Allocator*)'.  It usually also has a "default" constructor with
-// prototype 'T(bdema_Allocator*)', and it may also have additional
+// bslma::Allocator*)'.  It usually also has a "default" constructor with
+// prototype 'T(bslma::Allocator*)', and it may also have additional
 // constructors with various numbers of arguments, that take an optional
-// 'bdema_Allocator*' last argument.
+// 'bslma::Allocator*' last argument.
 //
 // This component is used by virtually all 'bdealg' components for providing
 // primitives that ensure that a 'bdema' allocator is always passed through
@@ -49,6 +49,13 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+
+                 //==========================================
+                 // struct bdealg_TypeTraitUsesBdemaAllocator
+                 //==========================================
+
+typedef bslalg::TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;
+    // This alias is defined for backward compatibility.
 
 }  // close namespace BloombergLP
 

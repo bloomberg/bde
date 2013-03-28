@@ -219,7 +219,7 @@ class RequestAssembler : public baenet_HttpEntityProcessor {
     bcema_Blob               *d_body_p;
     bool                     *d_isCompleteFlag_p;
     bsl::ostream             *d_diagnostics_p;
-    bslma_Allocator          *d_allocator_p;
+    bslma::Allocator         *d_allocator_p;
 
   public:
     // CREATORS
@@ -228,13 +228,13 @@ class RequestAssembler : public baenet_HttpEntityProcessor {
                               baenet_HttpRequestHeader *header,
                               bcema_Blob               *body,
                               bool                     *isCompleteFlag,
-                              bslma_Allocator          *basicAllocator = 0)
+                              bslma::Allocator         *basicAllocator = 0)
     : d_requestLine_p(requestLine)
     , d_header_p(header)
     , d_body_p(body)
     , d_isCompleteFlag_p(isCompleteFlag)
     , d_diagnostics_p(diagnostics)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         *d_isCompleteFlag_p = false;
     }
@@ -293,7 +293,7 @@ class ResponseAssembler : public baenet_HttpEntityProcessor {
     bcema_Blob                *d_body_p;
     bool                      *d_isCompleteFlag_p;
     bsl::ostream              *d_diagnostics_p;
-    bslma_Allocator           *d_allocator_p;
+    bslma::Allocator          *d_allocator_p;
 
   public:
     // CREATORS
@@ -302,13 +302,13 @@ class ResponseAssembler : public baenet_HttpEntityProcessor {
                                baenet_HttpResponseHeader *header,
                                bcema_Blob                *body,
                                bool                      *isCompleteFlag,
-                               bslma_Allocator           *basicAllocator = 0)
+                               bslma::Allocator          *basicAllocator = 0)
     : d_statusLine_p(requestLine)
     , d_header_p(header)
     , d_body_p(body)
     , d_isCompleteFlag_p(isCompleteFlag)
     , d_diagnostics_p(diagnostics)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         *d_isCompleteFlag_p = false;
     }

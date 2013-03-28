@@ -66,7 +66,7 @@ BDES_IDENT("$Id: $")
 //        NUM_ITERATIONS = 1000,   // number of iterations
 //        NUM_THREADS    = 4       // number of threads
 //    };
-//    bslma_Allocator *basicAllocator = bslma_Default::defaultAllocator();
+//    bslma::Allocator *basicAllocator = bslma::Default::defaultAllocator();
 //..
 // First we create a record buffer.
 //..
@@ -149,17 +149,20 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -205,7 +208,8 @@ class bael_FixedSizeRecordBuffer: public bael_RecordBuffer {
 
   public:
     // CREATORS
-    bael_FixedSizeRecordBuffer(int maxTotalSize, bslma_Allocator *allocator=0);
+    bael_FixedSizeRecordBuffer(int               maxTotalSize,
+                               bslma::Allocator *allocator = 0);
         // Create a limited record buffer such that at any time the sum of
         // sizes of all records contained *plus* the amount of memory
         // allocated by this object is guaranteed to be less than or equal
@@ -289,8 +293,8 @@ class bael_FixedSizeRecordBuffer: public bael_RecordBuffer {
 // CREATORS
 inline
 bael_FixedSizeRecordBuffer::bael_FixedSizeRecordBuffer(
-                                                 int              maxTotalSize,
-                                                 bslma_Allocator *allocator)
+                                                int               maxTotalSize,
+                                                bslma::Allocator *allocator)
 : d_maxTotalSize(maxTotalSize)
 , d_currentTotalSize(0)
 , d_allocator(allocator)

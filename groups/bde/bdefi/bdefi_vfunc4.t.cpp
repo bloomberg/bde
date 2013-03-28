@@ -26,7 +26,7 @@ using namespace bsl;  // automatically added by script
 // allocator, specified at construction is invoked at deallocation.
 //
 // We use the following abbreviations:
-//  'bA'   for 'bslma_Allocator'
+//  'bA'   for 'bslma::Allocator'
 //  'A1-N'    for 'A1, A2, ... , AN'
 //  'D1-N'    for 'D1, D2, ... , DN'
 //  'c_A1'    for 'const A1'
@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {

@@ -83,7 +83,7 @@ using namespace bsl;  // automatically added by script
 //   'bdem_listimp' component.  The default constructor, therefore will be
 //   sufficient for our purposes here.
 //
-//    o bdem_List(bslma_Allocator *basicAllocator = 0);
+//    o bdem_List(bslma::Allocator *basicAllocator = 0);
 //
 // Primary Manipulators:
 //   We would normally need to bring this object to any achievable white-box
@@ -181,7 +181,7 @@ using namespace bsl;  // automatically added by script
 // [  ] int maxSupportedBdexVersion();
 //
 // CREATORS
-// [ 3] bdem_List(bslma_Allocator *basicAllocator = 0);
+// [ 3] bdem_List(bslma::Allocator *basicAllocator = 0);
 // [11] bdem_List(bdem_AggregateOption::AllocationStrategy am, ba);
 // [11] bdem_List(am, const InitialMemory& im, ba);
 // [11] bdem_List(const bdem_ElemType::Type elemType[], int ne, ba);
@@ -758,9 +758,9 @@ const int                A02 = 10;
 const int                B02 = 20;
 const int                N02 = bdetu_Unset<int>::unsetValue();
 
-const bsls_Types::Int64  A03 = -100;
-const bsls_Types::Int64  B03 = -200;
-const bsls_Types::Int64  N03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
+const bsls::Types::Int64 A03 = -100;
+const bsls::Types::Int64 B03 = -200;
+const bsls::Types::Int64 N03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
 const float              A04 = -1.5;
 const float              B04 = -2.5;
@@ -832,15 +832,15 @@ const  bsl::vector<int>                          A12 = fA12();
 const  bsl::vector<int>                          B12 = fB12();
 const  bsl::vector<int>                          N12;
 
-static bsl::vector<bsls_Types::Int64>    fA13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>    fA13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(A03); return t; }
-static bsl::vector<bsls_Types::Int64>    fB13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>    fB13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(B03); return t; }
-const  bsl::vector<bsls_Types::Int64>     A13 = fA13();
-const  bsl::vector<bsls_Types::Int64>     B13 = fB13();
-const  bsl::vector<bsls_Types::Int64>     N13;
+const  bsl::vector<bsls::Types::Int64>     A13 = fA13();
+const  bsl::vector<bsls::Types::Int64>     B13 = fB13();
+const  bsl::vector<bsls::Types::Int64>     N13;
 
 static bsl::vector<float>                       fA14() {
        bsl::vector<float> t;         t.push_back(A04); return t; }
@@ -1528,8 +1528,9 @@ bool isUnset(const bdem_ConstElemRef& ref)
         // INSTALLING A TEST ALLOCATOR AS THE DEFAULT FOR ALL TEST CASES.
         // **************************************************************
 
-    bslma_TestAllocator defaultAllocator;
-    const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator;
+    const bslma::DefaultAllocatorGuard defaultAllocatorGuard(
+                                                            &defaultAllocator);
 
 //=============================================================================
 //                              TEST CASES
@@ -1943,9 +1944,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
  // v-------------------^
     if (DI == DD.length() && NE == SS.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_Row& srcElements);" << endl;
@@ -1968,9 +1969,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == DD.length() && NE == SS.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& srcElements);" << endl;
@@ -1993,9 +1994,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == DD.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
            "\t\tappendElements(const bdem_Row& se, int si, int ne);" << endl;
@@ -2018,9 +2019,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == DD.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& se, int si, int ne);" << endl;
@@ -2043,9 +2044,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1 == NE)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
            "\t\tinsertElement(int di, const bdem_ConstElemRef& srcElement);"
@@ -2074,9 +2075,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (NE == SS.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_Row& srcElements);"
@@ -2099,9 +2100,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (NE == SS.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_List& srcElements);"
@@ -2124,9 +2125,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_Row&  sr, int si, int ne);"
@@ -2149,9 +2150,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_List& sl, int si, int ne);"
@@ -2174,9 +2175,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1 == NE)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout << "\t\tremoveElement(int index);" << endl;
 
@@ -2194,9 +2195,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tremoveElements(int startIndex, int numElements);" << endl;
@@ -2380,9 +2381,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
  // v-------------------^
     if (DI == XX.length() && NE == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_Row& srcElements);" << endl;
@@ -2400,9 +2401,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == XX.length() && NE == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& srcElements);" << endl;
@@ -2420,9 +2421,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
            "\t\tappendElements(const bdem_Row& se, int si, int ne);" << endl;
@@ -2440,9 +2441,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& se, int si, int ne);" << endl;
@@ -2460,9 +2461,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1 == NE)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
            "\t\tinsertElement(int di, const bdem_ConstElemRef& srcElement);"
@@ -2480,9 +2481,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (NE == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_Row& srcElements);"
@@ -2500,9 +2501,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (NE == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_List& srcElements);"
@@ -2520,9 +2521,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_Row&  sr, int si, int ne);"
@@ -2540,9 +2541,9 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocator ta;
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator& testAllocator = ta;
 
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_List& sl, int si, int ne);"
@@ -2582,16 +2583,16 @@ static void testCase23(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //
         // Testing:
         //   bdema allocator model
-        //   correct declaration of bslalg_TypeTraitUsesBslmaAllocator
+        //   correct declaration of bslalg::TypeTraitUsesBslmaAllocator
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting allocator traits"
                           << "\n========================" << endl;
 
         typedef bdem_List Obj;
 
-        ASSERT((0 == bslmf_IsConvertible<bslma_Allocator*, Obj>::VALUE));
+        ASSERT((0 == bslmf::IsConvertible<bslma::Allocator*, Obj>::VALUE));
         ASSERT((1 ==
-             bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+           bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 }
 
 static void testCase22(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
@@ -2612,7 +2613,7 @@ static void testCase22(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nUsing 'BDEM_WRITE_ONCE'" << endl;
         {
-            bslma_TestAllocator allocator;
+            bslma::TestAllocator allocator;
             bdem_List mX(bdem_AggregateOption::BDEM_WRITE_ONCE, &allocator);
 
             const int beforeSize = allocator.numBytesInUse();
@@ -2625,7 +2626,7 @@ static void testCase22(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nUsing 'BDEM_WRITE_MANY'" << endl;
         {
-            bslma_TestAllocator allocator;
+            bslma::TestAllocator allocator;
             bdem_List mX(bdem_AggregateOption::BDEM_WRITE_MANY, &allocator);
 
             const int beforeSize = allocator.numBytesInUse();
@@ -2659,7 +2660,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 bdem_List mX(bdem_AggregateOption::BDEM_WRITE_ONCE,
                              bdem_List::InitialMemory(SIZE),
@@ -2670,7 +2671,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 bdem_List mX(bdem_AggregateOption::BDEM_WRITE_MANY,
                              bdem_List::InitialMemory(SIZE),
@@ -2687,7 +2688,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             {
                 const bdem_ElemType::Type CHAR = bdem_ElemType::BDEM_CHAR;
 
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 bdem_List mX(&CHAR,
                              1,
@@ -2702,7 +2703,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             {
                 const bdem_ElemType::Type CHAR = bdem_ElemType::BDEM_CHAR;
 
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 bdem_List mX(&CHAR,
                              1,
@@ -2723,7 +2724,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                                                      1,
                                                      bdem_ElemType::BDEM_CHAR);
 
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 bdem_List mX(CHAR_VECTOR,
                              bdem_AggregateOption::BDEM_WRITE_ONCE,
@@ -2739,7 +2740,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                                                      1,
                                                      bdem_ElemType::BDEM_CHAR);
 
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 bdem_List mX(CHAR_VECTOR,
                              bdem_AggregateOption::BDEM_WRITE_MANY,
@@ -2755,7 +2756,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_List list;
 
                 bdem_List mX(list.row(),
@@ -2768,7 +2769,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_List list;
 
                 bdem_List mX(list.row(),
@@ -2785,7 +2786,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_List original;
 
                 bdem_List mX(original,
@@ -2798,7 +2799,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'." << endl;
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_List original;
 
                 bdem_List mX(original,
@@ -2877,7 +2878,7 @@ static void testCase20(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             if (verbose) cout << "\nCompacting alternating char-double lists"
                               << endl;
 
-            bslma_TestAllocator ta1, ta2, ta2b;
+            bslma::TestAllocator ta1, ta2, ta2b;
             bdem_List mL1(&ta1), mL2(&ta2);
             const bdem_List& L1 = mL1;
             const bdem_List& L2 = mL2;
@@ -2924,7 +2925,7 @@ static void testCase20(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         {
             if (verbose) cout << "\nCompacting list after deletes" << endl;
 
-            bslma_TestAllocator ta1, ta2, ta2b;
+            bslma::TestAllocator ta1, ta2, ta2b;
             bdem_List mL1(&ta1), mL2(&ta2);
             const bdem_List& L1 = mL1;
             const bdem_List& L2 = mL2;
@@ -3051,8 +3052,8 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                              T_ T_ T_ P_(ai) P(MODE)
                         }
 
-                        bslma_TestAllocator da;         // default allocation
-                        const bslma_DefaultAllocatorGuard DAG(&da);
+                        bslma::TestAllocator da;         // default allocation
+                        const bslma::DefaultAllocatorGuard DAG(&da);
 
                         bdem_List mZ(X, MODE); bdem_List& Z = mZ;
 
@@ -3100,8 +3101,8 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                              T_ T_ T_ P_(ai) P(MODE)
                         }
 
-                        bslma_TestAllocator da;         // default allocation
-                        const bslma_DefaultAllocatorGuard DAG(&da);
+                        bslma::TestAllocator da;         // default allocation
+                        const bslma::DefaultAllocatorGuard DAG(&da);
 
                         bdem_List mZ(X, MODE); bdem_List& Z = mZ;
 
@@ -3125,10 +3126,10 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nReverse list of all 32 element types." << endl;
         {
-            bslma_TestAllocator da;             // default allocation
-            const bslma_DefaultAllocatorGuard DAG(&da);
+            bslma::TestAllocator da;             // default allocation
+            const bslma::DefaultAllocatorGuard DAG(&da);
 
-            bslma_TestAllocator a;              // explicit allocation
+            bslma::TestAllocator a;              // explicit allocation
 
             bdem_List mX(A, &a); const bdem_List& X = mX;
             const int USAGE = a.numBlocksTotal();
@@ -3795,10 +3796,10 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nTesting 'replaceElement'." << endl;
         {
-            bslma_TestAllocator da(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
 
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdem_List mX(A, &ta); bdem_List& X = mX;
 
             for (int i = 0; i < N_ELEM; ++i) {     // for each initial element
@@ -3831,7 +3832,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nTesting 'replaceElement' (nulls)." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdem_List mX(A, &ta); bdem_List& X = mX;
             for (int i = 0; i < N_ELEM; ++i) {     // for each initial element
                 for (int j = 0; j < N_ELEM; ++j) { // for every kind of element
@@ -3866,7 +3867,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tShallow alias test." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdem_List mX(A, &ta); bdem_List& X = mX;
             for (int i = 0; i < N_ELEM; ++i) {        // for each element
                 mX.replaceElement(i, X[i]);       // Change i'th entry.
@@ -3879,7 +3880,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tShallow alias test (null)." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdem_List mX(N, &ta); bdem_List& X = mX;
             for (int i = 0; i < N_ELEM; ++i) {    // for each element
                 mX.replaceElement(i, X[i]);       // Change i'th entry.
@@ -3892,7 +3893,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nTesting 'resetElement'." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdem_List mX(A, &ta); bdem_List& X = mX;
 
             for (int i = 0; i < N_ELEM; ++i) {     // for each initial element
@@ -3925,7 +3926,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nTesting 'resetElement' (null)." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdem_List mX(N, &ta); bdem_List& X = mX;
 
             for (int i = 0; i < N_ELEM; ++i) {     // for each initial element
@@ -4017,10 +4018,10 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                              T_ T_ T_ P_(ai) P(MODE)
                         }
 
-                        bslma_TestAllocator da;
-                         const bslma_DefaultAllocatorGuard dag(&da);
+                        bslma::TestAllocator da;
+                         const bslma::DefaultAllocatorGuard dag(&da);
 
-                        bslma_TestAllocator ta;
+                        bslma::TestAllocator ta;
                         bdem_List mX(INITIAL_VALUE, MODE, &ta);
                         bdem_List mY(INITIAL_VALUE, MODE, &ta);
                         const bdem_List& X = mX; const bdem_List& Y = mY;
@@ -4097,7 +4098,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                   << "APPENDING/INSERTING/REMOVING LIST/ROW ELEMENTS" << endl
                   << "==============================================" << endl;
 
-        bslma_TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         if (verbose) cout << "\nCreate a general reference list." << endl;
 
@@ -4473,7 +4474,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
  // v-------------------^
     if (DI == DD.length() && NE == SS.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_Row& srcElements);" << endl;
@@ -4494,7 +4495,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == DD.length() && NE == SS.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& srcElements);" << endl;
@@ -4515,7 +4516,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == DD.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
            "\t\tappendElements(const bdem_Row& se, int si, int ne);" << endl;
@@ -4536,7 +4537,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == DD.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& se, int si, int ne);" << endl;
@@ -4557,7 +4558,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1 == NE)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
            "\t\tinsertElement(int di, const bdem_ConstElemRef& srcElement);"
@@ -4584,7 +4585,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (NE == SS.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_Row& srcElements);"
@@ -4605,7 +4606,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (NE == SS.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_List& srcElements);"
@@ -4626,7 +4627,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_Row&  sr, int si, int ne);"
@@ -4647,7 +4648,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_List& sl, int si, int ne);"
@@ -4668,7 +4669,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1 == NE)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout << "\t\tremoveElement(int index);" << endl;
 
@@ -4684,7 +4685,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tremoveElements(int startIndex, int numElements);" << endl;
@@ -5090,7 +5091,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
  // v-------------------^
     if (DI == XX.length() && NE == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_Row& srcElements);" << endl;
@@ -5106,7 +5107,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == XX.length() && NE == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& srcElements);" << endl;
@@ -5122,7 +5123,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
            "\t\tappendElements(const bdem_Row& se, int si, int ne);" << endl;
@@ -5138,7 +5139,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (DI == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& se, int si, int ne);" << endl;
@@ -5154,7 +5155,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1 == NE)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
            "\t\tinsertElement(int di, const bdem_ConstElemRef& srcElement);"
@@ -5170,7 +5171,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (NE == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_Row& srcElements);"
@@ -5186,7 +5187,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (NE == XX.length())
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_List& srcElements);"
@@ -5202,7 +5203,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_Row&  sr, int si, int ne);"
@@ -5218,7 +5219,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
     if (1)
     {
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator da; const bslma::DefaultAllocatorGuard dag(&da);
 
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_List& sl, int si, int ne);"
@@ -5244,7 +5245,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             ASSERT(96 == L.length());
             {
                 if (verbose) cout << "\tBDEM_PASS_THROUGH" << endl;
-                bslma_TestAllocator da; bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da; bslma::DefaultAllocatorGuard dag(&da);
                 bdem_List mX(L, bdem_AggregateOption::BDEM_PASS_THROUGH);
                 ASSERT(96 == mX.length());
                 mX.removeAll();
@@ -5252,7 +5253,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             }
             {
                 if (verbose) cout << "\tBDEM_WRITE_ONCE" << endl;
-                bslma_TestAllocator da; bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da; bslma::DefaultAllocatorGuard dag(&da);
                 bdem_List mX(L, bdem_AggregateOption::BDEM_WRITE_ONCE);
                 ASSERT(96 == mX.length());
                 mX.removeAll();
@@ -5260,7 +5261,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             }
             {
                 if (verbose) cout << "\tBDEM_WRITE_MANY" << endl;
-                bslma_TestAllocator da; bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da; bslma::DefaultAllocatorGuard dag(&da);
                 bdem_List mX(L, bdem_AggregateOption::BDEM_WRITE_MANY);
                 ASSERT(96 == mX.length());
                 mX.removeAll();
@@ -6817,17 +6818,17 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // NON-PRIMARY CONSTRUCTORS AND DESTRUCTOR.
         //
         // Concerns:
-        //   - That the specified or bslma_Default::defaultAllocator is used.
+        //   - That the specified or bslma::Default::defaultAllocator is used.
         //   - That the specified or default (BDEM_PASS_THROUGH) strategy is
         //      used.
         //   - That the value is initialized properly.
         //   - That the destructor cleans up properly.
         //
         // Plan:
-        //   - Use 'bslma_TestAllocator' to verify that specified allocator
+        //   - Use 'bslma::TestAllocator' to verify that specified allocator
         //      is used.
-        //   - Install a 'bslma_TestAllocator' in 'bdema_DefaultAllocator' to
-        //      verify that 'bslma_Default::defaultAllocator()' is used by
+        //   - Install a 'bslma::TestAllocator' in 'bslma::Default' to
+        //      verify that 'bslma::Default::defaultAllocator()' is used by
         //      default.
         //   - For each constructor, create four instances: the three
         //      strategies other than BDEM_SUBORDINATE and one with the
@@ -6882,7 +6883,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tONE: bdem_List(am, ba);" << endl;
         {
-            bslma_TestAllocator a;
+            bslma::TestAllocator a;
             int usage0 = a.numBlocksTotal();
             if (veryVerbose) { T_ T_ P(usage0) }
             ASSERT(0 == usage0);
@@ -6914,7 +6915,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             };
             const int N = sizeof TYPES / sizeof *TYPES;
 
-            bslma_TestAllocator a;
+            bslma::TestAllocator a;
             int usage0 = a.numBlocksTotal();
             if (veryVerbose) { T_ T_ P(usage0) }
             ASSERT(0 == usage0);
@@ -6948,7 +6949,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             };
             const int N = sizeof TYPES / sizeof *TYPES;
 
-            bslma_TestAllocator a;
+            bslma::TestAllocator a;
             int usage0 = a.numBlocksTotal();
             if (veryVerbose) { T_ T_ P(usage0) }
             ASSERT(0 == usage0);
@@ -6985,8 +6986,8 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) cout << "\tFOUR: bdem_List(originalList, am, ba);"
                           << endl;
         {
-            bslma_TestAllocator aA;                // A: original list
-            bslma_TestAllocator aB;                // B: copy constructed list
+            bslma::TestAllocator aA;                // A: original list
+            bslma::TestAllocator aB;                // B: copy constructed list
 
             int usageA0 = aA.numBlocksTotal();
             int usageB0 = aB.numBlocksTotal();
@@ -7026,8 +7027,8 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tFIVE: bdem_List(originalRow, am, ba);" << endl;
         {
-            bslma_TestAllocator aA;                // A: original list
-            bslma_TestAllocator aB;                // B: copy constructed list
+            bslma::TestAllocator aA;                // A: original list
+            bslma::TestAllocator aB;                // B: copy constructed list
 
             int usageA0 = aA.numBlocksTotal();
             int usageB0 = aB.numBlocksTotal();
@@ -7071,7 +7072,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             TYPES.push_back(bdem_ElemType::BDEM_SHORT);
             TYPES.push_back(bdem_ElemType::BDEM_INT);
 
-            bslma_TestAllocator a;
+            bslma::TestAllocator a;
             int usage0 = a.numBlocksTotal();
             if (veryVerbose) { T_ T_ P(usage0) }
             ASSERT(0 == usage0);
@@ -7103,7 +7104,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             TYPES.push_back(bdem_ElemType::BDEM_SHORT);
             TYPES.push_back(bdem_ElemType::BDEM_INT);
 
-            bslma_TestAllocator a;
+            bslma::TestAllocator a;
             int usage0 = a.numBlocksTotal();
             if (veryVerbose) { T_ T_ P(usage0) }
             ASSERT(0 == usage0);
@@ -7137,15 +7138,15 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // ---------------- VERIFY DEFAULT ALLOCATOR IS USED ------------------
 
         if (verbose) cout <<
-             "\nVerify that the 'bslma_Default::defaultAllocator' is used."
+             "\nVerify that the 'bslma::Default::defaultAllocator' is used."
                                                                        << endl;
 
         // - - - - - - - - - - - - - - - ONE - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\tONE: bdem_List(am);" << endl;
         {
-            bslma_TestAllocator a;
-            const bslma_DefaultAllocatorGuard dag(&a);
+            bslma::TestAllocator a;
+            const bslma::DefaultAllocatorGuard dag(&a);
             {
                 int usage0 = a.numBlocksTotal();
                 if (veryVerbose) { T_ T_ P(usage0) }
@@ -7173,8 +7174,8 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tTWO: bdem_List(et, ne);" << endl;
         {
-            bslma_TestAllocator a;
-            const bslma_DefaultAllocatorGuard dag(&a);
+            bslma::TestAllocator a;
+            const bslma::DefaultAllocatorGuard dag(&a);
             {
                 const bdem_ElemType::Type TYPES[] = {
                     bdem_ElemType::BDEM_SHORT,
@@ -7211,8 +7212,8 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tTHREE: bdem_List(et, ne, am);" << endl;
         {
-            bslma_TestAllocator a;
-            const bslma_DefaultAllocatorGuard dag(&a);
+            bslma::TestAllocator a;
+            const bslma::DefaultAllocatorGuard dag(&a);
             {
                 const bdem_ElemType::Type TYPES[] = {
                     bdem_ElemType::BDEM_SHORT,
@@ -7250,10 +7251,10 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tFOUR: bdem_List(originalList, am);" << endl;
         {
-            bslma_TestAllocator aB;                // B: copy constructed list
-            const bslma_DefaultAllocatorGuard dag(&aB);
+            bslma::TestAllocator aB;                // B: copy constructed list
+            const bslma::DefaultAllocatorGuard dag(&aB);
             {
-                bslma_TestAllocator aA;                // A: original list
+                bslma::TestAllocator aA;                // A: original list
                 int usageA0 = aA.numBlocksTotal();
                 int usageB0 = aB.numBlocksTotal();
                 if (veryVerbose) { T_ T_ P_(usageA0) P(usageB0) }
@@ -7295,10 +7296,10 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tFIVE: tbdem_List(originalRow, am);" << endl;
         {
-            bslma_TestAllocator aB;                // B: copy-constructed list
-            const bslma_DefaultAllocatorGuard dag(&aB);
+            bslma::TestAllocator aB;                // B: copy-constructed list
+            const bslma::DefaultAllocatorGuard dag(&aB);
             {
-                bslma_TestAllocator aA;                // A: original list
+                bslma::TestAllocator aA;                // A: original list
                 int usageA0 = aA.numBlocksTotal();
                 int usageB0 = aB.numBlocksTotal();
                 if (veryVerbose) { T_ T_ P_(usageA0) P(usageB0) }
@@ -7340,12 +7341,12 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tSIX: bdem_List(et);" << endl;
         {
-            bslma_TestAllocator a;
+            bslma::TestAllocator a;
             bsl::vector<bdem_ElemType::Type> TYPES;
             TYPES.push_back(bdem_ElemType::BDEM_SHORT);
             TYPES.push_back(bdem_ElemType::BDEM_INT);
 
-            const bslma_DefaultAllocatorGuard dag(&a);
+            const bslma::DefaultAllocatorGuard dag(&a);
             {
                 int usage0 = a.numBlocksTotal();
                 if (veryVerbose) { T_ T_ P(usage0) }
@@ -7376,12 +7377,12 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tSEVEN: bdem_List(et, am);" << endl;
         {
-            bslma_TestAllocator a;
+            bslma::TestAllocator a;
             bsl::vector<bdem_ElemType::Type> TYPES;
             TYPES.push_back(bdem_ElemType::BDEM_SHORT);
             TYPES.push_back(bdem_ElemType::BDEM_INT);
 
-            const bslma_DefaultAllocatorGuard dag(&a);
+            const bslma::DefaultAllocatorGuard dag(&a);
             {
                 int usage0 = a.numBlocksTotal();
                 if (veryVerbose) { T_ T_ P(usage0) }
@@ -7426,11 +7427,11 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tONE: bdem_List(am, ba);" << endl;
         {
-            bslma_TestAllocator a;
-            bslma_TestAllocator a1;
-            bslma_TestAllocator a2;
-            bslma_TestAllocator a3;
-            bslma_TestAllocator a4;
+            bslma::TestAllocator a;
+            bslma::TestAllocator a1;
+            bslma::TestAllocator a2;
+            bslma::TestAllocator a3;
+            bslma::TestAllocator a4;
             bdema_MultipoolAllocator ma4(20, &a4);  // to handle
                                                     // BDEM_SUBORDINATE
 
@@ -7441,7 +7442,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bdem_List *p = new(ma4) bdem_List(S4, &ma4);
             bdem_List& mL4 = *p;    const bdem_List& L4 = mL4;
             // Note that if BDEM_SUBORDINATE were the default, it would leek
-            // memory, which would be reported by the bslma_TestAllocator a4.
+            // memory, which would be reported by the bslma::TestAllocator a4.
 
             ASSERT(L == L1); ASSERT(L == L2); ASSERT(L == L3); ASSERT(L == L4);
 
@@ -7489,11 +7490,11 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             };
             const int N = sizeof TYPES / sizeof *TYPES;
 
-            bslma_TestAllocator a;
-            bslma_TestAllocator a1;
-            bslma_TestAllocator a2;
-            bslma_TestAllocator a3;
-            bslma_TestAllocator a4;
+            bslma::TestAllocator a;
+            bslma::TestAllocator a1;
+            bslma::TestAllocator a2;
+            bslma::TestAllocator a3;
+            bslma::TestAllocator a4;
             bdema_MultipoolAllocator ma4(20, &a4);  // to handle
                                                     // BDEM_SUBORDINATE
 
@@ -7504,7 +7505,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bdem_List *p = new(ma4) bdem_List(TYPES, N, S4, &ma4);
             bdem_List& mL4 = *p;    const bdem_List& L4 = mL4;
             // Note that if BDEM_SUBORDINATE were the default, it would leek
-            // memory, which would be reported by the bslma_TestAllocator a4.
+            // memory, which would be reported by the bslma::TestAllocator a4.
 
             ASSERT(L == L1); ASSERT(L == L2); ASSERT(L == L3); ASSERT(L == L4);
 
@@ -7551,11 +7552,11 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bdem_List mZ(S2); const bdem_List& Z = mZ;  // non-default mode
             mZ.appendDouble(A05);
 
-            bslma_TestAllocator a;
-            bslma_TestAllocator a1;
-            bslma_TestAllocator a2;
-            bslma_TestAllocator a3;
-            bslma_TestAllocator a4;
+            bslma::TestAllocator a;
+            bslma::TestAllocator a1;
+            bslma::TestAllocator a2;
+            bslma::TestAllocator a3;
+            bslma::TestAllocator a4;
             bdema_MultipoolAllocator ma4(20, &a4);  // to handle
                                                     // BDEM_SUBORDINATE
 
@@ -7566,7 +7567,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bdem_List *p = new(ma4) bdem_List(Z, S4, &ma4);
             bdem_List& mL4 = *p;    const bdem_List& L4 = mL4;
             // Note that if BDEM_SUBORDINATE were the default, it would leek
-            // memory, which would be reported by the bslma_TestAllocator a4.
+            // memory, which would be reported by the bslma::TestAllocator a4.
 
             ASSERT(L == L1); ASSERT(L == L2); ASSERT(L == L3); ASSERT(L == L4);
 
@@ -7613,11 +7614,11 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bdem_List mZ(S3); const bdem_List& Z = mZ; // non-default mode
             mZ.appendDouble(A05);
 
-            bslma_TestAllocator a;
-            bslma_TestAllocator a1;
-            bslma_TestAllocator a2;
-            bslma_TestAllocator a3;
-            bslma_TestAllocator a4;
+            bslma::TestAllocator a;
+            bslma::TestAllocator a1;
+            bslma::TestAllocator a2;
+            bslma::TestAllocator a3;
+            bslma::TestAllocator a4;
             bdema_MultipoolAllocator ma4(20, &a4);  // to handle
                                                     // BDEM_SUBORDINATE
 
@@ -7628,7 +7629,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bdem_List *p = new(ma4) bdem_List(Z.row(), S4, &ma4);
             bdem_List& mL4 = *p;    const bdem_List& L4 = mL4;
             // Note that if BDEM_SUBORDINATE were the default, it would leek
-            // memory, which would be reported by the bslma_TestAllocator a4.
+            // memory, which would be reported by the bslma::TestAllocator a4.
 
             ASSERT(L == L1); ASSERT(L == L2); ASSERT(L == L3); ASSERT(L == L4);
 
@@ -7675,11 +7676,11 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bsl::vector<bdem_ElemType::Type> TYPES;
             TYPES.push_back(bdem_ElemType::BDEM_INT);
 
-            bslma_TestAllocator a;
-            bslma_TestAllocator a1;
-            bslma_TestAllocator a2;
-            bslma_TestAllocator a3;
-            bslma_TestAllocator a4;
+            bslma::TestAllocator a;
+            bslma::TestAllocator a1;
+            bslma::TestAllocator a2;
+            bslma::TestAllocator a3;
+            bslma::TestAllocator a4;
             bdema_MultipoolAllocator ma4(20, &a4);  // to handle
                                                     // BDEM_SUBORDINATE
 
@@ -7690,7 +7691,7 @@ static void testCase11(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bdem_List *p = new(ma4) bdem_List(TYPES, S4, &ma4);
             bdem_List& mL4 = *p;    const bdem_List& L4 = mL4;
             // Note that if BDEM_SUBORDINATE were the default, it would leek
-            // memory, which would be reported by the bslma_TestAllocator a4.
+            // memory, which would be reported by the bslma::TestAllocator a4.
 
             ASSERT(L == L1); ASSERT(L == L2); ASSERT(L == L3); ASSERT(L == L4);
 
@@ -7909,7 +7910,7 @@ static void testCase9(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //  and a specific strategy, ensure that the assigned instance has the
         //  same value as the source, and that neither its allocator nor its
         //  strategy is modified.  The general approach is to use the
-        //  'bslma_TestAllocator' to verify that subsequent allocations from
+        //  'bslma::TestAllocator' to verify that subsequent allocations from
         //  assigned object are (1) from its original allocator and (2) that
         //  the allocation pattern exactly matches a similar list explicitly
         //  constructed with that strategy.  Verify the value aspects on
@@ -7937,8 +7938,8 @@ static void testCase9(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nVerify Allocators aren't modified." << endl;
         {
-            bslma_TestAllocator a1;
-            bslma_TestAllocator a2;
+            bslma::TestAllocator a1;
+            bslma::TestAllocator a2;
             bdem_List list1(&a1);
             bdem_List list2(&a2);
 
@@ -7965,10 +7966,10 @@ static void testCase9(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\tCreate 4 test allocators." << endl;
 
-            bslma_TestAllocator a1;
-            bslma_TestAllocator a2;
-            bslma_TestAllocator aX;
-            bslma_TestAllocator aY;
+            bslma::TestAllocator a1;
+            bslma::TestAllocator a2;
+            bslma::TestAllocator aX;
+            bslma::TestAllocator aY;
 
             int usage1 = a1.numBytesTotal();
             int usage2 = a2.numBytesTotal();
@@ -8485,16 +8486,16 @@ static void testCase7(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) cout << "\nVerify Allocators aren't copied." << endl;
         {
             if (verbose) cout << "\tFirst create initial objects." << endl;
-            bslma_TestAllocator da;  // Must be created first!
+            bslma::TestAllocator da;  // Must be created first!
 
-            bslma_TestAllocator ta0;  // used with initial list L
-            bslma_TestAllocator ta1;  // used to copy construct list1a
-            bslma_TestAllocator ta2;  // used to copy construct list2a
+            bslma::TestAllocator ta0;  // used with initial list L
+            bslma::TestAllocator ta1;  // used to copy construct list1a
+            bslma::TestAllocator ta2;  // used to copy construct list2a
 
             if (verbose) cout <<
                 "\tCreate/install a test allocator as the default." << endl;
 
-            const bslma_DefaultAllocatorGuard dag(&da);
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             if (verbose) cout << "\tConstruct an initial list L." << endl;
 
@@ -8644,19 +8645,20 @@ static void testCase7(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) cout << "\nVerify Strategies aren't copied." << endl;
         {
             if (verbose) cout << "\tFirst create allocators." << endl;
-            bslma_TestAllocator da;  // will be default - must be created first
+            bslma::TestAllocator da;   // will be default - must be created
+                                       // first
 
-            bslma_TestAllocator taA;  // A: BDEM_PASS_THROUGH
-            bslma_TestAllocator taB;  // B: BDEM_WRITE_ONCE
-            bslma_TestAllocator taC;  // C: BDEM_WRITE_MANY
-            bslma_TestAllocator taX;  // D: UNSPECIFIED
+            bslma::TestAllocator taA;  // A: BDEM_PASS_THROUGH
+            bslma::TestAllocator taB;  // B: BDEM_WRITE_ONCE
+            bslma::TestAllocator taC;  // C: BDEM_WRITE_MANY
+            bslma::TestAllocator taX;  // D: UNSPECIFIED
 
-            bslma_TestAllocator ta;   // Used to create original lists.
+            bslma::TestAllocator ta;   // Used to create original lists.
 
             if (verbose) cout <<
               "\tNow create/install a test allocator as the default." << endl;
 
-            const bslma_DefaultAllocatorGuard dag(&da);
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             if (verbose) cout <<
                 "\tNext initial lists with explicit strategies." << endl;
@@ -9137,10 +9139,10 @@ static void testCase6(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "Append extra element to make !=." << endl;
         {
-             bslma_TestAllocator a1;
-             bslma_TestAllocator a2;
-             bslma_TestAllocator a3;
-             bslma_TestAllocator a4;
+             bslma::TestAllocator a1;
+             bslma::TestAllocator a2;
+             bslma::TestAllocator a3;
+             bslma::TestAllocator a4;
              bdema_MultipoolAllocator ma4(20, &a4); // to handle
                                                     // BDEM_SUBORDINATE
 
@@ -9565,8 +9567,8 @@ static void testCase5(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 // from interfering with the memory allocation count.
                 char buffer[SIZE];  ostrstream out(buffer, SIZE);
 
-                bslma_TestAllocator da; // default allocator
-                const bslma_DefaultAllocatorGuard DAG(&da);
+                bslma::TestAllocator da; // default allocator
+                const bslma::DefaultAllocatorGuard DAG(&da);
 
                 LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
@@ -9578,9 +9580,9 @@ static void testCase5(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 // Note that in this test block, we create the ostream before
                 // swapping in our own test allocator.
 
-                bslma_TestAllocator da; // default allocator
-                const bslma_DefaultAllocatorGuard DAG(&da);
-                bslma_TestAllocator a;  // specified allocator
+                bslma::TestAllocator da; // default allocator
+                const bslma::DefaultAllocatorGuard DAG(&da);
+                bslma::TestAllocator a;  // specified allocator
 
                 LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
                 LOOP_ASSERT(a.numBlocksTotal(), 0 == a.numBlocksTotal());
@@ -9628,9 +9630,9 @@ static void testCase5(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 // Note that in this test block, we again create the ostream
                 // before swapping in our own test allocator.
 
-                bslma_TestAllocator da; // default allocator
-                const bslma_DefaultAllocatorGuard DAG(&da);
-                bslma_TestAllocator a;  // specified allocator
+                bslma::TestAllocator da; // default allocator
+                const bslma::DefaultAllocatorGuard DAG(&da);
+                bslma::TestAllocator a;  // specified allocator
 
                 LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
                 LOOP_ASSERT(a.numBlocksTotal(), 0 == a.numBlocksTotal());
@@ -9682,9 +9684,9 @@ static void testCase5(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 // Note that in this test block, we yet again create the
                 // ostream before swapping in our own test allocator.
 
-                bslma_TestAllocator da; // default allocator
-                const bslma_DefaultAllocatorGuard DAG(&da);
-                bslma_TestAllocator a;  // specified allocator
+                bslma::TestAllocator da; // default allocator
+                const bslma::DefaultAllocatorGuard DAG(&da);
+                bslma::TestAllocator a;  // specified allocator
 
                 LOOP2_ASSERT(i, da.numBlocksTotal(), 0 == da.numBlocksTotal());
                 LOOP2_ASSERT(i, a.numBlocksTotal(), 0 == a.numBlocksTotal());
@@ -9986,7 +9988,7 @@ static void testCase4(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         }
         {
             if (verbose) cout << "\tSTRING" << endl;
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             bdem_List mL(&ta); const bdem_List& L = mL;
             mL.appendString(A06); ASSERT(1 == L.length());
             L.elemTypes(&elemTypesVec);
@@ -10211,7 +10213,7 @@ static void testCase4(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         }
         {
             if (verbose) cout << "\tSTRING_ARRAY" << endl;
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             bdem_List mL(&ta); const bdem_List& L = mL;
             mL.appendStringArray(A16); ASSERT(1 == L.length());
             L.elemTypes(&elemTypesVec);
@@ -10324,7 +10326,7 @@ static void testCase4(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         }
         {
             if (verbose) cout << "\tLIST" << endl;
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             bdem_List mL(&ta); const bdem_List& L = mL;
             mL.appendList(A20); ASSERT(1 == L.length());
             L.elemTypes(&elemTypesVec);
@@ -10341,7 +10343,7 @@ static void testCase4(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         }
         {
             if (verbose) cout << "\tTABLE" << endl;
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             bdem_List mL(&ta); const bdem_List& L = mL;
             mL.appendTable(A21); ASSERT(1 == L.length());
             L.elemTypes(&elemTypesVec);
@@ -10359,7 +10361,7 @@ static void testCase4(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         {
             if (verbose) cout << "\tCHOICE" << endl;
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             bdem_List mL(&ta); const bdem_List& L = mL;
             mL.appendChoice(A30); ASSERT(1 == L.length());
             L.elemTypes(&elemTypesVec);
@@ -10376,7 +10378,7 @@ static void testCase4(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         }
         {
             if (verbose) cout << "\tCHOICE_ARRAY" << endl;
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             bdem_List mL(&ta); const bdem_List& L = mL;
             mL.appendChoiceArray(A31); ASSERT(1 == L.length());
             L.elemTypes(&elemTypesVec);
@@ -10394,7 +10396,7 @@ static void testCase4(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nForward List with all element types." << endl;
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             bdem_List mL(&ta); const bdem_List& L = mL;
                                                     ASSERT( 0 == L.length());
             loadReferenceA(&mL);                    ASSERT(32 == L.length());
@@ -10628,7 +10630,7 @@ static void testCase4(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\nBackward List with all element types." << endl;
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             bdem_List mL(&ta); const bdem_List& L = mL;
                                                     ASSERT( 0 == L.length());
 
@@ -10907,14 +10909,15 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //   Ensure that this constructor is "wired-up" and defaults properly.
         //
         // Concerns:
-        //   - That the default allocator comes from 'bslma_Default::allocator'
+        //   - That the default allocator comes from
+        //     'bslma::Default::allocator'.
         //   - That changing the default allocator after construction has
         //      no effect on an existing 'bdem_List' object.
         //   - That the primary constructor defaults to BDEM_PASS_THROUGH mode.
         //
         // Plan:
         //   - To ensure that the basic constructor takes its allocator by
-        //      default from 'bslma_Default::allocator', install a separate
+        //      default from 'bslma::Default::allocator', install a separate
         //      instance of 'bdem_TestAllocator' as the default allocator and
         //      use its instance-specific statistics to verify that it is in
         //      fact the source of default allocations and deallocations.
@@ -10933,7 +10936,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //   - Brute-Force Implementation Technique
         //
         // Testing:
-        //   bdem_List(bslma_Allocator *basicAllocator = 0);
+        //   bdem_List(bslma::Allocator *basicAllocator = 0);
         //
         // --------------------------------------------------------------------
 
@@ -10945,34 +10948,34 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             "\nEnsure bdem_Default::allocator() is used by default." << endl;
         {
 
-            bslma_TestAllocator da; // This allocator must be installed as the
+            bslma::TestAllocator da; // This allocator must be installed as the
                                     // default in order to pass this test.
 
             if (verbose) cout <<
                        "\tInstall test allocator 'da' as the default." << endl;
 
             {
-                const bslma_DefaultAllocatorGuard dag(&da);
+                const bslma::DefaultAllocatorGuard dag(&da);
 
                 ASSERT(0 == da.numBlocksTotal());
                 bdem_List x;
                 const int NBT = da.numBlocksTotal();
                 ASSERT(NBT > 0);
 
-                bslma_TestAllocator ta;
+                bslma::TestAllocator ta;
                 ASSERT(0 == ta.numBlocksTotal());
 
                 bdem_List y(&ta);
                 ASSERT(NBT == da.numBlocksTotal());
                 ASSERT(NBT == ta.numBlocksTotal());
 
-                bslma_TestAllocator oa; // Installing this other allocator
+                bslma::TestAllocator oa; // Installing this other allocator
                                         // should have no effect on subsequent
                                         // use of pre-existing list objects.
                 if (verbose) cout <<
                        "\tInstall test allocator 'oa' as the default." << endl;
                 {
-                    const bslma_DefaultAllocatorGuard oag(&oa);
+                    const bslma::DefaultAllocatorGuard oag(&oa);
 
                     ASSERT(0 == oa.numBlocksTotal());
                     bdem_List z;
@@ -11015,7 +11018,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose)
             cout << "\nEnsure default mode is BDEM_PASS_THROUGH." << endl;
 
-        bslma_TestAllocator aX, aA, aB, aC, aD;
+        bslma::TestAllocator aX, aA, aB, aC, aD;
         {
             const int N0X = aX.numBlocksInUse(), M0X = aX.numBytesInUse();
             const int N0A = aA.numBlocksInUse(), M0A = aA.numBytesInUse();
@@ -11154,7 +11157,7 @@ static void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //      'B20', and 'N20').  Note that the general functionality has
         //      not yet been tested.
         //   - That '==' and !=' for the dummy classes work as expected.
-        //   - There was a bug in 'bslma_TestAllocator' on an old Cygwin!
+        //   - There was a bug in 'bslma::TestAllocator' on an old Cygwin!
         //
         // Plan:
         //   - Create all 90 instances at file scope to facilitate reuse.
@@ -11166,8 +11169,8 @@ static void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //   - Take extra measures with list and table, as their operator
         //      equals have not yet been verified.
         // Note: these two items have been removed:
-        //   - Expose the 'bslma_TestAllocator' bug on the old Cygwin!!!
-        //   - *** Duplicate this test in 'bdema_testallocator.t.cpp' *** !!!
+        //   - Expose the 'bslma::TestAllocator' bug on the old Cygwin!!!
+        //   - *** Duplicate this test in 'bslma_testallocator.t.cpp' *** !!!
         //
         // Tactics:
         //   - Ad-Hoc Data Selection Method
@@ -11268,7 +11271,7 @@ static void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(1 == bdetu_Unset<char>::isUnset(N00));
         ASSERT(1 == bdetu_Unset<short>::isUnset(N01));
         ASSERT(1 == bdetu_Unset<int>::isUnset(N02));
-        ASSERT(1 == bdetu_Unset<bsls_Types::Int64>::isUnset(N03));
+        ASSERT(1 == bdetu_Unset<bsls::Types::Int64>::isUnset(N03));
         ASSERT(1 == bdetu_Unset<float>::isUnset(N04));
         ASSERT(1 == bdetu_Unset<double>::isUnset(N05));
         ASSERT(1 == bdetu_Unset<bsl::string>::isUnset(N06));
@@ -11373,8 +11376,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) cout <<
             "\nExercise append, length, elemType, op[], and printing." << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             bdem_List mL; const bdem_List& L = mL;
             if (verbose) { cout << "\tCreate an empty list: "; P(L) }
@@ -11430,8 +11433,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tStrategy: BDEM_PASS_THROUGH" << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             const bdem_AggregateOption::AllocationStrategy S =
                                        bdem_AggregateOption::BDEM_PASS_THROUGH;
@@ -11440,7 +11443,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\t\tCreate local test allocators." << endl;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (veryVerbose) {
                 T_ T_ T_ P_(ta.numBytesInUse()); P(ta.numBlocksInUse());
@@ -11474,8 +11477,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tStrategy: BDEM_WRITE_ONCE" << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             const bdem_AggregateOption::AllocationStrategy S =
                                         bdem_AggregateOption::BDEM_WRITE_ONCE;
@@ -11484,7 +11487,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\t\tCreate local test allocators." << endl;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (veryVerbose) {
                 T_ T_ T_ P_(ta.numBytesInUse()); P(ta.numBlocksInUse());
@@ -11518,8 +11521,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tStrategy: BDEM_WRITE_MANY" << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
             const bdem_AggregateOption::AllocationStrategy S =
                                         bdem_AggregateOption::BDEM_WRITE_ONCE;
 
@@ -11527,7 +11530,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\t\tCreate local test allocators." << endl;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (veryVerbose) {
                 T_ T_ T_ P_(ta.numBytesInUse()); P(ta.numBlocksInUse());
@@ -11566,8 +11569,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tElement Type: INT" << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             const bdem_AggregateOption::AllocationStrategy S =
                                         bdem_AggregateOption::BDEM_WRITE_ONCE;
@@ -11576,7 +11579,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\t\tCreate local test allocators." << endl;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (veryVerbose) {
                 T_ T_ T_ P_(ta.numBytesInUse()); P(ta.numBlocksInUse());
@@ -11610,8 +11613,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tElement Type: STRING" << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             const bdem_AggregateOption::AllocationStrategy S =
                                         bdem_AggregateOption::BDEM_WRITE_ONCE;
@@ -11620,7 +11623,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\t\tCreate local test allocators." << endl;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (veryVerbose) {
                 T_ T_ T_ P_(ta.numBytesInUse()); P(ta.numBlocksInUse());
@@ -11654,8 +11657,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tElement Type: INT_ARRAY" << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             const bdem_AggregateOption::AllocationStrategy S =
                                         bdem_AggregateOption::BDEM_WRITE_ONCE;
@@ -11664,7 +11667,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\t\tCreate local test allocators." << endl;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (veryVerbose) {
                 T_ T_ T_ P_(ta.numBytesInUse()); P(ta.numBlocksInUse());
@@ -11698,8 +11701,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tElement Type: STRING_ARRAY" << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             const bdem_AggregateOption::AllocationStrategy S =
                                         bdem_AggregateOption::BDEM_WRITE_ONCE;
@@ -11708,7 +11711,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\t\tCreate local test allocators." << endl;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (veryVerbose) {
                 T_ T_ T_ P_(ta.numBytesInUse()); P(ta.numBlocksInUse());
@@ -11742,8 +11745,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) cout << "\tElement Type: LIST { INT }" << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             const bdem_AggregateOption::AllocationStrategy S =
                                         bdem_AggregateOption::BDEM_WRITE_ONCE;
@@ -11752,7 +11755,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\t\tCreate local test allocators." << endl;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (veryVerbose) {
                 T_ T_ T_ P_(ta.numBytesInUse()); P(ta.numBlocksInUse());
@@ -11787,8 +11790,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) cout <<
             "\nThe following used to dump core on an old Cygwin." << endl;
         {
-            bslma_TestAllocator da;
-            const bslma_DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator da;
+            const bslma::DefaultAllocatorGuard dag(&da);
 
             const bdem_AggregateOption::AllocationStrategy S =
                 // bdem_AggregateOption::BDEM_PASS_THROUGH; // was no leak with
@@ -11802,8 +11805,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (verbose) cout << "\tCreate local test allocators." << endl;
 
-            bslma_TestAllocator a1;
-            bslma_TestAllocator aX;
+            bslma::TestAllocator a1;
+            bslma::TestAllocator aX;
 
             if (veryVerbose) {
                 T_ T_ P_(a1.numBytesInUse()); P(a1.numBlocksInUse());

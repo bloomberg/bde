@@ -69,8 +69,8 @@ BDES_IDENT("$Id: $")
 //
 // Lastly, the 'bsl::hash' template class is specialized for 'bdeut_StringRef'
 // to enable use of 'bdeut_StringRef' within STL hash containers (e.g.,
-// 'bsl::hash_set<bdeut_StringRef>' and 'bsl::hash_map<bdeut_StringRef, Type>'
-// for some type 'Type').
+// 'bsl::unordered_set<bdeut_StringRef>' and
+// 'bsl::unordered_map<bdeut_StringRef, Type>' for some type 'Type').
 //
 ///Efficiency and Usage Considerations
 ///-----------------------------------
@@ -331,14 +331,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_STRING
 #include <string>                // for 'std::string'
 #define INCLUDED_STRING
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSL_HASH_SET
-#include <bsl_hash_set.h>
-#endif
-
 #endif
 
 namespace BloombergLP {
@@ -1121,8 +1113,8 @@ namespace bsl {
 template <>
 struct hash<BloombergLP::bdeut_StringRef> {
     // This template specialization enables use of 'bdeut_StringRef' within STL
-    // hash containers, for example, 'bsl::hash_set<bdeut_StringRef>' and
-    // 'bsl::hash_map<bdeut_StringRef, Type>' for some type 'Type'.
+    // hash containers, for example, 'bsl::unordered_set<bdeut_StringRef>' and
+    // 'bsl::unordered_map<bdeut_StringRef, Type>' for some type 'Type'.
 
     // ACCESSORS
     bsl::size_t

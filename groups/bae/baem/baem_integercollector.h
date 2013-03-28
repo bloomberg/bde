@@ -90,9 +90,16 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -111,12 +118,12 @@ class baem_IntegerCollector {
     // default value for the maximum is 'DEFAULT_MAX'.
 
     // DATA
-    baem_MetricId            d_metricId;  // metric identifier
-    int                      d_count;     // aggregated count of events
-    bsls_PlatformUtil::Int64 d_total;     // total of values across events
-    int                      d_min;       // minimum value across events
-    int                      d_max;       // maximum value across events
-    mutable bcemt_Mutex      d_mutex;     // synchronizes access to data
+    baem_MetricId       d_metricId;  // metric identifier
+    int                 d_count;     // aggregated count of events
+    bsls::Types::Int64  d_total;     // total of values across events
+    int                 d_min;       // minimum value across events
+    int                 d_max;       // maximum value across events
+    mutable bcemt_Mutex d_mutex;     // synchronizes access to data
 
     // NOT IMPLEMENTED
     baem_IntegerCollector(const baem_IntegerCollector&);

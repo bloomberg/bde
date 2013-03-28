@@ -40,7 +40,7 @@ using namespace bsl;  // automatically added by script
 //
 // We use the following abbreviations: (for documentation purposes only)
 //  'cchar'      for 'const char'
-//  'int64'      for 'bsls_PlatformUtil::Int64;
+//  'int64'      for 'bsls::Types::Int64;
 //  'bStr'       for 'bsl::string'
 //  'bDate'      for 'bdet_Date'
 //  'bDatez      for 'bdet_DateTz'
@@ -51,7 +51,7 @@ using namespace bsl;  // automatically added by script
 //  'ArCh'       for 'vector<char>'
 //  'ArSh'       for 'vector<short>'
 //  'ArInt'      for 'vector<int>'
-//  'ArInt64'    for 'vector<bsls_PlatformUtil::Int64>'
+//  'ArInt64'    for 'vector<bsls::Types::Int64>'
 //  'ArFl'       for 'vector<float>'
 //  'ArDb'       for 'vector<double>'
 //  'ArStr'      for 'vector<bsl::string>'
@@ -133,7 +133,7 @@ static void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 typedef bdepu_ParserImpUtil ImpUtil;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64  Int64;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 27: {
@@ -1347,7 +1347,7 @@ int main(int argc, char *argv[])
 
                 // construct specification value
                 const char *endPos;
-                vector<bsls_PlatformUtil::Int64> spec(&testAllocator);
+                vector<bsls::Types::Int64> spec(&testAllocator);
                 LOOP_ASSERT(LINE, 0 == bdepu_ArrayParserImpUtil::
                                         parseInt64Array(&endPos, &spec, SPEC));
 

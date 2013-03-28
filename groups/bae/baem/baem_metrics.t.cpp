@@ -282,7 +282,7 @@ class StandardMacroConcurrencyTest {
     // DATA
     bcep_FixedThreadPool   d_pool;
     bcemt_Barrier          d_barrier;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -291,8 +291,8 @@ class StandardMacroConcurrencyTest {
   public:
 
     // CREATORS
-    StandardMacroConcurrencyTest(int              numThreads,
-                                 bslma_Allocator *basicAllocator)
+    StandardMacroConcurrencyTest(int               numThreads,
+                                 bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -430,7 +430,7 @@ class DynamicMacroConcurrencyTest {
     // DATA
     bcep_FixedThreadPool   d_pool;
     bcemt_Barrier          d_barrier;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -438,8 +438,8 @@ class DynamicMacroConcurrencyTest {
 
   public:
     // CREATORS
-    DynamicMacroConcurrencyTest(int              numThreads,
-                                 bslma_Allocator *basicAllocator)
+    DynamicMacroConcurrencyTest(int               numThreads,
+                                bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -538,7 +538,7 @@ class TlsMacroConcurrencyTest {
     // DATA
     bcep_FixedThreadPool   d_pool;
     bcemt_Barrier          d_barrier;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
     bcemt_Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
@@ -547,8 +547,8 @@ class TlsMacroConcurrencyTest {
   public:
 
     // CREATORS
-    TlsMacroConcurrencyTest(int              numThreads,
-                                 bslma_Allocator *basicAllocator)
+    TlsMacroConcurrencyTest(int               numThreads,
+                            bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -585,7 +585,7 @@ void TlsMacroConcurrencyTest::execute()
     baem_MetricsManager &mgr = *DefaultManager::instance();
     Repository& repository = mgr.collectorRepository();
     Registry&   registry   = mgr.metricRegistry();
-    bslma_Allocator *Z = d_allocator_p;
+    bslma::Allocator *Z = d_allocator_p;
     const Category *C2 = mgr.metricRegistry().getCategory(ENABLED_CATEGORY);
 
     d_barrier.wait();
@@ -738,7 +738,7 @@ class StandardIntMacroConcurrencyTest {
     // DATA
     bcep_FixedThreadPool   d_pool;
     bcemt_Barrier          d_barrier;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -747,8 +747,8 @@ class StandardIntMacroConcurrencyTest {
   public:
 
     // CREATORS
-    StandardIntMacroConcurrencyTest(int              numThreads,
-                                 bslma_Allocator *basicAllocator)
+    StandardIntMacroConcurrencyTest(int               numThreads,
+                                    bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -887,7 +887,7 @@ class DynamicIntMacroConcurrencyTest {
     // DATA
     bcep_FixedThreadPool   d_pool;
     bcemt_Barrier          d_barrier;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -895,8 +895,8 @@ class DynamicIntMacroConcurrencyTest {
 
   public:
     // CREATORS
-    DynamicIntMacroConcurrencyTest(int              numThreads,
-                                 bslma_Allocator *basicAllocator)
+    DynamicIntMacroConcurrencyTest(int               numThreads,
+                                   bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -1016,7 +1016,7 @@ class TlsIntMacroConcurrencyTest {
     // DATA
     bcep_FixedThreadPool   d_pool;
     bcemt_Barrier          d_barrier;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
     bcemt_Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
@@ -1025,8 +1025,8 @@ class TlsIntMacroConcurrencyTest {
   public:
 
     // CREATORS
-    TlsIntMacroConcurrencyTest(int              numThreads,
-                                 bslma_Allocator *basicAllocator)
+    TlsIntMacroConcurrencyTest(int               numThreads,
+                               bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -1063,7 +1063,7 @@ void TlsIntMacroConcurrencyTest::execute()
     baem_MetricsManager &mgr = *DefaultManager::instance();
     Repository& repository = mgr.collectorRepository();
     Registry&   registry   = mgr.metricRegistry();
-    bslma_Allocator *Z = d_allocator_p;
+    bslma::Allocator *Z = d_allocator_p;
     const Category *C2 = mgr.metricRegistry().getCategory(ENABLED_CATEGORY);
 
     d_barrier.wait();
@@ -1253,9 +1253,9 @@ void TlsIntMacroConcurrencyTest::runTest()
 // In this next example, we use 'BAEM_METRICS_IF_CATEGORY_ENABLED' to
 // conditionally disable a (relatively) expensive operation involved in
 // computing a metric value.  The 'processEvent2' function, defined below, uses
-// a 'bsls_Stopwatch' to record the elapsed system, user, and wall time,
+// a 'bsls::Stopwatch' to record the elapsed system, user, and wall time,
 // involved in processing the event.  The system calls used (via
-// 'bsls_Stopwatch') to record the elapsed time may be relatively expensive,
+// 'bsls::Stopwatch') to record the elapsed time may be relatively expensive,
 // so we use 'BAEM_METRICS_IF_CATEGORY_ENABLED' to ensure we only perform
 // those operations if metrics collection is enabled.  Finally, we use
 // 'BAEM_METRICS_UPDATE3' to update the three metrics, this is (slightly) more
@@ -1268,7 +1268,7 @@ void TlsIntMacroConcurrencyTest::runTest()
     {
         int returnCode = 0;
 
-        bsls_Stopwatch stopwatch;
+        bsls::Stopwatch stopwatch;
         BAEM_METRICS_IF_CATEGORY_ENABLED("processEvent2") {
            stopwatch.start(true);
         }
@@ -1301,9 +1301,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator testAlloc; bslma_TestAllocator *Z = &testAlloc;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 19: {
@@ -1415,7 +1415,7 @@ int main(int argc, char *argv[])
             "Test BAEM_METRICS_UPDATE warning messages" << endl;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
         bcema_TestAllocator testAllocator;
 
         baem_DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
@@ -1616,7 +1616,7 @@ int main(int argc, char *argv[])
         typedef TlsIntMacroConcurrencyTest TestClass;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
         bcema_TestAllocator testAllocator;
 
         baem_DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
@@ -1647,7 +1647,7 @@ int main(int argc, char *argv[])
         typedef DynamicIntMacroConcurrencyTest TestClass;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
         bcema_TestAllocator testAllocator;
 
         baem_DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
@@ -1678,7 +1678,7 @@ int main(int argc, char *argv[])
         typedef StandardIntMacroConcurrencyTest TestClass;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
         bcema_TestAllocator testAllocator;
 
         baem_DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
@@ -1715,7 +1715,7 @@ int main(int argc, char *argv[])
         typedef TlsMacroConcurrencyTest TestClass;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
         bcema_TestAllocator testAllocator;
 
         baem_DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
@@ -1746,7 +1746,7 @@ int main(int argc, char *argv[])
         typedef DynamicMacroConcurrencyTest TestClass;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
         bcema_TestAllocator testAllocator;
 
         baem_DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
@@ -1777,7 +1777,7 @@ int main(int argc, char *argv[])
         typedef StandardMacroConcurrencyTest TestClass;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
         bcema_TestAllocator testAllocator;
 
         baem_DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
@@ -1912,7 +1912,7 @@ int main(int argc, char *argv[])
             baem_Collector *c_Us = repository.getDefaultCollector("C", "Us");
             baem_Collector *c_Ns = repository.getDefaultCollector("C", "Ns");
 
-            bsls_Stopwatch sw;
+            bsls::Stopwatch sw;
             sw.start();
             {
                 BAEM_METRICS_TIME_BLOCK_SECONDS("A", "S");
@@ -2014,7 +2014,7 @@ int main(int argc, char *argv[])
             baem_MetricId  idA = manager.metricRegistry().getId("A","1");
             baem_MetricId  idB = manager.metricRegistry().getId("B","2");
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             {
                 timer.start();
 

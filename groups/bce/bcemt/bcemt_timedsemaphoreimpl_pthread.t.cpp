@@ -395,7 +395,7 @@ class IntQueue {
 
     public:
     // CREATORS
-    explicit IntQueue(bslma_Allocator *basicAllocator = 0);
+    explicit IntQueue(bslma::Allocator *basicAllocator = 0);
         // Create a new 'IntQueue' object.
 
     ~IntQueue();
@@ -409,7 +409,7 @@ class IntQueue {
         // Push the specified 'number' to the queue.
 };
 
-IntQueue::IntQueue(bslma_Allocator *basicAllocator)
+IntQueue::IntQueue(bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 {
     d_mutexSem.post(); // Initialized to 1 to enforce exclusive access to

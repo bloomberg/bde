@@ -145,14 +145,21 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
 
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -188,20 +195,20 @@ class bdet_TimeInterval {
     };
 
     // DATA
-    bsls_PlatformUtil::Int64 d_seconds;      // value field for seconds
-    int                      d_nanoseconds;  // value field for nanoseconds
+    bsls::Types::Int64 d_seconds;      // value field for seconds
+    int                d_nanoseconds;  // value field for nanoseconds
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdet_TimeInterval,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     bdet_TimeInterval();
         // Create a time interval having the value of 0 seconds and 0
         // nanoseconds.
 
-    bdet_TimeInterval(bsls_PlatformUtil::Int64 seconds, int nanoseconds);
+    bdet_TimeInterval(bsls::Types::Int64 seconds, int nanoseconds);
         // Create a time interval having the value given by the sum of the
         // specified integral number of 'seconds' and 'nanoseconds'.  Note that
         // there is no restriction on the sign or magnitude of either argument,
@@ -252,31 +259,31 @@ class bdet_TimeInterval {
         // fractional part of 'rhs', if any, is rounded to the nearest whole
         // number of nanoseconds before being subtracted from this object.
 
-    bdet_TimeInterval& addSeconds(bsls_PlatformUtil::Int64 seconds);
+    bdet_TimeInterval& addSeconds(bsls::Types::Int64 seconds);
         // Add to this time interval the time interval value represented by the
         // specified integral number of 'seconds' and return a reference to
         // this object.
 
-    bdet_TimeInterval& addMilliseconds(bsls_PlatformUtil::Int64 milliseconds);
+    bdet_TimeInterval& addMilliseconds(bsls::Types::Int64 milliseconds);
         // Add to this time interval the time interval value represented by the
         // specified integral number of 'milliseconds' and return a reference
         // to this object.
 
-    bdet_TimeInterval& addMicroseconds(bsls_PlatformUtil::Int64 microseconds);
+    bdet_TimeInterval& addMicroseconds(bsls::Types::Int64 microseconds);
         // Add to this time interval the time interval value represented by the
         // specified integral number of 'microseconds' and return a reference
         // to this object.
 
-    bdet_TimeInterval& addNanoseconds(bsls_PlatformUtil::Int64 nanoseconds);
+    bdet_TimeInterval& addNanoseconds(bsls::Types::Int64 nanoseconds);
         // Add to this time interval the time interval value represented by the
         // specified integral number of 'nanoseconds' and return a reference to
         // this object.
 
-    void addInterval(bsls_PlatformUtil::Int64 seconds, int nanoseconds);
+    void addInterval(bsls::Types::Int64 seconds, int nanoseconds);
         // Add to this time interval the time interval value represented by the
         // specified integral number of 'seconds' and 'nanoseconds'.
 
-    void setInterval(bsls_PlatformUtil::Int64 seconds, int nanoseconds);
+    void setInterval(bsls::Types::Int64 seconds, int nanoseconds);
         // Set this time interval to have the value given by the sum of the
         // specified integral number of 'seconds' and 'nanoseconds'.  Note that
         // there is no restriction on the sign or magnitude of either argument,
@@ -295,7 +302,7 @@ class bdet_TimeInterval {
         // 'bdex' streaming of value-semantic types and containers.)
 
     // ACCESSORS
-    bsls_PlatformUtil::Int64 seconds() const;
+    bsls::Types::Int64 seconds() const;
         // Return the seconds field in the canonical representation of the
         // value of this time interval.
 
@@ -303,13 +310,13 @@ class bdet_TimeInterval {
         // Return the nanoseconds field in the canonical representation of the
         // value of this time interval.
 
-    bsls_PlatformUtil::Int64 totalMilliseconds() const;
+    bsls::Types::Int64 totalMilliseconds() const;
         // Return the value of this time interval as an integral number of
         // milliseconds, rounded towards zero.  The behavior is undefined
         // unless the number of milliseconds is small enough to fit into a
         // 64-bit integer.  Note that the return value may be negative.
 
-    bsls_PlatformUtil::Int64 totalMicroseconds() const;
+    bsls::Types::Int64 totalMicroseconds() const;
         // Return the value of this time interval as an integral number of
         // microseconds, rounded towards zero.  The behavior is undefined
         // unless the number of microseconds is small enough to fit into a
@@ -497,7 +504,7 @@ STREAM& bdet_TimeInterval::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // switch on the version
           case 1: {
-            bsls_PlatformUtil::Int64 seconds;
+            bsls::Types::Int64 seconds;
             stream.getInt64(seconds);
             if (!stream) {
                 return stream;
@@ -528,7 +535,7 @@ STREAM& bdet_TimeInterval::bdexStreamIn(STREAM& stream, int version)
 
 // ACCESSORS
 inline
-bsls_PlatformUtil::Int64 bdet_TimeInterval::seconds() const
+bsls::Types::Int64 bdet_TimeInterval::seconds() const
 {
     return d_seconds;
 }
@@ -540,14 +547,14 @@ int bdet_TimeInterval::nanoseconds() const
 }
 
 inline
-bsls_PlatformUtil::Int64 bdet_TimeInterval::totalMilliseconds() const
+bsls::Types::Int64 bdet_TimeInterval::totalMilliseconds() const
 {
     return d_seconds * BDET_MILLISECS_PER_SEC
          + d_nanoseconds / BDET_NANOSECS_PER_MILLISEC;
 }
 
 inline
-bsls_PlatformUtil::Int64 bdet_TimeInterval::totalMicroseconds() const
+bsls::Types::Int64 bdet_TimeInterval::totalMicroseconds() const
 {
     return d_seconds * BDET_MICROSECS_PER_SEC
          + d_nanoseconds / BDET_NANOSECS_PER_MICROSEC;

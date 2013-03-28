@@ -1,4 +1,4 @@
-// bdeut_bigendian.t.cpp -*-C++-*-
+// bdeut_bigendian.t.cpp                                              -*-C++-*-
 #include <bdeut_bigendian.h>
 
 #include <bdex_instreamfunctions.h>             // for testing only
@@ -7,10 +7,11 @@
 #include <bdex_testinstreamexception.h>         // for testing only
 #include <bdex_testoutstream.h>                 // for testing only
 
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
-#include <bsls_platform.h>                      // for testing only
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+
+#include <bsls_platform.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -47,8 +48,8 @@ using bsl::flush;
 // [ 2] static bdeut_BigEndianUint16::make(unsigned short);
 // [ 2] static bdeut_BigEndianInt32::make(int);
 // [ 2] static bdeut_BigEndianUint32::make(unsigned int);
-// [ 2] static bdeut_BigEndianInt64::make(bsls_PlatformUtil::Int64);
-// [ 2] static bdeut_BigEndianUint64::make(bsls_PlatformUtil::Uint64);
+// [ 2] static bdeut_BigEndianInt64::make(bsls::Types::Int64);
+// [ 2] static bdeut_BigEndianUint64::make(bsls::Types::Uint64);
 //
 // CREATORS
 //
@@ -168,8 +169,8 @@ bool isInCoreValueCorrect(unsigned int value, const bdeut_BigEndianUint32& obj)
 // only.
 
 #ifndef __bswap_64
-bsls_PlatformUtil::Uint64 swap64(bsls_PlatformUtil::Uint64 value) {
-#ifdef BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+bsls::Types::Uint64 swap64(bsls::Types::Uint64 value) {
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     return ((value & 0xff00000000000000ull) >> 56)
         |  ((value & 0x00ff000000000000ull) >> 40)
         |  ((value & 0x0000ff0000000000ull) >> 24)
@@ -183,8 +184,8 @@ bsls_PlatformUtil::Uint64 swap64(bsls_PlatformUtil::Uint64 value) {
 #endif
 }
 #else
-bsls_PlatformUtil::Uint64 swap64(bsls_PlatformUtil::Uint64 value) {
-#ifdef BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+bsls::Types::Uint64 swap64(bsls::Types::Uint64 value) {
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     return __bswap_64(value);
 #else
     return value;
@@ -192,17 +193,17 @@ bsls_PlatformUtil::Uint64 swap64(bsls_PlatformUtil::Uint64 value) {
 }
 #endif
 
-bool isInCoreValueCorrect(bsls_PlatformUtil::Int64 value,
+bool isInCoreValueCorrect(bsls::Types::Int64 value,
                           const bdeut_BigEndianInt64& obj)
 {
-    bsls_PlatformUtil::Int64 temp = swap64(value);
+    bsls::Types::Int64 temp = swap64(value);
     return obj == *reinterpret_cast<bdeut_BigEndianInt64*>(&temp);
 }
 
-bool isInCoreValueCorrect(bsls_PlatformUtil::Uint64    value,
+bool isInCoreValueCorrect(bsls::Types::Uint64          value,
                           const bdeut_BigEndianUint64& obj)
 {
-    bsls_PlatformUtil::Uint64 temp = swap64(value);
+    bsls::Types::Uint64 temp = swap64(value);
     return obj == *reinterpret_cast<bdeut_BigEndianUint64*>(&temp);
 }
 
@@ -219,7 +220,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {
@@ -231,13 +232,13 @@ int main(int argc, char *argv[])
         //   the expected traits declared.
         //
         // Plan:
-        //   Using the 'bslalg_HasTrait' meta-function, verify that the 6
+        //   Using the 'bslalg::HasTrait' meta-function, verify that the 6
         //   classes defined in the component under test define the expected
-        //   traits, namely 'bslalg_TypeTraitBitwiseCopyable' and
+        //   traits, namely 'bslalg::TypeTraitBitwiseCopyable' and
         //   'bdeu_TypeTraitHasPrintMethod'.
         //
         // Testing:
-        //   bslalg_TypeTraitBitwiseCopyable
+        //   bslalg::TypeTraitBitwiseCopyable
         //   bdeu_TypeTraitHasPrintMethod
         // --------------------------------------------------------------------
 
@@ -249,9 +250,9 @@ int main(int argc, char *argv[])
             typedef bdeut_BigEndianInt16 Obj;
 
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseCopyable>::VALUE));
+              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
+                bslalg::HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
         }
 
         if (verbose) cout << "\nTesting bdeut_BigEndianUint16." << endl;
@@ -259,9 +260,9 @@ int main(int argc, char *argv[])
             typedef bdeut_BigEndianUint16 Obj;
 
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseCopyable>::VALUE));
+              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
+                bslalg::HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
         }
 
         if (verbose) cout << "\nTesting bdeut_BigEndianInt32." << endl;
@@ -269,9 +270,9 @@ int main(int argc, char *argv[])
             typedef bdeut_BigEndianInt32 Obj;
 
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseCopyable>::VALUE));
+              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
+                bslalg::HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
         }
 
         if (verbose) cout << "\nTesting bdeut_BigEndianUint32." << endl;
@@ -279,9 +280,9 @@ int main(int argc, char *argv[])
             typedef bdeut_BigEndianUint32 Obj;
 
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseCopyable>::VALUE));
+              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
+                bslalg::HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
         }
 
         if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
@@ -289,9 +290,9 @@ int main(int argc, char *argv[])
             typedef bdeut_BigEndianInt64 Obj;
 
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseCopyable>::VALUE));
+              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
+                bslalg::HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
         }
 
         if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
@@ -299,9 +300,9 @@ int main(int argc, char *argv[])
             typedef bdeut_BigEndianUint64 Obj;
 
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseCopyable>::VALUE));
+              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
             ASSERT((1 ==
-                bslalg_HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
+                bslalg::HasTrait<Obj, bdeu_TypeTraitHasPrintMethod>::VALUE));
         }
 
       } break;
@@ -931,7 +932,7 @@ int main(int argc, char *argv[])
 
             }
 
-            const bsls_PlatformUtil::Int64 VALUES[] = {1,
+            const bsls::Types::Int64 VALUES[] = {1,
                                                 0x7fffffffffffffffull,
                                                 0x8000000000000000ull, -1, 0,
                                                 123, -123, SHRT_MAX, SHRT_MIN,
@@ -1034,7 +1035,7 @@ int main(int argc, char *argv[])
                 ASSERT(X == t);
             }
 
-            const bsls_PlatformUtil::Uint64 VALUES[] = {1,
+            const bsls::Types::Uint64 VALUES[] = {1,
                                                 0x7fffffffffffffffull,
                                                 0xffffffffffffffffull,
                                                 0x8000000000000000ull, 0, 123,
@@ -1241,7 +1242,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
         {
             typedef bdeut_BigEndianInt64 Obj;
-            const bsls_PlatformUtil::Int64 VALUES[] = {
+            const bsls::Types::Int64 VALUES[] = {
                 1, 0x7fffffffffffffffull, 0x8000000000000000ull, -1, 0,
                 123, -123, SHRT_MAX, SHRT_MIN, INT_MAX, INT_MIN
             };
@@ -1265,7 +1266,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
         {
             typedef bdeut_BigEndianUint64 Obj;
-            const bsls_PlatformUtil::Uint64 VALUES[] = {
+            const bsls::Types::Uint64 VALUES[] = {
                 1, 0x7fffffffffffffffull, 0xffffffffffffffffull,
                 0x8000000000000000ull, 0, 123, SHRT_MAX, INT_MAX, UINT_MAX
             };
@@ -1497,7 +1498,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
         {
             typedef bdeut_BigEndianInt64 Obj;
-            const bsls_PlatformUtil::Int64 VALUES[] = {1,
+            const bsls::Types::Int64 VALUES[] = {1,
                                                 0x7fffffffffffffffull,
                                                 0x8000000000000000ull, -1, 0,
                                                 123, -123, SHRT_MAX, SHRT_MIN,
@@ -1540,7 +1541,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
         {
             typedef bdeut_BigEndianUint64 Obj;
-            const bsls_PlatformUtil::Uint64 VALUES[] = {1,
+            const bsls::Types::Uint64 VALUES[] = {1,
                                                 0x7fffffffffffffffull,
                                                 0xffffffffffffffffull,
                                                 0x8000000000000000ull, 0, 123,
@@ -1670,11 +1671,11 @@ int main(int argc, char *argv[])
 
             {
                 const Obj X = Obj::make(0);
-                ASSERT(0 == bsls_PlatformUtil::Int64(X));
+                ASSERT(0 == bsls::Types::Int64(X));
             }
-            for (int i = 1; i < sizeof(bsls_PlatformUtil::Int64) * 8; ++i) {
+            for (int i = 1; i < sizeof(bsls::Types::Int64) * 8; ++i) {
                 const Obj X = Obj::make(1LL << (i - 1));
-                LOOP_ASSERT(i, (1LL << (i - 1)) == bsls_PlatformUtil::Int64(X));
+                LOOP_ASSERT(i, (1LL << (i - 1)) == bsls::Types::Int64(X));
             }
         }
 
@@ -1684,11 +1685,11 @@ int main(int argc, char *argv[])
 
             {
                 const Obj X = Obj::make(0);
-                ASSERT(0 == bsls_PlatformUtil::Uint64(X));
+                ASSERT(0 == bsls::Types::Uint64(X));
             }
-            for (int i = 1; i < sizeof(bsls_PlatformUtil::Uint64) * 8; ++i) {
+            for (int i = 1; i < sizeof(bsls::Types::Uint64) * 8; ++i) {
                 const Obj X = Obj::make(1LL << (i - 1));
-                LOOP_ASSERT(i, (1LL << (i - 1)) == bsls_PlatformUtil::Uint64(X));
+                LOOP_ASSERT(i, (1LL << (i - 1)) == bsls::Types::Uint64(X));
             }
         }
       } break;
@@ -1733,8 +1734,8 @@ int main(int argc, char *argv[])
         //   static bdeut_BigEndianUint16::make(unsigned short);
         //   static bdeut_BigEndianInt32::make(int);
         //   static bdeut_BigEndianUint32::make(unsigned int);
-        //   static bdeut_BigEndianInt64::make(bsls_PlatformUtil::Int64);
-        //   static bdeut_BigEndianUint64::make(bsls_PlatformUtil::Uint64);
+        //   static bdeut_BigEndianInt64::make(bsls::Types::Int64);
+        //   static bdeut_BigEndianUint64::make(bsls::Types::Uint64);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1747,7 +1748,7 @@ int main(int argc, char *argv[])
             const short VALUES[] = {1, SHRT_MAX, SHRT_MIN, -1, 0, 123, -123};
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            const bslma_DefaultAllocatorGuard DAG(&testAllocator);
+            const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int previousTotal = testAllocator.numBlocksTotal();
 
@@ -1770,7 +1771,7 @@ int main(int argc, char *argv[])
             const unsigned short VALUES[] = {1, USHRT_MAX, 0, 0x48, 0x4800};
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            const bslma_DefaultAllocatorGuard DAG(&testAllocator);
+            const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int previousTotal = testAllocator.numBlocksTotal();
 
@@ -1794,7 +1795,7 @@ int main(int argc, char *argv[])
                                   SHRT_MAX, SHRT_MIN};
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            const bslma_DefaultAllocatorGuard DAG(&testAllocator);
+            const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int previousTotal = testAllocator.numBlocksTotal();
 
@@ -1818,7 +1819,7 @@ int main(int argc, char *argv[])
                                              0xC33C, 0xC33C0000};
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            const bslma_DefaultAllocatorGuard DAG(&testAllocator);
+            const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int previousTotal = testAllocator.numBlocksTotal();
 
@@ -1838,14 +1839,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
         {
             typedef bdeut_BigEndianInt64 Obj;
-            const bsls_PlatformUtil::Int64 VALUES[] = {1,
+            const bsls::Types::Int64 VALUES[] = {1,
                                                 0x7fffffffffffffffull,
                                                 0x8000000000000000ull, -1, 0,
                                                 123, -123, SHRT_MAX, SHRT_MIN,
                                                 INT_MAX, INT_MIN};
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            const bslma_DefaultAllocatorGuard DAG(&testAllocator);
+            const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int previousTotal = testAllocator.numBlocksTotal();
 
@@ -1865,14 +1866,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
         {
             typedef bdeut_BigEndianUint64 Obj;
-            const bsls_PlatformUtil::Uint64 VALUES[] = {1,
+            const bsls::Types::Uint64 VALUES[] = {1,
                                                 0x7fffffffffffffffull,
                                                 0xffffffffffffffffull,
                                                 0x8000000000000000ull, 0, 123,
                                                 SHRT_MAX, INT_MAX, UINT_MAX};
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            const bslma_DefaultAllocatorGuard DAG(&testAllocator);
+            const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int previousTotal = testAllocator.numBlocksTotal();
 
@@ -2902,9 +2903,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
         {
-            const bsls_PlatformUtil::Int64 VA = 123;
-            const bsls_PlatformUtil::Int64 VB = 0x7fffffffffffffffull;
-            const bsls_PlatformUtil::Int64 VC = 0x8000000000000000ull;
+            const bsls::Types::Int64 VA = 123;
+            const bsls::Types::Int64 VB = 0x7fffffffffffffffull;
+            const bsls::Types::Int64 VC = 0x8000000000000000ull;
 
             typedef bdeut_BigEndianInt64 Obj;
 
@@ -3141,9 +3142,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
         {
-            const bsls_PlatformUtil::Uint64 VA = 0;
-            const bsls_PlatformUtil::Uint64 VB = 0x7fffffffffffffffull;
-            const bsls_PlatformUtil::Uint64 VC = 0x8000000000000000ull;
+            const bsls::Types::Uint64 VA = 0;
+            const bsls::Types::Uint64 VB = 0x7fffffffffffffffull;
+            const bsls::Types::Uint64 VC = 0x8000000000000000ull;
 
             typedef bdeut_BigEndianUint64 Obj;
 

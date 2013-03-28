@@ -51,8 +51,8 @@ BDES_IDENT("$Id: $")
 //      void seek(int offset)         { d_cursor = offset;    }
 //      void reset()                  { d_cursor = 0;         }
 //
-//      my_TestInStream& getInt64(bsls_PlatformUtil::Int64& variable);
-//      my_TestInStream& getUint64(bsls_PlatformUtil::Uint64& variable);
+//      my_TestInStream& getInt64(bsls::Types::Int64& variable);
+//      my_TestInStream& getUint64(bsls::Types::Uint64& variable);
 //      // ...
 //
 //      // ACCESSORS
@@ -74,7 +74,7 @@ BDES_IDENT("$Id: $")
 //  // ...
 //
 //  my_TestInStream&
-//  my_TestInStream::getUint64(bsls_PlatformUtil::Uint64& variable)
+//  my_TestInStream::getUint64(bsls::Types::Uint64& variable)
 //  {
 //      bdex_FieldCode::Type code = bdex_FieldCode::UINT64;
 //  #ifdef BDE_BUILD_TARGET_EXC

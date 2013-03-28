@@ -35,9 +35,9 @@ class BoolMatrix {
 
   public:
     // CREATORS
-    BoolMatrix(int              numRows,
-               int              numColumns,
-               bslma_Allocator *basicAllocator = 0)
+    BoolMatrix(int               numRows,
+               int               numColumns,
+               bslma::Allocator *basicAllocator = 0)
     : d_array(numRows * numColumns, false, basicAllocator)
     , d_rowLength(numColumns)
         // Create a 'BoolMatrix' with the specified 'numRows' and the specified

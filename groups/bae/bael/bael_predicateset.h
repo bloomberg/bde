@@ -69,16 +69,16 @@ BDES_IDENT("$Id: $")
 #include <bdex_outstreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
 #endif
 
-#ifndef INCLUDED_BSL_HASH_SET
-#include <bsl_hash_set.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_UNORDERED_SET
+#include <bsl_unordered_set.h>
 #endif
 
 namespace BloombergLP {
@@ -111,7 +111,7 @@ class bael_PredicateSet {
         }
     };
 
-    typedef bsl::hash_set<bael_Predicate, PredicateHash> SetType;
+    typedef bsl::unordered_set<bael_Predicate, PredicateHash> SetType;
 
     // PRIVATE MEMBERS
     static int               s_initialSize;     // the initial size of the set
@@ -140,13 +140,13 @@ class bael_PredicateSet {
     typedef SetType::const_iterator const_iterator;
 
     // CREATORS
-    explicit bael_PredicateSet(bslma_Allocator *basicAllocator = 0);
+    explicit bael_PredicateSet(bslma::Allocator *basicAllocator = 0);
         // Create an empty 'bael_PredicateSet' object.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator will be used.
 
     bael_PredicateSet(const bael_PredicateSet&  original,
-                      bslma_Allocator          *basicAllocator = 0);
+                      bslma::Allocator         *basicAllocator = 0);
         // Create a 'bael_PredicateSet' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -266,7 +266,7 @@ int bael_PredicateSet::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-bael_PredicateSet::bael_PredicateSet(bslma_Allocator *basicAllocator)
+bael_PredicateSet::bael_PredicateSet(bslma::Allocator *basicAllocator)
 : d_predicateSet(s_initialSize,                        // initial size
                  PredicateHash(),                      // hash functor
                  bsl::equal_to<bael_Predicate>(),      // equal functor
@@ -275,8 +275,8 @@ bael_PredicateSet::bael_PredicateSet(bslma_Allocator *basicAllocator)
 }
 
 inline
-bael_PredicateSet::bael_PredicateSet(const bael_PredicateSet&   original,
-                                     bslma_Allocator           *basicAllocator)
+bael_PredicateSet::bael_PredicateSet(const bael_PredicateSet&  original,
+                                     bslma::Allocator         *basicAllocator)
 : d_predicateSet(original.d_predicateSet, basicAllocator)
 {
 }

@@ -21,7 +21,7 @@ using namespace bsl;
 // We are testing a pure protocol class.  We need to verify that (1) a
 // concrete derived class compiles and links, and (2) that a usage example
 // obtains the behavior specified by the protocol from the concrete subclass.
-// We also need to ensure that this class derives from the 'bslma_Allocator'
+// We also need to ensure that this class derives from the 'bslma::Allocator'
 // class.
 //-----------------------------------------------------------------------------
 // [ 1] virtual void allocate(size_type size);
@@ -29,7 +29,7 @@ using namespace bsl;
 // [ 1] virtual void deallocate(void *address);
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
-// [ 1] CONCERN: The protocol derives from 'bslma_Allocator'.
+// [ 1] CONCERN: The protocol derives from 'bslma::Allocator'.
 //=============================================================================
 
 //=============================================================================
@@ -68,8 +68,9 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 namespace {
 
-struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
-    typedef bslma_Allocator::size_type size_type;
+struct AlignedAllocatorTestImp :
+                                bsls::ProtocolTestImp<bdema_AlignedAllocator> {
+    typedef bslma::Allocator::size_type size_type;
 
     void *allocate(size_type)                     { return markDone(); }
     void *allocateAligned(bsl::size_t, size_type) { return markDone(); }
@@ -184,7 +185,7 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
             return 0;                                                 // RETURN
         }
 
-        int alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
+        int alignment = bsls::AlignmentUtil::calculateAlignmentFromSize(size);
         return allocateAligned(size, alignment);
     }
 
@@ -205,17 +206,17 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
         errno = 0;
         ret = _aligned_malloc(size, alignment);
         if (0 != errno) {
-            bslma_Allocator::throwBadAlloc();
+            bslma::Allocator::throwBadAlloc();
         }
     #elif defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
         ret = memalign(alignment, size);
         if (0 == ret) {
-            bslma_Allocator::throwBadAlloc();
+            bslma::Allocator::throwBadAlloc();
         }
     #else
         int rc = ::posix_memalign(&ret, alignment, size);
         if (0 != rc) {
-            bslma_Allocator::throwBadAlloc();
+            bslma::Allocator::throwBadAlloc();
         }
     #endif
 
@@ -343,7 +344,7 @@ int main(int argc, char *argv[])
         //: 2 Assign an address of type 'bdema_AlignedAllocator' to a
         //:   'bsls_Allocator *' variable, to verify that
         //:   'bdema_AlignedAllocator' publicly inherited from
-        //:   'bslma_Allocator' .
+        //:   'bslma::Allocator' .
         //
         // Testing:
         //   virtual void *allocate(size_type size) = 0;
@@ -354,10 +355,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        if (verbose) cout << "\nTest the protocol with 'bsls_ProtocolTest'"
+        if (verbose) cout << "\nTest the protocol with 'bsls::ProtocolTest'"
                           << endl;
 
-        bsls_ProtocolTest<AlignedAllocatorTestImp> t(veryVerbose);
+        bsls::ProtocolTest<AlignedAllocatorTestImp> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
@@ -370,9 +371,9 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(t.failures(), !t.failures());
 
         if (verbose) cout <<
-           "\nTest 'bdema_AlignedAllocator' derives from 'bslma_Allocator'"
+           "\nTest 'bdema_AlignedAllocator' derives from 'bslma::Allocator'"
                                                                        << endl;
-        bslma_Allocator *dummy = (bdema_AlignedAllocator *) 0;
+        bslma::Allocator *dummy = (bdema_AlignedAllocator *) 0;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

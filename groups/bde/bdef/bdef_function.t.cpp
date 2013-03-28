@@ -1,4 +1,4 @@
-// bdef_function.t.cpp             -*-C++-*-
+// bdef_function.t.cpp                                                -*-C++-*-
 
 #include <bdef_function.h>
 #include <bdef_memfn.h>                         // for testing only
@@ -86,13 +86,13 @@ using namespace bsl;  // automatically added by script
 ///-------------
 // [ 2] bdef_Function();
 // [11] bdef_Function<FUNC_OR_ALLOC>(const FUNC_OR_ALLOC& funcOrAlloc);
-// [11] bdef_Function<FUNC>(const FUNC& func, bslma_Allocator *allocator);
+// [11] bdef_Function<FUNC>(const FUNC& func, bslma::Allocator *allocator);
 // [ 7] bdef_Function(const bdef_Function& original);
 // [ 9] bdef_Function::operator=(const bdef_Function& rhs);
 // [ 2] bdef_Function::operator=(FUNC const&);
 // [ 2] bdef_Function::clear();
 // [12] bdef_Function::swap(bdef_Function<PROTOTYPE>&);
-// [12] bdef_Function::load(FUNC, bslma_Allocator*);
+// [12] bdef_Function::load(FUNC, bslma::Allocator*);
 // [12] bdef_Function::transferTo(bdef_Function<PROTOTYPE>*);
 // [ 4] bdef_Function::operator()(...) const;
 // [ 4] bdef_Function::operator bool() const;
@@ -110,12 +110,6 @@ using namespace bsl;  // automatically added by script
 // [17] BINDING TO A SMALL BITWISE-COPYABLE FUNCTION OBJECT
 // [18] BINDING TO A FUNCTION OBJECT WITH PTR SEMANTICS
 // [19] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-// Note: In order to test the version of this component in BDE 1.15 and prior,
-// define the macro BDEF_FUNCTION_PRIOR_1_16 (uncomment below):
-//..
-// #define BDEF_FUNCTION_PRIOR_1_16
-//..
 
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -194,7 +188,7 @@ struct Function_Rep2 {
     // DATA
     bdef_Function_Rep::ArenaType  d_arena;
     bdef_Function_Rep::Manager    d_manager_p;
-    bslma_Allocator              *d_allocator_p;
+    bslma::Allocator             *d_allocator_p;
 };
 
                            // ================
@@ -205,8 +199,8 @@ struct Function2 {
     // This 'struct' *MUST* have the same layout as the 'bdef_Function' class
     // template.
 
-    Function_Rep2      d_rep;
-    void               (*d_invoker_p)();
+    Function_Rep2   d_rep;
+    void          (*d_invoker_p)();
 };
 
                        // =============================
@@ -255,13 +249,12 @@ struct EqualityComparisonUtil {
         // the same result as comparing the stored 'FUNC' instances.
     {
         bdef_Function_Rep::Manager manager;
-#ifndef BDE_FUNCTION_PRIOR_1_16
         enum {
             SIZE         = sizeof(FUNC)
-          , BITWISE_MOVE = bslalg_HasTrait<FUNC,
-                                        bslalg_TypeTraitBitwiseCopyable>::VALUE
-          , BITWISE_COPY = bslalg_HasTrait<FUNC,
-                                        bslalg_TypeTraitBitwiseCopyable>::VALUE
+          , BITWISE_MOVE = bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
+          , BITWISE_COPY = bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
         };
         if (SIZE <= sizeof(bdef_Function_Rep::ArenaType)) {
             if (BITWISE_COPY) {
@@ -285,15 +278,6 @@ struct EqualityComparisonUtil {
             }
             d_managerMap[manager] = &outofplaceEqualityManager<FUNC>;
         }
-#else
-        manager = &bdef_Function_RepImpl<FUNC>::manager;
-        if (sizeof(FUNC) <= sizeof(bdef_Function_Rep::ArenaType)) {
-            d_managerMap[manager] = &inplaceEqualityManager<FUNC>;
-        }
-        else {
-            d_managerMap[manager] = &outofplaceEqualityManager<FUNC>;
-        }
-#endif
         return 1;
     }
 
@@ -314,8 +298,8 @@ EqualityComparisonUtil::d_managerMap;
                          // ==========================
 
 template <class PROTOTYPE>
-bool operator==(const bdef_Function<PROTOTYPE>& lhs,
-                const bdef_Function<PROTOTYPE>& rhs)
+bool functionsHaveSameValue(const bdef_Function<PROTOTYPE>& lhs,
+                            const bdef_Function<PROTOTYPE>& rhs)
     // Return 'true' if the specified 'lhs' function object has the same value
     // as the specified 'rhs' function object.  Two function objects have the
     // same value if they store the same invocable (of the same type).
@@ -347,6 +331,7 @@ bool operator==(const bdef_Function<PROTOTYPE>& lhs,
     return (*eqManager)(&lhs2.d_rep, &rhs2.d_rep);
 }
 
+#if 0
 template <class PROTOTYPE>
 bool operator!=(const bdef_Function<PROTOTYPE>& lhs,
                 const bdef_Function<PROTOTYPE>& rhs)
@@ -357,7 +342,7 @@ bool operator!=(const bdef_Function<PROTOTYPE>& lhs,
 {
     return !(lhs == rhs);
 }
-
+#endif
 //=============================================================================
 //                     GENERATED TYPES AND VALUES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -478,7 +463,7 @@ struct FunctorV {
     static int s_lastArg;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorV, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorV, bslalg::TypeTraitBitwiseCopyable);
 
     // DATA
     int d_value;
@@ -504,7 +489,7 @@ struct FunctorW {
     static int s_lastArg;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorW, bslalg_TypeTraitBitwiseMoveable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorW, bslalg::TypeTraitBitwiseMoveable);
 
     // DATA
     int d_value;
@@ -556,7 +541,7 @@ struct FunctorT {
     int d_value;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorT, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorT, bslalg::TypeTraitBitwiseCopyable);
 
     // MANIPULATORS
     int operator()(int value) {
@@ -611,7 +596,7 @@ struct FunctorQ {
     char d_padding[bdef_FunctionUtil::MAX_INPLACE_OBJECT_SIZE];
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorQ, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorQ, bslalg::TypeTraitBitwiseCopyable);
 
     // MANIPULATORS
     int operator()(int value) {
@@ -662,7 +647,7 @@ struct FunctorM {
     char d_padding[bdef_FunctionUtil::MAX_INPLACE_OBJECT_SIZE];
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FunctorM, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(FunctorM, bslalg::TypeTraitBitwiseCopyable);
 
     // MANIPULATORS
     int operator()(int value) {
@@ -747,7 +732,7 @@ class RawPointerWrapper {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(RawPointerWrapper,
-                                 bslalg_TypeTraitHasPointerSemantics);
+                                 bslalg::TypeTraitHasPointerSemantics);
 
     // CREATORS
     RawPointerWrapper() : d_object_p(0) {}
@@ -788,8 +773,8 @@ struct RawBCPointerWrapper : public RawPointerWrapper<FUNC> {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(RawBCPointerWrapper,
-                                  bslalg_TypeTraitHasPointerSemantics,
-                                  bslalg_TypeTraitBitwiseCopyable);
+                                  bslalg::TypeTraitHasPointerSemantics,
+                                  bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     RawBCPointerWrapper() : RawPointerWrapper<FUNC>() {}
@@ -1051,7 +1036,7 @@ template <class PROTOTYPE>
 bdef_Function<PROTOTYPE> g(const char *spec)
     // Return, by value, a new object corresponding to the specified 'spec'.
 {
-    bdef_Function<PROTOTYPE> object((bslma_Allocator *)0);
+    bdef_Function<PROTOTYPE> object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -1496,7 +1481,7 @@ struct MyBCFunctionObject : public MyFunctionObject {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(MyBCFunctionObject,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 };
 
                            // ==========================
@@ -1538,7 +1523,7 @@ int oldsvc_Entry_createService(
                 SharedPtr               *requestRouter,
                 bassvc::ServiceManifest *manifest,
                 const Aggregate&         configuration,
-                bslma_Allocator         *basicAllocator)
+                bslma::Allocator        *basicAllocator)
 {
     return configuration.d_value;
 }
@@ -1548,7 +1533,7 @@ struct InProcessServiceManager {
     typedef bdef_Function<int (*)(SharedPtr               *requestRouter,
                                   bassvc::ServiceManifest *manifest,
                                   const Aggregate&         configuration,
-                                  bslma_Allocator         *basicAllocator)>
+                                  bslma::Allocator        *basicAllocator)>
                                                      CreateBlobServiceCallback;
 
     int registerBlobRouter(const char                       *name,
@@ -1558,7 +1543,7 @@ struct InProcessServiceManager {
         SharedPtr               requestRouter;
         bassvc::ServiceManifest manifest;
         Aggregate               configuration;
-        bslma_TestAllocator     ta;
+        bslma::TestAllocator    ta;
         configuration.d_value = 0;
         ASSERT(0   == createServiceCb(&requestRouter,
                                       &manifest,
@@ -1863,11 +1848,11 @@ void testCase19(int argc)
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bslma_TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     int numAllocations;
     int numDeallocations;
 
-    bslma_TestAllocator& testAllocator = ta;  // for BSLMA_EXCEPTION_TEST
+    bslma::TestAllocator& testAllocator = ta;  // for BSLMA_EXCEPTION_TEST
 
     if (verbose)
        cout << "\nTesting binding to a 'bdef_Function' implicitly"
@@ -1999,15 +1984,15 @@ void testCase19(int argc)
         typedef int (*FUNC)(SharedPtr               *requestRouter,
                             bassvc::ServiceManifest *manifest,
                             const Aggregate&         configuration,
-                            bslma_Allocator         *basicAllocator);
+                            bslma::Allocator        *basicAllocator);
 
         enum {
             IS_IN_PLACE           =
                                   bdef_FunctionUtil::IsInplace<FUNC>::VALUE
           , HAS_POINTER_SEMANTICS =
-                bslalg_HasTrait<FUNC,
-                                bslalg_TypeTraitHasPointerSemantics>::VALUE
-          , INVOKER_TAG           = bslmf_IsFunctionPointer<FUNC>::VALUE
+                bslalg::HasTrait<FUNC,
+                                bslalg::TypeTraitHasPointerSemantics>::VALUE
+          , INVOKER_TAG           = bslmf::IsFunctionPointer<FUNC>::VALUE
                                   ? bdef_Function_Rep::IS_FUNCTION_POINTER
                                   : IS_IN_PLACE ? (HAS_POINTER_SEMANTICS
             ? bdef_Function_Rep::IS_IN_PLACE_WITH_POINTER_SEMANTICS
@@ -2049,11 +2034,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     int numAllocations;
     int numDeallocations;
 
-    bslma_TestAllocator& testAllocator = ta;  // for BSLMA_EXCEPTION_TEST
+    bslma::TestAllocator& testAllocator = ta;  // for BSLMA_EXCEPTION_TEST
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 21: {
@@ -2808,7 +2793,7 @@ int main(int argc, char *argv[])
         //   allocators are .
         //
         // Testing:
-        //    void load(const FUNC& func, bslma_Allocator *allocator);
+        //    void load(const FUNC& func, bslma::Allocator *allocator);
         //    void swap(const bdef_Function& rhs);
         //    void transferTo(const bdef_Function *target);
         // --------------------------------------------------------------------
@@ -2825,8 +2810,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'load'." << endl;
         {
-            bslma_TestAllocator tb(veryVeryVerbose);
-            bslma_Allocator *Z[] = { bslma_Default::allocator(0), &ta, &tb };
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::Allocator *Z[] = { bslma::Default::allocator(0), &ta, &tb };
             const int NUM_ALLOCS = sizeof Z / sizeof *Z;
 
             for (int ui = 0; SPECS[ui]; ++ui) {
@@ -2932,7 +2917,6 @@ int main(int argc, char *argv[])
                       default: ASSERT(0);
                     }
 
-#ifndef BDE_FUNCTION_PRIOR_1_16
                     if (veryVerbose) {
                         cout << "\t\t\tafter loading: ";
                         if (U.getAllocator() == Z[0]) cout << "ua = 0";
@@ -2940,12 +2924,10 @@ int main(int argc, char *argv[])
                         if (U.getAllocator() == Z[2]) cout << "ua = tb";
                         cout << endl;
                     }
-#endif
 
-                    LOOP4_ASSERT(ui, ua, vi, va, VV == U);
-#ifndef BDE_FUNCTION_PRIOR_1_16
+                    LOOP4_ASSERT(ui, ua, vi, va,
+                                 functionsHaveSameValue(VV, U));
                     LOOP4_ASSERT(ui, ua, vi, va, U.getAllocator() == Z[va]);
-#endif
                 }
                 }
                 ASSERT(0 == ta.numMismatches());
@@ -2986,16 +2968,16 @@ int main(int argc, char *argv[])
 
                     mU.swap(mV);  // test here
 
-                    LOOP2_ASSERT(ui, vi, UU == V);
-                    LOOP2_ASSERT(ui, vi, VV == U);
+                    LOOP2_ASSERT(ui, vi, functionsHaveSameValue(UU, V));
+                    LOOP2_ASSERT(ui, vi, functionsHaveSameValue(VV, U));
                 }
             }
         }
 
         if (verbose) cout << "\tUsing various allocators." << endl;
         {
-            bslma_TestAllocator tb(veryVeryVerbose);
-            bslma_Allocator *Z[] = { bslma_Default::allocator(0), &ta, &tb };
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::Allocator *Z[] = { bslma::Default::allocator(0), &ta, &tb };
             const int NUM_ALLOCS = sizeof Z / sizeof *Z;
 
             for (int ui = 0; SPECS[ui]; ++ui) {
@@ -3027,7 +3009,6 @@ int main(int argc, char *argv[])
 
                     mU.swap(mV);  // test here
 
-#ifndef BDE_FUNCTION_PRIOR_1_16
                     if (veryVerbose) {
                         cout << "\t\t\tafter swapping: ";
                         if (U.getAllocator() == Z[0]) cout << "ua = 0";
@@ -3039,15 +3020,14 @@ int main(int argc, char *argv[])
                         if (V.getAllocator() == Z[2]) cout << "va = tb";
                         cout << endl;
                     }
-#endif
 
-                    LOOP4_ASSERT(ui, ua, vi, va, UU == V);
-                    LOOP4_ASSERT(ui, ua, vi, va, VV == U);
+                    LOOP4_ASSERT(ui, ua, vi, va,
+                                 functionsHaveSameValue(UU, V));
+                    LOOP4_ASSERT(ui, ua, vi, va,
+                                 functionsHaveSameValue(VV, U));
 
-#ifndef BDE_FUNCTION_PRIOR_1_16
                     LOOP4_ASSERT(ui, ua, vi, va, U.getAllocator() == Z[ua]);
                     LOOP4_ASSERT(ui, ua, vi, va, V.getAllocator() == Z[va]);
-#endif
                 }
                 }
                 ASSERT(0 == ta.numMismatches());
@@ -3086,8 +3066,8 @@ int main(int argc, char *argv[])
 
                     swap(mU, mV); // test here
 
-                    LOOP2_ASSERT(ui, vi, UU == V);
-                    LOOP2_ASSERT(ui, vi, VV == U);
+                    LOOP2_ASSERT(ui, vi, functionsHaveSameValue(UU, V));
+                    LOOP2_ASSERT(ui, vi, functionsHaveSameValue(VV, U));
                 }
             }
         }
@@ -3122,7 +3102,7 @@ int main(int argc, char *argv[])
 
                     mU.transferTo(&mV);  // test here
 
-                    LOOP2_ASSERT(ui, vi, UU    == V);
+                    LOOP2_ASSERT(ui, vi, functionsHaveSameValue(UU, V));
                     LOOP2_ASSERT(ui, vi, false == U);
                 }
             }
@@ -3130,8 +3110,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tUsing various allocators." << endl;
         {
-            bslma_TestAllocator tb(veryVeryVerbose);
-            bslma_Allocator *Z[] = { bslma_Default::allocator(0), &ta, &tb };
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::Allocator *Z[] = { bslma::Default::allocator(0), &ta, &tb };
             const int NUM_ALLOCS = sizeof Z / sizeof *Z;
 
             for (int ui = 0; SPECS[ui]; ++ui) {
@@ -3163,7 +3143,6 @@ int main(int argc, char *argv[])
 
                     mU.transferTo(&mV);  // test here
 
-#ifndef BDE_FUNCTION_PRIOR_1_16
                     if (veryVerbose) {
                         cout << "\t\t\tafter transfer: ";
                         if (U.getAllocator() == Z[0]) cout << "ua = 0";
@@ -3175,15 +3154,13 @@ int main(int argc, char *argv[])
                         if (V.getAllocator() == Z[2]) cout << "va = 2";
                         cout << endl;
                     }
-#endif
 
-                    LOOP4_ASSERT(ui, ua, vi, va, UU    == V);
+                    LOOP4_ASSERT(ui, ua, vi, va,
+                                 functionsHaveSameValue(UU, V));
                     LOOP4_ASSERT(ui, ua, vi, va, false == U);
 
-#ifndef BDE_FUNCTION_PRIOR_1_16
                     LOOP4_ASSERT(ui, ua, vi, va, U.getAllocator() == Z[ua]);
                     LOOP4_ASSERT(ui, ua, vi, va, V.getAllocator() == Z[va]);
-#endif
                 }
                 }
                 ASSERT(0 == ta.numMismatches());
@@ -3200,7 +3177,7 @@ int main(int argc, char *argv[])
         // TESTING ADDITIONAL CONSTRUCTORS
         //
         // Concerns:
-        //   1. That construction with a 'bslma_Allocator *' leaves the
+        //   1. That construction with a 'bslma::Allocator *' leaves the
         //      function object empty, but with a function pointer correctly
         //      sets the invocable and uses the default allocator.
         //   2. That value is set identically as default constructor followed
@@ -3210,7 +3187,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdef_Function<FUNC_OR_ALLOC>(const FUNC_OR_ALLOC& funcOrAlloc);
-        //   bdef_Function<FUNC>(const FUNC& func, bslma_Allocator *allocator);
+        //   bdef_Function<FUNC>(const FUNC& func, bslma::Allocator *alloc);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3257,24 +3234,25 @@ int main(int argc, char *argv[])
                   case 0: {
                     ASSERT(0);
                     const Obj U((Proto)0);  // undefined behavior
-                    LOOP_ASSERT(ui, UU == U);  // will fail
+                    LOOP_ASSERT(ui,
+                                functionsHaveSameValue(UU, U));  // will fail
                   } break;
                   case 1: {
                     switch (U_SPEC[0]) {  // test here
                       case 'F': {
                         ASSERT(0 == strcmp(U_SPEC, "F"));
                         const Obj U(&functionF);
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui, functionsHaveSameValue(UU, U));
                       } break;
                       case 'G': {
                         ASSERT(0 == strcmp(U_SPEC, "G"));
                         const Obj U(&functionG);
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui, functionsHaveSameValue(UU, U));
                       } break;
                       case 'H': {
                         ASSERT(0 == strcmp(U_SPEC, "H"));
                         const Obj U(&functionH);
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui, functionsHaveSameValue(UU, U));
                       } break;
                       default: ASSERT(0);
                     }
@@ -3287,47 +3265,47 @@ int main(int argc, char *argv[])
                       case 'U': {
                         FunctorU fU; fU.d_value = N;
                         const Obj U(pointerWrapper(fU));
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui, functionsHaveSameValue(UU, U));
                       } break;
                       case 'V': {
                         FunctorV fV; fV.d_value = N;
                         const Obj U(pointerWrapper(fV));
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui, functionsHaveSameValue(UU, U));
                       } break;
                       case 'W': {
                         FunctorW fW; fW.d_value = N;
                         const Obj U(pointerWrapper(fW));
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui,functionsHaveSameValue(UU, U));
                       } break;
                       case 'S': {
                         FunctorS fS; fS.d_value = N;
                         const Obj U(fS);
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui, functionsHaveSameValue(UU, U));
                       } break;
                       case 'T': {
                         FunctorT fT; fT.d_value = N;
                         const Obj U(fT);
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui, functionsHaveSameValue(UU, U));
                       } break;
                       case 'P': {
                         FunctorP fP; fP.d_value = N;
                         const Obj U(pointerWrapper(fP));
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui, functionsHaveSameValue(UU, U));
                       } break;
                       case 'Q': {
                         FunctorQ fQ; fQ.d_value = N;
                         const Obj U(pointerWrapper(fQ));
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui, functionsHaveSameValue(UU, U));
                       } break;
                       case 'L': {
                         FunctorL fL; fL.d_value = N;
                         const Obj U(fL);
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui,functionsHaveSameValue(UU, U));
                       } break;
                       case 'M': {
                         FunctorM fM; fM.d_value = N;
                         const Obj U(fM);
-                        LOOP_ASSERT(ui, UU == U);
+                        LOOP_ASSERT(ui,functionsHaveSameValue(UU, U));
                       } break;
                       default: ASSERT(0);
                     }
@@ -3339,11 +3317,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWith allocators." << endl;
         {
-            bslma_TestAllocator tb(veryVeryVerbose);
-            bslma_Allocator *Z[] = { 0, &tb };
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::Allocator *Z[] = { 0, &tb };
 
-            bslma_DefaultAllocatorGuard guard(&ta);
-            bslma_TestAllocator *ZZ[] = { &ta, &tb };
+            bslma::DefaultAllocatorGuard guard(&ta);
+            bslma::TestAllocator *ZZ[] = { &ta, &tb };
 
             const int NUM_ALLOCS = sizeof Z / sizeof *Z;
 
@@ -3371,24 +3349,18 @@ int main(int argc, char *argv[])
                 // test must be performed inside the 'case' block, we use a
                 // macro to avoid repetition:
 
-#ifndef BDE_FUNCTION_PRIOR_1_16
     #define BDEF_FUNCTION_TEST_CTOR(U) do {                                   \
                     if (veryVerbose) {                                        \
                         cout << "\t\t\tafter loading: ";                      \
                         if (U.getAllocator() == Z[0]) cout << "ua = 0";       \
-                        if (U.getAllocator() == Z[1]) cout << "ua = ta";      \
-                        if (U.getAllocator() == Z[2]) cout << "ua = tb";      \
+                        if (U.getAllocator() == Z[1]) cout << "ua = tb";      \
+                        if (U.getAllocator() == &ta)  cout << "ua = ta";      \
                         cout << endl;                                         \
                     }                                                         \
-                    LOOP2_ASSERT(ui, ua, UU == U);                            \
+                    LOOP2_ASSERT(ui, ua, functionsHaveSameValue(UU, U));      \
                     LOOP2_ASSERT(ui, ua, U.getAllocator() ==                  \
-                                            bslma_Default::allocator(Z[ua])); \
+                                           bslma::Default::allocator(Z[ua])); \
     } while(0)
-#else
-    #define BDEF_FUNCTION_TEST_CTOR(U) \
-                    LOOP4_ASSERT(ui, ua, UU == U)
-
-#endif
                 switch (strlen(U_SPEC)) {
                   case 0: {
                     ASSERT(0);
@@ -3616,19 +3588,26 @@ int main(int argc, char *argv[])
 
                             const Obj& V = mV;  gg(&mV, V_SPEC);
 
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, UU == U);
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, Z==(V==U));
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(UU, U));
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(VV, V));
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         Z==(functionsHaveSameValue(V, U)));
 
                             mU = V; // test assignment here
 
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  V == U);
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(VV, U));
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(VV, V));
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(V, U));
                             //--v
                             }
                             // 'mV' (and therefore 'V') now out of scope
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(VV, U));
                         }
                     }
                 }
@@ -3683,13 +3662,17 @@ int main(int argc, char *argv[])
                             testAllocator.setAllocationLimit(AL);
                             mU = V; // test assignment here
 
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  V == U);
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(VV, U));
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(VV, V));
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(V, U));
                             //--v
                             }
                             // 'mV' (and therefore 'V') now out of scope
-                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                         functionsHaveSameValue(VV, U));
                           } END_BSLMA_EXCEPTION_TEST
 
                           }
@@ -3724,14 +3707,14 @@ int main(int argc, char *argv[])
                     stretchRemoveAll(&mY, N);
                     const Obj& Y = mY; gg<Proto>(&mY, SPEC);
 
-                    LOOP2_ASSERT(SPEC, N, Y == Y);
-                    LOOP2_ASSERT(SPEC, N, X == Y);
+                    LOOP2_ASSERT(SPEC, N, functionsHaveSameValue(Y, Y));
+                    LOOP2_ASSERT(SPEC, N, functionsHaveSameValue(X, Y));
 
                     testAllocator.setAllocationLimit(AL);
                     mY = Y; // test assignment here
 
-                    LOOP2_ASSERT(SPEC, N, Y == Y);
-                    LOOP2_ASSERT(SPEC, N, X == Y);
+                    LOOP2_ASSERT(SPEC, N, functionsHaveSameValue(Y, Y));
+                    LOOP2_ASSERT(SPEC, N, functionsHaveSameValue(X, Y));
 
                   } END_BSLMA_EXCEPTION_TEST
                 }
@@ -3784,7 +3767,7 @@ int main(int argc, char *argv[])
             const int TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
             const int IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
             const Obj Y = g<Proto>(spec);
-            LOOP_ASSERT(ti, X == Y);
+            LOOP_ASSERT(ti, functionsHaveSameValue(X, Y));
             const int TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
             const int IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
             LOOP_ASSERT(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
@@ -3841,11 +3824,11 @@ int main(int argc, char *argv[])
         //
         //   To address concern 5, we will perform each of the above tests in
         //   the presence of exceptions during memory allocations using a
-        //   'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //   'bslma::TestAllocator' and varying its *allocation* *limit*.
         //
         //   To address concern 6, we will repeat the above tests:
         //     - When passing in no allocator.
-        //     - When passing in a null pointer: (bslma_Allocator *)0.
+        //     - When passing in a null pointer: (bslma::Allocator *)0.
         //     - When passing in a test allocator (see concern 5).
         //     - Where the object is constructed entirely in static memory
         //       (using a 'bdema_BufferedSequentialAllocator') and never
@@ -3924,20 +3907,26 @@ int main(int argc, char *argv[])
                     const Obj& X = mX;  gg(&mX, buf);
                     {                                   // No allocator.
                         const Obj Y0(X);
-                        LOOP2_ASSERT(SPEC, PERTURB[ei], W == Y0);
-                        LOOP2_ASSERT(SPEC, PERTURB[ei], W == X);
+                        LOOP2_ASSERT(SPEC, PERTURB[ei],
+                                     functionsHaveSameValue(W, Y0));
+                        LOOP2_ASSERT(SPEC, PERTURB[ei],
+                                     functionsHaveSameValue(W, X));
                     }
 
                     {                                   // Null allocator.
-                        const Obj Y1(X, (bslma_Allocator *) 0);
-                        LOOP2_ASSERT(SPEC, PERTURB[ei], W == Y1);
-                        LOOP2_ASSERT(SPEC, PERTURB[ei], W == X);
+                        const Obj Y1(X, (bslma::Allocator *) 0);
+                        LOOP2_ASSERT(SPEC, PERTURB[ei],
+                                     functionsHaveSameValue(W, Y1));
+                        LOOP2_ASSERT(SPEC, PERTURB[ei],
+                                     functionsHaveSameValue(W, X))
                     }
 
                     BEGIN_BSLMA_EXCEPTION_TEST {    // Test allocator
                         const Obj Y2(X, &testAllocator);
-                        LOOP2_ASSERT(SPEC, PERTURB[ei], W == Y2);
-                        LOOP2_ASSERT(SPEC, PERTURB[ei], W == X);
+                        LOOP2_ASSERT(SPEC, PERTURB[ei],
+                                     functionsHaveSameValue(W, Y2));
+                        LOOP2_ASSERT(SPEC, PERTURB[ei],
+                                     functionsHaveSameValue(W, X))
                     } END_BSLMA_EXCEPTION_TEST
 
                     {                               // Buffer Allocator.
@@ -3945,14 +3934,17 @@ int main(int argc, char *argv[])
                         bdema_BufferedSequentialAllocator a(memory,
                                                             sizeof memory);
                         Obj *Y = new(a.allocate(sizeof(Obj))) Obj(X, &a);
-                        LOOP2_ASSERT(SPEC, PERTURB[ei], W == *Y);
-                        LOOP2_ASSERT(SPEC, PERTURB[ei], W == X);
+                        LOOP2_ASSERT(SPEC, PERTURB[ei],
+                                     functionsHaveSameValue(W, *Y));
+                        LOOP2_ASSERT(SPEC, PERTURB[ei],
+                                     functionsHaveSameValue(W, X))
                     }
 
                     {                             // with 'original' destroyed
                         const Obj Y2(X, &testAllocator);
                         delete pX;
-                        LOOP2_ASSERT(SPEC, PERTURB[ei], W == Y2);
+                        LOOP2_ASSERT(SPEC, PERTURB[ei],
+                                     functionsHaveSameValue(W, Y2));
                     }
                 }
             }
@@ -3961,6 +3953,18 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS:
+        //   'bdef_Function' does not have an equality operator, but for the
+        //   purposes of this test driver we define a free function, restricted
+        //   to this .t.cpp file, that has the semantics that such an operator
+        //   should have.  This 'functionsHaveSameValue' function will stand in
+        //   for the traditional 'operator==' in subsequent test cases.  We can
+        //   define this function locally as we control the set of functors
+        //   that will be used in 'bdef_Function' instantiations throughout the
+        //   test driver, and so can arrange intrusively for the function to
+        //   produce the desired result.  It is not possible to implement such
+        //   a function in the general case, which is way it is specifically
+        //   *not* a part of the 'bdef_Function' interface.
+        //
         //   Since 'operators==' is implemented in terms of basic accessors,
         //   it is sufficient to verify only that a difference in value of any
         //   one basic accessor for any two given objects implies inequality.
@@ -3991,8 +3995,8 @@ int main(int argc, char *argv[])
         //   equivalent to every other element.
         //
         // Testing:
-        //   operator==(const bdef_Function<T>&, const bdef_Function<T>&);
-        //   operator!=(const bdef_Function<T>&, const bdef_Function<T>&);
+        //   functionsHaveSameValue==(const bdef_Function<T>&,
+        //                            const bdef_Function<T>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4062,10 +4066,10 @@ int main(int argc, char *argv[])
                 Obj mY(&ta);  const Obj& Y = mY;
                 mY.clear();  gg(&mY, MORE_SPEC);
 
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti == tj) == (X == Y));
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti == tj) == (Y == X));
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti != tj) == (X != Y));
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti != tj) == (Y != X));
+                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj,
+                             (ti == tj) == functionsHaveSameValue(X, Y));
+                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj,
+                             (ti == tj) == functionsHaveSameValue(Y, X));
 
                 static const char *const PREFIX = "~FGHV1T2Q3M4~";
                 char buf[100]; strcpy(buf, PREFIX); strcat(buf, SPEC);
@@ -4073,10 +4077,10 @@ int main(int argc, char *argv[])
                 Obj mZ(&ta);
                 const Obj& Z = gg(&mZ, buf);
 
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti == tj) == (Y == Z));
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti == tj) == (Z == Y));
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti != tj) == (Y != Z));
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti != tj) == (Z != Y));
+                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj,
+                             (ti == tj) == functionsHaveSameValue(Y, Z));
+                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj,
+                             (ti == tj) == functionsHaveSameValue(Z, Y));
 
                 char more_buf[100];
                 strcpy(more_buf, PREFIX); strcat(more_buf, MORE_SPEC);
@@ -4084,10 +4088,10 @@ int main(int argc, char *argv[])
                 Obj mW(&ta);
                 const Obj& W = gg(&mW, more_buf);
 
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti == tj) == (Z == W));
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti == tj) == (W == Z));
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti != tj) == (Z != W));
-                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj, (ti != tj) == (W != Z));
+                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj,
+                             (ti == tj) == functionsHaveSameValue(Z, W));
+                LOOP4_ASSERT(LINE, MORE_LINE, ti, tj,
+                             (ti == tj) == functionsHaveSameValue(W, Z));
             }
         }
 
@@ -4121,10 +4125,10 @@ int main(int argc, char *argv[])
                     char more_buf[100];
                     strcpy(more_buf, PERTURB[j]); strcat(more_buf, SPEC);
 
-                    LOOP3_ASSERT(LINE, i, j, 1 == (X == Y));
-                    LOOP3_ASSERT(LINE, i, j, 1 == (Y == X));
-                    LOOP3_ASSERT(LINE, i, j, 0 == (X != Y));
-                    LOOP3_ASSERT(LINE, i, j, 0 == (Y != X));
+                    LOOP3_ASSERT(LINE, i, j,
+                                 1 == functionsHaveSameValue(X, Y));
+                    LOOP3_ASSERT(LINE, i, j,
+                                 1 == functionsHaveSameValue(Y, X));
                 }
             }
         }
@@ -4507,7 +4511,8 @@ int main(int argc, char *argv[])
         //   constructor:
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        *limit*.
         //    - Where the object is constructed entirely in static memory
         //        (using a 'bdema_BufferedSequentialAllocator') and never
         //        destroyed.
@@ -4518,8 +4523,8 @@ int main(int argc, char *argv[])
         //   destructor asserts internal object invariants appropriately.
         //   After the final assignment operation in each test, use the
         //   (untested) basic accessors to cross-check the value of the object
-        //   and the 'bslma_TestAllocator' to confirm whether a transition from
-        //   in-place to out-of-place has occurred.
+        //   and the 'bslma::TestAllocator' to confirm whether a transition
+        //   from in-place to out-of-place has occurred.
         //
         //   To address concerns 4a-4c, construct a similar test, replacing
         //   assignment with 'clear'; this time, however, use the test
@@ -4543,7 +4548,7 @@ int main(int argc, char *argv[])
         //
         //   The first test acts as a "control" in that 'clear' is not
         //   called; if only the second test produces an error, we know that
-        //   'clear' is to blame.  We will rely on 'bslma_TestAllocator'
+        //   'clear' is to blame.  We will rely on 'bslma::TestAllocator'
         //   and purify to address concern 2, and on the object invariant
         //   assertions in the destructor to address concerns 3d and 4d.
         //
@@ -4671,7 +4676,8 @@ int main(int argc, char *argv[])
             ASSERT(VP == X(4));
         }
         ++numDeallocations;
-        ASSERT(numAllocations - numDeallocations == ta.numAllocations() - ta.numDeallocations());
+        ASSERT(numAllocations - numDeallocations ==
+                                  ta.numAllocations() - ta.numDeallocations());
 
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
@@ -4937,7 +4943,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb. Try equality operators: x1 <op> x1." << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+        ASSERT(1 == functionsHaveSameValue(X1, X1));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 2. Create an object x2 (copy from x1)."
@@ -4950,8 +4956,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb. Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
-        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
+        ASSERT(1 == functionsHaveSameValue(X2, X1));
+        ASSERT(1 == functionsHaveSameValue(X2, X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 3. Set x1 to a new value VB."
@@ -4965,8 +4971,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb. Try equality operators: x1 <op> x1, x2." << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
+        ASSERT(1 == functionsHaveSameValue(X1, X1));
+        ASSERT(0 == functionsHaveSameValue(X1, X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 4. Create a default object x3()."
@@ -4978,9 +4984,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb. Try equality operators: x3 <op> x1, x2, x3." << endl;
-        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
-        ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
-        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
+        ASSERT(0 == functionsHaveSameValue(X3, X1));
+        ASSERT(0 == functionsHaveSameValue(X3, X2));
+        ASSERT(1 == functionsHaveSameValue(X3, X3));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 5. Create an object x4 (copy from x3)."
@@ -4992,10 +4998,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb. Try equality operators: x4 <op> x1, x2, x3, x4." << endl;
-        ASSERT(0 == (X4 == X1));        ASSERT(1 == (X4 != X1));
-        ASSERT(0 == (X4 == X2));        ASSERT(1 == (X4 != X2));
-        ASSERT(1 == (X4 == X3));        ASSERT(0 == (X4 != X3));
-        ASSERT(1 == (X4 == X4));        ASSERT(0 == (X4 != X4));
+        ASSERT(0 == functionsHaveSameValue(X4, X1));
+        ASSERT(0 == functionsHaveSameValue(X4, X2));
+        ASSERT(1 == functionsHaveSameValue(X4, X3));
+        ASSERT(1 == functionsHaveSameValue(X4, X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 6. Set x3 to a new value VC."
@@ -5010,10 +5016,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb. Try equality operators: x3 <op> x1, x2, x3, x4." << endl;
-        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
-        ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
-        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
-        ASSERT(0 == (X3 == X4));        ASSERT(1 == (X3 != X4));
+        ASSERT(0 == functionsHaveSameValue(X3, X1));
+        ASSERT(0 == functionsHaveSameValue(X3, X2));
+        ASSERT(1 == functionsHaveSameValue(X3, X3));
+        ASSERT(0 == functionsHaveSameValue(X3, X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 7. Assign x2 = x1."
@@ -5028,10 +5034,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb. Try equality operators: x2 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
-        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
-        ASSERT(0 == (X2 == X3));        ASSERT(1 == (X2 != X3));
-        ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
+        ASSERT(1 == functionsHaveSameValue(X2, X1));
+        ASSERT(1 == functionsHaveSameValue(X2, X2));
+        ASSERT(0 == functionsHaveSameValue(X2, X3));
+        ASSERT(0 == functionsHaveSameValue(X2, X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 8. Assign x2 = x3."
@@ -5046,10 +5052,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb. Try equality operators: x2 <op> x1, x2, x3, x4." << endl;
-        ASSERT(0 == (X2 == X1));        ASSERT(1 == (X2 != X1));
-        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
-        ASSERT(1 == (X2 == X3));        ASSERT(0 == (X2 != X3));
-        ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
+        ASSERT(0 == functionsHaveSameValue(X2, X1));
+        ASSERT(1 == functionsHaveSameValue(X2, X2));
+        ASSERT(1 == functionsHaveSameValue(X2, X3));
+        ASSERT(0 == functionsHaveSameValue(X2, X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 9. Assign x1 = x1 (aliasing)."
@@ -5065,23 +5071,23 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb. Try equality operators: x1 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
-        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
-        ASSERT(0 == (X1 == X4));        ASSERT(1 == (X1 != X4));
+        ASSERT(1 == functionsHaveSameValue(X1, X1));
+        ASSERT(0 == functionsHaveSameValue(X1, X2));
+        ASSERT(0 == functionsHaveSameValue(X1, X3));
+        ASSERT(0 == functionsHaveSameValue(X1, X4));
 
         // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
         if (verbose) cout << "\nTesting various types of invocables.\n";
 
-        bdef_Function<int (*)(int)> Z((bslma_Allocator*)0);
+        bdef_Function<int (*)(int)> Z((bslma::Allocator*)0);
         ASSERT((!Z));
         {
             if (verbose) cout << "\tFree function pointer.\n";
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5107,7 +5113,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5138,7 +5144,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5166,7 +5172,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5195,7 +5201,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             {
-                bslma_DefaultAllocatorGuard guard(&ta);
+                bslma::DefaultAllocatorGuard guard(&ta);
                 numAllocations = ta.numAllocations();
                 bdef_Function<int (*)()> mX;
                 bdef_Function<int (*)()> const &X = mX;
@@ -5225,7 +5231,7 @@ int main(int argc, char *argv[])
                 T_ P(sizeof(void*));
                 T_ P(sizeof &freeFunc0);
                 T_ P(sizeof &MyFunctionObject::memFunc0);
-                T_ P(sizeof(bsls_AlignmentUtil::MaxAlignedType));
+                T_ P(sizeof(bsls::AlignmentUtil::MaxAlignedType));
                 T_ P(sizeof(int));
                 T_ P(sizeof(bdef_Function<int (*)()>));
                 T_ P(bdef_FunctionUtil::MAX_INPLACE_OBJECT_SIZE);
@@ -5242,7 +5248,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Load a 'bdef_Function' object with a nop functor and call it
-        //   repeatdly.  Time how long this takes.
+        //   repeatedly.  Time how long this takes.
         // --------------------------------------------------------------------
 
         cout << "'bdef_Function' nop benchmark\n"
@@ -5254,7 +5260,7 @@ int main(int argc, char *argv[])
 
         bdef_Function<void (*)()> f((FunctorNop()));
 
-        bsls_Stopwatch sw;
+        bsls::Stopwatch sw;
         sw.start(true);
 
         for (int i = iterations; i > 0; --i) {

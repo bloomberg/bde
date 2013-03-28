@@ -14,6 +14,7 @@
 #include <bsl_cstdlib.h>             // atoi()
 #include <bsl_cstring.h>             // memset()
 #include <bsl_iostream.h>
+#include <bsl_utility.h>
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
 // for getsockname

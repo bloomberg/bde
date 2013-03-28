@@ -1,8 +1,8 @@
-// bdef_bind_test4.h       -*-C++-*-
+// bdef_bind_test4.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDEF_BIND_TEST4
 #define INCLUDED_BDEF_BIND_TEST4
 
-//@PURPOSE: Provide a test sequence for 'bdef_bind' with 4 arguments
+//@PURPOSE: Provide a test sequence for 'bdef_bind' with 4 arguments.
 //
 //@CLASSES:
 //

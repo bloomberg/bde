@@ -11,7 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::allocator: STL-compatible allocator template
-//  bsl::Allocator_BslalgTypeTraits: type traits for 'bsl::allocator'
 //
 //@SEE_ALSO: bslma_allocator
 //
@@ -162,8 +161,8 @@ BSLS_IDENT("$Id: $")
 //  // CREATORS
 //  template<class T, class ALLOC>
 //  my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(int          length,
-//                                                const ALLOC& alloc)
-//  : d_allocator(alloc), d_length(length)
+//                                                const ALLOC& allocator)
+//  : d_allocator(allocator), d_length(length)
 //  {
 //      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 //
@@ -175,15 +174,15 @@ BSLS_IDENT("$Id: $")
 //
 //  template<class T, class ALLOC>
 //  my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(
-//                                              const my_FixedSizeArray& rhs,
-//                                              const ALLOC&             alloc)
-//  : d_allocator(alloc), d_length(rhs.d_length)
+//                                          const my_FixedSizeArray& original,
+//                                          const ALLOC&             allocator)
+//  : d_allocator(allocator), d_length(original.d_length)
 //  {
 //      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 //
 //      // copy construct each element of the array:
 //      for (int i = 0; i < d_length; ++i) {
-//          d_allocator.construct(&d_array[i], rhs.d_array[i]);
+//          d_allocator.construct(&d_array[i], original.d_array[i]);
 //      }
 //  }
 //
@@ -463,15 +462,16 @@ class allocator {
         //  this->mechanism() == bslma::Default::defaultAllocator();
         //..
 
-    allocator(BloombergLP::bslma::Allocator *mechanism);
+    allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
         // Convert a 'bslma::Allocator' pointer to a 'allocator' object which
         // forwards allocation calls to the object pointed to by the specified
         // 'mechanism'.  If 'mechanism' is 0, then the currently installed
         // default allocator is used instead.  Postcondition:
         // '0 == mechanism || this->mechanism() == mechanism'.
 
-    allocator(const allocator& rhs);
-        // Copy construct a proxy object using the same mechanism as rhs.
+    allocator(const allocator& original);
+        // Create a proxy object using the same mechanism as the specified
+        // 'original'.
         // Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
     template <class U>
@@ -568,15 +568,16 @@ class allocator<void> {
         // Construct a proxy object which will forward allocation calls to the
         // object pointed to by 'bslma::Default::defaultAllocator()'.
 
-    allocator(BloombergLP::bslma::Allocator *mechanism);
+    allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
         // Convert a 'bslma::Allocator' pointer to a 'allocator' object which
         // forwards allocation calls to the object pointed to by the specified
         // 'mechanism'.  If 'mechanism' is 0, then the current default
         // allocator is used instead.  Postcondition:
         // '0 == mechanism || this->mechanism() == mechanism'.
 
-    allocator(const allocator& rhs);
-        // Copy construct a proxy object using the same mechanism as rhs.
+    allocator(const allocator& original);
+        // Create a proxy object using the same mechanism as the specified
+        // 'original'.
         // Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
     template <class U>
@@ -678,8 +679,8 @@ allocator<T>::allocator(BloombergLP::bslma::Allocator *mechanism)
 
 template <class T>
 inline
-allocator<T>::allocator(const allocator& rhs)
-: d_mechanism(rhs.mechanism())
+allocator<T>::allocator(const allocator& original)
+: d_mechanism(original.mechanism())
 {
 }
 
@@ -796,8 +797,8 @@ allocator<void>::allocator(BloombergLP::bslma::Allocator *mechanism)
 template <>
 #endif
 inline
-allocator<void>::allocator(const allocator<void>& rhs)
-: d_mechanism(rhs.mechanism())
+allocator<void>::allocator(const allocator<void>& original)
+: d_mechanism(original.mechanism())
 {
 }
 
@@ -859,11 +860,24 @@ bool operator!=(const BloombergLP::bslma::Allocator *lhs,
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

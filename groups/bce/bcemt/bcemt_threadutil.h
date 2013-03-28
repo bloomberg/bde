@@ -49,6 +49,9 @@ BDES_IDENT("$Id: $")
 //  bcemt_ThreadUtil::NativeHandle myNativeHandle;
 //  myNativeHandle = bcemt_ThreadUtil::nativeHandle();
 //..
+// Note that the returned native handle may not be a globally unique
+// identifier for the thread, and, e.g., should not be converted to an
+// integer identifier, or used as a key in a map.
 //
 ///Setting Thread Priorities
 ///-------------------------
@@ -533,7 +536,9 @@ struct bcemt_ThreadUtil {
     static NativeHandle nativeHandle(const Handle& handle);
         // Return the platform-specific identifier associated with the thread
         // referred to by the specified 'handle'.  The behavior is undefined
-        // unless 'handle' was obtained by a call to 'create' or 'self'.
+        // unless 'handle' was obtained by a call to 'create' or 'self'.  Note
+        // that the returned native handle may not be a globally unique
+        // identifier for the thread (see 'selfIdAsUint').
 
     static Handle self();
         // Return an identifier that can be used to refer to the current thread

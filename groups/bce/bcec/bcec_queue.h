@@ -380,10 +380,6 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDEC_QUEUE
 #include <bdec_queue.h>
 #endif
@@ -392,12 +388,16 @@ BDES_IDENT("$Id: $")
 #include <bdet_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
 #endif
 
 namespace BloombergLP {
@@ -454,7 +454,7 @@ class bcec_Queue {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_Queue,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // TYPES
     struct InitialCapacity {
@@ -473,14 +473,14 @@ class bcec_Queue {
     };
 
     // CREATORS
-    bcec_Queue(bslma_Allocator *basicAllocator = 0);
+    bcec_Queue(bslma::Allocator *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    bcec_Queue(int              highWaterMark,
-               bslma_Allocator *basicAllocator = 0);
+    bcec_Queue(int               highWaterMark,
+               bslma::Allocator *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' having either the
         // specified 'highWaterMark' suggested maximum length if
         // 'highWaterMark' is positive, or no maximum length if 'highWaterMark'
@@ -490,7 +490,7 @@ class bcec_Queue {
         // 'highWaterMark != 0'.
 
     bcec_Queue(const InitialCapacity&  numItems,
-               bslma_Allocator        *basicAllocator = 0);
+               bslma::Allocator       *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' with sufficient
         // initial capacity to accommodate up to the specified 'numItems'
         // values without subsequent reallocation.  Optionally specify a
@@ -499,7 +499,7 @@ class bcec_Queue {
 
     bcec_Queue(const InitialCapacity&  numItems,
                int                     highWaterMark,
-               bslma_Allocator        *basicAllocator = 0);
+               bslma::Allocator       *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' with sufficient
         // initial capacity to accommodate up to the specified 'numItems'
         // values without subsequent reallocation and having either the
@@ -511,7 +511,7 @@ class bcec_Queue {
         // 'highWaterMark != 0'.
 
     bcec_Queue(const bdec_Queue<TYPE>&  srcQueue,
-               bslma_Allocator         *basicAllocator = 0);
+               bslma::Allocator        *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' containing the
         // sequence of 'TYPE' values from the specified 'srcQueue'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -520,7 +520,7 @@ class bcec_Queue {
 
     bcec_Queue(const bdec_Queue<TYPE>&  srcQueue,
                int                      highWaterMark,
-               bslma_Allocator         *basicAllocator = 0);
+               bslma::Allocator        *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' containing the
         // sequence of 'TYPE' values from the specified 'srcQueue' and having
         // either the specified 'highWaterMark' suggested maximum length if
@@ -703,7 +703,7 @@ class bcec_Queue {
 // CREATORS
 template <class TYPE>
 inline
-bcec_Queue<TYPE>::bcec_Queue(bslma_Allocator *basicAllocator)
+bcec_Queue<TYPE>::bcec_Queue(bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 , d_highWaterMark(-1)
 {
@@ -712,7 +712,7 @@ bcec_Queue<TYPE>::bcec_Queue(bslma_Allocator *basicAllocator)
 template <class TYPE>
 inline
 bcec_Queue<TYPE>:: bcec_Queue(const InitialCapacity&  numItems,
-                              bslma_Allocator        *basicAllocator)
+                              bslma::Allocator       *basicAllocator)
 : d_queue(QueueCapacity(numItems.d_i), basicAllocator)
 , d_highWaterMark(-1)
 {
@@ -720,8 +720,8 @@ bcec_Queue<TYPE>:: bcec_Queue(const InitialCapacity&  numItems,
 
 template <class TYPE>
 inline
-bcec_Queue<TYPE>::bcec_Queue(int              highWaterMark,
-                             bslma_Allocator *basicAllocator)
+bcec_Queue<TYPE>::bcec_Queue(int               highWaterMark,
+                             bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 , d_highWaterMark(highWaterMark < 0 ? -1 : highWaterMark)
 {
@@ -731,7 +731,7 @@ template <class TYPE>
 inline
 bcec_Queue<TYPE>::bcec_Queue(const InitialCapacity&  numItems,
                              int                     highWaterMark,
-                             bslma_Allocator        *basicAllocator)
+                             bslma::Allocator       *basicAllocator)
 : d_queue(QueueCapacity(numItems.d_i), basicAllocator)
 , d_highWaterMark(highWaterMark < 0 ? -1 : highWaterMark)
 {
@@ -740,7 +740,7 @@ bcec_Queue<TYPE>::bcec_Queue(const InitialCapacity&  numItems,
 template <class TYPE>
 inline
 bcec_Queue<TYPE>::bcec_Queue(const bdec_Queue<TYPE>&  srcQueue,
-                             bslma_Allocator         *basicAllocator)
+                             bslma::Allocator        *basicAllocator)
 : d_queue(srcQueue, basicAllocator)
 , d_highWaterMark(-1)
 {
@@ -750,7 +750,7 @@ template <class TYPE>
 inline
 bcec_Queue<TYPE>::bcec_Queue(const bdec_Queue<TYPE>&  srcQueue,
                              int                      highWaterMark,
-                             bslma_Allocator         *basicAllocator)
+                             bslma::Allocator        *basicAllocator)
 : d_queue(srcQueue, basicAllocator)
 , d_highWaterMark(highWaterMark < 0 ? -1 : highWaterMark)
 {

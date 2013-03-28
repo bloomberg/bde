@@ -2,8 +2,8 @@
 
 #include <bdex_instreammethods.h>
 
-#include <bsls_platform.h>           // for testing only
-#include <bsls_platformutil.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>
@@ -34,11 +34,11 @@ using bsl::cerr;
 //      template <typename STREAM>
 //      STREAM& bdexStreamIn(STREAM& stream, TYPE& object, int version)
 //
-//  class bdex_InStreamMethods<bsls_PlatformUtil::Int64>
+//  class bdex_InStreamMethods<bsls::Types::Int64>
 //      template <typename STREAM>
 //      STREAM& bdexStreamIn(STREAM& stream, Int64& variable, int version)
 //
-//  class bdex_InStreamMethods<bsls_PlatformUtil::Uint64>
+//  class bdex_InStreamMethods<bsls::Types::Uint64>
 //      template <typename STREAM>
 //      STREAM& bdexStreamIn(STREAM& stream, Uint64& variable, int version)
 //
@@ -490,8 +490,7 @@ static void aSsErT(int c, const char *s, int i)
             // place that value in the specified 'variable', and return a
             // reference to this modifiable stream.  ...
 
-        my_InStream& getArrayFloat64(double *array,
-                                     int     length)
+        my_InStream& getArrayFloat64(double *array, int length)
         {
             int numBytes = length*sizeof(*array);
             bsl::memcpy(array, d_buffer + d_cursor, numBytes);
@@ -499,8 +498,7 @@ static void aSsErT(int c, const char *s, int i)
             return *this;
         }
 
-        my_InStream& getArrayFloat32(float *array,
-                                     int    length)
+        my_InStream& getArrayFloat32(float *array, int length)
         {
             int numBytes = length*sizeof(*array);
             bsl::memcpy(array, d_buffer + d_cursor, numBytes);
@@ -508,8 +506,7 @@ static void aSsErT(int c, const char *s, int i)
             return *this;
         }
 
-        my_InStream& getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                   int                       length)
+        my_InStream& getArrayInt64(bsls::Types::Int64 *array, int length)
         {
             int numBytes = length*sizeof(*array);
             bsl::memcpy(array, d_buffer + d_cursor, numBytes);
@@ -517,7 +514,7 @@ static void aSsErT(int c, const char *s, int i)
             return *this;
         }
 
-        my_InStream& getArrayInt32(int* value, int length)
+        my_InStream& getArrayInt32(int *value, int length)
         {
             for (int i = 0; i < length; ++i) {
                 getInt32(value[i]);
@@ -525,7 +522,7 @@ static void aSsErT(int c, const char *s, int i)
             return *this;
         }
 
-        my_InStream& getArrayInt16(short* value, int length)
+        my_InStream& getArrayInt16(short *value, int length)
         {
             for (int i = 0; i < length; ++i) {
                 getInt16(value[i]);
@@ -533,7 +530,7 @@ static void aSsErT(int c, const char *s, int i)
             return *this;
         }
 
-        my_InStream& getArrayInt8(char* value, int length)
+        my_InStream& getArrayInt8(char *value, int length)
         {
             bsl::memcpy(value, d_buffer + d_cursor, length);
             d_cursor += length;
@@ -928,7 +925,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING bsls_PlatformUtil::Int64 VECTOR STREAM
+        // TESTING bsls::Types::Int64 VECTOR STREAM
         //
         // Plan:
         //
@@ -936,7 +933,7 @@ int main(int argc, char *argv[])
         //   bdex_InStreamMethods<bsl::vector<Int64, ALLOC> >
         // --------------------------------------------------------------------
 
-        const bsls_PlatformUtil::Int64 DATA[] = {  // any arbitrary data array
+        const bsls::Types::Int64 DATA[] = {  // any arbitrary data array
             7,
             5,
             432,
@@ -964,12 +961,11 @@ int main(int argc, char *argv[])
             }
             const int buffer2Len = 2 + (size*sizeof(*DATA));
 
-            bsl::vector<bsls_PlatformUtil::Int64> p1, p2;  // two default
-                                                           // vectors
+            bsl::vector<bsls::Types::Int64> p1, p2;  // two default vectors
 
             my_InStream in1(buffer1, buffer1Len);  // without version
             ASSERT(in1);
-            bdex_InStreamMethods<bsl::vector<bsls_PlatformUtil::Int64> >::
+            bdex_InStreamMethods<bsl::vector<bsls::Types::Int64> >::
                                                       bdexStreamIn(in1, p1, 0);
             ASSERT(in1);
             LOOP2_ASSERT(size, p1.size(), size == p1.size());

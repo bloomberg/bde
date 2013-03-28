@@ -371,7 +371,7 @@ void putChars(bsl::streambuf *streamBuf, char value, int numChars)
 #endif
 }
 
-bsls_Types::Int64 getSerialDateValue(const bdet_Date& value)
+bsls::Types::Int64 getSerialDateValue(const bdet_Date& value)
     // Return the binary proleptic serial value, in number of days', of the
     // specified date 'value' from the predefined epoch date.  Note that the
     // serial value could be negative if 'value' occurs before the predefined
@@ -381,12 +381,12 @@ bsls_Types::Int64 getSerialDateValue(const bdet_Date& value)
                                                                 value.month(),
                                                                 value.day());
 
-    const bsls_Types::Int64 dateOffset = serialDate - EPOCH_SERIAL_DATE;
+    const bsls::Types::Int64 dateOffset = serialDate - EPOCH_SERIAL_DATE;
 
     return dateOffset;
 }
 
-bsls_Types::Int64 getSerialTimeValue(const bdet_Time& value)
+bsls::Types::Int64 getSerialTimeValue(const bdet_Time& value)
     // Return the binary serial value, in number of milli seconds, of the
     // specified time 'value' from midnight.
 {
@@ -394,15 +394,15 @@ bsls_Types::Int64 getSerialTimeValue(const bdet_Time& value)
     return (value - defaultTime).totalMilliseconds();
 }
 
-bsls_Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
+bsls::Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
     // Return the binary serial value, in number of milli seconds, of the
     // specified datetime 'value' from midnight of the predefined epoch date
     // value.  Note that the serial value could be negative if the date
     // corresponding to 'value' occurs before the predefined epoch date.
 {
-    const bsls_Types::Int64 serialDate = getSerialDateValue(value.date());
-    const bsls_Types::Int64 serialTime = getSerialTimeValue(value.time());
-    const bsls_Types::Int64 serialDatetime =
+    const bsls::Types::Int64 serialDate = getSerialDateValue(value.date());
+    const bsls::Types::Int64 serialTime = getSerialTimeValue(value.time());
+    const bsls::Types::Int64 serialDatetime =
                                    serialDate * MILLISECS_PER_DAY + serialTime;
 
     return serialDatetime;
@@ -552,7 +552,7 @@ int bdem_BerUtil_Imp::getBinaryDateValue(bsl::streambuf *streamBuf,
                                          bdet_Date      *value,
                                          int             length)
 {
-    bsls_Types::Int64 serialDate;
+    bsls::Types::Int64 serialDate;
     getIntegerValue(streamBuf, &serialDate, length);
 
     int year, month, day;
@@ -568,7 +568,7 @@ int bdem_BerUtil_Imp::getBinaryTimeValue(bsl::streambuf *streamBuf,
                                          bdet_Time      *value,
                                          int             length)
 {
-    bsls_Types::Int64 serialTime;
+    bsls::Types::Int64 serialTime;
     getIntegerValue(streamBuf, &serialTime, length);
 
     const int hour   = serialTime / MILLISECS_PER_HOUR;
@@ -596,10 +596,10 @@ int bdem_BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
         length -= TIMEZONE_LENGTH;
     }
 
-    bsls_Types::Int64 serialDatetime;
+    bsls::Types::Int64 serialDatetime;
     getIntegerValue(streamBuf, &serialDatetime, length);
 
-    bsls_Types::Int64 serialDate = serialDatetime / MILLISECS_PER_DAY;
+    bsls::Types::Int64 serialDate = serialDatetime / MILLISECS_PER_DAY;
 
     if (serialDatetime < 0) {
         --serialDate;
@@ -608,7 +608,7 @@ int bdem_BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
         }
     }
 
-    const bsls_Types::Int64 serialTime = serialDatetime
+    const bsls::Types::Int64 serialTime = serialDatetime
                                        - serialDate * MILLISECS_PER_DAY;
 
     int hour   = serialTime / MILLISECS_PER_HOUR;
@@ -711,7 +711,7 @@ int bdem_BerUtil_Imp::getBinaryDatetimeTzValue(bsl::streambuf  *streamBuf,
 int bdem_BerUtil_Imp::putBinaryDateValue(bsl::streambuf   *streamBuf,
                                          const bdet_Date&  value)
 {
-    const bsls_Types::Int64 serialDate = getSerialDateValue(value);
+    const bsls::Types::Int64 serialDate = getSerialDateValue(value);
     const int               length     = numBytesToStream(serialDate);
 
     BSLS_ASSERT(length <= MAX_BINARY_DATE_LENGTH);
@@ -723,7 +723,7 @@ int bdem_BerUtil_Imp::putBinaryDateValue(bsl::streambuf   *streamBuf,
 int bdem_BerUtil_Imp::putBinaryTimeValue(bsl::streambuf   *streamBuf,
                                          const bdet_Time&  value)
 {
-    const bsls_Types::Int64 serialTime = getSerialTimeValue(value);
+    const bsls::Types::Int64 serialTime = getSerialTimeValue(value);
     const int               length     = numBytesToStream(serialTime);
 
     BSLS_ASSERT(length <= MAX_BINARY_TIME_LENGTH);
@@ -735,7 +735,7 @@ int bdem_BerUtil_Imp::putBinaryTimeValue(bsl::streambuf   *streamBuf,
 int bdem_BerUtil_Imp::putBinaryDatetimeValue(bsl::streambuf       *streamBuf,
                                              const bdet_Datetime&  value)
 {
-    const bsls_Types::Int64 serialDatetime = getSerialDatetimeValue(value);
+    const bsls::Types::Int64 serialDatetime = getSerialDatetimeValue(value);
     int                     length         = numBytesToStream(serialDatetime);
 
     if (length >= MIN_BINARY_DATETIMETZ_LENGTH) {
@@ -758,7 +758,7 @@ int bdem_BerUtil_Imp::putBinaryDateTzValue(bsl::streambuf     *streamBuf,
         return putBinaryDateValue(streamBuf, date);                   // RETURN
     }
 
-    const bsls_Types::Int64 serialDate = getSerialDateValue(date);
+    const bsls::Types::Int64 serialDate = getSerialDateValue(date);
     int                     length     = numBytesToStream(serialDate)
                                        + TIMEZONE_LENGTH;
 
@@ -789,7 +789,7 @@ int bdem_BerUtil_Imp::putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
         return putBinaryTimeValue(streamBuf, time);                   // RETURN
     }
 
-    const bsls_Types::Int64 serialTime = getSerialTimeValue(time);
+    const bsls::Types::Int64 serialTime = getSerialTimeValue(time);
     const int               length     = numBytesToStream(serialTime)
                                        + TIMEZONE_LENGTH;
 
@@ -820,7 +820,7 @@ int bdem_BerUtil_Imp::putBinaryDatetimeTzValue(
         return putBinaryDatetimeValue(streamBuf, datetime);           // RETURN
     }
 
-    const bsls_Types::Int64 serialDatetime = getSerialDatetimeValue(datetime);
+    const bsls::Types::Int64 serialDatetime = getSerialDatetimeValue(datetime);
     const int               length         = numBytesToStream(serialDatetime)
                                            + TIMEZONE_LENGTH;
 
@@ -1358,6 +1358,17 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_Date&              value,
                                const bdem_BerEncoderOptions *options)
 {
+    // Applications can create invalid 'bdet_Date' objects in optimized build
+    // modes.  As this function assumes that 'value' is valid, it is possible
+    // to encode an invalid 'bdet_Date' without returning an error.  Decoding
+    // the corresponding output can result in hard-to-trace decoding errors.
+    // So to identify such errors early, we return an error if 'value' is not
+    // valid.
+
+    if (0 != const_cast<bdet_Date&>(value).addDaysIfValid(0)) {
+        return -1;                                                    // RETURN
+    }
+
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDateValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
@@ -1367,6 +1378,22 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_Datetime&          value,
                                const bdem_BerEncoderOptions *options)
 {
+    // Applications can create invalid 'bdet_Datetime' objects in optimized
+    // build modes.  As this function assumes that 'value' is valid, it is
+    // possible to encode an invalid 'bdet_Datetime' without returning an
+    // error.  Decoding the corresponding output can result in hard-to-trace
+    // decoding errors.  So to identify such errors early, we return an error
+    // if 'value' is not valid.
+
+    const bdet_Time& time = value.time();
+    if (0 != value.date().addDaysIfValid(0)
+     || !bdet_Time::isValid(time.hour(),
+                            time.minute(),
+                            time.second(),
+                            time.millisecond())) {
+        return -1;                                                    // RETURN
+    }
+
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDatetimeValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
@@ -1376,6 +1403,21 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_DatetimeTz&        value,
                                const bdem_BerEncoderOptions *options)
 {
+    // Applications can create invalid 'bdet_DatetimeTz' objects in optimized
+    // build modes.  As this function assumes that 'value' is valid, it is
+    // possible to encode an invalid 'bdet_DatetimeTz' without returning an
+    // error.  Decoding the corresponding output can result in hard-to-trace
+    // decoding errors.  So to identify such errors early, we return an error
+    // if 'value' is not valid.
+
+    const bdet_DateTz& dateTz = value.dateTz();
+    const bdet_TimeTz& timeTz = value.timeTz();
+    if (0 != dateTz.localDate().addDaysIfValid(0)
+     || !bdet_DateTz::isValid(dateTz.localDate(), dateTz.offset())
+     || !bdet_TimeTz::isValid(timeTz.utcTime(), timeTz.offset())) {
+        return -1;                                                    // RETURN
+    }
+
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDatetimeTzValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
@@ -1385,6 +1427,18 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_DateTz&            value,
                                const bdem_BerEncoderOptions *options)
 {
+    // Applications can create invalid 'bdet_DateTz' objects in optimized build
+    // modes.  As this function assumes that 'value' is valid, it is possible
+    // to encode an invalid 'bdet_DateTz' without returning an error.  Decoding
+    // the corresponding output can result in hard-to-trace decoding errors.
+    // So to identify such errors early, we return an error if 'value' is not
+    // valid.
+
+    if (0 != value.localDate().addDaysIfValid(0)
+     || !bdet_DateTz::isValid(value.localDate(), value.offset())) {
+        return -1;                                                    // RETURN
+    }
+
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDateTzValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);

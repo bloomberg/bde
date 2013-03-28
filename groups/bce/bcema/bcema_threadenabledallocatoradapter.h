@@ -12,23 +12,24 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bcema_ThreadEnabledAllocatorAdapter: thread-enabled allocator adapter
 //
-//@SEE_ALSO: bdema_allocator, bcema_multipool
+//@SEE_ALSO: bslma_allocator, bcema_multipool
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component provides an adapter,
-// 'bcema_ThreadEnabledAllocatorAdapter', that implements the 'bslma_Allocator'
-// protocol and provides synchronization for operations on an allocator
-// supplied at construction using a mutex also supplied at construction.
+// 'bcema_ThreadEnabledAllocatorAdapter', that implements the
+// 'bslma::Allocator' protocol and provides synchronization for operations on
+// an allocator supplied at construction using a mutex also supplied at
+// construction.
 //..
 //   ,-----------------------------------.
 //  ( bcema_ThreadEnabledAllocatorAdapter )
 //   `-----------------------------------'
 //                     |                ctor/dtor
 //                     V
-//             ,---------------.
-//            ( bslma_Allocator )
-//             `---------------'
+//             ,-----------------.
+//            ( bslma::Allocator )
+//             `-----------------'
 //                            allocate
 //                            deallocate
 //..
@@ -61,7 +62,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      ThreadEnabledVector(bslma_Allocator *basicAllocator = 0)
+//      ThreadEnabledVector(bslma::Allocator *basicAllocator = 0)
 //          // Create a thread-enabled vector.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator'
 //          // is 0, the currently installed default allocator is used.
@@ -113,7 +114,7 @@ BDES_IDENT("$Id: $")
 // We use this thread-enabled vector to create a AddressBook class.  However,
 // we use the 'bcema_ThreadEnabledAllocatorAdapter' to prevent our two
 // (thread-enabled) vectors from attempting synchronous memory allocations
-// from our (potentially) non-thread safe 'bslma_Allocator'.  Note that we
+// from our (potentially) non-thread safe 'bslma::Allocator'.  Note that we
 // define a local class, 'AddressBook_PrivateData', in order to guarantee that
 // 'd_allocatorAdapter' and 'd_mutex' are initialized before the
 // thread-enabled vectors that depend on them:
@@ -129,7 +130,7 @@ BDES_IDENT("$Id: $")
 //      bcema_ThreadEnabledAllocatorAdapter
 //                            d_allocatorAdapter;  // adapter for allocator
 //
-//      AddressBook_PrivateData(bslma_Allocator *basicAllocator = 0)
+//      AddressBook_PrivateData(bslma::Allocator *basicAllocator = 0)
 //          // Create a empty AddressBook private data object.  Optionally
 //          // specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
@@ -151,7 +152,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      AddressBook(bslma_Allocator *basicAllocator = 0)
+//      AddressBook(bslma::Allocator *basicAllocator = 0)
 //          // Create an empty AddressBook for storing names and addresses.
 //          // Optionally specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
@@ -231,16 +232,16 @@ class bcemt_Mutex;
               // class bcema_ThreadEnabledAllocatorAdapter
               // =========================================
 
-class bcema_ThreadEnabledAllocatorAdapter : public bslma_Allocator {
-    // This class defines an implementation of the 'bslma_Allocator' protocol
-    // that "decorates" (wraps) a concrete 'bslma_Allocator' to ensure
+class bcema_ThreadEnabledAllocatorAdapter : public bslma::Allocator {
+    // This class defines an implementation of the 'bslma::Allocator' protocol
+    // that "decorates" (wraps) a concrete 'bslma::Allocator' to ensure
     // thread-safe access to the decorated allocator.
 
     // DATA
-    bcemt_Mutex     *d_mutex_p;      // synchronizer for operations on the
-                                     // allocator (held, not owned)
+    bcemt_Mutex      *d_mutex_p;      // synchronizer for operations on the
+                                      // allocator (held, not owned)
 
-    bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     bcema_ThreadEnabledAllocatorAdapter(
@@ -249,8 +250,8 @@ class bcema_ThreadEnabledAllocatorAdapter : public bslma_Allocator {
                                    const bcema_ThreadEnabledAllocatorAdapter&);
   public:
     // CREATORS
-    bcema_ThreadEnabledAllocatorAdapter(bcemt_Mutex     *mutex,
-                                        bslma_Allocator *basicAllocator);
+    bcema_ThreadEnabledAllocatorAdapter(bcemt_Mutex      *mutex,
+                                        bslma::Allocator *basicAllocator);
         // Create a thread-enabled allocator adapter that uses the specified
         // 'mutex' to synchronize access to the specified 'basicAllocator'.
         // If 'basicAllocator' is 0, the currently installed default allocator
@@ -288,10 +289,10 @@ class bcema_ThreadEnabledAllocatorAdapter : public bslma_Allocator {
 // CREATORS
 inline
 bcema_ThreadEnabledAllocatorAdapter::bcema_ThreadEnabledAllocatorAdapter(
-                                               bcemt_Mutex     *mutex,
-                                               bslma_Allocator *basicAllocator)
+                                              bcemt_Mutex      *mutex,
+                                              bslma::Allocator *basicAllocator)
 : d_mutex_p(mutex)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

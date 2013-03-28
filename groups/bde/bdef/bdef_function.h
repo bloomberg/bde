@@ -164,7 +164,7 @@ BDES_IDENT("$Id: $")
 //:   certify that the default allocator is not used.
 //
 // To illustrate reason number one, imagine testing a component that defines a
-// class that uses a 'bslma_Allocator' and stores function objects.  According
+// class that uses a 'bslma::Allocator' and stores function objects.  According
 // to the 'bdema' allocation model, this class should propagate its allocator
 // to all its members.  In order to test this, typically a test allocator is
 // passed to the class at construction and a default allocator guard is used to
@@ -199,9 +199,9 @@ BDES_IDENT("$Id: $")
 //..
 // The last line makes sure that an allocator was not used for the assignment
 // of the function object.  Note that the invokable itself may have triggered a
-// memory allocation for its own members which will not be detected by this
-// assert; in that case it is safer to use a default-allocator guard (see
-// 'bdema_defaultallocatorguard' component).
+// memory allocation for its own members, which will not be detected by this
+// assert; in that case it is safer to use a default-allocator guard (see the
+// 'bslma_defaultallocatorguard' component).
 //
 ///Usage
 ///-----
@@ -478,7 +478,7 @@ class bdef_Function_Rep {
         // constructed in-place without triggering further allocation.
 
         union {
-            void                                (*d_func_p)();// pointer to
+            void                               (*d_func_p)(); // pointer to
                                                               // function
 
             void                                *d_object_p;  // pointer to
@@ -486,10 +486,10 @@ class bdef_Function_Rep {
                                                               // representation
 
             // *** inplace storage guarantees ***             // see above note
-            void (bslma_Allocator::*             d_memfnPtr_p)();
-            bsls_AlignmentUtil::MaxAlignedType   d_align;
+            void (bslma::Allocator::*            d_memfnPtr_p)();
+            bsls::AlignmentUtil::MaxAlignedType  d_align;
         };
-        char                                 d_padding[4*sizeof(void*)];
+        char                                     d_padding[4*sizeof(void*)];
                                                               // extra padding
     };
 
@@ -506,7 +506,7 @@ class bdef_Function_Rep {
                                       // 'FUNC' of the function object), or 0
                                       // for raw function pointers
 
-    bslma_Allocator   *d_allocator_p; // allocator (held, not owned)
+    bslma::Allocator  *d_allocator_p; // allocator (held, not owned)
 
     // FRIENDS
     friend struct bdef_FunctionUtil;
@@ -515,7 +515,7 @@ class bdef_Function_Rep {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_Function_Rep,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // TYPES
     enum {
@@ -538,14 +538,14 @@ class bdef_Function_Rep {
     };
 
     // CREATORS
-    bdef_Function_Rep(bslma_Allocator *allocator = 0);
+    explicit bdef_Function_Rep(bslma::Allocator *allocator = 0);
         // Create an unset functor using the specified 'allocator' to supply
         // memory.  If 'allocator' is 0, the currently installed default
         // allocator is used.
 
-    bdef_Function_Rep(bslma_Allocator                          *allocator,
-                      bslmf_Tag<IS_ALLOCATOR>                  *,
-                      bslma_Allocator                          * = 0);
+    bdef_Function_Rep(bslma::Allocator                          *allocator,
+                      bslmf::Tag<IS_ALLOCATOR>                  *,
+                      bslma::Allocator                          * = 0);
         // Create an unset functor representation using the specified
         // 'allocator' to supply memory.  If 'allocator' is 0, use the
         // currently installed default allocator.  The second and third are for
@@ -553,28 +553,29 @@ class bdef_Function_Rep {
 
     template <class FUNC>
     bdef_Function_Rep(const FUNC&                               func,
-                      bslmf_Tag<IS_FUNCTION_POINTER>           *,
-                      bslma_Allocator                          *allocator = 0);
+                      bslmf::Tag<IS_FUNCTION_POINTER>          *,
+                      bslma::Allocator                         *allocator = 0);
     template <class FUNC>
     bdef_Function_Rep(const FUNC&                               func,
-                      bslmf_Tag<IS_IN_PLACE_BITWISE_COPYABLE>  *,
-                      bslma_Allocator                          *allocator = 0);
+                      bslmf::Tag<IS_IN_PLACE_BITWISE_COPYABLE> *,
+                      bslma::Allocator                         *allocator = 0);
+    template <class FUNC>
+    bdef_Function_Rep(
+                  const FUNC&                                   func,
+                  bslmf::Tag<IS_OUT_OF_PLACE_BITWISE_COPYABLE> *,
+                  bslma::Allocator                             *allocator = 0);
     template <class FUNC>
     bdef_Function_Rep(const FUNC&                               func,
-                      bslmf_Tag<IS_OUT_OF_PLACE_BITWISE_COPYABLE> *,
-                      bslma_Allocator                          *allocator = 0);
+                      bslmf::Tag<IS_IN_PLACE_BITWISE_MOVEABLE> *,
+                      bslma::Allocator                         *allocator = 0);
     template <class FUNC>
     bdef_Function_Rep(const FUNC&                               func,
-                      bslmf_Tag<IS_IN_PLACE_BITWISE_MOVEABLE>  *,
-                      bslma_Allocator                          *allocator = 0);
+                      bslmf::Tag<IS_IN_PLACE>                  *,
+                      bslma::Allocator                         *allocator = 0);
     template <class FUNC>
     bdef_Function_Rep(const FUNC&                               func,
-                      bslmf_Tag<IS_IN_PLACE>                   *,
-                      bslma_Allocator                          *allocator = 0);
-    template <class FUNC>
-    bdef_Function_Rep(const FUNC&                               func,
-                      bslmf_Tag<IS_OUT_OF_PLACE>               *,
-                      bslma_Allocator                          *allocator = 0);
+                      bslmf::Tag<IS_OUT_OF_PLACE>              *,
+                      bslma::Allocator                         *allocator = 0);
         // Create a functor representation storing the specified 'func' object
         // of the parameterized 'FUNC' type.  Optionally specify 'allocator' to
         // supply memory.  If 'allocator' is 0, the currently installed default
@@ -582,7 +583,7 @@ class bdef_Function_Rep {
         // and is not used.
 
     bdef_Function_Rep(const bdef_Function_Rep&  original,
-                      bslma_Allocator          *allocator = 0);
+                      bslma::Allocator         *allocator = 0);
         // Create a functor representation storing the same invocable as the
         // specified 'original' function representation.  Optionally specify a
         // 'allocator' to supply memory.  If 'allocator' is 0, the currently
@@ -606,7 +607,7 @@ class bdef_Function_Rep {
         // representation to an unset (i.e., null function pointer) state.
 
     template <class FUNC>
-    bdef_Function_Rep& load(const FUNC& func, bslma_Allocator *allocator);
+    bdef_Function_Rep& load(const FUNC& func, bslma::Allocator *allocator);
         // Assign to this representation the specified 'func' invocable of the
         // parameterized 'FUNC' type, using the specified 'allocator' to supply
         // memory.
@@ -626,24 +627,25 @@ class bdef_Function_Rep {
     // ACCESSORS
 #ifndef BSLS_PLATFORM_CMP_IBM
     template <class FUNC>
-    FUNC invocable(bslmf_Tag<IS_FUNCTION_POINTER> *) const;
+    FUNC invocable(bslmf::Tag<IS_FUNCTION_POINTER> *) const;
         // Return the function pointer of the parameterized 'FUNC' type stored
         // in this representation.
 
     template <class FUNC>
-    FUNC& invocable(bslmf_Tag<IS_IN_PLACE_WITH_POINTER_SEMANTICS> *) const;
+    FUNC& invocable(bslmf::Tag<IS_IN_PLACE_WITH_POINTER_SEMANTICS> *) const;
     template <class FUNC>
-    FUNC& invocable(bslmf_Tag<IS_OUT_OF_PLACE_WITH_POINTER_SEMANTICS> *) const;
+    FUNC& invocable(
+                   bslmf::Tag<IS_OUT_OF_PLACE_WITH_POINTER_SEMANTICS> *) const;
         // Return a reference to the non-modifiable invocable of the
         // parameterized 'FUNC' type stored in this representation.  Note that
         // 'FUNC' is not a function pointer but otherwise has pointer semantics
         // (e.g., managed or shared pointer).
 
     template <class FUNC>
-    FUNC *invocable(bslmf_Tag<IS_IN_PLACE_WITHOUT_POINTER_SEMANTICS> *) const;
+    FUNC *invocable(bslmf::Tag<IS_IN_PLACE_WITHOUT_POINTER_SEMANTICS> *) const;
     template <class FUNC>
     FUNC *invocable(
-                 bslmf_Tag<IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS> *) const;
+                bslmf::Tag<IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS> *) const;
         // Return a pointer to the invocable of the parameterized 'FUNC' type
         // stored in this representation.  Note that 'FUNC' does *not* have
         // pointer semantics (e.g., functor instance).
@@ -657,8 +659,8 @@ class bdef_Function_Rep {
     friend struct bdef_Function_Invocable;
 #endif
 
-    bslma_Allocator *getAllocator() const;
-        // Return the address of the 'bslma_Allocator' instance used to supply
+    bslma::Allocator *getAllocator() const;
+        // Return the address of the 'bslma::Allocator' instance used to supply
         // memory by this function object.
 
     bool isInplace() const;
@@ -849,17 +851,17 @@ class bdef_Function {
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows compiler cannot differentiate between the two static member
     // template overloads, even though they have different signatures due to
-    // the different 'bslmf_Tag' arguments.  We resort to this alternate
-    // implementation in which any 'FUNC' convertible to 'bslma_Allocator *'
-    // is mapped (via 'bslmf_If') to 'bslma_Allocator *', providing an exact
+    // the different 'bslmf::Tag' arguments.  We resort to this alternate
+    // implementation in which any 'FUNC' convertible to 'bslma::Allocator *'
+    // is mapped (via 'bslmf::If') to 'bslma::Allocator *', providing an exact
     // match which is preferred to the second template.
 
-    static InvokerFunc getInvoker(bslma_Allocator *)
+    static InvokerFunc getInvoker(bslma::Allocator *)
 #else
     template <class FUNC>
-    static InvokerFunc getInvoker(bslmf_Tag<IS_ALLOCATOR> *)
+    static InvokerFunc getInvoker(bslmf::Tag<IS_ALLOCATOR> *)
 #endif
-        // Return 0.  Note that a 'bslma_Allocator *' is not invocable.
+        // Return 0.  Note that a 'bslma::Allocator *' is not invocable.
     {
         return 0;
     }
@@ -875,7 +877,7 @@ class bdef_Function {
     static InvokerFunc getInvoker(FUNC *)
 #else
     template <class FUNC>
-    static InvokerFunc getInvoker(bslmf_Tag<IS_NOT_ALLOCATOR> *)
+    static InvokerFunc getInvoker(bslmf::Tag<IS_NOT_ALLOCATOR> *)
 #endif
         // Return the address of a function that can be used to invoke an
         // instance of the parameterized 'FUNC' type.  Note that a dynamic test
@@ -887,10 +889,21 @@ class bdef_Function {
         return &Invoker::template invoke<FUNC>;
     }
 
+
+  private:
+    // NOT IMPLEMENTED
+    void operator==(const bdef_Function&) const; // = delete;
+    void operator!=(const bdef_Function&) const; // = delete;
+        // 'bdef_Function' objects cannot be compared for equality, as the
+        // function objects they wrap might not support the equality comparison
+        // operator to delegate to.  However, if these methods are not declared
+        // as private, then both 'bdef_Function' objects will be implicitly
+        // converted to their boolean value, and those values compared instead.
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_Function,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     bdef_Function();
@@ -902,8 +915,8 @@ class bdef_Function {
         // Create either a function object having the value of the specified
         // 'funcOrAlloc' function object, or an uninitialized function object
         // having 'funcOrAlloc' as an allocator if 'FUNC_OR_ALLOC' is
-        // convertible to 'bslma_Allocator*'.  For example, if 'myAllocator'
-        // belongs to a class that is derived from 'bslma_Allocator', the
+        // convertible to 'bslma::Allocator*'.  For example, if 'myAllocator'
+        // belongs to a class that is derived from 'bslma::Allocator', the
         // 'bdef_Function(&myAllocator)' will construct an uninitialized
         // function object using the specified 'myAllocator'.  The behavior is
         // undefined if 'funcOrAlloc' is a null function pointer.
@@ -911,7 +924,7 @@ class bdef_Function {
         // Note that this creator takes the place of the two constructors
         // below:
         //..
-        // bdef_Function(bslma_Allocator *allocator);
+        // bdef_Function(bslma::Allocator *allocator);
         // template <class FUNC> bdef_Function(const FUNC& func);
         //..
         // Unfortunately, if we had instead provided the above two
@@ -920,12 +933,12 @@ class bdef_Function {
         // argument is always a better match than a derived-to-base conversion.
 
     template <class FUNC>
-    bdef_Function(const FUNC& func, bslma_Allocator *allocator);
+    bdef_Function(const FUNC& func, bslma::Allocator *allocator);
         // Create a function object having the value of the specified
         // 'func' object using the specified 'allocator' to supply memory.
 
     bdef_Function(const bdef_Function<PROTOTYPE>&  original,
-                  bslma_Allocator                 *allocator = 0);
+                  bslma::Allocator                *allocator = 0);
         // Create a function object storing a copy of the same invocable as the
         // specified 'original' object, using the optionally specified
         // 'allocator' to supply memory.  If 'allocator' is 0, the currently
@@ -937,7 +950,7 @@ class bdef_Function {
         // Assign to this object the invocable of the specified 'rhs' and
         // return a reference to this modifiable function object.
 
-    template <typename FUNC>
+    template <class FUNC>
     bdef_Function<PROTOTYPE>& operator=(const FUNC& func);
         // Assign to this function object the 'func' invocable object of the
         // parameterized 'FUNC' type, and return a reference to this modifiable
@@ -947,8 +960,8 @@ class bdef_Function {
         // Reset this function object to an empty state.
 
     template <class FUNC>
-    bdef_Function<PROTOTYPE>& load(const FUNC& func,
-                                   bslma_Allocator *allocator);
+    bdef_Function<PROTOTYPE>& load(const FUNC&       func,
+                                   bslma::Allocator *allocator);
         // Assign to this function object the 'func' object of the
         // parameterized 'FUNC' type, using the specified 'allocator' to supply
         // memory.  If 'allocator' is 0, continue to use the same allocator as
@@ -1109,8 +1122,8 @@ class bdef_Function {
         // but does *not* allow function objects to be compared (e.g., via '<'
         // or '>').
 
-    bslma_Allocator *getAllocator() const;
-        // Return the address of the 'bslma_Allocator' instance used to supply
+    bslma::Allocator *getAllocator() const;
+        // Return the address of the 'bslma::Allocator' instance used to supply
         // memory by this function object.
 
     bool isInplace() const;
@@ -1283,43 +1296,44 @@ struct bdef_Function_TypeList {
 
     // TYPES
     typedef
-        typename bslmf_FunctionPointerTraits<PROTOTYPE>::ResultType ResultType;
+        typename bslmf::FunctionPointerTraits<PROTOTYPE>::ResultType
+                                                                    ResultType;
         // 'ResultType' is an alias for the type returned by an invocable
         // conforming to the parameterized 'PROTOTYPE'.
 
     typedef
-        typename bslmf_FunctionPointerTraits<PROTOTYPE>::ArgumentList Args;
+        typename bslmf::FunctionPointerTraits<PROTOTYPE>::ArgumentList Args;
         // 'Args' is an alias for the type list of arguments expected by an
         // invocable conforming to the parameterized 'PROTOTYPE'.
 
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<1, Args>::TypeOrDefault>::Type  A1;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<2, Args>::TypeOrDefault>::Type  A2;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<3, Args>::TypeOrDefault>::Type  A3;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<4, Args>::TypeOrDefault>::Type  A4;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<5, Args>::TypeOrDefault>::Type  A5;
-     typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<6, Args>::TypeOrDefault>::Type  A6;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<7, Args>::TypeOrDefault>::Type  A7;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<8, Args>::TypeOrDefault>::Type  A8;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<9, Args>::TypeOrDefault>::Type  A9;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<10, Args>::TypeOrDefault>::Type A10;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<11, Args>::TypeOrDefault>::Type A11;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<12, Args>::TypeOrDefault>::Type A12;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<13, Args>::TypeOrDefault>::Type A13;
-    typedef typename bslmf_ForwardingType<
-        typename bslmf_TypeListTypeOf<14, Args>::TypeOrDefault>::Type A14;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<1, Args>::TypeOrDefault>::Type  A1;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<2, Args>::TypeOrDefault>::Type  A2;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<3, Args>::TypeOrDefault>::Type  A3;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<4, Args>::TypeOrDefault>::Type  A4;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<5, Args>::TypeOrDefault>::Type  A5;
+     typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<6, Args>::TypeOrDefault>::Type  A6;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<7, Args>::TypeOrDefault>::Type  A7;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<8, Args>::TypeOrDefault>::Type  A8;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<9, Args>::TypeOrDefault>::Type  A9;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<10, Args>::TypeOrDefault>::Type A10;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<11, Args>::TypeOrDefault>::Type A11;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<12, Args>::TypeOrDefault>::Type A12;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<13, Args>::TypeOrDefault>::Type A13;
+    typedef typename bslmf::ForwardingType<
+        typename bslmf::TypeListTypeOf<14, Args>::TypeOrDefault>::Type A14;
         // 'AN', with 'N' from 1 to 14, is an alias for the forwarding type of
         // the 'N'th argument expected by an invocable conforming to the
         // parameterized 'PROTOTYPE'.
@@ -1334,9 +1348,9 @@ struct bdef_Function_TypeList {
 #define BDEF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)                               \
     enum {                                                                    \
         IS_IN_PLACE           = bdef_FunctionUtil::IsInplace<FUNC>::VALUE     \
-      , HAS_POINTER_SEMANTICS = bslalg_HasTrait<FUNC,                         \
-                                  bslalg_TypeTraitHasPointerSemantics>::VALUE \
-      , INVOKER_TAG           = bslmf_IsFunctionPointer<FUNC>::VALUE          \
+      , HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,                        \
+                                 bslalg::TypeTraitHasPointerSemantics>::VALUE \
+      , INVOKER_TAG           = bslmf::IsFunctionPointer<FUNC>::VALUE         \
                               ? (int)bdef_Function_Rep::IS_FUNCTION_POINTER   \
                               : IS_IN_PLACE ? (HAS_POINTER_SEMANTICS          \
          ? (int)bdef_Function_Rep::IS_IN_PLACE_WITH_POINTER_SEMANTICS         \
@@ -1359,9 +1373,9 @@ struct bdef_Function_TypeList {
 #ifndef BSLS_PLATFORM_CMP_IBM
 
 #define BDEF_FUNCTION_INVOKER(FUNC, rep) \
-                            (rep->invocable<FUNC>((bslmf_Tag<INVOKER_TAG> *)0))
+                           (rep->invocable<FUNC>((bslmf::Tag<INVOKER_TAG> *)0))
     // This private local macro expands to a call to 'rep->invocable<FUNC>'
-    // with an argument of type 'bslmf_Tag<INVOKER_TAG> *', thus enabling
+    // with an argument of type 'bslmf::Tag<INVOKER_TAG> *', thus enabling
     // overload resolution to select the correct implementation of
     // 'bdef_Function_Rep::invocable'.  The behavior is undefined unless the
     // 'BDEF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)' macro has been expanded in the
@@ -2129,34 +2143,34 @@ template <class FUNC_OR_ALLOC>
 inline
 bdef_Function<PROTOTYPE>::bdef_Function(const FUNC_OR_ALLOC& funcOrAlloc)
 : d_rep(funcOrAlloc,
-        (bslmf_Tag<bslmf_IsConvertible<FUNC_OR_ALLOC,
-                                       bslma_Allocator *>::VALUE
+        (bslmf::Tag<bslmf::IsConvertible<FUNC_OR_ALLOC,
+                                       bslma::Allocator *>::VALUE
                                              ? IS_ALLOCATOR
-                 : bslmf_IsFunctionPointer<FUNC_OR_ALLOC>::VALUE
+                 : bslmf::IsFunctionPointer<FUNC_OR_ALLOC>::VALUE
                                              ? IS_FUNCTION_POINTER
                  : bdef_FunctionUtil::IsInplace<FUNC_OR_ALLOC>::VALUE ?
-                       (bslalg_HasTrait<FUNC_OR_ALLOC,
-                                        bslalg_TypeTraitBitwiseCopyable>::VALUE
-                                             ? IS_IN_PLACE_BITWISE_COPYABLE
-                      : bslalg_HasTrait<FUNC_OR_ALLOC,
-                                        bslalg_TypeTraitBitwiseMoveable>::VALUE
-                                             ? IS_IN_PLACE_BITWISE_MOVEABLE
-                                             : IS_IN_PLACE)
-                 : bslalg_HasTrait<FUNC_OR_ALLOC,
-                                   bslalg_TypeTraitBitwiseCopyable>::VALUE
+                       (bslalg::HasTrait<FUNC_OR_ALLOC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
+                                            ? IS_IN_PLACE_BITWISE_COPYABLE
+                      : bslalg::HasTrait<FUNC_OR_ALLOC,
+                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
+                                            ? IS_IN_PLACE_BITWISE_MOVEABLE
+                                            : IS_IN_PLACE)
+                 : bslalg::HasTrait<FUNC_OR_ALLOC,
+                                   bslalg::TypeTraitBitwiseCopyable>::VALUE
                                              ? IS_OUT_OF_PLACE_BITWISE_COPYABLE
                                              : IS_OUT_OF_PLACE> *)0,
-        (bslma_Allocator *)0)
+        (bslma::Allocator *)0)
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-, d_invoker_p(getInvoker((typename bslmf_If<bslmf_IsConvertible<
-                                                     FUNC_OR_ALLOC,
-                                                     bslma_Allocator *>::VALUE,
-                                            bslma_Allocator,
+, d_invoker_p(getInvoker((typename bslmf::If<bslmf::IsConvertible<
+                                                    FUNC_OR_ALLOC,
+                                                    bslma::Allocator *>::VALUE,
+                                            bslma::Allocator,
                                             FUNC_OR_ALLOC>::Type *)0))
 #else
-, d_invoker_p(getInvoker<FUNC_OR_ALLOC>((bslmf_Tag<bslmf_IsConvertible<
-                                                      FUNC_OR_ALLOC,
-                                                      bslma_Allocator *>::VALUE
+, d_invoker_p(getInvoker<FUNC_OR_ALLOC>((bslmf::Tag<bslmf::IsConvertible<
+                                                     FUNC_OR_ALLOC,
+                                                     bslma::Allocator *>::VALUE
                                                       ? IS_ALLOCATOR
                                                       : IS_NOT_ALLOCATOR> *)0))
 #endif
@@ -2166,28 +2180,28 @@ bdef_Function<PROTOTYPE>::bdef_Function(const FUNC_OR_ALLOC& funcOrAlloc)
 template <class PROTOTYPE>
 template <class FUNC>
 inline
-bdef_Function<PROTOTYPE>::bdef_Function(const FUNC&      func,
-                                        bslma_Allocator *allocator)
+bdef_Function<PROTOTYPE>::bdef_Function(const FUNC&       func,
+                                        bslma::Allocator *allocator)
 : d_rep(func,
-        (bslmf_Tag<bslmf_IsFunctionPointer<FUNC>::VALUE
+        (bslmf::Tag<bslmf::IsFunctionPointer<FUNC>::VALUE
                                              ? IS_FUNCTION_POINTER
                  : bdef_FunctionUtil::IsInplace<FUNC>::VALUE ?
-                       (bslalg_HasTrait<FUNC,
-                                        bslalg_TypeTraitBitwiseCopyable>::VALUE
-                                             ? IS_IN_PLACE_BITWISE_COPYABLE
-                      : bslalg_HasTrait<FUNC,
-                                        bslalg_TypeTraitBitwiseMoveable>::VALUE
-                                             ? IS_IN_PLACE_BITWISE_MOVEABLE
-                                             : IS_IN_PLACE)
-                 : bslalg_HasTrait<FUNC,
-                                   bslalg_TypeTraitBitwiseCopyable>::VALUE
+                       (bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
+                                            ? IS_IN_PLACE_BITWISE_COPYABLE
+                      : bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
+                                            ? IS_IN_PLACE_BITWISE_MOVEABLE
+                                            : IS_IN_PLACE)
+                 : bslalg::HasTrait<FUNC,
+                                    bslalg::TypeTraitBitwiseCopyable>::VALUE
                                              ? IS_OUT_OF_PLACE_BITWISE_COPYABLE
                                              : IS_OUT_OF_PLACE> *)0,
         allocator)
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 , d_invoker_p(getInvoker((FUNC *)0))
 #else
-, d_invoker_p(getInvoker<FUNC>((bslmf_Tag<IS_NOT_ALLOCATOR>*)0))
+, d_invoker_p(getInvoker<FUNC>((bslmf::Tag<IS_NOT_ALLOCATOR>*)0))
 #endif
 {
 }
@@ -2196,7 +2210,7 @@ template <class PROTOTYPE>
 inline
 bdef_Function<PROTOTYPE>::bdef_Function(
                                     const bdef_Function<PROTOTYPE>&  original,
-                                    bslma_Allocator                 *allocator)
+                                    bslma::Allocator                *allocator)
 : d_rep(original.d_rep, allocator)
 , d_invoker_p(original.d_invoker_p)
 {
@@ -2214,7 +2228,7 @@ bdef_Function<PROTOTYPE>::operator=(const bdef_Function<PROTOTYPE>& rhs)
 }
 
 template <class PROTOTYPE>
-template <typename FUNC>
+template <class FUNC>
 inline
 bdef_Function<PROTOTYPE>&
 bdef_Function<PROTOTYPE>::operator=(const FUNC& func)
@@ -2223,7 +2237,7 @@ bdef_Function<PROTOTYPE>::operator=(const FUNC& func)
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     d_invoker_p = getInvoker((FUNC *)0);
 #else
-    d_invoker_p = getInvoker<FUNC>((bslmf_Tag<IS_NOT_ALLOCATOR>*)0);
+    d_invoker_p = getInvoker<FUNC>((bslmf::Tag<IS_NOT_ALLOCATOR>*)0);
 #endif
     return *this;
 }
@@ -2232,14 +2246,14 @@ template <class PROTOTYPE>
 template <class FUNC>
 inline
 bdef_Function<PROTOTYPE>&
-bdef_Function<PROTOTYPE>::load(const FUNC&      func,
-                               bslma_Allocator *allocator)
+bdef_Function<PROTOTYPE>::load(const FUNC&       func,
+                               bslma::Allocator *allocator)
 {
     d_rep.load(func, allocator);
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     d_invoker_p = getInvoker((FUNC *)0);
 #else
-    d_invoker_p = getInvoker<FUNC>((bslmf_Tag<IS_NOT_ALLOCATOR>*)0);
+    d_invoker_p = getInvoker<FUNC>((bslmf::Tag<IS_NOT_ALLOCATOR>*)0);
 #endif
     return *this;
 }
@@ -2249,7 +2263,7 @@ inline
 void bdef_Function<PROTOTYPE>::swap(bdef_Function<PROTOTYPE>& other)
 {
     d_rep.swap(other.d_rep);
-    bslalg_SwapUtil::swap(&d_invoker_p, &other.d_invoker_p);
+    bslalg::SwapUtil::swap(&d_invoker_p, &other.d_invoker_p);
 }
 
 template <class PROTOTYPE>
@@ -2429,7 +2443,7 @@ bdef_Function<PROTOTYPE>::operator bdef_Function_UnspecifiedBool() const
 
 template <class PROTOTYPE>
 inline
-bslma_Allocator *bdef_Function<PROTOTYPE>::getAllocator() const
+bslma::Allocator *bdef_Function<PROTOTYPE>::getAllocator() const
 {
     return d_rep.getAllocator();
 }
@@ -2455,30 +2469,31 @@ void swap(bdef_Function<PROTOTYPE>& a, bdef_Function<PROTOTYPE>& b)
 
 // CREATORS
 inline
-bdef_Function_Rep::bdef_Function_Rep(bslma_Allocator *allocator)
+bdef_Function_Rep::bdef_Function_Rep(bslma::Allocator *allocator)
 : d_manager_p(0)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     d_arena.d_func_p = 0;
 }
 
 inline
-bdef_Function_Rep::bdef_Function_Rep(bslma_Allocator         *allocator,
-                                     bslmf_Tag<IS_ALLOCATOR> *,
-                                     bslma_Allocator         *)
+bdef_Function_Rep::bdef_Function_Rep(bslma::Allocator         *allocator,
+                                     bslmf::Tag<IS_ALLOCATOR> *,
+                                     bslma::Allocator         *)
 : d_manager_p(0)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     d_arena.d_func_p = 0;
 }
 
 template <class FUNC>
 inline
-bdef_Function_Rep::bdef_Function_Rep(const FUNC&                     func,
-                                     bslmf_Tag<IS_FUNCTION_POINTER> *,
-                                     bslma_Allocator                *allocator)
+bdef_Function_Rep::bdef_Function_Rep(
+                                    const FUNC&                      func,
+                                    bslmf::Tag<IS_FUNCTION_POINTER> *,
+                                    bslma::Allocator                *allocator)
 : d_manager_p(0)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     d_arena.d_func_p = (void (*)())func;
 }
@@ -2486,12 +2501,12 @@ bdef_Function_Rep::bdef_Function_Rep(const FUNC&                     func,
 template <class FUNC>
 inline
 bdef_Function_Rep::bdef_Function_Rep(
-                            const FUNC&                              func,
-                            bslmf_Tag<IS_IN_PLACE_BITWISE_COPYABLE> *,
-                            bslma_Allocator                         *allocator)
+                           const FUNC&                               func,
+                           bslmf::Tag<IS_IN_PLACE_BITWISE_COPYABLE> *,
+                           bslma::Allocator                         *allocator)
 : d_manager_p(
            &bdef_Function_RepUtil::inplaceBitwiseCopyableManager<sizeof(FUNC)>)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     bsl::memcpy((void *)&this->d_arena, (const void *)&func, sizeof(FUNC));
 }
@@ -2499,10 +2514,10 @@ bdef_Function_Rep::bdef_Function_Rep(
 template <class FUNC>
 inline
 bdef_Function_Rep::bdef_Function_Rep(
-                        const FUNC&                                  func,
-                        bslmf_Tag<IS_OUT_OF_PLACE_BITWISE_COPYABLE> *,
-                        bslma_Allocator                             *allocator)
-: d_allocator_p(bslma_Default::allocator(allocator))
+                       const FUNC&                                   func,
+                       bslmf::Tag<IS_OUT_OF_PLACE_BITWISE_COPYABLE> *,
+                       bslma::Allocator                             *allocator)
+: d_allocator_p(bslma::Default::allocator(allocator))
 {
     bdef_Function_RepUtil::outofplaceBitwiseCopyableManager<sizeof(FUNC)>(
                                                            this,
@@ -2519,10 +2534,10 @@ bdef_Function_Rep::bdef_Function_Rep(
 template <class FUNC>
 inline
 bdef_Function_Rep::bdef_Function_Rep(
-                            const FUNC&                              func,
-                            bslmf_Tag<IS_IN_PLACE_BITWISE_MOVEABLE> *,
-                            bslma_Allocator                         *allocator)
-: d_allocator_p(bslma_Default::allocator(allocator))
+                           const FUNC&                               func,
+                           bslmf::Tag<IS_IN_PLACE_BITWISE_MOVEABLE> *,
+                           bslma::Allocator                         *allocator)
+: d_allocator_p(bslma::Default::allocator(allocator))
 {
     bdef_Function_RepUtil::inplaceBitwiseMoveableManager<FUNC>(
                                                            this,
@@ -2537,10 +2552,10 @@ bdef_Function_Rep::bdef_Function_Rep(
 
 template <class FUNC>
 inline
-bdef_Function_Rep::bdef_Function_Rep(const FUNC&             func,
-                                     bslmf_Tag<IS_IN_PLACE> *,
-                                     bslma_Allocator        *allocator)
-: d_allocator_p(bslma_Default::allocator(allocator))
+bdef_Function_Rep::bdef_Function_Rep(const FUNC&              func,
+                                     bslmf::Tag<IS_IN_PLACE> *,
+                                     bslma::Allocator        *allocator)
+: d_allocator_p(bslma::Default::allocator(allocator))
 {
     bdef_Function_RepUtil::inplaceManager<FUNC>(this,
                                                 (const void *)&func,
@@ -2554,10 +2569,10 @@ bdef_Function_Rep::bdef_Function_Rep(const FUNC&             func,
 
 template <class FUNC>
 inline
-bdef_Function_Rep::bdef_Function_Rep(const FUNC&                 func,
-                                     bslmf_Tag<IS_OUT_OF_PLACE> *,
-                                     bslma_Allocator            *allocator)
-: d_allocator_p(bslma_Default::allocator(allocator))
+bdef_Function_Rep::bdef_Function_Rep(const FUNC&                  func,
+                                     bslmf::Tag<IS_OUT_OF_PLACE> *,
+                                     bslma::Allocator            *allocator)
+: d_allocator_p(bslma::Default::allocator(allocator))
 {
     bdef_Function_RepUtil::outofplaceManager<FUNC>(this,
                                                    (const void *)&func,
@@ -2575,28 +2590,28 @@ bdef_Function_Rep&
 bdef_Function_Rep::operator=(const FUNC& func)
 {
     enum {
-        CREATION_TAG = bslmf_IsFunctionPointer<FUNC>::VALUE
+        CREATION_TAG = bslmf::IsFunctionPointer<FUNC>::VALUE
                                              ? IS_FUNCTION_POINTER
                      : bdef_FunctionUtil::IsInplace<FUNC>::VALUE ?
-                       (bslalg_HasTrait<FUNC,
-                                        bslalg_TypeTraitBitwiseCopyable>::VALUE
-                                             ? IS_IN_PLACE_BITWISE_COPYABLE
-                                             : IS_IN_PLACE)
-                     : bslalg_HasTrait<FUNC,
-                                       bslalg_TypeTraitBitwiseCopyable>::VALUE
+                       (bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
+                                            ? IS_IN_PLACE_BITWISE_COPYABLE
+                                            : IS_IN_PLACE)
+                     : bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
                                              ? IS_OUT_OF_PLACE_BITWISE_COPYABLE
                                              : IS_OUT_OF_PLACE
     };
 
     bdef_Function_Rep(func,
-                      (bslmf_Tag<CREATION_TAG> *)0,
+                      (bslmf::Tag<CREATION_TAG> *)0,
                       d_allocator_p).swap(*this);
     return *this;
 }
 
 template <class FUNC>
 bdef_Function_Rep&
-bdef_Function_Rep::load(const FUNC& func, bslma_Allocator *allocator)
+bdef_Function_Rep::load(const FUNC& func, bslma::Allocator *allocator)
 {
     // DEPRECATED
     //
@@ -2611,20 +2626,21 @@ bdef_Function_Rep::load(const FUNC& func, bslma_Allocator *allocator)
     d_arena.d_func_p = 0;
 
     enum {
-        CREATION_TAG = bslmf_IsFunctionPointer<FUNC>::VALUE
+        CREATION_TAG = bslmf::IsFunctionPointer<FUNC>::VALUE
                                              ? IS_FUNCTION_POINTER
                      : bdef_FunctionUtil::IsInplace<FUNC>::VALUE ?
-                        bslalg_HasTrait<FUNC,
-                                        bslalg_TypeTraitBitwiseCopyable>::VALUE
-                                             ? IS_IN_PLACE_BITWISE_COPYABLE
-                                             : IS_IN_PLACE
-                     : bslalg_HasTrait<FUNC,
-                                       bslalg_TypeTraitBitwiseCopyable>::VALUE
+                        bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
+                                            ? IS_IN_PLACE_BITWISE_COPYABLE
+                                            : IS_IN_PLACE
+                     : bslalg::HasTrait<FUNC,
+                                       bslalg::TypeTraitBitwiseCopyable>::VALUE
                                              ? IS_OUT_OF_PLACE_BITWISE_COPYABLE
                                              : IS_OUT_OF_PLACE
     };
 
-    new(this) bdef_Function_Rep(func, (bslmf_Tag<CREATION_TAG> *)0, allocator);
+    new(this) bdef_Function_Rep(func, (bslmf::Tag<CREATION_TAG> *)0,
+                                allocator);
 
     return *this;
 }
@@ -2633,7 +2649,7 @@ bdef_Function_Rep::load(const FUNC& func, bslma_Allocator *allocator)
 #ifndef BSLS_PLATFORM_CMP_IBM
 template <class FUNC>
 inline
-FUNC bdef_Function_Rep::invocable(bslmf_Tag<IS_FUNCTION_POINTER> *) const
+FUNC bdef_Function_Rep::invocable(bslmf::Tag<IS_FUNCTION_POINTER> *) const
 {
     return *(const FUNC *)&d_arena.d_func_p;
 }
@@ -2641,7 +2657,7 @@ FUNC bdef_Function_Rep::invocable(bslmf_Tag<IS_FUNCTION_POINTER> *) const
 template <class FUNC>
 inline
 FUNC& bdef_Function_Rep::invocable(
-                         bslmf_Tag<IS_IN_PLACE_WITH_POINTER_SEMANTICS> *) const
+                        bslmf::Tag<IS_IN_PLACE_WITH_POINTER_SEMANTICS> *) const
 {
     return *const_cast<FUNC *>((const FUNC *)&d_arena);
 }
@@ -2649,7 +2665,7 @@ FUNC& bdef_Function_Rep::invocable(
 template <class FUNC>
 inline
 FUNC& bdef_Function_Rep::invocable(
-                     bslmf_Tag<IS_OUT_OF_PLACE_WITH_POINTER_SEMANTICS> *) const
+                    bslmf::Tag<IS_OUT_OF_PLACE_WITH_POINTER_SEMANTICS> *) const
 {
     return *(FUNC *)d_arena.d_object_p;
 }
@@ -2657,7 +2673,7 @@ FUNC& bdef_Function_Rep::invocable(
 template <class FUNC>
 inline
 FUNC *bdef_Function_Rep::invocable(
-                      bslmf_Tag<IS_IN_PLACE_WITHOUT_POINTER_SEMANTICS> *) const
+                     bslmf::Tag<IS_IN_PLACE_WITHOUT_POINTER_SEMANTICS> *) const
 {
     return const_cast<FUNC *>((const FUNC *)&d_arena);
 }
@@ -2665,14 +2681,14 @@ FUNC *bdef_Function_Rep::invocable(
 template <class FUNC>
 inline
 FUNC *bdef_Function_Rep::invocable(
-                  bslmf_Tag<IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS> *) const
+                 bslmf::Tag<IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS> *) const
 {
     return (FUNC *)d_arena.d_object_p;
 }
 #endif
 
 inline
-bslma_Allocator *bdef_Function_Rep::getAllocator() const
+bslma::Allocator *bdef_Function_Rep::getAllocator() const
 {
     return d_allocator_p;
 }
@@ -2819,9 +2835,9 @@ bool bdef_Function_RepUtil::inplaceBitwiseMoveableManager(
         // 'source' is a 'FUNC *', and 'rep' must be empty (or a function
         // pointer).
 
-        bslalg_ScalarPrimitives::copyConstruct((FUNC *)&rep->d_arena,
-                                               *(const FUNC *)source,
-                                               rep->d_allocator_p);
+        bslalg::ScalarPrimitives::copyConstruct((FUNC *)&rep->d_arena,
+                                                *(const FUNC *)source,
+                                                rep->d_allocator_p);
         return true;                                                  // RETURN
       } break;
       case bdef_Function_Rep::BDEF_DESTROY: {
@@ -2860,9 +2876,9 @@ bool bdef_Function_RepUtil::inplaceManager(
                                                            rep->d_allocator_p);
 
         source = &((const bdef_Function_Rep *)source)->d_arena;
-        bslalg_ScalarPrimitives::copyConstruct((FUNC *)&rep->d_arena,
-                                               *(const FUNC *)source,
-                                               rep->d_allocator_p);
+        bslalg::ScalarPrimitives::copyConstruct((FUNC *)&rep->d_arena,
+                                                *(const FUNC *)source,
+                                                rep->d_allocator_p);
 
         const_cast<FUNC *>((const FUNC *)source)->~FUNC();
         return true;                                                  // RETURN
@@ -2877,9 +2893,9 @@ bool bdef_Function_RepUtil::inplaceManager(
         // 'source' is a 'FUNC *', and 'rep' must be empty (or a function
         // pointer).
 
-        bslalg_ScalarPrimitives::copyConstruct((FUNC *)&rep->d_arena,
-                                               *(const FUNC *)source,
-                                               rep->d_allocator_p);
+        bslalg::ScalarPrimitives::copyConstruct((FUNC *)&rep->d_arena,
+                                                *(const FUNC *)source,
+                                                rep->d_allocator_p);
         return true;                                                  // RETURN
       } break;
       case bdef_Function_Rep::BDEF_DESTROY: {
@@ -2933,12 +2949,12 @@ bool bdef_Function_RepUtil::outofplaceManager(
 
         FUNC *tempPtr = (FUNC *)rep->d_allocator_p->allocate(sizeof(FUNC));
 
-        bslma_DeallocatorProctor<bslma_Allocator> guard(tempPtr,
-                                                           rep->d_allocator_p);
+        bslma::DeallocatorProctor<bslma::Allocator> guard(tempPtr,
+                                                          rep->d_allocator_p);
 
-        bslalg_ScalarPrimitives::copyConstruct(tempPtr,
-                                               *(const FUNC *)source,
-                                               rep->d_allocator_p);
+        bslalg::ScalarPrimitives::copyConstruct(tempPtr,
+                                                *(const FUNC *)source,
+                                                rep->d_allocator_p);
         guard.release();
         rep->d_arena.d_object_p = tempPtr;
         return false;                                                 // RETURN

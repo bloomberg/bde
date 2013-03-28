@@ -7,7 +7,7 @@
 #include <bdex_testinstreamexception.h>
 #include <bdex_testoutstream.h>                 // for testing only
 
-#include <bsls_platformutil.h>                  // for testing only
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstdio.h>      // sprintf()
@@ -54,14 +54,14 @@ using namespace bsl;  // automatically added by script
 // [29] reload(const char *buffer, int numBytes);
 // [30] getLength(int& variable);
 // [30] getVersion(int& variable);
-// [13] getInt64(bsls_PlatformUtil::Int64& variable);
-// [13] getUint64(bsls_PlatformUtil::Uint64& variable);
-// [12] getInt56(bsls_PlatformUtil::Int64& variable);
-// [12] getUint56(bsls_PlatformUtil::Uint64& variable);
-// [11] getInt48(bsls_PlatformUtil::Int64& variable);
-// [11] getUint48(bsls_PlatformUtil::Uint64& variable);
-// [10] getInt40(bsls_PlatformUtil::Int64& variable);
-// [10] getUint40(bsls_PlatformUtil::Uint64& variable);
+// [13] getInt64(bsls::Types::Int64& variable);
+// [13] getUint64(bsls::Types::Uint64& variable);
+// [12] getInt56(bsls::Types::Int64& variable);
+// [12] getUint56(bsls::Types::Uint64& variable);
+// [11] getInt48(bsls::Types::Int64& variable);
+// [11] getUint48(bsls::Types::Uint64& variable);
+// [10] getInt40(bsls::Types::Int64& variable);
+// [10] getUint40(bsls::Types::Uint64& variable);
 // [ 9] getInt32(int& variable);
 // [ 9] getUint32(unsigned int& variable);
 // [ 8] getInt24(int& variable);
@@ -74,14 +74,14 @@ using namespace bsl;  // automatically added by script
 // [ 6] getUint8(unsigned char& variable);
 // [15] getFloat64(double& variable);
 // [14] getFloat32(float& variable);
-// [23] getArrayInt64(bsls_PlatformUtil::Int64 *array, int numValues);
-// [23] getArrayUint64(bsls_PlatformUtil::Uint64 *array, int numValues);
-// [22] getArrayInt56(bsls_PlatformUtil::Int64 *array, int numValues);
-// [22] getArrayUint56(bsls_PlatformUtil::Uint64 *array, int numValues);
-// [21] getArrayInt48(bsls_PlatformUtil::Int64 *array, int numValues);
-// [21] getArrayUint48(bsls_PlatformUtil::Uint64 *array, int numValues);
-// [20] getArrayInt40(bsls_PlatformUtil::Int64 *array, int numValues);
-// [20] getArrayUint40(bsls_PlatformUtil::Uint64 *array, int numValues);
+// [23] getArrayInt64(bsls::Types::Int64 *array, int numValues);
+// [23] getArrayUint64(bsls::Types::Uint64 *array, int numValues);
+// [22] getArrayInt56(bsls::Types::Int64 *array, int numValues);
+// [22] getArrayUint56(bsls::Types::Uint64 *array, int numValues);
+// [21] getArrayInt48(bsls::Types::Int64 *array, int numValues);
+// [21] getArrayUint48(bsls::Types::Uint64 *array, int numValues);
+// [20] getArrayInt40(bsls::Types::Int64 *array, int numValues);
+// [20] getArrayUint40(bsls::Types::Uint64 *array, int numValues);
 // [19] getArrayInt32(int *array, int numValues);
 // [19] getArrayUint32(unsigned int *array, int numValues);
 // [18] getArrayInt24(int *array, int numValues);
@@ -187,9 +187,9 @@ const short          VE[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 const unsigned short VF[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 const int            VG[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 const unsigned int   VH[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-const bsls_PlatformUtil::Int64
+const bsls::Types::Int64
                      VI[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-const bsls_PlatformUtil::Uint64
+const bsls::Types::Uint64
                      VJ[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 const float          VK[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 const double         VL[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -198,17 +198,17 @@ const double         VL[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 // integer types, such as 'putInt24', 'putInt56', etc.
 const int            VM[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 const unsigned int   VN[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-const bsls_PlatformUtil::Int64
+const bsls::Types::Int64
                      VO[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-const bsls_PlatformUtil::Uint64
+const bsls::Types::Uint64
                      VP[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-const bsls_PlatformUtil::Int64
+const bsls::Types::Int64
                      VQ[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-const bsls_PlatformUtil::Uint64
+const bsls::Types::Uint64
                      VR[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-const bsls_PlatformUtil::Int64
+const bsls::Types::Int64
                      VS[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-const bsls_PlatformUtil::Uint64
+const bsls::Types::Uint64
                      VT[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
 // Data structure that contains testing data to test array input methods using
@@ -1938,8 +1938,8 @@ int main(int argc, char *argv[]) {
         //   description of 'testGetArray'
         //
         // Testing:
-        //   getArrayInt64(bsls_PlatformUtil::Int64 *array, int numValues);
-        //   getArrayUint64(bsls_PlatformUtil::Uint64 *array, int numValues);
+        //   getArrayInt64(bsls::Types::Int64 *array, int numValues);
+        //   getArrayUint64(bsls::Types::Uint64 *array, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "GET 64-BIT INTEGER ARRAYS TEST" << endl
@@ -1951,7 +1951,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getArrayInt64'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 ElemType;
+            typedef bsls::Types::Int64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType*, int);
             const FuncPtr FUNC = &Obj::getArrayInt64;
             const ElemType *V_ORIG = VI;        // base-comparison array
@@ -2004,7 +2004,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getArrayUint64'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 ElemType;
+            typedef bsls::Types::Uint64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType*, int);
             const FuncPtr FUNC = &Obj::getArrayUint64;
             const ElemType *V_ORIG = VJ;        // base-comparison array
@@ -2061,8 +2061,8 @@ int main(int argc, char *argv[]) {
         //   description of 'testGetArray'
         //
         // Testing:
-        //   getArrayInt56(bsls_PlatformUtil::Int64 *array, int numValues);
-        //   getArrayUint56(bsls_PlatformUtil::Uint64 *array, int numValues);
+        //   getArrayInt56(bsls::Types::Int64 *array, int numValues);
+        //   getArrayUint56(bsls::Types::Uint64 *array, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "GET 56-BIT INTEGER ARRAYS TEST" << endl
@@ -2074,7 +2074,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getArrayInt56'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 ElemType;
+            typedef bsls::Types::Int64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType*, int);
             const FuncPtr FUNC = &Obj::getArrayInt56;
             const ElemType *V_ORIG = VI;        // base-comparison array
@@ -2127,7 +2127,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getArrayUint56'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 ElemType;
+            typedef bsls::Types::Uint64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType*, int);
             const FuncPtr FUNC = &Obj::getArrayUint56;
             const ElemType *V_ORIG = VJ;        // base-comparison array
@@ -2184,8 +2184,8 @@ int main(int argc, char *argv[]) {
         //   description of 'testGetArray'
         //
         // Testing:
-        //   getArrayInt48(bsls_PlatformUtil::Int64 *array, int numValues);
-        //   getArrayUint48(bsls_PlatformUtil::Uint64 *array, int numValues);
+        //   getArrayInt48(bsls::Types::Int64 *array, int numValues);
+        //   getArrayUint48(bsls::Types::Uint64 *array, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "GET 48-BIT INTEGER ARRAYS TEST" << endl
@@ -2197,7 +2197,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getArrayInt48'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 ElemType;
+            typedef bsls::Types::Int64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType*, int);
             const FuncPtr FUNC = &Obj::getArrayInt48;
             const ElemType *V_ORIG = VI;        // base-comparison array
@@ -2250,7 +2250,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getArrayUint48'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 ElemType;
+            typedef bsls::Types::Uint64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType*, int);
             const FuncPtr FUNC = &Obj::getArrayUint48;
             const ElemType *V_ORIG = VJ;        // base-comparison array
@@ -2307,8 +2307,8 @@ int main(int argc, char *argv[]) {
         //   description of 'testGetArray'
         //
         // Testing:
-        //   getArrayInt40(bsls_PlatformUtil::Int64 *array, int numValues);
-        //   getArrayUint40(bsls_PlatformUtil::Uint64 *array, int numValues);
+        //   getArrayInt40(bsls::Types::Int64 *array, int numValues);
+        //   getArrayUint40(bsls::Types::Uint64 *array, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "GET 40-BIT INTEGER ARRAYS TEST" << endl
@@ -2320,7 +2320,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getArrayInt40'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 ElemType;
+            typedef bsls::Types::Int64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType*, int);
             const FuncPtr FUNC = &Obj::getArrayInt40;
             const ElemType *V_ORIG = VI;        // base-comparison array
@@ -2373,7 +2373,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getArrayUint40'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 ElemType;
+            typedef bsls::Types::Uint64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType*, int);
             const FuncPtr FUNC = &Obj::getArrayUint40;
             const ElemType *V_ORIG = VJ;        // base-comparison array
@@ -3150,8 +3150,8 @@ int main(int argc, char *argv[]) {
         //   description of 'testGetScalar'
         //
         // Testing:
-        //   getInt64(bsls_PlatformUtil::Int64 val &variable);
-        //   getUint64(bsls_PlatformUtil::Uint64 val &variable);
+        //   getInt64(bsls::Types::Int64 val &variable);
+        //   getUint64(bsls::Types::Uint64 val &variable);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "GET 64-BIT INTEGERS TEST" << endl
@@ -3163,7 +3163,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getInt64'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 ElemType;
+            typedef bsls::Types::Int64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType&);
             const FuncPtr FUNC = &Obj::getInt64;
 
@@ -3211,7 +3211,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getUint64'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 ElemType;
+            typedef bsls::Types::Uint64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType&);
             const FuncPtr FUNC = &Obj::getUint64;
 
@@ -3262,8 +3262,8 @@ int main(int argc, char *argv[]) {
         //   description of 'testGetScalar'
         //
         // Testing:
-        //   getInt56(bsls_PlatformUtil::Int64 val &variable);
-        //   getUint56(bsls_PlatformUtil::Uint64 val &variable);
+        //   getInt56(bsls::Types::Int64 val &variable);
+        //   getUint56(bsls::Types::Uint64 val &variable);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "GET 56-BIT INTEGERS TEST" << endl
@@ -3275,7 +3275,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getInt56'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 ElemType;
+            typedef bsls::Types::Int64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType&);
             const FuncPtr FUNC = &Obj::getInt56;
 
@@ -3323,7 +3323,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getUint56'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 ElemType;
+            typedef bsls::Types::Uint64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType&);
             const FuncPtr FUNC = &Obj::getUint56;
 
@@ -3374,8 +3374,8 @@ int main(int argc, char *argv[]) {
         //   description of 'testGetScalar'
         //
         // Testing:
-        //   getInt48(bsls_PlatformUtil::Int64 val &variable);
-        //   getUint48(bsls_PlatformUtil::Uint64 val &variable);
+        //   getInt48(bsls::Types::Int64 val &variable);
+        //   getUint48(bsls::Types::Uint64 val &variable);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "GET 48-BIT INTEGERS TEST" << endl
@@ -3387,7 +3387,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getInt48'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 ElemType;
+            typedef bsls::Types::Int64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType&);
             const FuncPtr FUNC = &Obj::getInt48;
 
@@ -3435,7 +3435,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getUint48'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 ElemType;
+            typedef bsls::Types::Uint64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType&);
             const FuncPtr FUNC = &Obj::getUint48;
 
@@ -3486,8 +3486,8 @@ int main(int argc, char *argv[]) {
         //   description of 'testGetScalar'
         //
         // Testing:
-        //   getInt40(bsls_PlatformUtil::Int64 val &variable);
-        //   getUint40(bsls_PlatformUtil::Uint64 val &variable);
+        //   getInt40(bsls::Types::Int64 val &variable);
+        //   getUint40(bsls::Types::Uint64 val &variable);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "GET 40-BIT INTEGERS TEST" << endl
@@ -3499,7 +3499,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getInt40'." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 ElemType;
+            typedef bsls::Types::Int64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType&);
             const FuncPtr FUNC = &Obj::getInt40;
 
@@ -3547,7 +3547,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'getUint40'." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 ElemType;
+            typedef bsls::Types::Uint64 ElemType;
             typedef bdex_TestInStream& (Obj::*FuncPtr)(ElemType&);
             const FuncPtr FUNC = &Obj::getUint40;
 

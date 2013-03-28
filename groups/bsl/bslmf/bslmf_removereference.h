@@ -13,12 +13,14 @@ BSLS_IDENT("$Id: $")
 //  bsl::remove_reference: standard meta-function for stripping reference-ness
 //  bslmf::RemoveReference: meta-function for stripping reference-ness
 //
+//@SEE_ALSO: bslmf_addreference
+//
 //@AUTHOR: Oleg Grunin (ogrunin)
 //
 //@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::remove_reference' and 'BloombergLP::bslmf::RemoveReference', both of
 // which may be used to strip reference-ness (including both lvalue and rvalue
-// reference-ness, if the latter is supported by compiler) from a type.
+// reference-ness, if the latter is supported by the compiler) from a type.
 //
 // 'bsl::remove_reference' meets the requirements of the 'remove_reference'
 // template defined in the C++11 standard [meta.trans.ref], while
@@ -37,13 +39,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Remove Types' Reference-ness
-///- - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to remove reference-ness on a set of types.
+///Example 1: Remove Reference-ness of Types
+///- - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove the reference-ness of a set of types.
 //
-// Now, we instantiate the 'bsl::remove_reference' template for each of these
-// types, and use the 'bsl::is_same' meta-function to assert the 'type' static
-// data member of each instantiation:
+// Now, remove the reference-ness of a set of types using
+// 'bsl::remove_reference' and verify that the returned type has any
+// reference-ness removed:
 //..
 //  assert(true  ==
 //            (bsl::is_same<bsl::remove_reference<int& >::type, int >::value));
@@ -67,37 +69,49 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-                         // ======================
-                         // struct RemoveReference
-                         // ======================
+                         // =======================
+                         // struct remove_reference
+                         // =======================
 
 namespace bsl {
 
-template <typename TYPE>
+template <class TYPE>
 struct remove_reference {
-    // This 'struct' template implements a meta-function to remove the
-    // reference-ness of the (template parameter) 'TYPE'.  This generic default
-    // template defines a return type when 'TYPE' is not a reference type.
+    // This 'struct' template implements the 'remove_reference' meta-function
+    // defined in the C++11 standard [meta.trans.ref], providing an alias,
+    // 'type', that returns the result.  'type' has the same type as the
+    // (template parameter) 'TYPE' except with reference-ness removed.  Note
+    // that this generic default template provides a 'type' that is an alias to
+    // 'TYPE' for when 'TYPE' is not a reference.  A template specialization is
+    // provided (below) that removes reference-ness for when 'TYPE' is a
+    // reference.
 
     typedef TYPE type;
-        // This 'typedef' defines the return type of this meta-function.
+        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
 
-template <typename TYPE>
-struct remove_reference<TYPE &> {
-    // This partial specialization of 'remove_reference' defines a return
-    // type when it is instantiated with a reference type.
+template <class TYPE>
+struct remove_reference<TYPE&> {
+    // This partial specialization of 'bsl::remove_reference', for when the
+    // (template parameter) 'TYPE' is an rvalue reference, provides a
+    // 'typedef', 'type', that has reference-ness of 'TYPE' removed.
 
     typedef TYPE type;
-        // This 'typedef' defines the return type of this meta-function.
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE' except with the reference-ness removed.
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-template <typename TYPE>
-struct remove_reference<TYPE &&>
-{
+template <class TYPE>
+struct remove_reference<TYPE&&> {
+    // This partial specialization of 'bsl::remove_reference', for when the
+    // (template parameter) 'TYPE' is a reference, provides a 'typedef',
+    // 'type', that has reference-ness of 'TYPE' removed.
+
     typedef TYPE type;
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE' except with the reference-ness removed.
 };
 
 #endif
@@ -111,7 +125,7 @@ namespace bslmf {
                          // struct RemoveReference
                          // ======================
 
-template <typename TYPE>
+template <class TYPE>
 struct RemoveReference {
     // This 'struct' template implements a meta-function to remove the
     // reference-ness from the (template parameter) 'TYPE'.  Note that although
@@ -119,9 +133,8 @@ struct RemoveReference {
     // use of 'bsl::remove_reference' should be preferred.
 
     typedef typename bsl::remove_reference<TYPE>::type Type;
-        // This 'typedef' defines the return type of this meta function.  If
-        // the 'TYPE' is a reference to another type 'TYPE1', then this 'Type'
-        // returns 'TYPE1'; otherwise it returns 'TYPE'.
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE' except with any reference-ness removed.
 };
 
 }  // close package namespace
@@ -141,11 +154,24 @@ struct RemoveReference {
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

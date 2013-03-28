@@ -9,7 +9,7 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide namespace for platform-dependent 64-bit integer types.
 //
-//@DEPRECATED: Use 'bsls_int64' instead.
+//@DEPRECATED: Use 'bsls_types' instead.
 //
 //@CLASSES:
 //   bdes_Int64: namespace for platform-dependent 64-bit integer types
@@ -41,19 +41,24 @@ BDES_IDENT("$Id: $")
 #include <bslscm_version.h>  // required by 'bdes'
 #endif
 
-#ifndef INCLUDED_BSLS_INT64
-#include <bsls_int64.h>
-#endif
+// TBD The following inclusion and the 'typedef' below have been commented out
+// in anticipation of this component's retirement in BDE 2.17.
+// #ifndef INCLUDED_BSLS_INT64
+// #include <bsls_int64.h>
+// #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 
-typedef bsls_Int64 bdes_Int64;
-    // Provide a namespace for the implementations of platform-neutral 64-bit
-    // integers.
+// TBD see above
+// typedef bsls_Int64 bdes_Int64;
 
 }  // close namespace BloombergLP
 

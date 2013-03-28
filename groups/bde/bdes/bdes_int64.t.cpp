@@ -2,6 +2,10 @@
 
 #include <bdes_int64.h>
 
+// TBD This test driver has been commented out in anticipation of this
+// component's retirement in BDE 2.17.
+#if 0
+
 #include <bsls_platform.h>   // for testing only
 
 #include <bsl_cstddef.h>     // offsetof()
@@ -28,8 +32,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 2] Int64
 // [ 2] Uint64
-// [ 4] operator<<(ostream&, const bsls_PlatformUtil::Uint64&);
-// [ 3] operator<<(ostream&, const bsls_PlatformUtil::Int64&);
+// [ 4] operator<<(ostream&, const bdes_Int64::Uint64&);
+// [ 3] operator<<(ostream&, const bdes_Int64::Int64&);
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -580,6 +584,13 @@ int main(int argc, char *argv[]) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
     return testStatus;
+}
+
+#endif
+
+int main(int argc, char *argv[])
+{
+    return -1;
 }
 
 // ---------------------------------------------------------------------------

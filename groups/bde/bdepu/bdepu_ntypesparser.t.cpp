@@ -5,7 +5,6 @@
 
 #include <bsls_platform.h>
 #include <bslma_testallocator.h>
-#include <bsls_platformutil.h>
 #include <bsl_vector.h>
 #include <bdet_datetime.h>
 #include <bdet_date.h>
@@ -44,7 +43,7 @@ using namespace bsl;  // automatically added by script
 //
 // We use the following abbreviations: (for documentation purposes only)
 //  'cchar'      for 'const char'
-//  'int64'      for 'bsls_PlatformUtil::Int64;
+//  'int64'      for 'bsls::Types::Int64;
 //  'bStr'       for 'bsl::string'
 //  'bDate'      for 'bdet_Date'
 //  'bDatez'     for 'bdet_DateTz'
@@ -55,7 +54,7 @@ using namespace bsl;  // automatically added by script
 //  'ArCh'       for 'bsl::vector<char>'
 //  'ArSh'       for 'bsl::vector<short>'
 //  'ArInt'      for 'bsl::vector<int>'
-//  'ArInt64'    for 'bsl::vector<bsls_PlatformUtil::Int64>'
+//  'ArInt64'    for 'bsl::vector<bsls::Types::Int64>'
 //  'ArFl'       for 'bsl::vector<float>'
 //  'ArDb'       for 'bsl::vector<double>'
 //  'ArStr'      for 'bsl::vector<bsl::string>'
@@ -200,7 +199,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64 Int64;
 
 //=============================================================================
 //                  FUNCTIONS FOR TESTING
@@ -228,7 +227,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -2778,7 +2777,7 @@ int main(int argc, char *argv[])
                 { L_,   "[ abc ]",       7,    0,  1       },
                 { L_,   " [ abc ]",      8,    0,  1       },
                 { L_,   "  [ abc ]",     9,    0,  1       },
-                { L_,   "[ abc \"&^ 87\" ]", 
+                { L_,   "[ abc \"&^ 87\" ]",
                                         15,    0,  2       },
                 { L_,   "[ abc \"&^ 87\" 4 5 6 ]",
                                         21,    0,  5       },

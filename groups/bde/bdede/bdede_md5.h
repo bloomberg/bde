@@ -104,10 +104,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_alignedbuffer.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>  // @DEPRECATED
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -119,6 +115,13 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -143,20 +146,20 @@ class bdede_Md5 {
     // is supported in all cases.
 
     // DATA
-    unsigned int      d_state[4];    // state array storing the digest
+    unsigned int       d_state[4];    // state array storing the digest
 
-    bsls_Types::Int64 d_length;      // length of the message
+    bsls::Types::Int64 d_length;      // length of the message
 
-    unsigned char     d_buffer[64];  // buffer for storing remaining part of
-                                     // message that is not yet incorporated
-                                     // into 'd_state'
+    unsigned char      d_buffer[64];  // buffer for storing remaining part of
+                                      // message that is not yet incorporated
+                                      // into 'd_state'
 
     // FRIENDS
     friend bool operator==(const bdede_Md5&, const bdede_Md5&);
 
   public:
     // TYPES
-    typedef bsls_AlignedBuffer<16> Md5Digest;
+    typedef bsls::AlignedBuffer<16> Md5Digest;
         // A maximally-aligned, 16-byte object type used to represent an MD5
         // digest.
 
@@ -284,9 +287,9 @@ STREAM& bdede_Md5::bdexStreamIn(STREAM& stream, int version)
 {
     switch (version) {
       case 1: {
-        unsigned int      state[4];
-        unsigned char     buf[64];
-        bsls_Types::Int64 length;
+        unsigned int       state[4];
+        unsigned char      buf[64];
+        bsls::Types::Int64 length;
 
         // first the state
         for (int i = 0; i < 4; i++) {

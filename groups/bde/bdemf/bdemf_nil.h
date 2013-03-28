@@ -70,11 +70,11 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_Nil
-#define bdemf_Nil   bslmf_Nil
+#define bdemf_Nil   bslmf::Nil
 #endif
 
 #ifndef bdemf_IsNil
-#define bdemf_IsNil bslmf_IsNil
+#define bdemf_IsNil bslmf::IsNil
 #endif
 
 namespace BloombergLP {

@@ -230,7 +230,7 @@ bdem_RecordDef::bdem_RecordDef(const bdem_Schema         *schema,
                                const char                *name,
                                RecordType                 recordType,
                                bdema_SequentialAllocator *writeOnceAllocator,
-                               bslma_Allocator            *basicAllocator)
+                               bslma::Allocator          *basicAllocator)
 : d_schema_p(schema)
 , d_recordIndex(index)
 , d_recordName_p(name)  // held, not owned

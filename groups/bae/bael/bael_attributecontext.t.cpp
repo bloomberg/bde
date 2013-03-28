@@ -16,7 +16,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bsls_assert.h>
-#include <bsls_platform.h>         // placement 'new' syntax
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_new.h>         // placement 'new' syntax
@@ -122,7 +123,7 @@ int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 
-bslma_TestAllocator testAllocator;
+bslma::TestAllocator testAllocator;
 
 //=============================================================================
 //                          CLASSES FOR TESTING
@@ -149,8 +150,8 @@ struct AttributeComparator {
           case 1: // int
             return lhs.value().the<int>() < rhs.value().the<int>();
           case 2: // int64
-            return lhs.value().the<bsls_PlatformUtil::Int64>()
-                <  rhs.value().the<bsls_PlatformUtil::Int64>();
+            return lhs.value().the<bsls::Types::Int64>()
+                <  rhs.value().the<bsls::Types::Int64>();
           case 3: // string
             return lhs.value().the<bsl::string>()
                 <  rhs.value().the<bsl::string>();
@@ -172,7 +173,7 @@ class AttributeSet : public bael_AttributeContainer {
 
   public:
     // CREATORS
-    AttributeSet(bslma_Allocator *basicAllocator = 0);
+    AttributeSet(bslma::Allocator *basicAllocator = 0);
         // Create this attribute set.
 
     virtual ~AttributeSet();
@@ -210,7 +211,7 @@ class AttributeSet : public bael_AttributeContainer {
 
 // CREATORS
 inline
-AttributeSet::AttributeSet(bslma_Allocator *basicAllocator)
+AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
 : d_set(AttributeComparator(), basicAllocator)
 {
 }
@@ -624,8 +625,8 @@ extern "C" void *case4RuleThread(void *args)
 
 struct ContextThreadData
 {
-    unsigned int d_seed;
-    bslma_TestAllocator * d_allocator_p;
+    unsigned int          d_seed;
+    bslma::TestAllocator *d_allocator_p;
 };
 
 extern "C" void *case4ContextThread(void *args)
@@ -861,13 +862,13 @@ const int NUM_TESTS   = 10;           // number of tests
 
 bael_Attribute A0("", "12345678");
 bael_Attribute A1("", 12345678);
-bael_Attribute A2("", (bsls_PlatformUtil::Int64)12345678);
+bael_Attribute A2("", (bsls::Types::Int64)12345678);
 bael_Attribute A3("uuid", "12345678");
 bael_Attribute A4("uuid", 12345678);
-bael_Attribute A5("uuid", (bsls_PlatformUtil::Int64)12345678);
+bael_Attribute A5("uuid", (bsls::Types::Int64)12345678);
 bael_Attribute A6("UUID", "12345678");
 bael_Attribute A7("UUID", 12345678);
-bael_Attribute A8("UUID", (bsls_PlatformUtil::Int64)12345678);
+bael_Attribute A8("UUID", (bsls::Types::Int64)12345678);
 
 const bael_Attribute ATTRS[] = { A0, A1, A2, A3, A4, A5, A6, A7, A8 };
 
@@ -978,10 +979,10 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
 
-    bslma_Allocator *Z = &testAllocator;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
-    bslma_Allocator *globalAllocator = bslma_Default::globalAllocator(0);
+    bslma::Allocator *Z = &testAllocator;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::Allocator *globalAllocator = bslma::Default::globalAllocator(0);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 7: {
@@ -1002,7 +1003,7 @@ int main(int argc, char *argv[])
                                   << "=====================" << endl;
 
 
-        bslma_DefaultAllocatorGuard guard(globalAllocator);
+        bslma::DefaultAllocatorGuard guard(globalAllocator);
         using namespace BAEL_ATTRIBUTECONTEXT_USAGE_EXAMPLE;
 
 //..
@@ -1192,7 +1193,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing (Old) Usage Example" << endl
                                   << "===========================" << endl;
 
-        bslma_DefaultAllocatorGuard guard(globalAllocator);
+        bslma::DefaultAllocatorGuard guard(globalAllocator);
         using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_6;
 
         bael_CategoryManager manager;
@@ -1340,8 +1341,8 @@ int main(int argc, char *argv[])
                           << "Test memory allocation\n"
                           << "======================\n";
 
-        bslma_TestAllocator globalAllocator;
-        bslma_Default::setGlobalAllocator(&globalAllocator);
+        bslma::TestAllocator globalAllocator;
+        bslma::Default::setGlobalAllocator(&globalAllocator);
         {
             {
                 ASSERT(0 == testAllocator.numBytesInUse());
@@ -1443,7 +1444,7 @@ int main(int argc, char *argv[])
             << "============================================================"
             << endl;
 
-        bslma_DefaultAllocatorGuard guard(globalAllocator);
+        bslma::DefaultAllocatorGuard guard(globalAllocator);
         using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_4;
 
         unsigned int ruleThreadSeeds[NUM_RULETHREADS];
@@ -1471,7 +1472,7 @@ int main(int argc, char *argv[])
                                          (void*)&ruleThreadArgs[j]);
             }
 
-            bslma_TestAllocator testAllocators[NUM_CONTEXTTHREADS];
+            bslma::TestAllocator testAllocators[NUM_CONTEXTTHREADS];
             for (int j = 0; j < NUM_CONTEXTTHREADS; ++j) {
                 contextThreadArgs[j].d_categoryManager = &manager;
                 contextThreadArgs[j].d_seed = seed;
@@ -1508,7 +1509,7 @@ int main(int argc, char *argv[])
                           << "Test Attribute Manipulation\n"
                           << "===========================\n";
 
-        bslma_DefaultAllocatorGuard guard(globalAllocator);
+        bslma::DefaultAllocatorGuard guard(globalAllocator);
         using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_3;
 
         bcemt_ThreadUtil::Handle Threads[NUM_THREADS];
@@ -1555,7 +1556,7 @@ int main(int argc, char *argv[])
                           << "Test Attribute Context Creation\n"
                           << "===============================\n";
 
-        bslma_DefaultAllocatorGuard guard(globalAllocator);
+        bslma::DefaultAllocatorGuard guard(globalAllocator);
         using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_2;
 
         bcemt_ThreadUtil::Handle Threads[NUM_THREADS];
@@ -1589,7 +1590,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_TESTS; ++i)
         {
-            bslma_TestAllocator testAllocators[NUM_THREADS];
+            bslma::TestAllocator testAllocators[NUM_THREADS];
 
             for (int j = 0; j < NUM_THREADS; ++j) {
                 bcemt_ThreadUtil::create(&Threads[j],
@@ -1623,7 +1624,7 @@ int main(int argc, char *argv[])
         // Testing:
         //    AttributeSet
         // --------------------------------------------------------------------
-        typedef bsls_PlatformUtil::Int64 Int64;
+        typedef bsls::Types::Int64 Int64;
         const char *VALUES[]   = { "A", "B", "C", "D", "E" };
         const int   NUM_VALUES = sizeof VALUES/sizeof *VALUES;
 

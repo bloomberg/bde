@@ -1,10 +1,8 @@
-// bdex_fieldcode.cpp            -*-C++-*-
+// bdex_fieldcode.cpp                                                 -*-C++-*-
 #include <bdex_fieldcode.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdex_fieldcode_cpp,"$Id$ $CSID$")
-
-#include <bsls_platformutil.h>                  // for testing only
 
 #include <bsl_ostream.h>
 

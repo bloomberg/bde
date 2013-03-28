@@ -123,10 +123,10 @@ BDES_IDENT("$Id: $")
 //    private:
 //      // PRIVATE TYPES
 //      union Node {
-//          int                                d_int;
-//          double                             d_double;
-//          bsls_ObjectBuffer<bsl::string>     d_string;
-//          bsls_AlignmentUtil::MaxAlignedType d_align;
+//          int                                 d_int;
+//          double                              d_double;
+//          bsls::ObjectBuffer<bsl::string>     d_string;
+//          bsls::AlignmentUtil::MaxAlignedType d_align;
 //      };
 //..
 // Define the vectors to store the types and corresponding values.  The element
@@ -137,19 +137,19 @@ BDES_IDENT("$Id: $")
 //      // DATA
 //      bsl::vector<ELEMENT_TYPE>  d_types;        // list element types
 //      bsl::vector<Node>          d_values;       // list element values
-//      bslma_Allocator           *d_allocator_p;  // holds (but doesn't own)
+//      bslma::Allocator          *d_allocator_p;  // holds (but doesn't own)
 //                                                 // allocator
 //..
 // A minimal public interface (suitable for illustration only):
 //..
 //    public:
 //      // CREATORS
-//      my_List(bslma_Allocator *basicAllocator = 0);
+//      my_List(bslma::Allocator *basicAllocator = 0);
 //          // Create a list of length 0.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
 //
-//      my_List(const my_List& original, bslma_Allocator *basicAllocator = 0);
+//      my_List(const my_List& original, bslma::Allocator *basicAllocator = 0);
 //          // Create a list having the value of the specified 'original'
 //          // list.  Optionally specify a 'basicAllocator' used to supply
 //          // memory.  If 'basicAllocator' is 0, the currently installed
@@ -251,7 +251,7 @@ BDES_IDENT("$Id: $")
 //
 //  // CREATORS
 //  inline
-//  my_List::my_List(bslma_Allocator *basicAllocator)
+//  my_List::my_List(bslma::Allocator *basicAllocator)
 //  : d_types(basicAllocator)
 //  , d_values(basicAllocator)
 //  , d_allocator_p(basicAllocator)
@@ -259,7 +259,7 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  my_List::my_List(const my_List& original, bslma_Allocator *basicAllocator)
+//  my_List::my_List(const my_List& original, bslma::Allocator *basicAllocator)
 //  : d_types(original.d_types, basicAllocator)
 //  , d_values(original.d_values, basicAllocator)
 //  , d_allocator_p(basicAllocator)
@@ -547,20 +547,20 @@ struct bdetu_UnsetValueIsDefined {
     // component, and 'false' otherwise.
 
     enum {
-        VALUE = bslmf_IsSame<TYPE, bool>::VALUE
-             || bslmf_IsSame<TYPE, char>::VALUE
-             || bslmf_IsSame<TYPE, short>::VALUE
-             || bslmf_IsSame<TYPE, int>::VALUE
-             || bslmf_IsSame<TYPE, bsls_Types::Int64>::VALUE
-             || bslmf_IsSame<TYPE, float>::VALUE
-             || bslmf_IsSame<TYPE, double>::VALUE
-             || bslmf_IsSame<TYPE, bsl::string>::VALUE
-             || bslmf_IsSame<TYPE, bdet_Datetime>::VALUE
-             || bslmf_IsSame<TYPE, bdet_DatetimeTz>::VALUE
-             || bslmf_IsSame<TYPE, bdet_Date>::VALUE
-             || bslmf_IsSame<TYPE, bdet_DateTz>::VALUE
-             || bslmf_IsSame<TYPE, bdet_Time>::VALUE
-             || bslmf_IsSame<TYPE, bdet_TimeTz>::VALUE
+        VALUE = bslmf::IsSame<TYPE, bool>::VALUE
+             || bslmf::IsSame<TYPE, char>::VALUE
+             || bslmf::IsSame<TYPE, short>::VALUE
+             || bslmf::IsSame<TYPE, int>::VALUE
+             || bslmf::IsSame<TYPE, bsls::Types::Int64>::VALUE
+             || bslmf::IsSame<TYPE, float>::VALUE
+             || bslmf::IsSame<TYPE, double>::VALUE
+             || bslmf::IsSame<TYPE, bsl::string>::VALUE
+             || bslmf::IsSame<TYPE, bdet_Datetime>::VALUE
+             || bslmf::IsSame<TYPE, bdet_DatetimeTz>::VALUE
+             || bslmf::IsSame<TYPE, bdet_Date>::VALUE
+             || bslmf::IsSame<TYPE, bdet_DateTz>::VALUE
+             || bslmf::IsSame<TYPE, bdet_Time>::VALUE
+             || bslmf::IsSame<TYPE, bdet_TimeTz>::VALUE
     };
 };
 
@@ -607,9 +607,9 @@ int bdetu_Unset<int>::unsetValue()
 
 template <>
 inline
-bsls_Types::Int64 bdetu_Unset<bsls_Types::Int64>::unsetValue()
+bsls::Types::Int64 bdetu_Unset<bsls::Types::Int64>::unsetValue()
 {
-    const bsls_Types::Int64 unsetInt64Value =
+    const bsls::Types::Int64 unsetInt64Value =
                                          -0x7fffffffffffffffLL - 1;  // 64 bits
 
     return unsetInt64Value;
@@ -723,9 +723,9 @@ bool bdetu_Unset<int>::isUnset(const int& value)
 
 template <>
 inline
-bool bdetu_Unset<bsls_Types::Int64>::isUnset(const bsls_Types::Int64& value)
+bool bdetu_Unset<bsls::Types::Int64>::isUnset(const bsls::Types::Int64& value)
 {
-    const bsls_Types::Int64 unsetInt64Value =
+    const bsls::Types::Int64 unsetInt64Value =
                                          -0x7fffffffffffffffLL - 1;  // 64 bits
 
     return unsetInt64Value == value;

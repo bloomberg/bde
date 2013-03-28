@@ -47,11 +47,12 @@ using namespace bsl;  // automatically added by script
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
-        printf("Error "__FILE__"(%d): %s"
-               "    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        cout << "Error " << __FILE__ << "(" << i << "): " << s
+             << "    (failed)" << endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -466,8 +467,8 @@ struct UserInfo{
 class UserInfoCache {
     typedef bsl::map<int, UserInfo> InfoMap;
 
-    Obj     d_lock;
-    InfoMap d_infoMap;
+    bcemt_ReaderWriterLock d_lock;
+    InfoMap                d_infoMap;
   public:
     UserInfoCache();
     ~UserInfoCache();

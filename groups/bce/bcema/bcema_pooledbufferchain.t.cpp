@@ -47,8 +47,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // 'bcema_PooledBufferChainFactory' public interface
 // CREATORS
-// [ 6] bcema_PooledBufferChainFactory(int              bufferSize,
-//                                     bslma_Allocator *basicAllocator = 0);
+// [ 6] bcema_PooledBufferChainFactory(int               bufferSize,
+//                                     bslma::Allocator *basicAllocator = 0);
 // [ 6] ~bcema_PooledBufferChainFactory();
 //
 // MANIPULATORS

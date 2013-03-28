@@ -14,7 +14,6 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -272,9 +271,9 @@ void zprintf(const char *, ...)
 // from those found in the .h files (mostly 'elf.h').  The following
 // transformations have been done on the definitions found in the .h file --
 // typedefs to fundamental types have been resolved (some that are equivalent
-// to 'bsls_Types::UintPtr' have been translated to 'UintPtr') and the names
+// to 'bsls::Types::UintPtr' have been translated to 'UintPtr') and the names
 // given for the structs are the names of typedefs to them in the namespace
-// 'Local' within this file.  Significantly, data members not used in this
+// 'local' within this file.  Significantly, data members not used in this
 // source file are ommitted.
 //
 // Each ELF object file or executable starts with an ELF header that specifies
@@ -288,7 +287,7 @@ void zprintf(const char *, ...)
 //     short         e_shentsize;           //  sizeof section header
 //     short         e_shnum;               //  number of section headers
 //     short         e_shstrndx;            //  shdr string index
-// } Local::ElfHeader;
+// } local::ElfHeader;
 //
 // Each segment is described by a program header that is an array of
 // structures, each describing a segment or other information the system needs
@@ -299,7 +298,7 @@ void zprintf(const char *, ...)
 //     UintPtr      p_offset;                 //  file offset
 //     unsigned int p_vaddr;                  //  virtual address
 //     unsigned int p_memsz;                  //  memory size
-// } Local::ElfProgramHeader;
+// } local::ElfProgramHeader;
 //
 // An object file segment contains one or more sections.  The string table
 // provides the names of the various sections corresponding to the integral
@@ -311,7 +310,7 @@ void zprintf(const char *, ...)
 //     unsigned int sh_type;                  //  SHT_...
 //     UintPtr      sh_offset;                //  file offset
 //     unsigned int sh_size;                  //  section size
-// } Local::ElfSectionHeader;
+// } local::ElfSectionHeader;
 //
 // typedef struct
 // {
@@ -319,7 +318,7 @@ void zprintf(const char *, ...)
 //     UintPtr       st_value;              //  Symbol value
 //     unsigned int  st_size;               //  Symbol size
 //     unsigned char st_info;               //  Symbol type and binding
-// } Local::ElfSymbol;
+// } local::ElfSymbol;
 //
 // ----------------------------------------------------------------------------
 // The above definitions describe the data within one file.  However, if the
@@ -337,7 +336,7 @@ void zprintf(const char *, ...)
 //     unsigned long        l_addr;         // address at which object is
 //                                          // mapped
 //     char                *l_name;         // full name of loaded object
-//     Local::ElfDynamic   *l_ld;           // dynamic structure of object
+//     local::ElfDynamic   *l_ld;           // dynamic structure of object
 //     Link_map            *l_next;         // next link object
 // };
 //
@@ -353,7 +352,7 @@ void zprintf(const char *, ...)
 //
 //         UintPtr     d_ptr;           // really a pointer of type 'r_debug *'
 //     } d_un;
-// } Local::ElfDynamic;
+// } local::ElfDynamic;
 //
 // Tag values
 //
@@ -361,7 +360,7 @@ void zprintf(const char *, ...)
 // #define    DT_DEBUG    21                //  pointer to 'r_debug' structure
 //
 // The '_DYNAMIC' symbol is the address of the beginning of an array of objects
-// of type 'Local::ElfDynamic', one of which contains a pointer to the
+// of type 'local::ElfDynamic', one of which contains a pointer to the
 // 'r_debug' object, which contains a pointer to the linked list of 'link_map'
 // objects, one of which exists for each executable or shared library.
 //
@@ -380,7 +379,7 @@ void zprintf(const char *, ...)
 // {
 //     UintPtr                           dlpi_addr;    // base address
 //     const char                       *dlpi_name;    // lib name
-//     const Local::ElfProgramHeader    *dlpi_phdr;    // array of program
+//     const local::ElfProgramHeader    *dlpi_phdr;    // array of program
 //                                                     // headers
 //     short                             dlpi_phnum;   // base address
 // };
@@ -410,7 +409,7 @@ namespace BloombergLP {
 
 namespace {
 
-namespace Local {
+namespace local {
 
 typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf>
                                                             StackTraceResolver;
@@ -448,7 +447,7 @@ enum {
 };
 
                                 // ---------------
-                                // Local Elf Types
+                                // local Elf Types
                                 // ---------------
 
 #undef   SPLICE
@@ -483,7 +482,7 @@ typedef SPLICE(Sym)     ElfSymbol;         // Describes one symbol in the
                                            // symbol table.
 #undef SPLICE
 
-}  // close namespace Local
+}  // close namespace local
 
 }  // close unnamed namespace
 
@@ -492,7 +491,7 @@ typedef SPLICE(Sym)     ElfSymbol;         // Describes one symbol in the
                               // ----------------
 
 static
-int checkElfHeader(Local::ElfHeader *elfHeader)
+int checkElfHeader(local::ElfHeader *elfHeader)
     // Return 0 if the magic numbers in the elf header are correct and a
     // non-zero value otherwise.
 {
@@ -507,7 +506,7 @@ int checkElfHeader(Local::ElfHeader *elfHeader)
     // this code can only read native-endian ELF files
 
     if (elfHeader->e_ident[EI_DATA] !=
-                          (Local::IS_BIG_ENDIAN ? ELFDATA2MSB : ELFDATA2LSB)) {
+                          (local::IS_BIG_ENDIAN ? ELFDATA2MSB : ELFDATA2LSB)) {
         return -1;                                                    // RETURN
     }
 
@@ -522,16 +521,16 @@ int checkElfHeader(Local::ElfHeader *elfHeader)
 }
 
                   // -----------------------------------------
-                  // Local::StackTraceResolver::CurrentSegment
+                  // local::StackTraceResolver::CurrentSegment
                   // -----------------------------------------
 
-struct Local::StackTraceResolver::CurrentSegment {
+struct local::StackTraceResolver::CurrentSegment {
     // This 'struct' contains all fields of this resolver that are local
     // to the current segment.  The resolver iterates over multiple segments,
     // resolving symbols within one at a time.
 
     // TYPES
-    typedef bsls_Types::UintPtr
+    typedef bsls::Types::UintPtr
                    UintPtr;             // 32 bit unsigned on 32 bit, 64 bit
                                         // unsigned on 64 bit, usually used for
                                         // absolute offsets into a file
@@ -588,7 +587,7 @@ struct Local::StackTraceResolver::CurrentSegment {
                                         // '*resolver.d_stackTrace_p'
 
     // CREATORS
-    CurrentSegment(int numFrames, bslma_Allocator *basicAllocator);
+    CurrentSegment(int numFrames, bslma::Allocator *basicAllocator);
         // Create this 'Seg' object, using the specified 'basicAllocator'
         // to allocate the arrays 'd_framePtrs_p' and 'd_addresses_p' to
         // have the specified 'numFrames' elements, initialize
@@ -605,9 +604,9 @@ struct Local::StackTraceResolver::CurrentSegment {
 };
 
 // CREATORS
-Local::StackTraceResolver::CurrentSegment::CurrentSegment(
-                                               int              numFrames,
-                                               bslma_Allocator *basicAllocator)
+local::StackTraceResolver::CurrentSegment::CurrentSegment(
+                                              int               numFrames,
+                                              bslma::Allocator *basicAllocator)
 : d_helper_p(0)
 , d_framePtrs_p(0)
 , d_addresses_p(0)
@@ -632,7 +631,7 @@ Local::StackTraceResolver::CurrentSegment::CurrentSegment(
 }
 
 // MANIPULATORS
-void Local::StackTraceResolver::CurrentSegment::reset()
+void local::StackTraceResolver::CurrentSegment::reset()
 {
     d_helper_p          = 0;
     d_numAddresses      = 0;
@@ -653,7 +652,7 @@ void Local::StackTraceResolver::CurrentSegment::reset()
       // ---------------------------------------------------------------
 
 // PRIVATE CREATORS
-Local::StackTraceResolver::baesu_StackTraceResolverImpl(
+local::StackTraceResolver::baesu_StackTraceResolverImpl(
                                      baesu_StackTrace *stackTrace,
                                      bool              demanglingPreferredFlag)
 : d_stackTrace_p(stackTrace)
@@ -662,18 +661,18 @@ Local::StackTraceResolver::baesu_StackTraceResolverImpl(
 , d_demangle(demanglingPreferredFlag)
 , d_hbpAlloc()
 {
-    d_scratchBuf_p = (char *) d_hbpAlloc.allocate(Local::SCRATCH_BUF_LEN);
-    d_symbolBuf_p  = (char *) d_hbpAlloc.allocate(Local::SYMBOL_BUF_LEN);
+    d_scratchBuf_p = (char *) d_hbpAlloc.allocate(local::SCRATCH_BUF_LEN);
+    d_symbolBuf_p  = (char *) d_hbpAlloc.allocate(local::SYMBOL_BUF_LEN);
     d_seg_p        = new (d_hbpAlloc) CurrentSegment(stackTrace->length(),
                                                      &d_hbpAlloc);
 }
 
-Local::StackTraceResolver::~baesu_StackTraceResolverImpl()
+local::StackTraceResolver::~baesu_StackTraceResolverImpl()
 {
 }
 
 // PRIVATE MANIPULATORS
-int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
+int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
                                               void       *segmentPtr,
                                               UintPtr     segmentSize,
                                               const char *libraryFileName)
@@ -712,9 +711,9 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 
     // read the elf header
 
-    Local::ElfHeader elfHeader;
+    local::ElfHeader elfHeader;
     if (0 != d_seg_p->d_helper_p->readExact(&elfHeader,
-                                            sizeof(Local::ElfHeader),
+                                            sizeof(local::ElfHeader),
                                             0)) {
         return -1;                                                    // RETURN
     }
@@ -728,11 +727,11 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     // find the section headers we're interested in, that is, .symtab and
     // .strtab, or, if the file was stripped, .dynsym and .dynstr
 
-    Local::ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
-    bsl::memset(&symTabHdr, 0, sizeof(Local::ElfSectionHeader));
-    bsl::memset(&strTabHdr, 0, sizeof(Local::ElfSectionHeader));
-    bsl::memset(&dynSymHdr, 0, sizeof(Local::ElfSectionHeader));
-    bsl::memset(&dynStrHdr, 0, sizeof(Local::ElfSectionHeader));
+    local::ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
+    bsl::memset(&symTabHdr, 0, sizeof(local::ElfSectionHeader));
+    bsl::memset(&strTabHdr, 0, sizeof(local::ElfSectionHeader));
+    bsl::memset(&dynSymHdr, 0, sizeof(local::ElfSectionHeader));
+    bsl::memset(&dynStrHdr, 0, sizeof(local::ElfSectionHeader));
 
     // Possible speedup: read all the section headers at once instead of one
     // at a time.
@@ -740,11 +739,11 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     int numSections = elfHeader.e_shnum;
     UintPtr sectionHeaderSize = elfHeader.e_shentsize;
     UintPtr sectionHeaderOffset = elfHeader.e_shoff;
-    if (Local::SCRATCH_BUF_LEN < sectionHeaderSize) {
+    if (local::SCRATCH_BUF_LEN < sectionHeaderSize) {
         return -1;                                                    // RETURN
     }
-    Local::ElfSectionHeader *sec =
-                           (Local::ElfSectionHeader *) (void *) d_scratchBuf_p;
+    local::ElfSectionHeader *sec =
+                           (local::ElfSectionHeader *) (void *) d_scratchBuf_p;
 
     // read the string table which is usef for section names
 
@@ -831,10 +830,10 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     return 0;
 }
 
-int Local::StackTraceResolver::loadSymbols()
+int local::StackTraceResolver::loadSymbols()
 {
-    const int symSize = sizeof(Local::ElfSymbol);
-    const UintPtr maxSymbolsPerPass = Local::SYMBOL_BUF_LEN / symSize;
+    const int symSize = sizeof(local::ElfSymbol);
+    const UintPtr maxSymbolsPerPass = local::SYMBOL_BUF_LEN / symSize;
     const UintPtr numSyms = d_seg_p->d_symTableSize / symSize;
     UintPtr sourceFileNameOffset = (UintPtr) -1;
 
@@ -856,10 +855,10 @@ int Local::StackTraceResolver::loadSymbols()
             return -1;                                                // RETURN
         }
 
-        const Local::ElfSymbol *symBufStart =
-                                   (Local::ElfSymbol *) (void *) d_symbolBuf_p;
-        const Local::ElfSymbol *symBufEnd   = symBufStart + numSymsThisTime;
-        for (const Local::ElfSymbol *sym = symBufStart; sym < symBufEnd;
+        const local::ElfSymbol *symBufStart =
+                                   (local::ElfSymbol *) (void *) d_symbolBuf_p;
+        const local::ElfSymbol *symBufEnd   = symBufStart + numSymsThisTime;
+        for (const local::ElfSymbol *sym = symBufStart; sym < symBufEnd;
                                                                        ++sym) {
             switch (ELF32_ST_TYPE(sym->st_info)) {
               case STT_FILE: {
@@ -886,7 +885,7 @@ int Local::StackTraceResolver::loadSymbols()
                                             d_seg_p->d_stringTableOffset +
                                                                   sym->st_name,
                                             d_scratchBuf_p,
-                                            Local::SCRATCH_BUF_LEN,
+                                            local::SCRATCH_BUF_LEN,
                                             &d_hbpAlloc));
                             if (frame.isMangledSymbolNameKnown()) {
                                 setFrameSymbolName(&frame);
@@ -902,7 +901,7 @@ int Local::StackTraceResolver::loadSymbols()
                                             d_seg_p->d_stringTableOffset +
                                                           sourceFileNameOffset,
                                             d_scratchBuf_p,
-                                            Local::SCRATCH_BUF_LEN,
+                                            local::SCRATCH_BUF_LEN,
                                             &d_hbpAlloc));
                             }
                         }
@@ -916,7 +915,7 @@ int Local::StackTraceResolver::loadSymbols()
     return 0;
 }
 
-int Local::StackTraceResolver::processLoadedImage(
+int local::StackTraceResolver::processLoadedImage(
                                                  const char *fileName,
                                                  const void *programHeaders,
                                                  int         numProgramHeaders,
@@ -933,14 +932,14 @@ int Local::StackTraceResolver::processLoadedImage(
 #else
     const char *name = 0;
     if (fileName && fileName[0]) {
-        if (Local::IS_LINUX) {
+        if (local::IS_LINUX) {
             d_seg_p->d_isMainExecutable = false;
         }
 
         name = fileName;
     }
     else {
-        if (Local::IS_LINUX) {
+        if (local::IS_LINUX) {
             d_seg_p->d_isMainExecutable = true;
         }
 
@@ -948,11 +947,11 @@ int Local::StackTraceResolver::processLoadedImage(
         // executable file, but those platforms have a standard virtual symlink
         // that points to the executable file name.
 
-        bsl::memset(d_scratchBuf_p, 0, Local::SCRATCH_BUF_LEN);
+        bsl::memset(d_scratchBuf_p, 0, local::SCRATCH_BUF_LEN);
         if (0 < readlink("/proc/self/exe",
                          d_scratchBuf_p,
-                         Local::SCRATCH_BUF_LEN)) {
-            d_scratchBuf_p[Local::SCRATCH_BUF_LEN - 1] = 0;
+                         local::SCRATCH_BUF_LEN)) {
+            d_scratchBuf_p[local::SCRATCH_BUF_LEN - 1] = 0;
             name = d_scratchBuf_p;
         }
         else {
@@ -970,8 +969,8 @@ int Local::StackTraceResolver::processLoadedImage(
     d_seg_p->d_helper_p = &helper;
 
     for (int i = 0; i < numProgramHeaders; ++i) {
-        const Local::ElfProgramHeader *ph =
-                          (const Local::ElfProgramHeader *) programHeaders + i;
+        const local::ElfProgramHeader *ph =
+                          (const local::ElfProgramHeader *) programHeaders + i;
         // if (ph->p_type == PT_LOAD && ph->p_offset == 0) {
 
         if    (ph->p_type == PT_LOAD) {
@@ -1008,7 +1007,7 @@ int Local::StackTraceResolver::processLoadedImage(
 }
 
 // PRIVATE ACCESSORS
-void Local::StackTraceResolver::setFrameSymbolName(
+void local::StackTraceResolver::setFrameSymbolName(
                                             baesu_StackTraceFrame *frame) const
 {
 #if !defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_CMP_GNU)
@@ -1069,8 +1068,8 @@ int linkmapCallback(struct dl_phdr_info *info,
     // unused, the specified 'data' is a pointer to the elf resolver.  Return 0
     // on success and a non-zero value otherwise.
 {
-    Local::StackTraceResolver *resolver =
-                           reinterpret_cast<Local::StackTraceResolver *>(data);
+    local::StackTraceResolver *resolver =
+                           reinterpret_cast<local::StackTraceResolver *>(data);
 
     // here the base address is known and text segment loading address is
     // unknown
@@ -1100,7 +1099,7 @@ extern "C" void *_DYNAMIC;    // global pointer that leads to the link map
 #endif
 
 // CLASS METHODS
-int Local::StackTraceResolver::resolve(
+int local::StackTraceResolver::resolve(
                                      baesu_StackTrace *stackTrace,
                                      bool              demanglingPreferredFlag)
 {
@@ -1108,7 +1107,7 @@ int Local::StackTraceResolver::resolve(
 
     int rc;
 
-    Local::StackTraceResolver resolver(stackTrace,
+    local::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);
 
     // The HPUX compiler, 'aCC', doesn't accept the -Bstatic option, suggesting
@@ -1123,10 +1122,10 @@ int Local::StackTraceResolver::resolve(
     // encounter.  The max is the number of program headers that will fit in
     // the allcoated segment.
 
-    Local::ElfProgramHeader *programHeaders = 0;
+    local::ElfProgramHeader *programHeaders = 0;
     int maxNumProgramHeaders = 0;
 
-    Local::ElfHeader elfHeader;
+    local::ElfHeader elfHeader;
     for (int i = -1; -1 != shl_get_r(i, &desc); ++i) {
         int numProgramHeaders = 0;
 
@@ -1155,14 +1154,14 @@ int Local::StackTraceResolver::resolve(
             numProgramHeaders = elfHeader.e_phnum;
             if (numProgramHeaders > maxNumProgramHeaders) {
                 programHeaders =
-                  (Local::ElfProgramHeader *) resolver.d_hbpAlloc.allocate(
-                          numProgramHeaders * sizeof(Local::ElfProgramHeader));
+                  (local::ElfProgramHeader *) resolver.d_hbpAlloc.allocate(
+                          numProgramHeaders * sizeof(local::ElfProgramHeader));
                 maxNumProgramHeaders = numProgramHeaders;
             }
 
             rc = helper.readExact(
                            programHeaders,
-                           numProgramHeaders * sizeof(Local::ElfProgramHeader),
+                           numProgramHeaders * sizeof(local::ElfProgramHeader),
                            elfHeader.e_phoff);
             if (rc) {
                 return -1;                                            // RETURN
@@ -1182,7 +1181,7 @@ int Local::StackTraceResolver::resolve(
 
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 
-    Local::StackTraceResolver resolver(stackTrace,
+    local::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);
 
     // 'dl_iterate_phdr' will iterate over all loaded files, the executable and
@@ -1193,7 +1192,7 @@ int Local::StackTraceResolver::resolve(
 
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
-    Local::StackTraceResolver resolver(stackTrace,
+    local::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);
 
     struct link_map *linkMap = 0;
@@ -1210,7 +1209,7 @@ int Local::StackTraceResolver::resolve(
         // This method was adopted as superior to the above (commented out)
         // method.
 
-        Local::ElfDynamic *dynamic = (Local::ElfDynamic *) &_DYNAMIC;
+        local::ElfDynamic *dynamic = (local::ElfDynamic *) &_DYNAMIC;
         if (0 == dynamic) {
             return -1;                                                // RETURN
         }
@@ -1237,14 +1236,14 @@ int Local::StackTraceResolver::resolve(
     }
 
     for (int i = 0; linkMap; ++i, linkMap = linkMap->l_next) {
-        Local::ElfHeader *elfHeader = (Local::ElfHeader *) linkMap->l_addr;
+        local::ElfHeader *elfHeader = (local::ElfHeader *) linkMap->l_addr;
 
         if (0 != checkElfHeader(elfHeader)) {
             return -1;
         }
 
-        Local::ElfProgramHeader *programHeaders =
-                        (Local::ElfProgramHeader *) (void *)
+        local::ElfProgramHeader *programHeaders =
+                        (local::ElfProgramHeader *) (void *)
                                      ((char *) elfHeader + elfHeader->e_phoff);
         int numProgramHeaders = elfHeader->e_phnum;
 

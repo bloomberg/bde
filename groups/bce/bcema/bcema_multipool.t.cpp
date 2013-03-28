@@ -34,16 +34,16 @@ using namespace bsl;  // automatically added by script
 // The 'bcema_Multipool' class consists of one constructor, a destructor,
 // and four manipulators.  The manipulators are used to allocate, deallocate,
 // and reserve memory.  Since this component is a memory manager, the
-// 'bdema_testallocator' component is used extensively to verify expected
+// 'bslma_testallocator' component is used extensively to verify expected
 // behaviors.  Note that the copying of objects is explicitly disallowed
 // since the copy constructor and assignment operator are declared 'private'
 // and left unimplemented.  So we are primarily concerned that the internal
 // memory management system functions as expected and that the manipulators
 // operator correctly.  Note that memory allocation must be tested for
-// exception neutrality (also via the 'bdema_testallocator' component).
+// exception neutrality (also via the 'bslma_testallocator' component).
 // Several small helper functions are also used to facilitate testing.
 //-----------------------------------------------------------------------------
-// [ 2] bcema_Multipool(int numPools, bslma_Allocator *ba = 0);
+// [ 2] bcema_Multipool(int numPools, bslma::Allocator *ba = 0);
 // [ 8] bcema_MultipoolAllocator(numPools, minSize);
 // [ 8] bcema_MultipoolAllocator(numPools, poolNumObjects);
 // [ 8] bcema_MultipoolAllocator(numPools, minSize, poolNumObjects);
@@ -110,14 +110,14 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef bcema_Multipool Obj;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 // Warning: keep this in sync with bcema_Multipool.h!
 struct Header {
     // Stores pool number of this item.
     union {
-        int                                d_pool;   // pool for this item
-        bsls_AlignmentUtil::MaxAlignedType d_dummy;  // force maximum alignment
+        int                                 d_pool;   // pool for this item
+        bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. alignment
     } d_header;
 };
 
@@ -249,7 +249,7 @@ extern "C" void *workerThread(void *arg) {
     const int *allocSizes = args->d_sizes;
     const int  numAllocs  = args->d_numSizes;
 
-    bsl::vector<char *> blocks(bslma_Default::allocator(0));
+    bsl::vector<char *> blocks(bslma::Default::allocator(0));
     blocks.resize(numAllocs);
 
     g_barrier.wait();
@@ -443,7 +443,7 @@ extern "C" void *workerThread(void *arg) {
 //
       public:
         // CREATORS
-        my_MessageFactory(bslma_Allocator *basicAllocator = 0);
+        my_MessageFactory(bslma::Allocator *basicAllocator = 0);
             // Create a message factory.  Optionally specify a 'basicAllocator'
             // used to supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
@@ -503,7 +503,7 @@ extern "C" void *workerThread(void *arg) {
 // Continuing on with the usage example:
 //..
     // CREATORS
-    my_MessageFactory::my_MessageFactory(bslma_Allocator *basicAllocator)
+    my_MessageFactory::my_MessageFactory(bslma::Allocator *basicAllocator)
     : d_multipool(basicAllocator)
     {
     }
@@ -552,7 +552,7 @@ extern "C" void *workerThread(void *arg) {
 //
 ///Example 2: Implementing an Allocator Using 'bcema_Multipool'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bslma_Allocator' is used throughout the interfaces of BDE components.
+// 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a multipool allocator,
 // 'my_MultipoolAllocator', that allocates memory from multiple 'bcema_Pool'
 // objects in a similar fashion to 'bcema_Multipool'.  This class can be used
@@ -562,8 +562,8 @@ extern "C" void *workerThread(void *arg) {
 // example.  Please see 'bcema_multipoolallocator' for full documentation of a
 // similar class.
 //..
-    class my_MultipoolAllocator : public bslma_Allocator {
-        // This class implements the 'bslma_Allocator' protocol to provide an
+    class my_MultipoolAllocator : public bslma::Allocator{
+        // This class implements the 'bslma::Allocator' protocol to provide an
         // allocator that manages a set of memory pools, each dispensing memory
         // blocks of a unique size, with each successive pool's block size
         // being twice that of the previous one.
@@ -574,7 +574,7 @@ extern "C" void *workerThread(void *arg) {
 //
       public:
         // CREATORS
-        my_MultipoolAllocator(bslma_Allocator *basicAllocator = 0);
+        my_MultipoolAllocator(bslma::Allocator *basicAllocator = 0);
             // Create a multipool allocator.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
@@ -601,7 +601,7 @@ extern "C" void *workerThread(void *arg) {
     // CREATORS
     inline
     my_MultipoolAllocator::my_MultipoolAllocator(
-                                              bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
     : d_multiPool(basicAllocator)
     {
     }
@@ -637,8 +637,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator    *Z = &testAllocator;
 
     switch (test) { case 0:
       case 11: {
@@ -660,7 +660,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Example"
                           << endl << "=====================" << endl;
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             my_MessageFactory factory(&ta);
 
             my_Message *msg = factory.createMessage("Hello");
@@ -882,13 +882,13 @@ int main(int argc, char *argv[])
         //   expected default argument.
         //
         // Testing:
-        //   bdema_Multipool(bslma_Allocator *ba = 0);
-        //   bdema_Multipool(int numPools, bslma_Allocator *ba = 0);
-        //   bdema_Multipool(Strategy gs, bslma_Allocator *ba = 0);
-        //   bdema_Multipool(int n, Strategy gs, bslma_Allocator *ba = 0);
+        //   bdema_Multipool(bslma::Allocator *ba = 0);
+        //   bdema_Multipool(int numPools, bslma::Allocator *ba = 0);
+        //   bdema_Multipool(Strategy gs, bslma::Allocator *ba = 0);
+        //   bdema_Multipool(int n, Strategy gs, bslma::Allocator *ba = 0);
         //   bdema_Multipool(int n, const Strategy *gsa, Allocator *ba = 0);
-        //   bdema_Multipool(int n, int mbpc, bslma_Allocator *ba= 0);
-        //   bdema_Multipool(int n, const int *mbpc, bslma_Allocator *ba = 0);
+        //   bdema_Multipool(int n, int mbpc, bslma::Allocator *ba= 0);
+        //   bdema_Multipool(int n, const int *mbpc, bslma::Allocator *ba = 0);
         //   bdema_Multipool(int n, Strategy gs, int mbpc, Allocator *ba = 0);
         //   bdema_Multipool(int n, const S *gsa, int mbpc, Alloc *ba = 0);
         //   bdema_Multipool(int n, Strat gs, const int *ma, Alloc *ba = 0);
@@ -914,9 +914,11 @@ int main(int argc, char *argv[])
         const int ODATA[]   = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
         const int NUM_ODATA = sizeof ODATA / sizeof *ODATA;
 
-        typedef bsls_BlockGrowth::Strategy St;
-        const bsls_BlockGrowth::Strategy GEO= bsls_BlockGrowth::BSLS_GEOMETRIC;
-        const bsls_BlockGrowth::Strategy CON= bsls_BlockGrowth::BSLS_CONSTANT;
+        typedef bsls::BlockGrowth::Strategy St;
+        const bsls::BlockGrowth::Strategy GEO =
+                                             bsls::BlockGrowth::BSLS_GEOMETRIC;
+        const bsls::BlockGrowth::Strategy CON =
+                                             bsls::BlockGrowth::BSLS_CONSTANT;
 
         // Strategy Data
         const St SDATA[][5]  = { {GEO, GEO, GEO, GEO, GEO},
@@ -939,10 +941,10 @@ int main(int argc, char *argv[])
         for (int si = 0; si < NUM_SDATA; ++si) {
             for (int mi = 0; mi < NUM_MDATA; ++mi) {
 
-                bslma_TestAllocator pta("pool test allocator",
-                                        veryVeryVerbose);
-                bslma_TestAllocator mpta("multipool test allocator",
+                bslma::TestAllocator pta("pool test allocator",
                                          veryVeryVerbose);
+                bslma::TestAllocator mpta("multipool test allocator",
+                                          veryVeryVerbose);
 
                 // Initialize the pools
                 bcema_Pool *pool[NUM_POOLS];
@@ -1037,14 +1039,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(bslma_Allocator *ba = 0)" << endl;
+            cout << "bcema_Multipool(bslma::Allocator *ba = 0)" << endl;
         }
 
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Initialize the pools
             bcema_Pool *pool[DEFAULT_NUM_POOLS];
@@ -1137,14 +1139,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(int numPools, bslma_Allocator *ba = 0)"
+            cout << "bcema_Multipool(int numPools, bslma::Allocator *ba = 0)"
                  << endl;
         }
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Initialize the pools
             bcema_Pool *pool[NUM_POOLS];
@@ -1237,14 +1239,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(Strategy gs, bslma_Allocator *ba = 0)"
+            cout << "bcema_Multipool(Strategy gs, bslma::Allocator *ba = 0)"
                  << endl;
         }
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Initialize the pools
             bcema_Pool *pool[DEFAULT_NUM_POOLS];
@@ -1313,14 +1315,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(int n, Strategy gs, bslma_Allocator "
+            cout << "bcema_Multipool(int n, Strategy gs, bslma::Allocator"
                     "*ba = 0)" << endl;
         }
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Initialize the pools
             bcema_Pool *pool[NUM_POOLS];
@@ -1393,10 +1395,10 @@ int main(int argc, char *argv[])
                     "*ba = 0)" << endl;
         }
         for (int si = 0; si < NUM_SDATA; ++si) {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Initialize the pools
             bcema_Pool *pool[NUM_POOLS];
@@ -1490,12 +1492,12 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(int n, int mbpc, bslma_Allocator *ba= 0)"
+            cout << "bcema_Multipool(int n, int mbpc, bslma::Allocator *ba= 0)"
                  << endl;
         }
 
         if (verbose) {
-            cout << "bcema_Multipool(int n, const int *mbpc, bslma_Allocator "
+            cout << "bcema_Multipool(int n, const int *mbpc, bslma::Allocator"
                     "*ba = 0)" << endl;
         }
 
@@ -1504,10 +1506,10 @@ int main(int argc, char *argv[])
                     "*ba = 0)" << endl;
         }
         {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Initialize the pools
             bcema_Pool *pool[NUM_POOLS];
@@ -1581,10 +1583,10 @@ int main(int argc, char *argv[])
                  << endl;
         }
         for (int si = 0; si < NUM_SDATA; ++si) {
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Initialize the pools
             bcema_Pool *pool[NUM_POOLS];
@@ -1683,10 +1685,10 @@ int main(int argc, char *argv[])
         }
         for (int mi = 0; mi < NUM_MDATA; ++mi) {
 
-            bslma_TestAllocator pta("pool test allocator",
-                                    veryVeryVerbose);
-            bslma_TestAllocator mpta("multipool test allocator",
+            bslma::TestAllocator pta("pool test allocator",
                                      veryVeryVerbose);
+            bslma::TestAllocator mpta("multipool test allocator",
+                                      veryVeryVerbose);
 
             // Initialize the pools
             bcema_Pool *pool[NUM_POOLS];
@@ -1767,7 +1769,7 @@ int main(int argc, char *argv[])
                                   << "================" << endl;
         bcemt_ThreadUtil::Handle threads[NUM_THREADS];
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         Obj                 mX(4, &ta);
 
         const int SIZES [] = { 1 , 2 , 4,  8, 16, 32, 64, 128, 256, 512,
@@ -1809,7 +1811,7 @@ int main(int argc, char *argv[])
         //   'reserveCapacity' for each of the three pools with the tabulated
         //   number of elements.  Allocate as many objects as required to
         //   bring the size of the pool under test to the specified number of
-        //   elements and use 'bslma_TestAllocator' to verify that no
+        //   elements and use 'bslma::TestAllocator' to verify that no
         //   additional allocations have occurred.  Perform each test in the
         //   standard 'bdema' exception-testing macro block.
         //
@@ -1881,7 +1883,7 @@ int main(int argc, char *argv[])
         //   scribble over the extent of all allocated objects.  This
         //   ensures that no portion of the object is used by the multipool
         //   for bookkeeping.  Make use of the facilities available in
-        //   'bslma_TestAllocator' to monitor memory usage.  Verify with
+        //   'bslma::TestAllocator' to monitor memory usage.  Verify with
         //   appropriate assertions that all memory is indeed relinquished
         //   to the memory allocator following each 'release'.
         //
@@ -1941,7 +1943,7 @@ int main(int argc, char *argv[])
         //   scribble over the extent of all allocated objects.  This
         //   ensures that no portion of the object is used by the multipool
         //   for bookkeeping.  Make use of the facilities available in
-        //   'bslma_TestAllocator' to monitor memory usage.  Verify with
+        //   'bslma::TestAllocator' to monitor memory usage.  Verify with
         //   appropriate assertions that no demands are put on the memory
         //   allocation beyond those attributable to start-up.
         //
@@ -2074,7 +2076,7 @@ int main(int argc, char *argv[])
 
                         LOOP3_ASSERT(i, j, k, p);
                         LOOP3_ASSERT(i, j, k,
-                               0 == bsls_Types::UintPtr(p) % MAX_ALIGN);
+                               0 == bsls::Types::UintPtr(p) % MAX_ALIGN);
 
                         scribble(p, OBJ_SIZE);
                         const int pCalculatedPool =
@@ -2090,7 +2092,7 @@ int main(int argc, char *argv[])
                         char *q = (char *) mX.allocate(OBJ_SIZE);
                         LOOP3_ASSERT(i, j, k, q);
                         LOOP3_ASSERT(i, j, k,
-                               0 == bsls_Types::UintPtr(q) % MAX_ALIGN);
+                               0 == bsls::Types::UintPtr(q) % MAX_ALIGN);
 
                         scribble(q, OBJ_SIZE);
                         const int qCalculatedPool =
@@ -2121,7 +2123,7 @@ int main(int argc, char *argv[])
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
 
-                bslma_TestAllocator ta;
+                bslma::TestAllocator ta;
                 Obj mX(NUM_POOLS, &ta);
 
                 for (int j = 0; j < NUM_ODATA; ++j) {
@@ -2137,7 +2139,7 @@ int main(int argc, char *argv[])
 
                         LOOP3_ASSERT(i, j, k, p);
                         LOOP3_ASSERT(i, j, k,
-                               0 == bsls_Types::UintPtr(p) % MAX_ALIGN);
+                               0 == bsls::Types::UintPtr(p) % MAX_ALIGN);
 
                         scribble(p, OBJ_SIZE);
                         const int pCalculatedPool =
@@ -2153,7 +2155,7 @@ int main(int argc, char *argv[])
                         char *q = (char *) mX.allocate(OBJ_SIZE);
                         LOOP3_ASSERT(i, j, k, q);
                         LOOP3_ASSERT(i, j, k,
-                               0 == bsls_Types::UintPtr(q) % MAX_ALIGN);
+                               0 == bsls::Types::UintPtr(q) % MAX_ALIGN);
 
                         scribble(q, OBJ_SIZE);
                         const int qCalculatedPool =
@@ -2201,7 +2203,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a test object using the constructor: 1) without
         //   exceptions and 2) in the presence of exceptions during memory
-        //   allocations using a 'bslma_TestAllocator' and varying its
+        //   allocations using a 'bslma::TestAllocator' and varying its
         //   *allocation* *limit*.  When the object goes out of scope, verify
         //   that the destructor properly deallocates all memory that had been
         //   allocated to it.
@@ -2214,7 +2216,7 @@ int main(int argc, char *argv[])
         //   via the destructor and Purify.
         //
         // Testing:
-        //   bcema_Multipool(int numPools, bslma_Allocator *ba = 0);
+        //   bcema_Multipool(int numPools, bslma::Allocator *ba = 0);
         //   ~bcema_Multipool();
         // --------------------------------------------------------------------
 

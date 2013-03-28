@@ -132,7 +132,7 @@ typedef bdem_Schema              Schema;
 
 typedef bdeat_FormattingMode     Format;
 
-typedef bsls_Types::Int64        Int64;
+typedef bsls::Types::Int64       Int64;
 
 const int MASKS[] = {
     0,
@@ -1122,8 +1122,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
 
     switch (test) { case 0:
       case 15: {

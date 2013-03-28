@@ -45,3 +45,9 @@ Architecture: any
 Description: BTE
  groups/bte static library and headers
 
+Package: libbbe-dev
+Depends: libbsl-dev (= ${binary:Version}), libbde-dev (= ${binary:Version})
+Architecture: any
+Description: BBE
+ groups/bbe static library and headers
+

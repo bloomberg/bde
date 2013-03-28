@@ -97,17 +97,24 @@ BDES_IDENT("$Id: $")
 #include <bdex_outstreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_UNORDERED_SET
+#include <bsl_unordered_set.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -151,7 +158,7 @@ class bael_RuleSet {
         }
     };
 
-    typedef bsl::hash_set<bael_Rule, RuleHash> HashtableType;
+    typedef bsl::unordered_set<bael_Rule, RuleHash> HashtableType;
 
     // DATA
     HashtableType              d_ruleHashtable;  // the hash table that
@@ -201,13 +208,13 @@ class bael_RuleSet {
         // operation has no effect.
 
     // CREATORS
-    explicit bael_RuleSet(bslma_Allocator *basicAllocator = 0);
+    explicit bael_RuleSet(bslma::Allocator *basicAllocator = 0);
         // Create an empty rule set.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator will be used.
 
     bael_RuleSet(const bael_RuleSet&  original,
-                 bslma_Allocator     *basicAllocator = 0);
+                 bslma::Allocator    *basicAllocator = 0);
         // Create a 'bael_RuleSet' object having the same value as that of the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently

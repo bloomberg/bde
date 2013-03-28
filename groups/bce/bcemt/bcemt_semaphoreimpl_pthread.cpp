@@ -12,44 +12,17 @@ BDES_IDENT_RCSID(bcemt_semaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bsl_c_errno.h>
 
-#if defined(BSLS_PLATFORM_OS_DARWIN)
-#include <sys/stat.h>
-#endif
-
 namespace BloombergLP {
 
              // --------------------------------------------------------
              // class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>
              // --------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_OS_DARWIN)
-const char *
-bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::s_semaphoreName
-    = "bcemt_semaphore_object";
-#endif
-
 // CREATORS
 bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::bcemt_SemaphoreImpl(
                                                                      int count)
 {
-#if defined(BSLS_PLATFORM_OS_DARWIN)
-    do {
-        // create a named semaphore with exclusive access
-        d_sem_p = ::sem_open(s_semaphoreName,
-                             O_CREAT | O_EXCL,
-                             S_IRUSR | S_IWUSR,
-                             count);
-    } while (d_sem_p == SEM_FAILED && (errno == EEXIST || errno == EINTR));
-
-    BSLS_ASSERT(d_sem_p != SEM_FAILED);
-
-    // At this point the current thread is the sole owner of the semaphore
-    // with this name.  No other thread can create a semaphore with the
-    // same name until we disassociate the name from the semaphore handle.
-    int result = ::sem_unlink(s_semaphoreName);
-#else
     int result = ::sem_init(&d_sem, 0, count);
-#endif
 
     (void) result;
     BSLS_ASSERT(result == 0);
@@ -66,15 +39,14 @@ void bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::post(int number)
 void
 bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::wait()
 {
-#if defined(BSLS_PLATFORM_OS_DARWIN)
-    sem_t * sem_p = d_sem_p;
-#else
     sem_t * sem_p = &d_sem;
-#endif
+    int result = 0;
 
-    while (::sem_wait(sem_p) != 0 && errno == EINTR) {
-        ;
-    }
+    do {
+        result = ::sem_wait(sem_p);
+    } while (result != 0 && errno == EINTR);
+
+    BSLS_ASSERT(result == 0);
 }
 
 }  // close namespace BloombergLP

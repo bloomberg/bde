@@ -41,6 +41,8 @@
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bsls_types.h>
+
 #include <bsl_iostream.h>
 #include <bsl_stack.h>
 #include <bsl_list.h>
@@ -114,7 +116,7 @@ using namespace bsl;
 // [ 5] char asChar() const;
 // [ 5] short asShort() const;
 // [ 5] int asInt() const;
-// [ 5] bsls_Types::Int64 asInt64() const;
+// [ 5] bsls::Types::Int64 asInt64() const;
 // [ 5] float asFloat() const;
 // [ 5] double asDouble() const;
 // [ 5] bdet_Datetime asDatetime() const;
@@ -284,8 +286,8 @@ typedef bdet_DatetimeTz       DatetimeTz;
 typedef bdet_DateTz           DateTz;
 typedef bdet_TimeTz           TimeTz;
 
-typedef bsls_PlatformUtil::Int64         Int64;
-typedef bslma_TestAllocator   TestAllocator;
+typedef bsls::Types::Int64    Int64;
+typedef bslma::TestAllocator  TestAllocator;
 
 typedef bdeat_TypeName     TN;
 typedef bdeat_TypeCategory TC;
@@ -390,12 +392,12 @@ int   mA02 ;        const int&    A02 = mA02;
 int   mB02 ;        const int&    B02 = mB02;
 int   mN02 ;        const int&    N02 = mN02;
 
-bsls_PlatformUtil::Int64 mA03;
-bsls_PlatformUtil::Int64 mB03;
-bsls_PlatformUtil::Int64 mN03;
-const bsls_PlatformUtil::Int64& A03 = mA03;
-const bsls_PlatformUtil::Int64& B03 = mB03;
-const bsls_PlatformUtil::Int64& N03 = mN03;
+bsls::Types::Int64 mA03;
+bsls::Types::Int64 mB03;
+bsls::Types::Int64 mN03;
+const bsls::Types::Int64& A03 = mA03;
+const bsls::Types::Int64& B03 = mB03;
+const bsls::Types::Int64& N03 = mN03;
 
 float            mA04;           const float&            A04 = mA04;
 float            mB04;           const float&            B04 = mB04;
@@ -451,12 +453,12 @@ bsl::vector<int>   mA12;         const bsl::vector<int>&   A12 = mA12;
 bsl::vector<int>   mB12;         const bsl::vector<int>&   B12 = mB12;
 bsl::vector<int>   mN12;         const bsl::vector<int>&   N12 = mN12;
 
-bsl::vector<bsls_PlatformUtil::Int64> mA13;
-bsl::vector<bsls_PlatformUtil::Int64> mB13;
-bsl::vector<bsls_PlatformUtil::Int64> mN13;
-const bsl::vector<bsls_PlatformUtil::Int64>&  A13 = mA13;
-const bsl::vector<bsls_PlatformUtil::Int64>&  B13 = mB13;
-const bsl::vector<bsls_PlatformUtil::Int64>&  N13 = mN13;
+bsl::vector<bsls::Types::Int64> mA13;
+bsl::vector<bsls::Types::Int64> mB13;
+bsl::vector<bsls::Types::Int64> mN13;
+const bsl::vector<bsls::Types::Int64>&  A13 = mA13;
+const bsl::vector<bsls::Types::Int64>&  B13 = mB13;
+const bsl::vector<bsls::Types::Int64>&  N13 = mN13;
 
 bsl::vector<float> mA14;
 bsl::vector<float> mB14;
@@ -578,7 +580,7 @@ void initStaticData ()
 
     mA03 = -100;
     mB03 = -200;
-    mN03 = bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+    mN03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
     mA04 = -1.5;
     mB04 = -2.5;
@@ -1814,9 +1816,9 @@ void destroyValuePtr(void *value, bdem_ElemType::Type type, TestAllocator *ta)
 
 static int TOP_LEVEL_NULLNESS_FLAG = 0;
 
-int ggAggData(Obj *agg, const RecDef& record, bslma_Allocator *basicAllocator)
+int ggAggData(Obj *agg, const RecDef& record, bslma::Allocator *basicAllocator)
 {
-    bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
     EType::Type elemType = bdem_RecordDef::BDEM_CHOICE_RECORD ==
                                                             record.recordType()
@@ -1873,7 +1875,7 @@ int ggAggData(Obj *agg, const RecDef& record, bslma_Allocator *basicAllocator)
     return 0;
 }
 
-int destroyAggData(Obj *agg, bslma_Allocator *allocator)
+int destroyAggData(Obj *agg, bslma::Allocator *allocator)
 {
     EType::Type  elemType = agg->dataType();
     void        *aggData  = (void *) agg->data();
@@ -2892,7 +2894,7 @@ class AggAccessor {
     int operator()(const T& value, const TC::Simple&);
 
     template <typename T>
-    int operator()(const T& value, const bslmf_Nil&);
+    int operator()(const T& value, const bslmf::Nil&);
         // Illegal call: prevent recursive calls to the 'INFO' version of
         // 'operator()' in case of incorrect overload selection by the
         // compiler.
@@ -3001,7 +3003,7 @@ int AggAccessor::operator()(const T& value, const TC::Simple&)
 
 template <typename T>
 inline
-int AggAccessor::operator()(const T& value, const bslmf_Nil&)
+int AggAccessor::operator()(const T& value, const bslmf::Nil&)
 {
     // This method should never be instantiated
     ASSERT("Shouldn't call this function" && 0);
@@ -3091,7 +3093,7 @@ class NewAggAccessor {
     int operator()(const T& value, const TC::Simple&);
 
     template <typename T>
-    int operator()(const T& value, const bslmf_Nil&);
+    int operator()(const T& value, const bslmf::Nil&);
         // Illegal call: prevent recursive calls to the 'INFO' version of
         // 'operator()' in case of incorrect overload selection by the
         // compiler.
@@ -3190,7 +3192,7 @@ int NewAggAccessor::operator()(const T& value, const TC::Simple&)
 
 template <typename T>
 inline
-int NewAggAccessor::operator()(const T& value, const bslmf_Nil&)
+int NewAggAccessor::operator()(const T& value, const bslmf::Nil&)
 {
     // This method should never be instantiated
     ASSERT("Shouldn't call this function" && 0);
@@ -3546,7 +3548,7 @@ void testCase30() {
           ggSchema(&schema, SPEC);
           const RecDef *RECORD = &SCHEMA.record(SCHEMA.numRecords() - 1);
 
-          bslma_TestAllocator t;
+          bslma::TestAllocator t;
           Obj object;
           ggAggData(&object, *RECORD, &t);
 
@@ -3579,7 +3581,7 @@ void testCase29() {
         Schema schema;
         ggSchema(&schema, ":*?Gc :a%*0&FU");
 
-        bslma_TestAllocator t;
+        bslma::TestAllocator t;
         const RecDef* RECORD = schema.lookupRecord("a");
 
         Obj mX;  const Obj& X = mX;
@@ -3648,7 +3650,7 @@ void testCase28() {
             ET::Type    TYPE = ET::BDEM_STRING;
             const CERef CER  = getCERef(TYPE, 1);
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             void *data = makeValuePtr(TYPE, &ta);
             CER.descriptor()->assign(data, CER.data());
 
@@ -3851,7 +3853,7 @@ void testCase28() {
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE1 = DATA[i].d_line;
                 const char *SPEC1 = DATA[i].d_spec;
@@ -4107,8 +4109,8 @@ void testCase25() {
 
         if (verbose) cout << "Testing with a table-type aggregate" << endl;
         {
-            bslma_TestAllocator ta("TableTestAllocator", false);
-            bslma_TestAllocator aa("AggregateTestAllocator", false);
+            bslma::TestAllocator ta("TableTestAllocator", false);
+            bslma::TestAllocator aa("AggregateTestAllocator", false);
             int nf = 0;
             for (int i = 1; i <= 4096; i <<= 1) {
                 bdem_Table table1(&ta), table2(&aa);
@@ -4147,8 +4149,8 @@ void testCase25() {
         if (verbose) cout << "Testing with a choice-array-type aggregate"
                           << endl;
         {
-            bslma_TestAllocator ta("ChoiceArrayTestAllocator", false);
-            bslma_TestAllocator aa("AggregateTestAllocator", false);
+            bslma::TestAllocator ta("ChoiceArrayTestAllocator", false);
+            bslma::TestAllocator aa("AggregateTestAllocator", false);
             int nf = 0;
             for (int i = 1; i <= 4096; i <<= 1) {
                 bdem_ChoiceArray ca1(&ta), ca2(&aa);
@@ -4186,8 +4188,8 @@ void testCase25() {
         if (verbose) cout << "Testing with a scalar-array-type aggregate"
                           << endl;
         {
-            bslma_TestAllocator ta("ScalarArrayTestAllocator", false);
-            bslma_TestAllocator aa("AggregateTestAllocator", false);
+            bslma::TestAllocator ta("ScalarArrayTestAllocator", false);
+            bslma::TestAllocator aa("AggregateTestAllocator", false);
             int nf = 0;
             for (int i = 1; i <= 4096; i <<= 1) {
                 bsl::vector<int> sa1(&ta), sa2(&aa);
@@ -4224,8 +4226,8 @@ void testCase25() {
 
         if (verbose) cout << "Testing with a non-array type aggregate" << endl;
         {
-            bslma_TestAllocator la("ListArrayTestAllocator", false);
-            bslma_TestAllocator aa("AggregateTestAllocator", false);
+            bslma::TestAllocator la("ListArrayTestAllocator", false);
+            bslma::TestAllocator aa("AggregateTestAllocator", false);
 
             int nf = 0;
             bdem_List list1(&la), list2(&aa);
@@ -4354,7 +4356,7 @@ void testCase24() {
                 bdem_Schema schema;
                 ggSchema(&schema, SPEC);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
                 Error err;
                 Obj agg, field;
                 ggAggData(&agg, *schema.lookupRecord("r"), &t);
@@ -4447,7 +4449,7 @@ void testCase24() {
                 bdem_Schema schema;
                 ggSchema(&schema, SPEC);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
                 Error err;
                 Obj agg, field;
                 ggAggData(&agg, *schema.lookupRecord("r"), &t);
@@ -4655,7 +4657,7 @@ void testCase23() {
 
                 int version = bsl::strstr(SPEC, "NT") ? 3 : 1;
                 for (; version <= MAX_VERSION; ++version) {
-                    bslma_TestAllocator t(veryVeryVerbose);
+                    bslma::TestAllocator t(veryVeryVerbose);
                     Obj mU; const Obj& U = mU;
                     Obj mV; const Obj& V = mV;
                     Obj mX; const Obj& X = mX;
@@ -4842,7 +4844,7 @@ void testCase22() {
 
         ASSERT(0 == TC::Select<bcem_AggregateRaw>::BDEAT_SELECTION);
 
-        bslma_TestAllocator t(veryVeryVerbose);
+        bslma::TestAllocator t(veryVeryVerbose);
         bcem_AggregateRaw mA1, &A1 = mA1;
         int rc = ggAggData(&mA1, *schema.lookupRecord("r"), &t);
         ASSERT(!rc);
@@ -5864,7 +5866,7 @@ void testCase21() {
                 }
             }
 
-            bslma_TestAllocator t(veryVeryVerbose);
+            bslma::TestAllocator t(veryVeryVerbose);
 
             Obj mX;  const Obj& X = mX;
             int rc = ggAggData(&mX, *RECORD, &t);
@@ -6206,7 +6208,7 @@ void testCase20() {
                 const CERef VA = getCERef(TYPE, 1);
                 const CERef VN = getCERef(TYPE, 0);
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
 
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *RECORD, &t);
@@ -6298,7 +6300,7 @@ void testCase20() {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
 
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *REC, &t);
@@ -6491,7 +6493,7 @@ void testCase20() {
                 const CERef VA = getCERef(TYPE, 1);
                 const CERef VB = getCERef(TYPE, 2);
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
 
                 int nf1 = 0, nf2 = 0;
 
@@ -6702,7 +6704,7 @@ void testCase19() {
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-            bslma_TestAllocator t;
+            bslma::TestAllocator t;
             Obj mX;  const Obj& X = mX;
             int rc = ggAggData(&mX, *RECORD, &t);
             ASSERT(!rc);
@@ -6920,7 +6922,7 @@ void testCase18() {
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-            bslma_TestAllocator t(veryVeryVerbose);
+            bslma::TestAllocator t(veryVeryVerbose);
 
             Obj mX;  const Obj& X = mX;
             int rc = ggAggData(&mX, *RECORD, &t);
@@ -7018,7 +7020,7 @@ void testCase17() {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
 
                 Obj mW;  const Obj& W = mW;
                 int rc = ggAggData(&mW, REC, &t);
@@ -7105,7 +7107,7 @@ void testCase17() {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
 
                 Obj mW;  const Obj& W = mW;
                 Obj mX;  const Obj& X = mX;
@@ -7231,7 +7233,7 @@ void testCase16() {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
 
                 Obj mW;  const Obj& W = mW;
                 int rc = ggAggData(&mW, REC, &t);
@@ -7319,7 +7321,7 @@ void testCase16() {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
 
                 Obj mW;  const Obj& W = mW;
                 Obj mX;  const Obj& X = mX;
@@ -7538,7 +7540,7 @@ void testCase15() {
 
                 const CERef VA = getCERef(TYPE, 1);
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *RECORD, &t);
                 ASSERT(!rc);
@@ -7678,7 +7680,7 @@ void testCase15() {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
 
                 Obj mW; const Obj& W = mW;
                 Obj mX; const Obj& X = mX;
@@ -7772,7 +7774,7 @@ void testCase15() {
 
             const CERef VA = getCERef(TYPE, 1);
 
-            bslma_TestAllocator t(veryVeryVerbose);
+            bslma::TestAllocator t(veryVeryVerbose);
             Error err;
             Obj mX;  const Obj& X = mX;
             ggAggData(&mX, *RECORD, &t);
@@ -7959,7 +7961,7 @@ void testCase14() {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *RECORD, &testAllocator);
@@ -8136,7 +8138,7 @@ void testCase14() {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM__CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
@@ -8355,7 +8357,7 @@ void testCase13() {
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator testAllocator;
+                bslma::TestAllocator testAllocator;
 
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *RECORD, &testAllocator);
@@ -8463,7 +8465,7 @@ void testCase13() {
                                    ? true : false;
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *RECORD, &testAllocator);
@@ -8662,7 +8664,7 @@ void testCase12() {
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             Obj mX;  const Obj& X = mX;
             int rc = ggAggData(&mX, *RECORD, &testAllocator);
@@ -8975,7 +8977,7 @@ void testCase11() {
                                    &NULLNESS_FLAGS,
                                    NULLNESS_BIT_IDX);
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 int n = 0;
                 void *d = makeValuePtr(TYPE, &t);
 
@@ -9206,7 +9208,7 @@ void testCase10() {
 
             if (veryVerbose) { T_ P_(SPEC1) P(SCHEMA1) };
 
-            bslma_TestAllocator t1(veryVeryVerbose);
+            bslma::TestAllocator t1(veryVeryVerbose);
             Obj mX;  const Obj& X = mX;
             int rc = ggAggData(&mX, *RECORD1, &t1);
             ASSERT(!rc);
@@ -9242,7 +9244,7 @@ void testCase10() {
 
                 if (veryVerbose) { T_ P_(SPEC2) P(SCHEMA2) };
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
                 Obj mY;  const Obj& Y = mY;
                 int rc = ggAggData(&mY, *RECORD2, &testAllocator);
                 ASSERT(!rc);
@@ -9332,7 +9334,7 @@ void testCase9() {
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int LINE = DATA[i].d_line;
                 ET::Type  TYPE = DATA[i].d_type;
@@ -9346,7 +9348,7 @@ void testCase9() {
                 CEA.descriptor()->assign(data1, CEA.data());
                 CEB.descriptor()->assign(data2, CEB.data());
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 int nf1 = 0, nf2 = 0;
 
                 Obj mA; const Obj& A = mA;
@@ -9436,7 +9438,7 @@ void testCase9() {
 
                 if (veryVerbose) { T_ P(s) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, r, &t);
                 ASSERT(!rc);
@@ -9573,7 +9575,7 @@ void testCase9() {
 
                     int nf1 = 0, nf2 = 0;
 
-                    bslma_TestAllocator t(veryVeryVerbose);
+                    bslma::TestAllocator t(veryVeryVerbose);
                     List aggList;
                     aggList.appendList(list);
                     Obj mX; const Obj& X = mX;
@@ -9650,7 +9652,7 @@ void testCase9() {
 
                     int nf1 = 0, nf2 = 0;
 
-                    bslma_TestAllocator t(veryVeryVerbose);
+                    bslma::TestAllocator t(veryVeryVerbose);
                     Obj mX; const Obj& X = mX;
                     mX.setDataType(ET::BDEM_CHOICE);
                     mX.setData(&choice);
@@ -9757,8 +9759,8 @@ void testCase8() {
                           << "\n================" << endl;
 
         {
-            bslma_TestAllocator da;
-            bslma_DefaultAllocatorGuard allocGuard(&da);
+            bslma::TestAllocator da;
+            bslma::DefaultAllocatorGuard allocGuard(&da);
 
             Obj mX;  const Obj& X = mX;
             ASSERT(ET::BDEM_VOID       == X.dataType());
@@ -9850,7 +9852,7 @@ void testCase7() {
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int LINE1 = DATA[i].d_line;
@@ -9988,7 +9990,7 @@ void testCase7() {
                 //   X and Y are identical
                 //   Z is equivalent but not identical to X and Y
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, r, &t);
                 ASSERT(!rc);
@@ -10134,7 +10136,7 @@ void testCase7() {
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) P(ARRAY_CEA) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
 
                 Obj mX;  const Obj& X = mX;
                 Obj mY;  const Obj& Y = mY;
@@ -10418,7 +10420,7 @@ void testCase6() {
 
                 if (veryVerbose) { T_ P(s) };
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX; const Obj& X = mX;
                 int rc = ggAggData(&mX, *r, &t);
                 ASSERT(!rc);
@@ -10506,7 +10508,7 @@ void testCase5() {
         //   char asChar() const;
         //   short asShort() const;
         //   int asInt() const;
-        //   bsls_PlatformUtil::Int64 asInt64() const;
+        //   bsls::Types::Int64 asInt64() const;
         //   float asFloat() const;
         //   double asDouble() const;
         //   bdet_Datetime asDatetime() const;
@@ -10524,7 +10526,7 @@ void testCase5() {
         if (verbose) cout << "\nTESTING 'asXXX' ACCESSORS"
                           << "\n=========================" << endl;
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
 
         if (veryVerbose) { T_ cout << "Testing for BOOL" << endl; }
         {
@@ -10583,7 +10585,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -10709,7 +10711,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -10835,7 +10837,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -10961,7 +10963,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -11087,7 +11089,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -11213,7 +11215,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -11339,7 +11341,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -11466,7 +11468,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -11593,7 +11595,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -11719,7 +11721,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -11845,7 +11847,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -11971,7 +11973,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -12097,7 +12099,7 @@ void testCase5() {
                 const RecDef *RECORD  = &SCHEMA.record(0);
                 const char   *fldName = RECORD->fieldName(0);
 
-                bslma_TestAllocator t;
+                bslma::TestAllocator t;
 
                 Obj mA; const Obj& A = mA;
                 int rc = ggAggData(&mA, *RECORD, &t);
@@ -12313,7 +12315,7 @@ void testCase4() {
 
             if (veryVerbose) { P(s) };
 
-            bslma_TestAllocator t(veryVeryVerbose);
+            bslma::TestAllocator t(veryVeryVerbose);
 
             const CERef VN = getCERef(FLD_TYPE, 0);
             const CERef VA = getCERef(FLD_TYPE, 1);
@@ -12335,7 +12337,9 @@ void testCase4() {
             ASSERT(r  == X.recordConstraint());
             ASSERT(&s == X.schema());
 
+            Obj         errAgg;
             const char *errorField = "ErrorField";
+
             const int   NUM_RECS   = s.numRecords();
             switch (NUM_RECS) {
               case 1: {
@@ -12417,17 +12421,56 @@ void testCase4() {
                 ASSERT(!S.isNull());
 
                 // Test that scalar types are returned by reference
-                mS.setValue(&error, VA);
-                ASSERT(VA == S.asElemRef());
-                Obj   mB; const Obj& B = mB;
-                rc = mX.getField(&mB, &error, false, f1);
-                ASSERT(!rc);
-                ASSERT(FLD_TYPE == S.dataType());
-                ASSERT(&fd      == S.fieldDef());
-                ASSERT(0        == S.recordConstraint());
-                ASSERT(VA       == B.asElemRef());
-                ASSERT(!S.isNull());
+                {
+                    rc = mS.setValue(&error, VA);
+                    ASSERT(!rc);
+                    ASSERT(VA == S.asElemRef());
+                    Obj   mB; const Obj& B = mB;
+                    rc = mX.getField(&mB, &error, false, f1);
+                    ASSERT(!rc);
+                    ASSERT(FLD_TYPE == S.dataType());
+                    ASSERT(&fd      == S.fieldDef());
+                    ASSERT(0        == S.recordConstraint());
+                    ASSERT(VA       == B.asElemRef());
+                    ASSERT(!S.isNull());
+                }
 
+                // Test error output
+
+                // Test with an index value
+                {
+                    rc = mX.setField(&errAgg, &error, 0, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
+
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    bdet_Date errValue(2000, 1, 1);
+
+                    rc = mX.setField(&errAgg, &error, f1, errValue);
+                    LOOP_ASSERT(LINE, rc);
+                    LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                }
               } break;
 
               case 2: {
@@ -12511,6 +12554,48 @@ void testCase4() {
                 ASSERT(0        == S.recordConstraint());
                 ASSERT(VA       == B.asElemRef());
                 ASSERT(!S.isNull());
+
+                // Test error output
+
+                // Test with an index value
+                {
+                    rc = mX.setField(&errAgg, &error, f2, 0, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
+
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f2, errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    bdet_Date errValue(2000, 1, 1);
+
+                    rc = mX.setField(&errAgg, &error, f2, f1, errValue);
+                    LOOP_ASSERT(LINE, rc);
+                    LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                }
               } break;
 
               case 3: {
@@ -12595,6 +12680,53 @@ void testCase4() {
                 ASSERT(0        == S.recordConstraint());
                 ASSERT(VA       == B.asElemRef());
                 ASSERT(!S.isNull());
+
+                // Test error output
+
+                // Test with an index value
+                {
+                    rc = mX.setField(&errAgg, &error, f3, f2, 0, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
+
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f3, errorField, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f3, f2, errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    bdet_Date errValue(2000, 1, 1);
+
+                    rc = mX.setField(&errAgg, &error, f3, f2, f1, errValue);
+                    LOOP_ASSERT(LINE, rc);
+                    LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                }
               } break;
 
               case 4: {
@@ -12666,6 +12798,63 @@ void testCase4() {
                 ASSERT(!rc);
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
+
+                // Test error output
+
+                // Test with an index value
+                {
+                    rc = mX.setField(&errAgg, &error, f4, f3, f2, 0, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
+
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField,
+                                     f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f4, errorField,
+                                     f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f4, f3,
+                                     errorField, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f4, f3, f2,
+                                     errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    bdet_Date errValue(2000, 1, 1);
+
+                    rc = mX.setField(&errAgg, &error, f4, f3, f2,
+                                     f1, errValue);
+                    LOOP_ASSERT(LINE, rc);
+                    LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                }
               } break;
 
               case 5: {
@@ -12738,6 +12927,58 @@ void testCase4() {
                 ASSERT(!rc);
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
+
+                // Test error output
+
+                // Test with an index value
+                {
+                    rc = mX.setField(&errAgg, &error, f5, f4, f3, f2, 0, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
+
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f5, errorField,
+                                     f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f5, f4,
+                                     errorField, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f5, f4, f3,
+                                     errorField, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f5, f4, f3, f2,
+                                     errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
               } break;
 
               case 6: {
@@ -12811,6 +13052,77 @@ void testCase4() {
                 ASSERT(!rc);
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
+
+                // Test error output
+
+                // Test with an index value
+                {
+                    rc = mX.setField(&errAgg, &error, f6,
+                                     f5, f4, f3, f2, 0, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
+
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField,
+                                     f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f6, errorField,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f6, f5, errorField,
+                                     f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f6, f5, f4, errorField,
+                                     f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f6, f5, f4, f3,
+                                     errorField, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f6,
+                                     f5, f4, f3, f2, errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f6,
+                                     f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    double errValue = 3.14;
+
+                    rc = mX.setField(&errAgg, &error, f6,
+                                     f5, f4, f3, f2, f1, errValue);
+                    LOOP_ASSERT(LINE, rc);
+                    LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                }
               } break;
 
               case 7: {
@@ -12888,6 +13200,83 @@ void testCase4() {
                 ASSERT(!rc);
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
+
+                // Test error output
+
+                // Test with an index value
+                {
+                    rc = mX.setField(&errAgg, &error, f7, f6,
+                                     f5, f4, f3, f2, 0, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
+
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField,
+                                     f6, f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f7, errorField,
+                                     f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f7, f6, errorField,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f7, f6, f5, errorField,
+                                     f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f7, f6, f5, f4,
+                                     errorField, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f7, f6, f5, f4,
+                                     f3, errorField, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f7, f6,
+                                     f5, f4, f3, f2, errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f7, f6,
+                                     f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    bdet_Date errValue(2000, 1, 1);
+
+                    rc = mX.setField(&errAgg, &error, f7, f6,
+                                     f5, f4, f3, f2, f1, errValue);
+                    LOOP_ASSERT(LINE, rc);
+                    LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                }
               } break;
 
               case 8: {
@@ -12968,6 +13357,89 @@ void testCase4() {
                 ASSERT(!rc);
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
+
+                // Test error output
+
+                // Test with an index value
+                {
+                    rc = mX.setField(&errAgg, &error, f8, f7, f6,
+                                     f5, f4, f3, f2, 0, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
+
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField,
+                                     f7, f6, f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f8, errorField,
+                                     f6, f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f8, f7, errorField,
+                                     f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f8, f7, f6, errorField,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f8, f7, f6, f5,
+                                     errorField, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f8, f7, f6, f5, f4,
+                                     errorField, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f8, f7, f6, f5, f4, f3,
+                                     errorField, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f8, f7, f6,
+                                     f5, f4, f3, f2, errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f8, f7, f6,
+                                     f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    bdet_Date errValue(2000, 1, 1);
+
+                    rc = mX.setField(&errAgg, &error, f8, f7, f6,
+                                     f5, f4, f3, f2, f1, errValue);
+                    LOOP_ASSERT(LINE, rc);
+                    LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                }
               } break;
 
               case 9: {
@@ -13047,6 +13519,95 @@ void testCase4() {
                 ASSERT(!rc);
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
+
+                // Test error output
+
+                // Test with an index value
+                {
+                    rc = mX.setField(&errAgg, &error, f9, f8, f7, f6,
+                                     f5, f4, f3, f2, 0, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
+
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField,
+                                     f8, f7, f6, f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f9, errorField,
+                                     f7, f6, f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f9, f8, errorField,
+                                     f6, f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f9, f8, f7, errorField,
+                                     f6, f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f9, f8, f7, f6,
+                                     errorField, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f9, f8, f7, f6, f5,
+                                     errorField, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f9, f8, f7, f6, f5,
+                                     f4, errorField, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f9, f8, f7, f6, f5,
+                                     f4, f3, errorField, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc = mX.setField(&errAgg, &error, f9, f8, f7, f6,
+                                     f5, f4, f3, f2, errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f9, f8, f7, f6,
+                                     f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    bdet_Date errValue(2000, 1, 1);
+
+                    rc = mX.setField(&errAgg, &error, f9, f8, f7, f6,
+                                     f5, f4, f3, f2, f1, errValue);
+                    LOOP_ASSERT(LINE, rc);
+                    LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                }
               } break;
 
               case 10: {
@@ -13130,71 +13691,99 @@ void testCase4() {
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
 
-                const char errFld[] = "ErrorField";
-                Error err;
-                Obj mZ;
-
                 // Test error output
+
+                // Test with an index value
                 {
-                    rc = mX.setField(&mZ, &err, errFld, f9, f8, f7, f6, f5,
-                                     f4, f3, f2, f1, VA);
+                    rc = mX.setField(&errAgg, &error, f10, f9, f8, f7, f6,
+                                     f5, f4, f3, f2, 0, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
 
-                    rc = mX.setField(&mZ, &err, f10, errFld, f8, f7, f6, f5,
-                                     f4, f3, f2, f1, VA);
+                // Test with invalid field name
+                {
+                    rc = mX.setField(&errAgg, &error, errorField, f9, f8, f7,
+                                     f6, f5, f4, f3, f2, f1, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
-                    rc = mX.setField(&mZ, &err, f10, f9, errFld, f7, f6, f5,
-                                     f4, f3, f2, f1, VA);
+                    rc = mX.setField(&errAgg, &error, f10, errorField, f8, f7,
+                                     f6, f5, f4, f3, f2, f1, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
-                    rc = mX.setField(&mZ, &err, f10, f9, f8, errFld, f6, f5,
-                                     f4, f3, f2, f1, VA);
+                    rc = mX.setField(&errAgg, &error, f10, f9, errorField, f7,
+                                     f6, f5, f4, f3, f2, f1, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
-                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, errFld, f5,
-                                     f4, f3, f2, f1, VA);
+                    rc = mX.setField(&errAgg, &error, f10, f9, f8, errorField,
+                                     f6, f5, f4, f3, f2, f1, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
-                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, errFld,
-                                     f4, f3, f2, f1, VA);
+                    rc = mX.setField(&errAgg, &error, f10, f9, f8, f7,
+                                     errorField, f5, f4, f3, f2, f1, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
-                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
-                                     errFld, f3, f2, f1, VA);
+                    rc = mX.setField(&errAgg, &error, f10, f9, f8, f7, f6,
+                                     errorField, f4, f3, f2, f1, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
-                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
-                                     f4, errFld, f2, f1, VA);
+                    rc = mX.setField(&errAgg, &error, f10, f9, f8, f7, f6, f5,
+                                     errorField, f3, f2, f1, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
-                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
-                                     f4, f3, errFld, f1, VA);
+                    rc = mX.setField(&errAgg, &error, f10, f9, f8, f7, f6, f5,
+                                     f4, errorField, f2, f1, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
-                    rc =  mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
-                                      f4, f3, f2, errFld, VA);
+                    rc = mX.setField(&errAgg, &error, f10, f9, f8, f7, f6, f5,
+                                     f4, f3, errorField, f1, VA);
                     ASSERT(rc);
-                    LOOP_ASSERT(err.code(),
-                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+
+                    rc =  mX.setField(&errAgg, &error, f10, f9, f8, f7, f6, f5,
+                                      f4, f3, f2, errorField, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
+
+                // Test that calling a field on an empty aggregate fails
+                {
+                    Obj mV(X); mV.reset();
+                    rc = mV.setField(&errAgg, &error, f10, f9, f8, f7, f6,
+                                     f5, f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    bdet_Date errValue(2000, 1, 1);
+
+                    rc = mX.setField(&errAgg, &error, f10, f9, f8, f7, f6,
+                                     f5, f4, f3, f2, f1, errValue);
+                    LOOP_ASSERT(LINE, rc);
+                    LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
                 }
               } break;
 
@@ -13498,7 +14087,7 @@ void testCase3() {
                                    &NULLNESS_FLAGS,
                                    NULLNESS_BIT_IDX);
 
-                bslma_TestAllocator t(veryVeryVerbose);
+                bslma::TestAllocator t(veryVeryVerbose);
                 Obj mX; const Obj& X = mX;
                 int rc = ggAggData(&mX, r, &t);
                 ASSERT(!rc);
@@ -13924,26 +14513,53 @@ void testCase3() {
                 // Test error conditions and output
 
                 // Test with an index value
-                Obj err1, err2, err3;
-                rc = mX.setField(&err1, &error, 0, CEA);
-                ASSERT(rc);
-                LOOP_ASSERT(error.code(),
-                            ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                {
+                    Obj err;
+                    rc = mX.setField(&err, &error, 0, CEA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
+                }
 
                 // Test with invalid field name
-                const char *errFldName = "ErrorField";
-                rc = mX.setField(&err2, &error, errFldName, CEA);
-                ASSERT(rc);
-                LOOP_ASSERT(error.code(),
-                            ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                {
+                    Obj err;
+                    const char *errFldName = "ErrorField";
+                    rc = mX.setField(&err, &error, errFldName, CEA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_BAD_FIELDNAME == error.code());
+                }
 
                 // Test that calling a field on an empty aggregate fails
-                Obj mV(X);
-                mV.reset();
-                rc = mV.setField(&err3, &error, fldName, CEA);
-                ASSERT(rc);
-                LOOP_ASSERT(error.code(),
-                            ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                {
+                    Obj err;
+                    Obj mV(X);
+                    mV.reset();
+                    rc = mV.setField(&err, &error, fldName, CEA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(error.code(),
+                                ErrorCode::BCEM_NOT_A_RECORD == error.code());
+                }
+
+                // Test with invalid field value
+                {
+                    if (s.numRecords() > 1 || ET::BDEM_STRING != TYPE) {
+                        bdeut_NullableValue<double> errValue(3.14);
+
+                        Obj err;
+                        rc = mX.setField(&err, &error, fldName, errValue);
+                        LOOP_ASSERT(LINE, rc);
+                        if (1 == s.numRecords()) {
+                            LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_BAD_CONVERSION == error.code());
+                        }
+                        else {
+                            LOOP2_ASSERT(LINE, error.code(),
+                               ErrorCode::BCEM_NON_CONFORMANT == error.code());
+                        }
+                    }
+                }
 
                 destroyAggData(&mZ, &t);
                 destroyAggData(&mY, &t);
@@ -14550,7 +15166,7 @@ void testCase1() {
         int nf1 = 0, nf2 = 1;
         if (verbose) cout << "Testing scalar constructors" << endl;
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
             Obj agg1;
             agg1.setTopLevelAggregateNullness(&nf2);
@@ -14580,7 +15196,7 @@ void testCase1() {
             if (verbose) P(agg3);
         }
 
-        bslma_TestAllocator sa;
+        bslma::TestAllocator sa;
         bcema_SharedPtr<bdem_Schema> schema(new (sa) bdem_Schema(&sa), &sa);
 
         bdem_RecordDef *level2 = schema->createRecord("Level2");
@@ -14641,7 +15257,7 @@ void testCase1() {
         choice.makeSelection(0).theModifiableString() = stringValue;
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (verbose) cout << "Testing record def constructor"
                               << bsl::endl;
@@ -14719,7 +15335,7 @@ void testCase1() {
 
             if (verbose) cout << "Testing array operations" << bsl::endl;
             {
-                bslma_TestAllocator sa;
+                bslma::TestAllocator sa;
                 bdem_List data1(list1, &sa);
                 bdem_List data2(list2, &sa);
                 Obj agg1;
@@ -14782,7 +15398,7 @@ void testCase1() {
         }
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (verbose) cout << "Testing table operations" << bsl::endl;
 
@@ -14840,7 +15456,7 @@ void testCase1() {
         }
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 
             if (verbose) cout << "Testing choice operations" << bsl::endl;
 
@@ -14870,12 +15486,12 @@ void testCase1() {
         }
 
         {
-            bslma_TestAllocator da("da", veryVeryVerbose);
-            bslma_TestAllocator ta1("ta1", veryVeryVerbose);
-            bslma_TestAllocator ta2("ta2", veryVeryVerbose);
+            bslma::TestAllocator da("da", veryVeryVerbose);
+            bslma::TestAllocator ta1("ta1", veryVeryVerbose);
+            bslma::TestAllocator ta2("ta2", veryVeryVerbose);
             const bsl::string recName = "Level1";
 
-            bslma_DefaultAllocatorGuard allocGuard(&da);
+            bslma::DefaultAllocatorGuard allocGuard(&da);
             Obj agg1;
             agg1.setSchema(schema.ptr());
             agg1.setRecordDef(schema->lookupRecord(recName.c_str()));

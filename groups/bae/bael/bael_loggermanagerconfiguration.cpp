@@ -56,7 +56,7 @@ bael_LoggerManagerConfiguration::areValidDefaultThresholdLevels(
 
 // CREATORS
 bael_LoggerManagerConfiguration::bael_LoggerManagerConfiguration(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_defaults()
 , d_userSchema(basicAllocator)
 , d_userPopulator()
@@ -64,13 +64,13 @@ bael_LoggerManagerConfiguration::bael_LoggerManagerConfiguration(
 , d_defaultThresholdsCb()
 , d_logOrder(BAEL_LIFO)
 , d_triggerMarkers(BAEL_BEGIN_END_MARKERS)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 bael_LoggerManagerConfiguration::bael_LoggerManagerConfiguration(
                         const bael_LoggerManagerConfiguration&  original,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_defaults(original.d_defaults)
 , d_userSchema(original.d_userSchema, basicAllocator)
 , d_userPopulator(original.d_userPopulator)
@@ -78,7 +78,7 @@ bael_LoggerManagerConfiguration::bael_LoggerManagerConfiguration(
 , d_defaultThresholdsCb(original.d_defaultThresholdsCb)
 , d_logOrder(original.d_logOrder)
 , d_triggerMarkers(original.d_triggerMarkers)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -291,32 +291,39 @@ bael_LoggerManagerConfiguration::print(bsl::ostream& stream,
     return stream;
 }
 
+}  // close namespace BloombergLP
+
 // FREE OPERATORS
-bool operator==(const bael_LoggerManagerConfiguration& lhs,
-                const bael_LoggerManagerConfiguration& rhs)
-{
-    return lhs.d_defaults            == rhs.d_defaults
-        && lhs.d_userSchema          == rhs.d_userSchema
-        && lhs.d_userPopulator       == rhs.d_userPopulator
-        && lhs.d_categoryNameFilter  == rhs.d_categoryNameFilter
-        && lhs.d_defaultThresholdsCb == rhs.d_defaultThresholdsCb
-        && lhs.d_logOrder            == rhs.d_logOrder
-        && lhs.d_triggerMarkers      == rhs.d_triggerMarkers;
+bool BloombergLP::operator==(const bael_LoggerManagerConfiguration& lhs,
+                             const bael_LoggerManagerConfiguration& rhs)
+{   // TBD: Note that we are casting the three 'bdef_Function' data members to
+    // 'bool' and comparing the boolean values as this was the accidental
+    // behavior present in 'bdef_Function'.  Now that 'bdef_Function' has
+    // been updated to suppress this operator, the operation has been coded
+    // inline here to retain the old semantic - but we need to consider whether
+    // this is truly the desired behavior, and if so remove this note, or
+    // correct it otherwise.
+    return lhs.d_defaults                  == rhs.d_defaults
+        && lhs.d_userSchema                == rhs.d_userSchema
+        && (bool)lhs.d_userPopulator       == (bool)rhs.d_userPopulator
+        && (bool)lhs.d_categoryNameFilter  == (bool)rhs.d_categoryNameFilter
+        && (bool)lhs.d_defaultThresholdsCb == (bool)rhs.d_defaultThresholdsCb
+        && lhs.d_logOrder                  == rhs.d_logOrder
+        && lhs.d_triggerMarkers            == rhs.d_triggerMarkers;
 }
 
-bool operator!=(const bael_LoggerManagerConfiguration& lhs,
-                const bael_LoggerManagerConfiguration& rhs)
+bool BloombergLP::operator!=(const bael_LoggerManagerConfiguration& lhs,
+                             const bael_LoggerManagerConfiguration& rhs)
 {
     return !(lhs == rhs);
 }
 
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const bael_LoggerManagerConfiguration& configuration)
+bsl::ostream&
+BloombergLP::operator<<(bsl::ostream&                          stream,
+                        const bael_LoggerManagerConfiguration& configuration)
 {
     return configuration.print(stream);
 }
-
-}  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:

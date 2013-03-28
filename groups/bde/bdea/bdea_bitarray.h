@@ -141,7 +141,7 @@ BDES_IDENT("$Id: $")
 //      bsl::vector<TYPE>  d_values;       // data elements
 //      bdea_BitArray      d_nullFlags;    // 'true' indicates i'th element is
 //                                         // null
-//      bslma_Allocator   *d_allocator_p;  // held, but not owned
+//      bslma::Allocator  *d_allocator_p;  // held, but not owned
 //
 //      // NOT IMPLEMENTED
 //      NullableVector(const NullableVector& original);
@@ -150,7 +150,8 @@ BDES_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      // ...
-//      NullableVector(int initialLength, bslma_Allocator *basicAllocator = 0);
+//      NullableVector(int               initialLength,
+//                     bslma::Allocator *basicAllocator = 0);
 //          // Construct a vector having the specified 'initialLength' null
 //          // elements.  Optionally specify a 'basicAllocator' used to supply
 //          // memory.  If 'basicAllocator' is 0, the currently supplied
@@ -233,11 +234,11 @@ BDES_IDENT("$Id: $")
 //
 //      // CREATORS
 //      template <typename TYPE>
-//      NullableVector<TYPE>::NullableVector(int              initialLength,
-//                                           bslma_Allocator *basicAllocator)
+//      NullableVector<TYPE>::NullableVector(int               initialLength,
+//                                           bslma::Allocator *basicAllocator)
 //      : d_values(initialLength, TYPE(), basicAllocator)
 //      , d_nullFlags(initialLength, true, basicAllocator)
-//      , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
 //      }
 //
@@ -423,6 +424,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -437,10 +442,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -503,13 +504,13 @@ class bdea_BitArray {
         // 'numBits'.  The behavior is undefined unless '0 <= numBits'.
 
     // PRIVATE ACCESSORS
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the allocator with which this object was constructed.
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdea_BitArray,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // TYPES
     struct InitialCapacity {
@@ -537,21 +538,21 @@ class bdea_BitArray {
         // information on 'bdex' streaming of container types.)
 
     // CREATORS
-    explicit bdea_BitArray(bslma_Allocator *basicAllocator = 0);
-    explicit bdea_BitArray(int              initialLength,
-                           bslma_Allocator *basicAllocator = 0);
+    explicit bdea_BitArray(bslma::Allocator *basicAllocator = 0);
+    explicit bdea_BitArray(int               initialLength,
+                           bslma::Allocator *basicAllocator = 0);
     bdea_BitArray(int              initialLength,
                   bool             value,
-                  bslma_Allocator *basicAllocator = 0);
+                  bslma::Allocator *basicAllocator = 0);
     explicit bdea_BitArray(const InitialCapacity&  numBits,
-                           bslma_Allocator        *basicAllocator = 0);
+                           bslma::Allocator       *basicAllocator = 0);
     bdea_BitArray(const InitialCapacity&  numBits,
                   int                     initialLength,
-                  bslma_Allocator        *basicAllocator = 0);
+                  bslma::Allocator       *basicAllocator = 0);
     bdea_BitArray(const InitialCapacity&  numBits,
                   int                     initialLength,
                   bool                    value,
-                  bslma_Allocator        *basicAllocator = 0);
+                  bslma::Allocator       *basicAllocator = 0);
         // Create an array of binary digits (bits).  By default, the array is
         // empty and has a capacity of 0 bits.  Optionally reserve an
         // 'InitialCapacity' that will accommodate a length of up to the
@@ -568,7 +569,7 @@ class bdea_BitArray {
         // 'initialLength >= 0'.
 
     bdea_BitArray(const bdea_BitArray&  original,
-                  bslma_Allocator      *basicAllocator = 0);
+                  bslma::Allocator     *basicAllocator = 0);
         // Create an array of binary digits (bits) having the same value as the
         // specified 'original' array.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -1344,7 +1345,7 @@ int bdea_BitArray::arraySize(int numBits)
 
 // PRIVATE ACCESSORS
 inline
-bslma_Allocator *bdea_BitArray::allocator() const
+bslma::Allocator *bdea_BitArray::allocator() const
 {
     return d_array.get_allocator().mechanism();
 }
@@ -1555,7 +1556,7 @@ STREAM& bdea_BitArray::bdexStreamIn(STREAM& stream, int version)
             }
             else {
                 for (int i = 0; i < len; ++i) {
-                    bsls_Types::Int64 tmp;
+                    bsls::Types::Int64 tmp;
                     stream.getInt64(tmp);
                     if (!stream) {
                         return stream;                                // RETURN

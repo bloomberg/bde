@@ -561,14 +561,14 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose     = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    bslma_TestAllocator         allocator;
-    bslma_TestAllocator        *Z = &allocator;
-    static bslma_TestAllocator  defaultAllocator("dta", veryVeryVerbose);
-    static bslma_TestAllocator  globalAllocator("gta", veryVeryVerbose);;
+    bslma::TestAllocator         allocator;
+    bslma::TestAllocator        *Z = &allocator;
+    static bslma::TestAllocator  defaultAllocator("dta", veryVeryVerbose);
+    static bslma::TestAllocator  globalAllocator("gta", veryVeryVerbose);;
 
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     if (veryVeryVerbose) {
         defaultAllocator.setVerbose(true);
@@ -877,7 +877,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                  "\t'CLASS METHOD 'setDefaultCache' " << endl;
@@ -1074,7 +1075,7 @@ int main(int argc, char *argv[])
                            "\nCreate a test allocator and install "
                            "it in the return object" << endl;
 
-           bslma_TestAllocator LA("object", veryVeryVeryVerbose);
+           bslma::TestAllocator LA("object", veryVeryVeryVerbose);
            bsl::vector<const char *> locations(&LA);
 
            if (verbose) cout <<
@@ -1114,7 +1115,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                  "\t'CLASS METHOD 'loadDefaultZoneinfoDataLocations' " << endl;

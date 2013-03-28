@@ -1,4 +1,4 @@
-// baenet_httpresponseheaderfields.cpp   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
+// baenet_httpresponseheaderfields.cpp  -*-C++-*- GENERATED FILE -- DO NOT EDIT
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baenet_httpresponseheaderfields_cpp,"$Id$ $CSID$ $CCId$")
 #include <baenet_httpresponseheaderfields.h>
@@ -267,7 +267,8 @@ const bdeat_AttributeInfo *
 
 // CREATORS
 
-baenet_HttpResponseHeaderFields::baenet_HttpResponseHeaderFields(bslma_Allocator *basicAllocator)
+baenet_HttpResponseHeaderFields::baenet_HttpResponseHeaderFields(
+                                              bslma::Allocator *basicAllocator)
 : d_acceptRanges(basicAllocator)
 , d_eTag(basicAllocator)
 , d_location(basicAllocator)
@@ -280,8 +281,9 @@ baenet_HttpResponseHeaderFields::baenet_HttpResponseHeaderFields(bslma_Allocator
 {
 }
 
-baenet_HttpResponseHeaderFields::baenet_HttpResponseHeaderFields(const baenet_HttpResponseHeaderFields& original,
-                                                                         bslma_Allocator *basicAllocator)
+baenet_HttpResponseHeaderFields::baenet_HttpResponseHeaderFields(
+                        const baenet_HttpResponseHeaderFields&  original,
+                        bslma::Allocator                       *basicAllocator)
 : d_acceptRanges(original.d_acceptRanges, basicAllocator)
 , d_eTag(original.d_eTag, basicAllocator)
 , d_location(original.d_location, basicAllocator)
@@ -301,7 +303,8 @@ baenet_HttpResponseHeaderFields::~baenet_HttpResponseHeaderFields()
 // MANIPULATORS
 
 baenet_HttpResponseHeaderFields&
-baenet_HttpResponseHeaderFields::operator=(const baenet_HttpResponseHeaderFields& rhs)
+baenet_HttpResponseHeaderFields::operator=(
+                                    const baenet_HttpResponseHeaderFields& rhs)
 {
     if (this != &rhs) {
         d_acceptRanges = rhs.d_acceptRanges;

@@ -3,7 +3,7 @@
 #include <bdes_timeutil.h>
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>                   // printf()
 #include <bsl_cstdlib.h>                  // atoi()
@@ -16,7 +16,8 @@
     #include <bsl_c_sys_time.h>  // 'gethrtime()'
     #include <unistd.h>    // sleep()
 #if defined BSLS_PLATFORM_OS_SOLARIS   // Solaris OR late SunOS!
-    #include <bsl_c_limits.h>    // 'CLK_TCK', for Sun (on FreeBSD, in sys/times.h)
+    #include <bsl_c_limits.h>    // 'CLK_TCK', for Sun
+                                 // (on FreeBSD, in sys/times.h)
 #endif
 #endif
 
@@ -42,11 +43,10 @@ using namespace bsl;  // automatically added by script
 // address basic concerns to probe both our own code for consistent behavior
 // and the system results for plausible correct behavior.
 //-----------------------------------------------------------------------------
-// [ 1] bsls_PlatformUtil::Int64 bdes_TimeUtil::getTimer();
-// [ 1] bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessSystemTimer();
-// [ 1] bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessUserTimer();
-// [ 1] void bdes_TimeUtil::getProcessTimers(
-//                         bsls_PlatformUtil::Int64, bsls_PlatformUtil::Int64);
+// [ 1] bsls::Types::Int64 bdes_TimeUtil::getTimer();
+// [ 1] bsls::Types::Int64 bdes_TimeUtil::getProcessSystemTimer();
+// [ 1] bsls::Types::Int64 bdes_TimeUtil::getProcessUserTimer();
+// [ 1] void bdes_TimeUtil::getProcessTimers(Types::Int64, Types::Int64);
 //-----------------------------------------------------------------------------
 // [XX] Breathing Test -- NOT IMPLEMENTED
 // [ 2] USAGE
@@ -100,8 +100,8 @@ static void aSsErT(int c, const char *s, int i)
 //                 GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdes_TimeUtil            TU;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bdes_TimeUtil      TU;
+typedef bsls::Types::Int64 Int64;
 
 typedef Int64 (*TimerMethod) ();
 
@@ -148,9 +148,9 @@ class my_Timer {
     // the "running" state, and may be queried for its cumulative
     // interval (as a 'double', in seconds) but never stopped or reset.
 
-    bsls_PlatformUtil::Int64 d_startWallTime; // time at creation (nsec)
-    bsls_PlatformUtil::Int64 d_startUserTime; // time at creation (nsec)
-    bsls_PlatformUtil::Int64 d_startSystemTime; // time at creation (nsec)
+    bsls::Types::Int64 d_startWallTime;   // time at creation (nsec)
+    bsls::Types::Int64 d_startUserTime;   // time at creation (nsec)
+    bsls::Types::Int64 d_startSystemTime; // time at creation (nsec)
 
   public:
     // CREATORS
@@ -375,9 +375,9 @@ int main(int argc, char *argv[])
         //   system times.)
         //
         // Testing:
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getTimer();
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessSystemTimer();
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessUserTimer();
+        //   bsls::Types::Int64 bdes_TimeUtil::getTimer();
+        //   bsls::Types::Int64 bdes_TimeUtil::getProcessSystemTimer();
+        //   bsls::Types::Int64 bdes_TimeUtil::getProcessUserTimer();
         // --------------------------------------------------------------------
 
         const Int64 nsecsPerSec = 1000LL * 1000LL * 1000LL;
@@ -391,7 +391,6 @@ int main(int argc, char *argv[])
 #elif defined BSLS_PLATFORM_OS_LINUX  \
    || defined BSLS_PLATFORM_OS_AIX    \
    || defined BSLS_PLATFORM_OS_DARWIN \
-   || defined BSLS_PLATFORM_OS_CYGWIN \
    || defined BSLS_PLATFORM_OS_HPUX
         const Int64 timeQuantum = nsecsPerSec / sysconf(_SC_CLK_TCK);
                                         // On our local flavor of Linux, old
@@ -402,7 +401,7 @@ int main(int argc, char *argv[])
                                         // and the symbol that is correct
                                         // (CLK_TCK) unavailable.
                                         // (AIX just walks its own path.)
-#elif defined BSLS_PLATFORM_OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS || defined BSLS_PLATFORM_OS_CYGWIN
         const Int64 timeQuantum = 100;  // Hard-coded from Windows
                                         // documentation.  We need to test
                                         // (not pre-accept)
@@ -468,7 +467,7 @@ int main(int argc, char *argv[])
             // their differences taken, and those differences compared to
             // whatever constants are involved.
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT(wt2 - wt1 >= shortSleep * nsecsPerSec);
 #else
             ASSERT(wt2 - wt1 + windowsFudge >= shortSleep * nsecsPerSec);
@@ -618,7 +617,7 @@ int main(int argc, char *argv[])
 
             ASSERT(st2 - st1 >= 0);     // And system time did not go backward.
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1) +
                                                          2 * timeQuantum >= 0);
                                         // And our wall time was greater than
@@ -642,11 +641,10 @@ int main(int argc, char *argv[])
         //   values each time.
         //
         // Testing:
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getTimer();
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessSystemTimer();
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessUserTimer();
-        //   void bdes_TimeUtil::getProcessTimers(
-        //                 bsls_PlatformUtil::Int64, bsls_PlatformUtil::Int64);
+        //   bsls::Types::Int64 bdes_TimeUtil::getTimer();
+        //   bsls::Types::Int64 bdes_TimeUtil::getProcessSystemTimer();
+        //   bsls::Types::Int64 bdes_TimeUtil::getProcessUserTimer();
+        //   void bdes_TimeUtil::getProcessTimers(Types::Int64, Types::Int64);
         // --------------------------------------------------------------------
 
         struct {
@@ -731,11 +729,10 @@ int main(int argc, char *argv[])
         //   Call each method in a loop.
         //
         // Testing:
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getTimer();
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessSystemTimer();
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessUserTimer();
-        //   void bdes_TimeUtil::getProcessTimers(
-        //                 bsls_PlatformUtil::Int64, bsls_PlatformUtil::Int64);
+        //   bsls::Types::Int64 bdes_TimeUtil::getTimer();
+        //   bsls::Types::Int64 bdes_TimeUtil::getProcessSystemTimer();
+        //   bsls::Types::Int64 bdes_TimeUtil::getProcessUserTimer();
+        //   void bdes_TimeUtil::getProcessTimers(Types::Int64, Types::Int64);
         // --------------------------------------------------------------------
 
         struct {
@@ -839,7 +836,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BASIC FUNCTIONALITY
         //   The methods should return non-decreasing values of type
-        //   'bsls_PlatformUtil::Int64'.
+        //   'bsls::Types::Int64'.
         //
         // Plan:
         //   Verify that the *temporary* returned by each method is at least 8
@@ -849,11 +846,10 @@ int main(int argc, char *argv[])
         //   in 'veryVerbose' mode.
         //
         // Testing:
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getTimer();
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessSystemTimer();
-        //   bsls_PlatformUtil::Int64 bdes_TimeUtil::getProcessUserTimer();
-        //   void bdes_TimeUtil::getProcessTimers(
-        //                 bsls_PlatformUtil::Int64, bsls_PlatformUtil::Int64);
+        //   bsls::Types::Int64 bdes_TimeUtil::getTimer();
+        //   bsls::Types::Int64 bdes_TimeUtil::getProcessSystemTimer();
+        //   bsls::Types::Int64 bdes_TimeUtil::getProcessUserTimer();
+        //   void bdes_TimeUtil::getProcessTimers(Types::Int64, Types::Int64);
         // --------------------------------------------------------------------
 
         struct {

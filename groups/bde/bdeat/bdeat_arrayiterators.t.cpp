@@ -267,7 +267,7 @@ namespace bdeat_ArrayFunctions {
     };
 
     template <int SIZE, typename TYPE>
-    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf_MetaInt<1> {
+    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf::MetaInt<1> {
     };
 }
 }

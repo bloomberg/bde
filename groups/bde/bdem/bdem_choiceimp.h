@@ -247,6 +247,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
 #endif
@@ -261,10 +265,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -306,8 +306,8 @@ class bdem_ChoiceImp {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS3(bdem_ChoiceImp,
-                                  bslalg_TypeTraitBitwiseMoveable,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable,
+                                  bslalg::TypeTraitUsesBslmaAllocator,
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS DATA
@@ -351,10 +351,10 @@ class bdem_ChoiceImp {
 
     // CREATORS
     explicit bdem_ChoiceImp(
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
     explicit bdem_ChoiceImp(
                 bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
         // Construct a choice imp having an empty types catalog and that is
         // initially unset.  Optionally specify an 'allocationStrategy'.  If
         // 'allocationStrategy' is not specified,
@@ -367,7 +367,7 @@ class bdem_ChoiceImp {
                  int                                       numSelectionTypes,
                  const bdem_Descriptor *const              attrLookupTbl[],
                  bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Construct a choice imp having a types catalog of the specified
         // 'numSelectionTypes' length and storing the types specified in the
         // 'selectionTypes' array.  Use the specified 'allocationStrategy',
@@ -386,18 +386,18 @@ class bdem_ChoiceImp {
     bdem_ChoiceImp(
                 const bdem_ChoiceHeader&                  choiceHeader,
                 bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
         // Construct a choice imp that stores the specified 'choiceHeader'
         // using the specified 'allocationStrategy'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     bdem_ChoiceImp(const bdem_ChoiceImp&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
     bdem_ChoiceImp(
                 const bdem_ChoiceImp&                     original,
                 bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                bslma_Allocator                          *basicAllocator = 0);
+                bslma::Allocator                         *basicAllocator = 0);
         // Create a choice imp initialized to the value of the specified
         // 'original' choice imp.  Optionally specify an 'allocationStrategy'.
         // If 'allocationStrategy' is not specified,

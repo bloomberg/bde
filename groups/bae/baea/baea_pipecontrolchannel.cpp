@@ -7,17 +7,19 @@ BDES_IDENT_RCSID(baea_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bael_log.h>
 
 #include <bdef_bind.h>
-#include <bslma_default.h>
 #include <bdesu_fileutil.h>
 #include <bdesu_pathutil.h>
 #include <bdesu_pipeutil.h>
+
+#include <bslma_default.h>
+
+#include <bsls_assert.h>
+#include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_algorithm.h>
 #include <bsl_iterator.h>
 #include <bsl_iostream.h>
-
-#include <bsls_assert.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 //  Should not be defining project-level configuration macros inside a cpp file
@@ -29,9 +31,9 @@ BDES_IDENT_RCSID(baea_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bsl_c_errno.h>
 #include <fcntl.h>
 #include <poll.h>
-#if !defined(BDES_PLATFORM_OS_FREEBSD) \
- && !defined(BDES_PLATFORM_OS_DARWIN)  \
- && !defined(BDES_PLATFORM_OS_CYGWIN)
+#if !defined(BSLS_PLATFORM_OS_FREEBSD) \
+ && !defined(BSLS_PLATFORM_OS_DARWIN)  \
+ && !defined(BSLS_PLATFORM_OS_CYGWIN)
 #include <stropts.h>  // not sure what this is necessary on UNIX
 #endif
 #include <sys/file.h>
@@ -404,10 +406,10 @@ baea_PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
 
 baea_PipeControlChannel::baea_PipeControlChannel(
         const ControlCallback&  callback,
-        bslma_Allocator        *basicAllocator)
-: d_callback(callback, bslma_Default::allocator(basicAllocator))
-, d_pipeName(bslma_Default::allocator(basicAllocator))
-, d_buffer(bslma_Default::allocator(basicAllocator))
+        bslma::Allocator       *basicAllocator)
+: d_callback(callback, bslma::Default::allocator(basicAllocator))
+, d_pipeName(bslma::Default::allocator(basicAllocator))
+, d_buffer(bslma::Default::allocator(basicAllocator))
 , d_thread(bcemt_ThreadUtil::invalidHandle())
 , d_isRunningFlag(false)
 , d_isPipeOpen(false)

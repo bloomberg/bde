@@ -28,7 +28,7 @@ using bsl::flush;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bcemt_ThreadGroup(bslma_Allocator *basicAllocator = 0);
+// [ 1] bcemt_ThreadGroup(bslma::Allocator *basicAllocator = 0);
 // [ 5] ~bcemt_ThreadGroup();
 //
 // MANIPULATORS
@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
                  << "=====================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int NUM_ITERATIONS = 10000;
             const int NUM_THREADS    = 8;
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
                  << "==================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int NUM_ITERATIONS = 1000;
             const int NUM_THREADS    = 8;
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
                  << "=========================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int NUM_ITERATIONS = 100;
             const int NUM_THREADS    = 3;
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
                  << "========================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int NUM_ITERATIONS               = 10000;
 #ifdef BSLS_PLATFORM_OS_LINUX
@@ -476,7 +476,7 @@ int main(int argc, char *argv[])
                  << "==============" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
            bcemt_ThreadGroup        mX(&ta);
            const bcemt_ThreadGroup&  X = mX;

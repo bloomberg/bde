@@ -46,6 +46,10 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdex_outstreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -66,10 +70,6 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
 
 
@@ -81,12 +81,12 @@ class baenet_HttpStartLine {
 
     // INSTANCE DATA
     union {
-        bsls_ObjectBuffer< baenet_HttpRequestLine > d_requestLine;
-        bsls_ObjectBuffer< baenet_HttpStatusLine >  d_statusLine;
+        bsls::ObjectBuffer< baenet_HttpRequestLine > d_requestLine;
+        bsls::ObjectBuffer< baenet_HttpStatusLine >  d_statusLine;
     };
 
     int                                                 d_selectionId;
-    bslma_Allocator                                    *d_allocator_p;
+    bslma::Allocator                                   *d_allocator_p;
 
   public:
     // TYPES
@@ -130,14 +130,14 @@ class baenet_HttpStartLine {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit baenet_HttpStartLine(bslma_Allocator *basicAllocator = 0);
+    explicit baenet_HttpStartLine(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'baenet_HttpStartLine' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     baenet_HttpStartLine(const baenet_HttpStartLine& original,
-                            bslma_Allocator *basicAllocator = 0);
+                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'baenet_HttpStartLine' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -178,7 +178,8 @@ class baenet_HttpStartLine {
         // selection is not found).
 
     baenet_HttpRequestLine& makeRequestLine();
-    baenet_HttpRequestLine& makeRequestLine(const baenet_HttpRequestLine& value);
+    baenet_HttpRequestLine& makeRequestLine(
+                                          const baenet_HttpRequestLine& value);
         // Set the value of this object to be a "RequestLine" value. 
         // Optionally specify the 'value' of the "RequestLine".  If 'value' is
         // not specified, the default "RequestLine" value is used.
@@ -313,9 +314,9 @@ int baenet_HttpStartLine::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-baenet_HttpStartLine::baenet_HttpStartLine(bslma_Allocator *basicAllocator)
+baenet_HttpStartLine::baenet_HttpStartLine(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -374,7 +375,8 @@ int baenet_HttpStartLine::manipulateSelection(MANIPULATOR& manipulator)
         return manipulator(&d_statusLine.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_STATUS_LINE]);
       default:
-        BSLS_ASSERT(baenet_HttpStartLine::SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(baenet_HttpStartLine::SELECTION_ID_UNDEFINED ==
+                                                                d_selectionId);
         return -1;
     }
 }

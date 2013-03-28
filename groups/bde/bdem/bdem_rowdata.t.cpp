@@ -66,8 +66,8 @@ using namespace bsl;  // automatically added by script
 // [13] int maxSupportedBdexVersion();
 //
 // CREATORS
-// [ 4] bdem_RowData(strategy, bslma_Allocator *ba);
-// [ 4] bdem_RowData(layout, strategy, bslma_Allocator *ba);
+// [ 4] bdem_RowData(strategy, bslma::Allocator *ba);
+// [ 4] bdem_RowData(layout, strategy, bslma::Allocator *ba);
 // [ 7] bdem_RowData(rowLayout, original, allocMode, *allocator);
 // [ 7] bdem_RowData(rowLayout, original, si, ne, allocMode, *allocator);
 // [ 4] ~bdem_RowData();
@@ -183,7 +183,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef bdem_RowData         Obj;
-typedef bsls_Types::Int64    Int64;
+typedef bsls::Types::Int64   Int64;
 
 typedef bdet_Datetime        Datetime;
 typedef bdet_DatetimeTz      DatetimeTz;
@@ -203,8 +203,8 @@ typedef bdem_RowData         Obj;
 typedef bdem_RowLayout       Layout;
 typedef bdem_Descriptor      Descriptor;
 
-typedef bslma_Allocator      Allocator;
-typedef bslma_TestAllocator  TestAllocator;
+typedef bslma::Allocator     Allocator;
+typedef bslma::TestAllocator TestAllocator;
 
 const bdem_AggregateOption::AllocationStrategy POOL_OPT =
                                          bdem_AggregateOption::BDEM_WRITE_MANY;
@@ -225,29 +225,29 @@ class Base {
   public:
     enum { BUFSIZE = 100 };
 
-    char             d_value;
-    bool             d_isNull;
-    void            *d_buf;
-    bslma_Allocator *d_allocator;
+    char              d_value;
+    bool              d_isNull;
+    void             *d_buf;
+    bslma::Allocator *d_allocator;
 
     explicit
-    Base(bslma_Allocator *a = 0)
-    : d_allocator(bslma_Default::allocator(a)) {
+    Base(bslma::Allocator *a = 0)
+    : d_allocator(bslma::Default::allocator(a)) {
         makeNull();
         d_buf = d_allocator->allocate(BUFSIZE);
     }
     explicit
-    Base(char v, bslma_Allocator *a = 0)
+    Base(char v, bslma::Allocator *a = 0)
     : d_value(v)
-    , d_allocator(bslma_Default::allocator(a)) {
+    , d_allocator(bslma::Default::allocator(a)) {
         d_isNull = false;
         d_buf = d_allocator->allocate(BUFSIZE);
     }
     explicit
-    Base(const Base& original, bslma_Allocator *a = 0)
+    Base(const Base& original, bslma::Allocator *a = 0)
     : d_value(original.d_value)
     , d_isNull(original.d_isNull)
-    , d_allocator(bslma_Default::allocator(a)) {
+    , d_allocator(bslma::Default::allocator(a)) {
         d_buf = d_allocator->allocate(BUFSIZE);
     }
     const Base& operator=(const Base& rhs) {
@@ -292,14 +292,14 @@ bool Base::isUnset() const
 class List : public Base {
   public:
     BSLALG_DECLARE_NESTED_TRAITS(List,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     explicit
-    List(bslma_Allocator *a = 0) : Base(a) {}
+    List(bslma::Allocator *a = 0) : Base(a) {}
     explicit
-    List(char v, bslma_Allocator *a = 0) : Base(v, a) {}
+    List(char v, bslma::Allocator *a = 0) : Base(v, a) {}
     explicit
-    List(const Base& original, bslma_Allocator *a = 0)
+    List(const Base& original, bslma::Allocator *a = 0)
     : Base(* (const Base *) &original, a) {}
     const List& operator=(const List& rhs) {
         d_value = rhs.d_value;
@@ -312,13 +312,13 @@ class List : public Base {
 class Table : public Base {
   public:
     BSLALG_DECLARE_NESTED_TRAITS(Table,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     explicit
-    Table(bslma_Allocator *a = 0) : Base(a) {}
+    Table(bslma::Allocator *a = 0) : Base(a) {}
     explicit
-    Table(char v, bslma_Allocator *a = 0) : Base(v, a) {}
-    Table(const Base& original, bslma_Allocator *a = 0)
+    Table(char v, bslma::Allocator *a = 0) : Base(v, a) {}
+    Table(const Base& original, bslma::Allocator *a = 0)
     : Base(* (const Base *) &original, a) {}
     const Table& operator=(const Table& rhs) {
         d_value = rhs.d_value;
@@ -331,14 +331,14 @@ class Table : public Base {
 class Choice : public Base {
   public:
     BSLALG_DECLARE_NESTED_TRAITS(Choice,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     explicit
-    Choice(bslma_Allocator *a = 0) : Base(a) {}
+    Choice(bslma::Allocator *a = 0) : Base(a) {}
     explicit
-    Choice(char v, bslma_Allocator *a = 0) : Base(v, a) {}
+    Choice(char v, bslma::Allocator *a = 0) : Base(v, a) {}
     explicit
-    Choice(const Base& original, bslma_Allocator *a = 0)
+    Choice(const Base& original, bslma::Allocator *a = 0)
     : Base(* (const Base *) &original, a) {}
     const Choice& operator=(const Choice& rhs) {
         d_value = rhs.d_value;
@@ -351,14 +351,14 @@ class Choice : public Base {
 class ChoiceArray : public Base {
   public:
     BSLALG_DECLARE_NESTED_TRAITS(ChoiceArray,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     explicit
-    ChoiceArray(bslma_Allocator *a = 0) : Base(a) {}
+    ChoiceArray(bslma::Allocator *a = 0) : Base(a) {}
     explicit
-    ChoiceArray(char v, bslma_Allocator *a = 0) : Base(v, a) {}
+    ChoiceArray(char v, bslma::Allocator *a = 0) : Base(v, a) {}
     explicit
-    ChoiceArray(const Base& original, bslma_Allocator *a = 0)
+    ChoiceArray(const Base& original, bslma::Allocator *a = 0)
     : Base(* (const Base *) &original, a) {}
     const ChoiceArray& operator=(const ChoiceArray& rhs) {
         d_value = rhs.d_value;
@@ -385,7 +385,7 @@ struct List_AttrFuncs
     static
     void defaultConstruct(void                                     *obj,
                           bdem_AggregateOption::AllocationStrategy  allocMode,
-                          bslma_Allocator                          *alloc);
+                          bslma::Allocator                         *alloc);
         // Construct a list object into raw memory.  The prototype for this
         // function must match the defaultConstruct function pointer in
         // bdem_Descriptor.
@@ -394,7 +394,7 @@ struct List_AttrFuncs
     void copyConstruct(void                                     *obj,
                        const void                               *rhs,
                        bdem_AggregateOption::AllocationStrategy  allocMode,
-                       bslma_Allocator                          *alloc);
+                       bslma::Allocator                         *alloc);
         // Copy construct a list object into raw memory.  The prototype for
         // this function must match the copyConstruct function pointer in
         // bdem_Descriptor.
@@ -412,14 +412,14 @@ struct List_AttrFuncs
         // Print this list.
 };
 
-                          // --------------------------
+                          // ---------------------
                           // struct List_AttrFuncs
-                          // --------------------------
+                          // ---------------------
 
 void List_AttrFuncs::defaultConstruct(
                            void                                     *obj,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
-                           bslma_Allocator                          *alloc)
+                           bslma::Allocator                         *alloc)
 {
     new (obj) List(alloc);
 }
@@ -428,7 +428,7 @@ void List_AttrFuncs::copyConstruct(
                            void                                     *obj,
                            const void                               *rhs,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
-                           bslma_Allocator                          *alloc)
+                           bslma::Allocator                         *alloc)
 {
     const List& rhsList = *static_cast<const List *>(rhs);
     new (obj) List(rhsList);
@@ -450,9 +450,9 @@ bool List_AttrFuncs::areEqual(const void *lhs, const void *rhs)
 }
 
 bsl::ostream& List_AttrFuncs::print(const void    *obj,
-                                         bsl::ostream&  stream,
-                                         int            level,
-                                         int            spacesPerLevel)
+                                    bsl::ostream&  stream,
+                                    int            level,
+                                    int            spacesPerLevel)
 {
     return stream;
 }
@@ -460,7 +460,7 @@ bsl::ostream& List_AttrFuncs::print(const void    *obj,
 const bdem_Descriptor listAttr = {
     bdem_ElemType::BDEM_LIST,
     sizeof(List),
-    bsls_AlignmentFromType<List>::VALUE,
+    bsls::AlignmentFromType<List>::VALUE,
     &List_AttrFuncs::defaultConstruct,
     &List_AttrFuncs::copyConstruct,
     &bdem_FunctionTemplates::destroy<List>,
@@ -482,7 +482,7 @@ struct Table_AttrFuncs {
     static
     void defaultConstruct(void                                     *obj,
                           bdem_AggregateOption::AllocationStrategy  allocMode,
-                          bslma_Allocator                          *alloc);
+                          bslma::Allocator                         *alloc);
         // Construct a table object into raw memory.  The prototype for this
         // function must match the defaultConstruct function pointer in
         // bdem_Descriptor.
@@ -491,7 +491,7 @@ struct Table_AttrFuncs {
     void copyConstruct(void                                     *obj,
                        const void                               *rhs,
                        bdem_AggregateOption::AllocationStrategy  allocMode,
-                       bslma_Allocator                          *alloc);
+                       bslma::Allocator                         *alloc);
         // Copy construct a table object into raw memory.  The prototype for
         // this function must match the copyConstruct function pointer in
         // bdem_Descriptor.
@@ -509,14 +509,14 @@ struct Table_AttrFuncs {
         // Print this table.
 };
 
-                          // ---------------------------
+                          // ----------------------
                           // struct Table_AttrFuncs
-                          // ---------------------------
+                          // ----------------------
 
 void Table_AttrFuncs::defaultConstruct(
                            void                                     *obj,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
-                           bslma_Allocator                          *alloc)
+                           bslma::Allocator                         *alloc)
 {
     new (obj) Table(alloc);;
 }
@@ -525,7 +525,7 @@ void Table_AttrFuncs::copyConstruct(
                           void                                     *obj,
                           const void                               *rhs,
                           bdem_AggregateOption::AllocationStrategy  allocMode,
-                          bslma_Allocator                          *alloc)
+                          bslma::Allocator                         *alloc)
 {
     const Table& rhsTable = *static_cast<const Table*>(rhs);
     new (obj) Table(rhsTable);
@@ -547,9 +547,9 @@ bool Table_AttrFuncs::areEqual(const void *lhs, const void *rhs)
 }
 
 bsl::ostream& Table_AttrFuncs::print(const void    *obj,
-                                          bsl::ostream&  stream,
-                                          int            level,
-                                          int            spacesPerLevel)
+                                     bsl::ostream&  stream,
+                                     int            level,
+                                     int            spacesPerLevel)
 {
     return stream;
 }
@@ -557,7 +557,7 @@ bsl::ostream& Table_AttrFuncs::print(const void    *obj,
 const bdem_Descriptor tableAttr = {
     bdem_ElemType::BDEM_TABLE,
     sizeof(Table),
-    bsls_AlignmentFromType<Table>::VALUE,
+    bsls::AlignmentFromType<Table>::VALUE,
     &Table_AttrFuncs::defaultConstruct,
     &Table_AttrFuncs::copyConstruct,
     &bdem_FunctionTemplates::destroy<Table>,
@@ -580,7 +580,7 @@ struct Choice_AttrFuncs
     static
     void defaultConstruct(void                                     *obj,
                           bdem_AggregateOption::AllocationStrategy  allocMode,
-                          bslma_Allocator                          *alloc);
+                          bslma::Allocator                         *alloc);
         // Construct a choice object into raw memory.  The prototype for this
         // function must match the defaultConstruct function pointer in
         // bdem_Descriptor.
@@ -589,7 +589,7 @@ struct Choice_AttrFuncs
     void copyConstruct(void                                     *obj,
                        const void                               *rhs,
                        bdem_AggregateOption::AllocationStrategy  allocMode,
-                       bslma_Allocator                          *alloc);
+                       bslma::Allocator                         *alloc);
         // Copy construct a choice object into raw memory.  The prototype for
         // this function must match the copyConstruct function pointer in
         // bdem_Descriptor.
@@ -607,14 +607,14 @@ struct Choice_AttrFuncs
         // Print this choice.
 };
 
-                          // ----------------------------
+                          // -----------------------
                           // struct Choice_AttrFuncs
-                          // ----------------------------
+                          // -----------------------
 
 void Choice_AttrFuncs::defaultConstruct(
                            void                                     *obj,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
-                           bslma_Allocator                          *alloc)
+                           bslma::Allocator                         *alloc)
 {
     new (obj) Choice(alloc);;
 }
@@ -623,7 +623,7 @@ void Choice_AttrFuncs::copyConstruct(
                            void                                     *obj,
                            const void                               *rhs,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
-                           bslma_Allocator                          *alloc)
+                           bslma::Allocator                         *alloc)
 {
     const Choice& rhsChoice = *static_cast<const Choice *>(rhs);
     new (obj) Choice(rhsChoice);
@@ -645,9 +645,9 @@ bool Choice_AttrFuncs::areEqual(const void *lhs, const void *rhs)
 }
 
 bsl::ostream& Choice_AttrFuncs::print(const void    *obj,
-                                         bsl::ostream&  stream,
-                                         int            level,
-                                         int            spacesPerLevel)
+                                      bsl::ostream&  stream,
+                                      int            level,
+                                      int            spacesPerLevel)
 {
     return stream;
 }
@@ -655,7 +655,7 @@ bsl::ostream& Choice_AttrFuncs::print(const void    *obj,
 const bdem_Descriptor choiceAttr = {
     bdem_ElemType::BDEM_CHOICE,
     sizeof(Choice),
-    bsls_AlignmentFromType<Choice>::VALUE,
+    bsls::AlignmentFromType<Choice>::VALUE,
     &Choice_AttrFuncs::defaultConstruct,
     &Choice_AttrFuncs::copyConstruct,
     &bdem_FunctionTemplates::destroy<Choice>,
@@ -677,7 +677,7 @@ struct ChoiceArray_AttrFuncs {
     static
     void defaultConstruct(void                                     *obj,
                           bdem_AggregateOption::AllocationStrategy  allocMode,
-                          bslma_Allocator                          *alloc);
+                          bslma::Allocator                         *alloc);
         // Construct a choice array object into raw memory.  The prototype for
         // this function must match the defaultConstruct function pointer in
         // bdem_Descriptor.
@@ -686,7 +686,7 @@ struct ChoiceArray_AttrFuncs {
     void copyConstruct(void                                     *obj,
                        const void                               *rhs,
                        bdem_AggregateOption::AllocationStrategy  allocMode,
-                       bslma_Allocator                          *alloc);
+                       bslma::Allocator                         *alloc);
         // Copy construct a choiceArray object into raw memory.  The prototype
         // for this function must match the copyConstruct function pointer in
         // bdem_Descriptor.
@@ -704,14 +704,14 @@ struct ChoiceArray_AttrFuncs {
         // Print this choice array.
 };
 
-                          // ---------------------------------
+                          // ----------------------------
                           // struct ChoiceArray_AttrFuncs
-                          // ---------------------------------
+                          // ----------------------------
 
 void ChoiceArray_AttrFuncs::defaultConstruct(
                            void                                     *obj,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
-                           bslma_Allocator                          *alloc)
+                           bslma::Allocator                         *alloc)
 {
     new (obj) ChoiceArray(alloc);;
 }
@@ -720,7 +720,7 @@ void ChoiceArray_AttrFuncs::copyConstruct(
                           void                                     *obj,
                           const void                               *rhs,
                           bdem_AggregateOption::AllocationStrategy  allocMode,
-                          bslma_Allocator                          *alloc)
+                          bslma::Allocator                         *alloc)
 {
     const ChoiceArray& rhsChoiceArray =
                                     *static_cast<const ChoiceArray*>(rhs);
@@ -743,9 +743,9 @@ bool ChoiceArray_AttrFuncs::areEqual(const void *lhs, const void *rhs)
 }
 
 bsl::ostream& ChoiceArray_AttrFuncs::print(const void    *obj,
-                                          bsl::ostream&  stream,
-                                          int            level,
-                                          int            spacesPerLevel)
+                                           bsl::ostream&  stream,
+                                           int            level,
+                                           int            spacesPerLevel)
 {
     return stream;
 }
@@ -753,7 +753,7 @@ bsl::ostream& ChoiceArray_AttrFuncs::print(const void    *obj,
 const bdem_Descriptor choiceArrayAttr = {
     bdem_ElemType::BDEM_CHOICE_ARRAY,
     sizeof(ChoiceArray),
-    bsls_AlignmentFromType<ChoiceArray>::VALUE,
+    bsls::AlignmentFromType<ChoiceArray>::VALUE,
     &ChoiceArray_AttrFuncs::defaultConstruct,
     &ChoiceArray_AttrFuncs::copyConstruct,
     &bdem_FunctionTemplates::destroy<ChoiceArray>,
@@ -789,12 +789,12 @@ const int              A02 = 10;
 const int              B02 = 20;
 const int              N02 = bdetu_Unset<int>::unsetValue();
 
-const bsls_Types::Int64
+const bsls::Types::Int64
                        A03 = -100;
-const bsls_Types::Int64
+const bsls::Types::Int64
                        B03 = -200;
-const bsls_Types::Int64
-                       N03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
+const bsls::Types::Int64
+                       N03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
 const float            A04 = -1.5;
 const float            B04 = -2.5;
@@ -866,15 +866,15 @@ const  bsl::vector<int>                          A12 = fA12();
 const  bsl::vector<int>                          B12 = fB12();
 const  bsl::vector<int>                          N12;
 
-static bsl::vector<bsls_Types::Int64>           fA13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>          fA13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(A03); return t; }
-static bsl::vector<bsls_Types::Int64>           fB13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>          fB13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(B03); return t; }
-const  bsl::vector<bsls_Types::Int64>            A13 = fA13();
-const  bsl::vector<bsls_Types::Int64>            B13 = fB13();
-const  bsl::vector<bsls_Types::Int64>            N13;
+const  bsl::vector<bsls::Types::Int64>           A13 = fA13();
+const  bsl::vector<bsls::Types::Int64>           B13 = fB13();
+const  bsl::vector<bsls::Types::Int64>           N13;
 
 static bsl::vector<float>                       fA14() {
        bsl::vector<float> t;         t.push_back(A04); return t; }
@@ -993,7 +993,7 @@ streamInAttrLookup<STREAM>::lookupTable()
         { &bdem_FunctionTemplates::streamInFundamental<short,STREAM> },
         { &bdem_FunctionTemplates::streamInFundamental<int,STREAM> },
         { &bdem_FunctionTemplates::
-                        streamInFundamental<bsls_Types::Int64,STREAM> },
+                        streamInFundamental<bsls::Types::Int64,STREAM> },
         { &bdem_FunctionTemplates::streamInFundamental<float,STREAM> },
         { &bdem_FunctionTemplates::streamInFundamental<double,STREAM> },
         { &bdem_FunctionTemplates::streamIn<bsl::string,STREAM> },
@@ -1004,7 +1004,7 @@ streamInAttrLookup<STREAM>::lookupTable()
         { &bdem_FunctionTemplates::streamInArray<short,STREAM> },
         { &bdem_FunctionTemplates::streamInArray<int,STREAM> },
         { &bdem_FunctionTemplates::
-                              streamInArray<bsls_Types::Int64,STREAM> },
+                              streamInArray<bsls::Types::Int64,STREAM> },
         { &bdem_FunctionTemplates::streamInArray<float,STREAM> },
         { &bdem_FunctionTemplates::streamInArray<double,STREAM> },
         { &bdem_FunctionTemplates::streamInArray<bsl::string,STREAM> },
@@ -1051,7 +1051,7 @@ streamOutAttrLookup<STREAM>::lookupTable()
         { &bdem_FunctionTemplates::streamOutFundamental<short,STREAM> },
         { &bdem_FunctionTemplates::streamOutFundamental<int,STREAM> },
         { &bdem_FunctionTemplates::
-                      streamOutFundamental<bsls_Types::Int64, STREAM> },
+                      streamOutFundamental<bsls::Types::Int64, STREAM> },
         { &bdem_FunctionTemplates::streamOutFundamental<float,STREAM> },
         { &bdem_FunctionTemplates::streamOutFundamental<double,STREAM> },
         { &bdem_FunctionTemplates::streamOut<bsl::string,STREAM> },
@@ -1062,7 +1062,7 @@ streamOutAttrLookup<STREAM>::lookupTable()
         { &bdem_FunctionTemplates::streamOutArray<short, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<int, STREAM> },
         { &bdem_FunctionTemplates::
-                            streamOutArray<bsls_Types::Int64, STREAM> },
+                            streamOutArray<bsls::Types::Int64, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<float, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<double, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<bsl::string, STREAM> },
@@ -1516,7 +1516,7 @@ int ggg(Obj *obj, const char *spec, Allocator *ta = 0, int verboseFlag = 1)
     enum { FAILURE = -1, SUCCESS = 0 };
 
     const int len = bsl::strlen(spec);
-    ta = bslma_Default::allocator(ta);
+    ta = bslma::Default::allocator(ta);
     Layout *layout = new (*ta) bdem_RowLayout(ta);
 
     obj->reset(layout);
@@ -1699,8 +1699,8 @@ int main(int argc, char *argv[])
     _CrtSetReportMode(_CRT_WARN,   0);
 #endif
 
-    bslma_TestAllocator  testAllocator(veryVeryVeryVeryVerbose);
-    bslma_TestAllocator *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVeryVeryVerbose);
+    bslma::TestAllocator *Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 16: {
@@ -1994,7 +1994,7 @@ int main(int argc, char *argv[])
                         testAllocator.setQuiet(1);
                     }
 
-                    bslma_DefaultAllocatorGuard dag(&da);
+                    bslma::DefaultAllocatorGuard dag(&da);
 
                     Obj mY(X.rowLayout(), strategy, &testAllocator);
                     const Obj& Y = mY;
@@ -2020,7 +2020,7 @@ int main(int argc, char *argv[])
                         testAllocator.setQuiet(1);
                     }
 
-                    bslma_DefaultAllocatorGuard dag(&testAllocator);
+                    bslma::DefaultAllocatorGuard dag(&testAllocator);
 
                     Obj mY(X.rowLayout(), strategy);
                     const Obj& Y = mY;
@@ -2169,7 +2169,7 @@ int main(int argc, char *argv[])
                             testAllocator.setQuiet(1);
                         }
 
-                        bslma_DefaultAllocatorGuard dag(&da);
+                        bslma::DefaultAllocatorGuard dag(&da);
 
                         Obj mY(X.rowLayout(), strategy, &testAllocator);
                         const Obj& Y = mY;
@@ -2305,7 +2305,7 @@ int main(int argc, char *argv[])
                 const int   LINE = DATA[i].d_line;
                 const char *SPEC = DATA[i].d_spec;
 
-                bslma_TestAllocator ta;
+                bslma::TestAllocator ta;
                 const Layout *LX;
                 {
                     Obj mX(PT, &ta); const Obj& X = mX;
@@ -2485,7 +2485,7 @@ int main(int argc, char *argv[])
                 const int   LINE = DATA[i].d_line;
                 const char *SPEC = DATA[i].d_spec;
 
-                bslma_TestAllocator ta;
+                bslma::TestAllocator ta;
                 const Layout *LX;
                 {
                     Obj mX(PT, &ta); const Obj& X = mX;
@@ -2610,7 +2610,7 @@ int main(int argc, char *argv[])
                 const int   LINE = DATA[i].d_line;
                 const char *SPEC = DATA[i].d_spec;
 
-                bslma_TestAllocator ta;
+                bslma::TestAllocator ta;
                 const Layout *LX;
                 {
                     Obj mX(PT, &ta); const Obj& X = mX;
@@ -2900,7 +2900,7 @@ int main(int argc, char *argv[])
                 }
 
                 {
-                    bslma_DefaultAllocatorGuard dag(&da);
+                    bslma::DefaultAllocatorGuard dag(&da);
 
                     Obj mA(strategy);
                     Obj mB(strategy);
@@ -3029,7 +3029,7 @@ int main(int argc, char *argv[])
                                 testAllocator.setQuiet(1);
                             }
 
-                            bslma_DefaultAllocatorGuard dag(&da);
+                            bslma::DefaultAllocatorGuard dag(&da);
 
                             Obj mA(strategy, &testAllocator);
                             Obj mB(strategy, &testAllocator);
@@ -3181,7 +3181,7 @@ int main(int argc, char *argv[])
                         testAllocator.setQuiet(1);
                     }
 
-                    bslma_DefaultAllocatorGuard dag(&da);
+                    bslma::DefaultAllocatorGuard dag(&da);
 
                     Obj mY(X.rowLayout(), strategy, &testAllocator);
                     const Obj& Y = mY;
@@ -3207,7 +3207,7 @@ int main(int argc, char *argv[])
                         testAllocator.setQuiet(1);
                     }
 
-                    bslma_DefaultAllocatorGuard dag(&testAllocator);
+                    bslma::DefaultAllocatorGuard dag(&testAllocator);
 
                     Obj mY(X.rowLayout(), strategy);
                     const Obj& Y = mY;
@@ -3311,7 +3311,7 @@ int main(int argc, char *argv[])
                         testAllocator.setQuiet(1);
                     }
 
-                    bslma_DefaultAllocatorGuard dag(&da);
+                    bslma::DefaultAllocatorGuard dag(&da);
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     Obj mY(L, X, strategy, &testAllocator); const Obj& Y = mY;
@@ -3336,7 +3336,7 @@ int main(int argc, char *argv[])
                         testAllocator.setQuiet(1);
                     }
 
-                    bslma_DefaultAllocatorGuard dag(&testAllocator);
+                    bslma::DefaultAllocatorGuard dag(&testAllocator);
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     Obj mY(L, X, strategy); const Obj& Y = mY;
@@ -3597,7 +3597,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a test object using the 3-argument constructor: 1) without
         //   exceptions and 2) in the presence of exceptions during memory
-        //   allocations using a 'bslma_TestAllocator' and varying its
+        //   allocations using a 'bslma::TestAllocator' and varying its
         //   *allocation* *limit*.  In a loop, obtain a reference to the
         //   modifiable offset-index map held by the object using the
         //   'columnTypes' method.   Append an element to the map in each
@@ -3617,8 +3617,8 @@ int main(int argc, char *argv[])
         //   with a non-null allocator.
         //
         // Testing:
-        //   bdem_RowData(strategy, bslma_Allocator *ba);
-        //   bdem_RowData(layout, strategy, bslma_Allocator *ba);
+        //   bdem_RowData(strategy, bslma::Allocator *ba);
+        //   bdem_RowData(layout, strategy, bslma::Allocator *ba);
         //   ~bdem_RowData();
         //   const void *elemData(int index) const;
         //   void *elemData(int index);
@@ -3641,7 +3641,7 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < 4; ++i) {
                 TestAllocator ta, da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 AggOption::AllocationStrategy strategy =
                                               (AggOption::AllocationStrategy)i;
@@ -3660,7 +3660,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 4; ++i) {
                 TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 AggOption::AllocationStrategy strategy =
                                               (AggOption::AllocationStrategy)i;
@@ -3780,7 +3780,7 @@ int main(int argc, char *argv[])
                     // With allocator specified
                     {
                         TestAllocator ta, da;
-                        bslma_DefaultAllocatorGuard dag(&da);
+                        bslma::DefaultAllocatorGuard dag(&da);
 
                         if (AggOption::BDEM_NODESTRUCT_FLAG & strategy) {
                             ta.setQuiet(1);
@@ -3844,7 +3844,7 @@ int main(int argc, char *argv[])
                         if (AggOption::BDEM_NODESTRUCT_FLAG & strategy) {
                             da.setQuiet(1);
                         }
-                        bslma_DefaultAllocatorGuard dag(&da);
+                        bslma::DefaultAllocatorGuard dag(&da);
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
                       BEGIN_BSLMA_EXCEPTION_TEST {
@@ -3917,7 +3917,7 @@ int main(int argc, char *argv[])
         //   various objects we rely on a small subset of functions in the
         //   generator functions.  These functions are:
         //     bdem_RowData(AggOption::AllocationStrategy  allocMode,
-        //                  bslma_Allocator               *basicAllocator);
+        //                  bslma::Allocator              *basicAllocator);
         //     void reset(const bdem_RowLayout *rowLayout);
         //     void *insertNullElement(int index);
         //     void *insertElement(int index, const void *value);
@@ -3994,7 +3994,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { P(SPEC) }
 
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             const Layout *L;
             {
                 Obj mX(PT, &ta); const Obj& X = mX;
@@ -4061,7 +4061,7 @@ int main(int argc, char *argv[])
 
         const char *SPEC = SPECIFICATIONS;
 
-        bslma_TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         if (verbose)  bsl::cout << "\nTesting 'getElemType'" << bsl::endl;
         {

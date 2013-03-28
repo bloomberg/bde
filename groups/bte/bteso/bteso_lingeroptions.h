@@ -165,7 +165,7 @@ class bteso_LingerOptions {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_LingerOptions,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();

@@ -784,14 +784,14 @@ struct bdem_BdemEncoderUtil_SelectArrayTypeCategory {
     BSLMF_ASSERT(!IS_ELEMENT_NULLABLE);
 
     enum {
-        IS_NATIVE_BDEM_ARRAY_TYPE = bslmf_IsSame<TYPE, BdemArrayType>::VALUE
+        IS_NATIVE_BDEM_ARRAY_TYPE = bslmf::IsSame<TYPE, BdemArrayType>::VALUE
     };
 
     enum {
         IS_EXTENDED_BDEM_ARRAY_TYPE
-                          = bslmf_IsSame<ElementType, bdet_DateTz>::VALUE     |
-                            bslmf_IsSame<ElementType, bdet_DatetimeTz>::VALUE |
-                            bslmf_IsSame<ElementType, bdet_TimeTz>::VALUE
+                         = bslmf::IsSame<ElementType, bdet_DateTz>::VALUE     |
+                           bslmf::IsSame<ElementType, bdet_DatetimeTz>::VALUE |
+                           bslmf::IsSame<ElementType, bdet_TimeTz>::VALUE
     };
 
     enum {
@@ -812,7 +812,7 @@ struct bdem_BdemEncoderUtil_SelectArrayTypeCategory {
 
   public:
     typedef typename
-    bslmf_Switch<SELECTOR, bdem_BdemEncoderUtil_NativeBdemArrayCategory,
+    bslmf::Switch<SELECTOR, bdem_BdemEncoderUtil_NativeBdemArrayCategory,
                            bdem_BdemEncoderUtil_ExtendedBdemArrayCategory,
                            bdem_BdemEncoderUtil_SequenceArrayCategory,
                            bdem_BdemEncoderUtil_ChoiceArrayCategory,
@@ -1148,11 +1148,11 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeNullValue(
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     BSLMF_ASSERT((bdeat_ArrayFunctions::IsArray<BDEM_TYPE>::VALUE
-               || bslmf_IsSame<BDEM_TYPE, bdem_List>::VALUE
-               || bslmf_IsSame<BDEM_TYPE, bdem_Table>::VALUE));
+               || bslmf::IsSame<BDEM_TYPE, bdem_List>::VALUE
+               || bslmf::IsSame<BDEM_TYPE, bdem_Table>::VALUE));
 
     if (bdeat_ArrayFunctions::IsArray<BDEM_TYPE>::VALUE
-     || bslmf_IsSame<BDEM_TYPE, bdem_List>::VALUE) {
+     || bslmf::IsSame<BDEM_TYPE, bdem_List>::VALUE) {
         if (!d_stream_p->putLength(0)) {
             return BDEM_FAILURE;
         }
@@ -1262,7 +1262,7 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeImp(
     bdem_SelectBdemType<TYPE>::Type BdemType;
 
     typedef typename
-    bslmf_If<bdetu_UnsetValueIsDefined<BdemType>::VALUE,
+    bslmf::If<bdetu_UnsetValueIsDefined<BdemType>::VALUE,
              TypeHasBdetuNullValue,
              TypeHasNoBdetuNullValue>::Type Toggle;
 

@@ -134,11 +134,11 @@ void bcep_MultipriorityThreadPool::worker()
 
 // CREATORS
 bcep_MultipriorityThreadPool::bcep_MultipriorityThreadPool(
-                                               int              numThreads,
-                                               int              numPriorities,
-                                               bslma_Allocator *basicAllocator)
-: d_queue(numPriorities, bslma_Default::allocator(basicAllocator))
-, d_threadGroup(bslma_Default::allocator(basicAllocator))
+                                              int               numThreads,
+                                              int               numPriorities,
+                                              bslma::Allocator *basicAllocator)
+: d_queue(numPriorities, bslma::Default::allocator(basicAllocator))
+, d_threadGroup(bslma::Default::allocator(basicAllocator))
 , d_numThreads(numThreads)
 , d_threadStartState(STOPPED)
 , d_threadSuspendState(RESUMED)
@@ -155,10 +155,10 @@ bcep_MultipriorityThreadPool::bcep_MultipriorityThreadPool(
                                       int                     numThreads,
                                       int                     numPriorities,
                                       const bcemt_Attribute&  threadAttributes,
-                                      bslma_Allocator        *basicAllocator)
-: d_queue(numPriorities, bslma_Default::allocator(basicAllocator))
+                                      bslma::Allocator       *basicAllocator)
+: d_queue(numPriorities, bslma::Default::allocator(basicAllocator))
 , d_threadAttributes(threadAttributes)
-, d_threadGroup(bslma_Default::allocator(basicAllocator))
+, d_threadGroup(bslma::Default::allocator(basicAllocator))
 , d_numThreads(numThreads)
 , d_threadStartState(STOPPED)
 , d_threadSuspendState(RESUMED)

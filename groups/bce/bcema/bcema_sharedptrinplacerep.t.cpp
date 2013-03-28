@@ -29,21 +29,21 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // bcema_SharedPtrInplaceRep
 //------------------------
-// [ 2] bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1& a1);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1&...a2);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1&...a3);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1&...a4);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1&...a5);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1&...a6);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1&...a7);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1&...a8);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1&...a9);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1...a10);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1...a11);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1...a12);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1...a13);
-// [ 3] bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, const A1...a14);
+// [ 2] bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1& a1);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a2);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a3);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a4);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a5);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a6);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a7);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a8);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a9);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a10);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a11);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a12);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a13);
+// [ 3] bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a14);
 // [ 2] TYPE *ptr();
 // [ 2] void disposeRep();
 // [ 4] void disposeObject();
@@ -396,10 +396,10 @@ class MySharedDatetime {
         // reference, deleted the managed object.
 
     // MANIPULATORS
-    void createInplace(bslma_Allocator *allocator,
-                       int              year,
-                       int              month,
-                       int              day);
+    void createInplace(bslma::Allocator *allocator,
+                       int               year,
+                       int               month,
+                       int               day);
         // Create a new 'MySharedDatetimeRepImpl', using the specified
         // 'allocator' to supply memory, using the specified 'year',
         // 'month' and 'day' to initialize the 'bdet_Datetime' within the
@@ -454,12 +454,12 @@ MySharedDatetime::~MySharedDatetime()
     }
 }
 
-void MySharedDatetime::createInplace(bslma_Allocator *allocator,
-                                     int              year,
-                                     int              month,
-                                     int              day)
+void MySharedDatetime::createInplace(bslma::Allocator *allocator,
+                                     int               year,
+                                     int               month,
+                                     int               day)
 {
-    allocator = bslma_Default::allocator(allocator);
+    allocator = bslma::Default::allocator(allocator);
     bcema_SharedPtrInplaceRep<bdet_Datetime> *rep = new (*allocator)
                         bcema_SharedPtrInplaceRep<bdet_Datetime>(allocator,
                                                                  year,
@@ -673,20 +673,20 @@ int main(int argc, char *argv[])
         //   the representation is initialized using the arguments supplied.
         //
         // Testing:
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a1);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a2);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a3);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a4);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a5);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a6);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a7);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a8);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a9);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a10);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a11);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a12);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a13);
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *allocator, ...a14);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a1);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a2);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a3);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a4);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a5);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a6);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a7);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a8);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a9);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a10);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a11);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a12);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a13);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *allocator, ...a14);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "Testing constructor" << endl
@@ -972,7 +972,7 @@ int main(int argc, char *argv[])
         //   accessors return the expected values.
         //
         // Testing:
-        //   bcema_SharedPtrInplaceRep(bslma_Allocator *basicAllocator);
+        //   bcema_SharedPtrInplaceRep(bslma::Allocator *basicAllocator);
         //   TYPE *ptr();
         //   void disposeRep();
         //   void *originalPtr() const;

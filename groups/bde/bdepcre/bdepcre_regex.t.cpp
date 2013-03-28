@@ -35,12 +35,14 @@ using namespace bsl;  // automatically added by script
 // usage example from the component's header file.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bdepcre_RegEx(bslma_Allocator *basicAllocator = 0);
+// [ 2] bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);
 // [ 2] ~bdepcre_RegEx();
-
+//
 // MANIPULATORS
 // [ 2] void clear();
 // [ 2] int prepare(const char*, int, const char**, int*);
+// [11] int setDepthLimit(int)
+// [11] int setDefaultDepthLimit(int)
 //
 // ACCESSORS
 // [4-6] int flags() const;
@@ -51,13 +53,15 @@ using namespace bsl;  // automatically added by script
 // [ 7] int numSubpatterns() const;
 // [ 2] const bsl::string& pattern() const;
 // [ 7] int subpatternIndex(const char *name) const;
+// [11] int getDepthLimit(int)
+// [11] int getDefaultDepthLimit(int)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] BDEPCRE_FLAG_CASELESS
 // [ 5] BDEPCRE_FLAG_MULTILINE
 // [ 6] BDEPCRE_FLAG_UTF8
 // [ 8] ALLOCATION PROPAGATION
-// [ 9] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -487,7 +491,7 @@ typedef bdepcre_RegEx Obj;
         returnValue = regEx.match(&matchVector, message, messageLength);
 
         if (0 != returnValue) {
-            return returnValue;  // no match
+            return returnValue;  // no match                          // RETURN
         }
 //..
 // Next we pass "subjectText" to the 'subpatternIndex' method to obtain the
@@ -521,10 +525,10 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   This will test the usage example provided in the component header
@@ -583,6 +587,101 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nEnd of Usage Example Test." << endl;
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING DEPTH LIMIT
+        //  This will test both the default and per-regex depth limit
+        //  attributes.
+        //
+        // Concerns:
+        //  The object depth limit attribute should take on the default value
+        //  by default, and be modifiable by the relevant accessor.
+        //
+        //  The object depth limit attribute should limit the recursion depth
+        //  for regular expression matches.
+        //
+        // Plan:
+        //  Default-construct a regular expression, and make sure that the
+        //  depth limit matches the process default.
+        //
+        //  Modify the process default, making sure that the
+        //  already-constructed regex is not affected, that the process default
+        //  accessor returns the new value, and that a new regex object is
+        //  affected.
+        //
+        //  Modify the depth limit for both objects, and make sure they don't
+        //  affect each other or the default value.
+        //
+        //  Finally, modify the depth limit for a regular expression and make
+        //  sure it affects the behaviour of the various 'match' overloads as
+        //  expected.
+        //
+        // Testing:
+        //   int setDepthLimit(int)
+        //   int setDefaultDepthLimit(int)
+        //   int getDepthLimit(int)
+        //   int getDefaultDepthLimit(int)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Depth Limit"
+                          << "\n===================" << endl;
+
+        Obj x;
+        int originalDepthLimit = x.depthLimit();
+
+        ASSERT(x.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+
+        int previousGlobalLimit = bdepcre_RegEx::setDefaultDepthLimit(3);
+        ASSERT(3                  == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(3                  != originalDepthLimit);
+        ASSERT(originalDepthLimit == x.depthLimit());
+        ASSERT(originalDepthLimit == previousGlobalLimit);
+
+        Obj y;
+
+        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+
+        int previousXLimit = x.setDepthLimit(5);
+        ASSERT(5              == x.depthLimit());
+        ASSERT(5              != originalDepthLimit);
+        ASSERT(3              == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(previousXLimit == previousGlobalLimit);
+        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+
+        const char *testString       = "a\n\n\n\n\nb";
+        bsl::size_t testStringLength = bsl::strlen(testString);
+        const char *testRegex        = "a(\n)+b";
+
+        bsl::string errorMessage;
+        int         errorOffset;
+
+        bsl::pair<int, int> resultPair;
+        bsl::vector<bsl::pair<int, int> > resultVector;
+
+        // We expect this to fail at depth 3, since it requires depth 14.
+        ASSERT(0 == y.prepare(&errorMessage, &errorOffset, testRegex));
+        ASSERT(3 == y.depthLimit());
+        // Match failure due to depth limit returns 1.
+        ASSERT(1 == y.match(testString, testStringLength));
+        ASSERT(1 == y.match(&resultPair, testString, testStringLength));
+        ASSERT(1 == y.match(&resultVector, testString, testStringLength));
+
+        // We expect this to fail at depth 5.
+        ASSERT(0 == x.prepare(&errorMessage, &errorOffset, testRegex));
+        ASSERT(5 == x.depthLimit());
+        // Match failure due to depth limit returns 1.
+        ASSERT(1 == x.match(testString, testStringLength));
+        ASSERT(1 == x.match(&resultPair, testString, testStringLength));
+        ASSERT(1 == x.match(&resultVector, testString, testStringLength));
+
+        // We know this succeeds at depth 14
+        x.setDepthLimit(14);
+        ASSERT(14 == x.depthLimit());
+        // Successful match returns 0.
+        ASSERT( 0 == x.match(testString, testStringLength));
+        ASSERT( 0 == x.match(&resultPair, testString, testStringLength));
+        ASSERT( 0 == x.match(&resultVector, testString, testStringLength));
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -646,7 +745,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         Obj mX(&ta); const Obj& X = mX;   // has 'BDEPCRE_FLAG_DOTMATCHESALL'
         Obj mY(&ta); const Obj& Y = mY;   // !have 'BDEPCRE_FLAG_DOTMATCHESALL'
 
@@ -848,15 +947,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Allocation"
                           << "\n==================" << endl;
 
-        bslma_TestAllocator allocator0(veryVeryVerbose);
-        bslma_TestAllocator allocator1(veryVeryVerbose);
-        bslma_TestAllocator allocator2(veryVeryVerbose);
+        bslma::TestAllocator allocator0(veryVeryVerbose);
+        bslma::TestAllocator allocator1(veryVeryVerbose);
+        bslma::TestAllocator allocator2(veryVeryVerbose);
 
-        bslma_TestAllocator *Z0 = &allocator0;
-        bslma_TestAllocator *Z1 = &allocator1;
-        bslma_TestAllocator *Z2 = &allocator2;
+        bslma::TestAllocator *Z0 = &allocator0;
+        bslma::TestAllocator *Z1 = &allocator1;
+        bslma::TestAllocator *Z2 = &allocator2;
 
-        bslma_DefaultAllocatorGuard allocGuard(Z0);
+        bslma::DefaultAllocatorGuard allocGuard(Z0);
 
         {
             Obj mX(Z1);  const Obj& X = mX;
@@ -865,7 +964,8 @@ int main(int argc, char *argv[])
             int         errorOffset;
 
             const char PATTERN[]         = "(?P<pkgName>[a-z]+)_([A-Za-z]+)";
-            const char SUBPATTERN_NAME[] = "pkgName";
+            // TBD
+            // const char SUBPATTERN_NAME[] = "pkgName";
 
             ASSERT(0 == mX.prepare(&errorMsg,
                                    &errorOffset,
@@ -1916,7 +2016,7 @@ int main(int argc, char *argv[])
         //   scope.
         //
         // Testing:
-        //   bdepcre_RegEx(bslma_Allocator *basicAllocator);
+        //   bdepcre_RegEx(bslma::Allocator *basicAllocator);
         //   ~bdepcre_RegEx();
         //   void clear();
         //   int prepare(const char *pattern, int flags, ...);

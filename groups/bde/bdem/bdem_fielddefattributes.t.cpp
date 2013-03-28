@@ -99,7 +99,7 @@ typedef bdem_FieldDefAttributes Obj;
 
 typedef bdem_ElemRef            ERef;
 typedef bdem_ElemType           EType;
-typedef bsls_Types::Int64       Int64;
+typedef bsls::Types::Int64      Int64;
 
 //=============================================================================
 //                         HELPER DATA AND FUNCTIONS
@@ -122,7 +122,7 @@ const int             N02 = bdetu_Unset<int>::unsetValue();
 
 const Int64           A03 = -100;
 const Int64           B03 = -200;
-const Int64           N03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
+const Int64           N03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
 const float           A04 = -1.5;
 const float           B04 = -2.5;
@@ -245,8 +245,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
 // We start by creating a 'bdem_FieldDefAttributes' objects, for a couple
 // 'bdem' types:
 //..
-    bslma_Allocator *allocator = bslma_Default::allocator();
+    bslma::Allocator *allocator = bslma::Default::allocator();
     bdem_FieldDefAttributes    intType(bdem_ElemType::BDEM_INT,  allocator);
     bdem_FieldDefAttributes   listType(bdem_ElemType::BDEM_LIST, allocator);
 //..

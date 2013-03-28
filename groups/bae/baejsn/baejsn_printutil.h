@@ -7,17 +7,96 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a JSON printutil class.
+//@PURPOSE: Provide a utility for encoding simple types in the JSON format.
 //
 //@CLASSES:
-// baejsn_PrintUtil: JSON print utility class
+//  baejsn_PrintUtil: utility for printing simple types in JSON
 //
-//@SEE_ALSO: baejsn_decoder
+//@SEE_ALSO: baejsn_encoder, baejsn_parserutil
 //
-//@AUTHOR: Raymond Chiu (schiu49)
+//@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides utility functions for
-// encoding a 'bdeat' Simple type into JSON string.
+//@DESCRIPTION: This component provides utility functions for encoding a
+// 'bdeat' Simple type in the JSON format.  The primary method is 'printValue',
+// which encodes a specified object and is overloaded for all 'bdeat' Simple
+// types.  The following table describes the format in which various Simple
+// types are encoded.
+//..
+//  Simple Type          JSON Type  Notes
+//  -----------          ---------  -----
+//  char                 number
+//  unsigned char        number
+//  int                  number
+//  unsigned int         number
+//  bsls::Types::Int64   number
+//  bsls::Types::Uint64  number
+//  float                number
+//  double               number
+//  char *               string
+//  bsl::string          string
+//  bdet_Date            string     ISO 8601 format
+//  bdet_DateTz          string     ISO 8601 format
+//  bdet_Time            string     ISO 8601 format
+//  bdet_TimeTz          string     ISO 8601 format
+//  bdet_DatetimeTz      string     ISO 8601 format
+//  bdet_DatetimeTz      string     ISO 8601 format
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Encoding a Simple 'struct' into JSON
+///-----------------------------------------------
+// Suppose we want to serialize some data into JSON.
+//
+// First, we define a struct, 'Employee', to contain the data:
+//..
+//  struct Employee {
+//      const char *d_firstName;
+//      const char *d_lastName;
+//      int         d_age;
+//  };
+//..
+// Then, we create an 'Employee' object and populate it with data:
+//..
+//  Employee john;
+//  john.d_firstName = "John";
+//  john.d_lastName = "Doe";
+//  john.d_age = 20;
+//..
+//  Now, we create an output stream and manually construct the JSON string
+//  using 'baejsn_PrintUtil':
+//..
+//  bsl::ostringstream oss;
+//  oss << '{' << '\n';
+//  baejsn_PrintUtil::printValue(oss, "firstName");
+//  oss << ':';
+//  baejsn_PrintUtil::printValue(oss, john.d_firstName);
+//  oss << ',' << '\n';
+//  baejsn_PrintUtil::printValue(oss, "lastName");
+//  oss << ':';
+//  baejsn_PrintUtil::printValue(oss, john.d_lastName);
+//  oss << ',' << '\n';
+//  baejsn_PrintUtil::printValue(oss, "age");
+//  oss << ':';
+//  baejsn_PrintUtil::printValue(oss, john.d_age);
+//  oss << '\n' << '}';
+//..
+//  Finally, we print out the JSON string:
+//..
+//  if (verbose) {
+//      std::cout << oss.str();
+//  }
+//..
+//  The output should look like:
+//..
+//  {
+//  "firstName":"John",
+//  "lastName":"Doe",
+//  "age":20
+//  }
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -64,8 +143,10 @@ class bdet_DatetimeTz;
                         // class baejsn_PrintUtil
                         // ======================
 
-class baejsn_PrintUtil {
-  private:
+struct baejsn_PrintUtil {
+    // This 'struct' provides functions for printing objects to output streams
+    // in JSON format.
+
     // PRIVATE CLASS METHODS
     template <class TYPE>
     static int printDateAndTime(bsl::ostream& stream, const TYPE& value);
@@ -83,36 +164,39 @@ class baejsn_PrintUtil {
         // result to the specified 'stream'.
 
   public:
-    static int printValue(bsl::ostream& stream, bool value);
-    static int printValue(bsl::ostream& stream, short value);
-    static int printValue(bsl::ostream& stream, int value);
-    static int printValue(bsl::ostream& stream, bsls::Types::Int64 value);
-    static int printValue(bsl::ostream& stream, unsigned char value);
-    static int printValue(bsl::ostream& stream, unsigned short value);
-    static int printValue(bsl::ostream& stream, unsigned int value);
-    static int printValue(bsl::ostream& stream, bsls::Types::Uint64 value);
-    static int printValue(bsl::ostream& stream, float value);
-    static int printValue(bsl::ostream& stream, double value);
-    static int printValue(bsl::ostream& stream, const bsl::string & value);
-    static int printValue(bsl::ostream& stream, const char *value);
-    static int printValue(bsl::ostream& stream, char value);
-    static int printValue(bsl::ostream& stream, const bdet_Time& value);
-    static int printValue(bsl::ostream& stream, const bdet_Date& value);
-    static int printValue(bsl::ostream& stream, const bdet_Datetime& value);
-    static int printValue(bsl::ostream& stream, const bdet_TimeTz& value);
-    static int printValue(bsl::ostream& stream, const bdet_DateTz& value);
-    static int printValue(bsl::ostream& stream, const bdet_DatetimeTz& value);
+    // CLASS METHODS
+    static int printValue(bsl::ostream& stream, bool                    value);
+    static int printValue(bsl::ostream& stream, char                    value);
+    static int printValue(bsl::ostream& stream, signed char             value);
+    static int printValue(bsl::ostream& stream, unsigned char           value);
+    static int printValue(bsl::ostream& stream, short                   value);
+    static int printValue(bsl::ostream& stream, unsigned short          value);
+    static int printValue(bsl::ostream& stream, int                     value);
+    static int printValue(bsl::ostream& stream, unsigned int            value);
+    static int printValue(bsl::ostream& stream, bsls::Types::Int64      value);
+    static int printValue(bsl::ostream& stream, bsls::Types::Uint64     value);
+    static int printValue(bsl::ostream& stream, float                   value);
+    static int printValue(bsl::ostream& stream, double                  value);
+    static int printValue(bsl::ostream& stream, const char             *value);
+    static int printValue(bsl::ostream& stream, const bsl::string&      value);
+    static int printValue(bsl::ostream& stream, const bdet_Time&        value);
+    static int printValue(bsl::ostream& stream, const bdet_Date&        value);
+    static int printValue(bsl::ostream& stream, const bdet_Datetime&    value);
+    static int printValue(bsl::ostream& stream, const bdet_TimeTz&      value);
+    static int printValue(bsl::ostream& stream, const bdet_DateTz&      value);
+    static int printValue(bsl::ostream& stream, const bdet_DatetimeTz&  value);
         // Encode the specified 'value' into JSON format and output the result
-        // to the specified 'stream'.
+        // to the specified 'stream'.  Return 0 on success and a non-zero
+        // value otherwise.
 };
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                            // ----------------------
-                            // class baejsn_PrintUtil
-                            // ----------------------
+                            // -----------------------
+                            // struct baejsn_PrintUtil
+                            // -----------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>
@@ -224,7 +308,10 @@ int baejsn_PrintUtil::printValue(bsl::ostream& stream, const char *value)
 inline
 int baejsn_PrintUtil::printValue(bsl::ostream& stream, char value)
 {
-    return printString(stream, bslstl::StringRef(&value, 1));
+    signed char tmp(value);  // Note that 'char' is unsigned on IBM.
+
+    stream << static_cast<int>(tmp);
+    return 0;
 }
 
 inline

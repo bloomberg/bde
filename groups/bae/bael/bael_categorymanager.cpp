@@ -42,16 +42,17 @@ class bael_Category_Proctor {
     // management for 'bael_Category' objects.
 
     // DATA
-    bael_Category   *d_category_p;    // category object to delete on failure
+    bael_Category    *d_category_p;    // category object to delete on failure
 
-    CategoryVector  *d_categories_p;  // category collection to rollback on
-                                      // failure
+    CategoryVector   *d_categories_p;  // category collection to rollback on
+                                       // failure
 
-    bslma_Allocator *d_allocator_p;   // allocator for the category object
+    bslma::Allocator *d_allocator_p;   // allocator for the category object
 
   public:
     // CREATORS
-    bael_Category_Proctor(bael_Category *category, bslma_Allocator *allocator);
+    bael_Category_Proctor(bael_Category    *category,
+                          bslma::Allocator *allocator);
         // Create a proctor to rollback the owned objects to its initial state
         // if any of the steps during the creation and registering of the
         // category object fails.  The owned objects are: the category object
@@ -72,8 +73,8 @@ class bael_Category_Proctor {
 
 // CREATORS
 inline
-bael_Category_Proctor::bael_Category_Proctor(bael_Category   *category,
-                                             bslma_Allocator *allocator)
+bael_Category_Proctor::bael_Category_Proctor(bael_Category    *category,
+                                             bslma::Allocator *allocator)
 : d_category_p(category)
 , d_categories_p(0)
 , d_allocator_p(allocator)
@@ -112,12 +113,12 @@ void bael_Category_Proctor::release()
                             // -------------------
 
 // PRIVATE CREATORS
-bael_Category::bael_Category(const char      *categoryName,
-                             int              recordLevel,
-                             int              passLevel,
-                             int              triggerLevel,
-                             int              triggerAllLevel,
-                             bslma_Allocator *basicAllocator)
+bael_Category::bael_Category(const char       *categoryName,
+                             int               recordLevel,
+                             int               passLevel,
+                             int               triggerLevel,
+                             int               triggerAllLevel,
+                             bslma::Allocator *basicAllocator)
     // Note that this constructor is private, so the validation of the
     // threshold level values does not need to be repeated here.  They are
     // validated in 'bael_CategoryManager::addCategory', prior to creating an

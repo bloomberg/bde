@@ -33,8 +33,8 @@ BDES_IDENT("$Id: $")
 // The supported types and required content are listed in the table below.  All
 // of the fundamental types in the table may be output as scalar values or as
 // homogeneous arrays.  'bsl::string' is output as a logical scalar string.
-// Note that 'Int64' and 'Uint64' denote 'bsls_PlatformUtil::Int64' and
-// 'bsls_PlatformUtil::Uint64', which in turn are 'typedef' names for the
+// Note that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
+// 'bsls::Types::Uint64', which in turn are 'typedef' names for the
 // signed and unsigned 64-bit integer types, respectively, on the host
 // platform.
 //..
@@ -144,8 +144,12 @@ BDES_IDENT("$Id: $")
 #include <bdex_byteoutstreamformatter.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -160,9 +164,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -228,42 +235,42 @@ class bdex_TestOutStreamFormatter {
 
                         // *** scalar integer values ***
 
-    bdex_TestOutStreamFormatter& putInt64(bsls_PlatformUtil::Int64 value);
+    bdex_TestOutStreamFormatter& putInt64(bsls::Types::Int64 value);
         // Format as a signed integer the least significant 64 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_TestOutStreamFormatter& putUint64(bsls_PlatformUtil::Int64 value);
+    bdex_TestOutStreamFormatter& putUint64(bsls::Types::Int64 value);
         // Format as an unsigned integer the least significant 64 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_TestOutStreamFormatter& putInt56(bsls_PlatformUtil::Int64 value);
+    bdex_TestOutStreamFormatter& putInt56(bsls::Types::Int64 value);
         // Format as a signed integer the least significant 56 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_TestOutStreamFormatter& putUint56(bsls_PlatformUtil::Int64 value);
+    bdex_TestOutStreamFormatter& putUint56(bsls::Types::Int64 value);
         // Format as an unsigned integer the least significant 56 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_TestOutStreamFormatter& putInt48(bsls_PlatformUtil::Int64 value);
+    bdex_TestOutStreamFormatter& putInt48(bsls::Types::Int64 value);
         // Format as a signed integer the least significant 48 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_TestOutStreamFormatter& putUint48(bsls_PlatformUtil::Int64 value);
+    bdex_TestOutStreamFormatter& putUint48(bsls::Types::Int64 value);
         // Format as an unsigned integer the least significant 48 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_TestOutStreamFormatter& putInt40(bsls_PlatformUtil::Int64 value);
+    bdex_TestOutStreamFormatter& putInt40(bsls::Types::Int64 value);
         // Format as a signed integer the least significant 40 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
 
-    bdex_TestOutStreamFormatter& putUint40(bsls_PlatformUtil::Int64 value);
+    bdex_TestOutStreamFormatter& putUint40(bsls::Types::Int64 value);
         // Format as an unsigned integer the least significant 40 bits of the
         // specified 'value' to this output stream and return a reference to
         // this modifiable stream.
@@ -327,7 +334,7 @@ class bdex_TestOutStreamFormatter {
                         // *** arrays of integer values ***
 
     bdex_TestOutStreamFormatter&
-    putArrayInt64(const bsls_PlatformUtil::Int64 *array, int count);
+    putArrayInt64(const bsls::Types::Int64 *array, int count);
         // Format as an atomic sequence of signed integers the least
         // significant 64 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -335,7 +342,7 @@ class bdex_TestOutStreamFormatter {
         // unless '0 <= count'.
 
     bdex_TestOutStreamFormatter&
-    putArrayUint64(const bsls_PlatformUtil::Uint64 *array, int count);
+    putArrayUint64(const bsls::Types::Uint64 *array, int count);
         // Format as an atomic sequence of unsigned integers the least
         // significant 64 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -343,7 +350,7 @@ class bdex_TestOutStreamFormatter {
         // unless '0 <= count'.
 
     bdex_TestOutStreamFormatter&
-    putArrayInt56(const bsls_PlatformUtil::Int64 *array, int count);
+    putArrayInt56(const bsls::Types::Int64 *array, int count);
         // Format as an atomic sequence of signed integers the least
         // significant 56 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -351,7 +358,7 @@ class bdex_TestOutStreamFormatter {
         // unless '0 <= count'.
 
     bdex_TestOutStreamFormatter&
-    putArrayUint56(const bsls_PlatformUtil::Uint64 *array, int count);
+    putArrayUint56(const bsls::Types::Uint64 *array, int count);
         // Format as an atomic sequence of unsigned integers the least
         // significant 56 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -359,7 +366,7 @@ class bdex_TestOutStreamFormatter {
         // unless '0 <= count'.
 
     bdex_TestOutStreamFormatter&
-    putArrayInt48(const bsls_PlatformUtil::Int64 *array, int count);
+    putArrayInt48(const bsls::Types::Int64 *array, int count);
         // Format as an atomic sequence of signed integers the least
         // significant 48 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -367,7 +374,7 @@ class bdex_TestOutStreamFormatter {
         // unless '0 <= count'.
 
     bdex_TestOutStreamFormatter&
-    putArrayUint48(const bsls_PlatformUtil::Uint64 *array, int count);
+    putArrayUint48(const bsls::Types::Uint64 *array, int count);
         // Format as an atomic sequence of unsigned integers the least
         // significant 48 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -375,7 +382,7 @@ class bdex_TestOutStreamFormatter {
         // unless '0 <= count'.
 
     bdex_TestOutStreamFormatter&
-    putArrayInt40(const bsls_PlatformUtil::Int64 *array, int count);
+    putArrayInt40(const bsls::Types::Int64 *array, int count);
         // Format as an atomic sequence of signed integers the least
         // significant 40 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a
@@ -383,7 +390,7 @@ class bdex_TestOutStreamFormatter {
         // unless '0 <= count'.
 
     bdex_TestOutStreamFormatter&
-    putArrayUint40(const bsls_PlatformUtil::Uint64 *array, int count);
+    putArrayUint40(const bsls::Types::Uint64 *array, int count);
         // Format as an atomic sequence of unsigned integers the least
         // significant 40 bits of each of the specified 'count' leading entries
         // in the specified 'array' to this output stream and return a

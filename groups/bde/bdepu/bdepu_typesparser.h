@@ -344,8 +344,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_CCTYPE
@@ -363,6 +363,13 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -776,10 +783,10 @@ struct bdepu_TypesParser {
         //      a <INT>.
         //..
 
-    static int parseInt64(const char               **endPos,
-                          bsls_PlatformUtil::Int64  *result,
-                          const char                *inputString,
-                          int                        base = 10);
+    static int parseInt64(const char         **endPos,
+                          bsls::Types::Int64  *result,
+                          const char          *inputString,
+                          int                  base = 10);
         // Parse the specified 'inputString' (ignoring any leading whitespace)
         // for the maximal sequence of characters forming a valid <INT64>
         // in the optionally specified 'base', and place into the specified
@@ -799,10 +806,9 @@ struct bdepu_TypesParser {
         //      in 'base'.
         //..
 
-    static int parseInt64Array(
-                          const char                            **endPos,
-                          bsl::vector<bsls_PlatformUtil::Int64>  *result,
-                          const char                             *inputString);
+    static int parseInt64Array(const char                      **endPos,
+                               bsl::vector<bsls::Types::Int64>  *result,
+                               const char                       *inputString);
         // Parse the specified 'inputString' (ignoring any leading whitespace)
         // for a sequence of characters matching the production rule
         // <INT64_ARRAY> and place into the specified 'result' the
@@ -1709,38 +1715,38 @@ struct bdepu_TypesParser {
         // Note that 'value' is emitted in a form parsable by the
         // corresponding 'parseIntArray' function.
 
-    static void generateInt64(bsl::vector<char>        *buffer,
-                              bsls_PlatformUtil::Int64  value,
-                              int                       level = 0,
-                              int                       spacesPerLevel = 4);
+    static void generateInt64(bsl::vector<char>  *buffer,
+                              bsls::Types::Int64  value,
+                              int                 level = 0,
+                              int                 spacesPerLevel = 4);
         // Format the specified 'value' using the optionally specified
         // indentation 'level' and 'spacesPerLevel', and append the result to
         // the specified 'buffer' while maintaining (or adding if not present)
         // null-character termination.  When 'level' is positive, indent the
-        // 'bsls_PlatformUtil::Int64' by ('level' * 'spacesPerLevel') spaces.
+        // 'bsls::Types::Int64' by ('level' * 'spacesPerLevel') spaces.
         // A negative 'level' suppresses indentation.  The behavior is
         // undefined if 0 == 'buffer' or 'spacesPerLevel' < 0.  Note that
         // 'value' is emitted in a form parsable by the corresponding
         // 'parseInt64' function.
 
-    static void generateInt64Raw(bsl::vector<char>        *buffer,
-                                 bsls_PlatformUtil::Int64  value,
-                                 int                       level = 0,
-                                 int                       spacesPerLevel = 4);
+    static void generateInt64Raw(bsl::vector<char>  *buffer,
+                                 bsls::Types::Int64  value,
+                                 int                 level = 0,
+                                 int                 spacesPerLevel = 4);
         // Format the specified 'value' using the optionally specified
         // indentation 'level' and 'spacesPerLevel', and append the result to
         // the specified 'buffer'.  When 'level' is positive, indent the
-        // 'bsls_PlatformUtil::Int64' by ('level' * 'spacesPerLevel') spaces.
+        // 'bsls::Types::Int64' by ('level' * 'spacesPerLevel') spaces.
         // A negative 'level' suppresses indentation.  The behavior is
         // undefined if 0 == 'buffer' or 'spacesPerLevel' < 0.  Note that
         // 'value' is emitted in a form parsable by the corresponding
         // 'parseInt64' function.
 
     static void generateInt64Array(
-             bsl::vector<char>                            *buffer,
-             const bsl::vector<bsls_PlatformUtil::Int64>&  value,
-             int                                           level = 0,
-             int                                           spacesPerLevel = 4);
+                   bsl::vector<char>                      *buffer,
+                   const bsl::vector<bsls::Types::Int64>&  value,
+                   int                                     level = 0,
+                   int                                     spacesPerLevel = 4);
         // Format the specified 'value' using the optionally specified
         // indentation 'level' and 'spacesPerLevel', and append the result to
         // the specified 'buffer' while maintaining (or adding if not present)
@@ -1755,10 +1761,10 @@ struct bdepu_TypesParser {
         // corresponding 'parseInt64Array' function.
 
     static void generateInt64ArrayRaw(
-             bsl::vector<char>                            *buffer,
-             const bsl::vector<bsls_PlatformUtil::Int64>&  value,
-             int                                           level = 0,
-             int                                           spacesPerLevel = 4);
+                   bsl::vector<char>                      *buffer,
+                   const bsl::vector<bsls::Types::Int64>&  value,
+                   int                                     level = 0,
+                   int                                     spacesPerLevel = 4);
         // Format the specified 'value' using the optionally specified
         // indentation 'level' and 'spacesPerLevel', and append the result to
         // the specified 'buffer'.  When 'level' is positive, both the
@@ -2460,11 +2466,10 @@ void bdepu_TypesParser::generateIntArray(
 }
 
 inline
-void bdepu_TypesParser::generateInt64Raw(
-                                      bsl::vector<char>        *buffer,
-                                      bsls_PlatformUtil::Int64  value,
-                                      int                       level,
-                                      int                       spacesPerLevel)
+void bdepu_TypesParser::generateInt64Raw(bsl::vector<char>  *buffer,
+                                         bsls::Types::Int64  value,
+                                         int                 level,
+                                         int                 spacesPerLevel)
 {
     BSLS_ASSERT_SAFE(buffer);
 
@@ -2477,11 +2482,10 @@ void bdepu_TypesParser::generateInt64Raw(
 }
 
 inline
-void bdepu_TypesParser::generateInt64(
-                                      bsl::vector<char>        *buffer,
-                                      bsls_PlatformUtil::Int64  value,
-                                      int                       level,
-                                      int                       spacesPerLevel)
+void bdepu_TypesParser::generateInt64(bsl::vector<char>  *buffer,
+                                      bsls::Types::Int64  value,
+                                      int                 level,
+                                      int                 spacesPerLevel)
 {
     BSLS_ASSERT_SAFE(buffer);
 
@@ -2492,10 +2496,10 @@ void bdepu_TypesParser::generateInt64(
 
 inline
 void bdepu_TypesParser::generateInt64Array(
-                  bsl::vector<char>                            *buffer,
-                  const bsl::vector<bsls_PlatformUtil::Int64>&  value,
-                  int                                           level,
-                  int                                           spacesPerLevel)
+                        bsl::vector<char>                      *buffer,
+                        const bsl::vector<bsls::Types::Int64>&  value,
+                        int                                     level,
+                        int                                     spacesPerLevel)
 {
     BSLS_ASSERT_SAFE(buffer);
 
@@ -2973,10 +2977,10 @@ int bdepu_TypesParser::parseIntArray(const char       **endPos,
 }
 
 inline
-int bdepu_TypesParser::parseInt64(const char               **endPos,
-                                  bsls_PlatformUtil::Int64  *result,
-                                  const char                *inputString,
-                                  int                        base)
+int bdepu_TypesParser::parseInt64(const char         **endPos,
+                                  bsls::Types::Int64  *result,
+                                  const char          *inputString,
+                                  int                  base)
 {
     BSLS_ASSERT_SAFE(endPos);
     BSLS_ASSERT_SAFE(result);
@@ -2993,9 +2997,9 @@ int bdepu_TypesParser::parseInt64(const char               **endPos,
 
 inline
 int bdepu_TypesParser::parseInt64Array(
-                           const char                            **endPos,
-                           bsl::vector<bsls_PlatformUtil::Int64>  *result,
-                           const char                             *inputString)
+                                 const char                      **endPos,
+                                 bsl::vector<bsls::Types::Int64>  *result,
+                                 const char                       *inputString)
 {
     BSLS_ASSERT_SAFE(endPos);
     BSLS_ASSERT_SAFE(result);

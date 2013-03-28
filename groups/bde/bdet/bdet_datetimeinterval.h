@@ -123,8 +123,8 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -138,6 +138,13 @@ BDES_IDENT("$Id: $")
 #endif
 
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -159,7 +166,7 @@ class bdet_DatetimeInterval {
     // an object as both source and destination) is supported in all cases.
 
     // DATA
-    bsls_PlatformUtil::Int64 d_milliseconds;  // interval in (signed) msec.
+    bsls::Types::Int64 d_milliseconds;  // interval in (signed) msec.
 
     // FRIENDS
     friend bdet_DatetimeInterval operator+(const bdet_DatetimeInterval&,
@@ -190,7 +197,7 @@ class bdet_DatetimeInterval {
     };
 
     // PRIVATE CREATORS
-    explicit bdet_DatetimeInterval(bsls_PlatformUtil::Int64 milliseconds);
+    explicit bdet_DatetimeInterval(bsls::Types::Int64 milliseconds);
         // Create a time interval object having the value of the specified
         // 'milliseconds'.  Note that this private creator is an implementation
         // detail of 'operator+' and 'operator-', which would be unduly
@@ -199,7 +206,7 @@ class bdet_DatetimeInterval {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdet_DatetimeInterval,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -211,11 +218,11 @@ class bdet_DatetimeInterval {
     bdet_DatetimeInterval();
         // Create a time interval object having the value zero.
 
-    explicit bdet_DatetimeInterval(int                      days,
-                                   bsls_PlatformUtil::Int64 hours        = 0,
-                                   bsls_PlatformUtil::Int64 minutes      = 0,
-                                   bsls_PlatformUtil::Int64 seconds      = 0,
-                                   bsls_PlatformUtil::Int64 milliseconds = 0);
+    explicit bdet_DatetimeInterval(int                days,
+                                   bsls::Types::Int64 hours        = 0,
+                                   bsls::Types::Int64 minutes      = 0,
+                                   bsls::Types::Int64 seconds      = 0,
+                                   bsls::Types::Int64 milliseconds = 0);
         // Create a time interval object having the value given by the
         // specified 'days' and the optionally specified 'hours', 'minutes',
         // 'seconds' and 'milliseconds'.  Unspecified fields default to zero.
@@ -250,11 +257,11 @@ class bdet_DatetimeInterval {
         // Subtract from this time interval the value of the specified 'rhs'
         // time interval and return a reference to this object.
 
-    void setInterval(int                      days,
-                     bsls_PlatformUtil::Int64 hours        = 0,
-                     bsls_PlatformUtil::Int64 minutes      = 0,
-                     bsls_PlatformUtil::Int64 seconds      = 0,
-                     bsls_PlatformUtil::Int64 milliseconds = 0);
+    void setInterval(int                days,
+                     bsls::Types::Int64 hours        = 0,
+                     bsls::Types::Int64 minutes      = 0,
+                     bsls::Types::Int64 seconds      = 0,
+                     bsls::Types::Int64 milliseconds = 0);
         // Set the field values of this object to the specified 'days'
         // and the optionally specified 'hours', 'minutes', 'seconds', and
         // 'milliseconds' values.  Unspecified fields default to zero.  The
@@ -267,35 +274,35 @@ class bdet_DatetimeInterval {
         // Set the overall value of this object to indicate the specified
         // number of 'days'.
 
-    void setTotalHours(bsls_PlatformUtil::Int64 hours);
+    void setTotalHours(bsls::Types::Int64 hours);
         // Set the overall value of this object to indicate the specified
         // number of 'hours'.  The behavior is undefined unless the resulting
         // time interval value is valid (i.e., the 'days' field must not
         // overflow a 32-bit integer).
 
-    void setTotalMinutes(bsls_PlatformUtil::Int64 minutes);
+    void setTotalMinutes(bsls::Types::Int64 minutes);
         // Set the overall value of this object to indicate the specified
         // number of 'minutes'.  The behavior is undefined unless the resulting
         // time interval value is valid (i.e., the 'days' field must not
         // overflow a 32-bit integer).
 
-    void setTotalSeconds(bsls_PlatformUtil::Int64 seconds);
+    void setTotalSeconds(bsls::Types::Int64 seconds);
         // Set the overall value of this object to indicate the specified
         // number of 'seconds'.  The behavior is undefined unless the resulting
         // time interval value is valid (i.e., the 'days' field must not
         // overflow a 32-bit integer).
 
-    void setTotalMilliseconds(bsls_PlatformUtil::Int64 milliseconds);
+    void setTotalMilliseconds(bsls::Types::Int64 milliseconds);
         // Set the overall value of this object to indicate the specified
         // number of 'milliseconds'.  The behavior is undefined unless the
         // resulting time interval value is valid (i.e., the 'days' field must
         // not overflow a 32-bit integer).
 
-    void addInterval(int                      days,
-                     bsls_PlatformUtil::Int64 hours        = 0,
-                     bsls_PlatformUtil::Int64 minutes      = 0,
-                     bsls_PlatformUtil::Int64 seconds      = 0,
-                     bsls_PlatformUtil::Int64 milliseconds = 0);
+    void addInterval(int                days,
+                     bsls::Types::Int64 hours        = 0,
+                     bsls::Types::Int64 minutes      = 0,
+                     bsls::Types::Int64 seconds      = 0,
+                     bsls::Types::Int64 milliseconds = 0);
         // Add to this time interval the specified number of 'days', and the
         // optionally specified number of 'hours', 'minutes', 'seconds', and
         // 'milliseconds'.  The behavior is undefined unless the resulting time
@@ -310,25 +317,25 @@ class bdet_DatetimeInterval {
         // valid (i.e., the 'days' field must not overflow a 32-bit integer),
         // but otherwise 'days' may have any valid integer value.
 
-    void addHours(bsls_PlatformUtil::Int64 hours);
+    void addHours(bsls::Types::Int64 hours);
         // Add to this time interval the specified number of 'hours'.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the 'days' field must not overflow a 32-bit integer),
         // but otherwise 'hours' may have any value.
 
-    void addMinutes(bsls_PlatformUtil::Int64 minutes);
+    void addMinutes(bsls::Types::Int64 minutes);
         // Add to this time interval the specified number of 'minutes'.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the 'days' field must not overflow a 32-bit integer),
         // but otherwise 'minutes' may have any value.
 
-    void addSeconds(bsls_PlatformUtil::Int64 seconds);
+    void addSeconds(bsls::Types::Int64 seconds);
         // Add to this time interval the specified number of 'seconds'.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the 'days' field must not overflow a 32-bit integer),
         // but otherwise 'seconds' may have any valid integer value.
 
-    void addMilliseconds(bsls_PlatformUtil::Int64 milliseconds);
+    void addMilliseconds(bsls::Types::Int64 milliseconds);
         // Add to this time interval the specified number of 'milliseconds'.
         // The behavior is undefined unless the resulting time interval value
         // is valid (i.e., the 'days' field must not overflow a 32-bit
@@ -372,15 +379,15 @@ class bdet_DatetimeInterval {
         // Return the value of this time interval in integer days, rounded
         // towards zero.  Note that the return value may be negative.
 
-    bsls_PlatformUtil::Int64 totalHours() const;
+    bsls::Types::Int64 totalHours() const;
         // Return the value of this time interval in integer hours, rounded
         // towards zero.  Note that the return value may be negative.
 
-    bsls_PlatformUtil::Int64 totalMinutes() const;
+    bsls::Types::Int64 totalMinutes() const;
         // Return the value of this time interval in integer minutes, rounded
         // towards zero.  Note that the return value may be negative.
 
-    bsls_PlatformUtil::Int64 totalSeconds() const;
+    bsls::Types::Int64 totalSeconds() const;
         // Return the value of this time interval in integer seconds, rounded
         // towards zero.  Note that the return value may be negative.
 
@@ -390,7 +397,7 @@ class bdet_DatetimeInterval {
         // may be negative.  Also note that the conversion from the internal
         // representation to double may *lose* precision.
 
-    bsls_PlatformUtil::Int64 totalMilliseconds() const;
+    bsls::Types::Int64 totalMilliseconds() const;
         // Return the value of this time interval in integer milliseconds,
         // rounded towards zero.  Note that the return value may be negative.
 
@@ -493,8 +500,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 
 // PRIVATE CREATORS
 inline
-bdet_DatetimeInterval::bdet_DatetimeInterval(
-                                         bsls_PlatformUtil::Int64 milliseconds)
+bdet_DatetimeInterval::bdet_DatetimeInterval(bsls::Types::Int64 milliseconds)
 : d_milliseconds(milliseconds)
 {
 }
@@ -514,17 +520,16 @@ bdet_DatetimeInterval::bdet_DatetimeInterval()
 }
 
 inline
-bdet_DatetimeInterval::bdet_DatetimeInterval(
-                                         int                      days,
-                                         bsls_PlatformUtil::Int64 hours,
-                                         bsls_PlatformUtil::Int64 minutes,
-                                         bsls_PlatformUtil::Int64 seconds,
-                                         bsls_PlatformUtil::Int64 milliseconds)
+bdet_DatetimeInterval::bdet_DatetimeInterval(int                days,
+                                             bsls::Types::Int64 hours,
+                                             bsls::Types::Int64 minutes,
+                                             bsls::Types::Int64 seconds,
+                                             bsls::Types::Int64 milliseconds)
 : d_milliseconds(milliseconds
                + seconds * BDET_MSEC_PER_SEC
                + minutes * BDET_MSEC_PER_MIN
                + hours   * BDET_MSEC_PER_HR
-               + (bsls_PlatformUtil::Int64)days * BDET_MSEC_PER_DAY)
+               + (bsls::Types::Int64)days * BDET_MSEC_PER_DAY)
 {
 }
 
@@ -561,91 +566,91 @@ bdet_DatetimeInterval::operator-=(const bdet_DatetimeInterval& rhs)
 }
 
 inline
-void bdet_DatetimeInterval::setInterval(int                      days,
-                                        bsls_PlatformUtil::Int64 hours,
-                                        bsls_PlatformUtil::Int64 minutes,
-                                        bsls_PlatformUtil::Int64 seconds,
-                                        bsls_PlatformUtil::Int64 milliseconds)
+void bdet_DatetimeInterval::setInterval(int                days,
+                                        bsls::Types::Int64 hours,
+                                        bsls::Types::Int64 minutes,
+                                        bsls::Types::Int64 seconds,
+                                        bsls::Types::Int64 milliseconds)
 {
     d_milliseconds = milliseconds
                    + seconds * BDET_MSEC_PER_SEC
                    + minutes * BDET_MSEC_PER_MIN
                    + hours   * BDET_MSEC_PER_HR
-                   + (bsls_PlatformUtil::Int64)days * BDET_MSEC_PER_DAY;
+                   + (bsls::Types::Int64)days * BDET_MSEC_PER_DAY;
 }
 
 inline
 void bdet_DatetimeInterval::setTotalDays(int days)
 {
-    d_milliseconds = (bsls_PlatformUtil::Int64)days * BDET_MSEC_PER_DAY;
+    d_milliseconds = (bsls::Types::Int64)days * BDET_MSEC_PER_DAY;
 }
 
 inline
-void bdet_DatetimeInterval::setTotalHours(bsls_PlatformUtil::Int64 hours)
+void bdet_DatetimeInterval::setTotalHours(bsls::Types::Int64 hours)
 {
     d_milliseconds = hours * BDET_MSEC_PER_HR;
 }
 
 inline
-void bdet_DatetimeInterval::setTotalMinutes(bsls_PlatformUtil::Int64 minutes)
+void bdet_DatetimeInterval::setTotalMinutes(bsls::Types::Int64 minutes)
 {
     d_milliseconds = minutes * BDET_MSEC_PER_MIN;
 }
 
 inline
-void bdet_DatetimeInterval::setTotalSeconds(bsls_PlatformUtil::Int64 seconds)
+void bdet_DatetimeInterval::setTotalSeconds(bsls::Types::Int64 seconds)
 {
     d_milliseconds = seconds * BDET_MSEC_PER_SEC;
 }
 
 inline
 void bdet_DatetimeInterval::setTotalMilliseconds(
-                                         bsls_PlatformUtil::Int64 milliseconds)
+                                               bsls::Types::Int64 milliseconds)
 {
     d_milliseconds = milliseconds;
 }
 
 inline
-void bdet_DatetimeInterval::addInterval(int                      days,
-                                        bsls_PlatformUtil::Int64 hours,
-                                        bsls_PlatformUtil::Int64 minutes,
-                                        bsls_PlatformUtil::Int64 seconds,
-                                        bsls_PlatformUtil::Int64 milliseconds)
+void bdet_DatetimeInterval::addInterval(int                days,
+                                        bsls::Types::Int64 hours,
+                                        bsls::Types::Int64 minutes,
+                                        bsls::Types::Int64 seconds,
+                                        bsls::Types::Int64 milliseconds)
 {
     d_milliseconds += milliseconds
                     + seconds * BDET_MSEC_PER_SEC
                     + minutes * BDET_MSEC_PER_MIN
                     + hours   * BDET_MSEC_PER_HR
-                    + (bsls_PlatformUtil::Int64)days * BDET_MSEC_PER_DAY;
+                    + (bsls::Types::Int64)days * BDET_MSEC_PER_DAY;
 }
 
 inline
 void bdet_DatetimeInterval::addDays(int days)
 {
-    d_milliseconds += (bsls_PlatformUtil::Int64)days * BDET_MSEC_PER_DAY;
+    d_milliseconds += (bsls::Types::Int64)days * BDET_MSEC_PER_DAY;
 }
 
 inline
-void bdet_DatetimeInterval::addHours(bsls_PlatformUtil::Int64 hours)
+void bdet_DatetimeInterval::addHours(bsls::Types::Int64 hours)
 {
     d_milliseconds += hours * BDET_MSEC_PER_HR;
 }
 
 inline
-void bdet_DatetimeInterval::addMinutes(bsls_PlatformUtil::Int64 minutes)
+void bdet_DatetimeInterval::addMinutes(bsls::Types::Int64 minutes)
 {
     d_milliseconds += minutes * BDET_MSEC_PER_MIN;
 }
 
 inline
-void bdet_DatetimeInterval::addSeconds(bsls_PlatformUtil::Int64 seconds)
+void bdet_DatetimeInterval::addSeconds(bsls::Types::Int64 seconds)
 {
     d_milliseconds += seconds * BDET_MSEC_PER_SEC;
 }
 
 inline
 void
-bdet_DatetimeInterval::addMilliseconds(bsls_PlatformUtil::Int64 milliseconds)
+bdet_DatetimeInterval::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
     d_milliseconds += milliseconds;
 }
@@ -707,19 +712,19 @@ int bdet_DatetimeInterval::totalDays() const
 }
 
 inline
-bsls_PlatformUtil::Int64 bdet_DatetimeInterval::totalHours() const
+bsls::Types::Int64 bdet_DatetimeInterval::totalHours() const
 {
     return d_milliseconds / BDET_MSEC_PER_HR;
 }
 
 inline
-bsls_PlatformUtil::Int64 bdet_DatetimeInterval::totalMinutes() const
+bsls::Types::Int64 bdet_DatetimeInterval::totalMinutes() const
 {
     return d_milliseconds / BDET_MSEC_PER_MIN;
 }
 
 inline
-bsls_PlatformUtil::Int64 bdet_DatetimeInterval::totalSeconds() const
+bsls::Types::Int64 bdet_DatetimeInterval::totalSeconds() const
 {
     return d_milliseconds / BDET_MSEC_PER_SEC;
 }
@@ -731,7 +736,7 @@ double bdet_DatetimeInterval::totalSecondsAsDouble() const
 }
 
 inline
-bsls_PlatformUtil::Int64 bdet_DatetimeInterval::totalMilliseconds() const
+bsls::Types::Int64 bdet_DatetimeInterval::totalMilliseconds() const
 {
     return d_milliseconds;
 }

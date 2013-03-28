@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bdema_DefaultAllocatorGuard: default-allocator scoped guard
 //
-//@SEE_ALSO: bdema_allocator, bdema_default
+//@SEE_ALSO: bslma_allocator, bslma_default
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
@@ -24,8 +24,8 @@ BDES_IDENT("$Id: $")
 // functionality is intended for *testing* only, and in no event should this
 // component be used except in 'main'.
 //
-// The guard object takes as its constructor
-// argument the address of an object of a class derived from 'bdema_Allocator'.
+// The guard object takes as its constructor argument the address of an object
+// of a class derived from 'bslma::Allocator'.
 // The default allocator at the time of guard construction is held by the
 // guard, and the constructor-argument allocator is installed as the new
 // process-wide default allocator (via a call to
@@ -49,7 +49,7 @@ BDES_IDENT("$Id: $")
 // memory blocks that have been allocated but never deallocated.  (Note that,
 // in testing real production code, 'bdema_TestAllocator' serves this purpose.)
 //..
-//    class my_CountingAllocator : public bdema_Allocator
+//    class my_CountingAllocator : public bslma::Allocator
 //    {
 //        int d_blocksOutstanding;
 //      public:
@@ -94,8 +94,8 @@ BDES_IDENT("$Id: $")
 //    }
 //..
 // We may now write a test driver for some component that uses a
-// 'bdema_Allocator' and the 'bdema_Default' mechanism.  First, we confirm that
-// the 'bdema_NewDeleteAllocator' singleton is indeed installed.
+// 'bslma::Allocator' and the 'bdema_Default' mechanism.  First, we confirm
+// that the 'bdema_NewDeleteAllocator' singleton is indeed installed.
 //..
 //    //my_component.t.cpp
 //
@@ -139,7 +139,7 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-typedef bslma_DefaultAllocatorGuard bdema_DefaultAllocatorGuard;
+typedef bslma::DefaultAllocatorGuard bdema_DefaultAllocatorGuard;
     // Upon construction, an object of this class saves the current default
     // allocator and installs the user-specified allocator as the default
     // allocator.  On destruction, the original default allocator is restored.

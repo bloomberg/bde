@@ -19,7 +19,7 @@ else ifeq ($(UNAME),Linux)
 else
  $(error Unsupported platform $(UNAME))
 endif
-GROUPS_STATIC_ONLY:=bae bce bde bte
+GROUPS_STATIC_ONLY:=bae bce bde bte bbe
 GROUPS_RSSUITE:=bsl
 GROUPS:=$(GROUPS_STATIC_ONLY) $(GROUPS_RSSUITE)
 DEFAULT_STATIC_FLAVOR_32bit:=opt_exc_mt
@@ -37,7 +37,7 @@ space:= $(empty) $(empty)
 
 clean:
 	cat debian/control.in | perl -pi -e 's/\$$\{shlib\:RSSUITE\}/$(RSSUITE)/g' > debian/control
-	rm -rf debian/lib{bae,bce,bde,bsl,bte}-dev debian/libbsl-rs debian/bde-core-bdemeta
+	rm -rf debian/lib{bae,bce,bde,bsl,bte,bbe}-dev debian/libbsl-rs debian/bde-core-bdemeta
 	rm -f debian/*files debian/files
 	rm -f debian/build-stamp
 	rm -f debian/binary-stamp

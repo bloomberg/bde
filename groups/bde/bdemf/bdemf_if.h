@@ -116,15 +116,15 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_If
-#define bdemf_If   bslmf_If
+#define bdemf_If   bslmf::If
     // This meta-function selects 'IF_TRUE_TYPE' if 'CONDITION' is non-zero.
 #endif
 
 #ifndef bdemf_if
-#define bdemf_if   bslmf_If
+#define bdemf_if   bslmf::If
     // This meta-function selects 'IF_TRUE_TYPE' if 'CONDITION' is non-zero.
     //
-    // DEPRECATED: Replaced by 'bslmf_If' (note the uppercase "I").
+    // DEPRECATED: Replaced by 'bslmf::If' (note the uppercase "I").
 #endif
 
 namespace BloombergLP {

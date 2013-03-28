@@ -26,6 +26,7 @@ BDES_IDENT_RCSID(baexml_schemaparser_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_types.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
@@ -105,7 +106,7 @@ int parseDefaultValue(bdem_ElemRef elemRef, const bsl::string& defaultValue)
         }
       } break;
       case bdem_ElemType::BDEM_INT64: {
-        typedef bsls_PlatformUtil::Int64 Int64;
+        typedef bsls::Types::Int64 Int64;
         Int64 value;
         if (! baexml_TypesParserUtil::parseDefault(&value, cStrValue, len)) {
             elemRef.theModifiableInt64() = value;
@@ -202,7 +203,7 @@ struct XMLTypeDescriptor {
     // PUBLIC MEMBER DATA
     TypeId              d_xmlName;         // name of built-in XML schema type
     bdem_ElemType::Type d_bdemType;        // 'bdem' equivalent type
-    bsls_Types::Uint64  d_maxValue;        // max value or length
+    bsls::Types::Uint64 d_maxValue;        // max value or length
     int                 d_formattingMode;  // bdeat_FormattingMode enum value
 
     // CREATORS
@@ -398,7 +399,7 @@ class SchemaElement {
 
   public:
     // CREATORS
-    explicit SchemaElement(bslma_Allocator *basicAllocator = 0);
+    explicit SchemaElement(bslma::Allocator *basicAllocator = 0);
 
     // MANIPULATORS
     void setDefaultValue(const bdeut_StringRef& defaultValue);
@@ -430,11 +431,11 @@ class SchemaElement {
 
 // CREATORS
 inline
-SchemaElement::SchemaElement(bslma_Allocator *basicAllocator)
+SchemaElement::SchemaElement(bslma::Allocator *basicAllocator)
 : d_directType(0)
 , d_indirectType(0)
 , d_formattingMode(0)
-, d_default(bslma_Default::allocator(basicAllocator))
+, d_default(bslma::Default::allocator(basicAllocator))
 , d_id(bdem_RecordDef::BDEM_NULL_FIELD_ID)
 , d_minOccurs(1)
 , d_maxOccurs(1)
@@ -577,7 +578,7 @@ class SchemaType {
     const XMLTypeDescriptor *d_xmlTypeDescriptor; // Description of this type
     bool                     d_isList;          // true if a sequence type
     bool                     d_isChoice;        // true if a choice type
-    bsls_Types::Uint64       d_maxValue;        // max value constraint
+    bsls::Types::Uint64      d_maxValue;        // max value constraint
     FieldVector              d_fields;          // list of nested fields
     bdem_RecordDef          *d_bdemRecord;      // generated bdem record
                                                 // (held, not owned).
@@ -623,7 +624,7 @@ class SchemaType {
     void setXmlTypeDescriptor(const XMLTypeDescriptor *desc);
     void setIsList(bool isList = true);
     void setIsChoice(bool isChoice = true);
-    void setMaxValue(bsls_Types::Uint64 maxValue);
+    void setMaxValue(bsls::Types::Uint64 maxValue);
     void addField(const bsl::string& name, SchemaElement *element);
     void setBdemRecord(bdem_RecordDef *record);
     void addEnumeration(const bsl::string& value, int id);
@@ -640,7 +641,7 @@ class SchemaType {
     bool isList() const;
     bool isChoice() const;
     bdem_ElemType::Type bdemType() const;
-    bsls_Types::Uint64 maxValue() const;
+    bsls::Types::Uint64 maxValue() const;
     bdem_RecordDef *bdemRecord() const;
     bool isDefined() const;
     bdem_EnumerationDef *bdemEnumeration() const;
@@ -801,7 +802,7 @@ void SchemaType::setBdemEnumeration(bdem_EnumerationDef *enumeration)
 }
 
 inline
-void SchemaType::setMaxValue(bsls_Types::Uint64 maxValue)
+void SchemaType::setMaxValue(bsls::Types::Uint64 maxValue)
 {
     d_maxValue = maxValue;
 }
@@ -901,7 +902,7 @@ bdem_RecordDef *SchemaType::bdemRecord() const
 }
 
 inline
-bsls_Types::Uint64 SchemaType::maxValue() const
+bsls::Types::Uint64 SchemaType::maxValue() const
 {
     // Traverse list of base types.  Return first non-zero d_maxValue.
     const SchemaType *scan = this;
@@ -1083,14 +1084,14 @@ class ExternalSchemaInfo {
     // CREATORS
     ExternalSchemaInfo(baexml_NamespaceRegistry *namespaces,
                        const bdeut_StringRef&    location,
-                       bslma_Allocator          *allocator = 0);
+                       bslma::Allocator         *allocator = 0);
         // Top Level Schema constructor
 
     ExternalSchemaInfo(InclusionType           iType,
                        ExternalSchemaInfo     *parent,
                        const bdeut_StringRef&  location,
                        const bdeut_StringRef&  targetNs,
-                       bslma_Allocator        *allocator = 0);
+                       bslma::Allocator       *allocator = 0);
         // Constructor for the included and imported schemas
 
     // MANIPULATORS
@@ -1120,7 +1121,7 @@ class ExternalSchemaInfo {
 inline
 ExternalSchemaInfo::ExternalSchemaInfo(baexml_NamespaceRegistry *namespaces,
                                        const bdeut_StringRef&    location,
-                                       bslma_Allocator          *allocator)
+                                       bslma::Allocator         *allocator)
 : d_incType   (TOP_LEVEL)
 , d_parent    (0)
 , d_location  (allocator)
@@ -1136,7 +1137,7 @@ ExternalSchemaInfo::ExternalSchemaInfo(InclusionType           iType,
                                        ExternalSchemaInfo     *parent,
                                        const bdeut_StringRef&  location,
                                        const bdeut_StringRef&  targetNs,
-                                       bslma_Allocator        *allocator)
+                                       bslma::Allocator       *allocator)
 : d_incType   (iType)
 , d_parent    (parent)
 , d_location  (allocator)
@@ -3186,7 +3187,7 @@ int SchemaContentHandler::endOtherDef(int currXsTag)
 // CREATORS
 SchemaContentHandler::SchemaContentHandler(baexml_Reader          *reader,
                                            const bdeut_StringRef&  location)
-: d_managedAllocator(&bslma_NewDeleteAllocator::singleton())
+: d_managedAllocator(&bslma::NewDeleteAllocator::singleton())
 , d_emptyString(&d_managedAllocator)
 , d_namespaces(&d_managedAllocator)
 , d_inputSchemas(&d_managedAllocator)

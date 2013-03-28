@@ -17,7 +17,7 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Jeffrey Mendelsohn (jmendelsohn)
 //
 //@DESCRIPTION: This component provides a special-purpose instrumented
-// allocator, 'bael_CountingAllocator', that implements the 'bslma_Allocator'
+// allocator, 'bael_CountingAllocator', that implements the 'bslma::Allocator'
 // protocol and guarantees maximal alignment of allocated blocks, even when
 // the allocator supplied at construction guarantees only natural alignment
 // (or no alignment at all).  'bael_CountingAllocator' maintains a
@@ -31,9 +31,9 @@ BDES_IDENT("$Id: $")
 //               |         numBytesTotal
 //               |         resetNumBytesTotal
 //               V
-//       ,---------------.
-//      ( bslma_Allocator )
-//       `---------------'
+//       ,-----------------.
+//      ( bslma::Allocator )
+//       `-----------------'
 //                       allocate
 //                       deallocate
 //..
@@ -42,9 +42,9 @@ BDES_IDENT("$Id: $")
 // The byte count maintained by 'bael_CountingAllocator' is set to 0 upon
 // construction and after each call to 'resetNumBytesTotal'.  Each call of
 // 'allocate(size)' increases the byte count by the sum of the least
-// multiple of 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT' that is greater than or
-// equal to 'size' and 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'.  Each call of
-// 'deallocate' decrements the byte count by the same amount by which the
+// multiple of 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' that is greater than
+// or equal to 'size' and 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.  Each call
+// of 'deallocate' decrements the byte count by the same amount by which the
 // byte count was incremented on matching 'allocate' call.  The current
 // value of the byte count is returned by the 'numBytesTotal' accessor.
 //
@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $")
 // In the following example we demonstrate how the counting allocator can
 // be used to know the amount of dynamic memory allocated by a
 // 'vector<int>' after pushing one integer.  Let us assume that memory for
-// the vector comes from a 'bslma_Allocator' named 'allocator'.
+// the vector comes from a 'bslma::Allocator' named 'allocator'.
 //..
 //    // First create the counting allocator using 'allocator'.
 //    BloombergLP::bael_CountingAllocator countingAllocator(allocator);
@@ -84,9 +84,12 @@ BDES_IDENT("$Id: $")
 #include <bsls_alignmentutil.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -94,7 +97,7 @@ namespace BloombergLP {
                         // class bael_CountingAllocator
                         // ============================
 
-class bael_CountingAllocator : public bslma_Allocator {
+class bael_CountingAllocator : public bslma::Allocator {
     // This class maintains a count of the total number of allocated bytes.
     // The running byte count is initialized to 0 upon construction, is
     // increased by the 'allocate' method, and may be reset to 0 by the
@@ -104,8 +107,8 @@ class bael_CountingAllocator : public bslma_Allocator {
     // documentation.
 
     // DATA
-    int              d_byteCount;    // byte count
-    bslma_Allocator *d_allocator_p;  // holds (but does not own) allocator
+    int               d_byteCount;    // byte count
+    bslma::Allocator *d_allocator_p;  // holds (but does not own) allocator
 
     // NOT IMPLEMENTED
     bael_CountingAllocator(const bael_CountingAllocator&);
@@ -113,7 +116,7 @@ class bael_CountingAllocator : public bslma_Allocator {
 
   public:
     // CREATORS
-    bael_CountingAllocator(bslma_Allocator *basicAllocator = 0);
+    bael_CountingAllocator(bslma::Allocator *basicAllocator = 0);
         // Create a counting allocator having an initial byte count of 0.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -127,8 +130,8 @@ class bael_CountingAllocator : public bslma_Allocator {
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (bytes) and increment the byte count maintained by
         // this counting allocator by the sum of the least multiple of
-        // 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT' that is greater than or
-        // equal to 'size' and 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+        // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' that is greater than or
+        // equal to 'size' and 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
         // The behavior is undefined unless 0 <= size.  Note that the alignment
         // of the address returned is the maximum alignment for any fundamental
         // type defined for the calling platform, even if the supplied
@@ -158,9 +161,10 @@ class bael_CountingAllocator : public bslma_Allocator {
 
 // CREATORS
 inline
-bael_CountingAllocator::bael_CountingAllocator(bslma_Allocator *basicAllocator)
+bael_CountingAllocator::bael_CountingAllocator(
+                                              bslma::Allocator *basicAllocator)
 : d_byteCount(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -168,20 +172,20 @@ bael_CountingAllocator::bael_CountingAllocator(bslma_Allocator *basicAllocator)
 inline
 void *bael_CountingAllocator::allocate(size_type size)
 {
-    int paddedSize = bsls_PlatformUtil::roundUpToMaximalAlignment((int)size);
-    int totalSize = paddedSize + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+    int paddedSize = bsls::AlignmentUtil::roundUpToMaximalAlignment((int)size);
+    int totalSize  = paddedSize + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
     d_byteCount += totalSize;
     void *address = d_allocator_p->allocate(totalSize);
     *((int *)address) = totalSize;
-    return (char *)address + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+    return (char *)address + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 }
 
 inline
 void bael_CountingAllocator::deallocate(void *address)
 {
     if (address) {
-        address = (char *)address - bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        address = (char *)address - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
         d_byteCount -= *((int *)address);
         d_allocator_p->deallocate(address);
     }

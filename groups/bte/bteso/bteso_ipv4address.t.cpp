@@ -2,7 +2,6 @@
 
 #include <bteso_ipv4address.h>
 
-#include <bsls_platformutil.h>           // for testing only
 #include <bdex_instreamfunctions.h>      // for testing only
 #include <bdex_outstreamfunctions.h>     // for testing only
 #include <bdex_testinstream.h>           // for testing only
@@ -21,11 +20,8 @@
 #include <netinet/in.h>
 #endif
 
-#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
-#include <strstrea.h>
-#else
 #include <bsl_strstream.h>
-#endif
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -134,6 +130,11 @@ typedef bdex_TestOutStream Out;
 
 int main(int argc, char *argv[])
 {
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)
+    // drqs 38679960 - clang can use up all the memory on Linux compiling
+    // this test driver, crashing the machine.
+    return -1;
+#endif
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;

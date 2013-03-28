@@ -38,6 +38,10 @@ BDES_IDENT("$Id: $")
 #include <bces_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifdef BCES_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.
@@ -248,7 +252,9 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
 
     static NativeHandle nativeHandle(const Handle& threadHandle);
         // Return the platform specific identifier associated with the thread
-        // specified by 'threadHandle'.
+        // specified by 'threadHandle'.  Note that the returned native handle
+        // may not be a globally unique identifier for the thread (see
+        // 'selfIdAsUint').
 
     static bool areEqual(const Handle& a, const Handle& b);
         // Return 'true' if the specified 'a' and 'b' thread handles

@@ -11,6 +11,7 @@
 #include <bdeut_nullablevalue.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
@@ -45,7 +46,7 @@ using bsl::flush;
 // of each test case, the phrase "primitive types" is understood as the
 // following types: 'bool', 'char', 'short', 'int', 'float', 'double',
 // 'unsigned char', 'unsigned short', 'unsigned int', 'bsl::string',
-// 'bsls_PlatformUtil::Int64', 'bsls_PlatformUtil::Uint64', 'bdet_DateTz',
+// 'bsls::Types::Int64', 'bsls::Types::Uint64', 'bdet_DateTz',
 // 'bdet_DatetimeTz', 'bdet_TimeTz', 'bdet_Date', 'bdet_Datetime', and
 // 'bdet_Time'.
 //-----------------------------------------------------------------------------
@@ -60,8 +61,8 @@ using bsl::flush;
 // [ 2] fromAggregate(unsigned short)
 // [ 2] fromAggregate(unsigned int)
 // [ 2] fromAggregate(bsl::string)
-// [ 2] fromAggregate(bsls_PlatformUtil::Int64)
-// [ 2] fromAggregate(bsls_PlatformUtil::Uint64)
+// [ 2] fromAggregate(bsls::Types::Int64)
+// [ 2] fromAggregate(bsls::Types::Uint64)
 // [ 2] fromAggregate(bdet_DateTz)
 // [ 2] fromAggregate(bdet_DatetimeTz)
 // [ 2] fromAggregate(bdet_TimeTz)
@@ -78,8 +79,8 @@ using bsl::flush;
 // [ 2] toAggregate(unsigned short)
 // [ 2] toAggregate(unsigned int)
 // [ 2] toAggregate(bsl::string)
-// [ 2] toAggregate(bsls_PlatformUtil::Int64)
-// [ 2] toAggregate(bsls_PlatformUtil::Uint64)
+// [ 2] toAggregate(bsls::Types::Int64)
+// [ 2] toAggregate(bsls::Types::Uint64)
 // [ 2] toAggregate(bdet_DateTz)
 // [ 2] toAggregate(bdet_DatetimeTz)
 // [ 2] toAggregate(bdet_TimeTz)
@@ -96,8 +97,8 @@ using bsl::flush;
 // [ 3] fromAggregate(bdeut_NullableValue<unsigned short>)
 // [ 3] fromAggregate(bdeut_NullableValue<unsigned int>)
 // [ 3] fromAggregate(bdeut_NullableValue<bsl::string>)
-// [ 3] fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-// [ 3] fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+// [ 3] fromAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+// [ 3] fromAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
 // [ 3] fromAggregate(bdeut_NullableValue<bdet_DateTz>)
 // [ 3] fromAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
 // [ 3] fromAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -114,8 +115,8 @@ using bsl::flush;
 // [ 3] toAggregate(bdeut_NullableValue<unsigned short>)
 // [ 3] toAggregate(bdeut_NullableValue<unsigned int>)
 // [ 3] toAggregate(bdeut_NullableValue<bsl::string>)
-// [ 3] toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-// [ 3] toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+// [ 3] toAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+// [ 3] toAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
 // [ 3] toAggregate(bdeut_NullableValue<bdet_DateTz>)
 // [ 3] toAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
 // [ 3] toAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -132,8 +133,8 @@ using bsl::flush;
 // [ 4] fromAggregate(bsl::vector<unsigned short>)
 // [ 4] fromAggregate(bsl::vector<unsigned int>)
 // [ 4] fromAggregate(bsl::vector<bsl::string>)
-// [ 4] fromAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-// [ 4] fromAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+// [ 4] fromAggregate(bsl::vector<bsls::Types::Int64>)
+// [ 4] fromAggregate(bsl::vector<bsls::Types::Uint64>)
 // [ 4] fromAggregate(bsl::vector<bdet_DateTz>)
 // [ 4] fromAggregate(bsl::vector<bdet_DatetimeTz>)
 // [ 4] fromAggregate(bsl::vector<bdet_TimeTz>)
@@ -150,8 +151,8 @@ using bsl::flush;
 // [ 4] toAggregate(bsl::vector<unsigned short>)
 // [ 4] toAggregate(bsl::vector<unsigned int>)
 // [ 4] toAggregate(bsl::vector<bsl::string>)
-// [ 4] toAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-// [ 4] toAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+// [ 4] toAggregate(bsl::vector<bsls::Types::Int64>)
+// [ 4] toAggregate(bsl::vector<bsls::Types::Uint64>)
 // [ 4] toAggregate(bsl::vector<bdet_DateTz>)
 // [ 4] toAggregate(bsl::vector<bdet_DatetimeTz>)
 // [ 4] toAggregate(bsl::vector<bdet_TimeTz>)
@@ -254,17 +255,17 @@ static const unsigned short    NLUS_MAX = NLUS::max();
 static const unsigned int      NLUI_MIN = NLUI::min();
 static const unsigned int      NLUI_MAX = NLUI::max();
 
-static const bsls_PlatformUtil::Int64 NLI64_MIN =
-    bsl::numeric_limits<bsls_PlatformUtil::Int64>::min();
+static const bsls::Types::Int64 NLI64_MIN =
+    bsl::numeric_limits<bsls::Types::Int64>::min();
 
-static const bsls_PlatformUtil::Int64 NLI64_MAX =
-    bsl::numeric_limits<bsls_PlatformUtil::Int64>::max();
+static const bsls::Types::Int64 NLI64_MAX =
+    bsl::numeric_limits<bsls::Types::Int64>::max();
 
-static const bsls_PlatformUtil::Uint64 NLUI64_MIN =
-    bsl::numeric_limits<bsls_PlatformUtil::Uint64>::min();
+static const bsls::Types::Uint64 NLUI64_MIN =
+    bsl::numeric_limits<bsls::Types::Uint64>::min();
 
-static const bsls_PlatformUtil::Uint64 NLUI64_MAX =
-    bsl::numeric_limits<bsls_PlatformUtil::Uint64>::max();
+static const bsls::Types::Uint64 NLUI64_MAX =
+    bsl::numeric_limits<bsls::Types::Uint64>::max();
 
 template <typename TYPE>
 struct NullTraits {
@@ -285,8 +286,8 @@ enum {
   , ID_VAL8   // unsigned short
   , ID_VAL9   // unsigned int
   , ID_VAL10  // string
-  , ID_VAL11  // bsls_PlatformUtil::Int64
-  , ID_VAL12  // bsls_PlatformUtil::Uint64
+  , ID_VAL11  // bsls::Types::Int64
+  , ID_VAL12  // bsls::Types::Uint64
   , ID_VAL13  // bdet_DateTz
   , ID_VAL14  // bdet_DatetimeTz
   , ID_VAL15  // bdet_TimeTz
@@ -433,14 +434,14 @@ class Person {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Person(bslma_Allocator *basicAllocator = 0);
+    explicit Person(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Person' having the default value.  Use the
         // optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Person(const Person& original,
-           bslma_Allocator *basicAllocator = 0);
+           bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Person' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -669,14 +670,14 @@ class Company {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Company(bslma_Allocator *basicAllocator = 0);
+    explicit Company(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Company' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Company(const Company& original,
-            bslma_Allocator *basicAllocator = 0);
+            bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Company' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -847,12 +848,12 @@ class Entity {
 
     // DATA MEMBERS
     union {
-        bsls_ObjectBuffer< Company > d_corp;
-        bsls_ObjectBuffer< Person >  d_human;
+        bsls::ObjectBuffer< Company > d_corp;
+        bsls::ObjectBuffer< Person >  d_human;
     };
 
-    int              d_selectionId;
-    bslma_Allocator *d_allocator_p;
+    int               d_selectionId;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TYPES
@@ -896,14 +897,14 @@ class Entity {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Entity(bslma_Allocator *basicAllocator = 0);
+    explicit Entity(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Entity' having the default value.  Use the
         // optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Entity(const Entity& original,
-          bslma_Allocator *basicAllocator = 0);
+          bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Entity' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -1183,9 +1184,9 @@ BDEAT_DECL_ENUMERATION_TRAITS(test::Enumerated)
 
 namespace test {
 
-                            // ====================                            
-                            // class CustomizedType                            
-                            // ====================                            
+                            // ====================
+                            // class CustomizedType
+                            // ====================
 
 class CustomizedType {
 
@@ -1754,9 +1755,9 @@ int Entity::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Entity::Entity(bslma_Allocator *basicAllocator)
+Entity::Entity(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -1976,9 +1977,9 @@ STREAM& Enumerated::bdexStreamOut(STREAM&           stream,
     return stream;
 }
 
-                            // --------------------                            
-                            // class CustomizedType                            
-                            // --------------------                            
+                            // --------------------
+                            // class CustomizedType
+                            // --------------------
 
 // CREATORS
 inline
@@ -2339,7 +2340,7 @@ const bdeat_AttributeInfo *Person::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Person::Person(bslma_Allocator *basicAllocator)
+Person::Person(bslma::Allocator *basicAllocator)
 : d_lastName(basicAllocator)
 , d_firstName(basicAllocator)
 , d_age()
@@ -2349,7 +2350,7 @@ Person::Person(bslma_Allocator *basicAllocator)
 
 Person::Person(
         const Person& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_lastName(original.d_lastName, basicAllocator)
 , d_firstName(original.d_firstName, basicAllocator)
 , d_age(original.d_age)
@@ -2587,7 +2588,7 @@ const bdeat_AttributeInfo *Company::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Company::Company(bslma_Allocator *basicAllocator)
+Company::Company(bslma::Allocator *basicAllocator)
 : d_name(basicAllocator)
 , d_accountNum()
 {
@@ -2595,7 +2596,7 @@ Company::Company(bslma_Allocator *basicAllocator)
 
 Company::Company(
         const Company& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_name(original.d_name, basicAllocator)
 , d_accountNum(original.d_accountNum)
 {
@@ -2789,9 +2790,9 @@ const bdeat_SelectionInfo *Entity::lookupSelectionInfo(int id)
 inline
 Entity::Entity(
     const Entity& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_CORP: {
@@ -3190,9 +3191,9 @@ const char *Enumerated::toString(Enumerated::Value value)
     return 0;
 }
 
-                            // --------------------                            
-                            // class CustomizedType                            
-                            // --------------------                            
+                            // --------------------
+                            // class CustomizedType
+                            // --------------------
 
 // PRIVATE CLASS METHODS
 
@@ -3609,8 +3610,8 @@ int loadArrays(bcem_Aggregate *result)
     bcem_Aggregate aggregate(schema_sp, "arrays");
     *result = aggregate;
 
-    typedef bsls_PlatformUtil::Int64  Int64;
-    typedef bsls_PlatformUtil::Uint64 Uint64;
+    typedef bsls::Types::Int64  Int64;
+    typedef bsls::Types::Uint64 Uint64;
 
     typedef bsl::vector<bool>            VB;
     typedef bsl::vector<char>            VC;
@@ -3750,8 +3751,8 @@ int loadArraysOfNullableValues(bcem_Aggregate *result)
     bcem_Aggregate aggregate(schema_sp, "arrays");
     *result = aggregate;
 
-    typedef bsls_PlatformUtil::Int64  Int64;
-    typedef bsls_PlatformUtil::Uint64 Uint64;
+    typedef bsls::Types::Int64  Int64;
+    typedef bsls::Types::Uint64 Uint64;
 
     typedef bsl::vector<bool>            VB;
     typedef bsl::vector<char>            VC;
@@ -3882,7 +3883,7 @@ int main(int argc, char *argv[])
 
         // Manually create the bdem schema.
 
-        bslma_Allocator *allocator = bslma_Default::defaultAllocator();
+        bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 
         bcema_SharedPtr<bdem_Schema> schema(new (*allocator) bdem_Schema());
 
@@ -3931,7 +3932,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING CONCERN: ENUMERATIONS 
+        // TESTING CONCERN: ENUMERATIONS
         //
         // Concerns:
         //
@@ -4281,8 +4282,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(bdeut_NullableValue<unsigned short>)
         //   fromAggregate(bdeut_NullableValue<unsigned int>)
         //   fromAggregate(bdeut_NullableValue<bsl::string>)
-        //   fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-        //   fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+        //   fromAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+        //   fromAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
         //   fromAggregate(bdeut_NullableValue<bdet_DateTz>)
         //   fromAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
         //   fromAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -4299,8 +4300,8 @@ int main(int argc, char *argv[])
         //   toAggregate(bdeut_NullableValue<unsigned short>)
         //   toAggregate(bdeut_NullableValue<unsigned int>)
         //   toAggregate(bdeut_NullableValue<bsl::string>)
-        //   toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-        //   toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+        //   toAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+        //   toAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
         //   toAggregate(bdeut_NullableValue<bdet_DateTz>)
         //   toAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
         //   toAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -4660,7 +4661,7 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadNullables(&agg));
 
-            typedef bsls_PlatformUtil::Int64 Int64;
+            typedef bsls::Types::Int64 Int64;
 
             bcem_Aggregate                       AGG = agg.clone();
             bdeut_NullableValue<Int64>           VAL(NLI64::min() + 1);
@@ -4692,8 +4693,8 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadNullables(&agg));
 
-            typedef bsls_PlatformUtil::Int64  Int64;
-            typedef bsls_PlatformUtil::Uint64 Uint64;
+            typedef bsls::Types::Int64  Int64;
+            typedef bsls::Types::Uint64 Uint64;
 
             bcem_Aggregate                       AGG = agg.clone();
             bdeut_NullableValue<Uint64>          VAL(NLUI64::min());
@@ -5003,8 +5004,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(bsl::vector<unsigned short>)
         //   fromAggregate(bsl::vector<unsigned int>)
         //   fromAggregate(bsl::vector<bsl::string>)
-        //   fromAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-        //   fromAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+        //   fromAggregate(bsl::vector<bsls::Types::Int64>)
+        //   fromAggregate(bsl::vector<bsls::Types::Uint64>)
         //   fromAggregate(bsl::vector<bdet_DateTz>)
         //   fromAggregate(bsl::vector<bdet_DatetimeTz>)
         //   fromAggregate(bsl::vector<bdet_TimeTz>)
@@ -5021,8 +5022,8 @@ int main(int argc, char *argv[])
         //   toAggregate(bsl::vector<unsigned short>)
         //   toAggregate(bsl::vector<unsigned int>)
         //   toAggregate(bsl::vector<bsl::string>)
-        //   toAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-        //   toAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+        //   toAggregate(bsl::vector<bsls::Types::Int64>)
+        //   toAggregate(bsl::vector<bsls::Types::Uint64>)
         //   toAggregate(bsl::vector<bdet_DateTz>)
         //   toAggregate(bsl::vector<bdet_DatetimeTz>)
         //   toAggregate(bsl::vector<bdet_TimeTz>)
@@ -5369,15 +5370,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadArrays(&agg));
 
             bcem_Aggregate             AGG = agg.clone();
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Int64> > VAL;
+            bsl::vector< bdeut_NullableValue<bsls::Types::Int64> > VAL;
             VAL.push_back(NLI64_MIN+1);
             VAL.push_back(NLI64_MAX);
             VAL.push_back(0);
             VAL.push_back(NLI64_MIN+1);
             VAL.push_back(NLI64_MAX);
 
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Int64> > val(
-                                                                         VAL);
+            bsl::vector< bdeut_NullableValue<bsls::Types::Int64> > val(VAL);
 
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.empty());
@@ -5406,15 +5406,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadArrays(&agg));
 
             bcem_Aggregate             AGG = agg.clone();
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Uint64> > VAL;
+            bsl::vector< bdeut_NullableValue<bsls::Types::Uint64> > VAL;
             VAL.push_back(NLUI64_MIN);
             VAL.push_back(NLUI64_MAX);
             VAL.push_back(0);
             VAL.push_back(NLUI64_MIN);
             VAL.push_back(NLUI64_MAX);
 
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Uint64> > val(
-                                                                          VAL);
+            bsl::vector< bdeut_NullableValue<bsls::Types::Uint64> > val(VAL);
 
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.empty());
@@ -5676,8 +5675,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(bsl::vector<unsigned short>)
         //   fromAggregate(bsl::vector<unsigned int>)
         //   fromAggregate(bsl::vector<bsl::string>)
-        //   fromAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-        //   fromAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+        //   fromAggregate(bsl::vector<bsls::Types::Int64>)
+        //   fromAggregate(bsl::vector<bsls::Types::Uint64>)
         //   fromAggregate(bsl::vector<bdet_DateTz>)
         //   fromAggregate(bsl::vector<bdet_DatetimeTz>)
         //   fromAggregate(bsl::vector<bdet_TimeTz>)
@@ -5694,8 +5693,8 @@ int main(int argc, char *argv[])
         //   toAggregate(bsl::vector<unsigned short>)
         //   toAggregate(bsl::vector<unsigned int>)
         //   toAggregate(bsl::vector<bsl::string>)
-        //   toAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-        //   toAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+        //   toAggregate(bsl::vector<bsls::Types::Int64>)
+        //   toAggregate(bsl::vector<bsls::Types::Uint64>)
         //   toAggregate(bsl::vector<bdet_DateTz>)
         //   toAggregate(bsl::vector<bdet_DatetimeTz>)
         //   toAggregate(bsl::vector<bdet_TimeTz>)
@@ -6030,14 +6029,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadArrays(&agg));
 
             bcem_Aggregate             AGG = agg.clone();
-            bsl::vector<bsls_PlatformUtil::Int64>   VAL;
+            bsl::vector<bsls::Types::Int64>   VAL;
             VAL.push_back(NLI64_MIN);
             VAL.push_back(NLI64_MAX);
             VAL.push_back(0);
             VAL.push_back(NLI64_MIN);
             VAL.push_back(NLI64_MAX);
 
-            bsl::vector<bsls_PlatformUtil::Int64>   val(VAL);
+            bsl::vector<bsls::Types::Int64>   val(VAL);
 
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.empty());
@@ -6066,14 +6065,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadArrays(&agg));
 
             bcem_Aggregate             AGG = agg.clone();
-            bsl::vector<bsls_PlatformUtil::Uint64>   VAL;
+            bsl::vector<bsls::Types::Uint64>   VAL;
             VAL.push_back(NLUI64_MIN);
             VAL.push_back(NLUI64_MAX);
             VAL.push_back(0);
             VAL.push_back(NLUI64_MIN);
             VAL.push_back(NLUI64_MAX);
 
-            bsl::vector<bsls_PlatformUtil::Uint64>   val(VAL);
+            bsl::vector<bsls::Types::Uint64>   val(VAL);
 
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.empty());
@@ -6333,8 +6332,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(bdeut_NullableValue<unsigned short>)
         //   fromAggregate(bdeut_NullableValue<unsigned int>)
         //   fromAggregate(bdeut_NullableValue<bsl::string>)
-        //   fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-        //   fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+        //   fromAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+        //   fromAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
         //   fromAggregate(bdeut_NullableValue<bdet_DateTz>)
         //   fromAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
         //   fromAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -6351,8 +6350,8 @@ int main(int argc, char *argv[])
         //   toAggregate(bdeut_NullableValue<unsigned short>)
         //   toAggregate(bdeut_NullableValue<unsigned int>)
         //   toAggregate(bdeut_NullableValue<bsl::string>)
-        //   toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-        //   toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+        //   toAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+        //   toAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
         //   toAggregate(bdeut_NullableValue<bdet_DateTz>)
         //   toAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
         //   toAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -6710,7 +6709,7 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadNullables(&agg));
 
-            typedef bsls_PlatformUtil::Int64 Int64;
+            typedef bsls::Types::Int64 Int64;
 
             bcem_Aggregate                       AGG = agg.clone();
             bdeut_NullableValue<Int64>           VAL(NLI64::min() + 1);
@@ -6742,8 +6741,8 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadNullables(&agg));
 
-            typedef bsls_PlatformUtil::Int64  Int64;
-            typedef bsls_PlatformUtil::Uint64 Uint64;
+            typedef bsls::Types::Int64  Int64;
+            typedef bsls::Types::Uint64 Uint64;
 
             bcem_Aggregate                       AGG = agg.clone();
             bdeut_NullableValue<Uint64>          VAL(NLUI64::min());
@@ -6995,8 +6994,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(unsigned short)
         //   fromAggregate(unsigned int)
         //   fromAggregate(bsl::string)
-        //   fromAggregate(bsls_PlatformUtil::Int64)
-        //   fromAggregate(bsls_PlatformUtil::Uint64)
+        //   fromAggregate(bsls::Types::Int64)
+        //   fromAggregate(bsls::Types::Uint64)
         //   fromAggregate(bdet_DateTz)
         //   fromAggregate(bdet_DatetimeTz)
         //   fromAggregate(bdet_TimeTz)
@@ -7013,8 +7012,8 @@ int main(int argc, char *argv[])
         //   toAggregate(unsigned short)
         //   toAggregate(unsigned int)
         //   toAggregate(bsl::string)
-        //   toAggregate(bsls_PlatformUtil::Int64)
-        //   toAggregate(bsls_PlatformUtil::Uint64)
+        //   toAggregate(bsls::Types::Int64)
+        //   toAggregate(bsls::Types::Uint64)
         //   toAggregate(bdet_DateTz)
         //   toAggregate(bdet_DatetimeTz)
         //   toAggregate(bdet_TimeTz)
@@ -7321,7 +7320,7 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadPrimitives(&agg));
 
-            typedef bsls_PlatformUtil::Int64 Int64;
+            typedef bsls::Types::Int64 Int64;
 
             bcem_Aggregate        AGG = agg.clone();
             const Int64           VAL = NLI64::min();
@@ -7349,7 +7348,7 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadPrimitives(&agg));
 
-            typedef bsls_PlatformUtil::Uint64 Uint64;
+            typedef bsls::Types::Uint64 Uint64;
 
             bcem_Aggregate        AGG = agg.clone();
             const Uint64          VAL = NLUI64::min();
@@ -7603,11 +7602,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::fromAggregate(&v10, agg, ID_VAL10));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL10, v10));
 
-            bsls_PlatformUtil::Int64 v11;
+            bsls::Types::Int64 v11;
             ASSERT(0 == Util::fromAggregate(&v11, agg, ID_VAL11));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL11, v11));
 
-            bsls_PlatformUtil::Uint64 v12;
+            bsls::Types::Uint64 v12;
             ASSERT(0 == Util::fromAggregate(&v12, agg, ID_VAL12));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL12, v12));
 
@@ -7686,11 +7685,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::fromAggregate(&v10, agg, ID_VAL10));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL10, v10));
 
-            bdeut_NullableValue<bsls_PlatformUtil::Int64> v11;
+            bdeut_NullableValue<bsls::Types::Int64> v11;
             ASSERT(0 == Util::fromAggregate(&v11, agg, ID_VAL11));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL11, v11));
 
-            bdeut_NullableValue<bsls_PlatformUtil::Uint64> v12;
+            bdeut_NullableValue<bsls::Types::Uint64> v12;
             ASSERT(0 == Util::fromAggregate(&v12, agg, ID_VAL12));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL12, v12));
 
@@ -7769,11 +7768,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::fromAggregate(&v10, agg, ID_VAL10));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL10, v10));
 
-            bsl::vector<bsls_PlatformUtil::Int64> v11;
+            bsl::vector<bsls::Types::Int64> v11;
             ASSERT(0 == Util::fromAggregate(&v11, agg, ID_VAL11));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL11, v11));
 
-            bsl::vector<bsls_PlatformUtil::Uint64> v12;
+            bsl::vector<bsls::Types::Uint64> v12;
             ASSERT(0 == Util::fromAggregate(&v12, agg, ID_VAL12));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL12, v12));
 
@@ -7852,11 +7851,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::fromAggregate(&v10, agg, ID_VAL10));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL10, v10));
 
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Int64> > v11;
+            bsl::vector< bdeut_NullableValue<bsls::Types::Int64> > v11;
             ASSERT(0 == Util::fromAggregate(&v11, agg, ID_VAL11));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL11, v11));
 
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Uint64> > v12;
+            bsl::vector< bdeut_NullableValue<bsls::Types::Uint64> > v12;
             ASSERT(0 == Util::fromAggregate(&v12, agg, ID_VAL12));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL12, v12));
 

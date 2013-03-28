@@ -1,8 +1,10 @@
 // bces_atomicutil.t.cpp           -*-C++-*-
 
 #include <bces_atomicutil.h>
+
 #include <bslma_allocator.h>
-#include <bslma_default.h> // for usage examples
+#include <bslma_default.h>
+#include <bsls_types.h>
 
 #include <bsl_c_limits.h>
 #include <bsl_c_stdlib.h> // atoi
@@ -51,16 +53,16 @@ using namespace bsl;  // automatically added by script
 // [3 ] addIntNv(bces_AtomicUtil::Int *aInt, int val);
 // [5 ] incrementIntNv(bces_AtomicUtil::Int *aInt);
 // [5 ] decrementIntNv(bces_AtomicUtil::Int *aInt);
-// [3 ] addInt64(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int64);
+// [3 ] addInt64(bces_AtomicUtil::Int64 *, bsls::Types::Int64);
 // [5 ] incrementInt64(bces_AtomicUtil::Int64 *aInt);
 // [5 ] decrementInt64(bces_AtomicUtil::Int64 *aInt);
-// [4 ] swapInt64(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int64);
-// [4 ] testAndSwapInt64(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int64,
-//                       bsls_PlatformUtil::Int64);
-// [3 ] addInt64Nv(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int64);
+// [4 ] swapInt64(bces_AtomicUtil::Int64 *, bsls::Types::Int64);
+// [4 ] testAndSwapInt64(bces_AtomicUtil::Int64 *, bsls::Types::Int64,
+//                       bsls::Types::Int64);
+// [3 ] addInt64Nv(bces_AtomicUtil::Int64 *, bsls::Types::Int64);
 // [5 ] incrementInt64Nv(bces_AtomicUtil::Int64 *);
 // [5 ] decrementInt64Nv(bces_AtomicUtil::Int64 *);
-// [2 ] setInt64(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int64);
+// [2 ] setInt64(bces_AtomicUtil::Int64 *, bsls::Types::Int64);
 // [2 ] getInt64(const bces_AtomicUtil::Int64 &aInt);
 // [2 ] getPtr(const bces_AtomicUtil::Pointer &aPointer);
 // [2 ] setPtr(bces_AtomicUtil::Pointer *aPointer, void *value);
@@ -124,8 +126,8 @@ typedef bces_AtomicUtil Obj;
 const int INT_SWAPTEST_VALUE1 = 0x33ff33ff;
 const int INT_SWAPTEST_VALUE2 = 0xff33ff33;
 
-const bsls_PlatformUtil::Int64 INT64_SWAPTEST_VALUE1 = 0x33ff33ff33ff33ffLL;
-const bsls_PlatformUtil::Int64 INT64_SWAPTEST_VALUE2 = 0xff33ff33ff33ff33LL;
+const bsls::Types::Int64 INT64_SWAPTEST_VALUE1 = 0x33ff33ff33ff33ffLL;
+const bsls::Types::Int64 INT64_SWAPTEST_VALUE2 = 0xff33ff33ff33ff33LL;
 
 const void* POINTER_SWAPTEST_VALUE1 = (void*)0x33ff33ff;
 const void* POINTER_SWAPTEST_VALUE2 = (void*)0xff33ff33;
@@ -135,7 +137,7 @@ typedef void* (*THREAD_ENTRY)(void *arg);
 }
 
 
-const bsls_PlatformUtil::Int64 OFFSET_64 = 0xA00000000LL;
+const bsls::Types::Int64 OFFSET_64 = 0xA00000000LL;
 
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -238,13 +240,13 @@ struct IntTestThreadArgs {
 };
 
 struct Int64TestThreadArgs {
-    my_Conditional d_barrier;
-    my_Conditional d_startSig;
-    my_Mutex       d_mutex;
-    volatile int   d_countStarted;
-    int            d_iterations;
-    bsls_PlatformUtil::Int64 d_addVal;
-    Obj::Int64    *d_int_p;
+    my_Conditional     d_barrier;
+    my_Conditional     d_startSig;
+    my_Mutex           d_mutex;
+    volatile int       d_countStarted;
+    int                d_iterations;
+    bsls::Types::Int64 d_addVal;
+    Obj::Int64        *d_int_p;
 };
 
 struct IntSwapTestThreadArgs {
@@ -471,12 +473,12 @@ static void* case8Thread64(void* ptr)
     while (args == Obj::getPtrRelaxed(args->d_termPtr))
         ;
 
-    bsls_PlatformUtil::Int64 limit = args->d_m * args->d_n + OFFSET_64;
+    bsls::Types::Int64 limit = args->d_m * args->d_n + OFFSET_64;
 
     for (int i = 0; i < args->d_m; ++i) {
-        bsls_PlatformUtil::Int64 value =
+        bsls::Types::Int64 value =
             Obj::getInt64Relaxed(*args->d_value_p);
-        bsls_PlatformUtil::Int64 newValue =
+        bsls::Types::Int64 newValue =
             Obj::addInt64NvRelaxed(args->d_value_p, 1);
         LOOP3_ASSERT(value, newValue, limit,
                      newValue > value && value <= limit);
@@ -670,7 +672,7 @@ static void* swapInt64TestThread(void *ptr)
     args->d_barrier.wait();
 
     for(int i=0; i < args->d_iterations; ++i) {
-        bsls_PlatformUtil::Int64 oldValue=
+        bsls::Types::Int64 oldValue=
             Obj::swapInt64(args->d_int_p,INT64_SWAPTEST_VALUE2);
         if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
         else if (oldValue == INT64_SWAPTEST_VALUE2) ++value2Count;
@@ -732,7 +734,7 @@ static void* testAndSwapInt64TestThread(void *ptr)
     args->d_barrier.wait();
 
     for(int i=0; i < args->d_iterations; ++i) {
-        bsls_PlatformUtil::Int64 oldValue=
+        bsls::Types::Int64 oldValue=
             Obj::testAndSwapInt64(args->d_int_p,INT64_SWAPTEST_VALUE1,
                                   INT64_SWAPTEST_VALUE2);
         if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
@@ -876,10 +878,10 @@ class my_CountedHandle;
 
 template <class INSTANCE, class FACTORY>
 class my_CountedHandleRep {
-    bces_AtomicUtil::Int d_count;       // number of active references
-    INSTANCE            *d_instance_p;  // address of managed instance
-    FACTORY             *d_factory_p;   // held but not owned
-    bslma_Allocator     *d_allocator_p; // held but not owned
+    bces_AtomicUtil::Int  d_count;       // number of active references
+    INSTANCE             *d_instance_p;  // address of managed instance
+    FACTORY              *d_factory_p;   // held but not owned
+    bslma::Allocator     *d_allocator_p; // held but not owned
     friend class my_CountedHandle<INSTANCE, FACTORY>;
   private: // not implemented
     my_CountedHandleRep(const my_CountedHandleRep&);
@@ -889,9 +891,9 @@ class my_CountedHandleRep {
     static void
     deleteObject(my_CountedHandleRep<INSTANCE, FACTORY> *object);
     // CREATORS
-    my_CountedHandleRep(INSTANCE        *instance,
-                           FACTORY         *factory,
-                           bslma_Allocator *basicAllocator);
+    my_CountedHandleRep(INSTANCE         *instance,
+                        FACTORY          *factory,
+                        bslma::Allocator *basicAllocator);
     ~my_CountedHandleRep();
     // MANIPULATORS
     void increment();
@@ -906,9 +908,9 @@ class my_CountedHandle {
   public:
     // CREATORS
     my_CountedHandle();
-    my_CountedHandle(INSTANCE        *instance,
-                        FACTORY         *factory,
-                        bslma_Allocator *basicAllocator = 0);
+    my_CountedHandle(INSTANCE         *instance,
+                     FACTORY          *factory,
+                     bslma::Allocator *basicAllocator = 0);
     my_CountedHandle(const my_CountedHandle<INSTANCE, FACTORY>& other);
     ~my_CountedHandle();
      // ACCESSORS
@@ -928,9 +930,9 @@ void my_CountedHandleRep<INSTANCE, FACTORY>::deleteObject(
 template <class INSTANCE, class FACTORY>
 inline
 my_CountedHandleRep<INSTANCE, FACTORY>::
-                        my_CountedHandleRep(INSTANCE        *instance,
-                                            FACTORY         *factory,
-                                            bslma_Allocator *basicAllocator)
+                        my_CountedHandleRep(INSTANCE         *instance,
+                                            FACTORY          *factory,
+                                            bslma::Allocator *basicAllocator)
 : d_instance_p(instance)
 , d_factory_p(factory)
 , d_allocator_p(basicAllocator)
@@ -971,12 +973,12 @@ my_CountedHandle<INSTANCE, FACTORY>::my_CountedHandle()
 template <class INSTANCE, class FACTORY>
 inline
 my_CountedHandle<INSTANCE, FACTORY>::my_CountedHandle(
-                                             INSTANCE        *object,
-                                             FACTORY         *factory,
-                                             bslma_Allocator *basicAllocator)
+                                             INSTANCE         *object,
+                                             FACTORY          *factory,
+                                             bslma::Allocator *basicAllocator)
 {
-    bslma_Allocator *ba =
-                       bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *ba =
+                       bslma::Default::allocator(basicAllocator);
     d_rep_p = new(ba->allocate(sizeof *d_rep_p))
                 my_CountedHandleRep<INSTANCE, FACTORY>(object, factory, ba);
 }
@@ -1024,18 +1026,18 @@ class my_PtrStack {
     };
     bces_AtomicUtil::Pointer  d_list_p;
     bces_AtomicUtil::Pointer  d_freeList_p;
-    bslma_Allocator *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
     Node *allocateNode();
     void freeNode(Node *node);
   public:
-    my_PtrStack(bslma_Allocator *allocator=0);
+    my_PtrStack(bslma::Allocator *allocator=0);
    ~my_PtrStack();
     void push(TYPE* item);
     TYPE *pop();
 };
 
 template <class TYPE>
-inline my_PtrStack<TYPE>::my_PtrStack(bslma_Allocator *allocator)
+inline my_PtrStack<TYPE>::my_PtrStack(bslma::Allocator *allocator)
 : d_allocator_p(allocator)
 {
     bces_AtomicUtil::initPointer(&d_freeList_p,0);
@@ -1060,8 +1062,8 @@ typename my_PtrStack<TYPE>::Node* my_PtrStack<TYPE>::allocateNode()
                                             node->d_next
                                            ) != node);
     if (!node) {
-        bslma_Allocator *ba =
-                      bslma_Default::allocator(d_allocator_p);
+        bslma::Allocator *ba =
+                      bslma::Default::allocator(d_allocator_p);
         node = new(ba) Node();
     }
     return node;
@@ -1212,7 +1214,7 @@ int main(int argc, char *argv[]) {
             myJoinThread(threadHandles[i]);
         }
 
-        bsls_PlatformUtil::Int64 expected = OFFSET_64 + N * M;
+        bsls::Types::Int64 expected = OFFSET_64 + N * M;
 
         LOOP2_ASSERT(expected, Obj::getInt64(value64),
                      expected == Obj::getInt64(value64));
@@ -1586,10 +1588,10 @@ int main(int argc, char *argv[]) {
                           << endl;
         {
             static const struct {
-                int       d_lineNum;     // Source line number
-                bsls_PlatformUtil::Int64 d_expected; // Expected resulting
-                                                     // value of decrement
-                bsls_PlatformUtil::Int64 d_value; // Input value
+                int                d_lineNum;   // Source line number
+                bsls::Types::Int64 d_expected;  // Expected resulting
+                                                // value of decrement
+                bsls::Types::Int64 d_value;     // Input value
 
             } VALUES[] = {
                 //line expected             value
@@ -1604,8 +1606,8 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 VAL  = VALUES[i].d_value;
-                const bsls_PlatformUtil::Int64 EXP  = VALUES[i].d_expected;
+                const bsls::Types::Int64 VAL = VALUES[i].d_value;
+                const bsls::Types::Int64 EXP = VALUES[i].d_expected;
 
                 Obj::Int64 x;  const Obj::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -1624,9 +1626,9 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 VAL  = VALUES[i].d_value;
-                const bsls_PlatformUtil::Int64 EXP  = VALUES[i].d_expected;
-                bsls_PlatformUtil::Int64       result;
+                const bsls::Types::Int64 VAL = VALUES[i].d_value;
+                const bsls::Types::Int64 EXP = VALUES[i].d_expected;
+                bsls::Types::Int64       result;
 
                 Obj::Int64 x;  const Obj::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -1648,9 +1650,9 @@ int main(int argc, char *argv[]) {
         {
             const int NTHREADS=4;
             const int NITERATIONS=10000;
-            const bsls_PlatformUtil::Int64 STARTVALUE=0xfffffff0LL;
-            const bsls_PlatformUtil::Int64 EXPTOTAL=NTHREADS*NITERATIONS*2+
-                                           STARTVALUE;
+            const bsls::Types::Int64 STARTVALUE=0xfffffff0LL;
+            const bsls::Types::Int64 EXPTOTAL=NTHREADS*NITERATIONS*2+
+                                                                    STARTVALUE;
             Obj::Int64 mInt;
 
             Obj::initInt64(&mInt,STARTVALUE);
@@ -1687,9 +1689,9 @@ int main(int argc, char *argv[]) {
         {
             const int NTHREADS=4;
             const int NITERATIONS=10000;
-            const bsls_PlatformUtil::Int64 EXPTOTAL=0xfffffff0;
-            const bsls_PlatformUtil::Int64 STARTVALUE=(NTHREADS*NITERATIONS*2)+
-                                           EXPTOTAL;
+            const bsls::Types::Int64 EXPTOTAL=0xfffffff0;
+            const bsls::Types::Int64 STARTVALUE=(NTHREADS*NITERATIONS*2)+
+                                                                      EXPTOTAL;
             Obj::Int64 mInt;
 
             Int64TestThreadArgs args;
@@ -1761,9 +1763,9 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   swapInt64(bces_AtomicUtil::Int *aInt, int value);
         //   testAndSwapInt(bces_AtomicUtil::Int *, int, int);
-        //   swapInt64(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int64);
-        //   testAndSwapInt64(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int6
-        //                    bsls_PlatformUtil::Int64 );
+        //   swapInt64(bces_AtomicUtil::Int64 *, bsls::Types::Int64);
+        //   testAndSwapInt64(bces_AtomicUtil::Int64 *, bsls::Types::Int6
+        //                    bsls::Types::Int64 );
         //   swapPtr(bces_AtomicUtil::Pointer *aPointer, void *value);
         //   testAndSwapPtr(bces_AtomicUtil::Pointer *, void *, void *);
         // --------------------------------------------------------------------
@@ -1774,7 +1776,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'Int' SWAP Manipulators" << endl;
         {
             static const struct {
-                int  d_lineNum;     // Source line number
+                int d_lineNum;     // Source line number
                 int d_value;       // Initial value
                 int d_swapValue;   // Swap value
             } VALUES[] = {
@@ -1860,9 +1862,9 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'Int64' SWAP Manipulators" << endl;
         {
             static const struct {
-                int       d_lineNum;     // Source line number
-                bsls_PlatformUtil::Int64 d_value;       // Initial value
-                bsls_PlatformUtil::Int64 d_swapValue;   // Swap value
+                int                d_lineNum;     // Source line number
+                bsls::Types::Int64 d_value;       // Initial value
+                bsls::Types::Int64 d_swapValue;   // Swap value
             } VALUES[] = {
                 //line value swap
                 //---- ----- -------
@@ -1876,9 +1878,9 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 VAL    = VALUES[i].d_value;
-                const bsls_PlatformUtil::Int64 SWPVAL = VALUES[i].d_swapValue;
-                bsls_PlatformUtil::Int64       result = 0;
+                const bsls::Types::Int64 VAL    = VALUES[i].d_value;
+                const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
+                bsls::Types::Int64       result = 0;
 
                 Obj::Int64 x; const Obj::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -1898,13 +1900,13 @@ int main(int argc, char *argv[]) {
 
         {
             static const struct {
-                int       d_lineNum;     // Source line number
-                bsls_PlatformUtil::Int64 d_value;       // Initial value
-                bsls_PlatformUtil::Int64 d_swapValue;   // Swap value
-                bsls_PlatformUtil::Int64 d_cmpValue;    // Compare value
-                bsls_PlatformUtil::Int64 d_expValue;    // Expected value
-                                                        // after the operation
-                bsls_PlatformUtil::Int64 d_expResult;   // Expected result
+                int                d_lineNum;     // Source line number
+                bsls::Types::Int64 d_value;       // Initial value
+                bsls::Types::Int64 d_swapValue;   // Swap value
+                bsls::Types::Int64 d_cmpValue;    // Compare value
+                bsls::Types::Int64 d_expValue;    // Expected value
+                                                  // after the operation
+                bsls::Types::Int64 d_expResult;   // Expected result
             } VALUES[] = {
                 //line value swapVal      cmpVal  expValue      expResult
                 //---- ----- ------------ ------- ------------- ---------
@@ -1918,12 +1920,12 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 VAL    = VALUES[i].d_value;
-                const bsls_PlatformUtil::Int64 CMPVAL = VALUES[i].d_cmpValue;
-                const bsls_PlatformUtil::Int64 SWPVAL = VALUES[i].d_swapValue;
-                const bsls_PlatformUtil::Int64 EXPVAL = VALUES[i].d_expValue;
-                const bsls_PlatformUtil::Int64 EXPRES = VALUES[i].d_expResult;
-                bsls_PlatformUtil::Int64       result = 0;
+                const bsls::Types::Int64 VAL    = VALUES[i].d_value;
+                const bsls::Types::Int64 CMPVAL = VALUES[i].d_cmpValue;
+                const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
+                const bsls::Types::Int64 EXPVAL = VALUES[i].d_expValue;
+                const bsls::Types::Int64 EXPRES = VALUES[i].d_expResult;
+                bsls::Types::Int64       result = 0;
 
                 Obj::Int64 x; const Obj::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -2129,9 +2131,8 @@ int main(int argc, char *argv[]) {
             int value1Count=0;
             int value2Count=0;
             for (int i=0; i < NITERATIONS; ++i) {
-                bsls_PlatformUtil::Int64 oldValue =
-                    bces_AtomicUtil::swapInt64( &mInt,
-                                                INT64_SWAPTEST_VALUE1);
+                bsls::Types::Int64 oldValue =
+                      bces_AtomicUtil::swapInt64(&mInt, INT64_SWAPTEST_VALUE1);
                 if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
                 else if(oldValue == INT64_SWAPTEST_VALUE2) ++value2Count;
                 else ++errorCount;
@@ -2248,9 +2249,8 @@ int main(int argc, char *argv[]) {
             int value1Count=0;
             int value2Count=0;
             for (int i=0; i < NITERATIONS; ++i) {
-                bsls_PlatformUtil::Int64 oldValue =
-                    bces_AtomicUtil::swapInt64( &mInt,
-                                                INT64_SWAPTEST_VALUE1);
+                bsls::Types::Int64 oldValue =
+                      bces_AtomicUtil::swapInt64(&mInt, INT64_SWAPTEST_VALUE1);
                 if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
                 else if(oldValue == INT64_SWAPTEST_VALUE2) ++value2Count;
                 else ++errorCount;
@@ -2415,9 +2415,9 @@ int main(int argc, char *argv[]) {
         //   threads.
         // Testing:
         //   addInt(bces_AtomicUtil::Int *aInt, int value);
-        //   addInt64(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int64);
+        //   addInt64(bces_AtomicUtil::Int64 *, bsls::Types::Int64);
         //   addIntNv(bces_AtomicUtil::Int *aInt, int value);
-        //   addInt64Nv(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int64);
+        //   addInt64Nv(bces_AtomicUtil::Int64 *, bsls::Types::Int64);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Arithmetic Manipulators"
@@ -2547,8 +2547,8 @@ int main(int argc, char *argv[]) {
                           << endl;
         {
             static const struct {
-                int       d_lineNum;     // Source line number
-                bsls_PlatformUtil::Int64 d_value;       // Input value
+                int                d_lineNum;     // Source line number
+                bsls::Types::Int64 d_value;       // Input value
             } VALUES[] = {
                 //line d_x
                 //---- ----
@@ -2562,7 +2562,7 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 VAL = VALUES[i].d_value;
 
                 Obj::Int64 x;  const Obj::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -2576,8 +2576,8 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 VAL  = VALUES[i].d_value;
-                bsls_PlatformUtil::Int64       result;
+                const bsls::Types::Int64 VAL = VALUES[i].d_value;
+                bsls::Types::Int64       result;
 
                 Obj::Int64 x;  const Obj::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -2595,26 +2595,26 @@ int main(int argc, char *argv[]) {
         }
         {
             static const struct {
-                int  d_lineNum;      // Source line number
-                bsls_PlatformUtil::Int64 d_base;    // Base value
-                bsls_PlatformUtil::Int64 d_amount;  // Amount to add
-                bsls_PlatformUtil::Int64 d_expected; // Expected value
+                int                d_lineNum;  // Source line number
+                bsls::Types::Int64 d_base;     // Base value
+                bsls::Types::Int64 d_amount;   // Amount to add
+                bsls::Types::Int64 d_expected; // Expected value
             } VALUES[] = {
                 //line d_base        d_amount d_expected
                 //---- ------------- -------- ----------
-                { L_,  -1LL         , 10      , 9                    },
-                { L_,  1            , -2LL    , -1LL                 },
-                { L_,  -1LL         , 2LL     , 1LL                  },
-                { L_,  0xFFFFFFFFLL , 1LL    , 0x100000000LL        },
-                { L_,  0x100000000LL, -2LL    , 0xFFFFFFFELL         }
+                { L_,  -1LL          , 10     , 9                    },
+                { L_,  1             , -2LL   , -1LL                 },
+                { L_,  -1LL          , 2LL    , 1LL                  },
+                { L_,  0xFFFFFFFFLL  , 1LL    , 0x100000000LL        },
+                { L_,  0x100000000LL , -2LL   , 0xFFFFFFFELL         }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 BASE = VALUES[i].d_base;
-                const bsls_PlatformUtil::Int64 AMT  = VALUES[i].d_amount;
-                const bsls_PlatformUtil::Int64 EXP  = VALUES[i].d_expected;
+                const bsls::Types::Int64 BASE = VALUES[i].d_base;
+                const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
 
                 Obj::Int64 x;  const Obj::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -2632,10 +2632,10 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 BASE = VALUES[i].d_base;
-                const bsls_PlatformUtil::Int64 AMT  = VALUES[i].d_amount;
-                const bsls_PlatformUtil::Int64 EXP  = VALUES[i].d_expected;
-                bsls_PlatformUtil::Int64       result;
+                const bsls::Types::Int64 BASE = VALUES[i].d_base;
+                const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
+                bsls::Types::Int64       result;
 
                 Obj::Int64 x;  const Obj::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -2700,8 +2700,8 @@ int main(int argc, char *argv[]) {
             const int NTHREADS=4;
             const int NITERATIONS=10000;
             const int ADDVAL = 33;
-            const bsls_PlatformUtil::Int64 STARTVALUE=0xfffff000;
-            const bsls_PlatformUtil::Int64 EXPTOTAL=(NTHREADS*NITERATIONS*
+            const bsls::Types::Int64 STARTVALUE=0xfffff000;
+            const bsls::Types::Int64 EXPTOTAL=(NTHREADS*NITERATIONS*
                                                      ADDVAL * 2) + STARTVALUE;
             Obj::Int64 mInt;
 
@@ -2759,7 +2759,7 @@ int main(int argc, char *argv[]) {
         //   initPointer(bces_AtomicUtil::Pointer *aPointer);
         //   setInt(bces_AtomicUtil::Int *aInt, int value);
         //   getInt(const bces_AtomicUtil::Int &aInt);
-        //   setInt64(bces_AtomicUtil::Int64 *, bsls_PlatformUtil::Int64);
+        //   setInt64(bces_AtomicUtil::Int64 *, bsls::Types::Int64);
         //   getInt64(const bces_AtomicUtil::Int64 &aInt);
         //   getPtr(const bces_AtomicUtil::Pointer &aPointer);
         //   setPtr(bces_AtomicUtil::Pointer *aPointer, void *value);
@@ -2804,8 +2804,8 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'Int64' Primary Manipulators" << endl;
         {
             static const struct {
-                int       d_lineNum;     // Source line number
-                bsls_PlatformUtil::Int64 d_value;       // Input value
+                int                d_lineNum;     // Source line number
+                bsls::Types::Int64 d_value;       // Input value
             } VALUES[] = {
                 //line value
                 //---- -----
@@ -2819,7 +2819,7 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_PlatformUtil::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
 
                 Obj::Int64 x;  const Obj::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -2890,16 +2890,16 @@ int main(int argc, char *argv[]) {
         const int XVB=2;
         const int XVC=-2;
 
-        const bsls_PlatformUtil::Int64 YVA=1LL;
-        const bsls_PlatformUtil::Int64 YVB=-1LL;
-        const bsls_PlatformUtil::Int64 YVC=0xFFFFFFFFLL;
+        const bsls::Types::Int64 YVA=1LL;
+        const bsls::Types::Int64 YVB=-1LL;
+        const bsls::Types::Int64 YVC=0xFFFFFFFFLL;
 
         const void *PVA=(void*)0xffff8888;
         const void *PVB=(void*)0xffffffff;
         const void *PVC=(void*)0x78888888;
 
         int lresult;
-        bsls_PlatformUtil::Int64 llresult;
+        bsls::Types::Int64 llresult;
         void *presult;
 
         if (veryVerbose) cout << endl

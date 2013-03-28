@@ -2,8 +2,8 @@
 
 #include <bdeu_hashutil.h>
 
-#include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
@@ -88,7 +88,7 @@ void time_hash1(const char   *key,
 {
     enum { ITERATIONS = 1000000 }; // 1M
     unsigned int value = 0;
-    bsls_Stopwatch timer;
+    bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < ITERATIONS; ++i) {
         value += bdeu_HashUtil::hash1(key, length) % LENGTH;
@@ -106,7 +106,7 @@ void time_hash1(const TYPE&   key,
 {
     enum { ITERATIONS = 1000000 }; // 1M
     unsigned int value = 0;
-    bsls_Stopwatch timer;
+    bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < ITERATIONS; ++i) {
         value += bdeu_HashUtil::hash1(key) % LENGTH;
@@ -122,7 +122,7 @@ void time_hash2(const char   *key,
 {
     enum { ITERATIONS = 1000000 }; // 1M
     unsigned int value = 0;
-    bsls_Stopwatch timer;
+    bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < ITERATIONS; ++i) {
         value += bdeu_HashUtil::hash2(key, length) % LENGTH;
@@ -140,7 +140,7 @@ void time_hash2(const TYPE&   key,
 {
     enum { ITERATIONS = 1000000 }; // 1M
     unsigned int value = 0;
-    bsls_Stopwatch timer;
+    bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < ITERATIONS; ++i) {
         value += bdeu_HashUtil::hash2(key) % LENGTH;
@@ -473,7 +473,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 
         {
             ExperimentalResult results[3][COLS];
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
 
             if (verbose) cout << "\nUsing chaining"
                               << "\n--------------" << endl;
@@ -559,7 +559,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             const int COLS = SIZE/INC;
 
             ExperimentalResult results[3][COLS];
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
 
             if (verbose) cout << "\nUsing double hashing"
                               << "\n--------------------" << endl;
@@ -727,8 +727,8 @@ int main(int argc, char *argv[])
         //   bdeu_HashUtil::hash0(unsigned int, int);
         //   bdeu_HashUtil::hash0(long, int);
         //   bdeu_HashUtil::hash0(unsigned long, int);
-        //   bdeu_HashUtil::hash0(bsls_PlatformUtil::Int64, int);
-        //   bdeu_HashUtil::hash0(bsls_PlatformUtil::Uint64, int);
+        //   bdeu_HashUtil::hash0(bsls::Types::Int64, int);
+        //   bdeu_HashUtil::hash0(bsls::Types::Uint64, int);
         //   bdeu_HashUtil::hash0(float, int);
         //   bdeu_HashUtil::hash0(double, int);
         //   bdeu_HashUtil::hash0(void *, int);
@@ -888,8 +888,8 @@ int main(int argc, char *argv[])
                 const int                      VB    = DATA[ti].d_valueB;
                 const int                      SIZE  = DATA[ti].d_size;
                 const int                      EXP   = DATA[ti].d_exp;
-                const bsls_PlatformUtil::Int64 VALUE =
-                                     (bsls_PlatformUtil::Int64(VA) << 32) |
+                const bsls::Types::Int64 VALUE =
+                                     (bsls::Types::Int64(VA) << 32) |
                                      (VB & 0xFFFFFFFF);
 
                 if (veryVerbose) {
@@ -1154,8 +1154,8 @@ int main(int argc, char *argv[])
         //    bdeu_HashUtil::hash1(unsigned int);
         //    bdeu_HashUtil::hash1(long);
         //    bdeu_HashUtil::hash1(unsigned long);
-        //    bdeu_HashUtil::hash1(bsls_PlatformUtil::Int64);
-        //    bdeu_HashUtil::hash1(bsls_PlatformUtil::Uint64);
+        //    bdeu_HashUtil::hash1(bsls::Types::Int64);
+        //    bdeu_HashUtil::hash1(bsls::Types::Uint64);
         //    bdeu_HashUtil::hash1(float);
         //    bdeu_HashUtil::hash1(double);
         //    bdeu_HashUtil::hash1(void*);
@@ -1168,8 +1168,8 @@ int main(int argc, char *argv[])
         //    bdeu_HashUtil::hash2(unsigned int);
         //    bdeu_HashUtil::hash2(long);
         //    bdeu_HashUtil::hash2(unsigned long);
-        //    bdeu_HashUtil::hash2(bsls_PlatformUtil::Int64);
-        //    bdeu_HashUtil::hash2(bsls_PlatformUtil::Uint64);
+        //    bdeu_HashUtil::hash2(bsls::Types::Int64);
+        //    bdeu_HashUtil::hash2(bsls::Types::Uint64);
         //    bdeu_HashUtil::hash2(float);
         //    bdeu_HashUtil::hash2(double);
         //    bdeu_HashUtil::hash2(void*);
@@ -1199,9 +1199,9 @@ int main(int argc, char *argv[])
             ASSERT(0);
         }
         ASSERT(338172012U ==
-                   bdeu_HashUtil::hash1((bsls_PlatformUtil::Int64)0x12345678));
+                   bdeu_HashUtil::hash1((bsls::Types::Int64)0x12345678));
         ASSERT(338172012U ==
-                  bdeu_HashUtil::hash1((bsls_PlatformUtil::Uint64)0x12345678));
+                  bdeu_HashUtil::hash1((bsls::Types::Uint64)0x12345678));
         ASSERT(3552274171U == bdeu_HashUtil::hash1((float)3.1415926536));
         ASSERT(1503624784U ==
                          bdeu_HashUtil::hash1((double)3.14159265358979323844));
@@ -1226,9 +1226,9 @@ int main(int argc, char *argv[])
         ASSERT(2509914878U == bdeu_HashUtil::hash2((long)0x12345678));
         ASSERT(2509914878U == bdeu_HashUtil::hash2((unsigned long)0x12345678));
         ASSERT(2509914878U ==
-                   bdeu_HashUtil::hash2((bsls_PlatformUtil::Int64)0x12345678));
+                   bdeu_HashUtil::hash2((bsls::Types::Int64)0x12345678));
         ASSERT(2509914878U ==
-                  bdeu_HashUtil::hash2((bsls_PlatformUtil::Uint64)0x12345678));
+                  bdeu_HashUtil::hash2((bsls::Types::Uint64)0x12345678));
         ASSERT(2343743579U == bdeu_HashUtil::hash2((float)3.1415926536));
         ASSERT(3721749206U ==
                          bdeu_HashUtil::hash2((double)3.14159265358979323844));
@@ -1342,7 +1342,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Perform the test of case 2 inside a loop and report the timing
-        //   using a 'bdes_stopwatch'.
+        //   using 'bsls_stopwatch'.
         //
         // Testing:
         //    bdeu_HashUtil::hash1(char);
@@ -1354,8 +1354,8 @@ int main(int argc, char *argv[])
         //    bdeu_HashUtil::hash1(unsigned int);
         //    bdeu_HashUtil::hash1(long);
         //    bdeu_HashUtil::hash1(unsigned long);
-        //    bdeu_HashUtil::hash1(bsls_PlatformUtil::Int64);
-        //    bdeu_HashUtil::hash1(bsls_PlatformUtil::Uint64);
+        //    bdeu_HashUtil::hash1(bsls::Types::Int64);
+        //    bdeu_HashUtil::hash1(bsls::Types::Uint64);
         //    bdeu_HashUtil::hash1(float);
         //    bdeu_HashUtil::hash1(double);
         //    bdeu_HashUtil::hash1(void*);
@@ -1368,8 +1368,8 @@ int main(int argc, char *argv[])
         //    bdeu_HashUtil::hash2(unsigned int);
         //    bdeu_HashUtil::hash2(long);
         //    bdeu_HashUtil::hash2(unsigned long);
-        //    bdeu_HashUtil::hash2(bsls_PlatformUtil::Int64);
-        //    bdeu_HashUtil::hash2(bsls_PlatformUtil::Uint64);
+        //    bdeu_HashUtil::hash2(bsls::Types::Int64);
+        //    bdeu_HashUtil::hash2(bsls::Types::Uint64);
         //    bdeu_HashUtil::hash2(float);
         //    bdeu_HashUtil::hash2(double);
         //    bdeu_HashUtil::hash2(void*);
@@ -1399,10 +1399,10 @@ int main(int argc, char *argv[])
         time_hash1((long)0x12345678, "long");
         time_hash1((unsigned long)0x12345678, "unsigned long");
 #endif
-        time_hash1((bsls_PlatformUtil::Int64)0x12345678,
-                    "bsls_PlatformUtil::Int64");
-        time_hash1((bsls_PlatformUtil::Uint64)0x12345678,
-                    "bsls_PlatformUtil::Uint64");
+        time_hash1((bsls::Types::Int64)0x12345678,
+                    "bsls::Types::Int64");
+        time_hash1((bsls::Types::Uint64)0x12345678,
+                    "bsls::Types::Uint64");
         time_hash1((float)3.1415926536, "float");
         time_hash1((double)3.14159265358979323844, "double");
         time_hash1((float)3.1415926536, "float");
@@ -1426,10 +1426,8 @@ int main(int argc, char *argv[])
         time_hash2((unsigned int)0x12345678, "unsigned int");
         time_hash2((long)0x12345678, "long");
         time_hash2((unsigned long)0x12345678, "unsigned long");
-        time_hash2((bsls_PlatformUtil::Int64)0x12345678,
-                    "bsls_PlatformUtil::Int64");
-        time_hash2((bsls_PlatformUtil::Uint64)0x12345678,
-                    "bsls_PlatformUtil::Uint64");
+        time_hash2((bsls::Types::Int64)0x12345678, "bsls::Types::Int64");
+        time_hash2((bsls::Types::Uint64)0x12345678, "bsls::Types::Uint64");
         time_hash2((float)3.1415926536, "float");
         time_hash2((double)3.14159265358979323844, "double");
 #ifdef BSLS_PLATFORM_CPU_64_BIT

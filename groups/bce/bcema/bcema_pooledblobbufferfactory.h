@@ -61,8 +61,8 @@ class bcema_PooledBlobBufferFactory: public bcema_BlobBufferFactory {
                                        // and buffers contiguously
   public:
     // CREATORS
-    bcema_PooledBlobBufferFactory(int              bufferSize,
-                                  bslma_Allocator *basicAllocator=0);
+    bcema_PooledBlobBufferFactory(int               bufferSize,
+                                  bslma::Allocator *basicAllocator=0);
         // Create a pooled factory for allocating 'bcema_BlobBuffer' objects of
         // the specified 'bufferSize'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently

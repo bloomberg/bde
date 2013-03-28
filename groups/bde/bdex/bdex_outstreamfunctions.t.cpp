@@ -2,7 +2,7 @@
 
 #include <bdex_outstreamfunctions.h>
 
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>     // atoi()
@@ -31,12 +31,12 @@ using namespace bsl;  // automatically added by script
 //      template <typename STREAM>
 //      STREAM& bdexStreamOut(STREAM& stream, const TYPE& value, int version)
 //
-// class bdex_OutStreamFunctions<bsls_PlatformUtil::Int64>
+// class bdex_OutStreamFunctions<bsls::Types::Int64>
 //      int maxSupportedBdexVersion()
 //      template <typename STREAM>
 //      STREAM& bdexStreamOut(STREAM& stream, const Int64& value, int version)
 //
-// class bdex_OutStreamFunctions<bsls_PlatformUtil::Uint64>
+// class bdex_OutStreamFunctions<bsls::Types::Uint64>
 //      int maxSupportedBdexVersion()
 //      template <typename STREAM>
 //      STREAM& bdexStreamOut(STREAM& stream, const Uint64& value, int version)
@@ -135,8 +135,8 @@ static void aSsErT(int c, const char *s, int i)
 //                   GLOBAL CONSTANTS/TYPEDEFS FOR TESTING
 //=============================================================================
 
-typedef bsls_PlatformUtil::Int64  Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 //=============================================================================
 //              Classes, functions, etc., needed for Usage Example
@@ -533,7 +533,7 @@ class my_TestOutStream {
     my_TestOutStream& putFloat64(double value){ d_fun = 164; return *this; }
     my_TestOutStream& putFloat32(float value) { d_fun = 132; return *this; }
 
-    typedef bsls_PlatformUtil::Uint64 Uint64;
+    typedef bsls::Types::Uint64 Uint64;
 
     my_TestOutStream& putArrayInt64(const Int64 *array, int count)
                                             { d_fun = -1064; return *this; }
@@ -791,7 +791,7 @@ int main(int argc, char *argv[])
 //       } break;
 //       case 6: {
 //         // -----------------------------------------------------------------
-//         // TESTING bsls_PlatformUtil::Int64 VECTOR STREAM
+//         // TESTING bsls::Types::Int64 VECTOR STREAM
 //         //
 //         // Plan:
 //         //
@@ -799,7 +799,7 @@ int main(int argc, char *argv[])
 //         //   bdex_OutStreamFunctions<bsl::vector<Int64, ALLOC> >
 //         // -----------------------------------------------------------------
 
-//         const bsls_PlatformUtil::Int64 DATA[] = {
+//         const bsls::Types::Int64 DATA[] = {
 //             // any arbitrary data array
 //             7,
 //             5,
@@ -810,7 +810,7 @@ int main(int argc, char *argv[])
 //         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
 //         for (int size = 0; size <= NUM_DATA; ++size) {
-//             bsl::vector<bsls_PlatformUtil::Int64> vect;  // source vector
+//             bsl::vector<bsls::Types::Int64> vect;  // source vector
 
 //             for (int i = 0; i < size; ++i) {
 //                 vect.push_back(DATA[i]);

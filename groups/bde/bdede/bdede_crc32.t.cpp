@@ -2617,7 +2617,7 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = mX;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
                 for (int j = 0; j < NUM_DATA; ++j) {
@@ -2634,7 +2634,7 @@ int main(int argc, char *argv[])
         {
             bsl::cout << "Legacy CRC32 run" << bsl::endl;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
                 for (int j = 0; j < NUM_DATA; ++j) {

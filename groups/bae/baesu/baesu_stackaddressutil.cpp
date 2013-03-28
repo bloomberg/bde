@@ -27,16 +27,15 @@ BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 #elif defined(BSLS_PLATFORM_OS_HPUX)
 
 # include <bdema_heapbypassallocator.h>
-# include <bsls_platformutil.h>
+# include <bsls_types.h>
 
 # include <uwx.h>
 # include <uwx_self.h>
 # include <unwind.h>
 
-#elif defined(BSLS_PLATFORM_OS_LINUX)
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
 
 #include <execinfo.h>
-#include <link.h>
 
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
@@ -138,11 +137,11 @@ static
 void *allocationCallBack(void *allocator, size_t size)
     // Use 'allocator' to allocate a segment of memory that is at least 'size'
     // in bytes.  Return a pointer to the segment.  The behavior is undefined
-    // unless 'locator' is of type 'bslma_Allocator *'.  Note that a pointer to
-    // this function is passed to the 'uwx' debugging routines provided by HP
-    // to allow this component to specify how 'uwx' is to allocate memory.
+    // unless 'locator' is of type 'bslma::Allocator *'.  Note that a pointer
+    // to this function is passed to the 'uwx' debugging routines provided by
+    // HP to allow this component to specify how 'uwx' is to allocate memory.
 {
-    return ((bslma_Allocator *) allocator)->allocate(size);
+    return ((bslma::Allocator *)allocator)->allocate(size);
 }
 
 static
@@ -210,7 +209,7 @@ int baesu_StackAddressUtil::getStackAddresses(void **buffer,
             return -125;                                              // RETURN
         }
 
-        buffer[i] = (void *) (bsls_PlatformUtil::UintPtr) ip;
+        buffer[i] = (void *) (bsls::Types::UintPtr) ip;
     }
 
     return maxFrames;
@@ -218,7 +217,7 @@ int baesu_StackAddressUtil::getStackAddresses(void **buffer,
 
 // HPUX
 #endif
-#ifdef BSLS_PLATFORM_OS_LINUX
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
 
 int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
@@ -227,9 +226,10 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
 
     if (0 >= maxFrames) {
         // Call 'backtrace' to make sure that it has been dynamically loaded
-        // if it wasn't already.  Note the first time 'backtrace' is called,
-        // it calls 'dlopen', which calls 'malloc'.  Also note that handling
-        // the 'maxFrames == 0' case allows the caller to call this function
+        // if it wasn't already.  Note that on Linux, the first time
+        //  'backtrace' is called, it calls 'dlopen', which calls 'malloc'.
+        // It may be the same on Darwin.  Also note that handling the
+        // 'maxFrames == 0' case allows the caller to call this function
         // with arguments '(0, 0)' on any platform to ensure that any dynamic
         // loading has occured, which is useful for debugging.
 
@@ -241,7 +241,7 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
     return backtrace(buffer, maxFrames);
 }
 
-// LINUX
+// LINUX & DARWIN
 #endif
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
 
@@ -430,7 +430,13 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
     stackFrame.AddrStack.Mode = AddrModeFlat;
     int stackFrameIndex;
     HANDLE currentThread = GetCurrentThread();
-    for (stackFrameIndex = 0; stackFrameIndex < maxFrames; ++stackFrameIndex) {
+
+    // In this loop, we begin our iterations at -1, since the first frame we
+    // encounter will be our own frame, which is of no interest to us.  So
+    // we do not record stack frame '-1' into the buffer, but start recorrding
+    // stack frames at 0.
+
+    for (stackFrameIndex = -1; stackFrameIndex < maxFrames; ++stackFrameIndex){
         bool rc = baesu_DbghelpDllImpl_Windows::stackWalk64(MACHINE,
                                                             currentThread,
                                                             &stackFrame,
@@ -438,10 +444,12 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
         if (!rc) {
             break;
         }
-        buffer[stackFrameIndex] = (void *) stackFrame.AddrPC.Offset;
+        if (stackFrameIndex >= 0) {
+            buffer[stackFrameIndex] = (void *) stackFrame.AddrPC.Offset;
+        }
     }
 
-    return stackFrameIndex;
+    return stackFrameIndex < 0 ? 0 : stackFrameIndex;
 }
 
 // WINDOWS

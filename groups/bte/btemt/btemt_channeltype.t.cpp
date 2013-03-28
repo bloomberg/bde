@@ -2,8 +2,6 @@
 
 #include <btemt_channeltype.h>
 
-#include <bsls_platformutil.h>           // for testing only
-
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 

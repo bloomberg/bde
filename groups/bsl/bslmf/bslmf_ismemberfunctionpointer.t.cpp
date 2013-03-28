@@ -3,11 +3,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -147,6 +146,21 @@ typedef int (StructTestType::*MethodPtrTestType10) (int, int, int, int, int,
                                                     int, int, int, int, int);
     // This pointer to non-static member function type is intended to be used
     // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*ConstMethodPtrTestType) (int) const;
+    // This pointer to non-static 'const' member function type is intended to
+    // be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*VolatileMethodPtrTestType) (int) volatile;
+    // This pointer to non-static 'volatile' member function type is intended
+    // to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*CVMethodPtrTestType) (int) const volatile;
+    // This pointer to non-static 'const volatile' member function type is
+    // intended to be used for testing as the template parameter 'TYPE' of
     // 'bsl::is_member_function_pointer'.
 
 typedef void (*FunctionPtrTestType) ();
@@ -388,30 +402,42 @@ int main(int argc, char *argv[])
            bsl::is_member_function_pointer, MethodPtrTestType9,         false);
         TYPE_ASSERT_CVQ_REF(
            bsl::is_member_function_pointer, MethodPtrTestType10,        false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, ConstMethodPtrTestType,     false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, VolatileMethodPtrTestType,  false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, CVMethodPtrTestType,        false);
 
         // C-4
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType0,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType0,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType1,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType1,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType2,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType2,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType3,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType3,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType4,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType4,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType5,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType5,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType6,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType6,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType7,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType7,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType8,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType8,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType9,  true);
+             bsl::is_member_function_pointer, MethodPtrTestType9,        true);
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType10, true);
+             bsl::is_member_function_pointer, MethodPtrTestType10,       true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, ConstMethodPtrTestType,    true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, VolatileMethodPtrTestType, true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, CVMethodPtrTestType,       true);
 
         // C-5
         TYPE_ASSERT_CVQ_PREFIX(
@@ -438,10 +464,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

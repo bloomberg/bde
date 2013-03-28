@@ -35,6 +35,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_string.h>
@@ -205,11 +206,11 @@ class btemt_Channel {
         // the channel lives at least as long as the callbacks that reference
         // it.
 
-    typedef bslmf_MetaInt<0> PooledBufferChainBasedType;
+    typedef bslmf::MetaInt<0> PooledBufferChainBasedType;
         // Type used to distinguish pooled buffer chain based reads from blob
         // based data reads.
 
-    typedef bslmf_MetaInt<1> BlobBasedType;
+    typedef bslmf::MetaInt<1> BlobBasedType;
         // Type used to distinguish blob based reads from pooled buffer chain
         // based data reads.
 
@@ -319,20 +320,20 @@ class btemt_Channel {
     bdet_TimeInterval         d_creationTime;     // time this object was
                                                   // created
 
-    volatile bsls_PlatformUtil::Int64
+    volatile bsls::Types::Int64
                               d_numBytesRead;     // bytes read from channel,
                                                   // should only be updated by
                                                   // callbacks executing in
                                                   // the event manager thread
 
-    volatile bsls_PlatformUtil::Int64
+    volatile bsls::Types::Int64
                               d_numBytesWritten;  // bytes written to channel,
                                                   // modification synchronized
                                                   // with output to channel
                                                   // (i.e., 'd_writeMutex'
                                                   // and 'd_isWriteActive')
 
-    volatile bsls_PlatformUtil::Int64
+    volatile bsls::Types::Int64
                               d_numBytesRequestedToBeWritten;
                                                   // bytes requested to be
                                                   // written to channel;
@@ -358,7 +359,7 @@ class btemt_Channel {
 
     bcema_PoolAllocator            *d_sharedPtrRepAllocator_p;
 
-    bslma_Allocator                *d_allocator_p;        // for memory
+    bslma::Allocator               *d_allocator_p;        // for memory
 
     // PRIVATE MANIPULATORS
     // TBD: Improve Doc
@@ -520,7 +521,7 @@ class btemt_Channel {
           btemt_TcpTimerEventManager             *eventManager,
           btemt_ChannelPool                      *channelPool,
           bcema_PoolAllocator                    *sharedPtrAllocator,
-          bslma_Allocator                        *basicAllocator = 0);
+          bslma::Allocator                       *basicAllocator = 0);
         // Create a channel belonging to the specified 'channelPool' and
         // managed by the specified 'eventManager' with the specified
         // 'sourceId', 'channelId', and 'configuration'.  Use the specified
@@ -616,15 +617,15 @@ class btemt_Channel {
         // connection if 'mask' is 'CLOSED_RECEIVE_MASK' or
         // 'CLOSED_SEND_MASK'), and 'false' otherwise.
 
-    bsls_PlatformUtil::Int64 numBytesRead() const;
+    bsls::Types::Int64 numBytesRead() const;
         // Return the number of bytes read from this channel since its
         // construction or since the last reset.
 
-    bsls_PlatformUtil::Int64 numBytesWritten() const;
+    bsls::Types::Int64 numBytesWritten() const;
         // Return the number of bytes written to this channel since its
         // construction or since the last reset.
 
-    bsls_PlatformUtil::Int64 numBytesRequestedToBeWritten() const;
+    bsls::Types::Int64 numBytesRequestedToBeWritten() const;
         // Return the number of bytes request to be written to this channel
         // since its construction or since the last reset.
 
@@ -709,19 +710,19 @@ const bteso_IPv4Address& btemt_Channel::peerAddress() const
 }
 
 inline
-bsls_PlatformUtil::Int64 btemt_Channel::numBytesRead() const
+bsls::Types::Int64 btemt_Channel::numBytesRead() const
 {
     return d_numBytesRead;
 }
 
 inline
-bsls_PlatformUtil::Int64 btemt_Channel::numBytesWritten() const
+bsls::Types::Int64 btemt_Channel::numBytesWritten() const
 {
     return d_numBytesWritten;
 }
 
 inline
-bsls_PlatformUtil::Int64 btemt_Channel::numBytesRequestedToBeWritten() const
+bsls::Types::Int64 btemt_Channel::numBytesRequestedToBeWritten() const
 {
     return d_numBytesRequestedToBeWritten;
 }
@@ -768,7 +769,7 @@ class btemt_Connector {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(btemt_Connector,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // DATA MEMBERS
     StreamSocket               *d_socket_p;         // connecting socket
@@ -827,13 +828,13 @@ class btemt_Connector {
                                                     // while connecting
 
     // CREATORS
-    btemt_Connector(bslma_Allocator *basicAllocator = 0);
+    btemt_Connector(bslma::Allocator *basicAllocator = 0);
         // Create an uninitialized connector.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // use the currently installed default allocator.
 
-    btemt_Connector(const btemt_Connector& original,
-                    bslma_Allocator *basicAllocator = 0);
+    btemt_Connector(const btemt_Connector&  original,
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a copy of the specified 'original' connector.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, use the currently installed default
@@ -842,13 +843,13 @@ class btemt_Connector {
 
 // CREATORS
 inline
-btemt_Connector::btemt_Connector(bslma_Allocator *basicAllocator)
+btemt_Connector::btemt_Connector(bslma::Allocator *basicAllocator)
 : d_serverName(basicAllocator)
 {
 }
 
 btemt_Connector::btemt_Connector(const btemt_Connector&  original,
-                                 bslma_Allocator        *basicAllocator)
+                                 bslma::Allocator       *basicAllocator)
 : d_socket_p(original.d_socket_p)
 , d_manager_p (original.d_manager_p)
 , d_serverName(original.d_serverName, basicAllocator)
@@ -1081,10 +1082,10 @@ int btemt_Channel::populateIVecs(const PooledBufferChainBasedType&)
     int remaining = bufferSize - offset;
     BSLS_ASSERT(0 < remaining);
 
-    bsls_PerformanceHint::prefetchForWriting(buffers[0] + offset);
+    bsls::PerformanceHint::prefetchForWriting(buffers[0] + offset);
     d_ivecs[0].setBuffer(buffers[0] + offset, remaining);
     for (int i = 1; i < d_numUsedIVecs; ++i) {
-        bsls_PerformanceHint::prefetchForWriting(buffers[i]);
+        bsls::PerformanceHint::prefetchForWriting(buffers[i]);
         d_ivecs[i].setBuffer((void*)buffers[i], bufferSize);
     }
     return remaining + bufferSize * (d_numUsedIVecs - 1);
@@ -1106,7 +1107,7 @@ int btemt_Channel::populateIVecs(const BlobBasedType&)
         const bcema_BlobBuffer& buffer = d_blobReadData.buffer(startIdx - 1);
         const int remainingBufferLen = buffer.size() - lastBufferLen;
 
-        bsls_PerformanceHint::prefetchForWriting(buffer.data() +
+        bsls::PerformanceHint::prefetchForWriting(buffer.data() +
                                                                 lastBufferLen);
         ivec->setBuffer((void *)(buffer.data() + lastBufferLen),
                         remainingBufferLen);
@@ -1117,7 +1118,7 @@ int btemt_Channel::populateIVecs(const BlobBasedType&)
 
     for (int i = 0; i < numIVecsToFill; ++i, ++ivec) {
         const bcema_BlobBuffer& buffer = d_blobReadData.buffer(startIdx + i);
-        bsls_PerformanceHint::prefetchForWriting(buffer.data());
+        bsls::PerformanceHint::prefetchForWriting(buffer.data());
         ivec->setBuffer((void*)buffer.data(), buffer.size());
         totalBufferSize += buffer.size();
     }
@@ -1472,7 +1473,7 @@ void btemt_Channel::readCb(ChannelHandle self)
             bcemt_ThreadUtil::yield();
         }
     }
-    bsls_PerformanceHint::prefetchForReading(d_userData);
+    bsls::PerformanceHint::prefetchForReading(d_userData);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          isChannelDown(CLOSED_RECEIVE_MASK))) {
@@ -1707,7 +1708,7 @@ void btemt_Channel::writeCb(ChannelHandle self)
     int currentBuffer = d_writeActiveData.userDataField1();
     int currentOffset = d_writeActiveData.userDataField2();
 
-    bsls_PerformanceHint::prefetchForReading(
+    bsls::PerformanceHint::prefetchForReading(
                            blob->buffer(currentBuffer).data() + currentOffset);
 
     BSLS_ASSERT(0 <= currentBuffer);
@@ -1731,7 +1732,7 @@ void btemt_Channel::writeCb(ChannelHandle self)
         for (int i = currentBuffer + 1; numVecs < numMaxVecs; ++i, ++numVecs) {
             const bcema_BlobBuffer& blobBuffer = blob->buffer(i);
             char *buf = blobBuffer.data();
-            bsls_PerformanceHint::prefetchForReading(buf);
+            bsls::PerformanceHint::prefetchForReading(buf);
             d_ovecs[numVecs].setBuffer(buf,
                                       i < numBuffers - 1
                                           ? blobBuffer.size()
@@ -1871,7 +1872,7 @@ btemt_Channel::btemt_Channel(
         btemt_TcpTimerEventManager             *eventManager,
         btemt_ChannelPool                      *channelPool,
         bcema_PoolAllocator                    *sharedPtrAllocator,
-        bslma_Allocator                        *basicAllocator)
+        bslma::Allocator                       *basicAllocator)
 : d_socket_p(socket)
 , d_socketFactory_p(socketFactory)
 , d_channelStateCb(channelCb)
@@ -2092,7 +2093,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return CHANNEL_DOWN;
     }
 
-    bsls_PlatformUtil::Int64  dataLength = MessageUtil::length(msg);
+    bsls::Types::Int64 dataLength = MessageUtil::length(msg);
 
     // Grab the lock.  Note that we shouldn't release the lock until the
     // message is enqueued for write.  If there are no other messages enqueued,
@@ -3347,7 +3348,7 @@ btemt_ChannelPool::btemt_ChannelPool(
            DataCallback                           pooledBufferChainBasedReadCb,
            PoolStateCallback                      poolStateCb,
            const btemt_ChannelPoolConfiguration&  parameters,
-           bslma_Allocator                       *basicAllocator)
+           bslma::Allocator                      *basicAllocator)
 : d_channels(basicAllocator)
 , d_managers(basicAllocator)
 , d_connectors(bsl::less<int>(), basicAllocator)
@@ -3373,7 +3374,7 @@ btemt_ChannelPool::btemt_ChannelPool(
 , d_metricAdjustmentMutex()
 , d_factory(basicAllocator)
 , d_pool(sizeof(btemt_Channel), basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     init();
 }
@@ -3383,7 +3384,7 @@ btemt_ChannelPool::btemt_ChannelPool(
            DataReadCallback                       pooledBufferChainBasedReadCb,
            PoolStateChangeCallback                poolStateCb,
            const btemt_ChannelPoolConfiguration&  parameters,
-           bslma_Allocator                       *basicAllocator)
+           bslma::Allocator                      *basicAllocator)
 : d_channels(basicAllocator)
 , d_managers(basicAllocator)
 , d_connectors(bsl::less<int>(), basicAllocator)
@@ -3409,7 +3410,7 @@ btemt_ChannelPool::btemt_ChannelPool(
 , d_metricAdjustmentMutex()
 , d_factory(basicAllocator)
 , d_pool(sizeof(btemt_Channel), basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     init();
 }
@@ -3419,7 +3420,7 @@ btemt_ChannelPool::btemt_ChannelPool(
                         BlobBasedReadCallback                  blobBasedReadCb,
                         PoolStateCallback                      poolStateCb,
                         const btemt_ChannelPoolConfiguration&  parameters,
-                        bslma_Allocator                       *basicAllocator)
+                        bslma::Allocator                      *basicAllocator)
 : d_channels(basicAllocator)
 , d_managers(basicAllocator)
 , d_connectors(bsl::less<int>(), basicAllocator)
@@ -3445,7 +3446,7 @@ btemt_ChannelPool::btemt_ChannelPool(
 , d_metricAdjustmentMutex()
 , d_factory(basicAllocator)
 , d_pool(sizeof(btemt_Channel), basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     init();
 }
@@ -3455,7 +3456,7 @@ btemt_ChannelPool::btemt_ChannelPool(
                         BlobBasedReadCallback                  blobBasedReadCb,
                         PoolStateChangeCallback                poolStateCb,
                         const btemt_ChannelPoolConfiguration&  parameters,
-                        bslma_Allocator                       *basicAllocator)
+                        bslma::Allocator                      *basicAllocator)
 : d_channels(basicAllocator)
 , d_managers(basicAllocator)
 , d_connectors(bsl::less<int>(), basicAllocator)
@@ -3481,7 +3482,7 @@ btemt_ChannelPool::btemt_ChannelPool(
 , d_metricAdjustmentMutex()
 , d_factory(basicAllocator)
 , d_pool(sizeof(btemt_Channel), basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     init();
 }
@@ -4043,7 +4044,7 @@ int btemt_ChannelPool::write(int               channelId,
                              const bcema_Blob& blob,
                              int               enqueueWatermark)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -4066,7 +4067,7 @@ int btemt_ChannelPool::write(int                  channelId,
                              const btemt_BlobMsg& msg,
                              int                  enqueueWatermark)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -4089,7 +4090,7 @@ int btemt_ChannelPool::write(int                   channelId,
                              const btemt_DataMsg&  msg,
                              int                   enqueueWatermark)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -4112,7 +4113,7 @@ int btemt_ChannelPool::write(int               channelId,
                              const btes_Iovec  vecs[],
                              int               numVecs)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -4136,7 +4137,7 @@ int btemt_ChannelPool::write(int             channelId,
                              const btes_Ovec vecs[],
                              int             numVecs)
 {
-    enum { NOT_FOUND = -3 };
+    enum { NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -4373,7 +4374,7 @@ int btemt_ChannelPool::setSocketOption(int option,
 double btemt_ChannelPool::reportWeightedAverageReset()
 {
     bdet_TimeInterval resetTime = d_lastResetTime;
-    bsls_PlatformUtil::Int64 sum = 0;
+    bsls::Types::Int64 sum = 0;
     d_lastResetTime = bdetu_SystemTime::now();
     sum = d_totalConnectionsLifetime.swap(sum);
 
@@ -4390,21 +4391,21 @@ double btemt_ChannelPool::reportWeightedAverageReset()
         sum += intv.totalMicroseconds();
     }
     bdet_TimeInterval intv = d_lastResetTime - resetTime;
-    bsls_PlatformUtil::Int64 timeDiff = intv.totalMicroseconds();
+    bsls::Types::Int64 timeDiff = intv.totalMicroseconds();
 
     return timeDiff > 0
            ? static_cast<double>(sum) / static_cast<double>(timeDiff)
            : -1;
 }
 
-void btemt_ChannelPool::totalBytesReadReset(bsls_PlatformUtil::Int64 *result)
+void btemt_ChannelPool::totalBytesReadReset(bsls::Types::Int64 *result)
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
     bcemt_LockGuard<bcemt_Mutex> guard(&d_metricAdjustmentMutex);
     bcec_ObjectCatalogIter<ChannelHandle> it(d_channels);
 
-    bsls_PlatformUtil::Int64 total = 0;
+    bsls::Types::Int64 total = 0;
     for ( ; it; ++it) {
         if (it().second) {
             total += it().second->numBytesRead();
@@ -4414,15 +4415,14 @@ void btemt_ChannelPool::totalBytesReadReset(bsls_PlatformUtil::Int64 *result)
     d_totalBytesReadAdjustment = -total;
 }
 
-void btemt_ChannelPool::totalBytesWrittenReset(
-                                              bsls_PlatformUtil::Int64 *result)
+void btemt_ChannelPool::totalBytesWrittenReset(bsls::Types::Int64 *result)
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
     bcemt_LockGuard<bcemt_Mutex> guard(&d_metricAdjustmentMutex);
     bcec_ObjectCatalogIter<ChannelHandle> it(d_channels);
 
-    bsls_PlatformUtil::Int64 total = 0;
+    bsls::Types::Int64 total = 0;
     for ( ; it; ++it) {
         if (it().second) {
             total += it().second->numBytesWritten();
@@ -4433,14 +4433,14 @@ void btemt_ChannelPool::totalBytesWrittenReset(
 }
 
 void btemt_ChannelPool::totalBytesRequestedToBeWrittenReset(
-                                              bsls_PlatformUtil::Int64 *result)
+                                                    bsls::Types::Int64 *result)
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
     bcemt_LockGuard<bcemt_Mutex> guard(&d_metricAdjustmentMutex);
     bcec_ObjectCatalogIter<ChannelHandle> it(d_channels);
 
-    bsls_PlatformUtil::Int64 total = 0;
+    bsls::Types::Int64 total = 0;
     for ( ; it; ++it) {
         if (it().second) {
             total += it().second->numBytesRequestedToBeWritten();
@@ -4475,10 +4475,10 @@ btemt_ChannelPool::streamSocket(int channelId) const
 }
 
 int btemt_ChannelPool::getChannelStatistics(
-                             bsls_PlatformUtil::Int64 *numRead,
-                             bsls_PlatformUtil::Int64 *numRequestedToBeWritten,
-                             bsls_PlatformUtil::Int64 *numWritten,
-                             int                       channelId) const
+                                   bsls::Types::Int64 *numRead,
+                                   bsls::Types::Int64 *numRequestedToBeWritten,
+                                   bsls::Types::Int64 *numWritten,
+                                   int                 channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
@@ -4635,8 +4635,8 @@ btemt_ChannelPool::getPeerAddress(bteso_IPv4Address *result,
     return 1;
 }
 
-int btemt_ChannelPool::numBytesRead(bsls_PlatformUtil::Int64 *result,
-                                    int                       channelId) const
+int btemt_ChannelPool::numBytesRead(bsls::Types::Int64 *result,
+                                    int                 channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
@@ -4647,8 +4647,8 @@ int btemt_ChannelPool::numBytesRead(bsls_PlatformUtil::Int64 *result,
 }
 
 int btemt_ChannelPool::numBytesRequestedToBeWritten(
-                                     bsls_PlatformUtil::Int64 *result,
-                                     int                       channelId) const
+                                           bsls::Types::Int64 *result,
+                                           int                 channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
@@ -4658,9 +4658,8 @@ int btemt_ChannelPool::numBytesRequestedToBeWritten(
     return 1;
 }
 
-int btemt_ChannelPool::numBytesWritten(
-                                     bsls_PlatformUtil::Int64 *result,
-                                     int                       channelId) const
+int btemt_ChannelPool::numBytesWritten(bsls::Types::Int64 *result,
+                                       int                 channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
@@ -4670,14 +4669,13 @@ int btemt_ChannelPool::numBytesWritten(
     return 1;
 }
 
-void btemt_ChannelPool::totalBytesWritten(
-                                        bsls_PlatformUtil::Int64 *result) const
+void btemt_ChannelPool::totalBytesWritten(bsls::Types::Int64 *result) const
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
     bcemt_LockGuard<bcemt_Mutex> guard(&d_metricAdjustmentMutex);
     bcec_ObjectCatalogIter<ChannelHandle> it(d_channels);
-    bsls_PlatformUtil::Int64 total = 0;
+    bsls::Types::Int64 total = 0;
     for ( ; it; ++it) {
         if (it().second) {
             total += it().second->numBytesWritten();
@@ -4686,13 +4684,13 @@ void btemt_ChannelPool::totalBytesWritten(
     *result = total + d_totalBytesWrittenAdjustment;
 }
 
-void btemt_ChannelPool::totalBytesRead(bsls_PlatformUtil::Int64 *result) const
+void btemt_ChannelPool::totalBytesRead(bsls::Types::Int64 *result) const
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
     bcemt_LockGuard<bcemt_Mutex> guard(&d_metricAdjustmentMutex);
     bcec_ObjectCatalogIter<ChannelHandle> it(d_channels);
-    bsls_PlatformUtil::Int64 total = 0;
+    bsls::Types::Int64 total = 0;
     for ( ; it; ++it) {
         if (it().second) {
             total += it().second->numBytesRead();
@@ -4702,13 +4700,13 @@ void btemt_ChannelPool::totalBytesRead(bsls_PlatformUtil::Int64 *result) const
 }
 
 void btemt_ChannelPool::totalBytesRequestedToBeWritten(
-                                       bsls_PlatformUtil::Int64 *result) const
+                                              bsls::Types::Int64 *result) const
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
     bcemt_LockGuard<bcemt_Mutex> guard(&d_metricAdjustmentMutex);
     bcec_ObjectCatalogIter<ChannelHandle> it(d_channels);
-    bsls_PlatformUtil::Int64 total = 0;
+    bsls::Types::Int64 total = 0;
     for ( ; it; ++it) {
         if (it().second) {
             total += it().second->numBytesRequestedToBeWritten();

@@ -356,9 +356,9 @@ class baexml_MiniReader :  public baexml_Reader {
         int              d_startPos;
         int              d_endPos;
 
-        Node (bslma_Allocator *basicAllocator = 0);
+        Node (bslma::Allocator *basicAllocator = 0);
         Node (const Node & other,
-              bslma_Allocator *basicAllocator = 0);
+              bslma::Allocator *basicAllocator = 0);
 
         void reset();
         void swap(Node & other);
@@ -387,7 +387,7 @@ class baexml_MiniReader :  public baexml_Reader {
 
   private:
     // PRIVATE DATA
-    bslma_Allocator          *d_allocator;
+    bslma::Allocator         *d_allocator;
     State                     d_state;
     int                       d_flags;
     int                       d_readSize;
@@ -528,10 +528,10 @@ class baexml_MiniReader :  public baexml_Reader {
     virtual ~baexml_MiniReader();
 
     explicit
-    baexml_MiniReader(bslma_Allocator *basicAllocator = 0);
+    baexml_MiniReader(bslma::Allocator *basicAllocator = 0);
     explicit
-    baexml_MiniReader(int bufSize,
-                      bslma_Allocator *basicAllocator = 0);
+    baexml_MiniReader(int               bufSize,
+                      bslma::Allocator *basicAllocator = 0);
        // Construct a reader with the (optionally) specified 'bufSize' and use
        // the specified 'basicAllocator' to allocate memory.  The instantiated
        // baexml_MiniReader will utilize a memory buffer of 'bufSize' while

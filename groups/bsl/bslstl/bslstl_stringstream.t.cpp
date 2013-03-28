@@ -1208,6 +1208,60 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING READ/WRITE/SEEK COMBINATIONS
+        //
+        // Concerns:
+        //: 1. Combination of read, write and seek operations doesn't affect
+        //:    the consistency of the stream internal state.
+        //
+        // Plan:
+        //: 1. Write to the stream, change the input position, then obtain the
+        //:    current stream input position and verify that it's consistent
+        //:    with what has been written to the stream.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING READ/WRITE/SEEK COMBINATIONS"
+                            "\n====================================\n");
+
+        bsl::stringstream inout;
+
+        // Outputting a string goes through stringbuf::xsputn, but outputting a
+        // character doesn't have to involve stringbuf and can be done just by
+        // bumping the internal streambuf output pointer, so we do both.
+        inout << "abc" << 'd' << 'e';
+
+        // Now verify that we can seek in this stream
+        inout.seekg(0, std::ios::beg);
+        inout.seekg(0, std::ios::end);
+        std::streamoff endPos = inout.tellg();
+
+        ASSERT(inout.good());
+        ASSERT(endPos == inout.str().size());
+
+        // Verify that we can seek in the empty stream
+        bsl::stringstream empty;
+        empty.seekg(0, std::ios::beg);
+        empty.seekg(0, std::ios::end);
+        empty.seekg(0, std::ios::cur);
+        empty.seekp(0, std::ios::beg);
+        empty.seekp(0, std::ios::end);
+        empty.seekp(0, std::ios::cur);
+
+        ASSERT(empty.good());
+        ASSERT(empty.tellg() == std::streampos(0));
+        ASSERT(empty.tellp() == std::streampos(0));
+
+        // Verify the output position after writing to a stream
+        bsl::stringstream out2;
+        bsl::string str2 =
+            "sufficiently long string longer than the short string buffer";
+        out2 << str2;
+        std::streamoff endPos2 = out2.tellp();
+
+        ASSERT(endPos2 == str2.size());
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -1375,10 +1429,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

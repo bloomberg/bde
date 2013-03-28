@@ -817,7 +817,8 @@ int main(int argc, char *argv[])
                                                                     X);
                         LOOP5_ASSERT(LINE, k, SPEC, EXP, rc, EXP == rc);
                         if (!rc) {
-                            LOOP3_ASSERT(LINE, k, SPEC, !verify(handles[i], X));
+                            LOOP3_ASSERT(LINE, k, SPEC,
+                                         !verify(handles[i], X));
                         }
                     }
                 }
@@ -951,7 +952,7 @@ int main(int argc, char *argv[])
                    #if    defined(BSLS_PLATFORM_OS_LINUX) \
                        || defined(BSLS_PLATFORM_OS_CYGWIN) \
                        || defined(BSLS_PLATFORM_OS_DARWIN) \
-                       || defined(BDES_PLATFORM_OS_FREEBSD)
+                       || defined(BSLS_PLATFORM_OS_FREEBSD)
                         socklen_t optsize = sizeof(optResult);
                    #endif
 
@@ -1123,7 +1124,7 @@ int main(int argc, char *argv[])
                     #if   defined(BSLS_PLATFORM_OS_LINUX) \
                        || defined(BSLS_PLATFORM_OS_CYGWIN) \
                        || defined(BSLS_PLATFORM_OS_DARWIN) \
-                       || defined(BDES_PLATFORM_OS_FREEBSD)
+                       || defined(BSLS_PLATFORM_OS_FREEBSD)
                         socklen_t optsize = sizeof(optResult);
                     #endif
                     result = getsockopt(serverSocket[i],
@@ -1295,7 +1296,7 @@ int main(int argc, char *argv[])
                             #if   defined(BSLS_PLATFORM_OS_LINUX) \
                                || defined(BSLS_PLATFORM_OS_CYGWIN) \
                                || defined(BSLS_PLATFORM_OS_DARWIN) \
-                               || defined(BDES_PLATFORM_OS_FREEBSD)
+                               || defined(BSLS_PLATFORM_OS_FREEBSD)
                               socklen_t optsize = sizeof(optResult);
                             #endif
                             result = getsockopt(

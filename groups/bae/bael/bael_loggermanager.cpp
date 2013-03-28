@@ -35,7 +35,6 @@ BDES_IDENT_RCSID(bael_loggermanager_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <bslstl_stringref.h>
 
@@ -187,7 +186,7 @@ bael_Logger::bael_Logger(
            int                                              scratchBufferSize,
            bael_LoggerManagerConfiguration::LogOrder        logOrder,
            bael_LoggerManagerConfiguration::TriggerMarkers  triggerMarkers,
-           bslma_Allocator                                 *basicAllocator)
+           bslma::Allocator                                *basicAllocator)
 : d_recordPool(-1, basicAllocator)
 , d_observer_p(observer)
 , d_recordBuffer_p(recordBuffer)
@@ -448,15 +447,15 @@ bael_LoggerManager *bael_LoggerManager::s_singleton_p = 0;
 void bael_LoggerManager::initSingletonImpl(
                  bael_Observer                          *observer,
                  const bael_LoggerManagerConfiguration&  configuration,
-                 bslma_Allocator                        *basicAllocator)
+                 bslma::Allocator                       *basicAllocator)
 {
     BSLS_ASSERT(observer);
 
     static bcemt_Once doOnceObj = BCEMT_ONCE_INITIALIZER;
     bcemt_OnceGuard doOnceGuard(&doOnceObj);
     if (doOnceGuard.enter() && 0 == s_singleton_p) {
-        bslma_Allocator *allocator =
-                                bslma_Default::globalAllocator(basicAllocator);
+        bslma::Allocator *allocator =
+                               bslma::Default::globalAllocator(basicAllocator);
         new(*allocator) bael_LoggerManager(observer, configuration, allocator);
     }
     else {
@@ -475,9 +474,9 @@ bael_LoggerManager::createLoggerManager(
                         bdema_ManagedPtr<bael_LoggerManager>   *manager,
                         bael_Observer                          *observer,
                         const bael_LoggerManagerConfiguration&  configuration,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 {
-    bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
     manager->load(new(*allocator) bael_LoggerManager(configuration,
                                                      observer,
@@ -488,7 +487,7 @@ bael_LoggerManager::createLoggerManager(
 bael_LoggerManager& bael_LoggerManager::initSingleton(
                         bael_Observer                          *observer,
                         const bael_LoggerManagerConfiguration&  configuration,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 {
     initSingletonImpl(observer, configuration, basicAllocator);
     return *s_singleton_p;
@@ -501,8 +500,8 @@ void bael_LoggerManager::shutDownSingleton()
     }
 }
 
-void bael_LoggerManager::initSingleton(bael_Observer   *observer,
-                                       bslma_Allocator *basicAllocator)
+void bael_LoggerManager::initSingleton(bael_Observer    *observer,
+                                       bslma::Allocator *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     initSingletonImpl(observer, configuration, basicAllocator);
@@ -511,7 +510,7 @@ void bael_LoggerManager::initSingleton(bael_Observer   *observer,
 void bael_LoggerManager::initSingleton(
                             bael_Observer                   *observer,
                             const FactoryDefaultThresholds&  factoryThresholds,
-                            bslma_Allocator                 *basicAllocator)
+                            bslma::Allocator                *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     bael_LoggerManagerDefaults      defaults;
@@ -527,7 +526,7 @@ void bael_LoggerManager::initSingleton(
 void bael_LoggerManager::initSingleton(
                        bael_Observer                        *observer,
                        const DefaultThresholdLevelsCallback& defaultThresholds,
-                       bslma_Allocator                      *basicAllocator)
+                       bslma::Allocator                     *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
@@ -538,7 +537,7 @@ void bael_LoggerManager::initSingleton(
                        bael_Observer                        *observer,
                        const DefaultThresholdLevelsCallback& defaultThresholds,
                        const FactoryDefaultThresholds&       factoryThresholds,
-                       bslma_Allocator                      *basicAllocator)
+                       bslma::Allocator                     *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     bael_LoggerManagerDefaults      defaults;
@@ -556,7 +555,7 @@ void bael_LoggerManager::initSingleton(
                      bael_Observer                             *observer,
                      const bdem_Schema&                         userSchema,
                      const bael_Logger::UserPopulatorCallback&  populator,
-                     bslma_Allocator                           *basicAllocator)
+                     bslma::Allocator                          *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     configuration.setUserFields(userSchema, populator);
@@ -568,7 +567,7 @@ void bael_LoggerManager::initSingleton(
                   const FactoryDefaultThresholds&            factoryThresholds,
                   const bdem_Schema&                         userSchema,
                   const bael_Logger::UserPopulatorCallback&  populator,
-                  bslma_Allocator                           *basicAllocator)
+                  bslma::Allocator                          *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     bael_LoggerManagerDefaults      defaults;
@@ -587,7 +586,7 @@ void bael_LoggerManager::initSingleton(
                    const DefaultThresholdLevelsCallback&     defaultThresholds,
                    const bdem_Schema&                        userSchema,
                    const bael_Logger::UserPopulatorCallback& populator,
-                   bslma_Allocator                          *basicAllocator)
+                   bslma::Allocator                         *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
@@ -601,7 +600,7 @@ void bael_LoggerManager::initSingleton(
                    const FactoryDefaultThresholds&           factoryThresholds,
                    const bdem_Schema&                        userSchema,
                    const bael_Logger::UserPopulatorCallback& populator,
-                   bslma_Allocator                          *basicAllocator)
+                   bslma::Allocator                         *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     bael_LoggerManagerDefaults      defaults;
@@ -628,7 +627,7 @@ bael_Record *bael_LoggerManager::getRecord(const char *file, int line)
     // destroyed).  The memory for the record is therefore supplied by the
     // currently installed default allocator.
 
-    bslma_Allocator *allocator = bslma_Default::defaultAllocator();
+    bslma::Allocator *allocator = bslma::Default::defaultAllocator();
     bael_Record *record = new(*allocator) bael_Record(allocator);
     record->fixedFields().setFileName(file);
     record->fixedFields().setLineNumber(line);
@@ -654,7 +653,7 @@ void bael_LoggerManager::logMessage(int severity, bael_Record *record)
                  record->fixedFields().lineNumber(),
                  "UNINITIALIZED_LOGGER_MANAGER");
 
-    bslstl_StringRef message = record->fixedFields().messageRef();
+    bslstl::StringRef message = record->fixedFields().messageRef();
     bsl::fwrite(message.data(), 1, message.length(), stderr);
 
     bsl::fprintf(stderr, "\n");
@@ -673,7 +672,7 @@ char *bael_LoggerManager::obtainMessageBuffer(bcemt_Mutex **mutex,
     const int DEFAULT_LOGGER_BUFFER_SIZE = 8192;
     static char buffer[DEFAULT_LOGGER_BUFFER_SIZE];
 
-    static bsls_ObjectBuffer<bcemt_Mutex> staticMutex;
+    static bsls::ObjectBuffer<bcemt_Mutex> staticMutex;
     BCEMT_ONCE_DO {
         // This mutex must remain valid for the lifetime of the task, and is
         // intentionally never destroyed.  This function may be called on
@@ -694,7 +693,7 @@ char *bael_LoggerManager::obtainMessageBuffer(bcemt_Mutex **mutex,
 bael_LoggerManager::bael_LoggerManager(
                         const bael_LoggerManagerConfiguration&  configuration,
                         bael_Observer                          *observer,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_observer_p(observer)
 , d_nameFilter(configuration.categoryNameFilterCallback())
 , d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
@@ -707,19 +706,19 @@ bael_LoggerManager::bael_LoggerManager(
                            configuration.defaults().defaultTriggerLevel(),
                            configuration.defaults().defaultTriggerAllLevel())
 , d_userSchema(configuration.userSchema(),
-               bslma_Default::globalAllocator(basicAllocator))
+               bslma::Default::globalAllocator(basicAllocator))
 , d_populator(configuration.userPopulatorCallback())
 , d_logger_p(0)
-, d_categoryManager(bslma_Default::globalAllocator(basicAllocator))
+, d_categoryManager(bslma::Default::globalAllocator(basicAllocator))
 , d_maxNumCategoriesMinusOne((unsigned int)-1)
-, d_loggers(bslma_Default::globalAllocator(basicAllocator))
+, d_loggers(bslma::Default::globalAllocator(basicAllocator))
 , d_recordBuffer_p(0)
 , d_defaultCategory_p(0)
 , d_scratchBufferSize(configuration.defaults().defaultLoggerBufferSize())
-, d_defaultLoggers(bslma_Default::globalAllocator(basicAllocator))
+, d_defaultLoggers(bslma::Default::globalAllocator(basicAllocator))
 , d_logOrder(configuration.logOrder())
 , d_triggerMarkers(configuration.triggerMarkers())
-, d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
+, d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     BSLS_ASSERT(observer);
 
@@ -751,7 +750,7 @@ void bael_LoggerManager::constructObject(
     // externally controlled.
 
     bael_AttributeContext::initialize(&d_categoryManager,
-                                      bslma_Default::globalAllocator(0));
+                                      bslma::Default::globalAllocator(0));
 
     d_publishAllCallback
         = bdef_Function<void (*)(bael_Transmission::Cause)>(
@@ -785,7 +784,7 @@ void bael_LoggerManager::constructObject(
 bael_LoggerManager::bael_LoggerManager(
                         bael_Observer                          *observer,
                         const bael_LoggerManagerConfiguration&  configuration,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_observer_p(observer)
 , d_nameFilter(configuration.categoryNameFilterCallback())
 , d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
@@ -798,19 +797,19 @@ bael_LoggerManager::bael_LoggerManager(
                            configuration.defaults().defaultTriggerLevel(),
                            configuration.defaults().defaultTriggerAllLevel())
 , d_userSchema(configuration.userSchema(),
-               bslma_Default::globalAllocator(basicAllocator))
+               bslma::Default::globalAllocator(basicAllocator))
 , d_populator(configuration.userPopulatorCallback())
 , d_logger_p(0)
-, d_categoryManager(bslma_Default::globalAllocator(basicAllocator))
+, d_categoryManager(bslma::Default::globalAllocator(basicAllocator))
 , d_maxNumCategoriesMinusOne((unsigned int)-1)
-, d_loggers(bslma_Default::globalAllocator(basicAllocator))
+, d_loggers(bslma::Default::globalAllocator(basicAllocator))
 , d_recordBuffer_p(0)
 , d_defaultCategory_p(0)
 , d_scratchBufferSize(configuration.defaults().defaultLoggerBufferSize())
-, d_defaultLoggers(bslma_Default::globalAllocator(basicAllocator))
+, d_defaultLoggers(bslma::Default::globalAllocator(basicAllocator))
 , d_logOrder(configuration.logOrder())
 , d_triggerMarkers(configuration.triggerMarkers())
-, d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
+, d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     BSLS_ASSERT(observer);
 
@@ -1253,7 +1252,7 @@ void bael_LoggerManager::removeAllRules()
 }
 
 // ACCESSORS
-bslma_Allocator *bael_LoggerManager::allocator() const
+bslma::Allocator *bael_LoggerManager::allocator() const
 {
     return d_allocator_p;
 }

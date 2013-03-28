@@ -59,8 +59,8 @@ BDES_IDENT("$Id: $")
 // The supported types and required content are listed in the table below.
 // All of the fundamental types in the table may be input as scalar values or
 // as homogeneous arrays.  'bsl::string' is input as a logical scalar string.
-// Note that 'Int64' and 'Uint64' denote 'bsls_PlatformUtil::Int64' and
-// 'bsls_PlatformUtil::Uint64', which in turn are 'typedef' names for the
+// Note that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
+// 'bsls::Types::Uint64', which in turn are 'typedef' names for the
 // signed and unsigned 64-bit integer types, respectively, on the host
 // platform.
 //..
@@ -339,12 +339,16 @@ BDES_IDENT("$Id: $")
 #include <bdesb_fixedmeminput.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -355,9 +359,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -467,7 +474,7 @@ class bdex_ByteInStreamRaw {
 
                         // *** scalar integer values ***
 
-    bdex_ByteInStreamRaw& getInt64(bsls_PlatformUtil::Int64& variable);
+    bdex_ByteInStreamRaw& getInt64(bsls::Types::Int64& variable);
         // Consume a 64-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -475,7 +482,7 @@ class bdex_ByteInStreamRaw {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    bdex_ByteInStreamRaw& getUint64(bsls_PlatformUtil::Uint64& variable);
+    bdex_ByteInStreamRaw& getUint64(bsls::Types::Uint64& variable);
         // Consume a 64-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -483,7 +490,7 @@ class bdex_ByteInStreamRaw {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-    bdex_ByteInStreamRaw& getInt56(bsls_PlatformUtil::Int64& variable);
+    bdex_ByteInStreamRaw& getInt56(bsls::Types::Int64& variable);
         // Consume a 56-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -494,7 +501,7 @@ class bdex_ByteInStreamRaw {
         // Note, that the value and the sign of the consumed integer value is
         // preserved.
 
-    bdex_ByteInStreamRaw& getUint56(bsls_PlatformUtil::Uint64& variable);
+    bdex_ByteInStreamRaw& getUint56(bsls::Types::Uint64& variable);
         // Consume a 56-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -504,7 +511,7 @@ class bdex_ByteInStreamRaw {
         //
         // Note, that the value of the consumed integer value is preserved.
 
-    bdex_ByteInStreamRaw& getInt48(bsls_PlatformUtil::Int64& variable);
+    bdex_ByteInStreamRaw& getInt48(bsls::Types::Int64& variable);
         // Consume a 48-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -515,7 +522,7 @@ class bdex_ByteInStreamRaw {
         // Note, that the value and the sign of the consumed integer value is
         // preserved.
 
-    bdex_ByteInStreamRaw& getUint48(bsls_PlatformUtil::Uint64& variable);
+    bdex_ByteInStreamRaw& getUint48(bsls::Types::Uint64& variable);
         // Consume a 48-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -525,7 +532,7 @@ class bdex_ByteInStreamRaw {
         //
         // Note, that the value of the consumed integer value is preserved.
 
-    bdex_ByteInStreamRaw& getInt40(bsls_PlatformUtil::Int64& variable);
+    bdex_ByteInStreamRaw& getInt40(bsls::Types::Int64& variable);
         // Consume a 40-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -536,7 +543,7 @@ class bdex_ByteInStreamRaw {
         // Note, that the value and the sign of the consumed integer value is
         // preserved.
 
-    bdex_ByteInStreamRaw& getUint40(bsls_PlatformUtil::Uint64& variable);
+    bdex_ByteInStreamRaw& getUint40(bsls::Types::Uint64& variable);
         // Consume a 40-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -639,8 +646,7 @@ class bdex_ByteInStreamRaw {
 
                         // *** arrays of integer values ***
 
-    bdex_ByteInStreamRaw& getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                        int                       length);
+    bdex_ByteInStreamRaw& getArrayInt64(bsls::Types::Int64 *array, int length);
         // Consume a 64-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -649,8 +655,8 @@ class bdex_ByteInStreamRaw {
         // this stream is marked invalid and the value of 'array' is undefined.
         // The behavior is undefined unless '0 <= length'.
 
-    bdex_ByteInStreamRaw& getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                         int                        length);
+    bdex_ByteInStreamRaw& getArrayUint64(bsls::Types::Uint64 *array,
+                                         int                  length);
         // Consume a 64-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -659,8 +665,7 @@ class bdex_ByteInStreamRaw {
         // this stream is marked invalid and the value of 'array' is undefined.
         // The behavior is undefined unless '0 <= length'.
 
-    bdex_ByteInStreamRaw& getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                        int                       length);
+    bdex_ByteInStreamRaw& getArrayInt56(bsls::Types::Int64 *array, int length);
         // Consume a 56-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -669,8 +674,8 @@ class bdex_ByteInStreamRaw {
         // this stream is marked invalid and the value of 'array' is undefined.
         // The behavior is undefined unless '0 <= length'.
 
-    bdex_ByteInStreamRaw& getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                         int                        length);
+    bdex_ByteInStreamRaw& getArrayUint56(bsls::Types::Uint64 *array,
+                                         int                  length);
         // Consume a 56-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -679,8 +684,7 @@ class bdex_ByteInStreamRaw {
         // this stream is marked invalid and the value of 'array' is undefined.
         // The behavior is undefined unless '0 <= length'.
 
-    bdex_ByteInStreamRaw& getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                        int                       length);
+    bdex_ByteInStreamRaw& getArrayInt48(bsls::Types::Int64 *array, int length);
         // Consume a 48-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -689,8 +693,8 @@ class bdex_ByteInStreamRaw {
         // this stream is marked invalid and the value of 'array' is undefined.
         // The behavior is undefined unless '0 <= length'.
 
-    bdex_ByteInStreamRaw& getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                         int                        length);
+    bdex_ByteInStreamRaw& getArrayUint48(bsls::Types::Uint64 *array,
+                                         int                  length);
         // Consume a 48-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -699,8 +703,7 @@ class bdex_ByteInStreamRaw {
         // this stream is marked invalid and the value of 'array' is undefined.
         // The behavior is undefined unless '0 <= length'.
 
-    bdex_ByteInStreamRaw& getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                        int                       length);
+    bdex_ByteInStreamRaw& getArrayInt40(bsls::Types::Int64 *array, int length);
         // Consume a 40-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -709,8 +712,8 @@ class bdex_ByteInStreamRaw {
         // this stream is marked invalid and the value of 'array' is undefined.
         // The behavior is undefined unless '0 <= length'.
 
-    bdex_ByteInStreamRaw& getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                         int                        length);
+    bdex_ByteInStreamRaw& getArrayUint40(bsls::Types::Uint64 *array,
+                                         int                  length);
         // Consume a 40-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -954,7 +957,7 @@ bdex_ByteInStreamRaw& bdex_ByteInStreamRaw::getVersion(int& variable)
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getInt64(bsls_PlatformUtil::Int64& variable)
+bdex_ByteInStreamRaw::getInt64(bsls::Types::Int64& variable)
 {
     d_formatter.getInt64(variable);
     return *this;
@@ -962,7 +965,7 @@ bdex_ByteInStreamRaw::getInt64(bsls_PlatformUtil::Int64& variable)
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getUint64(bsls_PlatformUtil::Uint64& variable)
+bdex_ByteInStreamRaw::getUint64(bsls::Types::Uint64& variable)
 {
     d_formatter.getUint64(variable);
     return *this;
@@ -970,7 +973,7 @@ bdex_ByteInStreamRaw::getUint64(bsls_PlatformUtil::Uint64& variable)
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getInt56(bsls_PlatformUtil::Int64& variable)
+bdex_ByteInStreamRaw::getInt56(bsls::Types::Int64& variable)
 {
     d_formatter.getInt56(variable);
     return *this;
@@ -978,7 +981,7 @@ bdex_ByteInStreamRaw::getInt56(bsls_PlatformUtil::Int64& variable)
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getUint56(bsls_PlatformUtil::Uint64& variable)
+bdex_ByteInStreamRaw::getUint56(bsls::Types::Uint64& variable)
 {
     d_formatter.getUint56(variable);
     return *this;
@@ -986,7 +989,7 @@ bdex_ByteInStreamRaw::getUint56(bsls_PlatformUtil::Uint64& variable)
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getInt48(bsls_PlatformUtil::Int64& variable)
+bdex_ByteInStreamRaw::getInt48(bsls::Types::Int64& variable)
 {
     d_formatter.getInt48(variable);
     return *this;
@@ -994,7 +997,7 @@ bdex_ByteInStreamRaw::getInt48(bsls_PlatformUtil::Int64& variable)
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getUint48(bsls_PlatformUtil::Uint64& variable)
+bdex_ByteInStreamRaw::getUint48(bsls::Types::Uint64& variable)
 {
     d_formatter.getUint48(variable);
     return *this;
@@ -1002,7 +1005,7 @@ bdex_ByteInStreamRaw::getUint48(bsls_PlatformUtil::Uint64& variable)
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getInt40(bsls_PlatformUtil::Int64& variable)
+bdex_ByteInStreamRaw::getInt40(bsls::Types::Int64& variable)
 {
     d_formatter.getInt40(variable);
     return *this;
@@ -1010,7 +1013,7 @@ bdex_ByteInStreamRaw::getInt40(bsls_PlatformUtil::Int64& variable)
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getUint40(bsls_PlatformUtil::Uint64& variable)
+bdex_ByteInStreamRaw::getUint40(bsls::Types::Uint64& variable)
 {
     d_formatter.getUint40(variable);
     return *this;
@@ -1102,8 +1105,7 @@ bdex_ByteInStreamRaw& bdex_ByteInStreamRaw::getFloat32(float& variable)
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                    int                       numValues)
+bdex_ByteInStreamRaw::getArrayInt64(bsls::Types::Int64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1114,8 +1116,7 @@ bdex_ByteInStreamRaw::getArrayInt64(bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                     int                        numValues)
+bdex_ByteInStreamRaw::getArrayUint64(bsls::Types::Uint64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1126,8 +1127,7 @@ bdex_ByteInStreamRaw::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                    int                       numValues)
+bdex_ByteInStreamRaw::getArrayInt56(bsls::Types::Int64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1138,8 +1138,7 @@ bdex_ByteInStreamRaw::getArrayInt56(bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                     int                        numValues)
+bdex_ByteInStreamRaw::getArrayUint56(bsls::Types::Uint64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1150,8 +1149,7 @@ bdex_ByteInStreamRaw::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                    int                       numValues)
+bdex_ByteInStreamRaw::getArrayInt48(bsls::Types::Int64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1162,8 +1160,7 @@ bdex_ByteInStreamRaw::getArrayInt48(bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                     int                        numValues)
+bdex_ByteInStreamRaw::getArrayUint48(bsls::Types::Uint64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1174,8 +1171,7 @@ bdex_ByteInStreamRaw::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                    int                       numValues)
+bdex_ByteInStreamRaw::getArrayInt40(bsls::Types::Int64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);
@@ -1186,8 +1182,7 @@ bdex_ByteInStreamRaw::getArrayInt40(bsls_PlatformUtil::Int64 *array,
 
 inline
 bdex_ByteInStreamRaw&
-bdex_ByteInStreamRaw::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                     int                        numValues)
+bdex_ByteInStreamRaw::getArrayUint40(bsls::Types::Uint64 *array, int numValues)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= numValues);

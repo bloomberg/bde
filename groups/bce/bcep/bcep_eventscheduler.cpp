@@ -30,12 +30,12 @@ void defaultDispatcherFunction(const bdef_Function<void (*)()>& callback)
                              // -------------------------
 
 // PRIVATE MANIPULATORS
-bsls_PlatformUtil::Int64 bcep_EventScheduler::chooseNextEvent(
-                                                 bsls_PlatformUtil::Int64 *now)
+bsls::Types::Int64 bcep_EventScheduler::chooseNextEvent(
+                                                       bsls::Types::Int64 *now)
 {
     BSLS_ASSERT(0 != d_currentRecurringEvent || 0 != d_currentEvent);
 
-    bsls_PlatformUtil::Int64 t = 0;
+    bsls::Types::Int64 t = 0;
 
     if (0 == d_currentRecurringEvent) {
         if (*now <= (t = d_currentEvent->key())) {
@@ -48,9 +48,8 @@ bsls_PlatformUtil::Int64 bcep_EventScheduler::chooseNextEvent(
         }
     }
     else {
-        bsls_PlatformUtil::Int64 recurringEventTime =
-                                                d_currentRecurringEvent->key();
-        bsls_PlatformUtil::Int64 eventTime = d_currentEvent->key();
+        bsls::Types::Int64 recurringEventTime = d_currentRecurringEvent->key();
+        bsls::Types::Int64 eventTime          = d_currentEvent->key();
 
         // Prefer overdue events over overdue clocks if running behind.
 
@@ -72,7 +71,7 @@ bsls_PlatformUtil::Int64 bcep_EventScheduler::chooseNextEvent(
 
 void bcep_EventScheduler::dispatchEvents()
 {
-    bsls_PlatformUtil::Int64 now = bdetu_SystemTime::now().totalMicroseconds();
+    bsls::Types::Int64 now = bdetu_SystemTime::now().totalMicroseconds();
 
     while (1) {
         bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
@@ -103,7 +102,7 @@ void bcep_EventScheduler::dispatchEvents()
             continue;
         }
 
-        bsls_PlatformUtil::Int64 t = chooseNextEvent(&now);
+        bsls::Types::Int64 t = chooseNextEvent(&now);
 
         if (t > now) {
             releaseCurrentEvents();
@@ -150,7 +149,7 @@ void bcep_EventScheduler::releaseCurrentEvents()
 }
 
 // CREATORS
-bcep_EventScheduler::bcep_EventScheduler(bslma_Allocator *basicAllocator)
+bcep_EventScheduler::bcep_EventScheduler(bslma::Allocator *basicAllocator)
 : d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(&defaultDispatcherFunction)
@@ -164,7 +163,7 @@ bcep_EventScheduler::bcep_EventScheduler(bslma_Allocator *basicAllocator)
 
 bcep_EventScheduler::bcep_EventScheduler(
                         const bcep_EventScheduler::Dispatcher&  dispatcher,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(dispatcher)
@@ -275,7 +274,7 @@ bcep_EventScheduler::scheduleRecurringEvent(
 {
     BSLS_ASSERT(0 != interval);
 
-    bsls_PlatformUtil::Int64 stime(startTime.totalMicroseconds());
+    bsls::Types::Int64 stime(startTime.totalMicroseconds());
     if (0 == stime) {
         stime = (bdetu_SystemTime::now() + interval).totalMicroseconds();
     }
@@ -304,7 +303,7 @@ bcep_EventScheduler::scheduleRecurringEventRaw(
 {
     BSLS_ASSERT(0 != interval);
 
-    bsls_PlatformUtil::Int64 stime(startTime.totalMicroseconds());
+    bsls::Types::Int64 stime(startTime.totalMicroseconds());
     if (0 == stime) {
         stime = (bdetu_SystemTime::now() + interval).totalMicroseconds();
     }
@@ -362,7 +361,7 @@ int bcep_EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
         return ret;                                                   // RETURN
     }
 
-    bsls_PlatformUtil::Int64 eventTime = itemPtr->key();
+    bsls::Types::Int64 eventTime = itemPtr->key();
 
     // Wait until the next iteration if currently executing the event.
 

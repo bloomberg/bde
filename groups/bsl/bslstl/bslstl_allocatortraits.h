@@ -394,12 +394,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
-#include <bslalg_scalarprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #include <bslalg_scalardestructionprimitives.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -414,9 +414,13 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_nativestd.h>
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
 #ifndef INCLUDED_UTILITY
 #include <utility>         // 'std::forward'
 #define INCLUDED_UTILITY
+#endif
+
 #endif
 
 
@@ -492,7 +496,7 @@ struct allocator_traits {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template <class ELEMENT_TYPE>
     using rebind_alloc =
-           typename ALLOCATOR_TYPE::template rebind<Alloc,ELEMENT_TYPE>::other;
+                 typename ALLOCATOR_TYPE::template rebind<ELEMENT_TYPE>::other;
 
     template <class ELEMENT_TYPE>
     using rebind_traits = allocator_traits<rebind_alloc<ELEMENT_TYPE> >;
@@ -762,7 +766,7 @@ typename allocator_traits<ALLOCATOR_TYPE>::pointer
 allocator_traits<ALLOCATOR_TYPE>::allocate(ALLOCATOR_TYPE& allocator,
                                            size_type n)
 {
-    return allocator.allocate(n, 0);
+    return allocator.allocate(n);
 }
 
 template <class ALLOCATOR_TYPE>
@@ -974,11 +978,24 @@ allocator_traits<ALLOCATOR_TYPE>::select_on_container_copy_construction(
 
 #endif // ! defined(INCLUDED_BSLSTL_ALLOCATORTRAITS)
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -37,10 +37,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>    // TBD DEPRECATED
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -48,6 +44,13 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -74,7 +77,7 @@ class baecs_JournalPageHeader_TransactionId {
 
   public:
     // MANIPULATORS
-    void setValue(const bsls_Types::Int64& rhs)
+    void setValue(const bsls::Types::Int64& rhs)
     {
         // TBD: Should we be concerned with the reordering of writes?
         /*
@@ -91,7 +94,7 @@ class baecs_JournalPageHeader_TransactionId {
     }
 
     // ACCESSORS
-    int getValue(bsls_Types::Int64 *outValue) const
+    int getValue(bsls::Types::Int64 *outValue) const
     {
         if (d_data[0] == d_data[1]) {
             *outValue = d_data[0];
@@ -188,10 +191,10 @@ class baecs_JournalPageHeader {
 
     // MANIPULATORS
     void copyFrom(const baecs_JournalPageHeader& other,
-                  const bsls_Types::Int64&       transactionId);
+                  const bsls::Types::Int64&      transactionId);
 
-    void init(unsigned                 numBlocks,
-              const bsls_Types::Int64& transactionId);
+    void init(unsigned                  numBlocks,
+              const bsls::Types::Int64& transactionId);
         // Initialize this 'baecs_JournalPageHeader' structure having the
         // specified 'numBlocks', placing all blocks on the available list,
         // and setting the current transaction id to the specified
@@ -242,7 +245,7 @@ class baecs_JournalPageHeader {
         d_nextPage = nextPage;
     }
 
-    void setTransactionId(const bsls_Types::Int64& id);
+    void setTransactionId(const bsls::Types::Int64& id);
 
     // TBD
     BlockHeader *block(int n)
@@ -261,7 +264,7 @@ class baecs_JournalPageHeader {
     unsigned numBlocks() const;
     unsigned numFreeBlocks() const;
     unsigned numAvailableBlocks() const;
-    int getTransactionId(bsls_Types::Int64 *outValue) const;
+    int getTransactionId(bsls::Types::Int64 *outValue) const;
 
     void print(bsl::ostream& stream) const;
 };
@@ -328,13 +331,13 @@ unsigned baecs_JournalPageHeader::numAvailableBlocks() const
 
 inline
 int baecs_JournalPageHeader::getTransactionId(
-                                             bsls_Types::Int64 *outValue) const
+                                            bsls::Types::Int64 *outValue) const
 {
     return d_transactionId.getValue(outValue);
 }
 
 inline
-void  baecs_JournalPageHeader::setTransactionId(const bsls_Types::Int64& id)
+void  baecs_JournalPageHeader::setTransactionId(const bsls::Types::Int64& id)
 {
     d_transactionId.setValue(id);
 }

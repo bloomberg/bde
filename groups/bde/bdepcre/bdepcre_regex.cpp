@@ -27,19 +27,34 @@ BDES_IDENT_RCSID(bdepcre_regex_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_cstring.h>    // bsl::memset
 #include <bsl_string.h>
 #include <bsl_utility.h>    // bsl::pair
 #include <bsl_vector.h>
 
 #include <pcre.h>
 
+namespace {
+
+void initializePcreExtra(struct BloombergLP::pcre_extra *extra, int depthLimit)
+    // Initialize the 'pcre_extra' struct pointed to by the specified 'extra'
+    // to specify 'depthLimit' as the maximum match limit.
+{
+    bsl::memset(extra, 0, sizeof(struct BloombergLP::pcre_extra));
+    extra->flags       = PCRE_EXTRA_MATCH_LIMIT;
+    extra->match_limit = depthLimit;
+}
+
+}  // close unnamed namespace
+
 namespace BloombergLP {
 
 // CONSTANTS
 
 enum {
-    BDEPCRE_SUCCESS =  0,
-    BDEPCRE_FAILURE = -1
+    BDEPCRE_SUCCESS           =  0,
+    BDEPCRE_DEPTHLIMITFAILURE =  1,
+    BDEPCRE_FAILURE           = -1
 };
     // Return values for this API.
 
@@ -50,13 +65,19 @@ const int NUM_INTS_PER_CAPTURED_STRING = 3;
                              // class bdepcre_RegEx
                              // -------------------
 
+// CLASS DATA
+
+bsls::AtomicInt bdepcre_RegEx::s_depthLimit(10000000); // from pcre's config.h
+                                                       // MATCH_LIMIT value
+
 // CREATORS
 
-bdepcre_RegEx::bdepcre_RegEx(bslma_Allocator *basicAllocator)
+bdepcre_RegEx::bdepcre_RegEx(bslma::Allocator *basicAllocator)
 : d_flags(0)
 , d_pattern(basicAllocator)
 , d_pcre_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_depthLimit(s_depthLimit)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -113,7 +134,7 @@ int bdepcre_RegEx::prepare(bsl::string *errorMessage,
             *errorOffset = errorOffsetFromPcre;
         }
 
-        return BDEPCRE_FAILURE;
+        return BDEPCRE_FAILURE;                                       // RETURN
     }
 
     // Set object to the "prepared" state.
@@ -135,8 +156,11 @@ int bdepcre_RegEx::match(const char *subject,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
+    struct pcre_extra extra;
+    initializePcreExtra(&extra, d_depthLimit);
+
     int returnValue = pcre_exec(reinterpret_cast<pcre*>(d_pcre_p),
-                                0,
+                                &extra,
                                 subject,
                                 subjectLength,
                                 subjectOffset,
@@ -145,8 +169,11 @@ int bdepcre_RegEx::match(const char *subject,
                                 0,
                                 d_allocator_p);
 
-    if (0 > returnValue) {
-        return BDEPCRE_FAILURE;
+    if (PCRE_ERROR_MATCHLIMIT == returnValue) {
+        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+    }
+    else if (0 > returnValue) {
+        return BDEPCRE_FAILURE;                                       // RETURN
     }
 
     return BDEPCRE_SUCCESS;
@@ -165,8 +192,12 @@ int bdepcre_RegEx::match(bsl::pair<int, int> *result,
     BSLS_ASSERT(isPrepared());
 
     int outputVector[NUM_INTS_PER_CAPTURED_STRING];
+
+    struct pcre_extra extra;
+    initializePcreExtra(&extra, d_depthLimit);
+
     int returnValue = pcre_exec(reinterpret_cast<pcre*>(d_pcre_p),
-                                0,
+                                &extra,
                                 subject,
                                 subjectLength,
                                 subjectOffset,
@@ -175,8 +206,11 @@ int bdepcre_RegEx::match(bsl::pair<int, int> *result,
                                 NUM_INTS_PER_CAPTURED_STRING,
                                 d_allocator_p);
 
-    if (0 > returnValue) {
-        return BDEPCRE_FAILURE;
+    if (PCRE_ERROR_MATCHLIMIT == returnValue) {
+        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+    }
+    else if (0 > returnValue) {
+        return BDEPCRE_FAILURE;                                       // RETURN
     }
 
     int offset = outputVector[0];
@@ -207,11 +241,14 @@ bdepcre_RegEx::match(bsl::vector<bsl::pair<int, int> > *result,
 
     // Let a proctor manage 'outputVector' (to ensure exception safety).
 
-    bslma_DeallocatorProctor<bslma_Allocator> proctor(outputVector,
-                                                      d_allocator_p);
+    bslma::DeallocatorProctor<bslma::Allocator> proctor(outputVector,
+                                                        d_allocator_p);
+
+    struct pcre_extra extra;
+    initializePcreExtra(&extra, d_depthLimit);
 
     int returnValue = pcre_exec(reinterpret_cast<pcre*>(d_pcre_p),
-                                0,
+                                &extra,
                                 subject,
                                 subjectLength,
                                 subjectOffset,
@@ -220,8 +257,11 @@ bdepcre_RegEx::match(bsl::vector<bsl::pair<int, int> > *result,
                                 len * NUM_INTS_PER_CAPTURED_STRING,
                                 d_allocator_p);
 
-    if (0 > returnValue) {
-        return BDEPCRE_FAILURE;
+    if (PCRE_ERROR_MATCHLIMIT == returnValue) {
+        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+    }
+    else if (0 > returnValue) {
+        return BDEPCRE_FAILURE;                                       // RETURN
     }
 
     result->resize(len);

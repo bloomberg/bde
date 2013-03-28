@@ -160,10 +160,10 @@ int main(int argc, char *argv[])
 
         {
             static const struct {
-                int                       d_lineNum;  // source line number
-                bsls_PlatformUtil::Int64  d_seconds;  // second field value
-                int                       d_nsecs;    // nanosecond field value
-                const char               *d_fmt_p;    // expected output format
+                int                 d_lineNum;  // source line number
+                bsls::Types::Int64  d_seconds;  // second field value
+                int                 d_nsecs;    // nanosecond field value
+                const char         *d_fmt_p;    // expected output format
             } DATA[] = {
         //------^
         //line             secs       nsecs      expected output format
@@ -192,10 +192,10 @@ int main(int argc, char *argv[])
             char buf[SIZE];
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                int                       LINE  = DATA[i].d_lineNum;
-                bsls_PlatformUtil::Int64  SECS  = DATA[i].d_seconds;
-                int                       NSECS = DATA[i].d_nsecs;
-                const char               *FMT   = DATA[i].d_fmt_p;
+                int                 LINE  = DATA[i].d_lineNum;
+                bsls::Types::Int64  SECS  = DATA[i].d_seconds;
+                int                 NSECS = DATA[i].d_nsecs;
+                const char         *FMT   = DATA[i].d_fmt_p;
 
                 bdet_DatetimeInterval dti;
                 bdet_TimeInterval ti(SECS, NSECS);

@@ -85,10 +85,10 @@ BDES_IDENT("$Id: $")
 //      bdet_Datetime edtTransition(bdet_Date(year, 3,  edtDay), edtTime);
 //      bdet_Datetime estTransition(bdet_Date(year, 11, estDay), estTime);
 //
-//      bsls_Types::Int64 edtTransitionT =
+//      bsls::Types::Int64 edtTransitionT =
 //                     bdetu_Epoch::convertToTimeT64(edtTransition);
 //
-//      bsls_Types::Int64 estTransitionT =
+//      bsls::Types::Int64 estTransitionT =
 //                     bdetu_Epoch::convertToTimeT64(estTransition);
 //..
 // Now, having created values representing the daylight savings time
@@ -190,7 +190,7 @@ class baetzo_TestLoader : public baetzo_Loader {
 
   public:
     // CREATORS
-    explicit baetzo_TestLoader(bslma_Allocator *basicAllocator = 0);
+    explicit baetzo_TestLoader(bslma::Allocator *basicAllocator = 0);
         // Create a 'baetzo_TestLoader' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  By default the
@@ -271,7 +271,7 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
 
 // CREATORS
 inline
-baetzo_TestLoader::baetzo_TestLoader(bslma_Allocator *basicAllocator)
+baetzo_TestLoader::baetzo_TestLoader(bslma::Allocator *basicAllocator)
 : d_timeZones(basicAllocator)
 {
 }

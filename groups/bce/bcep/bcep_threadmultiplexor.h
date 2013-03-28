@@ -96,7 +96,7 @@ BDES_IDENT("$Id: $")
 //      // CREATORS
 //      JobQueue(int                   maxProcessors,
 //               bcep_FixedThreadPool *threadPool,
-//               bslma_Allocator      *basicAllocator = 0);
+//               bslma::Allocator     *basicAllocator = 0);
 //        // Create a job queue that executes jobs in the specified
 //        // 'threadPool' using no more than the specified 'maxProcessors'.
 //        // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -132,7 +132,7 @@ BDES_IDENT("$Id: $")
 //
 //   JobQueue::JobQueue(int                   maxProcessors,
 //                      bcep_FixedThreadPool *threadPool,
-//                      bslma_Allocator      *basicAllocator)
+//                      bslma::Allocator     *basicAllocator)
 //   : d_threadPool_p(threadPool)
 //   , d_multiplexor (maxProcessors,
 //                    threadPool->queueCapacity(),
@@ -223,16 +223,16 @@ BDES_IDENT("$Id: $")
 #include <bces_atomictypes.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -257,7 +257,7 @@ class bcep_ThreadMultiplexor {
 
   private:
     // DATA
-    bslma_Allocator      *d_allocator_p;      // memory allocator (held)
+    bslma::Allocator     *d_allocator_p;      // memory allocator (held)
     bcec_FixedQueue<Job> *d_jobQueue_p;       // pending job queue (owned)
     bces_AtomicInt        d_numProcessors;    // current number of processors
     int                   d_maxProcessors;    // maximum number of processors
@@ -278,12 +278,12 @@ class bcep_ThreadMultiplexor {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcep_ThreadMultiplexor,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bcep_ThreadMultiplexor(int              maxProcessors,
-                           int              maxQueueSize,
-                           bslma_Allocator *basicAllocator = 0);
+    bcep_ThreadMultiplexor(int               maxProcessors,
+                           int               maxQueueSize,
+                           bslma::Allocator *basicAllocator = 0);
         // Create a thread multiplexor which uses, at most, the specified
         // 'maxProcessors' number of threads to process user-specified jobs,
         // identified as callbacks of type 'Job'.  Jobs that cannot be

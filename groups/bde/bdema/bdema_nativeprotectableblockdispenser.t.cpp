@@ -8,6 +8,7 @@
 
 #include <bsls_alignment.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>                         // atoi()
 #include <bsl_cstring.h>                         // memcpy(), memset()
@@ -290,7 +291,7 @@ int main(int argc, char *argv[])
                           << endl;
         Obj *dispenser = &Obj::singleton();
 
-#ifndef BDES_PLATFORM_OS_FREEBSD
+#ifndef BSLS_PLATFORM_OS_FREEBSD
             // FreeBSD allows misaligned address in mprotect.
         {
             if (veryVerbose) cout << "\tVerify system error codes" << endl;
@@ -422,7 +423,7 @@ int main(int argc, char *argv[])
             const int SIZE           = DATA[i].d_size;
 
             BLOCKS[i] = dispenser->allocate(SIZE);
-            ASSERT(0 == ((bsls_PlatformUtil::size_type)BLOCKS[i].address()) %
+            ASSERT(0 == ((bsls::Types::size_type)BLOCKS[i].address()) %
                         PG_SIZE);
             for (int j = 0; j < i; ++j) {
                 ASSERT(BLOCKS[j].address() != BLOCKS[i].address());

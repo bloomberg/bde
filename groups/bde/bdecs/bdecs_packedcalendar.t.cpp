@@ -65,7 +65,7 @@ using bsl::flush;
 // [10] static int maxSupportedBdexVersion();
 //
 // CREATORS
-// [ 2] bdecs_PackedCalendar(bslma_Allocator *basicAllocator = 0);
+// [ 2] bdecs_PackedCalendar(bslma::Allocator *basicAllocator = 0);
 // [11] bdecs_PackedCalendar(const bdet_Date& firstDate, lastDate, ba = 0);
 // [ 7] bdecs_PackedCalendar(const bdecs_PackedCalendar& original, ba = 0);
 // [ 2] ~bdecs_PackedCalendar();
@@ -220,7 +220,7 @@ static void aSsErT(int c, const char *s, int i)
         try {
 
 #define END_EXCEPTION_SAFE_TEST(x)                                         \
-        } catch (bslma_TestAllocatorException& e) {                        \
+        } catch (bslma::TestAllocatorException& e) {                       \
             if (veryVeryVerbose) cout << endl << "\t*** BEDMA_EXCEPTION: " \
                 << "alloc limit = " << bdemaExceptionCounter << ", "       \
                 << "last alloc size = " << e.numBytes() << " ***" << endl; \
@@ -1375,7 +1375,7 @@ DEFINE_TEST_CASE(22) {
         //      void swap(bdecs_PackedCalendar&, bdecs_PackedCalendar&);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing 'swap'" << endl
@@ -1465,7 +1465,7 @@ DEFINE_TEST_CASE(21) {
         //      void unionBusinessDays(const bdecs_PackedCalendar&)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing 'intersectNonBusinessDays' and" << endl
@@ -1999,7 +1999,7 @@ DEFINE_TEST_CASE(20) {
         //      void unionNonBusinessDays(const bdecs_PackedCalendar&)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing 'intersectBusinessDays' and" << endl
@@ -2471,7 +2471,7 @@ DEFINE_TEST_CASE(19) {
         //      void removeHolidayCode(const bdet_Date&, int)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing 'removeHoliday' and 'removeHolidayCode'"
@@ -2689,7 +2689,7 @@ DEFINE_TEST_CASE(18) {
         //      int addHolidayCodeIfInRange(const bdet_Date&, int)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing 'addHolidayIfInRange' and" << endl
@@ -2760,7 +2760,7 @@ DEFINE_TEST_CASE(17) {
         //      void setValidRange(const bdet_Date&, const bdet_Date&)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing 'setValidRange'" << endl
@@ -3044,7 +3044,7 @@ DEFINE_TEST_CASE(16) {
         //  Testing:
         //      BusinessDayConstIterator
         // --------------------------------------------------------------------
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         {
             if (verbose) cout << endl
@@ -3724,7 +3724,7 @@ DEFINE_TEST_CASE(15) {
                                                DATA[NUM_DATA - 1].d_month,
                                                DATA[NUM_DATA - 1].d_day) + 20);
 
-            bslma_TestAllocator oa("oa", veryVeryVerbose);
+            bslma::TestAllocator oa("oa", veryVeryVerbose);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
 
@@ -3925,7 +3925,7 @@ DEFINE_TEST_CASE(14) {
         //      int numHolidayCodes(const bdet_Date& date) const
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing numHolidays and numHolidayCodes" << endl
@@ -3975,7 +3975,7 @@ DEFINE_TEST_CASE(13) {
         //      int numWeekendDaysInRange() const
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing numWeekendDaysInRange" << endl
@@ -4087,7 +4087,7 @@ DEFINE_TEST_CASE(12) {
         //      bool isWeekendDay(const bdet_Date& date) const
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing 'addWeekendDays' and"       << endl
@@ -4162,14 +4162,15 @@ DEFINE_TEST_CASE(12) {
             }
         }
         {
-            bslma_TestAllocator oa("oa", veryVeryVerbose);
+            bslma::TestAllocator oa("oa", veryVeryVerbose);
             Obj Y(bdet_Date(2012, 1, 1), bdet_Date(2012, 12, 31), &oa);
             bdec_DayOfWeekSet weekendDays;
             weekendDays.add(bdet_DayOfWeek::BDET_SUN);
             Y.addWeekendDaysTransition(bdet_Date(2012, 1, 1),
                                        weekendDays);
 
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
             ASSERT_SAFE_FAIL(Y.addWeekendDay(bdet_DayOfWeek::BDET_SUN));
         }
       }
@@ -4194,7 +4195,7 @@ DEFINE_TEST_CASE(11) {
         //      and verify that memory is drawn from the allocator passed in
         //      and not from the default allocator.
         //    - In the presence of exceptions during memory allocations using a
-        //      'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //      'bslma::TestAllocator' and varying its *allocation* *limit*.
         //    - Where the object is constructed entirely in static memory
         //      (using a 'bdema_BufferedSequentialAllocator') and never
         //      destroyed.
@@ -4209,12 +4210,12 @@ DEFINE_TEST_CASE(11) {
         //
         // Testing:
         //      bdecs_PackedCalendar::bdecs_PackedCalendar(
-        //                                     const bdet_Date& firstDate,
-        //                                     const bdet_Date& lastDate,
-        //                                     bslma_Allocator *basicAllocator)
+        //                                    const bdet_Date&  firstDate,
+        //                                    const bdet_Date&  lastDate,
+        //                                    bslma::Allocator *basicAllocator)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Initial-Value Constructor" << endl
@@ -4246,8 +4247,8 @@ DEFINE_TEST_CASE(11) {
                 bdet_Date dateLast (DLAST  / 10000, DLAST  / 100 % 100,
                                     DLAST  % 100);
 
-                bslma_TestAllocator da; // default allocator
-                const bslma_DefaultAllocatorGuard DAG(&da);
+                bslma::TestAllocator da; // default allocator
+                const bslma::DefaultAllocatorGuard DAG(&da);
 
                 int blocks = da.numBlocksTotal();
                 Obj mX(dateFirst, dateLast);  const Obj& X = mX;
@@ -4283,8 +4284,8 @@ DEFINE_TEST_CASE(11) {
                 bdet_Date dateLast (DLAST  / 10000, DLAST  / 100 % 100,
                                     DLAST  % 100);
 
-                bslma_TestAllocator da; // default allocator
-                const bslma_DefaultAllocatorGuard DAG(&da);
+                bslma::TestAllocator da; // default allocator
+                const bslma::DefaultAllocatorGuard DAG(&da);
                 int blocks = testAllocator.numBlocksTotal();
                 int blocksDefault = da.numBlocksTotal();
                 Obj mX(dateFirst, dateLast, &testAllocator);
@@ -4474,7 +4475,7 @@ DEFINE_TEST_CASE(10) {
         //   STREAM& bdexStreamOut(STREAM&, int) const
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Streaming Functionality" << endl
@@ -5270,7 +5271,7 @@ DEFINE_TEST_CASE(9) {
         //                                     const bdecs_PackedCalendar& rhs)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Assignment Operator" << endl
@@ -5332,8 +5333,8 @@ DEFINE_TEST_CASE(9) {
                     // uses the default allocator.  The allocator value of 'mY'
                     // should not be affected.
 
-                    bslma_TestAllocator da; // default allocator
-                    const bslma_DefaultAllocatorGuard DAG(&da);
+                    bslma::TestAllocator da; // default allocator
+                    const bslma::DefaultAllocatorGuard DAG(&da);
                     Obj mY;
                     gg(&mY, SPECS[i]);
                     int defaultBlocks = da.numBlocksTotal();
@@ -5366,7 +5367,7 @@ DEFINE_TEST_CASE(9) {
                     do {
                         try {
                             mX = Y;
-                        } catch (bslma_TestAllocatorException& e) {
+                        } catch (bslma::TestAllocatorException& e) {
                             LOOP2_ASSERT(i, j, XX == X);
                             LOOP2_ASSERT(i, j, YY == Y);
                             testAllocator.setAllocationLimit(
@@ -5381,7 +5382,7 @@ DEFINE_TEST_CASE(9) {
                     do {
                         try {
                             mY = Y;
-                        } catch (bslma_TestAllocatorException& e) {
+                        } catch (bslma::TestAllocatorException& e) {
                             LOOP2_ASSERT(i, j, YY == Y);
                             testAllocator.setAllocationLimit(
                                                       ++bdemaExceptionCounter);
@@ -5419,7 +5420,7 @@ DEFINE_TEST_CASE(8) {
         //   bdecs_PackedCalendar g(const char *spec)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Generator Function 'g'" << endl
@@ -5508,10 +5509,10 @@ DEFINE_TEST_CASE(7) {
         // Testing:
         //      bdecs_PackedCalendar::bdecs_PackedCalendar(
         //                         const bdecs_PackedCalendar&  original,
-        //                         bslma_Allocator             *basicAllocator)
+        //                         bslma::Allocator            *basicAllocator)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Copy Constructor" << endl
@@ -5535,9 +5536,9 @@ DEFINE_TEST_CASE(7) {
             gg(&mX, SPECS[i]);
             gg(&W, SPECS[i]);
 
-            bslma_TestAllocator da; // default allocator
-            const bslma_DefaultAllocatorGuard DAG(&da);
-            bslma_TestAllocator a;  // specified allocator
+            bslma::TestAllocator da; // default allocator
+            const bslma::DefaultAllocatorGuard DAG(&da);
+            bslma::TestAllocator a;  // specified allocator
             LOOP2_ASSERT(i, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             int blocks = a.numBlocksTotal();
             const Obj Y(X, &a);
@@ -5618,7 +5619,7 @@ DEFINE_TEST_CASE(6) {
         //                      const bdecs_PackedCalendar& rhs)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Equality Operators" << endl
@@ -5637,8 +5638,8 @@ DEFINE_TEST_CASE(6) {
         Obj emptyCal(&testAllocator); const Obj& EMPTYCAL = emptyCal;
         gg(&emptyCal, SPECS[0]);
 
-        bslma_TestAllocator da; // default allocator
-        const bslma_DefaultAllocatorGuard DAG(&da);
+        bslma::TestAllocator da; // default allocator
+        const bslma::DefaultAllocatorGuard DAG(&da);
 
         for (int i = 0; SPECS[i]; ++i) {
             for (int j = 0; SPECS[j]; ++j) {
@@ -5747,7 +5748,7 @@ DEFINE_TEST_CASE(5) {
         //                               const bdecs_PackedCalendar& calendar)
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         char R0[]="{ [ 31DEC9999, 01JAN0001 ] [ ] }";
         char R1[]="{ [ 31DEC9999, 01JAN0001 ] [ 01JAN0001 : [ SUN SAT ] ] }";
@@ -5833,11 +5834,11 @@ DEFINE_TEST_CASE(5) {
             bsl::ostringstream printStream;
             bsl::ostringstream operatorStream;
             {
-                bslma_TestAllocator a;  // specified allocator
+                bslma::TestAllocator a;  // specified allocator
                 LOOP_ASSERT( a.numBlocksTotal(), 0 ==  a.numBlocksTotal());
 
-                bslma_TestAllocator da; // default allocator
-                const bslma_DefaultAllocatorGuard DAG(&da);
+                bslma::TestAllocator da; // default allocator
+                const bslma::DefaultAllocatorGuard DAG(&da);
                 LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
                 Obj mX(&a); const Obj& X = mX;
@@ -6031,7 +6032,7 @@ DEFINE_TEST_CASE(4) {
         //      int numWeekendDaysTransitions() const
         //  -------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "TESTING BASIC ACCESSORS" << endl
@@ -7119,7 +7120,7 @@ DEFINE_TEST_CASE(4) {
 
             const int NUM_DATA = sizeof DATA/sizeof *DATA;
 
-            bslma_TestAllocator oa("oa", veryVeryVerbose);
+            bslma::TestAllocator oa("oa", veryVeryVerbose);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
 
@@ -7785,7 +7786,7 @@ DEFINE_TEST_CASE(2) {
         //      - with an allocator, in which case the object will allocate
         //        memory using the specified allocator.
         //      - in the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its allocation limit.
+        //        a 'bslma::TestAllocator' and varying its allocation limit.
         //  Use 'length' to check the value.
         //
         //  To address concerns for 2, create an object, use 'addDay' to add
@@ -7831,7 +7832,7 @@ DEFINE_TEST_CASE(2) {
         //      ~bdecs_PackedCalendar()
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "TESTING PRIMARY MANIPULATORS" << endl
@@ -7846,8 +7847,8 @@ DEFINE_TEST_CASE(2) {
             // order to verify the default allocator is used when no allocator
             // is specified.
 
-            bslma_TestAllocator da; // default allocator
-            const bslma_DefaultAllocatorGuard DAG(&da);
+            bslma::TestAllocator da; // default allocator
+            const bslma::DefaultAllocatorGuard DAG(&da);
             const int previousTotal = da.numBlocksTotal();
             const Obj X, Y(0);
             ASSERT(0 == X.length());

@@ -25,7 +25,7 @@ using namespace bsl;
 //                             Overview
 //                             --------
 // A 'bdema_BufferedSequentialAllocator' adopts the
-// 'bdema_BufferedSequentialPool' mechanism to a 'bslma_ManagedAllocator'
+// 'bdema_BufferedSequentialPool' mechanism to a 'bdema_ManagedAllocator'
 // protocol.  The primary concern is that the allocator correctly proxies the
 // memory allocation requests to the buffered sequential pool it adopts.
 //
@@ -54,9 +54,9 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // // CREATORS
 // [2] bdema_BufferedSequentialAllocator(char *b, int s,
-//                                              bslma_Allocator *a = 0)
+//                                              bslma::Allocator *a = 0)
 // [2] bdema_BufferedSequentialAllocator(char *b, int s,
-//                        AlignmentStrategy st, bslma_Allocator *a = 0)
+//                        AlignmentStrategy st, bslma::Allocator *a = 0)
 // [5] ~bdema_BufferedSequentialAllocator()
 //
 // // MANIPULATORS
@@ -131,7 +131,7 @@ typedef bdema_BufferedSequentialAllocator Obj;
 // actually get aligned on 4-byte boundary.  To fix this, create a static
 // buffer instead.
 enum { BUFFER_SIZE = 256 };
-static bsls_AlignedBuffer<BUFFER_SIZE> bufferStorage;
+static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -162,9 +162,9 @@ static bsls_AlignedBuffer<BUFFER_SIZE> bufferStorage;
 // implementation of 'vector'.
 //
 // To avoid alignment issues described in the "warning" section, we can create
-// a 'bsls_AlignedBuffer':
+// a 'bsls::AlignedBuffer':
 //..
-        bsls_AlignedBuffer<SIZE> bufferStorage;
+        bsls::AlignedBuffer<SIZE> bufferStorage;
 
         bdema_BufferedSequentialAllocator alloc(bufferStorage.buffer(), SIZE);
 
@@ -256,19 +256,19 @@ int main(int argc, char *argv[])
     // three test allocators.
 
     // Object Test Allocator.
-    bslma_TestAllocator objectAllocator("Object Allocator",
-                                        veryVeryVeryVerbose);
+    bslma::TestAllocator objectAllocator("Object Allocator",
+                                         veryVeryVeryVerbose);
 
     // Default Test Allocator.
-    bslma_TestAllocator defaultAllocator("Default Allocator",
-                                         veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("Default Allocator",
+                                          veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     // Global Test Allocator.
-    bslma_TestAllocator  globalAllocator("Global Allocator",
+    bslma::TestAllocator globalAllocator("Global Allocator",
                                          veryVeryVeryVerbose);
-    bslma_Allocator *originalGlobalAllocator =
-                           bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::Allocator *originalGlobalAllocator =
+                          bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 6: {
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
 
             };
 
-            bsls_AlignedBuffer<TOTAL_SIZE> bufferStorage;
+            bsls::AlignedBuffer<TOTAL_SIZE> bufferStorage;
             char *buffer = bufferStorage.buffer();
 
            bdema_BufferedSequentialAllocator bsa(buffer, TOTAL_SIZE,
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
         //   is not deallocated.
         //
         //   For concern 2, construct a buffered sequential allocator using a
-        //   'bslma_TestAllocator', allocate sufficient memory such that the
+        //   'bslma::TestAllocator', allocate sufficient memory such that the
         //   buffer runs out and the allocator is used.  Finally, destroy
         //   the buffered sequential allocator, and verify, using the test
         //   allocator, that there is no outstanding memory allocated.
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
         //   not deallocated.
         //
         //   For concern 2 and 3, construct a buffered sequential allocator
-        //   using a 'bslma_TestAllocator', allocate sufficient memory such
+        //   using a 'bslma::TestAllocator', allocate sufficient memory such
         //   that the buffer runs out and the allocator is used.  Finally,
         //   invoke 'release' and verify, using the test allocator, that there
         //   is no outstanding memory allocated.  Then, allocate memory again
@@ -590,10 +590,10 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdema_BufferedSequentialAllocator(char *b, int s,
-        //                                              bslma_Allocator *a = 0)
+        //                                            bslma::Allocator *a = 0);
         //   bdema_BufferedSequentialAllocator(char *b, int s,
-        //                        AlignmentStrategy st, bslma_Allocator *a = 0)
-        //   void *allocate(int size)
+        //                      AlignmentStrategy st, bslma::Allocator *a = 0);
+        //   void *allocate(int size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTOR / ALLOCATE TEST" << endl
@@ -601,18 +601,18 @@ int main(int argc, char *argv[])
 
         char *buffer = bufferStorage.buffer();
 
-        bsls_Alignment::Strategy MAX = bsls_Alignment::BSLS_MAXIMUM;
-        bsls_Alignment::Strategy NAT = bsls_Alignment::BSLS_NATURAL;
+        bsls::Alignment::Strategy MAX = bsls::Alignment::BSLS_MAXIMUM;
+        bsls::Alignment::Strategy NAT = bsls::Alignment::BSLS_NATURAL;
 
         const int DATA[] = { 1, 5, 12, 24, 32, 64, 256, 257, 512, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator taA(veryVeryVeryVerbose);
-        bslma_TestAllocator taB(veryVeryVeryVerbose);
-        bslma_TestAllocator taC(veryVeryVeryVerbose);
-        bslma_TestAllocator taX(veryVeryVeryVerbose);
-        bslma_TestAllocator taY(veryVeryVeryVerbose);
-        bslma_TestAllocator taZ(veryVeryVeryVerbose);
+        bslma::TestAllocator taA(veryVeryVeryVerbose);
+        bslma::TestAllocator taB(veryVeryVeryVerbose);
+        bslma::TestAllocator taC(veryVeryVeryVerbose);
+        bslma::TestAllocator taX(veryVeryVeryVerbose);
+        bslma::TestAllocator taY(veryVeryVeryVerbose);
+        bslma::TestAllocator taZ(veryVeryVeryVerbose);
 
         if (verbose) cout << "\nTesting single allocation." << endl;
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -761,7 +761,7 @@ int main(int argc, char *argv[])
         //   checking the address of the second allocation.
         //
         //   For concern 4, initialize a 'bdema_BufferedSequentialAllocator'
-        //   with a 'bslma_TestAllocator'.  Then allocate a block of memory
+        //   with a 'bslma::TestAllocator'.  Then allocate a block of memory
         //   that is larger than the buffer supplied at construction of the
         //   buffered sequential allocator.  Verify that memory is allocated
         //   from the test allocator.

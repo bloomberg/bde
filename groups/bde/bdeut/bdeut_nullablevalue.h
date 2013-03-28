@@ -79,6 +79,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -123,14 +127,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
 
-template <typename TYPE> class  bdeut_NullableValue_WithAllocator;
-template <typename TYPE> class  bdeut_NullableValue_WithoutAllocator;
+template <class TYPE> class bdeut_NullableValue_WithAllocator;
+template <class TYPE> class bdeut_NullableValue_WithoutAllocator;
 
                       // ===============================
                       // class bdeut_NullableValue<TYPE>
@@ -148,11 +148,12 @@ class bdeut_NullableValue {
     // equal if they their underlying types are comparable and either
     // (1) both objects are null or (2) the non-null values compare equal.
     // Attempts to copy construct, copy assign, or compare incompatible
-    // values will fail to compile.
+    // values will fail to compile.  The 'bdeut_NullableValue<TYPE>' template
+    // cannot be instantiated on a type that overloads 'operator&'.
 
     // PRIVATE TYPES
     typedef typename
-    bslmf_If<bslma::UsesBslmaAllocator<TYPE>::value,
+    bslmf::If<bslma::UsesBslmaAllocator<TYPE>::value,
              bdeut_NullableValue_WithAllocator<TYPE>,
              bdeut_NullableValue_WithoutAllocator<TYPE> >::Type Imp;
 
@@ -188,7 +189,7 @@ class bdeut_NullableValue {
         // attempts to refer to the underlying 'ValueType' before it is
         // established will result in undefined behavior.
 
-    explicit bdeut_NullableValue(bslma_Allocator *basicAllocator);
+    explicit bdeut_NullableValue(bslma::Allocator *basicAllocator);
         // Create a nullable object that is initially null, and that uses the
         // specified 'basicAllocator' to supply memory.  Note that attempts
         // to refer to the underlying 'ValueType' before it is established
@@ -202,7 +203,7 @@ class bdeut_NullableValue {
         // parameterized 'TYPE') of 'original'.
 
     bdeut_NullableValue(const bdeut_NullableValue&  original,
-                        bslma_Allocator            *basicAllocator);
+                        bslma::Allocator           *basicAllocator);
         // Create a nullable object that is initially null if the specified
         // 'original' object is null, and otherwise has the value (of
         // parameterized 'TYPE') of 'original', and that uses the specified
@@ -210,13 +211,13 @@ class bdeut_NullableValue {
         // constructor for an underlying 'ValueType' that does not take an
         // optional allocator at construction will fail to compile.
 
-    bdeut_NullableValue(const TYPE& value);
+    bdeut_NullableValue(const TYPE& value);                         // IMPLICIT
         // Create a nullable object having the specified (non-null) 'value' of
         // parameterized 'TYPE'.  Note that this object will initially not be
         // null.
 
-    bdeut_NullableValue(const TYPE&      value,
-                        bslma_Allocator *basicAllocator);
+    bdeut_NullableValue(const TYPE&       value,
+                        bslma::Allocator *basicAllocator);
         // Create a nullable object having the specified (non-null) 'value' of
         // parameterized TYPE', and that uses the specified 'basicAllocator'
         // to supply memory.  Note that this object will initially not be null.
@@ -236,8 +237,8 @@ class bdeut_NullableValue {
 
     template <typename BDE_OTHER_TYPE>
     bdeut_NullableValue(
-                       const bdeut_NullableValue<BDE_OTHER_TYPE>&  original,
-                       bslma_Allocator                        *basicAllocator);
+                   const bdeut_NullableValue<BDE_OTHER_TYPE>&  original,
+                   bslma::Allocator                           *basicAllocator);
         // Create a nullable object that is initially null if the specified
         // 'original' object is null, and otherwise has, as the value of its
         // underlying 'ValueType, a value converted from the value (of
@@ -367,7 +368,21 @@ class bdeut_NullableValue {
 
     const TYPE& value() const;
         // Return a reference to the underlying non-modifiable 'ValueType'
-        // of this object.  The behavior is undefined if this object is null.
+        // of this object.  The behavior is undefined if 'isNull' is 'true'.
+
+    TYPE valueOr(const TYPE& defaultValue) const;
+        // Return the value of the underlying 'ValueType', or the specified
+        // 'defaultValue' if 'isNull' is 'true'.  Note that this method
+        // returns by value and may be inefficient in some contexts.
+
+    const TYPE *valueOr(const TYPE *defaultValue) const;
+        // Return the address of the underlying non-modifiable 'ValueType' of
+        // this object, or the specified 'defaultValue' if 'isNull' is
+        // 'true'.
+
+    const TYPE* valueOrNull() const;
+        // Return the address of the underlying non-modifiable 'ValueType' of
+        // this object, or 0 if this 'isNull' is 'true'.
 };
 
 // FREE OPERATORS
@@ -387,6 +402,29 @@ bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
     // same value if one, but not both, are null, or neither is null and their
     // respective underlying type values are equality comparable and do not
     // compare equal.
+
+template <typename TYPE>
+bool operator==(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs);
+template <typename TYPE>
+bool operator==(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  A nullable object and a value of the
+    // underlying type have the same value if the nullable object is not null
+    // and its underlying value compares equal to the other value.
+
+template <typename TYPE>
+bool operator!=(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs);
+template <typename TYPE>
+bool operator!=(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  A nullable object and a value of the
+    // underlying type do not have the same value if either the nullable
+    // object is null, or its underlying value does not compare equal to the
+    // other value.
 
 template <typename TYPE>
 bsl::ostream& operator<<(bsl::ostream&                    stream,
@@ -416,17 +454,17 @@ void swap(bdeut_NullableValue<TYPE>& a, bdeut_NullableValue<TYPE>& b);
 template <typename TYPE>
 class bdeut_NullableValue_WithAllocator {
     // This class provides the implementation for a nullable object that
-    // augments a type that DOES take an optional 'bslma_Allocator'.
+    // augments a type that DOES take an optional 'bslma::Allocator'.
 
     // DATA
-    bsls_ObjectBuffer<TYPE>  d_buffer;
-    bool                     d_isNull;
-    bslma_Allocator         *d_allocator_p;
+    bsls::ObjectBuffer<TYPE>  d_buffer;
+    bool                      d_isNull;
+    bslma::Allocator         *d_allocator_p;
 
   public:
     // CREATORS
     explicit bdeut_NullableValue_WithAllocator(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an implementation for a nullable object that is initially
         // null.  Optionally specify a 'basicAllocator' used to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
@@ -434,7 +472,7 @@ class bdeut_NullableValue_WithAllocator {
 
     bdeut_NullableValue_WithAllocator(
                  const bdeut_NullableValue_WithAllocator&  original,
-                 bslma_Allocator                          *basicAllocator = 0);
+                 bslma::Allocator                         *basicAllocator = 0);
         // Create an implementation for a nullable object that contains the
         // the same value as the specified 'original' object.  I.e., if
         // 'original' is null, this object will initially be null; otherwise,
@@ -502,11 +540,11 @@ class bdeut_NullableValue_WithAllocator {
 template <typename TYPE>
 class bdeut_NullableValue_WithoutAllocator {
     // This class provides the implementation for a nullable object that
-    // augments a type that does NOT take an optional 'bslma_Allocator'.
+    // augments a type that does NOT take an optional 'bslma::Allocator'.
 
     // DATA
-    bsls_ObjectBuffer<TYPE> d_buffer;
-    bool                    d_isNull;
+    bsls::ObjectBuffer<TYPE> d_buffer;
+    bool                     d_isNull;
 
   public:
     // CREATORS
@@ -590,7 +628,8 @@ bdeut_NullableValue<TYPE>::bdeut_NullableValue()
 
 template <typename TYPE>
 inline
-bdeut_NullableValue<TYPE>::bdeut_NullableValue(bslma_Allocator *basicAllocator)
+bdeut_NullableValue<TYPE>::bdeut_NullableValue(
+                                              bslma::Allocator *basicAllocator)
 : d_imp(basicAllocator)
 {
 }
@@ -607,7 +646,7 @@ template <typename TYPE>
 inline
 bdeut_NullableValue<TYPE>::bdeut_NullableValue(
                                     const bdeut_NullableValue&  original,
-                                    bslma_Allocator            *basicAllocator)
+                                    bslma::Allocator           *basicAllocator)
 : d_imp(original.d_imp, basicAllocator)
 {
 }
@@ -621,8 +660,9 @@ bdeut_NullableValue<TYPE>::bdeut_NullableValue(const TYPE& value)
 
 template <typename TYPE>
 inline
-bdeut_NullableValue<TYPE>::bdeut_NullableValue(const TYPE&      value,
-                                               bslma_Allocator *basicAllocator)
+bdeut_NullableValue<TYPE>::bdeut_NullableValue(
+                                              const TYPE&       value,
+                                              bslma::Allocator *basicAllocator)
 : d_imp(basicAllocator)
 {
     d_imp.makeValue(value);
@@ -643,8 +683,8 @@ template <typename TYPE>
 template <typename BDE_OTHER_TYPE>
 inline
 bdeut_NullableValue<TYPE>::bdeut_NullableValue(
-                        const bdeut_NullableValue<BDE_OTHER_TYPE>&  original,
-                        bslma_Allocator                        *basicAllocator)
+                    const bdeut_NullableValue<BDE_OTHER_TYPE>&  original,
+                    bslma::Allocator                           *basicAllocator)
 : d_imp(basicAllocator)
 {
     if (!original.isNull()) {
@@ -809,6 +849,7 @@ bsl::ostream& bdeut_NullableValue<TYPE>::print(
 {
     if (d_imp.isNull()) {
         return bdeu_PrintMethods::print(stream, "NULL", level, spacesPerLevel);
+                                                                      // RETURN
     }
 
     return bdeu_PrintMethods::print(stream,
@@ -824,6 +865,29 @@ const TYPE& bdeut_NullableValue<TYPE>::value() const
     return d_imp.value();
 }
 
+template <typename TYPE>
+inline
+const TYPE *bdeut_NullableValue<TYPE>::valueOrNull() const
+{
+    return d_imp.isNull() ? 0 : &d_imp.value();
+}
+
+template <typename TYPE>
+inline
+TYPE bdeut_NullableValue<TYPE>::valueOr(const TYPE& defaultValue) const
+{
+    return d_imp.isNull() ? defaultValue : d_imp.value();
+}
+
+template <typename TYPE>
+inline
+const TYPE *bdeut_NullableValue<TYPE>::valueOr(const TYPE *defaultValue) const
+{
+    return d_imp.isNull() ? defaultValue : &d_imp.value();
+}
+
+
+
 // FREE OPERATORS
 
 template <typename LHS_TYPE, typename RHS_TYPE>
@@ -832,10 +896,26 @@ bool operator==(const bdeut_NullableValue<LHS_TYPE>& lhs,
                 const bdeut_NullableValue<RHS_TYPE>& rhs)
 {
     if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() == rhs.value();
+        return lhs.value() == rhs.value();                            // RETURN
     }
 
     return lhs.isNull() == rhs.isNull();
+}
+
+template <typename TYPE>
+inline
+bool operator==(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs)
+{
+    return !lhs.isNull() && lhs.value() == rhs;
+}
+
+template <typename TYPE>
+inline
+bool operator==(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs)
+{
+    return !rhs.isNull() && rhs.value() == lhs;
 }
 
 template <typename LHS_TYPE, typename RHS_TYPE>
@@ -844,10 +924,26 @@ bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
                 const bdeut_NullableValue<RHS_TYPE>& rhs)
 {
     if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() != rhs.value();
+        return lhs.value() != rhs.value();                            // RETURN
     }
 
     return lhs.isNull() != rhs.isNull();
+}
+
+template <typename TYPE>
+inline
+bool operator!=(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs)
+{
+    return lhs.isNull() || lhs.value() != rhs;
+}
+
+template <typename TYPE>
+inline
+bool operator!=(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs)
+{
+    return rhs.isNull() || rhs.value() != lhs;
 }
 
 template <typename TYPE>
@@ -874,9 +970,9 @@ void swap(bdeut_NullableValue<TYPE>& a, bdeut_NullableValue<TYPE>& b)
 template <typename TYPE>
 inline
 bdeut_NullableValue_WithAllocator<TYPE>::bdeut_NullableValue_WithAllocator(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_isNull(true)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -884,9 +980,9 @@ template <typename TYPE>
 inline
 bdeut_NullableValue_WithAllocator<TYPE>::bdeut_NullableValue_WithAllocator(
                       const bdeut_NullableValue_WithAllocator&  original,
-                      bslma_Allocator                          *basicAllocator)
+                      bslma::Allocator                         *basicAllocator)
 : d_isNull(true)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (!original.isNull()) {
         makeValue(original.value());
@@ -932,7 +1028,7 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
 
     if (!isNull() && !other.isNull()) {
         // swap typed values
-        bslalg_SwapUtil::swap(&this->value(), &other.value());
+        bslalg::SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
 
@@ -950,7 +1046,8 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
         nonNullObj = this;
     }
 
-    // copy-construct and reset
+    // Copy-construct and reset.
+
     nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
                                              // is only strongly exception-safe
     nonNullObj->reset();
@@ -1102,7 +1199,7 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::swap(
 
     if (!isNull() && !other.isNull()) {
         // swap typed values
-        bslalg_SwapUtil::swap(&this->value(), &other.value());
+        bslalg::SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
 
@@ -1120,7 +1217,8 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::swap(
         nonNullObj = this;
     }
 
-    // copy-construct and reset
+    // Copy-construct and reset.
+
     nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
                                              // is only strongly exception-safe
     nonNullObj->reset();

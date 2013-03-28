@@ -199,8 +199,8 @@ template <class T, class ALLOC>
     // CREATORS
     template<class T, class ALLOC>
     my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(int          length,
-                                                  const ALLOC& alloc)
-    : d_allocator(alloc), d_length(length)
+                                                  const ALLOC& allocator)
+    : d_allocator(allocator), d_length(length)
 {
     d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 
@@ -212,15 +212,15 @@ template <class T, class ALLOC>
 
 template<class T, class ALLOC>
     my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(
-        const my_FixedSizeArray& rhs,
-    const ALLOC&               alloc)
-    : d_allocator(alloc), d_length(rhs.d_length)
+                                            const my_FixedSizeArray& original,
+                                            const ALLOC&             allocator)
+    : d_allocator(allocator), d_length(original.d_length)
 {
     d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 
     // copy construct each element of the array:
     for (int i = 0; i < d_length; ++i) {
-        d_allocator.construct(&d_array[i], rhs.d_array[i]);
+        d_allocator.construct(&d_array[i], original.d_array[i]);
     }
 }
 
@@ -798,11 +798,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

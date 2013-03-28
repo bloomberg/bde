@@ -34,11 +34,11 @@ bcemt_Sluice::GenerationDescriptor::GenerationDescriptor()
                          // ------------------
 
 // CREATORS
-bcemt_Sluice::bcemt_Sluice(bslma_Allocator *basicAllocator)
+bcemt_Sluice::bcemt_Sluice(bslma::Allocator *basicAllocator)
 : d_signaledGeneration(0)
 , d_pendingGeneration(0)
 , d_descriptorPool(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

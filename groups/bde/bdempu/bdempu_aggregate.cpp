@@ -7,7 +7,9 @@ BDES_IDENT_RCSID(bdempu_aggregate_cpp,"$Id$ $CSID$")
 #include <bdempu_elemtype.h>
 #include <bdepu_ntypesparser.h>
 #include <bdem_aggregate.h>
+
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_vector.h>
 
@@ -133,7 +135,7 @@ int bdempu_Aggregate::parseListElement(
       } break;
       case bdem_ElemType::BDEM_INT64:
       {
-        bsls_PlatformUtil::Int64 res;
+        bsls::Types::Int64 res;
         if (bdepu_NTypesParser::parseInt64(endPos, &res, *endPos)) {
             return BDEMPU_FAILURE;
         }
@@ -213,7 +215,7 @@ int bdempu_Aggregate::parseListElement(
       } break;
       case bdem_ElemType::BDEM_INT64_ARRAY:
       {
-        bsl::vector<bsls_PlatformUtil::Int64> res;
+        bsl::vector<bsls::Types::Int64> res;
         if (bdepu_NTypesParser::parseInt64Array(endPos, &res, *endPos)) {
             return BDEMPU_FAILURE;
         }

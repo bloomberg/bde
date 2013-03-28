@@ -3,20 +3,19 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::is_arithmetic', that
+// The component under test defines a meta-function, 'bsl::is_arithmetic', that
 // determines whether a template parameter type is an arithmetic type.  Thus,
-// we need to ensure that the value returned by this meta-functions is correct
+// we need to ensure that the value returned by this meta-function is correct
 // for each possible category of types.
 //
 // ----------------------------------------------------------------------------
@@ -183,9 +182,9 @@ int main(int argc, char *argv[])
 // Now, we instantiate the 'bsl::is_arithmetic' template for these types, and
 // assert the 'value' static data member of each instantiation:
 //..
-    ASSERT(false == bsl::is_arithmetic<int&>::value);
-    ASSERT(false == bsl::is_arithmetic<int*>::value);
-    ASSERT(true  == bsl::is_arithmetic<int >::value);
+    ASSERT(false == bsl::is_arithmetic<int& >::value);
+    ASSERT(false == bsl::is_arithmetic<int *>::value);
+    ASSERT(true  == bsl::is_arithmetic<int  >::value);
 //..
 
       } break;
@@ -200,7 +199,7 @@ int main(int argc, char *argv[])
         //: 1 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) primitive type other than arithmetic type.
         //:
-        //: 2 'is_arithmetic::value' is 'true' when 'TYPE' is an (possibly
+        //: 2 'is_arithmetic::value' is 'true' when 'TYPE' is a (possibly
         //:   cv-qualified) arithmetic type.
         //:
         //: 3 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
@@ -230,12 +229,17 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, void,         false);
 
         // C-2
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, bool,          true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, char,          true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, unsigned char, true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, wchar_t,       true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, short,         true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                              bsl::is_arithmetic, value, unsigned short, true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, int,           true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, unsigned int,  true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, float,         true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, double,        true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, unsigned int,  true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, long,          true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, long long,     true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, long double,   true);
@@ -341,10 +345,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

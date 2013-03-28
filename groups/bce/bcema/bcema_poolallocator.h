@@ -15,7 +15,7 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component defines a class, 'bcema_PoolAllocator',
-// that implements the 'bslma_Allocator' protocol and provides a thread-safe
+// that implements the 'bslma::Allocator' protocol and provides a thread-safe
 // allocator of pooled memory blocks of uniform size (the "pooled size").  The
 // pooled size is either (1) configured at construction, or (2) equal to the
 // size of the first block allocated through the allocator.  All of the
@@ -35,14 +35,14 @@ BDES_IDENT("$Id: $")
 //             |       ctor/dtor
 //             |       objectSize
 //             V
-//     ,---------------.
-//    ( bslma_Allocator )
-//     `---------------'
+//     ,----------------.
+//    ( bslma::Allocator )
+//     `----------------'
 //                     allocate
 //                     deallocate
 //..
 // 'bcema_PoolAllocator' provides a concrete, thread-safe implementation of the
-// 'bslma_Allocator' protocol.
+// 'bslma::Allocator' protocol.
 //
 ///Usage
 ///-----
@@ -50,13 +50,13 @@ BDES_IDENT("$Id: $")
 // two cases.
 //
 // The first case is where frequent allocation and deallocation of memory
-// occurs through the 'bslma_Allocator' protocol and all of the allocated
+// occurs through the 'bslma::Allocator' protocol and all of the allocated
 // blocks have the same size.  In this case, the size of blocks to pool is
 // determined the first time 'allocate' is called and need not be specified at
 // construction.
 //
 // The second case is where frequent allocation and deallocation of memory
-// occurs through the 'bslma_Allocator' protocol, most of the allocations have
+// occurs through the 'bslma::Allocator' protocol, most of the allocations have
 // similar sizes, and a likely maximum for the largest allocation is known at
 // the time of construction.
 //
@@ -96,11 +96,11 @@ BDES_IDENT("$Id: $")
 //      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
 //      bcemt_Mutex              d_mx;       // protects the shared queue
 //      bcemt_Condition          d_cv;       // signals existence of new work
-//      bslma_Allocator         *d_alloc_p;  // pooled allocator
+//      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
-//      explicit my1_WorkQueue(bslma_Allocator *basicAllocator = 0)
-//      : d_alloc_p(bslma_Default::allocator(basicAllocator))
+//      explicit my1_WorkQueue(bslma::Allocator *basicAllocator = 0)
+//      : d_alloc_p(bslma::Default::allocator(basicAllocator))
 //      {
 //      }
 //  };
@@ -187,11 +187,11 @@ BDES_IDENT("$Id: $")
 //      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
 //      bcemt_Mutex              d_mx;       // protects the shared queue
 //      bcemt_Condition          d_cv;       // signals existence of new work
-//      bslma_Allocator         *d_alloc_p;  // pooled allocator
+//      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
-//      explicit my1_WorkQueue(bslma_Allocator *basicAllocator = 0)
-//      : d_alloc_p(bslma_Default::allocator(basicAllocator))
+//      explicit my1_WorkQueue(bslma::Allocator *basicAllocator = 0)
+//      : d_alloc_p(bslma::Default::allocator(basicAllocator))
 //      {
 //      }
 //  };
@@ -336,12 +336,12 @@ BDES_IDENT("$Id: $")
 //      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
 //      bcemt_Mutex              d_mx;       // protects the shared queue
 //      bcemt_Condition          d_cv;       // signals existence of new work
-//      bslma_Allocator         *d_alloc_p;  // pooled allocator
+//      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
-//      explicit my2_WorkQueue(bslma_Allocator *basicAllocator = 0)
+//      explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
 //      : d_queue(basic_Allocator)
-//      , d_alloc_p(bslma_Default::allocator(basic_Allocator))
+//      , d_alloc_p(bslma::Default::allocator(basic_Allocator))
 //      {
 //      }
 //  };
@@ -433,10 +433,10 @@ BDES_IDENT("$Id: $")
 //      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
 //      bcemt_Mutex              d_mx;       // protects the shared queue
 //      bcemt_Condition          d_cv;       // signals existence of new work
-//      bslma_Allocator         *d_alloc_p;  // pooled allocator
+//      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
-//      explicit my2_WorkQueue(bslma_Allocator *basicAllocator = 0)
+//      explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
 //      : d_queue(basic_Allocator)
 //      , d_alloc_p(basic_Allocator)
 //      {
@@ -579,8 +579,8 @@ namespace BloombergLP {
                          // class bcema_PoolAllocator
                          // =========================
 
-class bcema_PoolAllocator : public bslma_Allocator {
-    // This class implements the 'bslma_Allocator' protocol to provide an
+class bcema_PoolAllocator : public bslma::Allocator {
+    // This class implements the 'bslma::Allocator' protocol to provide an
     // allocator that manages pooled memory blocks of some uniform size,
     // specified either at construction, or at the first invocation of the
     // 'allocate' method.  This allocator maintains an internal linked list of
@@ -611,30 +611,30 @@ class bcema_PoolAllocator : public bslma_Allocator {
         // external allocator supplied at construction, and 'd_magicNumber' is
         // set to 0.
 
-        int                                d_magicNumber;  // allocation source
+        int                                 d_magicNumber; // allocation source
                                                            // and sanity check
 
-        bsls_AlignmentUtil::MaxAlignedType d_dummy;        // forces alignment
+        bsls::AlignmentUtil::MaxAlignedType d_dummy;       // forces alignment
     };
 
     // DATA
-    bces_AtomicInt   d_initialized;  // initialization state indicator
+    bces_AtomicInt    d_initialized;  // initialization state indicator
 
-    bsls_ObjectBuffer<bcema_Pool>
-                     d_pool;         // buffer used to hold the 'bcema_Pool'
-                                     // (initialization occurs when the pooled
-                                     // memory block size first becomes known)
+    bsls::ObjectBuffer<bcema_Pool>
+                      d_pool;         // buffer used to hold the 'bcema_Pool'
+                                      // (initialization occurs when the pooled
+                                      // memory block size first becomes known)
 
-    int              d_blockSize;    // block size
+    int               d_blockSize;    // block size
 
-    bsls_BlockGrowth::Strategy
-                     d_growthStrategy;
-                                     // growth strategy of the chunk size
+    bsls::BlockGrowth::Strategy
+                      d_growthStrategy;
+                                      // growth strategy of the chunk size
 
-    int              d_maxBlocksPerChunk;
-                                     // max chunk size (in blocks-per-chunk)
+    int               d_maxBlocksPerChunk;
+                                      // max chunk size (in blocks-per-chunk)
 
-    bslma_Allocator *d_allocator_p;  // basic allocator, held but not owned
+    bslma::Allocator *d_allocator_p;  // basic allocator, held but not owned
 
   private:
     // NOT IMPLEMENTED
@@ -644,13 +644,13 @@ class bcema_PoolAllocator : public bslma_Allocator {
   public:
     // CREATORS
     explicit
-    bcema_PoolAllocator(bslma_Allocator            *basicAllocator = 0);
+    bcema_PoolAllocator(bslma::Allocator            *basicAllocator = 0);
     explicit
-    bcema_PoolAllocator(bsls_BlockGrowth::Strategy  growthStrategy,
-                        bslma_Allocator            *basicAllocator = 0);
-    bcema_PoolAllocator(bsls_BlockGrowth::Strategy  growthStrategy,
-                        int                         maxBlocksPerChunk,
-                        bslma_Allocator            *basicAllocator = 0);
+    bcema_PoolAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
+                        bslma::Allocator            *basicAllocator = 0);
+    bcema_PoolAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
+                        int                          maxBlocksPerChunk,
+                        bslma::Allocator            *basicAllocator = 0);
         // Create a pool allocator that returns blocks of contiguous memory of
         // uniform size for each 'allocate' method invocation, where the size
         // is determined by the first invocation of 'allocate'.  Optionally
@@ -671,15 +671,15 @@ class bcema_PoolAllocator : public bslma_Allocator {
         // '1 <= maxBlocksPerChunk'.
 
     explicit
-    bcema_PoolAllocator(size_type                   blockSize,
-                        bslma_Allocator            *basicAllocator = 0);
-    bcema_PoolAllocator(size_type                   blockSize,
-                        bsls_BlockGrowth::Strategy  growthStrategy,
-                        bslma_Allocator            *basicAllocator = 0);
-    bcema_PoolAllocator(size_type                   blockSize,
-                        bsls_BlockGrowth::Strategy  growthStrategy,
-                        int                         maxBlocksPerChunk,
-                        bslma_Allocator            *basicAllocator = 0);
+    bcema_PoolAllocator(size_type                    blockSize,
+                        bslma::Allocator            *basicAllocator = 0);
+    bcema_PoolAllocator(size_type                    blockSize,
+                        bsls::BlockGrowth::Strategy  growthStrategy,
+                        bslma::Allocator            *basicAllocator = 0);
+    bcema_PoolAllocator(size_type                    blockSize,
+                        bsls::BlockGrowth::Strategy  growthStrategy,
+                        int                          maxBlocksPerChunk,
+                        bslma::Allocator            *basicAllocator = 0);
         // Create a pool allocator that returns blocks of contiguous memory of
         // the specified 'blockSize' (in bytes) for each 'allocate' method
         // invocation.  Optionally specify a 'growthStrategy' used to control

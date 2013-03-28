@@ -1041,45 +1041,6 @@ class map {
     // void insert(initializer_list<value_type>);
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *ordered* containers:
-//: o An ordered container defines STL iterators.
-//: o An ordered container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <typename KEY,
-          typename VALUE,
-          typename COMPARATOR,
-          typename ALLOCATOR>
-struct HasStlIterators<bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR> >
-    : bsl::true_type
-{};
-
-}
-
-namespace bslma {
-
-template <typename KEY,
-          typename VALUE,
-          typename COMPARATOR,
-          typename ALLOCATOR>
-struct UsesBslmaAllocator<bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR> >
-    : bsl::is_convertible<Allocator*, ALLOCATOR>
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
-
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator==(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                 const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
@@ -1890,13 +1851,63 @@ void bsl::swap(bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
     a.swap(b);
 }
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <typename KEY,
+          typename VALUE,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct HasStlIterators<bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <typename KEY,
+          typename VALUE,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

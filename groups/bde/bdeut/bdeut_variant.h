@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $")
 // nevertheless, are distinct types.
 //
 // When the variant types are (directly) supplied as a type list (of type
-// 'bslmf_TypeList'), the type 'bdeut_VariantImp<TYPELIST>' can be used in
+// 'bslmf::TypeList'), the type 'bdeut_VariantImp<TYPELIST>' can be used in
 // place of:
 //..
 //  bdeut_Variant<typedef TYPELIST::Type1, typedef TYPELIST::Type2, ...>
@@ -103,7 +103,7 @@ BDES_IDENT("$Id: $")
 // Secondly, the 'apply' method varies based on how the 'apply' method handles
 // an unset variant.  A users can choose to either:
 //..
-//  a) Pass a default constructed 'bslmf_Nil' to the visitor
+//  a) Pass a default constructed 'bslmf::Nil' to the visitor
 //  b) Pass a user specified "default" value to the visitor
 //..
 // Furthermore, if the user is sure that the variant cannot be unset, the user
@@ -158,7 +158,7 @@ BDES_IDENT("$Id: $")
 //  typedef bdeut_Variant <int, double, bsl::string> List;
 //  typedef bdeut_Variant3<int, double, bsl::string> List3;  // equivalent
 //..
-// The contained types can be retrieved as a 'bslmf_TypeList' (using the
+// The contained types can be retrieved as a 'bslmf::TypeList' (using the
 // 'TypeList' nested type), or individually (using 'TypeN', for 'N' varying
 // from 1 to the length of the 'TypeList').  In the example below, we use the
 // 'List' variant, but this could be substituted with 'List3' with no change
@@ -321,7 +321,7 @@ BDES_IDENT("$Id: $")
 // different ways to invoke 'apply' (with no return value) to control the
 // behavior of visiting an unset variant:
 //..
-//  a) 'bslmf_Nil' passed to visitor
+//  a) 'bslmf::Nil' passed to visitor
 //
 //  b) user specified default value passed to visitor
 //
@@ -335,7 +335,7 @@ BDES_IDENT("$Id: $")
 //  e) return value specified with function call
 //..
 //
-///a) 'bslmf_Nil' passed to visitor
+///a) 'bslmf::Nil' passed to visitor
 ///-  -  -  -  -  -  -  -  -  -  - -
 // A simple visitor that does not require any return values might be one that
 // prints to 'stdout' the value of the variant:
@@ -349,7 +349,7 @@ BDES_IDENT("$Id: $")
 //          bsl::cout << value << bsl::endl;
 //      }
 //
-//      void operator()(bslmf_Nil value) const
+//      void operator()(bslmf::Nil value) const
 //      {
 //          bsl::cout << "null" << bsl::endl;
 //      }
@@ -380,14 +380,14 @@ BDES_IDENT("$Id: $")
 //  Hello
 //  null
 //..
-// Note that 'operator()' is overloaded with 'bslmf_Nil'.  A direct match has
+// Note that 'operator()' is overloaded with 'bslmf::Nil'.  A direct match has
 // higher precedence than a template parameter match.  When the variant is
-// unset (such as 'x[3]'), a 'bslmf_Nil' will be passed to the visitor.
+// unset (such as 'x[3]'), a 'bslmf::Nil' will be passed to the visitor.
 //
 ///b) User specified default value passed to visitor
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// Instead of using 'bslmf_Nil', users can also specify a default value to pass
-// to the visitor when the variant is currently unset.  Using the same
+// Instead of using 'bslmf::Nil', users can also specify a default value to
+// pass to the visitor when the variant is currently unset.  Using the same
 // 'my_PrintVisitor' class from example 3a:
 //..
 //  for (int i = 0; i < 4; ++i) {
@@ -453,7 +453,7 @@ BDES_IDENT("$Id: $")
 //          // Return 'true' when addition is performed successfully and
 //          // 'false' otherwise.
 //      {
-//          if (bslmf_IsConvertible<TYPE, double>::VALUE) {
+//          if (bslmf::IsConvertible<TYPE, double>::VALUE) {
 //
 //              // Add certain values to the variant.  The details are elided
 //              // as it is the return value that is the focus of this example.
@@ -546,12 +546,12 @@ BDES_IDENT("$Id: $")
 //..
 //  bdeut_Variant()
 //  bdeut_Variant(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-//  bdeut_Variant(const TYPE&      value,
-//                bslma_Allocator *basicAllocator);
+//  bdeut_Variant(const TYPE&       value,
+//                bslma::Allocator *basicAllocator);
 //..
 // Create a variant.  Users can choose to initialize this variant with a
 // specified value, or leave this variant in an unset state from default
-// construction.  Users can also supply a 'bslma_Allocator' for memory
+// construction.  Users can also supply a 'bslma::Allocator' for memory
 // allocation.
 //
 ///Manipulators
@@ -570,7 +570,7 @@ BDES_IDENT("$Id: $")
 //  RET_TYPE            apply(VISITOR& visitor);
 //..
 // Access this variant's value using the specified visitor functor (that passes
-// 'bslmf_Nil' to the visitor's 'operator()' when the visitor is unset).
+// 'bslmf::Nil' to the visitor's 'operator()' when the visitor is unset).
 //..
 //  void                apply(VISITOR& visitor, const TYPE& dV);
 //  VISITOR::ResultType apply(VISITOR& visitor, const TYPE& dV);
@@ -662,6 +662,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -710,10 +714,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_typeinfo.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
 
 struct bdeut_Variant_DefaultConstructVisitor;
@@ -736,23 +736,32 @@ class bdeut_VariantImp;
                     // struct bdeut_Variant_ReturnValueHelper
                     // ======================================
 
+// These definitions provided outside of 'bdeut_Variant_ReturnValueHelper'
+// because of a bug in IBM xlC compiler, DRQS 37714216.
+typedef char                  bdeut_Variant_ReturnValueHelper_YesType;
+typedef struct { char a[2]; } bdeut_Variant_ReturnValueHelper_NoType;
+BSLMF_ASSERT(sizeof(bdeut_Variant_ReturnValueHelper_YesType)
+             != sizeof(bdeut_Variant_ReturnValueHelper_NoType));
+
 template <class VISITOR>
 struct bdeut_Variant_ReturnValueHelper {
     // This struct is a component-private meta-function.  Do *not* use.  This
     // meta-function checks whether the parameterized 'VISITOR' type has the
-    // member 'Type' defined using "SFINAE" - substitution failure is not an
-    // error.
+    // member 'ResultType' defined using "SFINAE" - substitution failure is not
+    // an error.
 
-    template <typename T> static bslmf_MetaInt<1> match(
-                                                      typename T::ResultType*);
-    template <typename T> static bslmf_MetaInt<0> match(...);
+    template <typename T> static bdeut_Variant_ReturnValueHelper_YesType
+        match(typename T::ResultType*);
+    template <typename T> static bdeut_Variant_ReturnValueHelper_NoType
+        match(...);
         // If 'T::Type' exists, then the first function will be a better match
-        // than the ellipsis version, which will return a 'bslmf_MetaInt<1>',
-        // indicating the existence of 'T::Type'.
+        // than the ellipsis version, which will return a 'YesType', indicating
+        // the existence of 'T::ResultType'.
 
-    enum { VALUE = BSLMF_METAINT_TO_BOOL(match<VISITOR>(0)) };
-        // A 'VALUE' of 1 indicates 'VISITOR::ResultType' exists, and 0
-        // otherwise.
+    enum { VALUE = sizeof(match<VISITOR>(0))
+                   == sizeof(bdeut_Variant_ReturnValueHelper_YesType) };
+        // A 'VALUE' of 'true' indicates 'VISITOR::ResultType' exists, and
+        // 'false' otherwise.
 };
 
                         // =============================
@@ -787,74 +796,74 @@ class bdeut_VariantImp_AllocatorBase {
     // This class is component-private.  Do not use.  This class contains the
     // 'typedef's and data members of the 'bdeut_Variant' class.  This class
     // serves as a base class for the variant when any one of the types held by
-    // the variant has the 'bslalg_TypeTraitUsesBslmaAllocator' type trait.
+    // the variant has the 'bslalg::TypeTraitUsesBslmaAllocator' type trait.
 
   public:
     // TYPES
     typedef TYPES TypeList;
-        // 'TypeList' is an alias for the 'bslmf_TypeList' type serving as the
+        // 'TypeList' is an alias for the 'bslmf::TypeList' type serving as the
         // template parameter to this variant implementation.
 
-    typedef typename bslmf_TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
-    typedef typename bslmf_TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
-    typedef typename bslmf_TypeListTypeOf< 3, TYPES>::TypeOrDefault Type3;
-    typedef typename bslmf_TypeListTypeOf< 4, TYPES>::TypeOrDefault Type4;
-    typedef typename bslmf_TypeListTypeOf< 5, TYPES>::TypeOrDefault Type5;
-    typedef typename bslmf_TypeListTypeOf< 6, TYPES>::TypeOrDefault Type6;
-    typedef typename bslmf_TypeListTypeOf< 7, TYPES>::TypeOrDefault Type7;
-    typedef typename bslmf_TypeListTypeOf< 8, TYPES>::TypeOrDefault Type8;
-    typedef typename bslmf_TypeListTypeOf< 9, TYPES>::TypeOrDefault Type9;
-    typedef typename bslmf_TypeListTypeOf<10, TYPES>::TypeOrDefault Type10;
-    typedef typename bslmf_TypeListTypeOf<11, TYPES>::TypeOrDefault Type11;
-    typedef typename bslmf_TypeListTypeOf<12, TYPES>::TypeOrDefault Type12;
-    typedef typename bslmf_TypeListTypeOf<13, TYPES>::TypeOrDefault Type13;
-    typedef typename bslmf_TypeListTypeOf<14, TYPES>::TypeOrDefault Type14;
-    typedef typename bslmf_TypeListTypeOf<15, TYPES>::TypeOrDefault Type15;
-    typedef typename bslmf_TypeListTypeOf<16, TYPES>::TypeOrDefault Type16;
-    typedef typename bslmf_TypeListTypeOf<17, TYPES>::TypeOrDefault Type17;
-    typedef typename bslmf_TypeListTypeOf<18, TYPES>::TypeOrDefault Type18;
-    typedef typename bslmf_TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
-    typedef typename bslmf_TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
+    typedef typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
+    typedef typename bslmf::TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
+    typedef typename bslmf::TypeListTypeOf< 3, TYPES>::TypeOrDefault Type3;
+    typedef typename bslmf::TypeListTypeOf< 4, TYPES>::TypeOrDefault Type4;
+    typedef typename bslmf::TypeListTypeOf< 5, TYPES>::TypeOrDefault Type5;
+    typedef typename bslmf::TypeListTypeOf< 6, TYPES>::TypeOrDefault Type6;
+    typedef typename bslmf::TypeListTypeOf< 7, TYPES>::TypeOrDefault Type7;
+    typedef typename bslmf::TypeListTypeOf< 8, TYPES>::TypeOrDefault Type8;
+    typedef typename bslmf::TypeListTypeOf< 9, TYPES>::TypeOrDefault Type9;
+    typedef typename bslmf::TypeListTypeOf<10, TYPES>::TypeOrDefault Type10;
+    typedef typename bslmf::TypeListTypeOf<11, TYPES>::TypeOrDefault Type11;
+    typedef typename bslmf::TypeListTypeOf<12, TYPES>::TypeOrDefault Type12;
+    typedef typename bslmf::TypeListTypeOf<13, TYPES>::TypeOrDefault Type13;
+    typedef typename bslmf::TypeListTypeOf<14, TYPES>::TypeOrDefault Type14;
+    typedef typename bslmf::TypeListTypeOf<15, TYPES>::TypeOrDefault Type15;
+    typedef typename bslmf::TypeListTypeOf<16, TYPES>::TypeOrDefault Type16;
+    typedef typename bslmf::TypeListTypeOf<17, TYPES>::TypeOrDefault Type17;
+    typedef typename bslmf::TypeListTypeOf<18, TYPES>::TypeOrDefault Type18;
+    typedef typename bslmf::TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
+    typedef typename bslmf::TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
         // 'TypeN' is an alias for the 'N'th type in the 'TypeList' of this
         // variant implementation.  If less than 'N' template arguments were
         // given to the 'bdeut_Variant' type, then 'TypeN' is
-        // 'bslmf_Nil'.
+        // 'bslmf::Nil'.
 
   private:
     union Value {
-        bsls_ObjectBuffer<Type1>       d_v1;
-        bsls_ObjectBuffer<Type2>       d_v2;
-        bsls_ObjectBuffer<Type3>       d_v3;
-        bsls_ObjectBuffer<Type4>       d_v4;
-        bsls_ObjectBuffer<Type5>       d_v5;
-        bsls_ObjectBuffer<Type6>       d_v6;
-        bsls_ObjectBuffer<Type7>       d_v7;
-        bsls_ObjectBuffer<Type8>       d_v8;
-        bsls_ObjectBuffer<Type9>       d_v9;
-        bsls_ObjectBuffer<Type10>      d_v10;
-        bsls_ObjectBuffer<Type11>      d_v11;
-        bsls_ObjectBuffer<Type12>      d_v12;
-        bsls_ObjectBuffer<Type13>      d_v13;
-        bsls_ObjectBuffer<Type14>      d_v14;
-        bsls_ObjectBuffer<Type15>      d_v15;
-        bsls_ObjectBuffer<Type16>      d_v16;
-        bsls_ObjectBuffer<Type17>      d_v17;
-        bsls_ObjectBuffer<Type18>      d_v18;
-        bsls_ObjectBuffer<Type19>      d_v19;
-        bsls_ObjectBuffer<Type20>      d_v20;
+        bsls::ObjectBuffer<Type1>       d_v1;
+        bsls::ObjectBuffer<Type2>       d_v2;
+        bsls::ObjectBuffer<Type3>       d_v3;
+        bsls::ObjectBuffer<Type4>       d_v4;
+        bsls::ObjectBuffer<Type5>       d_v5;
+        bsls::ObjectBuffer<Type6>       d_v6;
+        bsls::ObjectBuffer<Type7>       d_v7;
+        bsls::ObjectBuffer<Type8>       d_v8;
+        bsls::ObjectBuffer<Type9>       d_v9;
+        bsls::ObjectBuffer<Type10>      d_v10;
+        bsls::ObjectBuffer<Type11>      d_v11;
+        bsls::ObjectBuffer<Type12>      d_v12;
+        bsls::ObjectBuffer<Type13>      d_v13;
+        bsls::ObjectBuffer<Type14>      d_v14;
+        bsls::ObjectBuffer<Type15>      d_v15;
+        bsls::ObjectBuffer<Type16>      d_v16;
+        bsls::ObjectBuffer<Type17>      d_v17;
+        bsls::ObjectBuffer<Type18>      d_v18;
+        bsls::ObjectBuffer<Type19>      d_v19;
+        bsls::ObjectBuffer<Type20>      d_v20;
     };
-        // 'Value' is a union of 'bsls_ObjectBuffer' of all types contained by
-        // the variant.  'bsls_ObjectBuffer' is used to:  1) Wrap around non
+        // 'Value' is a union of 'bsls::ObjectBuffer' of all types contained by
+        // the variant.  'bsls::ObjectBuffer' is used to:  1) Wrap around non
         // "POD" types within the union.  2) Ensure proper alignment of the
         // type.
 
     // DATA
-    Value            d_value;        // value of the object, initialized by
-                                     // child class
+    Value             d_value;        // value of the object, initialized by
+                                      // child class
 
-    int              d_type;         // current type the variant is holding
+    int               d_type;         // current type the variant is holding
 
-    bslma_Allocator *d_allocator_p;  // pointer to allocator (held, not owned)
+    bslma::Allocator *d_allocator_p;  // pointer to allocator (held, not owned)
 
     // FRIENDS
     template <typename VARIANT_TYPES>
@@ -867,23 +876,23 @@ class bdeut_VariantImp_AllocatorBase {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdeut_VariantImp_AllocatorBase,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bdeut_VariantImp_AllocatorBase(int type, bslma_Allocator *basicAllocator);
+    bdeut_VariantImp_AllocatorBase(int type, bslma::Allocator *basicAllocator);
 
-    bdeut_VariantImp_AllocatorBase(int               type,
-                                   bslma_Allocator  *basicAllocator,
-                                   bslmf_MetaInt<1> *);
+    bdeut_VariantImp_AllocatorBase(int                type,
+                                   bslma::Allocator  *basicAllocator,
+                                   bslmf::MetaInt<1> *);
         // Create a 'bdeut_VariantImp_AllocatorBase' with the specified 'type'
         // indicating the type the variant is currently holding, and the
         // specified 'basicAllocator' to supply memory.
 
     template <typename TYPE>
-    bdeut_VariantImp_AllocatorBase(int type, const TYPE&, bslmf_MetaInt<0> *);
+    bdeut_VariantImp_AllocatorBase(int type, const TYPE&, bslmf::MetaInt<0> *);
 
     // ACCESSORS
-    bslma_Allocator *getAllocator() const;
+    bslma::Allocator *getAllocator() const;
         // Return the allocator pointer currently held by this object.
 };
 
@@ -896,66 +905,66 @@ class bdeut_VariantImp_NonAllocatorBase {
     // This class is component-private.  Do not use.  This class contains the
     // 'typedef's and data members of the 'bdeut_Variant' class.  This class
     // serves as a base class for the variant when none of the types held by
-    // the variant has the 'bslalg_TypeTraitUsesBslmaAllocator' type trait.
+    // the variant has the 'bslalg::TypeTraitUsesBslmaAllocator' type trait.
     // The goal is to optimize the size of the variant to avoid holding an
     // unnecessary allocator pointer.
 
   public:
     // TYPES
     typedef TYPES TypeList;
-        // 'TypeList' is an alias for the 'bslmf_TypeList' type serving as the
+        // 'TypeList' is an alias for the 'bslmf::TypeList' type serving as the
         // template parameter to this variant implementation.
 
-    typedef typename bslmf_TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
-    typedef typename bslmf_TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
-    typedef typename bslmf_TypeListTypeOf< 3, TYPES>::TypeOrDefault Type3;
-    typedef typename bslmf_TypeListTypeOf< 4, TYPES>::TypeOrDefault Type4;
-    typedef typename bslmf_TypeListTypeOf< 5, TYPES>::TypeOrDefault Type5;
-    typedef typename bslmf_TypeListTypeOf< 6, TYPES>::TypeOrDefault Type6;
-    typedef typename bslmf_TypeListTypeOf< 7, TYPES>::TypeOrDefault Type7;
-    typedef typename bslmf_TypeListTypeOf< 8, TYPES>::TypeOrDefault Type8;
-    typedef typename bslmf_TypeListTypeOf< 9, TYPES>::TypeOrDefault Type9;
-    typedef typename bslmf_TypeListTypeOf<10, TYPES>::TypeOrDefault Type10;
-    typedef typename bslmf_TypeListTypeOf<11, TYPES>::TypeOrDefault Type11;
-    typedef typename bslmf_TypeListTypeOf<12, TYPES>::TypeOrDefault Type12;
-    typedef typename bslmf_TypeListTypeOf<13, TYPES>::TypeOrDefault Type13;
-    typedef typename bslmf_TypeListTypeOf<14, TYPES>::TypeOrDefault Type14;
-    typedef typename bslmf_TypeListTypeOf<15, TYPES>::TypeOrDefault Type15;
-    typedef typename bslmf_TypeListTypeOf<16, TYPES>::TypeOrDefault Type16;
-    typedef typename bslmf_TypeListTypeOf<17, TYPES>::TypeOrDefault Type17;
-    typedef typename bslmf_TypeListTypeOf<18, TYPES>::TypeOrDefault Type18;
-    typedef typename bslmf_TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
-    typedef typename bslmf_TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
+    typedef typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
+    typedef typename bslmf::TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
+    typedef typename bslmf::TypeListTypeOf< 3, TYPES>::TypeOrDefault Type3;
+    typedef typename bslmf::TypeListTypeOf< 4, TYPES>::TypeOrDefault Type4;
+    typedef typename bslmf::TypeListTypeOf< 5, TYPES>::TypeOrDefault Type5;
+    typedef typename bslmf::TypeListTypeOf< 6, TYPES>::TypeOrDefault Type6;
+    typedef typename bslmf::TypeListTypeOf< 7, TYPES>::TypeOrDefault Type7;
+    typedef typename bslmf::TypeListTypeOf< 8, TYPES>::TypeOrDefault Type8;
+    typedef typename bslmf::TypeListTypeOf< 9, TYPES>::TypeOrDefault Type9;
+    typedef typename bslmf::TypeListTypeOf<10, TYPES>::TypeOrDefault Type10;
+    typedef typename bslmf::TypeListTypeOf<11, TYPES>::TypeOrDefault Type11;
+    typedef typename bslmf::TypeListTypeOf<12, TYPES>::TypeOrDefault Type12;
+    typedef typename bslmf::TypeListTypeOf<13, TYPES>::TypeOrDefault Type13;
+    typedef typename bslmf::TypeListTypeOf<14, TYPES>::TypeOrDefault Type14;
+    typedef typename bslmf::TypeListTypeOf<15, TYPES>::TypeOrDefault Type15;
+    typedef typename bslmf::TypeListTypeOf<16, TYPES>::TypeOrDefault Type16;
+    typedef typename bslmf::TypeListTypeOf<17, TYPES>::TypeOrDefault Type17;
+    typedef typename bslmf::TypeListTypeOf<18, TYPES>::TypeOrDefault Type18;
+    typedef typename bslmf::TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
+    typedef typename bslmf::TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
         // 'TypeN' is an alias for the 'N'th type in the 'TypeList' of this
         // variant implementation.  If less than 'N' template arguments were
         // given to the 'bdeut_Variant' type, then 'TypeN' is
-        // 'bslmf_Nil'.
+        // 'bslmf::Nil'.
 
   private:
     union Value {
-        bsls_ObjectBuffer<Type1>       d_v1;
-        bsls_ObjectBuffer<Type2>       d_v2;
-        bsls_ObjectBuffer<Type3>       d_v3;
-        bsls_ObjectBuffer<Type4>       d_v4;
-        bsls_ObjectBuffer<Type5>       d_v5;
-        bsls_ObjectBuffer<Type6>       d_v6;
-        bsls_ObjectBuffer<Type7>       d_v7;
-        bsls_ObjectBuffer<Type8>       d_v8;
-        bsls_ObjectBuffer<Type9>       d_v9;
-        bsls_ObjectBuffer<Type10>      d_v10;
-        bsls_ObjectBuffer<Type11>      d_v11;
-        bsls_ObjectBuffer<Type12>      d_v12;
-        bsls_ObjectBuffer<Type13>      d_v13;
-        bsls_ObjectBuffer<Type14>      d_v14;
-        bsls_ObjectBuffer<Type15>      d_v15;
-        bsls_ObjectBuffer<Type16>      d_v16;
-        bsls_ObjectBuffer<Type17>      d_v17;
-        bsls_ObjectBuffer<Type18>      d_v18;
-        bsls_ObjectBuffer<Type19>      d_v19;
-        bsls_ObjectBuffer<Type20>      d_v20;
+        bsls::ObjectBuffer<Type1>       d_v1;
+        bsls::ObjectBuffer<Type2>       d_v2;
+        bsls::ObjectBuffer<Type3>       d_v3;
+        bsls::ObjectBuffer<Type4>       d_v4;
+        bsls::ObjectBuffer<Type5>       d_v5;
+        bsls::ObjectBuffer<Type6>       d_v6;
+        bsls::ObjectBuffer<Type7>       d_v7;
+        bsls::ObjectBuffer<Type8>       d_v8;
+        bsls::ObjectBuffer<Type9>       d_v9;
+        bsls::ObjectBuffer<Type10>      d_v10;
+        bsls::ObjectBuffer<Type11>      d_v11;
+        bsls::ObjectBuffer<Type12>      d_v12;
+        bsls::ObjectBuffer<Type13>      d_v13;
+        bsls::ObjectBuffer<Type14>      d_v14;
+        bsls::ObjectBuffer<Type15>      d_v15;
+        bsls::ObjectBuffer<Type16>      d_v16;
+        bsls::ObjectBuffer<Type17>      d_v17;
+        bsls::ObjectBuffer<Type18>      d_v18;
+        bsls::ObjectBuffer<Type19>      d_v19;
+        bsls::ObjectBuffer<Type20>      d_v20;
     };
-        // 'Value' is a union of 'bsls_ObjectBuffer' of all types contained by
-        // the variant.  'bsls_ObjectBuffer' is used to:  1) Wrap around non
+        // 'Value' is a union of 'bsls::ObjectBuffer' of all types contained by
+        // the variant.  'bsls::ObjectBuffer' is used to:  1) Wrap around non
         // "POD" types within the union.  2) Ensure proper alignment of the
         // type.
 
@@ -975,57 +984,57 @@ class bdeut_VariantImp_NonAllocatorBase {
 
   public:
     // CREATORS
-    bdeut_VariantImp_NonAllocatorBase(int type, bslma_Allocator *);
+    bdeut_VariantImp_NonAllocatorBase(int type, bslma::Allocator *);
 
-    bdeut_VariantImp_NonAllocatorBase(int               type,
-                                      bslma_Allocator  *,
-                                      bslmf_MetaInt<1> *);
+    bdeut_VariantImp_NonAllocatorBase(int                type,
+                                      bslma::Allocator  *,
+                                      bslmf::MetaInt<1> *);
         // Create a 'bdeut_VariantImp_AllocatorBase' with the specified 'type'
         // indicating the type the variant is currently holding.
 
     template <typename TYPE>
-    bdeut_VariantImp_NonAllocatorBase(int               type,
+    bdeut_VariantImp_NonAllocatorBase(int                type,
                                       const TYPE&,
-                                      bslmf_MetaInt<0> *);
+                                      bslmf::MetaInt<0> *);
 
     // ACCESSORS
-    bslma_Allocator *getAllocator() const;
+    bslma::Allocator *getAllocator() const;
         // Return a null pointer since this object does not hold an allocator
         // pointer.
 };
 
-                       // ===============================
+                       // ==============================
                        // struct bdeut_VariantImp_Traits
-                       // ===============================
+                       // ==============================
 
 template <class TYPES>
 struct bdeut_VariantImp_Traits {
     // This struct is component-private.  Do not use.  Selects either
     // 'bdeut_VariantImp_AllocatorBase' as a base class type if any one of
     // the twenty types held by the variant uses the
-    // 'bslalg_TypeTraitUsesBslmaAllocator' trait, and
+    // 'bslalg::TypeTraitUsesBslmaAllocator' trait, and
     // 'bdeut_VariantImp_NonAllocatorBase' as the base class type otherwise.
 
-    typedef typename bslmf_TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
-    typedef typename bslmf_TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
-    typedef typename bslmf_TypeListTypeOf< 3, TYPES>::TypeOrDefault Type3;
-    typedef typename bslmf_TypeListTypeOf< 4, TYPES>::TypeOrDefault Type4;
-    typedef typename bslmf_TypeListTypeOf< 5, TYPES>::TypeOrDefault Type5;
-    typedef typename bslmf_TypeListTypeOf< 6, TYPES>::TypeOrDefault Type6;
-    typedef typename bslmf_TypeListTypeOf< 7, TYPES>::TypeOrDefault Type7;
-    typedef typename bslmf_TypeListTypeOf< 8, TYPES>::TypeOrDefault Type8;
-    typedef typename bslmf_TypeListTypeOf< 9, TYPES>::TypeOrDefault Type9;
-    typedef typename bslmf_TypeListTypeOf<10, TYPES>::TypeOrDefault Type10;
-    typedef typename bslmf_TypeListTypeOf<11, TYPES>::TypeOrDefault Type11;
-    typedef typename bslmf_TypeListTypeOf<12, TYPES>::TypeOrDefault Type12;
-    typedef typename bslmf_TypeListTypeOf<13, TYPES>::TypeOrDefault Type13;
-    typedef typename bslmf_TypeListTypeOf<14, TYPES>::TypeOrDefault Type14;
-    typedef typename bslmf_TypeListTypeOf<15, TYPES>::TypeOrDefault Type15;
-    typedef typename bslmf_TypeListTypeOf<16, TYPES>::TypeOrDefault Type16;
-    typedef typename bslmf_TypeListTypeOf<17, TYPES>::TypeOrDefault Type17;
-    typedef typename bslmf_TypeListTypeOf<18, TYPES>::TypeOrDefault Type18;
-    typedef typename bslmf_TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
-    typedef typename bslmf_TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
+    typedef typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
+    typedef typename bslmf::TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
+    typedef typename bslmf::TypeListTypeOf< 3, TYPES>::TypeOrDefault Type3;
+    typedef typename bslmf::TypeListTypeOf< 4, TYPES>::TypeOrDefault Type4;
+    typedef typename bslmf::TypeListTypeOf< 5, TYPES>::TypeOrDefault Type5;
+    typedef typename bslmf::TypeListTypeOf< 6, TYPES>::TypeOrDefault Type6;
+    typedef typename bslmf::TypeListTypeOf< 7, TYPES>::TypeOrDefault Type7;
+    typedef typename bslmf::TypeListTypeOf< 8, TYPES>::TypeOrDefault Type8;
+    typedef typename bslmf::TypeListTypeOf< 9, TYPES>::TypeOrDefault Type9;
+    typedef typename bslmf::TypeListTypeOf<10, TYPES>::TypeOrDefault Type10;
+    typedef typename bslmf::TypeListTypeOf<11, TYPES>::TypeOrDefault Type11;
+    typedef typename bslmf::TypeListTypeOf<12, TYPES>::TypeOrDefault Type12;
+    typedef typename bslmf::TypeListTypeOf<13, TYPES>::TypeOrDefault Type13;
+    typedef typename bslmf::TypeListTypeOf<14, TYPES>::TypeOrDefault Type14;
+    typedef typename bslmf::TypeListTypeOf<15, TYPES>::TypeOrDefault Type15;
+    typedef typename bslmf::TypeListTypeOf<16, TYPES>::TypeOrDefault Type16;
+    typedef typename bslmf::TypeListTypeOf<17, TYPES>::TypeOrDefault Type17;
+    typedef typename bslmf::TypeListTypeOf<18, TYPES>::TypeOrDefault Type18;
+    typedef typename bslmf::TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
+    typedef typename bslmf::TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
 
   public:
     enum {
@@ -1096,7 +1105,7 @@ struct bdeut_VariantImp_Traits {
          && bslmf::IsBitwiseMoveable<Type20>::value)
     };
 
-    typedef typename bslmf_If<
+    typedef typename bslmf::If<
         VARIANT_USES_BSLMA_ALLOCATOR,
         bdeut_VariantImp_AllocatorBase<TYPES>,
         bdeut_VariantImp_NonAllocatorBase<TYPES> >::Type BaseType;
@@ -1150,9 +1159,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
 
     // PRIVATE MANIPULATORS
     template <class TYPE, class VISITOR_REF>
-    void applyImp(VISITOR_REF visitor, bslmf_MetaInt<0> *);
+    void applyImp(VISITOR_REF visitor, bslmf::MetaInt<0> *);
     template <class TYPE, class VISITOR_REF>
-    void applyImp(VISITOR_REF visitor, bslmf_MetaInt<1> *);
+    void applyImp(VISITOR_REF visitor, bslmf::MetaInt<1> *);
     template <class TYPE, class VISITOR_REF>
     void applyImp(VISITOR_REF visitor);
         // Invoke 'operator()' of the specified 'visitor' on the current
@@ -1161,9 +1170,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // used.
 
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
-    RET_TYPE applyImpR(VISITOR_REF visitor, bslmf_MetaInt<0> *);
+    RET_TYPE applyImpR(VISITOR_REF visitor, bslmf::MetaInt<0> *);
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
-    RET_TYPE applyImpR(VISITOR_REF visitor, bslmf_MetaInt<1> *);
+    RET_TYPE applyImpR(VISITOR_REF visitor, bslmf::MetaInt<1> *);
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
     RET_TYPE applyImpR(VISITOR_REF visitor);
         // Invoke 'operator()' of the specified 'visitor' on the current
@@ -1177,12 +1186,12 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // this variant.
 
     template <class TYPE>
-    void create(const TYPE& value, bslmf_MetaInt<0> *);
+    void create(const TYPE& value, bslmf::MetaInt<0> *);
         // Construct this variant object with the specified 'value'.  The
         // second parameter is for resolving overloading ambiguity and is not
         // used.
 
-    void create(bslma_Allocator *, bslmf_MetaInt<1> *);
+    void create(bslma::Allocator *, bslmf::MetaInt<1> *);
         // Construct this variant object in its unset state.
 
     template <class VISITOR_REF>
@@ -1201,9 +1210,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
 
     // PRIVATE ACCESSORS
     template <class TYPE, class VISITOR_REF>
-    void applyImp(VISITOR_REF visitor, bslmf_MetaInt<0> *) const;
+    void applyImp(VISITOR_REF visitor, bslmf::MetaInt<0> *) const;
     template <class TYPE, class VISITOR_REF>
-    void applyImp(VISITOR_REF visitor, bslmf_MetaInt<1> *) const;
+    void applyImp(VISITOR_REF visitor, bslmf::MetaInt<1> *) const;
     template <class TYPE, class VISITOR_REF>
     void applyImp(VISITOR_REF visitor) const;
         // Invoke 'operator()' of the specified 'visitor' on the current
@@ -1212,9 +1221,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // used.
 
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
-    RET_TYPE applyImpR(VISITOR_REF visitor, bslmf_MetaInt<0> *) const;
+    RET_TYPE applyImpR(VISITOR_REF visitor, bslmf::MetaInt<0> *) const;
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
-    RET_TYPE applyImpR(VISITOR_REF visitor, bslmf_MetaInt<1> *) const;
+    RET_TYPE applyImpR(VISITOR_REF visitor, bslmf::MetaInt<1> *) const;
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
     RET_TYPE applyImpR(VISITOR_REF visitor) const;
         // Invoke 'operator()' of the specified 'visitor' on the current
@@ -1259,26 +1268,26 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     explicit bdeut_VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct to an unset type and
         // value using 'typeOrAlloc' to supply memory.  Note that this
         // templated constructor is created instead of having two constructors
-        // (one takes a 'bslma_Allocator *' and the other templated) is because
-        // templated arguments are always a better match than child-to-base
-        // conversion (concrete allocator implementation pointer converted to
-        // 'bslma_Allocator *').
+        // (one takes a 'bslma::Allocator *' and the other templated) is
+        // because templated arguments are always a better match than
+        // child-to-base conversion (concrete allocator implementation pointer
+        // converted to 'bslma::Allocator *').
 
     template <class TYPE>
-    bdeut_VariantImp(const TYPE& value, bslma_Allocator *basicAllocator);
+    bdeut_VariantImp(const TYPE& value, bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_VariantImp(const bdeut_VariantImp&  original,
-                     bslma_Allocator         *basicAllocator = 0);
+                     bslma::Allocator        *basicAllocator = 0);
         // Create a variant implementation having the type and value of the
         // specified 'original' variant implementation.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -1312,7 +1321,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // the value this variant currently holds to 'visitor' object's
         // 'operator()', and return the value returned by the 'visitor'
         // object's 'operator()'.  If the variant is unset, a default
-        // constructed 'bslmf_Nil' will be passed to the visitor.  This method
+        // constructed 'bslmf::Nil' will be passed to the visitor.  This method
         // is selected only if the templatized type 'VISITOR' defines a
         // 'typedef' of 'ResultType' in its public interface.  Note that this
         // method is declared in place inline to workaround a windows compiler
@@ -1323,7 +1332,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                           typename VISITOR::ResultType>(visitor, this->d_type);
         }
 
-        bslmf_Nil nil = bslmf_Nil();
+        bslmf::Nil nil = bslmf::Nil();
         return visitor(nil);
     }
 
@@ -1336,7 +1345,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // the value this variant currently holds to 'visitor' object's
         // 'operator()', and return the value returned by the 'visitor'
         // object's 'operator()'.  If the variant is unset, a default
-        // constructed 'bslmf_Nil' will be passed to the visitor.  This method
+        // constructed 'bslmf::Nil' will be passed to the visitor.  This method
         // is selected only if the templatized type 'VISITOR' defines a
         // 'typedef' of 'ResultType' in its public interface.  Note that this
         // method is declared in place inline to workaround a windows compiler
@@ -1347,7 +1356,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                           typename VISITOR::ResultType>(visitor, this->d_type);
         }
 
-        bslmf_Nil nil = bslmf_Nil();
+        bslmf::Nil nil = bslmf::Nil();
         return visitor(nil);
     }
 
@@ -1404,7 +1413,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
         // 'operator()'.  This method does not return any values.  If the
-        // variant is unset, a default constructed 'bslmf_Nil' will be passed
+        // variant is unset, a default constructed 'bslmf::Nil' will be passed
         // to the visitor.  This method is selected only if the templatized
         // type 'VISITOR' does not define a 'typedef' of 'ResultType' in its
         // public interface.  Note that this method is declared in place inline
@@ -1415,7 +1424,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
             return;
         }
 
-        bslmf_Nil nil = bslmf_Nil();
+        bslmf::Nil nil = bslmf::Nil();
         visitor(nil);
     }
 
@@ -1426,7 +1435,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
         // 'operator()'.  This method does not return any values.  If the
-        // variant is unset, a default constructed 'bslmf_Nil' will be passed
+        // variant is unset, a default constructed 'bslmf::Nil' will be passed
         // to the visitor.  This method is selected only if the templatized
         // type 'VISITOR' does not define a 'typedef' of 'ResultType' in its
         // public interface.  Note that this method is declared in place inline
@@ -1437,7 +1446,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
             return;
         }
 
-        bslmf_Nil nil = bslmf_Nil();
+        bslmf::Nil nil = bslmf::Nil();
         visitor(nil);
     }
 
@@ -1491,7 +1500,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // the value this variant currently holds to 'visitor' object's
         // 'operator()', and return the value returned by the 'visitor'
         // object's 'operator()' of templatized 'RET_TYPE'.  If the variant is
-        // unset, a default constructed 'bslmf_Nil' will be passed to the
+        // unset, a default constructed 'bslmf::Nil' will be passed to the
         // visitor.
 
     template <class RET_TYPE, class VISITOR, class TYPE>
@@ -1708,7 +1717,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()', and
         // return the value returned by the 'visitor' object's 'operator()'.
-        // If the variant is unset, a default constructed 'bslmf_Nil' will be
+        // If the variant is unset, a default constructed 'bslmf::Nil' will be
         // passed to the visitor.  This method is selected only if the
         // templatized type 'VISITOR' defines a 'typedef' of 'ResultType' in
         // its public interface.  Note that this method is declared in place
@@ -1719,7 +1728,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                           typename VISITOR::ResultType>(visitor, this->d_type);
         }
 
-        bslmf_Nil nil = bslmf_Nil();
+        bslmf::Nil nil = bslmf::Nil();
         return visitor(nil);
     }
 
@@ -1731,7 +1740,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()', and
         // return the value returned by the 'visitor' object's 'operator()'.
-        // If the variant is unset, a default constructed 'bslmf_Nil' will be
+        // If the variant is unset, a default constructed 'bslmf::Nil' will be
         // passed to the visitor.  This method is selected only if the
         // templatized type 'VISITOR' defines a 'typedef' of 'ResultType' in
         // its public interface.  Note that this method is declared in place
@@ -1742,7 +1751,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                           typename VISITOR::ResultType>(visitor, this->d_type);
         }
 
-        bslmf_Nil nil = bslmf_Nil();
+        bslmf::Nil nil = bslmf::Nil();
         return visitor(nil);
     }
 
@@ -1797,18 +1806,18 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
         // This method does not return any values.  If the variant is unset, a
-        // default constructed 'bslmf_Nil' will be passed to the visitor.  This
-        // method is selected only if the templatized type 'VISITOR' does not
-        // define a 'typedef' of 'ResultType' in its public interface.  Note
-        // that this method is declared in place inline to workaround a windows
-        // compiler bug with SFINAE functions.
+        // default constructed 'bslmf::Nil' will be passed to the visitor.
+        // This method is selected only if the templatized type 'VISITOR' does
+        // not define a 'typedef' of 'ResultType' in its public interface.
+        // Note that this method is declared in place inline to workaround a
+        // Windows compiler bug with SFINAE functions.
 
         if (this->d_type) {
             doApply<VISITOR&>(visitor, this->d_type);
             return;
         }
 
-        bslmf_Nil nil = bslmf_Nil();
+        bslmf::Nil nil = bslmf::Nil();
         visitor(nil);
     }
 
@@ -1819,18 +1828,18 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
         // This method does not return any values.  If the variant is unset, a
-        // default constructed 'bslmf_Nil' will be passed to the visitor.  This
-        // method is selected only if the templatized type 'VISITOR' does not
-        // define a 'typedef' of 'ResultType' in its public interface.  Note
-        // that this method is declared in place inline to workaround a windows
-        // compiler bug with SFINAE functions.
+        // default constructed 'bslmf::Nil' will be passed to the visitor.
+        // This method is selected only if the templatized type 'VISITOR' does
+        // not define a 'typedef' of 'ResultType' in its public interface.
+        // Note that this method is declared in place inline to workaround a
+        // Windows  compiler bug with SFINAE functions.
 
         if (this->d_type) {
             doApply<const VISITOR&>(visitor, this->d_type);
             return;
         }
 
-        bslmf_Nil nil = bslmf_Nil();
+        bslmf::Nil nil = bslmf::Nil();
         visitor(nil);
     }
 
@@ -1884,7 +1893,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // this variant currently holds to 'visitor' object's 'operator()', and
         // return the value returned by the 'visitor' object's 'operator()' of
         // templatized 'RET_TYPE'.  If the variant is unset, a default
-        // constructed 'bslmf_Nil' will be passed to the visitor.
+        // constructed 'bslmf::Nil' will be passed to the visitor.
 
     template <class RET_TYPE, class VISITOR, class TYPE>
     RET_TYPE apply(VISITOR& visitor, const TYPE& defaultValue) const;
@@ -2079,17 +2088,17 @@ void swap(bdeut_VariantImp<TYPES>& a, bdeut_VariantImp<TYPES>& b);
                        // class bdeut_Variant<...>
                        // ========================
 
-template <class A1  = bslmf_Nil, class A2  = bslmf_Nil,
-          class A3  = bslmf_Nil, class A4  = bslmf_Nil,
-          class A5  = bslmf_Nil, class A6  = bslmf_Nil,
-          class A7  = bslmf_Nil, class A8  = bslmf_Nil,
-          class A9  = bslmf_Nil, class A10 = bslmf_Nil,
-          class A11 = bslmf_Nil, class A12 = bslmf_Nil,
-          class A13 = bslmf_Nil, class A14 = bslmf_Nil,
-          class A15 = bslmf_Nil, class A16 = bslmf_Nil,
-          class A17 = bslmf_Nil, class A18 = bslmf_Nil,
-          class A19 = bslmf_Nil, class A20 = bslmf_Nil>
-class bdeut_Variant : public bdeut_VariantImp<typename bslmf_TypeList<
+template <class A1  = bslmf::Nil, class A2  = bslmf::Nil,
+          class A3  = bslmf::Nil, class A4  = bslmf::Nil,
+          class A5  = bslmf::Nil, class A6  = bslmf::Nil,
+          class A7  = bslmf::Nil, class A8  = bslmf::Nil,
+          class A9  = bslmf::Nil, class A10 = bslmf::Nil,
+          class A11 = bslmf::Nil, class A12 = bslmf::Nil,
+          class A13 = bslmf::Nil, class A14 = bslmf::Nil,
+          class A15 = bslmf::Nil, class A16 = bslmf::Nil,
+          class A17 = bslmf::Nil, class A18 = bslmf::Nil,
+          class A19 = bslmf::Nil, class A20 = bslmf::Nil>
+class bdeut_Variant : public bdeut_VariantImp<typename bslmf::TypeList<
                                           A1,  A2,  A3,  A4,  A5,
                                           A6,  A7,  A8,  A9,  A10,
                                           A11, A12, A13, A14, A15,
@@ -2097,12 +2106,12 @@ class bdeut_Variant : public bdeut_VariantImp<typename bslmf_TypeList<
     // This class provides a "variant" type, i.e., a type capable of storing
     // values from a list of parameterized 'A1' to 'A20' types.  Note that if
     // the number 'N' of types is smaller than 20, 'AN+1' up to 'A20' default
-    // to 'bslmf_Nil', but it is more economical to use
+    // to 'bslmf::Nil', but it is more economical to use
     // 'bdeut_VariantN' which accepts exactly 'N' template arguments, as this
     // leads to shorter symbols and debug string information.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList<
+    typedef bdeut_VariantImp<typename bslmf::TypeList<
                                        A1,  A2,  A3,  A4,  A5,
                                        A6,  A7,  A8,  A9,  A10,
                                        A11, A12, A13, A14, A15,
@@ -2133,25 +2142,25 @@ class bdeut_Variant : public bdeut_VariantImp<typename bslmf_TypeList<
     explicit bdeut_Variant(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct to an unset type and
         // value using 'typeOrAlloc' to supply memory.  Note that this
         // templated constructor is created instead of creating an second
-        // constructor that takes 'bslma_Allocator *' because templated
+        // constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant(const TYPE&      value,
-                  bslma_Allocator *basicAllocator);
+    bdeut_Variant(const TYPE&       value,
+                  bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant(const bdeut_Variant&  original,
-                  bslma_Allocator      *basicAllocator = 0);
+                  bslma::Allocator     *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2202,8 +2211,8 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
 template <class TYPE>
 bdeut_Variant<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
               A13, A14, A15, A16, A17, A18, A19, A20>::bdeut_Variant(
-                                               const TYPE&      value,
-                                               bslma_Allocator *basicAllocator)
+                                              const TYPE&       value,
+                                              bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -2215,7 +2224,7 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
 bdeut_Variant<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
               A13, A14, A15, A16, A17, A18, A19, A20>::bdeut_Variant(
                                           const bdeut_Variant&  original,
-                                          bslma_Allocator      *basicAllocator)
+                                          bslma::Allocator     *basicAllocator)
 : Imp(static_cast<const Imp &>(original), basicAllocator)
     // Up-cast needed since template matching has higher overloading precedence
     // than derived-to-base matching.
@@ -2261,15 +2270,15 @@ bdeut_Variant<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
                        // =========================
 
 template <class A1, class A2>
-class bdeut_Variant2 : public bdeut_VariantImp<typename bslmf_TypeList2<
+class bdeut_Variant2 : public bdeut_VariantImp<typename bslmf::TypeList2<
                                                            A1, A2>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (2) of types.  Its 2 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList2<A1, A2>::ListType> Imp;
+    typedef bdeut_VariantImp<typename bslmf::TypeList2<A1, A2>::ListType> Imp;
     typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
@@ -2295,25 +2304,25 @@ class bdeut_Variant2 : public bdeut_VariantImp<typename bslmf_TypeList2<
     explicit bdeut_Variant2(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant2(const TYPE&      value,
-                   bslma_Allocator *basicAllocator);
+    bdeut_Variant2(const TYPE&       value,
+                   bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant2(const bdeut_Variant2&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2353,8 +2362,8 @@ bdeut_Variant2<A1, A2>::bdeut_Variant2(const TYPE_OR_ALLOCATOR& typeOrAlloc)
 template <class A1, class A2>
 template <class TYPE>
 inline
-bdeut_Variant2<A1, A2>::bdeut_Variant2(const TYPE&      value,
-                                       bslma_Allocator *basicAllocator)
+bdeut_Variant2<A1, A2>::bdeut_Variant2(const TYPE&       value,
+                                       bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -2362,7 +2371,7 @@ bdeut_Variant2<A1, A2>::bdeut_Variant2(const TYPE&      value,
 template <class A1, class A2>
 inline
 bdeut_Variant2<A1, A2>::bdeut_Variant2(const bdeut_Variant2&  original,
-                                       bslma_Allocator       *basicAllocator)
+                                       bslma::Allocator      *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -2391,15 +2400,15 @@ bdeut_Variant2<A1, A2>::operator=(const bdeut_Variant2& rhs)
                        // =========================
 
 template <class A1, class A2, class A3>
-class bdeut_Variant3 : public bdeut_VariantImp<typename bslmf_TypeList3<
+class bdeut_Variant3 : public bdeut_VariantImp<typename bslmf::TypeList3<
                                                        A1, A2, A3>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (3) of types.  Its 3 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, A3>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList3<
+    typedef bdeut_VariantImp<typename bslmf::TypeList3<
                                                     A1, A2, A3>::ListType> Imp;
 
     typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
@@ -2428,25 +2437,25 @@ class bdeut_Variant3 : public bdeut_VariantImp<typename bslmf_TypeList3<
     explicit bdeut_Variant3(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant3(const TYPE&      value,
-                   bslma_Allocator *basicAllocator);
+    bdeut_Variant3(const TYPE&       value,
+                   bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant3(const bdeut_Variant3&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2488,8 +2497,8 @@ template <class A1, class A2, class A3>
 template <class TYPE>
 inline
 bdeut_Variant3<A1, A2, A3>::
-bdeut_Variant3(const TYPE&      value,
-               bslma_Allocator *basicAllocator)
+bdeut_Variant3(const TYPE&       value,
+               bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -2498,7 +2507,7 @@ template <class A1, class A2, class A3>
 inline
 bdeut_Variant3<A1, A2, A3>::
 bdeut_Variant3(const bdeut_Variant3&  original,
-               bslma_Allocator       *basicAllocator)
+               bslma::Allocator      *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -2527,15 +2536,15 @@ bdeut_Variant3<A1, A2, A3>::operator=(const bdeut_Variant3& rhs)
                        // =========================
 
 template <class A1, class A2, class A3, class A4>
-class bdeut_Variant4 : public bdeut_VariantImp<typename bslmf_TypeList4<
+class bdeut_Variant4 : public bdeut_VariantImp<typename bslmf::TypeList4<
                                                    A1, A2, A3, A4>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (4) of types.  Its 4 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A4>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList4<
+    typedef bdeut_VariantImp<typename bslmf::TypeList4<
                                                 A1, A2, A3, A4>::ListType> Imp;
 
     typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
@@ -2564,25 +2573,25 @@ class bdeut_Variant4 : public bdeut_VariantImp<typename bslmf_TypeList4<
     explicit bdeut_Variant4(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant4(const TYPE&      value,
-                   bslma_Allocator *basicAllocator);
+    bdeut_Variant4(const TYPE&       value,
+                   bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant4(const bdeut_Variant4&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2624,8 +2633,8 @@ template <class A1, class A2, class A3, class A4>
 template <class TYPE>
 inline
 bdeut_Variant4<A1, A2, A3, A4>::
-bdeut_Variant4(const TYPE&      value,
-               bslma_Allocator *basicAllocator)
+bdeut_Variant4(const TYPE&       value,
+               bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -2634,7 +2643,7 @@ template <class A1, class A2, class A3, class A4>
 inline
 bdeut_Variant4<A1, A2, A3, A4>::
 bdeut_Variant4(const bdeut_Variant4&  original,
-               bslma_Allocator       *basicAllocator)
+               bslma::Allocator      *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -2663,15 +2672,15 @@ bdeut_Variant4<A1, A2, A3, A4>::operator=(const bdeut_Variant4& rhs)
                        // =========================
 
 template <class A1, class A2, class A3, class A4, class A5>
-class bdeut_Variant5 : public bdeut_VariantImp<typename bslmf_TypeList5<
+class bdeut_Variant5 : public bdeut_VariantImp<typename bslmf::TypeList5<
                                                A1, A2, A3, A4, A5>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (5) of types.  Its 5 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A5>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList5<
+    typedef bdeut_VariantImp<typename bslmf::TypeList5<
                                             A1, A2, A3, A4, A5>::ListType> Imp;
 
     typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
@@ -2700,25 +2709,25 @@ class bdeut_Variant5 : public bdeut_VariantImp<typename bslmf_TypeList5<
     explicit bdeut_Variant5(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant5(const TYPE&      value,
-                   bslma_Allocator *basicAllocator);
+    bdeut_Variant5(const TYPE&       value,
+                   bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant5(const bdeut_Variant5&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2760,8 +2769,8 @@ template <class A1, class A2, class A3, class A4, class A5>
 template <class TYPE>
 inline
 bdeut_Variant5<A1, A2, A3, A4, A5>::
-bdeut_Variant5(const TYPE&      value,
-               bslma_Allocator *basicAllocator)
+bdeut_Variant5(const TYPE&       value,
+               bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -2770,7 +2779,7 @@ template <class A1, class A2, class A3, class A4, class A5>
 inline
 bdeut_Variant5<A1, A2, A3, A4, A5>::
 bdeut_Variant5(const bdeut_Variant5&  original,
-               bslma_Allocator       *basicAllocator)
+               bslma::Allocator      *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -2799,15 +2808,15 @@ bdeut_Variant5<A1, A2, A3, A4, A5>::operator=(const bdeut_Variant5& rhs)
                        // =========================
 
 template <class A1, class A2, class A3, class A4, class A5, class A6>
-class bdeut_Variant6 : public bdeut_VariantImp<typename bslmf_TypeList6<
+class bdeut_Variant6 : public bdeut_VariantImp<typename bslmf::TypeList6<
                                            A1, A2, A3, A4, A5, A6>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (6) of types.  Its 6 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A6>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList6<
+    typedef bdeut_VariantImp<typename bslmf::TypeList6<
                                         A1, A2, A3, A4, A5, A6>::ListType> Imp;
 
     typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
@@ -2836,25 +2845,25 @@ class bdeut_Variant6 : public bdeut_VariantImp<typename bslmf_TypeList6<
     explicit bdeut_Variant6(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant6(const TYPE&      value,
-                   bslma_Allocator *basicAllocator);
+    bdeut_Variant6(const TYPE&       value,
+                   bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant6(const bdeut_Variant6&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2896,8 +2905,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6>
 template <class TYPE>
 inline
 bdeut_Variant6<A1, A2, A3, A4, A5, A6>::
-bdeut_Variant6(const TYPE&      value,
-               bslma_Allocator *basicAllocator)
+bdeut_Variant6(const TYPE&       value,
+               bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -2906,7 +2915,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6>
 inline
 bdeut_Variant6<A1, A2, A3, A4, A5, A6>::
 bdeut_Variant6(const bdeut_Variant6&  original,
-               bslma_Allocator       *basicAllocator)
+               bslma::Allocator      *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -2936,15 +2945,15 @@ bdeut_Variant6<A1, A2, A3, A4, A5, A6>::operator=(const bdeut_Variant6& rhs)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7>
-class bdeut_Variant7 : public bdeut_VariantImp<typename bslmf_TypeList7<
+class bdeut_Variant7 : public bdeut_VariantImp<typename bslmf::TypeList7<
                                        A1, A2, A3, A4, A5, A6, A7>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (7) of types.  Its 7 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A7>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList7<A1, A2, A3, A4, A5,
+    typedef bdeut_VariantImp<typename bslmf::TypeList7<A1, A2, A3, A4, A5,
                                                       A6, A7>::ListType> Imp;
 
     typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
@@ -2973,25 +2982,25 @@ class bdeut_Variant7 : public bdeut_VariantImp<typename bslmf_TypeList7<
     explicit bdeut_Variant7(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant7(const TYPE&      value,
-                   bslma_Allocator *basicAllocator);
+    bdeut_Variant7(const TYPE&       value,
+                   bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant7(const bdeut_Variant7&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -3033,8 +3042,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 template <class TYPE>
 inline
 bdeut_Variant7<A1, A2, A3, A4, A5, A6, A7>::
-bdeut_Variant7(const TYPE&      value,
-               bslma_Allocator *basicAllocator)
+bdeut_Variant7(const TYPE&       value,
+               bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -3043,7 +3052,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 inline
 bdeut_Variant7<A1, A2, A3, A4, A5, A6, A7>::
 bdeut_Variant7(const bdeut_Variant7&  original,
-               bslma_Allocator       *basicAllocator)
+               bslma::Allocator      *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -3074,15 +3083,15 @@ operator=(const bdeut_Variant7& rhs)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8>
-class bdeut_Variant8 : public bdeut_VariantImp<typename bslmf_TypeList8<
+class bdeut_Variant8 : public bdeut_VariantImp<typename bslmf::TypeList8<
               A1, A2, A3, A4, A5, A6, A7, A8>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (8) of types.  Its 8 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A8>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList8<
+    typedef bdeut_VariantImp<typename bslmf::TypeList8<
                                                     A1, A2, A3, A4, A5,
                                                     A6, A7, A8>::ListType> Imp;
 
@@ -3112,25 +3121,25 @@ class bdeut_Variant8 : public bdeut_VariantImp<typename bslmf_TypeList8<
     explicit bdeut_Variant8(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant8(const TYPE&      value,
-                   bslma_Allocator *basicAllocator);
+    bdeut_Variant8(const TYPE&       value,
+                   bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant8(const bdeut_Variant8&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -3175,8 +3184,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 bdeut_Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-bdeut_Variant8(const TYPE&      value,
-               bslma_Allocator *basicAllocator)
+bdeut_Variant8(const TYPE&       value,
+               bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -3186,7 +3195,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 inline
 bdeut_Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 bdeut_Variant8(const bdeut_Variant8&  original,
-               bslma_Allocator       *basicAllocator)
+               bslma::Allocator      *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -3219,15 +3228,15 @@ operator=(const bdeut_Variant8& rhs)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9>
-class bdeut_Variant9 : public bdeut_VariantImp<typename bslmf_TypeList9<
+class bdeut_Variant9 : public bdeut_VariantImp<typename bslmf::TypeList9<
               A1, A2, A3, A4, A5, A6, A7, A8, A9>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (9) of types.  Its 9 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A9>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList9<
+    typedef bdeut_VariantImp<typename bslmf::TypeList9<
                                                 A1, A2, A3, A4, A5,
                                                 A6, A7, A8, A9>::ListType> Imp;
 
@@ -3257,25 +3266,25 @@ class bdeut_Variant9 : public bdeut_VariantImp<typename bslmf_TypeList9<
     explicit bdeut_Variant9(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant9(const TYPE&      value,
-                   bslma_Allocator *basicAllocator);
+    bdeut_Variant9(const TYPE&       value,
+                   bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant9(const bdeut_Variant9&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -3320,8 +3329,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 bdeut_Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-bdeut_Variant9(const TYPE&      value,
-               bslma_Allocator *basicAllocator)
+bdeut_Variant9(const TYPE&       value,
+               bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -3331,7 +3340,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 inline
 bdeut_Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 bdeut_Variant9(const bdeut_Variant9&  original,
-               bslma_Allocator       *basicAllocator)
+               bslma::Allocator      *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -3365,15 +3374,15 @@ operator=(const bdeut_Variant9& rhs)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10>
-class bdeut_Variant10 : public bdeut_VariantImp<typename bslmf_TypeList10<
+class bdeut_Variant10 : public bdeut_VariantImp<typename bslmf::TypeList10<
                           A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (10) of types.  Its 10 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A10>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList10<
+    typedef bdeut_VariantImp<typename bslmf::TypeList10<
                                            A1, A2, A3, A4, A5,
                                            A6, A7, A8, A9, A10>::ListType> Imp;
 
@@ -3403,25 +3412,25 @@ class bdeut_Variant10 : public bdeut_VariantImp<typename bslmf_TypeList10<
     explicit bdeut_Variant10(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant10(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant10(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant10(const bdeut_Variant10&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -3466,8 +3475,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 bdeut_Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-bdeut_Variant10(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant10(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -3477,7 +3486,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 inline
 bdeut_Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 bdeut_Variant10(const bdeut_Variant10&  original,
-                bslma_Allocator       *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -3511,15 +3520,15 @@ operator=(const bdeut_Variant10& rhs)
 
 template <class A1, class A2, class A3, class A4,  class A5, class A6,
           class A7, class A8, class A9, class A10, class A11>
-class bdeut_Variant11 : public bdeut_VariantImp<typename bslmf_TypeList11<
+class bdeut_Variant11 : public bdeut_VariantImp<typename bslmf::TypeList11<
                      A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (11) of types.  Its 11 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A11>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList11<A1, A2, A3, A4, A5,
+    typedef bdeut_VariantImp<typename bslmf::TypeList11<A1, A2, A3, A4, A5,
                                                        A6, A7, A8, A9, A10,
                                                        A11>::ListType> Imp;
 
@@ -3549,25 +3558,25 @@ class bdeut_Variant11 : public bdeut_VariantImp<typename bslmf_TypeList11<
     explicit bdeut_Variant11(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant11(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant11(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant11(const bdeut_Variant11&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -3613,8 +3622,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 bdeut_Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-bdeut_Variant11(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant11(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -3624,7 +3633,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 inline
 bdeut_Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 bdeut_Variant11(const bdeut_Variant11&  original,
-                bslma_Allocator        *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -3658,15 +3667,15 @@ operator=(const bdeut_Variant11& rhs)
 
 template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A7, class A8, class A9, class A10, class A11, class A12>
-class bdeut_Variant12 : public bdeut_VariantImp<typename bslmf_TypeList12<
+class bdeut_Variant12 : public bdeut_VariantImp<typename bslmf::TypeList12<
               A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (12) of types.  Its 12 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A12>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList12<
+    typedef bdeut_VariantImp<typename bslmf::TypeList12<
                                                       A1,  A2,  A3,  A4,  A5,
                                                       A6,  A7,  A8,  A9,  A10,
                                                       A11, A12>::ListType> Imp;
@@ -3697,25 +3706,25 @@ class bdeut_Variant12 : public bdeut_VariantImp<typename bslmf_TypeList12<
     explicit bdeut_Variant12(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant12(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant12(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant12(const bdeut_Variant12&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -3761,8 +3770,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 bdeut_Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-bdeut_Variant12(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant12(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -3772,7 +3781,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 inline
 bdeut_Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 bdeut_Variant12(const bdeut_Variant12&  original,
-                bslma_Allocator        *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -3807,15 +3816,15 @@ operator=(const bdeut_Variant12& rhs)
 template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13>
-class bdeut_Variant13 : public bdeut_VariantImp<typename bslmf_TypeList13<
+class bdeut_Variant13 : public bdeut_VariantImp<typename bslmf::TypeList13<
            A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (13) of types.  Its 13 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A13>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList13<
+    typedef bdeut_VariantImp<typename bslmf::TypeList13<
                                                  A1,  A2,  A3,  A4,  A5,
                                                  A6,  A7,  A8,  A9,  A10,
                                                  A11, A12, A13>::ListType> Imp;
@@ -3846,25 +3855,25 @@ class bdeut_Variant13 : public bdeut_VariantImp<typename bslmf_TypeList13<
     explicit bdeut_Variant13(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant13(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant13(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant13(const bdeut_Variant13&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -3910,8 +3919,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 bdeut_Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-bdeut_Variant13(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant13(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -3921,7 +3930,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 inline
 bdeut_Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 bdeut_Variant13(const bdeut_Variant13&  original,
-                bslma_Allocator        *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -3956,17 +3965,17 @@ operator=(const bdeut_Variant13& rhs)
 template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
           class A7,  class A8, class A9, class A10, class A11, class A12,
           class A13, class A14>
-class bdeut_Variant14 : public bdeut_VariantImp<typename bslmf_TypeList14<
+class bdeut_Variant14 : public bdeut_VariantImp<typename bslmf::TypeList14<
                                                A1,  A2,  A3,  A4,  A5,
                                                A6,  A7,  A8,  A9,  A10,
                                                A11, A12, A13, A14>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (14) of types.  Its 14 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A14>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList14<
+    typedef bdeut_VariantImp<typename bslmf::TypeList14<
                                             A1,  A2,  A3,  A4,  A5,
                                             A6,  A7,  A8,  A9,  A10,
                                             A11, A12, A13, A14>::ListType> Imp;
@@ -3997,25 +4006,25 @@ class bdeut_Variant14 : public bdeut_VariantImp<typename bslmf_TypeList14<
     explicit bdeut_Variant14(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant14(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant14(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant14(const bdeut_Variant14&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -4064,8 +4073,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 bdeut_Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-bdeut_Variant14(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant14(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -4076,7 +4085,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 inline
 bdeut_Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 bdeut_Variant14(const bdeut_Variant14&  original,
-                bslma_Allocator        *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -4113,17 +4122,17 @@ operator=(const bdeut_Variant14& rhs)
 template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
           class A7,  class A8,  class A9, class A10, class A11, class A12,
           class A13, class A14, class A15>
-class bdeut_Variant15 : public bdeut_VariantImp<typename bslmf_TypeList15<
+class bdeut_Variant15 : public bdeut_VariantImp<typename bslmf::TypeList15<
                                           A1,  A2,  A3,  A4,  A5,
                                           A6,  A7,  A8,  A9,  A10,
                                           A11, A12, A13, A14, A15>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (15) of types.  Its 15 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A15>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList15<
+    typedef bdeut_VariantImp<typename bslmf::TypeList15<
                                        A1,  A2,  A3,  A4,  A5,
                                        A6,  A7,  A8,  A9,  A10,
                                        A11, A12, A13, A14, A15>::ListType> Imp;
@@ -4154,25 +4163,25 @@ class bdeut_Variant15 : public bdeut_VariantImp<typename bslmf_TypeList15<
     explicit bdeut_Variant15(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant15(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant15(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant15(const bdeut_Variant15&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -4224,8 +4233,8 @@ template <class TYPE>
 inline
 bdeut_Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15>::
-bdeut_Variant15(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant15(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -4237,7 +4246,7 @@ inline
 bdeut_Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15>::
 bdeut_Variant15(const bdeut_Variant15&  original,
-                bslma_Allocator        *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -4278,18 +4287,18 @@ operator=(const bdeut_Variant15& rhs)
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16>
-class bdeut_Variant16 : public bdeut_VariantImp<typename bslmf_TypeList16<
+class bdeut_Variant16 : public bdeut_VariantImp<typename bslmf::TypeList16<
                                                        A1,  A2,  A3,  A4,  A5,
                                                        A6,  A7,  A8,  A9,  A10,
                                                        A11, A12, A13, A14, A15,
                                                        A16>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (16) of types.  Its 16 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A16>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList16<A1,  A2,  A3,  A4,  A5,
+    typedef bdeut_VariantImp<typename bslmf::TypeList16<A1,  A2,  A3,  A4,  A5,
                                                        A6,  A7,  A8,  A9,  A10,
                                                        A11, A12, A13, A14, A15,
                                                        A16>::ListType> Imp;
@@ -4320,25 +4329,25 @@ class bdeut_Variant16 : public bdeut_VariantImp<typename bslmf_TypeList16<
     explicit bdeut_Variant16(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant16(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant16(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant16(const bdeut_Variant16&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -4390,8 +4399,8 @@ template <class TYPE>
 inline
 bdeut_Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15, A16>::
-bdeut_Variant16(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant16(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -4403,7 +4412,7 @@ inline
 bdeut_Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15, A16>::
 bdeut_Variant16(const bdeut_Variant16&  original,
-                bslma_Allocator        *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -4444,18 +4453,18 @@ operator=(const bdeut_Variant16& rhs)
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17>
-class bdeut_Variant17 : public bdeut_VariantImp<typename bslmf_TypeList17<
+class bdeut_Variant17 : public bdeut_VariantImp<typename bslmf::TypeList17<
                                                        A1,  A2,  A3,  A4,  A5,
                                                        A6,  A7,  A8,  A9,  A10,
                                                        A11, A12, A13, A14, A15,
                                                        A16, A17>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (17) of types.  Its 17 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A17>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList17<
+    typedef bdeut_VariantImp<typename bslmf::TypeList17<
                                                       A1,  A2,  A3,  A4,  A5,
                                                       A6,  A7,  A8,  A9,  A10,
                                                       A11, A12, A13, A14, A15,
@@ -4487,25 +4496,25 @@ class bdeut_Variant17 : public bdeut_VariantImp<typename bslmf_TypeList17<
     explicit bdeut_Variant17(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant17(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant17(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant17(const bdeut_Variant17&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -4557,8 +4566,8 @@ template <class TYPE>
 inline
 bdeut_Variant17<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15, A16, A17>::
-bdeut_Variant17(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant17(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -4570,7 +4579,7 @@ inline
 bdeut_Variant17<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15, A16, A17>::
 bdeut_Variant17(const bdeut_Variant17&  original,
-                bslma_Allocator        *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -4610,18 +4619,18 @@ operator=(const bdeut_Variant17& rhs)
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18>
-class bdeut_Variant18 : public bdeut_VariantImp<typename bslmf_TypeList18<
+class bdeut_Variant18 : public bdeut_VariantImp<typename bslmf::TypeList18<
                                                     A1,  A2,  A3,  A4,  A5,
                                                     A6,  A7,  A8,  A9,  A10,
                                                     A11, A12, A13, A14, A15,
                                                     A16, A17, A18>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (18) of types.  Its 18 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A18>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList18<
+    typedef bdeut_VariantImp<typename bslmf::TypeList18<
                                                  A1,  A2,  A3,  A4,  A5,
                                                  A6,  A7,  A8,  A9,  A10,
                                                  A11, A12, A13, A14, A15,
@@ -4653,25 +4662,25 @@ class bdeut_Variant18 : public bdeut_VariantImp<typename bslmf_TypeList18<
     explicit bdeut_Variant18(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant18(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant18(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant18(const bdeut_Variant18&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -4723,8 +4732,8 @@ template <class TYPE>
 inline
 bdeut_Variant18<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15, A16, A17, A18>::
-bdeut_Variant18(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant18(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -4736,7 +4745,7 @@ inline
 bdeut_Variant18<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15, A16, A17, A18>::
 bdeut_Variant18(const bdeut_Variant18&  original,
-                bslma_Allocator        *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -4778,18 +4787,18 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18,
           class A19>
-class bdeut_Variant19 : public bdeut_VariantImp<typename bslmf_TypeList19<
+class bdeut_Variant19 : public bdeut_VariantImp<typename bslmf::TypeList19<
                                                A1,  A2,  A3,  A4,  A5,
                                                A6,  A7,  A8,  A9,  A10,
                                                A11, A12, A13, A14, A15,
                                                A16, A17, A18, A19>::ListType> {
     // This class is a "specialization" of 'bdeut_Variant' for a fixed number
     // (19) of types.  Its 19 template arguments *must* all be specified (none
-    // are defaulted to 'bslmf_Nil').  It provides the same
+    // are defaulted to 'bslmf::Nil').  It provides the same
     // functionality as 'bdeut_Variant<A1, A2, ..., A19>'.
 
     // TYPES
-    typedef bdeut_VariantImp<typename bslmf_TypeList19<
+    typedef bdeut_VariantImp<typename bslmf::TypeList19<
                                             A1,  A2,  A3,  A4,  A5,
                                             A6,  A7,  A8,  A9,  A10,
                                             A11, A12, A13, A14, A15,
@@ -4820,25 +4829,25 @@ class bdeut_Variant19 : public bdeut_VariantImp<typename bslmf_TypeList19<
     explicit bdeut_Variant19(const TYPE_OR_ALLOCATOR& typeOrAllocator);
         // Create a variant object with the specified 'typeOrAlloc', which can
         // either be a type that the variant can hold, or an allocator to
-        // supply memory.  If 'typeOrAlloc' is not a 'bslma_Allocator *', then
+        // supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *', then
         // the variant will hold the value and type of 'typeOrAlloc', using
         // the currently installed default allocator to supply memory.
         // Otherwise, the variant will default construct the first specified
         // type in the type list using 'typeOrAlloc' to supply memory.  Note
         // that this templated constructor is created instead of creating an
-        // second constructor that takes 'bslma_Allocator *' because templated
+        // second constructor that takes 'bslma::Allocator *' because templated
         // arguments are always a better match than child-to-base conversion.
 
     template <class TYPE>
-    bdeut_Variant19(const TYPE&      value,
-                    bslma_Allocator *basicAllocator);
+    bdeut_Variant19(const TYPE&       value,
+                    bslma::Allocator *basicAllocator);
         // Create a variant object having the specified 'value' and that uses
         // the specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     bdeut_Variant19(const bdeut_Variant19&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -4890,8 +4899,8 @@ template <class TYPE>
 inline
 bdeut_Variant19<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15, A16, A17, A18, A19>::
-bdeut_Variant19(const TYPE&      value,
-                bslma_Allocator *basicAllocator)
+bdeut_Variant19(const TYPE&       value,
+                bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
@@ -4903,7 +4912,7 @@ inline
 bdeut_Variant19<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
                 A15, A16, A17, A18, A19>::
 bdeut_Variant19(const bdeut_Variant19&  original,
-                bslma_Allocator        *basicAllocator)
+                bslma::Allocator       *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
@@ -4951,67 +4960,67 @@ struct bdeut_Variant_TypeIndex {
 
     enum {
         VALUE
-            = bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf< 1, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ?  1
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf< 2, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ?  2
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf< 3, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ?  3
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf< 4, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ?  4
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf< 5, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ?  5
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf< 6, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ?  6
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf< 7, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ?  7
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf< 8, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ?  8
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf< 9, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ?  9
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<10, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 10
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<11, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 11
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<12, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 12
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<13, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 13
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<14, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 14
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<15, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 15
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<16, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 16
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<17, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 17
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<18, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 18
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<19, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 19
-            : bslmf_IsSame<
-                       typename bslmf_TypeListTypeOf<20, TYPES>::TypeOrDefault,
-                       TYPE>::VALUE ? 20
-            : bslmf_IsConvertible<TYPE, bslma_Allocator *>::VALUE
+            = bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ?  1
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf< 2, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ?  2
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf< 3, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ?  3
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf< 4, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ?  4
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf< 5, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ?  5
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf< 6, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ?  6
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf< 7, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ?  7
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf< 8, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ?  8
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf< 9, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ?  9
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<10, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 10
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<11, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 11
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<12, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 12
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<13, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 13
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<14, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 14
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<15, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 15
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<16, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 16
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<17, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 17
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<18, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 18
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<19, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 19
+            : bslmf::IsSame<
+                      typename bslmf::TypeListTypeOf<20, TYPES>::TypeOrDefault,
+                      TYPE>::VALUE ? 20
+            : bslmf::IsConvertible<TYPE, bslma::Allocator *>::VALUE
                                ? 21
             : 0
     };
@@ -5029,10 +5038,10 @@ struct bdeut_Variant_DefaultConstructVisitor {
     // instance of that 'TYPE' in that location.
 
     // PUBLIC DATA
-    bslma_Allocator *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
 
     // CREATORS
-    bdeut_Variant_DefaultConstructVisitor(bslma_Allocator *allocator)
+    bdeut_Variant_DefaultConstructVisitor(bslma::Allocator *allocator)
     : d_allocator_p(allocator)
     {
     }
@@ -5042,7 +5051,7 @@ struct bdeut_Variant_DefaultConstructVisitor {
     inline
     void operator() (TYPE& value) const
     {
-        bslalg_ScalarPrimitives::defaultConstruct(&value, d_allocator_p);
+        bslalg::ScalarPrimitives::defaultConstruct(&value, d_allocator_p);
     }
 };
 
@@ -5057,12 +5066,12 @@ struct bdeut_Variant_CopyConstructVisitor {
     // construction of this visitor.
 
     // PUBLIC DATA
-    void            *d_buffer_p;
-    bslma_Allocator *d_allocator_p;
+    void             *d_buffer_p;
+    bslma::Allocator *d_allocator_p;
 
     // CREATORS
-    bdeut_Variant_CopyConstructVisitor(void            *buffer,
-                                       bslma_Allocator *allocator)
+    bdeut_Variant_CopyConstructVisitor(void             *buffer,
+                                       bslma::Allocator *allocator)
     : d_buffer_p(buffer)
     , d_allocator_p(allocator)
     {
@@ -5074,7 +5083,7 @@ struct bdeut_Variant_CopyConstructVisitor {
     inline
     void operator() (const TYPE& value) const
     {
-        bslalg_ScalarPrimitives::copyConstruct(
+        bslalg::ScalarPrimitives::copyConstruct(
                                           reinterpret_cast<TYPE *>(d_buffer_p),
                                           value,
                                           d_allocator_p);
@@ -5094,7 +5103,7 @@ struct bdeut_Variant_DestructorVisitor {
     inline
     void operator() (TYPE& object) const
     {
-        bslalg_ScalarDestructionPrimitives::destroy(&object);
+        bslalg::ScalarDestructionPrimitives::destroy(&object);
     }
 };
 
@@ -5152,7 +5161,7 @@ struct bdeut_Variant_SwapVisitor {
     inline
     void operator() (TYPE& value)
     {
-        bslalg_SwapUtil::swap(reinterpret_cast<TYPE *>(d_buffer_p), &value);
+        bslalg::SwapUtil::swap(reinterpret_cast<TYPE *>(d_buffer_p), &value);
     }
 };
 
@@ -5185,7 +5194,7 @@ struct bdeut_Variant_MaxSupportedBdexVersionVisitor {
     }
 
     inline
-    void operator() (bslmf_Nil)
+    void operator() (bslmf::Nil)
     {
         d_maxSupportedBdexVersion =
                                  bdex_VersionFunctions::BDEX_NO_VERSION_NUMBER;
@@ -5223,7 +5232,7 @@ struct bdeut_Variant_BdexStreamInVisitor {
     }
 
     inline
-    void operator() (bslmf_Nil) const
+    void operator() (bslmf::Nil) const
     {
         // no op
     }
@@ -5260,7 +5269,7 @@ struct bdeut_Variant_BdexStreamOutVisitor {
     }
 
     inline
-    void operator() (bslmf_Nil) const
+    void operator() (bslmf::Nil) const
     {
         // no op
     }
@@ -5304,7 +5313,7 @@ struct bdeut_Variant_PrintVisitor {
     }
 
     inline
-    void operator() (bslmf_Nil) const
+    void operator() (bslmf::Nil) const
     {
         // no op
     }
@@ -5341,7 +5350,7 @@ struct bdeut_Variant_EqualityTestVisitor {
     }
 
     inline
-    void operator() (bslmf_Nil) const
+    void operator() (bslmf::Nil) const
     {
         // 'value' and 'd_buffer_p' are guaranteed to be the same type by
         // 'operator=='.
@@ -5361,9 +5370,9 @@ struct bdeut_Variant_EqualityTestVisitor {
 template <typename TYPES>
 inline
 bdeut_VariantImp_AllocatorBase<TYPES>::
-bdeut_VariantImp_AllocatorBase(int type, bslma_Allocator *basicAllocator)
+bdeut_VariantImp_AllocatorBase(int type, bslma::Allocator *basicAllocator)
 : d_type(type)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -5371,10 +5380,10 @@ template <typename TYPES>
 inline
 bdeut_VariantImp_AllocatorBase<TYPES>::
 bdeut_VariantImp_AllocatorBase(int,
-                               bslma_Allocator  *basicAllocator,
-                               bslmf_MetaInt<1> *)
+                               bslma::Allocator  *basicAllocator,
+                               bslmf::MetaInt<1> *)
 : d_type(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -5382,16 +5391,16 @@ template <typename TYPES>
 template <typename TYPE>
 inline
 bdeut_VariantImp_AllocatorBase<TYPES>::
-bdeut_VariantImp_AllocatorBase(int type, const TYPE&, bslmf_MetaInt<0> *)
+bdeut_VariantImp_AllocatorBase(int type, const TYPE&, bslmf::MetaInt<0> *)
 : d_type(type)
-, d_allocator_p(bslma_Default::allocator(0))
+, d_allocator_p(bslma::Default::allocator(0))
 {
 }
 
 // ACCESSORS
 template <typename TYPES>
 inline
-bslma_Allocator *
+bslma::Allocator *
 bdeut_VariantImp_AllocatorBase<TYPES>::getAllocator() const
 {
     return d_allocator_p;
@@ -5405,7 +5414,7 @@ bdeut_VariantImp_AllocatorBase<TYPES>::getAllocator() const
 template <typename TYPES>
 inline
 bdeut_VariantImp_NonAllocatorBase<TYPES>::
-bdeut_VariantImp_NonAllocatorBase(int type, bslma_Allocator *)
+bdeut_VariantImp_NonAllocatorBase(int type, bslma::Allocator *)
 : d_type(type)
 {
 }
@@ -5413,7 +5422,7 @@ bdeut_VariantImp_NonAllocatorBase(int type, bslma_Allocator *)
 template <typename TYPES>
 inline
 bdeut_VariantImp_NonAllocatorBase<TYPES>::
-bdeut_VariantImp_NonAllocatorBase(int, bslma_Allocator *, bslmf_MetaInt<1> *)
+bdeut_VariantImp_NonAllocatorBase(int, bslma::Allocator *, bslmf::MetaInt<1> *)
 : d_type(0)
 {
 }
@@ -5422,7 +5431,7 @@ template <typename TYPES>
 template <typename TYPE>
 inline
 bdeut_VariantImp_NonAllocatorBase<TYPES>::
-bdeut_VariantImp_NonAllocatorBase(int type, const TYPE&, bslmf_MetaInt<0> *)
+bdeut_VariantImp_NonAllocatorBase(int type, const TYPE&, bslmf::MetaInt<0> *)
 : d_type(type)
 {
 }
@@ -5430,7 +5439,7 @@ bdeut_VariantImp_NonAllocatorBase(int type, const TYPE&, bslmf_MetaInt<0> *)
 // ACCESSORS
 template <typename TYPES>
 inline
-bslma_Allocator *
+bslma::Allocator *
 bdeut_VariantImp_NonAllocatorBase<TYPES>::getAllocator() const
 {
     return 0;
@@ -5452,20 +5461,20 @@ TYPE bdeut_VariantImp<TYPES>::dummyReturn(TYPE *dummyPtr)
 template <class TYPES>
 template <class TYPE, class VISITOR_REF>
 inline
-void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF       visitor,
-                                       bslmf_MetaInt<0> *)
+void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF        visitor,
+                                       bslmf::MetaInt<0> *)
 {
     visitor(reinterpret_cast<
-                         bsls_ObjectBuffer<TYPE> *>(&this->d_value)->object());
+                        bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object());
 }
 
 template <class TYPES>
 template <class TYPE, class VISITOR_REF>
 inline
-void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF       visitor,
-                                       bslmf_MetaInt<1> *)
+void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF        visitor,
+                                       bslmf::MetaInt<1> *)
 {
-    bslmf_Nil nil = bslmf_Nil();
+    bslmf::Nil nil = bslmf::Nil();
     visitor(nil);
 }
 
@@ -5474,27 +5483,27 @@ template <class TYPE, class VISITOR_REF>
 inline
 void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF visitor)
 {
-    typedef typename bslmf_IsSame<TYPE, bslmf_Nil>::Type IsUnset;
+    typedef typename bslmf::IsSame<TYPE, bslmf::Nil>::Type IsUnset;
     applyImp<TYPE, VISITOR_REF>(visitor, (IsUnset *)0);
 }
 
 template <class TYPES>
 template <class TYPE, class VISITOR_REF, class RET_TYPE>
 inline
-RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF       visitor,
-                                            bslmf_MetaInt<0> *)
+RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF        visitor,
+                                            bslmf::MetaInt<0> *)
 {
     return visitor(reinterpret_cast<
-                         bsls_ObjectBuffer<TYPE> *>(&this->d_value)->object());
+                        bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object());
 }
 
 template <class TYPES>
 template <class TYPE, class VISITOR_REF, class RET_TYPE>
 inline
-RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF       visitor,
-                                            bslmf_MetaInt<1> *)
+RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF        visitor,
+                                            bslmf::MetaInt<1> *)
 {
-    bslmf_Nil nil = bslmf_Nil();
+    bslmf::Nil nil = bslmf::Nil();
     return visitor(nil);
 }
 
@@ -5503,7 +5512,7 @@ template <class TYPE, class VISITOR_REF, class RET_TYPE>
 inline
 RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF visitor)
 {
-    typedef typename bslmf_IsSame<TYPE, bslmf_Nil>::Type IsUnset;
+    typedef typename bslmf::IsSame<TYPE, bslmf::Nil>::Type IsUnset;
     return applyImpR<TYPE, VISITOR_REF, RET_TYPE>(visitor, (IsUnset *)0);
 }
 
@@ -5512,10 +5521,10 @@ template <class TYPE, class SOURCE_TYPE>
 void bdeut_VariantImp<TYPES>::assignImp(const SOURCE_TYPE& value)
 {
     reset();
-    bslalg_ScalarPrimitives::construct(
-      &(reinterpret_cast<bsls_ObjectBuffer<TYPE> *>(&this->d_value)->object()),
-      value,
-      this->getAllocator());
+    bslalg::ScalarPrimitives::construct(
+     &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
+     value,
+     this->getAllocator());
 
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
 }
@@ -5597,10 +5606,10 @@ void bdeut_VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type)
 template <class TYPES>
 template <class TYPE>
 inline
-void bdeut_VariantImp<TYPES>::create(const TYPE& value, bslmf_MetaInt<0> *)
+void bdeut_VariantImp<TYPES>::create(const TYPE& value, bslmf::MetaInt<0> *)
 {
-    bslalg_ScalarPrimitives::construct(
-        &(reinterpret_cast<bsls_ObjectBuffer<TYPE> *>(
+    bslalg::ScalarPrimitives::construct(
+        &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
                                                     &this->d_value)->object()),
         value,
         this->getAllocator());
@@ -5609,7 +5618,7 @@ void bdeut_VariantImp<TYPES>::create(const TYPE& value, bslmf_MetaInt<0> *)
 
 template <class TYPES>
 inline
-void bdeut_VariantImp<TYPES>::create(bslma_Allocator *, bslmf_MetaInt<1> *)
+void bdeut_VariantImp<TYPES>::create(bslma::Allocator *, bslmf::MetaInt<1> *)
 {
 }
 
@@ -5715,20 +5724,20 @@ RET_TYPE bdeut_VariantImp<TYPES>::doApplyR(VISITOR_REF visitor,
 template <class TYPES>
 template <class TYPE, class VISITOR_REF>
 inline
-void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF       visitor,
-                                       bslmf_MetaInt<0> *) const
+void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF        visitor,
+                                       bslmf::MetaInt<0> *) const
 {
     visitor(reinterpret_cast<
-                   const bsls_ObjectBuffer<TYPE> *>(&this->d_value)->object());
+                  const bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object());
 }
 
 template <class TYPES>
 template <class TYPE, class VISITOR_REF>
 inline
-void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF       visitor,
-                                       bslmf_MetaInt<1> *) const
+void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF        visitor,
+                                       bslmf::MetaInt<1> *) const
 {
-    bslmf_Nil nil = bslmf_Nil();
+    bslmf::Nil nil = bslmf::Nil();
     visitor(nil);
 }
 
@@ -5737,27 +5746,27 @@ template <class TYPE, class VISITOR_REF>
 inline
 void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF visitor) const
 {
-    typedef typename bslmf_IsSame<TYPE, bslmf_Nil>::Type IsUnset;
+    typedef typename bslmf::IsSame<TYPE, bslmf::Nil>::Type IsUnset;
     applyImp<TYPE, VISITOR_REF>(visitor, (IsUnset *)0);
 }
 
 template <class TYPES>
 template <class TYPE, class VISITOR_REF, class RET_TYPE>
 inline
-RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF    visitor,
-                                            bslmf_MetaInt<0> *) const
+RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF        visitor,
+                                            bslmf::MetaInt<0> *) const
 {
     return visitor(reinterpret_cast<
-                   const bsls_ObjectBuffer<TYPE> *>(&this->d_value)->object());
+                  const bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object());
 }
 
 template <class TYPES>
 template <class TYPE, class VISITOR_REF, class RET_TYPE>
 inline
-RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF       visitor,
-                                            bslmf_MetaInt<1> *) const
+RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF        visitor,
+                                            bslmf::MetaInt<1> *) const
 {
-    bslmf_Nil nil = bslmf_Nil();
+    bslmf::Nil nil = bslmf::Nil();
     return visitor(nil);
 }
 
@@ -5766,7 +5775,7 @@ template <class TYPE, class VISITOR_REF, class RET_TYPE>
 inline
 RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF visitor) const
 {
-    typedef typename bslmf_IsSame<TYPE, bslmf_Nil>::Type IsUnset;
+    typedef typename bslmf::IsSame<TYPE, bslmf::Nil>::Type IsUnset;
     return applyImpR<TYPE, VISITOR_REF, RET_TYPE>(visitor, (IsUnset *)0);
 }
 
@@ -5957,32 +5966,32 @@ inline
 bdeut_VariantImp<TYPES>::bdeut_VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc)
 : Base(bdeut_Variant_TypeIndex<TYPES, TYPE_OR_ALLOCATOR>::VALUE,
        typeOrAlloc,
-       (bslmf_MetaInt< bslmf_IsConvertible<TYPE_OR_ALLOCATOR,
-                                           bslma_Allocator *>::VALUE> *)0)
+       (bslmf::MetaInt< bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
+                                           bslma::Allocator *>::VALUE> *)0)
 {
-    enum { IS_ALLOCATOR = bslmf_IsConvertible<TYPE_OR_ALLOCATOR,
-                                              bslma_Allocator *>::VALUE };
+    enum { IS_ALLOCATOR = bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
+                                              bslma::Allocator *>::VALUE };
 
-    create(typeOrAlloc, (bslmf_MetaInt<IS_ALLOCATOR> *)0);
+    create(typeOrAlloc, (bslmf::MetaInt<IS_ALLOCATOR> *)0);
 }
 
 template <class TYPES>
 template <class TYPE>
 inline
-bdeut_VariantImp<TYPES>::bdeut_VariantImp(const TYPE&      value,
-                                          bslma_Allocator *basicAllocator)
+bdeut_VariantImp<TYPES>::bdeut_VariantImp(const TYPE&       value,
+                                          bslma::Allocator *basicAllocator)
 : Base(bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE, basicAllocator)
 {
-    bslalg_ScalarPrimitives::construct(
-      &(reinterpret_cast<bsls_ObjectBuffer<TYPE> *>(&this->d_value)->object()),
-      value,
-      this->getAllocator());
+    bslalg::ScalarPrimitives::construct(
+     &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
+     value,
+     this->getAllocator());
 }
 
 template <class TYPES>
 bdeut_VariantImp<TYPES>::bdeut_VariantImp(
-                                       const bdeut_VariantImp&  original,
-                                       bslma_Allocator         *basicAllocator)
+                                      const bdeut_VariantImp&  original,
+                                      bslma::Allocator        *basicAllocator)
 : Base(original.d_type, basicAllocator)
 {
     if (this->d_type) {
@@ -6044,7 +6053,7 @@ RET_TYPE bdeut_VariantImp<TYPES>::apply(VISITOR& visitor)
         return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);
     }
 
-    bslmf_Nil nil = bslmf_Nil();
+    bslmf::Nil nil = bslmf::Nil();
     return visitor(nil);
 }
 
@@ -6057,7 +6066,7 @@ RET_TYPE bdeut_VariantImp<TYPES>::apply(const VISITOR& visitor)
         return doApplyR<const VISITOR&, RET_TYPE>(visitor, this->d_type);
     }
 
-    bslmf_Nil nil = bslmf_Nil();
+    bslmf::Nil nil = bslmf::Nil();
     return visitor(nil);
 }
 
@@ -6108,7 +6117,7 @@ template <class TYPE>
 bdeut_VariantImp<TYPES>& bdeut_VariantImp<TYPES>::assign(const TYPE& value)
 {
     if (bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE == this->d_type) {
-        reinterpret_cast<bsls_ObjectBuffer<TYPE> *>(&this->d_value)->object()
+        reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()
                                                                        = value;
     }
     else {
@@ -6124,8 +6133,8 @@ bdeut_VariantImp<TYPES>& bdeut_VariantImp<TYPES>::assignTo(
                                                       const SOURCE_TYPE& value)
 {
     if (bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE == this->d_type
-     && bslmf_IsSame<TYPE, SOURCE_TYPE>::VALUE) {
-        reinterpret_cast<bsls_ObjectBuffer<TYPE> *>(
+     && bslmf::IsSame<TYPE, SOURCE_TYPE>::VALUE) {
+        reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
                                              &this->d_value)->object() = value;
     }
     else {
@@ -6172,10 +6181,10 @@ template <class TYPE>
 inline
 void bdeut_VariantImp<TYPES>::createInPlace()
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::defaultConstruct(
+    bslalg::ScalarPrimitives::defaultConstruct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    this->getAllocator());
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
@@ -6186,10 +6195,10 @@ template <class TYPE, class A1>
 inline
 void bdeut_VariantImp<TYPES>::createInPlace(const A1& a1)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, this->getAllocator());
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
@@ -6200,10 +6209,10 @@ template <class TYPE, class A1, class A2>
 inline
 void bdeut_VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, a2, this->getAllocator());
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
@@ -6215,10 +6224,10 @@ inline
 void bdeut_VariantImp<TYPES>::createInPlace(
                                       const A1& a1, const A2& a2, const A3& a3)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, a2, a3, this->getAllocator());
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
@@ -6230,10 +6239,10 @@ inline
 void bdeut_VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, a2, a3, a4, this->getAllocator());
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
@@ -6246,10 +6255,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, this->getAllocator());
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
@@ -6263,10 +6272,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, this->getAllocator());
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
@@ -6280,10 +6289,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, this->getAllocator());
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
@@ -6297,10 +6306,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, this->getAllocator());
     this->d_type = bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE;
@@ -6315,10 +6324,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9,
                   this->getAllocator());
@@ -6334,10 +6343,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
                   this->getAllocator());
@@ -6354,10 +6363,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
                   this->getAllocator());
@@ -6375,10 +6384,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                   this->getAllocator());
@@ -6396,10 +6405,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12, const A13& a13)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                   a13, this->getAllocator());
@@ -6417,10 +6426,10 @@ void bdeut_VariantImp<TYPES>::createInPlace(
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12, const A13& a13, const A14& a14)
 {
-    typedef bsls_ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg_ScalarPrimitives::construct(
+    bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                   a13, a14, this->getAllocator());
@@ -6476,7 +6485,7 @@ TYPE& bdeut_VariantImp<TYPES>::the()
     BSLMF_ASSERT((bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE));
     BSLS_ASSERT_SAFE((this->d_type ==
                                  bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE));
-    return reinterpret_cast<bsls_ObjectBuffer<TYPE> *>(
+    return reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
                                                      &this->d_value)->object();
 }
 
@@ -6504,7 +6513,7 @@ RET_TYPE bdeut_VariantImp<TYPES>::apply(VISITOR& visitor) const
         return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);
     }
 
-    bslmf_Nil nil = bslmf_Nil();
+    bslmf::Nil nil = bslmf::Nil();
     return visitor(nil);
 }
 
@@ -6517,7 +6526,7 @@ RET_TYPE bdeut_VariantImp<TYPES>::apply(const VISITOR& visitor) const
         return doApplyR<const VISITOR&, RET_TYPE>(visitor, this->d_type);
     }
 
-    bslmf_Nil nil = bslmf_Nil();
+    bslmf::Nil nil = bslmf::Nil();
     return visitor(nil);
 }
 
@@ -6620,7 +6629,7 @@ const TYPE& bdeut_VariantImp<TYPES>::the() const
                                  bdeut_Variant_TypeIndex<TYPES, TYPE>::VALUE));
 
     return reinterpret_cast<
-                    const bsls_ObjectBuffer<TYPE> *>(&this->d_value)->object();
+                   const bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object();
 }
 
 template <class TYPES>

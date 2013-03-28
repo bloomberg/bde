@@ -456,9 +456,9 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 #ifdef BSLS_PLATFORM_OS_UNIX
         union Align {
-          char                               d_bytes[100000];
-          bsls_AlignmentUtil::MaxAlignedType d_align;   // only used for
-                                                        // alignment
+          char                                d_bytes[100000];
+          bsls::AlignmentUtil::MaxAlignedType d_align;   // only used for
+                                                         // alignment
         } testsource, testdest;
 
         struct tms startTime;
@@ -967,9 +967,9 @@ int main(int argc, char *argv[]) {
         //
         // --------------------------------------------------------------------
         union Align {
-          char                               d_bytes[4096];
-          bsls_AlignmentUtil::MaxAlignedType d_align;   // only used for
-                                                        // alignment
+          char                                d_bytes[4096];
+          bsls::AlignmentUtil::MaxAlignedType d_align;   // only used for
+                                                         // alignment
         } testsource, testdest;
 
         if (verbose) cout << endl

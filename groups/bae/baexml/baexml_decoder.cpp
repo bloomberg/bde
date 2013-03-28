@@ -178,11 +178,11 @@ baexml_Decoder::baexml_Decoder(
                         const baexml_DecoderOptions *options,
                         baexml_Reader               *reader,
                         baexml_ErrorInfo            *errInfo,
-                        bslma_Allocator             *basicAllocator)
+                        bslma::Allocator            *basicAllocator)
 : d_options       (options)
 , d_reader        (reader)
 , d_errorInfo     (errInfo)
-, d_allocator     (bslma_Default::allocator(basicAllocator))
+, d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
 , d_errorStream   (0)
 , d_warningStream (0)
@@ -203,11 +203,11 @@ baexml_Decoder::baexml_Decoder(
                         baexml_ErrorInfo            *errInfo,
                         bsl::ostream                *errorStream,
                         bsl::ostream                *warningStream,
-                        bslma_Allocator             *basicAllocator)
+                        bslma::Allocator            *basicAllocator)
 : d_options       (options)
 , d_reader        (reader)
 , d_errorInfo     (errInfo)
-, d_allocator     (bslma_Default::allocator(basicAllocator))
+, d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
 , d_errorStream   (errorStream)
 , d_warningStream (warningStream)

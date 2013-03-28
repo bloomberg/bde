@@ -106,7 +106,7 @@ namespace {
 // having the 'ALIGNMENT' requirement.  The class definition of
 // 'my_AlignedBuffer' is as follows:
 //..
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     union my_AlignedBuffer {
       private:
         // DATA
@@ -141,14 +141,14 @@ namespace {
 // The function definitions of 'my_AlignedBuffer' are as follows:
 //..
     // MANIPULATORS
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     inline
     char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer()
     {
         return d_buffer;
     }
 
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     inline
     TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object()
     {
@@ -156,14 +156,14 @@ namespace {
     }
 
     // ACCESSORS
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     inline
     const char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer() const
     {
         return d_buffer;
     }
 
-    template <typename TYPE, int ALIGNMENT>
+    template <class TYPE, int ALIGNMENT>
     inline
     const TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object() const
     {
@@ -432,21 +432,21 @@ const char *string::EMPTY_STRING = "";
 //                  CLASSES AND FUNCTIONS USED IN TESTS
 //-----------------------------------------------------------------------------
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, void *)
 {
     return false;
 }
 
-template <typename T>
+template <class T>
 inline
 bool samePtrType(T *, T *)
 {
     return true;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool sameType(T1 t1, T2 t2)
 {
@@ -727,11 +727,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

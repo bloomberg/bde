@@ -410,7 +410,7 @@ Returns:    pointer to a pcre_extra block, with study_data filled in and the
 EXPORT pcre_extra *
 pcre_study(const pcre *external_re, int options, const char **errorptr
 #ifndef NO_BDEPCRE
-           , bslma_Allocator *allocator)
+           , bslma::Allocator *allocator)
 #else
            )
 #endif

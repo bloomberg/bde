@@ -1,4 +1,4 @@
-// bdef_bind_test12.t.cpp         -*-C++-*-
+// bdef_bind_test12.t.cpp                                             -*-C++-*-
 
 #include <bdef_bind_test12.h>
 
@@ -8,12 +8,12 @@
 
 #include <bslalg_typetraits.h>
 
-#include <bslmf_nil.h>
-
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bslmf_nil.h>
 
 #include <bsls_platform.h>
 
@@ -79,18 +79,18 @@ using namespace bsl;
 // the same way as cases 2--6.  Then, we check 'bdef_BindUtil::bindR' again in
 // the same way as 'bdef_BindUtil::bind' (cases 12--16).
 //-----------------------------------------------------------------------------
-// [ 1] bdef_Bind(func, list, bslma_Allocator *ba = 0);
-// [ 1] bdef_Bind(const bdef_Bind& original, bslma_Allocator *ba = 0);
+// [ 1] bdef_Bind(func, list, bslma::Allocator *ba = 0);
+// [ 1] bdef_Bind(const bdef_Bind& original, bslma::Allocator *ba = 0);
 // [ 2] bdef_BindUtil::bind(FUNC const& func, ...);
 // [ 3] bdef_BindUtil::bind(FUNC const& func, ...);
 // [ 4] bdef_BindUtil::bind(FUNC const& func, ...);
 // [ 5] bdef_BindUtil::bind(FUNC const& func, ...);
 // [ 6] bdef_BindUtil::bind(FUNC const& func, ...);
-// [ 7] bdef_BindUtil::bindA(bslma_Allocator *ba, FUNC const& func, ...);
-// [18] bdef_BindUtil::bindA(bslma_Allocator *ba, FUNC const& func, ...);
-// [19] bdef_BindUtil::bindA(bslma_Allocator *ba, FUNC const& func, ...);
-// [10] bdef_BindUtil::bindA(bslma_Allocator *ba, FUNC const& func, ...);
-// [11] bdef_BindUtil::bindA(bslma_Allocator *ba, FUNC const& func, ...);
+// [ 7] bdef_BindUtil::bindA(bslma::Allocator *ba, FUNC const& func, ...);
+// [18] bdef_BindUtil::bindA(bslma::Allocator *ba, FUNC const& func, ...);
+// [19] bdef_BindUtil::bindA(bslma::Allocator *ba, FUNC const& func, ...);
+// [10] bdef_BindUtil::bindA(bslma::Allocator *ba, FUNC const& func, ...);
+// [11] bdef_BindUtil::bindA(bslma::Allocator *ba, FUNC const& func, ...);
 // [12] bdef_BindUtil::bindR(FUNC const& func, ...);
 // [13] bdef_BindUtil::bindR(FUNC const& func, ...);
 // [14] bdef_BindUtil::bindR(FUNC const& func, ...);
@@ -241,8 +241,8 @@ typedef bdef_PlaceHolder<14> PH14;
 #define DECLARE_MAIN_VARIABLES                                                \
     /* The following machinery is for use in conjunction with the             \
     // 'SlotsNoAlloc::resetSlots' and 'SlotsNoAlloc::verifySlots' functions.  \
-    // The slots are set when the corresponding function objector free function \
-    // is called with 'NumArgs' arguments. */                                 \
+    // The slots are set when the corresponding function objector free        \
+    // function is called with 'NumArgs' arguments. */                        \
                                                                               \
     const int NO_ALLOC_SLOTS[NUM_SLOTS]= {                                    \
         /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  */      \
@@ -275,24 +275,24 @@ typedef bdef_PlaceHolder<14> PH14;
     // slots are set when the corresponding function objector free function is\
     // called with 'NumArgs' arguments. */                                    \
                                                                               \
-    bslma_TestAllocator allocator0(veryVeryVerbose);                          \
-    bslma_TestAllocator allocator1(veryVeryVerbose);                          \
-    bslma_TestAllocator allocator2(veryVeryVerbose);                          \
+    bslma::TestAllocator allocator0(veryVeryVerbose);                         \
+    bslma::TestAllocator allocator1(veryVeryVerbose);                         \
+    bslma::TestAllocator allocator2(veryVeryVerbose);                         \
                                                                               \
-    bslma_TestAllocator *Z0 = &allocator0;                                    \
-    bslma_TestAllocator *Z1 = &allocator1;                                    \
-    bslma_TestAllocator *Z2 = &allocator2;                                    \
+    bslma::TestAllocator *Z0 = &allocator0;                                   \
+    bslma::TestAllocator *Z1 = &allocator1;                                   \
+    bslma::TestAllocator *Z2 = &allocator2;                                   \
                                                                               \
-    bslma_DefaultAllocatorGuard allocGuard(Z0);                               \
+    bslma::DefaultAllocatorGuard allocGuard(Z0);                              \
     SlotsAlloc::setZ0(Z0);                                                    \
     SlotsAlloc::setZ1(Z1);                                                    \
     SlotsAlloc::setZ2(Z2);                                                    \
                                                                               \
-    const bslma_Allocator *ALLOC_SLOTS[NUM_SLOTS] = {                         \
+    const bslma::Allocator *ALLOC_SLOTS[NUM_SLOTS] = {                        \
         /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  */      \
           Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0          \
     };                                                                        \
-    const bslma_Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                 \
+    const bslma::Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                \
           Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0          \
     };                                                                        \
                                                                               \
@@ -311,13 +311,13 @@ typedef bdef_PlaceHolder<14> PH14;
     const AllocTestArg11 V11(111),  NV11(-111);                               \
     const AllocTestArg12 V12(333),  NV12(-333);                               \
     const AllocTestArg13 V13(712),  NV13(-712);                               \
-    const AllocTestArg14 V14(1414), NV14(-1414);                              \
-                                                                                                                                                            
+    const AllocTestArg14 V14(1414), NV14(-1414);
+
 //=============================================================================
 //                              TEST CASES
 //-----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
-void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)   
+void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
 DEFINE_TEST_CASE(16) {
         DECLARE_MAIN_VARIABLES
@@ -2904,8 +2904,8 @@ DEFINE_TEST_CASE(1) {
         //   returns the proper value.
         //
         // Testing:
-        //   bdef_Bind(func, list, bslma_Allocator *ba = 0);
-        //   bdef_Bind(const bdef_Bind& original, bslma_Allocator *ba = 0);
+        //   bdef_Bind(func, list, bslma::Allocator *ba = 0);
+        //   bdef_Bind(const bdef_Bind& original, bslma::Allocator *ba = 0);
         // ------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING BDEF_BIND CONSTRUCTORS"
@@ -2922,7 +2922,7 @@ DEFINE_TEST_CASE(1) {
             typedef NoAllocTestType                                  *FUNC;
             typedef bdef_Bind_BoundTuple12<PH1,PH2,PH3,PH4,PH5,PH6,PH7,
                                              PH8,PH9,PH10,PH11,PH12>  ListType;
-            typedef bdef_Bind<bslmf_Nil, FUNC, ListType>              Bind;
+            typedef bdef_Bind<bslmf::Nil, FUNC, ListType>             Bind;
 
                   NoAllocTestType  mX;
             const NoAllocTestType& X = mX;
@@ -2983,7 +2983,7 @@ DEFINE_TEST_CASE(1) {
                                       NoAllocTestArg10,
                                       NoAllocTestArg11,
                                       NoAllocTestArg12>   ListType;
-            typedef bdef_Bind<bslmf_Nil, FUNC, ListType>  Bind;
+            typedef bdef_Bind<bslmf::Nil, FUNC, ListType> Bind;
 
                   NoAllocTestType  mX;
             const NoAllocTestType& X = mX;
@@ -3036,7 +3036,7 @@ DEFINE_TEST_CASE(1) {
             typedef AllocTestType                                    *FUNC;
             typedef bdef_Bind_BoundTuple12<PH1,PH2,PH3,PH4,PH5,PH6,PH7,
                                              PH8,PH9,PH10,PH11,PH12>  ListType;
-            typedef bdef_Bind<bslmf_Nil, FUNC, ListType>              Bind;
+            typedef bdef_Bind<bslmf::Nil, FUNC, ListType>             Bind;
 
                   AllocTestType  mX(Z1);
             const AllocTestType& X = mX;
@@ -3096,7 +3096,7 @@ DEFINE_TEST_CASE(1) {
                                       AllocTestArg10,
                                       AllocTestArg11,
                                       AllocTestArg12>     ListType;
-            typedef bdef_Bind<bslmf_Nil, FUNC, ListType>  Bind;
+            typedef bdef_Bind<bslmf::Nil, FUNC, ListType> Bind;
 
                   AllocTestType  mX(Z1);
             const AllocTestType& X = mX;

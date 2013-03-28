@@ -13,7 +13,6 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -133,7 +132,7 @@ typedef baesu_StackTracePrintUtil           PrintUtil;
 typedef baesu_StackTracePrintUtil_Test      PrintUtilTest;
 
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
-    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0 };
+    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
     enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
@@ -145,11 +144,14 @@ typedef baesu_StackTracePrintUtil_Test      PrintUtilTest;
 #   error unknown platform
 # endif
 
+#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 1 };
+    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
 #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1 };
 #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
 #else
 # error unknown object file format
@@ -175,7 +177,7 @@ typedef long      unsigned int UintPtr;
 
 #endif
 
-typedef bsls_Types::IntPtr     IntPtr;
+typedef bsls::Types::IntPtr    IntPtr;
 
 }  // close unnamed namespace
 
@@ -238,7 +240,7 @@ void checkOutput(const bsl::string&               str,
     // check that the specified 'str' contains all the strings specified in the
     // vector 'matches' in order.  Note that 'matches' may be modified.
 {
-    bslma_TestAllocator localAllocator;
+    bslma::TestAllocator localAllocator;
     bdema_SequentialAllocator sa(&localAllocator);
 
     if (PLAT_WIN && !DEBUG_ON) {
@@ -276,12 +278,13 @@ void top()
     testDumpUnion.d_funcPtr = &PrintUtilTest::printStackTraceToString;
     testDumpUnion.d_uintPtr = foilOptimizer(testDumpUnion.d_uintPtr);
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
-    if (!FORMAT_ELF && !FORMAT_WINDOWS && DEBUG_ON) {
-        // Elf totally doesn't provide souce file names of global routines,
+    if (!FORMAT_ELF && !FORMAT_DLADDR && !FORMAT_WINDOWS && DEBUG_ON) {
+        // Elf doesn't provide souce file names of global routines,
+        // Dladdr never provides source file names for anything,
         // Windows doesn't provide the source file name for an inline routine.
 
         bsl::vector<const char *> matches(&ta);
@@ -344,12 +347,12 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
         return FALSE;                                                 // RETURN
     }
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     bsl::stringstream ss(&ta);
     PrintUtil::printStackTrace(ss);
     bsl::string dump(&ta);
     {
-        bslma_DefaultAllocatorGuard guard(&ta);
+        bslma::DefaultAllocatorGuard guard(&ta);
         dump = ss.str();
     }
     const bsl::size_t NPOS = bsl::string::npos;
@@ -398,12 +401,12 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
 
 static int phonyCompare(const void *, const void *)
 {
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     bsl::stringstream ss(&ta);
     PrintUtil::printStackTrace(ss);
     bsl::string dump(&ta);
     {
-        bslma_DefaultAllocatorGuard guard(&ta);
+        bslma::DefaultAllocatorGuard guard(&ta);
         dump = ss.str();
     }
     const bsl::size_t NPOS = bsl::string::npos;
@@ -416,7 +419,7 @@ static int phonyCompare(const void *, const void *)
         { L_, false, "phonyCompare" },
         { L_, false, "qsort" },
         { L_, true,  " in " },
-        { L_, true,  "/libc." },
+        { L_, true,  FORMAT_DLADDR ? "/libsystem_c" : "/libc." },
         { L_, false, "main" } };
     enum { NUM_STRINGS = sizeof STRINGS / sizeof *STRINGS };
 
@@ -464,7 +467,7 @@ void top()
     if (calledTop) return;
     calledTop = true;
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     bsl::vector<const char *> matches(&ta);
     matches.push_back("top");
     matches.push_back("\n");
@@ -482,7 +485,7 @@ void top()
 
     bsl::string str(&ta);
     {
-        bslma_DefaultAllocatorGuard guard(&ta);
+        bslma::DefaultAllocatorGuard guard(&ta);
 
         // 'bsl::stringstream::str' may create temporaries if the string is
         // large
@@ -572,7 +575,7 @@ namespace CASE_1 {
 
 bool called = false;
 
-void top(bslma_Allocator *alloc)
+void top(bslma::Allocator *alloc)
 {
     if (called) return;
     called = true;
@@ -588,7 +591,7 @@ void top(bslma_Allocator *alloc)
         bsl::string str(alloc);
 
         {
-            bslma_DefaultAllocatorGuard guard(alloc);
+            bslma::DefaultAllocatorGuard guard(alloc);
 
             // 'bsl::stringstream::str' may create temporaries if the string is
             // large
@@ -603,7 +606,7 @@ void top(bslma_Allocator *alloc)
     }
 }
 
-void bottom(bslma_Allocator *alloc)
+void bottom(bslma::Allocator *alloc)
 {
     // still attempting to thwart optimizer -- all this does is call 'top'
     // a bunch of times.
@@ -684,11 +687,11 @@ int main(int argc, char *argv[])
 
     // see if we can avoid calling 'malloc' from here on out
 
-    bslma_TestAllocator ota;
+    bslma::TestAllocator ota;
     bdema_SequentialAllocator ta(&ota);
 
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     // 'dummyOstream' is a way of achieving the equivalent of opening /dev/null
     // that works on Windoze.
@@ -859,7 +862,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\tprintStackTrace" << endl;
             {

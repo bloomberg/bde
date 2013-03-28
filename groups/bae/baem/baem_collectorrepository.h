@@ -46,7 +46,7 @@ BDES_IDENT("$Id: $")
 // from the repository.  We start by creating a repository and looking up 2
 // collectors and 2 integer collectors:
 //..
-//  bslma_Allocator *allocator = bslma_Default::allocator(0);
+//  bslma::Allocator *allocator = bslma::Default::allocator(0);
 //  baem_MetricRegistry  metricRegistry(allocator);
 //  baem_CollectorRepository repository(&metricRegistry, allocator);
 //
@@ -136,12 +136,16 @@ BDES_IDENT("$Id: $")
 #include <bcema_sharedptr.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -150,10 +154,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -200,7 +200,7 @@ class baem_CollectorRepository {
     Collectors             d_collectors;   // collectors (owned)
     CategorizedCollectors  d_categories;   // map of category => collectors
     mutable bcemt_RWMutex  d_rwMutex;      // data lock
-    bslma_Allocator       *d_allocator_p;  // allocator (held, not owned)
+    bslma::Allocator      *d_allocator_p;  // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     baem_CollectorRepository(const baem_CollectorRepository& );
@@ -220,11 +220,11 @@ class baem_CollectorRepository {
   public:
     // PUBLIC TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_CollectorRepository,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     baem_CollectorRepository(baem_MetricRegistry *registry,
-                             bslma_Allocator     *basicAllocator = 0);
+                             bslma::Allocator    *basicAllocator = 0);
         // Create an empty collector repository that will use the specified
         // 'registry' to identify the metrics for which it manages collectors.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -372,13 +372,13 @@ class baem_CollectorRepository {
 inline
 baem_CollectorRepository::baem_CollectorRepository(
                                           baem_MetricRegistry *registry,
-                                          bslma_Allocator     *basicAllocator)
+                                          bslma::Allocator    *basicAllocator)
 
 : d_registry_p(registry)
 , d_collectors(basicAllocator)
 , d_categories(basicAllocator)
 , d_rwMutex()
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

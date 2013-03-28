@@ -198,8 +198,8 @@ BDES_IDENT("$Id: $")
 //         // the data does not arrive before the timeout.
 //
 //   public:
-//     my_Server(const bdet_TimeInterval& ioTimeout,
-//               bslma_Allocator *allocator = 0);
+//     my_Server(const bdet_TimeInterval&  ioTimeout,
+//               bslma::Allocator         *allocator = 0);
 //         // Construct a 'my_Server' object with a timeout value of
 //         // 'ioTimeout' seconds.  Optionally specify a 'allocator' used to
 //         // supply memory.  If 'allocator' is 0, the currently installed
@@ -209,8 +209,8 @@ BDES_IDENT("$Id: $")
 //         // Perform the required clean-up and destroy this object.
 // };
 //
-// my_Server::my_Server(const bdet_TimeInterval& ioTimeout,
-//                      bslma_Allocator *alloc)
+// my_Server::my_Server(const bdet_TimeInterval&  ioTimeout,
+//                      bslma::Allocator         *alloc)
 // : d_connections(alloc)
 // , d_scheduler(alloc)
 // , d_ioTimeout(ioTimeout)
@@ -286,29 +286,36 @@ BDES_IDENT("$Id: $")
 #include <bces_atomictypes.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
 #endif
 
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -330,10 +337,10 @@ class bcep_EventScheduler {
     typedef bsl::pair<bdef_Function<void(*)()>, bdet_TimeInterval>
                                                            RecurringEventData;
 
-    typedef bcec_SkipList<bsls_PlatformUtil::Int64,
+    typedef bcec_SkipList<bsls::Types::Int64,
                           RecurringEventData>              RecurringEventQueue;
 
-    typedef bcec_SkipList<bsls_PlatformUtil::Int64,
+    typedef bcec_SkipList<bsls::Types::Int64,
                           bdef_Function<void(*)()> >       EventQueue;
 
     // FRIENDS
@@ -403,7 +410,7 @@ class bcep_EventScheduler {
                                                 // being executed
 
     // PRIVATE MANIPULATORS
-    bsls_PlatformUtil::Int64 chooseNextEvent(bsls_PlatformUtil::Int64 *now);
+    bsls::Types::Int64 chooseNextEvent(bsls::Types::Int64 *now);
         // Pick either d_currentEvent or d_currentRecurringEvent as the next
         // event to be executed, given that the current time is the specified
         // (absolute) 'now' interval, and return the (absolute) interval of
@@ -429,10 +436,10 @@ class bcep_EventScheduler {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcep_EventScheduler,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bcep_EventScheduler(bslma_Allocator *basicAllocator = 0);
+    explicit bcep_EventScheduler(bslma::Allocator *basicAllocator = 0);
         // Construct an event scheduler using the default dispatcher
         // functor (see the "The dispatcher thread and the dispatcher functor"
         // section in component-level doc).  Optionally specify a
@@ -440,7 +447,7 @@ class bcep_EventScheduler {
         // the currently installed default allocator is used.
 
     explicit bcep_EventScheduler(const Dispatcher&  dispatcherFunctor,
-                                 bslma_Allocator   *basicAllocator = 0);
+                                 bslma::Allocator  *basicAllocator = 0);
         // Construct an event scheduler using the specified
         // 'dispatcherFunctor' (see "The dispatcher thread and the dispatcher
         // functor" section in component-level doc).  Optionally specify a
@@ -646,7 +653,7 @@ class bcep_EventSchedulerEventHandle
     // in any method which expects them.
 
     // PRIVATE TYPES
-    typedef bcec_SkipList<bsls_PlatformUtil::Int64,
+    typedef bcec_SkipList<bsls::Types::Int64,
                           bdef_Function<void(*)()> > EventQueue;
 
     // DATA
@@ -701,7 +708,7 @@ class bcep_EventSchedulerRecurringEventHandle
     // PRIVATE TYPES
     typedef bsl::pair<bdef_Function<void(*)()>, bdet_TimeInterval>
                                                      RecurringEventData;
-    typedef bcec_SkipList<bsls_PlatformUtil::Int64,
+    typedef bcec_SkipList<bsls::Types::Int64,
                           RecurringEventData>        RecurringEventQueue;
 
     // DATA

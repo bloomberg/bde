@@ -69,14 +69,6 @@ BDES_IDENT("$Id: $")
 #include <baenet_httpextendedheaderfields.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
-#include <bslma_usesbslmaallocator.h>
-#endif
-
 #ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
 #include <bdeat_attributeinfo.h>
 #endif
@@ -85,8 +77,24 @@ BDES_IDENT("$Id: $")
 #include <bdeat_valuetypefunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BDEU_PRINTMETHODS
@@ -103,14 +111,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -138,7 +138,7 @@ class baenet_HttpRequestHeader : public baenet_HttpHeader {
         // containers.
 
     // CREATORS
-    explicit baenet_HttpRequestHeader(bslma_Allocator *basicAllocator = 0);
+    explicit baenet_HttpRequestHeader(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'baenet_HttpRequestHeader' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -146,7 +146,7 @@ class baenet_HttpRequestHeader : public baenet_HttpHeader {
 
     baenet_HttpRequestHeader(
                           const baenet_HttpRequestHeader&  original,
-                          bslma_Allocator                 *basicAllocator = 0);
+                          bslma::Allocator                *basicAllocator = 0);
         // Create an object of type 'baenet_HttpRequestHeader' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -324,23 +324,23 @@ int baenet_HttpRequestHeader::maxSupportedBdexVersion()
 // CREATORS
 inline
 baenet_HttpRequestHeader::baenet_HttpRequestHeader(
-                                               bslma_Allocator *basicAllocator)
-: d_basicFields(bslma_Default::allocator(basicAllocator))
-, d_requestFields(bslma_Default::allocator(basicAllocator))
-, d_extendedFields(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+: d_basicFields(bslma::Default::allocator(basicAllocator))
+, d_requestFields(bslma::Default::allocator(basicAllocator))
+, d_extendedFields(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 baenet_HttpRequestHeader::baenet_HttpRequestHeader(
         const baenet_HttpRequestHeader& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_basicFields(original.d_basicFields,
-                bslma_Default::allocator(basicAllocator))
+                bslma::Default::allocator(basicAllocator))
 , d_requestFields(original.d_requestFields,
-                  bslma_Default::allocator(basicAllocator))
+                  bslma::Default::allocator(basicAllocator))
 , d_extendedFields(original.d_extendedFields,
-                   bslma_Default::allocator(basicAllocator))
+                   bslma::Default::allocator(basicAllocator))
 {
 }
 

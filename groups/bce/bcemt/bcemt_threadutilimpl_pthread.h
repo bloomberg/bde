@@ -237,7 +237,10 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
 
     static NativeHandle nativeHandle(const Handle& threadHandle);
         // Return the platform specific identifier associated with the thread
-        // specified by 'threadHandle'.
+        // specified by 'threadHandle'.  Note that the returned native handle
+        // may not be a globally unique identifier for the thread (see
+        // 'selfIdAsUint').
+
 
     static Handle self();
         // Return an identifier that can be used to refer to the current thread

@@ -90,7 +90,7 @@ namespace BloombergLP {
                        // struct bdealg_ScalarPrimitives
                        // ==============================
 
-typedef bslalg_ScalarPrimitives bdealg_ScalarPrimitives;
+typedef bslalg::ScalarPrimitives bdealg_ScalarPrimitives;
     // This 'struct' provides a namespace for a suite of utility functions that
     // operate on elements of a parameterized type 'TARGET_TYPE'.  If any of
     // the '...Construct' methods throws, then its target 'address' is left

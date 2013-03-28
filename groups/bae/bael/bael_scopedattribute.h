@@ -47,8 +47,12 @@
 #include <bael_attributecontext.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -59,9 +63,12 @@
 #include <bsl_string.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -83,13 +90,13 @@ class bael_ScopedAttribute_Container : public bael_AttributeContainer {
 
   public:
     // CREATORS
-    bael_ScopedAttribute_Container(const char               *name,
-                                   const bsl::string&        value,
-                                   bslma_Allocator          *basicAllocator);
-    bael_ScopedAttribute_Container(const char               *name,
-                                   int                       value);
-    bael_ScopedAttribute_Container(const char               *name,
-                                   bsls_PlatformUtil::Int64  value);
+    bael_ScopedAttribute_Container(const char         *name,
+                                   const bsl::string&  value,
+                                   bslma::Allocator   *basicAllocator);
+    bael_ScopedAttribute_Container(const char         *name,
+                                   int                 value);
+    bael_ScopedAttribute_Container(const char         *name,
+                                   bsls::Types::Int64  value);
        // Create a BAEL attribute container holding a single rule, associating
        // the specified 'name' with the specified 'value'.  Optionally specify
        // a 'basicAllocator used to supply memory.  If 'basicAllocator' is 0 or
@@ -137,13 +144,13 @@ class bael_ScopedAttribute {
 
   public:
     // CREATORS
-    bael_ScopedAttribute(const char               *name,
-                         const bsl::string&        value,
-                         bslma_Allocator          *basicAllocator = 0);
-    bael_ScopedAttribute(const char               *name,
-                         int                       value);
-    bael_ScopedAttribute(const char               *name,
-                         bsls_PlatformUtil::Int64  value);
+    bael_ScopedAttribute(const char         *name,
+                         const bsl::string&  value,
+                         bslma::Allocator   *basicAllocator = 0);
+    bael_ScopedAttribute(const char         *name,
+                         int                 value);
+    bael_ScopedAttribute(const char         *name,
+                         bsls::Types::Int64  value);
       // Set BAEL logging attributes for the current thread for the scope of
       // this object, associating the specified 'name' with the specified
       // 'value'.  Optionally specify a 'basicAllocator' used to supply memory.
@@ -168,7 +175,7 @@ inline
 bael_ScopedAttribute_Container::bael_ScopedAttribute_Container(
         const char         *name,
         const bsl::string&  value,
-        bslma_Allocator    *basicAllocator)
+        bslma::Allocator   *basicAllocator)
 : d_attribute(name, value.c_str(), basicAllocator)
 {
 }
@@ -183,8 +190,8 @@ bael_ScopedAttribute_Container::bael_ScopedAttribute_Container(
 
 inline
 bael_ScopedAttribute_Container::bael_ScopedAttribute_Container(
-        const char               *name,
-        bsls_PlatformUtil::Int64  value)
+        const char         *name,
+        bsls::Types::Int64  value)
 : d_attribute(name, value)
 {
 }
@@ -206,7 +213,7 @@ inline
 bael_ScopedAttribute::bael_ScopedAttribute(
         const char         *name,
         const bsl::string&  value,
-        bslma_Allocator    *basicAllocator)
+        bslma::Allocator   *basicAllocator)
 : d_container(name, value, basicAllocator)
 , d_it(bael_AttributeContext::getContext()->addAttributes(&d_container))
 {
@@ -223,8 +230,8 @@ bael_ScopedAttribute::bael_ScopedAttribute(
 
 inline
 bael_ScopedAttribute::bael_ScopedAttribute(
-        const char               *name,
-        bsls_PlatformUtil::Int64  value)
+        const char         *name,
+        bsls::Types::Int64  value)
 : d_container(name, value)
 , d_it(bael_AttributeContext::getContext()->addAttributes(&d_container))
 {

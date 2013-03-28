@@ -173,7 +173,7 @@ int decode32(const char *address)
 }
 
 static inline
-bsls_Types::Int64 decode64(const char *address)
+bsls::Types::Int64 decode64(const char *address)
     // Read the 64-bit big-endian integer in the array of bytes located at the
     // specified 'address' and return that value.  The behavior is undefined
     // unless 'address' points to an accessible memory location.  Note that
@@ -182,7 +182,7 @@ bsls_Types::Int64 decode64(const char *address)
 {
     BSLS_ASSERT_SAFE(address);
 
-    bsls_Types::Int64 temp;
+    bsls::Types::Int64 temp;
     bsl::memcpy(&temp, address, sizeof(temp));
     return BSLS_BYTEORDER_BE_U64_TO_HOST(temp);
 }
@@ -436,7 +436,7 @@ int baetzo_ZoneinfoBinaryReader::read(
     }
 
     // Add default transition.
-    const bsls_Types::Int64 firstTransitionTime =
+    const bsls::Types::Int64 firstTransitionTime =
                         bdetu_Epoch::convertToTimeT64(bdet_Datetime(1, 1, 1));
     zoneinfoResult->addTransition(firstTransitionTime, descriptors.front());
 

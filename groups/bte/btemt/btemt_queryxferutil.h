@@ -38,17 +38,24 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -63,7 +70,7 @@ struct btemt_QueryXferUtil {
     // CLASS METHODS
     static int serializeQuery(btemt_DataMsg *result,
                               const btemt_Query& query,
-                              const bsls_PlatformUtil::Int64& queryId);
+                              const bsls::Types::Int64& queryId);
         // Load into the 'result' the serialized representation of the 'query'
         // followed by serialized 'queryId'.  Return the number of bytes
         // written.  One such serialization includes the size of packet as well
@@ -76,7 +83,7 @@ struct btemt_QueryXferUtil {
             const bcema_SharedPtr<btemt_QueryRequest>&)>& procFunctor,
         int *numConsumed, int *numNeeded,
         const btemt_DataMsg& data,
-        bslma_Allocator *allocator = 0);
+        bslma::Allocator *allocator = 0);
         // Parse the 'data' and use the 'procFunctor' to process parsed
         // btemt_QueryRequest packets.  Return number of consumed bytes in
         // 'numConsumed', and number of needed bytes in 'numNeeded' if the last
@@ -89,7 +96,7 @@ struct btemt_QueryXferUtil {
 
     static int serializeQueryResult(btemt_DataMsg *result,
                                     const btemt_QueryResult& queryResult,
-                                    const bsls_PlatformUtil::Int64& queryId,
+                                    const bsls::Types::Int64& queryId,
                                     btemt_QueryResponse::Status status);
         // Load into the 'result' the serialized representation of the
         // 'queryResult' followed by serialized 'queryId' and 'status'.  Return
@@ -103,7 +110,7 @@ struct btemt_QueryXferUtil {
             const bcema_SharedPtr<btemt_QueryResponse>&)>& procFunctor,
         int *numConsumed, int *numNeeded,
         const btemt_DataMsg& data,
-        bslma_Allocator *allocator = 0);
+        bslma::Allocator *allocator = 0);
         // Parse the 'data' and use the 'procFunctor' to process parsed
         // btemt_QueryResponse packets.  Return number of consumed bytes in
         // 'numConsumed', and number of needed bytes in 'numNeeded' if the last

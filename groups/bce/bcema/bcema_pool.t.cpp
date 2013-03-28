@@ -390,11 +390,11 @@ void stretchRemoveAll(Obj *object, int numElements)
 // my_doublearray2.h
 
 class my_DoubleArray2 {
-    double         **d_array_p;     // dynamically allocated array
-    int              d_size;        // physical capacity of this array
-    int              d_length;      // logical length of this array
-    bcema_Pool       d_pool;        // memory manager for array elements
-    bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
+    double           **d_array_p;     // dynamically allocated array
+    int                d_size;        // physical capacity of this array
+    int                d_length;      // logical length of this array
+    bcema_Pool         d_pool;        // memory manager for array elements
+    bslma::Allocator  *d_allocator_p; // holds (but does not own) allocator
 
   private:
     void increaseSize();
@@ -434,11 +434,11 @@ static int nextSize(int size)
 }
 
 inline
-static void reallocate(double        ***array,
-                       int             *size,
-                       int              newSize,
-                       int              length,
-                       bslma::Allocator *basicAllocator)
+static void reallocate(double           ***array,
+                       int                *size,
+                       int                 newSize,
+                       int                 length,
+                       bslma::Allocator   *basicAllocator)
     // Reallocate memory in the specified 'array' using the specified
     // 'basicAllocator' and update the specified size to the specified
     // 'newSize'.  The specified 'length' number of leading elements are
@@ -1453,7 +1453,7 @@ int main(int argc, char *argv[]) {
         bslma::TestAllocator taX;    const bslma::TestAllocator& TAX = taX;
         Obj mX(OBJECT_SIZE, &taX);  ASSERT(OBJECT_SIZE == mX.blockSize());
 
-        bslma::TestAllocator taexp;    const bslma::TestAllocator& TAEXP = taexp;
+        bslma::TestAllocator taexp;  const bslma::TestAllocator& TAEXP = taexp;
         Obj mExp(OBJECT_SIZE,
                  bsls::BlockGrowth::BSLS_GEOMETRIC,
                  MAX_BLOCKS_PER_CHUNK,

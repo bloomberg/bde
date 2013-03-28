@@ -1259,7 +1259,7 @@ const int           bdecs_HashTable2_ImpUtil::NUM_PRIME_NUMBERS
                                                        = NUM_PRIME_NUMBERS_IMP;
 
 // CLASS METHODS
-unsigned int bdecs_HashTable2_ImpUtil::hashSize(bsls_Types::Int64 hint)
+unsigned int bdecs_HashTable2_ImpUtil::hashSize(bsls::Types::Int64 hint)
 {
     BSLS_ASSERT(0 != hint);
 

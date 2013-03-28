@@ -140,16 +140,16 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -186,7 +186,7 @@ class bael_RecordStringFormatter {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bael_RecordStringFormatter,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -194,7 +194,7 @@ class bael_RecordStringFormatter {
         // this class.
 
     // CREATORS
-    explicit bael_RecordStringFormatter(bslma_Allocator *basicAllocator = 0);
+    explicit bael_RecordStringFormatter(bslma::Allocator *basicAllocator = 0);
         // Create a record formatter having a default format specification and
         // a timestamp offset of 0.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -203,8 +203,8 @@ class bael_RecordStringFormatter {
         //  "\n%d %p:%t %s %f:%l %c %m %u\n"
         //..
 
-    explicit bael_RecordStringFormatter(const char      *format,
-                                        bslma_Allocator *basicAllocator = 0);
+    explicit bael_RecordStringFormatter(const char       *format,
+                                        bslma::Allocator *basicAllocator = 0);
         // Create a record formatter having the specified 'format'
         // specification and a timestamp offset of 0.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -212,7 +212,7 @@ class bael_RecordStringFormatter {
 
     explicit bael_RecordStringFormatter(
                              const bdet_DatetimeInterval&  offset,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Create a record formatter having a default format specification and
         // the specified timestamp 'offset'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -225,7 +225,7 @@ class bael_RecordStringFormatter {
     bael_RecordStringFormatter(
                              const char                   *format,
                              const bdet_DatetimeInterval&  offset,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Create a record formatter having the specified 'format'
         // specification and the specified timestamp 'offset'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -234,7 +234,7 @@ class bael_RecordStringFormatter {
 
     bael_RecordStringFormatter(
                         const bael_RecordStringFormatter&  original,
-                        bslma_Allocator                   *basicAllocator = 0);
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a record formatter initialized to the value of the specified
         // 'original' record formatter.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently

@@ -80,24 +80,24 @@
 #include <bdef_function.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
 #endif
 
 namespace BloombergLP {
@@ -119,7 +119,7 @@ class baea_ControlManager {
         // that maps a message prefix to a 'StringComparator' functor.
 
     // INSTANCE DATA
-    bslma_Allocator       *d_allocator_p;           // memory allocator (held)
+    bslma::Allocator      *d_allocator_p;           // memory allocator (held)
     Registry               d_registry;              // registry
     mutable bcemt_RWMutex  d_registryMutex;         // registry mutex
 
@@ -134,11 +134,11 @@ class baea_ControlManager {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baea_ControlManager,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    baea_ControlManager(bslma_Allocator *basicAllocator = 0);
+    baea_ControlManager(bslma::Allocator *basicAllocator = 0);
         // Create a control manager object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -209,11 +209,11 @@ class baea_ControlManager_Entry {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baea_ControlManager_Entry,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    baea_ControlManager_Entry(bslma_Allocator *basicAllocator = 0);
+    baea_ControlManager_Entry(bslma::Allocator *basicAllocator = 0);
         // Create a 'baea_ControlManager_Entry' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -222,13 +222,13 @@ class baea_ControlManager_Entry {
             const baea_ControlManager::ControlHandler&  callback,
             const bsl::string&                          arguments,
             const bsl::string&                          description,
-            bslma_Allocator                            *basicAllocator = 0);
+            bslma::Allocator                           *basicAllocator = 0);
         // Create an baea_ControlManager_Entry object with the specified
         // initial values.
 
     baea_ControlManager_Entry(
             const baea_ControlManager_Entry&  original,
-            bslma_Allocator                 *basicAllocator=0);
+            bslma::Allocator                 *basicAllocator=0);
         // Create an baea_ControlManager_Entry object having the value of the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently

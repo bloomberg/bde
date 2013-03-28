@@ -2131,50 +2131,6 @@ class basic_string
         // "Lexicographical Comparisons" for definitions.
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
-//: o A sequence container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
-struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
-    : bsl::true_type
-{};
-
-}
-
-namespace bslmf {
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
-struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
-    : IsBitwiseMoveable<ALLOC>
-{};
-
-}
-
-namespace bslma {
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
-struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
-    : bsl::is_convertible<Allocator*, ALLOC>
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
-
 // TYPEDEFS
 typedef basic_string<char>    string;
 typedef basic_string<wchar_t> wstring;
@@ -5528,6 +5484,48 @@ hashBasicString(const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
 
 }  // close namespace bsl
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslmf {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : IsBitwiseMoveable<ALLOC>
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : bsl::is_convertible<Allocator*, ALLOC>
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 #undef BSLSTL_CHAR_TRAITS
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
@@ -5539,11 +5537,24 @@ extern template class bsl::basic_string<wchar_t>;
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

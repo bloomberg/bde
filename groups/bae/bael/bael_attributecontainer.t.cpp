@@ -5,6 +5,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_protocoltest.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_set.h>
@@ -224,8 +225,8 @@ typedef bael_AttributeContainer Obj;
                   case 1: // int
                     return lhs.value().the<int>() < rhs.value().the<int>();
                   case 2: // int64
-                    return lhs.value().the<bsls_PlatformUtil::Int64>()
-                        <  rhs.value().the<bsls_PlatformUtil::Int64>();
+                    return lhs.value().the<bsls::Types::Int64>()
+                        <  rhs.value().the<bsls::Types::Int64>();
                  case 3: // string
                    return lhs.value().the<bsl::string>()
                        <  rhs.value().the<bsl::string>();
@@ -242,7 +243,7 @@ typedef bael_AttributeContainer Obj;
 
       public:
         // CREATORS
-        AttributeSet(bslma_Allocator *basicAllocator = 0);
+        AttributeSet(bslma::Allocator *basicAllocator = 0);
             // Create this attribute set.
 
         virtual ~AttributeSet();
@@ -275,7 +276,7 @@ typedef bael_AttributeContainer Obj;
 // operations on an 'bsl::set'.
 //..
     inline
-    AttributeSet::AttributeSet(bslma_Allocator *basicAllocator)
+    AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
     : d_set(AttributeComparator(), basicAllocator)
     {
     }
@@ -327,7 +328,8 @@ typedef bael_AttributeContainer Obj;
 //                         GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct AttributeContainerTest : bsls_ProtocolTestImp<bael_AttributeContainer> {
+struct AttributeContainerTest :
+                               bsls::ProtocolTestImp<bael_AttributeContainer> {
     bool hasValue(const bael_Attribute&) const        { return markDone(); }
     bsl::ostream& print(bsl::ostream&, int, int) const
                                                       { return markDoneRef(); }
@@ -408,14 +410,14 @@ int main(int argc, char *argv[])
         //   'bael_AttributeContainer' defines a proper protocol class.
         //
         // Plan:
-        //   Use 'bsls_ProtocolTest' to verify general protocol class concerns
+        //   Use 'bsls::ProtocolTest' to verify general protocol class concerns
         //   for 'bael_AttributeContainer' as well as each of its methods.
         //
         // Testing:
         //   class bael_AttributeContainer
         // --------------------------------------------------------------------
 
-        bsls_ProtocolTest<AttributeContainerTest> t(veryVerbose);
+        bsls::ProtocolTest<AttributeContainerTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());

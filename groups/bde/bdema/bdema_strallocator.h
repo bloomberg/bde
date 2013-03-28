@@ -15,7 +15,7 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Shao-wei Hung (shung1)
 //
 //@DESCRIPTION: This component provides an allocator, 'bdema_StrAllocator',
-// that implements the 'bslma_ManagedAllocator' protocol and allocates
+// that implements the 'bdema_ManagedAllocator' protocol and allocates
 // *unaligned* memory of varying sizes.  Memory allocated from
 // 'bdema_StrAllocator' is intended to store objects of types such as 'char'
 // (and array-of-'char') that do not require alignment.  The 'release' method
@@ -31,13 +31,13 @@ BDES_IDENT("$Id: $")
 //              |        reserveCapacity
 //              V
 //   ,----------------------.
-//  ( bslma_ManagedAllocator )
+//  ( bdema_ManagedAllocator )
 //   `----------------------'
 //              |         release
 //              V
-//     ,----------------.
-//    (  bslma_Allocator )
-//     `----------------'
+//     ,-----------------.
+//    (  bslma::Allocator )
+//     `-----------------'
 //                      allocate
 //                      deallocate
 //..
@@ -57,18 +57,18 @@ BDES_IDENT("$Id: $")
 //      // This class is a simple implementation of a string type.
 //
 //      // DATA
-//      char            *d_string_p;
-//      int              d_length;
-//      int              d_size;
-//      bslma_Allocator *d_allocator_p;
+//      char             *d_string_p;
+//      int               d_length;
+//      int               d_size;
+//      bslma::Allocator *d_allocator_p;
 //
 //      // NOT IMPLEMENTED
 //      my_String(const my_String&);
 //
 //    public:
-//      my_String(const char *string, bslma_Allocator *basicAllocator = 0);
+//      my_String(const char *string, bslma::Allocator *basicAllocator = 0);
 //      my_String(const my_String&  original,
-//                bslma_Allocator  *basicAllocator = 0);
+//                bslma::Allocator  *basicAllocator = 0);
 //      ~my_String();
 //
 //      int length() const            { return d_length;   }
@@ -80,7 +80,7 @@ BDES_IDENT("$Id: $")
 //  // my_string.cpp
 //  #include <bslma_default.h>
 //
-//  my_String::my_String(const char *string, bslma_Allocator *basicAllocator)
+//  my_String::my_String(const char *string, bslma::Allocator *basicAllocator)
 //  : d_length(strlen(string))
 //  , d_allocator_p(basicAllocator)
 //  {
@@ -91,11 +91,11 @@ BDES_IDENT("$Id: $")
 //      memcpy(d_string_p, string, d_size);
 //  }
 //
-//  my_String::my_String(const my_String& original,
-//                       bslma_Allocator *basicAllocator)
+//  my_String::my_String(const my_String&  original,
+//                       bslma::Allocator *basicAllocator)
 //  : d_length(original.d_length)
 //  , d_size(original.d_length + 1)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      assert(d_allocator_p);
 //      d_string_p = (char *) d_allocator_p->allocate(d_size);
@@ -113,11 +113,11 @@ BDES_IDENT("$Id: $")
 //  // my_strarray.h
 //
 //  class my_StrArray {
-//      my_String        *d_array_p;        // dynamically allocated array
-//      int               d_size;           // physical capacity of this array
-//      int               d_length;         // logical length of this array
-//      bslma_Allocator  *d_allocator_p;    // supply non-string memory
-//      bslma_Allocator  *d_strAllocator_p; // supply memory for strings
+//      my_String         *d_array_p;        // dynamically allocated array
+//      int                d_size;           // physical capacity of this array
+//      int                d_length;         // logical length of this array
+//      bslma::Allocator  *d_allocator_p;    // supply non-string memory
+//      bslma::Allocator  *d_strAllocator_p; // supply memory for strings
 //
 //    private: // not implemented.
 //      my_StrArray(const my_StrArray& original);
@@ -127,8 +127,8 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      enum Hint { NO_HINT, INFREQUENT_DELETE_HINT };
-//      my_StrArray(Hint             allocationHint = NO_HINT,
-//                  bslma_Allocator *basicAllocator = 0);
+//      my_StrArray(Hint              allocationHint = NO_HINT,
+//                  bslma::Allocator *basicAllocator = 0);
 //      ~my_StrArray();
 //
 //      my_StrArray& operator=(const my_StrArray& rhs);
@@ -155,11 +155,11 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //  static inline
-//  void reallocate(my_String       **array,
-//                  int              *size,
-//                  int               newSize,
-//                  int               length,
-//                  bslma_Allocator  *basicAllocator)
+//  void reallocate(my_String        **array,
+//                  int               *size,
+//                  int                newSize,
+//                  int                length,
+//                  bslma::Allocator  *basicAllocator)
 //      // Reallocate memory in the specified 'array' using the specified
 //      // 'basicAllocator' and update the specified size to the specified
 //      // 'newSize'.  The specified 'length' number of leading elements are
@@ -192,10 +192,10 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //  my_StrArray::my_StrArray(my_StrArray::Hint  allocationHint,
-//                           bslma_Allocator   *basicAllocator)
+//                           bslma::Allocator  *basicAllocator)
 //  : d_size(MY_INITIAL_SIZE)
 //  , d_length(0)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      assert(d_allocator_p);
 //
@@ -230,7 +230,7 @@ BDES_IDENT("$Id: $")
 //          }
 //      }
 //      else {
-//          d_strAllocator_p->~bslma_Allocator();
+//          d_strAllocator_p->~bslma::Allocator();
 //          d_allocator_p->deallocate(d_strAllocator_p);
 //      }
 //      d_allocator_p->deallocate(d_array_p);
@@ -247,7 +247,7 @@ BDES_IDENT("$Id: $")
 //          }
 //          else {
 //              // Strings using string allocator.  Release all string memory.
-//              ((bslma_ManagedAllocator *) d_strAllocator_p)->release();
+//              ((bdema_ManagedAllocator *) d_strAllocator_p)->release();
 //          }
 //
 //          d_length = 0;
@@ -288,16 +288,16 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
-#include <bslma_managedallocator.h>
+#ifndef INCLUDED_BDEMA_MANAGEDALLOCATOR
+#include <bdema_managedallocator.h>
 #endif
 
 #ifndef INCLUDED_BDEMA_STRPOOL
 #include <bdema_strpool.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -306,7 +306,7 @@ namespace BloombergLP {
                         // class bdema_StrAllocator
                         // ========================
 
-class bdema_StrAllocator : public bslma_ManagedAllocator {
+class bdema_StrAllocator : public bdema_ManagedAllocator {
     // This class implements a fast memory allocator that allocates *unaligned*
     // memory of varying sizes.  The allocator uses its 'bdema_StrPool' member
     // to fulfill memory requests.  The 'release' method releases all memory
@@ -321,7 +321,7 @@ class bdema_StrAllocator : public bslma_ManagedAllocator {
     bdema_StrAllocator& operator=(const bdema_StrAllocator&);
 
   public:
-    bdema_StrAllocator(bslma_Allocator *basicAllocator = 0);
+    bdema_StrAllocator(bslma::Allocator *basicAllocator = 0);
         // Create a string memory allocator using the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -354,7 +354,7 @@ class bdema_StrAllocator : public bslma_ManagedAllocator {
 
 // CREATORS
 inline
-bdema_StrAllocator::bdema_StrAllocator(bslma_Allocator *basicAllocator)
+bdema_StrAllocator::bdema_StrAllocator(bslma::Allocator *basicAllocator)
 : d_strPool(basicAllocator)
 {
 }

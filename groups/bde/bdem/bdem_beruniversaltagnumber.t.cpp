@@ -3,6 +3,8 @@
 
 #include <bdeat_arrayfunctions.h>
 
+#include <bslma_allocator.h>
+
 #include <bsls_types.h>
 
 #include <bsl_iostream.h>
@@ -12,7 +14,6 @@
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen()
-#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -153,7 +154,7 @@ class CustomizedString {
         // the name of this class (i.e., "CustomizedString")
 
     // CREATORS
-    explicit CustomizedString(bslma_Allocator *basicAllocator = 0);
+    explicit CustomizedString(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -161,14 +162,14 @@ class CustomizedString {
         // is used.
 
     CustomizedString(const CustomizedString& original,
-                     bslma_Allocator *basicAllocator = 0);
+                     bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     explicit CustomizedString(const bsl::string& value,
-                              bslma_Allocator *basicAllocator = 0);
+                              bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the specified
         // 'value'.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -262,21 +263,21 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
 // CREATORS
 
 inline
-CustomizedString::CustomizedString(bslma_Allocator *basicAllocator)
+CustomizedString::CustomizedString(bslma::Allocator *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
 CustomizedString::CustomizedString(const CustomizedString& original,
-                                   bslma_Allocator *basicAllocator)
+                                   bslma::Allocator *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
 CustomizedString::CustomizedString(const bsl::string& value,
-                                   bslma_Allocator *basicAllocator)
+                                   bslma::Allocator *basicAllocator)
 : d_value(value, basicAllocator)
 {
 }
@@ -515,15 +516,15 @@ class MyChoice {
 
   private:
     union {
-        bsls_ObjectBuffer< int > d_selection1;
+        bsls::ObjectBuffer< int > d_selection1;
             // todo: provide annotation
-        bsls_ObjectBuffer< bsl::string > d_selection2;
+        bsls::ObjectBuffer< bsl::string > d_selection2;
             // todo: provide annotation
     };
 
-    int                 d_selectionId;
+    int                  d_selectionId;
 
-    bslma_Allocator    *d_allocator_p;
+    bslma::Allocator    *d_allocator_p;
 
   public:
     // TYPES
@@ -575,13 +576,13 @@ class MyChoice {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MyChoice(bslma_Allocator *basicAllocator = 0);
+    explicit MyChoice(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    MyChoice(const MyChoice& original, bslma_Allocator *basicAllocator = 0);
+    MyChoice(const MyChoice& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -809,18 +810,18 @@ void MyChoice::makeSelection2(const bsl::string& value)
 
 // CREATORS
 inline
-MyChoice::MyChoice(bslma_Allocator *basicAllocator)
+MyChoice::MyChoice(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MyChoice::MyChoice(
     const MyChoice& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -1749,14 +1750,14 @@ class MySequence {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequence(bslma_Allocator *basicAllocator = 0);
+    explicit MySequence(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequence' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
     MySequence(const MySequence& original,
-               bslma_Allocator *basicAllocator = 0);
+               bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequence' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -1920,18 +1921,19 @@ int MySequence::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySequence::MySequence(bslma_Allocator *basicAllocator)
+MySequence::MySequence(bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySequence::MySequence(
     const MySequence& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -2363,20 +2365,20 @@ bdeat_TypeCategory::Value bdeat_typeCategorySelect(const MyDynamicType& obj)
 namespace bdeat_SequenceFunctions {
 
     template <>
-    struct IsSequence<test::MyDynamicType> : bslmf_MetaInt<1> { };
+    struct IsSequence<test::MyDynamicType> : bslmf::MetaInt<1> { };
 }
 
 namespace bdeat_ChoiceFunctions {
 
     template <>
-    struct IsChoice<test::MyDynamicType> : bslmf_MetaInt<1> { };
+    struct IsChoice<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
 }  // close namespace bdeat_ChoiceFunctions
 
 namespace bdeat_ArrayFunctions {
 
     template <>
-    struct IsArray<test::MyDynamicType> : bslmf_MetaInt<1> { };
+    struct IsArray<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
     template <>
     struct ElementType<test::MyDynamicType> { typedef int Type; };
@@ -2386,14 +2388,14 @@ namespace bdeat_ArrayFunctions {
 namespace bdeat_EnumFunctions {
 
     template <>
-    struct IsEnumeration<test::MyDynamicType> : bslmf_MetaInt<1> { };
+    struct IsEnumeration<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
 } // close namespace bdeat_EnumFunctions
 
 namespace bdeat_NullableValueFunctions {
 
     template <>
-    struct IsNullableValue<test::MyDynamicType> : bslmf_MetaInt<1> { };
+    struct IsNullableValue<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
     template <>
     struct ValueType<test::MyDynamicType> { typedef int Type; };
@@ -2514,8 +2516,8 @@ int main(int argc, char *argv[])
         typedef unsigned char uchar;
         typedef unsigned short ushort;
         typedef unsigned int uint;
-        typedef bsls_Types::Int64 int64;
-        typedef bsls_Types::Uint64 uint64;
+        typedef bsls::Types::Int64 int64;
+        typedef bsls::Types::Uint64 uint64;
         typedef bsl::vector<char> vectorChar;
         typedef test::CustomizedString CustString;
         typedef test::MyEnumeration::Value MyEnum;
@@ -2547,7 +2549,7 @@ int main(int argc, char *argv[])
                                  Class::BDEM_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(char,
-                                 FM::BDEAT_DEC,     
+                                 FM::BDEAT_DEC,
                                  Class::BDEM_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(char,
@@ -2812,8 +2814,8 @@ int main(int argc, char *argv[])
         typedef unsigned char uchar;
         typedef unsigned short ushort;
         typedef unsigned int uint;
-        typedef bsls_Types::Int64 int64;
-        typedef bsls_Types::Uint64 uint64;
+        typedef bsls::Types::Int64 int64;
+        typedef bsls::Types::Uint64 uint64;
         typedef bsl::vector<char> vectorChar;
         typedef test::CustomizedString CustString;
         typedef test::MyEnumeration::Value MyEnum;
@@ -2845,7 +2847,7 @@ int main(int argc, char *argv[])
                                  Class::BDEM_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(char,
-                                 FM::BDEAT_DEC,     
+                                 FM::BDEAT_DEC,
                                  Class::BDEM_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(char,

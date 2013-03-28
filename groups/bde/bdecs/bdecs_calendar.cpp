@@ -89,37 +89,37 @@ void bdecs_Calendar::synchronizeCache()
 }
 
 // CREATORS
-bdecs_Calendar::bdecs_Calendar(bslma_Allocator *basicAllocator)
+bdecs_Calendar::bdecs_Calendar(bslma::Allocator *basicAllocator)
 : d_packedCalendar(basicAllocator)
 , d_nonBusinessDays(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 bdecs_Calendar::bdecs_Calendar(const bdet_Date&  firstDate,
                                const bdet_Date&  lastDate,
-                               bslma_Allocator  *basicAllocator)
+                               bslma::Allocator *basicAllocator)
 : d_packedCalendar(firstDate, lastDate, basicAllocator)
 , d_nonBusinessDays(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_nonBusinessDays.setLength(d_packedCalendar.length(), 0);
 }
 
 bdecs_Calendar::bdecs_Calendar(const bdecs_PackedCalendar&  packedCalendar,
-                               bslma_Allocator             *basicAllocator)
+                               bslma::Allocator            *basicAllocator)
 : d_packedCalendar(packedCalendar, basicAllocator)
 , d_nonBusinessDays(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     synchronizeCache();
 }
 
 bdecs_Calendar::bdecs_Calendar(const bdecs_Calendar&  original,
-                               bslma_Allocator       *basicAllocator)
+                               bslma::Allocator      *basicAllocator)
 : d_packedCalendar(original.d_packedCalendar, basicAllocator)
 , d_nonBusinessDays(original.d_nonBusinessDays, basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -149,8 +149,8 @@ void bdecs_Calendar::swap(bdecs_Calendar& other)
 
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
-    bslalg_SwapUtil::swap(&d_packedCalendar,  &other.d_packedCalendar);
-    bslalg_SwapUtil::swap(&d_nonBusinessDays, &other.d_nonBusinessDays);
+    bslalg::SwapUtil::swap(&d_packedCalendar,  &other.d_packedCalendar);
+    bslalg::SwapUtil::swap(&d_nonBusinessDays, &other.d_nonBusinessDays);
 }
 
 void bdecs_Calendar::addDay(const bdet_Date& date)

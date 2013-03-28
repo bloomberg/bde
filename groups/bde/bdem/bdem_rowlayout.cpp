@@ -21,7 +21,7 @@ namespace BloombergLP {
 
 // CREATORS
 bdem_RowLayout::bdem_RowLayout(const InitialCapacity&  numElements,
-                               bslma_Allocator        *basicAllocator)
+                               bslma::Allocator       *basicAllocator)
 : d_entries(basicAllocator)
 , d_totalOffset(0)
 {
@@ -33,7 +33,7 @@ bdem_RowLayout::bdem_RowLayout(const InitialCapacity&  numElements,
 bdem_RowLayout::bdem_RowLayout(const bdem_ElemType::Type     elementTypes[],
                                int                           numElements,
                                const bdem_Descriptor *const  attributesTable[],
-                               bslma_Allocator              *basicAllocator)
+                               bslma::Allocator             *basicAllocator)
 : d_entries(basicAllocator)
 , d_totalOffset(0)
 {
@@ -48,7 +48,7 @@ bdem_RowLayout::bdem_RowLayout(const bdem_ElemType::Type     elementTypes[],
 bdem_RowLayout::bdem_RowLayout(const bdem_RowLayout&  srcRowLayout,
                                int                    srcIndex,
                                int                    numElements,
-                               bslma_Allocator       *basicAllocator)
+                               bslma::Allocator      *basicAllocator)
 : d_entries(basicAllocator)
 , d_totalOffset(srcRowLayout.d_totalOffset)
 {
@@ -108,7 +108,7 @@ void bdem_RowLayout::append(const bdem_ElemType::Type    elementTypes[],
 void bdem_RowLayout::compact()
 {
     enum {
-        BDEM_MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
+        BDEM_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
     };
 
     const int len = length();

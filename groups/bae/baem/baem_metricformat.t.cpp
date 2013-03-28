@@ -58,8 +58,8 @@ using bsl::flush;
 //
 // baem_MetricFormat
 // CREATORS
-// [10] baem_MetricFormat(bslma_Allocator *);
-// [13] baem_MetricFormat(const baem_MetricFormat& , bslma_Allocator *);
+// [10] baem_MetricFormat(bslma::Allocator *);
+// [13] baem_MetricFormat(const baem_MetricFormat& , bslma::Allocator *);
 // [10] ~baem_MetricFormat();
 // MANIPULATORS
 // [14] baem_MetricFormat& operator=(const baem_MetricFormat& );
@@ -171,11 +171,11 @@ class CombinationIterator {
   public:
 
     // CREATORS
-    CombinationIterator(const T         *values,
-                        int              numValues,
-                        bslma_Allocator *allocator);
+    CombinationIterator(const T          *values,
+                        int               numValues,
+                        bslma::Allocator *allocator);
     CombinationIterator(const bsl::vector<T>&  values,
-                        bslma_Allocator       *allocator);
+                        bslma::Allocator      *allocator);
         // Create an iterator through all possible combinations of the
         // specified 'values', and initialize it with the first
         // combination of values (the empty set of values), use the specified
@@ -220,9 +220,9 @@ void CombinationIterator<T>::createCurrentCombination()
 
 // CREATORS
 template <typename T>
-CombinationIterator<T>::CombinationIterator(const T         *values,
-                                            int              numValues,
-                                            bslma_Allocator *allocator)
+CombinationIterator<T>::CombinationIterator(const T          *values,
+                                            int               numValues,
+                                            bslma::Allocator *allocator)
 : d_values(values, values + numValues, allocator)
 , d_currentCombination(allocator)
 , d_maxBits( (1 << numValues) - 1 )
@@ -236,7 +236,7 @@ CombinationIterator<T>::CombinationIterator(const T         *values,
 
 template <typename T>
 CombinationIterator<T>::CombinationIterator(const bsl::vector<T>&  values,
-                                            bslma_Allocator       *allocator)
+                                            bslma::Allocator      *allocator)
 : d_values(values, allocator)
 , d_currentCombination(allocator)
 , d_maxBits( (1 << values.size()) - 1 )
@@ -321,9 +321,9 @@ int main(int argc, char *argv[])
     };
     const int NUM_TYPES = sizeof ALL_TYPES / sizeof *ALL_TYPES;
 
-    bslma_TestAllocator testAlloc; bslma_TestAllocator *Z = &testAlloc;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 18: {
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
 //
 // We start by creating a 'baem_MetricFormat' object:
 //..
-    bslma_Allocator   *allocator = bslma_Default::allocator(0);
+    bslma::Allocator  *allocator = bslma::Default::allocator(0);
     baem_MetricFormat  format(allocator);
 //..
 // Next we specify that average values should only be printed to two decimal
@@ -751,10 +751,10 @@ int main(int argc, char *argv[])
         //   object being tested leaves scope.
         //
         // Testing:
-        // baem_MetricFormat(bslma_Allocator *basicAllocator);
+        // baem_MetricFormat(bslma::Allocator *basicAllocator);
         // ~baem_MetricFormat();
-        // void setFormatSpec(baem_PublicationType::Value   publicationType,
-        //                    const baem_MetricFormatSpec&  formatSpec);
+        // void setFormatSpec(baem_PublicationType::Value  publicationType,
+        //                    const baem_MetricFormatSpec& formatSpec);
         // const baem_MetricFormatSpec *formatSpec(
         //                  baem_PublicationType::Value publicationType) const;
         // --------------------------------------------------------------------

@@ -101,9 +101,9 @@ const bdeat_SelectionInfo *baenet_HttpStartLine::lookupSelectionInfo(int id)
 
 baenet_HttpStartLine::baenet_HttpStartLine(
     const baenet_HttpStartLine& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_REQUEST_LINE: {
@@ -203,7 +203,8 @@ baenet_HttpRequestLine& baenet_HttpStartLine::makeRequestLine()
     return d_requestLine.object();
 }
 
-baenet_HttpRequestLine& baenet_HttpStartLine::makeRequestLine(const baenet_HttpRequestLine& value)
+baenet_HttpRequestLine& baenet_HttpStartLine::makeRequestLine(
+                                           const baenet_HttpRequestLine& value)
 {
     if (SELECTION_ID_REQUEST_LINE == d_selectionId) {
         d_requestLine.object() = value;
@@ -234,7 +235,8 @@ baenet_HttpStatusLine& baenet_HttpStartLine::makeStatusLine()
     return d_statusLine.object();
 }
 
-baenet_HttpStatusLine& baenet_HttpStartLine::makeStatusLine(const baenet_HttpStatusLine& value)
+baenet_HttpStatusLine& baenet_HttpStartLine::makeStatusLine(
+                                            const baenet_HttpStatusLine& value)
 {
     if (SELECTION_ID_STATUS_LINE == d_selectionId) {
         d_statusLine.object() = value;

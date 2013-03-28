@@ -16,11 +16,11 @@
 #include <bdex_testinstreamexception.h>         // for testing only
 #include <bdex_testoutstream.h>                 // for testing only
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
-#include <bsls_platform.h>                      // for testing only
-#include <bsls_platformutil.h>                  // for testing only
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_new.h>          // placement 'new' syntax
@@ -56,7 +56,7 @@ using namespace bsl;  // automatically added by script
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
 // [ 9] static int maxSupportedBdexVersion();
-// [ 2] bael_Record(bslma_Allocator *ba = 0);
+// [ 2] bael_Record(bslma::Allocator *ba = 0);
 // [ 2] bael_Record(const bael_RecordAttributes&, const bdem_List&, *ba = 0);
 // [ 7] bael_Record(const bael_Record& original, *ba = 0);
 // [ 2] ~bael_Record();
@@ -140,14 +140,14 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bael_Record Obj;
-typedef bael_RecordAttributes Record_Attr;
-typedef bdem_List List;
-typedef bdem_Row Row;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bael_Record                      Obj;
+typedef bael_RecordAttributes            Record_Attr;
+typedef bdem_List                        List;
+typedef bdem_Row                         Row;
+typedef bsls::Types::Int64               Int64;
 typedef bsl::vector<bdem_ElemType::Type> my_ElemTypeArray;
-typedef bdex_TestInStream In;
-typedef bdex_TestOutStream Out;
+typedef bdex_TestInStream                In;
+typedef bdex_TestOutStream               Out;
 
 const int NUM_TYPES = bdem_ElemType::BDEM_NUM_TYPES;
 
@@ -601,10 +601,10 @@ int main(int argc, char *argv[])
     // Make three sets of useful constants for testing: Ui, Xi, Yi
     // ------------------------------------------------------------------------
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
     // TBD:
     testAllocator.setQuiet(1);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::Allocator     *Z = &testAllocator;
 
     const char                       UA = bdetu_Unset<char>::unsetValue();
     const short                      UB = bdetu_Unset<short>::unsetValue();
@@ -1022,7 +1022,7 @@ int main(int argc, char *argv[])
         const Obj VALUES[NUM_VALUES] = { VU, VA, VB, VC, VD, VE, VF, VG };
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        bslma_TestAllocator localTestAllocator;
+        bslma::TestAllocator localTestAllocator;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             Obj X(VALUES[i], &localTestAllocator);
@@ -1944,7 +1944,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             if (veryVerbose) { cout << "\t\t"; P(X); }
         }
 
@@ -1974,7 +1974,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X(FB, XU, (bslma_Allocator *)0);
+            const Obj X(FB, XU, (bslma::Allocator *)0);
             if (veryVerbose) { cout << "\t\t"; P(X); }
         }
 
@@ -2033,9 +2033,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith an allocator." << endl;
         if (verbose) cout << "\t\tWithout exceptions." << endl;
         {
-            bslma_TestAllocator testAllocatorX(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorY(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorZ(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorX(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorY(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
             Obj mX(&testAllocatorX);
             Obj mY(FB, XU, &testAllocatorY);
             Obj mZ(FC, YU, &testAllocatorZ);
@@ -2064,9 +2064,9 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
-            bslma_TestAllocator testAllocatorX(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorY(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorZ(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorX(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorY(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
           BEGIN_BSLMA_EXCEPTION_TEST {
 #endif

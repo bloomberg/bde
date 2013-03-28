@@ -49,8 +49,8 @@ BDES_IDENT("$Id: $")
 //    wchar_t                     BDEM_SHORT        short
 //    int                         BDEM_INT          int
 //    unsigned int                BDEM_INT          int
-//    bsls_Types::Int64           BDEM_INT64        bsls_Types::Int64
-//    bsls_Types::Uint64          BDEM_INT64        bsls_Types::Int64
+//    bsls::Types::Int64          BDEM_INT64        bsls::Types::Int64
+//    bsls::Types::Uint64         BDEM_INT64        bsls::Types::Int64
 //    float                       BDEM_FLOAT        float
 //    double                      BDEM_DOUBLE       double
 //    bsl::string                 BDEM_STRING       bsl::string
@@ -81,7 +81,7 @@ BDES_IDENT("$Id: $")
 //  BDEM_SHORT              BDEM_SHORT_ARRAY       bsl::vector<short>
 //  BDEM_INT                BDEM_INT_ARRAY         bsl::vector<int>
 //  BDEM_INT64              BDEM_INT64_ARRAY       bsl::vector<
-//                                                           bsls_Types::Int64>
+//                                                          bsls::Types::Int64>
 //  BDEM_FLOAT              BDEM_FLOAT_ARRAY       bsl::vector<float>
 //  BDEM_DOUBLE             BDEM_DOUBLE_ARRAY      bsl::vector<double>
 //  BDEM_STRING             BDEM_STRING_ARRAY      bsl::vector<bsl::string>
@@ -124,7 +124,7 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following snippets of code illustrate basic usage of this component.
-// Note that the 'bslmf_IsSame' meta-function is employed only for the
+// Note that the 'bslmf::IsSame' meta-function is employed only for the
 // purposes of illustration:
 //..
 //  class Class {};
@@ -133,28 +133,28 @@ BDES_IDENT("$Id: $")
 //  // 'bool' -> 'bool'
 //  assert(bdem_ElemType::BDEM_BOOL == bdem_SelectBdemType<bool>::VALUE);
 //  typedef bdem_SelectBdemType<bool>::Type boolProxyType;
-//  assert(1 == (bslmf_IsSame<bool, boolProxyType>::VALUE));
+//  assert(1 == (bslmf::IsSame<bool, boolProxyType>::VALUE));
 //
 //  // 'unsigned' -> 'int'
 //  assert(bdem_ElemType::BDEM_INT == bdem_SelectBdemType<unsigned>::VALUE);
 //  typedef bdem_SelectBdemType<unsigned>::Type unsignedProxyType;
-//  assert(1 == (bslmf_IsSame<int, unsignedProxyType>::VALUE));
+//  assert(1 == (bslmf::IsSame<int, unsignedProxyType>::VALUE));
 //
 //  // 'Enum' -> 'int'
 //  assert(bdem_ElemType::BDEM_INT == bdem_SelectBdemType<Enum>::VALUE);
 //  typedef bdem_SelectBdemType<Enum>::Type enumProxyType;
-//  assert(1 == (bslmf_IsSame<int, enumProxyType>::VALUE));
+//  assert(1 == (bslmf::IsSame<int, enumProxyType>::VALUE));
 //
 //  // 'bsl::vector<Enum>' -> 'bsl::vector<int>'
 //  assert(bdem_ElemType::BDEM_INT_ARRAY ==
 //                             bdem_SelectBdemType<bsl::vector<Enum> >::VALUE);
 //  typedef bdem_SelectBdemType<bsl::vector<Enum> >::Type enumVectorProxyType;
-//  assert(1 == (bslmf_IsSame<bsl::vector<int>, enumVectorProxyType>::VALUE));
+//  assert(1 == (bslmf::IsSame<bsl::vector<int>, enumVectorProxyType>::VALUE));
 //
 //  // 'Class' -> 'bdem_List'
 //  assert(bdem_ElemType::BDEM_LIST == bdem_SelectBdemType<Class>::VALUE);
 //  typedef bdem_SelectBdemType<Class>::Type classProxyType;
-//  assert(1 == (bslmf_IsSame<bdem_List, classProxyType>::VALUE));
+//  assert(1 == (bslmf::IsSame<bdem_List, classProxyType>::VALUE));
 //..
 
 #ifndef INCLUDED_BDESCM_VERSION
@@ -271,7 +271,7 @@ template <typename TYPE, typename TYPE_CATEGORY>
 struct bdem_SelectBdemType_ByCategory {
 
   private:
-    enum { IS_ENUM = bslmf_IsEnum<TYPE>::VALUE };
+    enum { IS_ENUM = bslmf::IsEnum<TYPE>::VALUE };
 
   public:
     enum {
@@ -291,9 +291,9 @@ struct bdem_SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Array> {
     bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
     typedef typename
-    bslmf_RemoveCvq<ElementType>::Type                    ElementTypeNonCvq;
+    bslmf::RemoveCvq<ElementType>::Type                   ElementTypeNonCvq;
     typedef typename
-    bslmf_RemoveReference<ElementTypeNonCvq>::Type        ElementTypeNonRefCvq;
+    bslmf::RemoveReference<ElementTypeNonCvq>::Type       ElementTypeNonRefCvq;
 
     typedef bdem_SelectBdemType_Imp<ElementTypeNonRefCvq> ElementImp;
     typedef bdem_SelectBdemType_ToArrayElemType<ElementImp::VALUE>
@@ -317,11 +317,11 @@ struct bdem_SelectBdemType_ByCategory<TYPE,
     bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
 
     typedef typename
-    bslmf_RemoveCvq<BaseType>::Type                    BaseTypeNonCvq;
+    bslmf::RemoveCvq<BaseType>::Type                    BaseTypeNonCvq;
     typedef typename
-    bslmf_RemoveReference<BaseTypeNonCvq>::Type        BaseTypeNonRefCvq;
+    bslmf::RemoveReference<BaseTypeNonCvq>::Type        BaseTypeNonRefCvq;
 
-    typedef bdem_SelectBdemType_Imp<BaseTypeNonRefCvq> Imp;
+    typedef bdem_SelectBdemType_Imp<BaseTypeNonRefCvq>  Imp;
 
   public:
     enum { VALUE = Imp::VALUE };
@@ -348,11 +348,11 @@ struct bdem_SelectBdemType_ByCategory<TYPE,
     bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
 
     typedef typename
-    bslmf_RemoveCvq<ValueType>::Type                    ValueTypeNonCvq;
+    bslmf::RemoveCvq<ValueType>::Type                    ValueTypeNonCvq;
     typedef typename
-    bslmf_RemoveReference<ValueTypeNonCvq>::Type        ValueTypeNonRefCvq;
+    bslmf::RemoveReference<ValueTypeNonCvq>::Type        ValueTypeNonRefCvq;
 
-    typedef bdem_SelectBdemType_Imp<ValueTypeNonRefCvq> Imp;
+    typedef bdem_SelectBdemType_Imp<ValueTypeNonRefCvq>  Imp;
 
   public:
     enum { VALUE = Imp::VALUE };
@@ -379,7 +379,7 @@ struct bdem_SelectBdemType_GetCppType<bdem_ElemType::BDEM_INT> {
 
 template <>
 struct bdem_SelectBdemType_GetCppType<bdem_ElemType::BDEM_INT64> {
-    typedef bsls_Types::Int64 Type;
+    typedef bsls::Types::Int64 Type;
 };
 
 template <>
@@ -429,7 +429,7 @@ struct bdem_SelectBdemType_GetCppType<bdem_ElemType::BDEM_INT_ARRAY> {
 
 template <>
 struct bdem_SelectBdemType_GetCppType<bdem_ElemType::BDEM_INT64_ARRAY> {
-    typedef bsl::vector<bsls_Types::Int64> Type;
+    typedef bsl::vector<bsls::Types::Int64> Type;
 };
 
 template <>
@@ -603,13 +603,13 @@ struct bdem_SelectBdemType_Imp<unsigned int>
 };
 
 template <>
-struct bdem_SelectBdemType_Imp<bsls_Types::Int64>
+struct bdem_SelectBdemType_Imp<bsls::Types::Int64>
 {
     enum { VALUE = bdem_ElemType::BDEM_INT64 };
 };
 
 template <>
-struct bdem_SelectBdemType_Imp<bsls_Types::Uint64>
+struct bdem_SelectBdemType_Imp<bsls::Types::Uint64>
 {
     enum { VALUE = bdem_ElemType::BDEM_INT64 };
 };

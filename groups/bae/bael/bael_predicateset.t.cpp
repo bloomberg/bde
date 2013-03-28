@@ -2,15 +2,19 @@
 
 #include <bael_predicateset.h>
 
-#include <bael_attributecontainerlist.h>        // for testing 'evaluate'
-#include <bael_defaultattributecontainer.h>     // for testing 'evaluate'
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bael_attributecontainerlist.h>        // for testing only
+#include <bael_defaultattributecontainer.h>     // for testing only
+
 #include <bdex_instreamfunctions.h>             // for testing only
 #include <bdex_outstreamfunctions.h>            // for testing only
 #include <bdex_testinstream.h>                  // for testing only
 #include <bdex_testinstreamexception.h>         // for testing only
 #include <bdex_testoutstream.h>                 // for testing only
+
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h> 
+
+#include <bsls_types.h> 
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -33,7 +37,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [14] static int hash(const bael_PredicateSet&, int size);
 // [10] static int maxSupportedBdexVersion();
-// [ 2] bael_PredicateSet(bslma_Allocator *basicAllocator = 0);
+// [ 2] bael_PredicateSet(bslma::Allocator *basicAllocator = 0);
 // [ 7] bael_PredicateSet(const bael_PredicateSet&, bdema_Alct * = 0)
 // [ 2] ~bael_PredicateSet();
 // [ 2] int addPredicate(const bael_Predicate& predicate);
@@ -103,12 +107,12 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bael_PredicateSet  Obj;
-typedef bdex_TestInStream  In;
-typedef bdex_TestOutStream Out;
+typedef bael_PredicateSet              Obj;
+typedef bdex_TestInStream              In;
+typedef bdex_TestOutStream             Out;
 typedef bael_DefaultAttributeContainer AttributeSet;
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64             Int64;
 
 bael_Predicate A0("", "12345678");
 bael_Predicate A1("", 12345678);
@@ -271,7 +275,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -1141,7 +1145,7 @@ int main(int argc, char *argv[])
 
             // construct y with an allocator but no exception
             {
-                bslma_TestAllocator testAllocatorY(veryVeryVerbose);
+                bslma::TestAllocator testAllocatorY(veryVeryVerbose);
                 Obj mY(X, &testAllocatorY); const Obj& Y = mY;
 
                 LOOP_ASSERT(LINE, Y == W);
@@ -1152,7 +1156,7 @@ int main(int argc, char *argv[])
 
             // construct y with an allocator and exceptions
             {
-                bslma_TestAllocator testAllocatorY(veryVeryVerbose);
+                bslma::TestAllocator testAllocatorY(veryVeryVerbose);
 
                 BEGIN_BSLMA_EXCEPTION_TEST {
                     Obj mY(X, &testAllocatorY); const Obj& Y = mY;
@@ -1665,7 +1669,7 @@ int main(int argc, char *argv[])
         //   retained.
         //
         // Testing:
-        //   bael_PredicateSet(bslma_Allocator *basicAllocator = 0);
+        //   bael_PredicateSet(bslma::Allocator *basicAllocator = 0);
         //   int addPredicate(const bael_Predicate& predicate);
         //   int removePredicate(const bael_Predicate& predicate);
         //   ~bael_PredicateSet();
@@ -1677,7 +1681,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             if (veryVerbose) { cout << "\t\t"; P(X); }
         }
 
@@ -1747,9 +1751,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith an allocator." << endl;
         if (verbose) cout << "\t\tWithout exceptions." << endl;
         {
-            bslma_TestAllocator testAllocatorX(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorY(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorZ(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorX(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorY(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
 
             Obj mX(&testAllocatorX);  const Obj& X = mX;
 
@@ -1793,9 +1797,9 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
-            bslma_TestAllocator testAllocatorX(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorY(veryVeryVerbose);
-            bslma_TestAllocator testAllocatorZ(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorX(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorY(veryVeryVerbose);
+            bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
 
           BEGIN_BSLMA_EXCEPTION_TEST {
             if (veryVerbose) cout <<

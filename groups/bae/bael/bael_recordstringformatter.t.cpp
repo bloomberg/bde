@@ -16,6 +16,7 @@
 #include <bdex_testoutstream.h>          // for testing only
 
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
@@ -257,7 +258,7 @@ int main(int argc, char *argv[])
 
         const int   lineNum   = 542;
         const char *filename  = "subdir/process.cpp";
-        const bsls_PlatformUtil::Uint64
+        const bsls::Types::Uint64
                                 threadID  = bcemt_ThreadUtil::selfIdAsUint64();
 #ifdef BSLS_PLATFORM_OS_UNIX
         const pid_t processID = getpid();

@@ -90,14 +90,14 @@ static void aSsErT(int c, const char *s, int i) {
 class my_String {
     // This is a simple implementation of a string object.
 
-    char            *d_string_p;
-    int              d_length;
-    int              d_size;
-    bslma_Allocator *d_allocator_p;
+    char             *d_string_p;
+    int               d_length;
+    int               d_size;
+    bslma::Allocator *d_allocator_p;
 
   public:
-    my_String(const char *string, bslma_Allocator *basicAllocator = 0);
-    my_String(const my_String& original, bslma_Allocator *basicAllocator = 0);
+    my_String(const char *string, bslma::Allocator *basicAllocator = 0);
+    my_String(const my_String& original, bslma::Allocator *basicAllocator = 0);
     ~my_String();
 
     int length() const            { return d_length;   }
@@ -113,7 +113,7 @@ inline bool operator==(const my_String& lhs, const char *rhs)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_string.cpp
 
-my_String::my_String(const char *string, bslma_Allocator *basicAllocator)
+my_String::my_String(const char *string, bslma::Allocator *basicAllocator)
 : d_length(strlen(string))
 , d_allocator_p(basicAllocator)
 {
@@ -124,11 +124,11 @@ my_String::my_String(const char *string, bslma_Allocator *basicAllocator)
     memcpy(d_string_p, string, d_size);
 }
 
-my_String::my_String(const my_String& original,
-                     bslma_Allocator *basicAllocator)
+my_String::my_String(const my_String&  original,
+                     bslma::Allocator *basicAllocator)
 : d_length(original.d_length)
 , d_size(original.d_length + 1)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     ASSERT(d_allocator_p);
     d_string_p = (char *) d_allocator_p->allocate(d_size);
@@ -148,8 +148,8 @@ class my_StrArray {
     my_String        *d_array_p;        // dynamically allocated array
     int               d_size;           // physical capacity of this array
     int               d_length;         // logical length of this array
-    bslma_Allocator  *d_allocator_p;    // supply non-string memory
-    bslma_Allocator  *d_strAllocator_p; // supply memory for strings
+    bslma::Allocator *d_allocator_p;    // supply non-string memory
+    bslma::Allocator *d_strAllocator_p; // supply memory for strings
 
   private: // not implemented.
     my_StrArray(const my_StrArray& original);
@@ -159,8 +159,8 @@ class my_StrArray {
 
   public:
     enum Hint { NO_HINT, INFREQUENT_DELETE_HINT };
-    my_StrArray(Hint             allocationHint = NO_HINT,
-                bslma_Allocator *basicAllocator = 0);
+    my_StrArray(Hint              allocationHint = NO_HINT,
+                bslma::Allocator *basicAllocator = 0);
     ~my_StrArray();
 
     my_StrArray& operator=(const my_StrArray& rhs);
@@ -187,11 +187,11 @@ int nextSize(int size)
 }
 
 inline static
-void reallocate(my_String       **array,
-                int              *size,
-                int               newSize,
-                int               length,
-                bslma_Allocator  *basicAllocator)
+void reallocate(my_String        **array,
+                int               *size,
+                int                newSize,
+                int                length,
+                bslma::Allocator  *basicAllocator)
     // Reallocate memory in the specified 'array' using the specified
     // 'basicAllocator' and update the specified size to the specified
     // 'newSize'.  The specified 'length' number of leading elements are
@@ -223,10 +223,10 @@ void my_StrArray::increaseSize()
 }
 
 my_StrArray::my_StrArray(my_StrArray::Hint  allocationHint,
-                         bslma_Allocator   *basicAllocator)
+                         bslma::Allocator  *basicAllocator)
 : d_size(MY_INITIAL_SIZE)
 , d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     ASSERT(d_allocator_p);
 
@@ -261,7 +261,7 @@ my_StrArray::~my_StrArray()
         }
     }
     else {
-        bslma_DeleterHelper::deleteObject(d_strAllocator_p, d_allocator_p);
+        bslma::DeleterHelper::deleteObject(d_strAllocator_p, d_allocator_p);
     }
     d_allocator_p->deallocate(d_array_p);
 }
@@ -277,7 +277,7 @@ my_StrArray& my_StrArray::operator=(const my_StrArray& rhs)
         }
         else {
             // Strings using string allocator.  Release all string memory.
-            ((bslma_ManagedAllocator *) d_strAllocator_p)->release();
+            ((bdema_ManagedAllocator *) d_strAllocator_p)->release();
         }
         d_length = 0;
 
@@ -347,13 +347,13 @@ int main(int argc, char *argv[])
         const char *DATA[] = { "A", "B", "C", "D", "E" };
         const int NUM_ELEM = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
-        const bslma_TestAllocator& TA = ta;
-        bslma_Allocator *const ALLOCATOR[] = { &ta, 0 };
+        bslma::TestAllocator ta(veryVeryVerbose);
+        const bslma::TestAllocator& TA = ta;
+        bslma::Allocator *const ALLOCATOR[] = { &ta, 0 };
         const int NUM_ALLOCATOR = sizeof ALLOCATOR / sizeof *ALLOCATOR;
 
         for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
-            bslma_Allocator *a = ALLOCATOR[ai];
+            bslma::Allocator *a = ALLOCATOR[ai];
 
             const my_StrArray::Hint hint = my_StrArray::INFREQUENT_DELETE_HINT;
             my_StrArray mX(hint, a);    const my_StrArray& X = mX;
@@ -414,8 +414,8 @@ int main(int argc, char *argv[])
         const int RES_DATA[] = { 0, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
         const int NUM_RES_DATA = sizeof RES_DATA / sizeof *RES_DATA;
 
-        bslma_TestAllocator strAllocatorTA(veryVeryVerbose);
-        bslma_TestAllocator strPoolTA(veryVeryVerbose);
+        bslma::TestAllocator strAllocatorTA(veryVeryVerbose);
+        bslma::TestAllocator strPoolTA(veryVeryVerbose);
 
         for (int j = 0; j < NUM_RES_DATA; ++j) {
             bdema_StrAllocator sa(&strAllocatorTA);
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdema_StrAllocator sa(&ta);
 
         int lastNumBytesInUse = ta.numBytesInUse();
@@ -502,8 +502,8 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator strAllocatorTA(veryVeryVerbose);
-        bslma_TestAllocator strPoolTA(veryVeryVerbose);
+        bslma::TestAllocator strAllocatorTA(veryVeryVerbose);
+        bslma::TestAllocator strPoolTA(veryVeryVerbose);
 
         bdema_StrAllocator sa(&strAllocatorTA);
         bdema_StrPool sp(&strPoolTA);
