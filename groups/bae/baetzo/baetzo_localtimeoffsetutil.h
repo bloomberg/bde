@@ -161,9 +161,9 @@ struct baetzo_LocalTimeOffsetUtil {
 
     // CLASS DATA
   private:
-    static bcemt_QLock             s_lock;
-    static const char             *s_timezone;
-    static bsls::AtomicInt         s_updateCount;
+    static bcemt_QLock      s_lock;
+    static const char      *s_timezone;
+    static bsls::AtomicInt  s_updateCount;
 
     // PRIVATE CLASS METHODS
     static int configureImp(const char           *timezone,
@@ -183,8 +183,7 @@ struct baetzo_LocalTimeOffsetUtil {
         // Efficiently load to the specified 'result' the offset of the local
         // time from UTC for the specified 'utcDatetime'.  This function is
         // thread-safe.  The behavior is undefined unless the local time zone
-        // has been previously established by a call to the 'configure'
-        // method.
+        // has been previously established by a call to the 'configure' method.
 
     static const baetzo_LocalTimePeriod& localTimePeriod();
         // Return a reference providing non-modifiable access to the local time

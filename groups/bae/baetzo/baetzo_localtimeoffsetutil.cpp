@@ -15,6 +15,7 @@ int baetzo_LocalTimeOffsetUtil::configureImp(const char           *timezone,
                                              const bdet_Datetime&  utcDatetime)
 {
     BSLS_ASSERT(timezone);
+
     int retval = baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(
                                                        staticLocalTimePeriod(),
                                                        timezone,
@@ -43,7 +44,7 @@ void baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
     bcemt_QLockGuard qLockGuard(&s_lock);
 
     const baetzo_LocalTimePeriod *localTimePeriod = staticLocalTimePeriod();
-    
+
     if (utcDatetime <  localTimePeriod->utcStartTime()
         || utcDatetime >= localTimePeriod->utcEndTime()) {
 

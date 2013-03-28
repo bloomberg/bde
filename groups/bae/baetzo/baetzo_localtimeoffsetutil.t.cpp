@@ -3,8 +3,8 @@
 
 #include <bael_administration.h>
 #include <bael_defaultobserver.h>
-#include <bael_loggermanager.h> 
-#include <bael_loggermanagerconfiguration.h> 
+#include <bael_loggermanager.h>
+#include <bael_loggermanagerconfiguration.h>
 #include <bael_severity.h>
 
 #include <bcemt_barrier.h>       // case -1
@@ -38,7 +38,7 @@ using namespace bsl;
 // Accessors" validate them, and then use them in tests for other methods.
 //
 // Primary Manipulators:
-//: o 'configure' (the overlaod with two parameters)
+//: o 'configure' (the overload with two parameters)
 //
 // Basic Accessors:
 //: o 'timezone'
@@ -136,7 +136,7 @@ const char *GP1 = "Etc/GMT+1";
 const char *GM1 = "Etc/GMT-1";
 
 //=============================================================================
-//                                 GLOBAL TEST DATA 
+//                                 GLOBAL TEST DATA
 //-----------------------------------------------------------------------------
 
 const char *DEFAULT_TZ_ARRAY[]   = { NY, BE, RY, SA, GMT, GP1, GM1 };
@@ -392,13 +392,13 @@ int main(int argc, char *argv[])
         //: 1 Using the array-driven approach, compare the results of calling
         //:   to those obtained from an independent source.  (C-1)
         //:
-        //: 2 Using the array-driven approach, for a fixed timezone, invoke
-        //:   the call back method on both sides of the boundaries of daylight
+        //: 2 Using the array-driven approach, for a fixed timezone, invoke the
+        //:   call back method on both sides of the boundaries of daylight
         //:   savings time for a year.  Confirm that the expected values are
         //:   returned throughout, and that the static members are updated when
-        //:   times transition into and out of daylight saving time.  Also 
+        //:   times transition into and out of daylight saving time.  Also
         //:   confirm the same behavior when the series of datetimes are used
-        //:   in reverse order. (C-2..3)
+        //:   in reverse order.  (C-2..3)
         //
         // Testing:
         //  int loadLocalTimeOffset(int *result, const bdet_Datetime& utc);
@@ -413,13 +413,13 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < DEFAULT_NUM_TZ_ARRAY; ++i) {
                 const char *TIMEZONE = DEFAULT_TZ_ARRAY[i];
-    
+
                 if (veryVerbose) { P(TIMEZONE) }
-    
+
                 for (int j = 0; j < DEFAULT_NUM_DT_ARRAY; ++j) {
                     const bdet_Datetime& UTC = DEFAULT_DT_ARRAY[j];
                     int                  status;
-    
+
                     if (veryVerbose) { T_ P(UTC) }
 
                     baetzo_LocalTimePeriod expected;
@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
                                                                     TIMEZONE,
                                                                     UTC);
                     ASSERT(0 == status);
-    
+
                     status = Util::configure(TIMEZONE, UTC);
                     ASSERT(0 == status);
 
@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(LINE, priorTimezone == Util::timezone()); // Fixed
 
-                if (ti < NUM_DATA - 1 
+                if (ti < NUM_DATA - 1
                  && DATA[ti + 1].d_expectedOffset != EXP_OFFSET) {
                     LOOP_ASSERT(
                               LINE,
@@ -559,22 +559,22 @@ int main(int argc, char *argv[])
         // STATIC INITIALIZATION
         //
         // Concerns:
-        //: 1 The static members of 'baetzo_LocalTimeOffsetUtil' are
-        //:   statically initialized to their expected default values.
+        //: 1 The static members of 'baetzo_LocalTimeOffsetUtil' are statically
+        //:   initialized to their expected default values.
         //:
-        //: 2 The static members of 'baetzo_LocalTimeOffsetUtil' are
-        //:   use the global default allocator.
+        //: 2 The static members of 'baetzo_LocalTimeOffsetUtil' are use the
+        //:   default allocator.
         //:
         // Plan:
-        //: 1 Before any other use of 'baetzo_LocalTimeOffsetUtil', compare
-        //:   the values of the static members to their expected values.  (C-1)
+        //: 1 Before any other use of 'baetzo_LocalTimeOffsetUtil', compare the
+        //:   values of the static members to their expected values.  (C-1)
         //:
         //: 2 Before any other use of 'baetzo_LocalTimeOffsetUtil', examine the
         //:   allocator used by those static members that take allocators.
         //:   (C-2)
         //
         // Testing:
-        //  CONCERN: This component uses the default global allocator.
+        //  CONCERN: This component uses the default allocator.
         //  CONCERN: The static members have the expected initial values.
         // --------------------------------------------------------------------
 
@@ -584,7 +584,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0                        == Util::timezone());
         ASSERT(baetzo_LocalTimePeriod() == Util::localTimePeriod());
-        ASSERT(bslma::Default::globalAllocator() 
+        ASSERT(bslma::Default::allocator()
             == Util::localTimePeriod().allocator());
 
       } break;
@@ -593,12 +593,12 @@ int main(int argc, char *argv[])
         // SETTING THE LOCAL TIME OFFSET CALLBACK
         //
         // Concerns:
-        //: 1 The 'setLoadLocalTimeOffsetCallback' method sets
-        //:   the 'loadLocalTimeOffset' method as the current local time offset
+        //: 1 The 'setLoadLocalTimeOffsetCallback' method sets the
+        //:   'loadLocalTimeOffset' method as the current local time offset
         //:   callback used by 'bdetu_SystemTime'.
         //:
-        //: 2 The 'setLoadLocalTimeOffsetCallback' method returns the
-        //:   installed previously callback.
+        //: 2 The 'setLoadLocalTimeOffsetCallback' method returns the installed
+        //:   previously callback.
         //
         // Plan:
         //: 1 Use the 'bdetu_SystemTime::currentLocalTimeOffsetCallback' method
@@ -635,19 +635,18 @@ int main(int argc, char *argv[])
         // OTHER MANIPULATORS
         //
         // Concerns:
-        //: 1 The other (non-primary) manipulators apply their expected
-        //:   default values.
+        //: 1 The other (non-primary) manipulators apply their expected default
+        //:   values.
         //:
-        //: 2 The manipulators return a non-zero value when an invalid
-        //:   timezone is specified, and (QoI) there is no change in the static
-        //:   members.
+        //: 2 The manipulators return a non-zero value when an invalid timezone
+        //:   is specified, and (QoI) there is no change in the static members.
         //:
         //: 3 The value returned by the 'updateCall' method increases by one
-        //:   for each successful call of a 'setTime' method, and remains the
+        //:   for each successful call of a 'configure' method, and remains the
         //:   same after unsuccessful calls.
         //:
         //: 4 The value returned by the 'updateCall' method increases by one
-        //:   for each successful call of a 'setTime' method, and remains the
+        //:   for each successful call of a 'configure' method, and remains the
         //:   same after unsuccessful calls.
         //
         // Plan:
@@ -660,8 +659,8 @@ int main(int argc, char *argv[])
         //:     however, this is only a problem in the unlikely event that the
         //:     local time zone information changes in that short interval.
         //:
-        //: 2 Save the values of the static members and call each 'setTime'
-        //:   method with an unknown timezone.  After each 'setTime' call,
+        //: 2 Save the values of the static members and call each 'configure'
+        //:   method with an unknown timezone.  After each 'configure' call,
         //:   check the return value, and compare the current values of the
         //:   static members to the saved values.  (C-2..4)
         //
@@ -828,11 +827,12 @@ int main(int argc, char *argv[])
         //:   successfully, and use the accessors to confirm that the cached
         //:   information matches the expected results.  The expected results
         //:   for the local time period is obtained using the
-        //:  'baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc' method.  (C-1..2)
+        //:   'baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc' method.
+        //:   (C-1..2)
         //:
-        //: 2 Save the values of the static members, call 'setTime' with an
+        //: 2 Save the values of the static members, call 'configure' with an
         //:   unknown timezone, check the return value, and compare the current
-        //:   values of the static members to the saved values.  
+        //:   values of the static members to the saved values.
         //
         // Testing:
         //   const baetzo_LocalTimePeriod& localTimePeriod();
@@ -853,24 +853,24 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < DEFAULT_NUM_TZ_ARRAY; ++i) {
                 const char *TIMEZONE = DEFAULT_TZ_ARRAY[i];
-    
+
                 if (veryVerbose) { P(TIMEZONE) }
-    
+
                 for (int j = 0; j < DEFAULT_NUM_DT_ARRAY; ++j) {
                     const bdet_Datetime& UTC = DEFAULT_DT_ARRAY[j];
-    
+
                     if (veryVerbose) { T_ P(UTC) }
-    
+
                     int status = Util::configure(TIMEZONE, UTC);
                     ASSERT(0 == status);
                     ASSERT(0 == strcmp(TIMEZONE, Util::timezone()));
-    
+
                     updateCount = Util::updateCount();
                     ASSERT(priorUpdateCount + 1 == updateCount);
                     priorUpdateCount = updateCount;
-    
+
                     baetzo_LocalTimePeriod expectedLocalTimePeriod;
-    
+
                     status = baetzo_TimeZoneUtil::loadLocalTimePeriodForUtc(
                                                       &expectedLocalTimePeriod,
                                                       TIMEZONE,
@@ -996,13 +996,13 @@ int main(int argc, char *argv[])
 
         const int numThreads    = argc > 2 ? atoi(argv[2]) : 1;
         const int numIterations = argc > 3 ? atoi(argv[3]) : 1;
-    
+
         P(numThreads)
         P(numIterations)
-    
+
         bcemt_Configuration::setDefaultThreadStackSize(
                      bcemt_Configuration::recommendedDefaultThreadStackSize());
-    
+
         const bdet_Datetime newYearsDay(2013, 1,  1);
         const bdet_Datetime  startOfDst(2013, 3, 10, 7);
         const char          *timezone             = "America/New_York";
@@ -1033,13 +1033,13 @@ int main(int argc, char *argv[])
                 threadArgs[j].d_offset      = 0x0BADCAFE;
                 threadArgs[j].d_utcDatetime = startOfDst;
                 threadArgs[j].d_barrier_p   = &barrier;
-    
+
                 int status = bcemt_ThreadUtil::create(&handles[j],
                                                       workerThread,
                                                       &threadArgs[j]);
                 ASSERT(0 == status);
             }
-        
+
             // Wait for all threads to complete.
 
 
@@ -1087,9 +1087,9 @@ int main(int argc, char *argv[])
         //:   start of daylight saving time in New York).
         //:
         //: 2 Use a stopwatch mechanism to measure the time needed to
-        //:   iteratively request the local time offset at the UTC datetime
-        //:   set in P-1.  The number of iterations is determined by a
-        //:   command-line parameter.  (C-1)
+        //:   iteratively request the local time offset at the UTC datetime set
+        //:   in P-1.  The number of iterations is determined by a command-line
+        //:   parameter.  (C-1)
         //
         // Testing:
         //   CONCERN: Performance on cache hits.
@@ -1113,7 +1113,7 @@ int main(int argc, char *argv[])
 
         int offset;
         Util::loadLocalTimeOffset(&offset, newYearsDay);
-   
+
         bsls::Stopwatch stopwatch;
         stopwatch.start();
 
@@ -1146,7 +1146,7 @@ int main(int argc, char *argv[])
         //:   corresponding to the start of daylight savings time in New York,
         //:   a cache-miss, which resets the cache.  Then, request the result
         //:   for the UTC time set in P-1, another cache-miss.  The number of
-        //    requests is determined by a command-line parameter.
+        // requests is determined by a command-line parameter.
         //:   parameter.  (C-1)
         //
         // Testing:
