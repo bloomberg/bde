@@ -2171,6 +2171,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase18()
             const TestValues VALUES;
 
             Obj mX;  const Obj& X = mX;
+            (void)X;
             Iter it = mX.insert(mX.end(), VALUES[0]);
 
             ASSERT_SAFE_FAIL(mX.erase(X.end()));
