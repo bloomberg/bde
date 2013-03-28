@@ -353,7 +353,6 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
     {
         ABC object;
         ABC *pABC = &object;
-        A   *pA   = &object;
         B   *pB   = &object;
         C   *pC   = &object;
 
@@ -503,6 +502,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+
+    (void)veryVeryVerbose;
 
     setbuf(stdout, 0);    // Use unbuffered output
 

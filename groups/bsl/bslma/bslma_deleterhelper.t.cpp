@@ -442,6 +442,7 @@ int main(int argc, char *argv[])
 
             ASSERT_SAFE_FAIL(Obj::deleteObject(pC1, null));
             ASSERT_SAFE_PASS(Obj::deleteObject(pC1, &a));
+            (void)null;            
         }
       } break;
       case 1: {
@@ -577,6 +578,8 @@ int main(int argc, char *argv[])
 
             ASSERT_SAFE_FAIL(Obj::deleteObjectRaw(pC1, null));
             ASSERT_SAFE_PASS(Obj::deleteObjectRaw(pC1, &a));
+
+            (void)null;
         }
 
       } break;

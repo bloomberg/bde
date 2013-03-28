@@ -165,27 +165,23 @@ int main(int argc, char *argv[])
         int *pi;
         int **ppi;
         int ***pppi;
-        int *const *pcpi;
         int *const **ppcpi;
+        int *const **ppcpi1;
         MyType *pm;
 
-        pi    = &i1;
-        pi    = &i2;
-        pi    = &i3;
-        ppi   = &i4;
-        pppi  = &i5;
-        ppi   = &i6;
-        ppcpi = &i7;
-        ppcpi = &i8;
-        pm    = &m1;
-        pm    = &m2;
+        pi      = &i1;
+        pi      = &i2;
+        pi      = &i3;
+        ppi     = &i4;
+        pppi    = &i5;
+        ppi     = &i6;
+        ppcpi   = &i7;
+        ppcpi1  = &i8;
+        pm      = &m1;
+        pm      = &m2;
 
-        ASSERT(pi && ppi && pppi && ppcpi && pm);
+        ASSERT(pi && ppi && pppi && ppcpi && ppcpi1 && pm);
 
-        const int ci = 0;
-        volatile int vi = 1;
-        int *const cpi = &i;
-        int *const *const cpcpi = &cpi;
         const MyType cm = MyType();
 
         // References should remain unchanged.

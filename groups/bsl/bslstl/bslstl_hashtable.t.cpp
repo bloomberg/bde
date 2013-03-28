@@ -8738,6 +8738,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
         static const float FLT_NAN  = std::numeric_limits<float>::quiet_NaN();
         static const float FLT_INF  = std::numeric_limits<float>::infinity();
 
+        (void)FLT_TINY;
+        (void)FLT_NAN;
+
         Obj mX(HASH, COMPARE, 0, 1.0f, scratchAlloc);
 
 //        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(  FLT_TINY));
