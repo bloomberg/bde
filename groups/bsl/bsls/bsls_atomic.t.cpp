@@ -1327,13 +1327,13 @@ int main(int argc, char *argv[])
                 Int64 d_expected;  // input value
 
             } VALUES[] = {
-                //line value                expected
-                //---- -------------------  ---------------------
-                { L_,   0                  , 1                    },
-                { L_,   1                  , 2                    },
-                { L_,  -1LL                , 0                    },
-                { L_,   0xFFFFFFFFLL       , 0x100000000LL        },
-                { L_,  0xFFFFFFFFFFFFFFFFLL , 0                   }
+                //line value                        expected
+                //---- -------------------          ---------------------
+                { L_,   0                          , 1                    },
+                { L_,   1                          , 2                    },
+                { L_,  -1LL                        , 0                    },
+                { L_,   0xFFFFFFFFLL               , 0x100000000LL        },
+                { L_,  (Int64) 0xFFFFFFFFFFFFFFFFLL , 0                   }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -1388,13 +1388,13 @@ int main(int argc, char *argv[])
                 Int64 d_value;     // input value
 
             } VALUES[] = {
-                //line expected             value
-                //---- -------------------  ---------------------
-                { L_,   0                  , 1                    },
-                { L_,   1                  , 2                    },
-                { L_,  -1LL                , 0                    },
-                { L_,   0xFFFFFFFFLL       , 0x100000000LL        },
-                { L_,  0xFFFFFFFFFFFFFFFFLL , 0                   }
+                //line expected                     value
+                //---- -------------------          ---------------------
+                { L_,   0                          , 1                    },
+                { L_,   1                          , 2                    },
+                { L_,  -1LL                        , 0                    },
+                { L_,   0xFFFFFFFFLL               , 0x100000000LL        },
+                { L_,  (Int64) 0xFFFFFFFFFFFFFFFFLL , 0                   }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -1529,7 +1529,13 @@ int main(int argc, char *argv[])
                 { L_,   0   , 11         , 33     , 0          , 0       },
                 { L_,   1   , 19         , 1      , 19         , 1       },
                 { L_,  -1   , 4          , 1      , -1         , -1      },
-                { L_,   2   , 0xFFFFFFFF , 2      , 0xFFFFFFFF , 2       },
+                { L_,
+                  2,
+                  (int) 0xFFFFFFFF,
+                  2,
+                  (int) 0xFFFFFFFF,
+                  2
+                },
                 { L_,  -2   , 16         , 0      , -2         , -2      }
             };
 
@@ -1837,13 +1843,13 @@ int main(int argc, char *argv[])
                 int d_amount;    // amount to add
                 int d_expected;  // expected value
             } VALUES[] = {
-                //line d_base    d_amount d_expected
-                //---- --------  -------- ----------
-                { L_,   0       , -9    , -9         },
-                { L_,   1       , 0     , 1          },
-                { L_,  -1       , 1     , 0          },
-                { L_, 0xFFFFFFFF, 1     , 0          },
-                { L_,  -2       , -2    , -4         }
+                //line d_base          d_amount d_expected
+                //---- --------        -------- ----------
+                { L_,   0             , -9    , -9         },
+                { L_,   1             , 0     , 1          },
+                { L_,  -1             , 1     , 0          },
+                { L_, (int) 0xFFFFFFFF, 1     , 0          },
+                { L_,  -2             , -2    , -4         }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;

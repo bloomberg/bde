@@ -1662,7 +1662,7 @@ int main(int argc, char *argv[])
             struct B {
                 int d_m;
                 int d_s;
-            } b[2] = { { 0xdeadbeef, -1 }, { 0x11, 0x22 } };
+            } b[2] = { { (int) 0xdeadbeef, -1 }, { 0x11, 0x22 } };
 
             if (verbose) cout <<"\t[deallocate memory with bad length]" <<endl;
             if (veryVerbose) cout << LINE << endl;
