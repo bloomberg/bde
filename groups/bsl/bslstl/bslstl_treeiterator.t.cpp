@@ -1209,7 +1209,12 @@ int main(int argc, char *argv[])
         for (int i = 0; X.node() != tree.sentinel(); ++i, ++mX) {
 
             if (veryVerbose) {
-                T_ P_(i) P_((void*) X.node()) P_((*X).data()) P(X->data()) }
+                T_
+                P_(i)
+                P_((const void*) X.node())
+                P_((*X).data())
+                P(X->data())
+            }
 
             ASSERTV(i, X.node() == &nodes[i]);
             ASSERTV(i, *X == nodes[i].value());
@@ -1311,7 +1316,11 @@ int main(int argc, char *argv[])
         while (iter.node() != tree.sentinel()) {
 
             if (veryVerbose) {
-                T_ P_(i) P_((void*) iter.node()) P((void*) &nodes[i]) }
+                T_
+                P_(i)
+                P_((const void*) iter.node())
+                P((const void*) &nodes[i])
+            }
 
             ASSERTV(i, iter.node(), &nodes[i], iter.node() == &nodes[i]);
             ++iter; ++i;

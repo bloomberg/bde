@@ -436,7 +436,10 @@ inline void dbg_print(float val) {
 }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(void* val) { printf("\"%p\"", val); fflush(stdout); }
+inline void dbg_print(const void* val)
+{
+    printf("\"%p\"", val); fflush(stdout);
+}
 
 // String-specific print function.
 template <typename TYPE, typename TRAITS, typename ALLOC>
@@ -13944,12 +13947,12 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             const char *pc = std::char_traits<char>::find("bcabcd", 2, 'a');
-            P((void *)pc);
+            P((const void *)pc);
             ASSERT(0 == pc);
 
             const wchar_t *pw =
                            std::char_traits<wchar_t>::find(L"bcabcd", 2, L'a');
-            P((void *)pw);
+            P((const void *)pw);
             ASSERT(0 == pw);
 
             bsl::basic_string<wchar_t, std::char_traits<wchar_t> > s =
