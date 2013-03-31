@@ -213,7 +213,7 @@ const DefaultDataRow DEFAULT_DATA[] = {
     { L_,  "NOONECANFIGHTLIKEKENNEDYCAN" },
     { L_,  "ALLTHEWAYWITHLBJ" }
 };
-static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+static const size_t DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
 }  // close unnamed namespace
 
@@ -2313,7 +2313,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7()
     if (verbose)
         printf("\nTesting parameters: TYPE = %s.\n", testTypeName<KEY>());
     {
-        for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
             const char *const SPEC        = DEFAULT_DATA[ti].d_spec;
             const size_t      LENGTH      = (int) strlen(SPEC);
 
@@ -2377,7 +2377,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7()
 
                 Obj Y11(X, &oa);
 
-                ASSERT(0 == LENGTH || oa.numBlocksTotal() > A);
+                ASSERT(0 == LENGTH ||
+                       (native_std::size_t) oa.numBlocksTotal() > A);
 
                 // Due of pooling of memory alloctioon, we can't predict
                 // whether this insert will allocate or not.
@@ -2597,8 +2598,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Y));
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Y != X));
 
-                    ASSERTV(xa.numBlocksTotal() == numX);
-                    ASSERTV(ya.numBlocksTotal() == numY);
+                    ASSERTV((size_t) xa.numBlocksTotal() == numX);
+                    ASSERTV((size_t) ya.numBlocksTotal() == numY);
 
                     if (EXP) {
                         const Iter end = mX.end();
@@ -2617,8 +2618,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                             ASSERTV(LINE1, LINE2,   X != Y);
                             ASSERTV(LINE1, LINE2,   Y != X);
 
-                            ASSERTV(xa.numBlocksTotal() == numX);
-                            ASSERTV(ya.numBlocksTotal() == numY);
+                            ASSERTV((size_t) xa.numBlocksTotal() == numX);
+                            ASSERTV((size_t) ya.numBlocksTotal() == numY);
 
                             it->second = v;
 
@@ -2630,8 +2631,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                             ASSERTV(LINE1, LINE2, !(X != Y));
                             ASSERTV(LINE1, LINE2, !(Y != X));
 
-                            ASSERTV(xa.numBlocksTotal() == numX);
-                            ASSERTV(ya.numBlocksTotal() == numY);
+                            ASSERTV((size_t) xa.numBlocksTotal() == numX);
+                            ASSERTV((size_t) ya.numBlocksTotal() == numY);
                         }
                     }
 
@@ -2651,8 +2652,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
 
 //                  EQUAL::enableFunctor();
 
-                    ASSERTV(xa.numBlocksTotal() == numX);
-                    ASSERTV(ya.numBlocksTotal() == numY);
+                    ASSERTV((size_t) xa.numBlocksTotal() == numX);
+                    ASSERTV((size_t) ya.numBlocksTotal() == numY);
 
                     if (EXP) {
                         const Iter end = mX.end();
@@ -2671,8 +2672,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                             ASSERTV(LINE1, LINE2,   X != Y);
                             ASSERTV(LINE1, LINE2,   Y != X);
 
-                            ASSERTV(xa.numBlocksTotal() == numX);
-                            ASSERTV(ya.numBlocksTotal() == numY);
+                            ASSERTV((size_t) xa.numBlocksTotal() == numX);
+                            ASSERTV((size_t) ya.numBlocksTotal() == numY);
 
                             it->second = v;
 
@@ -2684,8 +2685,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                             ASSERTV(LINE1, LINE2, !(X != Y));
                             ASSERTV(LINE1, LINE2, !(Y != X));
 
-                            ASSERTV(xa.numBlocksTotal() == numX);
-                            ASSERTV(ya.numBlocksTotal() == numY);
+                            ASSERTV((size_t) xa.numBlocksTotal() == numX);
+                            ASSERTV((size_t) ya.numBlocksTotal() == numY);
                         }
                     }
                 }

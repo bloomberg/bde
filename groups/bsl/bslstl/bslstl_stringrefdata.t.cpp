@@ -534,7 +534,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
             Y = X;
 
             LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
+            LOOP_ASSERT(LINE, Y.end() - Y.begin() == (int) strlen(STR));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
         }
 
@@ -720,7 +720,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
             bslstl::StringRefData<char> Y(X);
 
             LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
+            LOOP_ASSERT(LINE, Y.end() - Y.begin() == (int) strlen(STR));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
         }
       } break;
@@ -963,7 +963,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
             bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
             LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
+            LOOP_ASSERT(LINE, Y.end() - Y.begin() == (int) strlen(STR));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
         }
 

@@ -1377,7 +1377,10 @@ void testAllocateDeallocate(const char *name)
         LOOP2_ASSERT(name, N, ta.lastAllocatedNumBytes() == blockSize);
         LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB + 1);
         LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB + 1);
-        LOOP2_ASSERT(name, N, ta.numBytesInUse()  == bytesInUseB + blockSize);
+        LOOP2_ASSERT(
+            name,
+            N,
+            (size_type) ta.numBytesInUse() == bytesInUseB + blockSize);
 
         // No constructors or destructors were called
         LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);
@@ -1400,7 +1403,10 @@ void testAllocateDeallocate(const char *name)
         LOOP2_ASSERT(name, N, ta.lastDeallocatedNumBytes() == blockSize);
         LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB);
         LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB - 1);
-        LOOP2_ASSERT(name, N, ta.numBytesInUse()  == bytesInUseB - blockSize);
+        LOOP2_ASSERT(
+            name,
+            N,
+            (size_type) ta.numBytesInUse() == bytesInUseB - blockSize);
 
         // No constructors or destructors were called
         LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);

@@ -180,7 +180,7 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
 template <size_t N>
 bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
 {
-    for (int bitIndex = 0; bitIndex < N; ++bitIndex) {
+    for (size_t bitIndex = 0; bitIndex < N; ++bitIndex) {
         int expectedBit = 0;
 
         if (bitIndex < sizeof(unsigned long) * CHAR_BIT) {
