@@ -1532,13 +1532,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
 
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
 
             Obj mY(X);  const Obj& Y = mY;
 
             ASSERTV(LINE, 0 == verifyContainer(Y, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
 
             Obj mZ;  const Obj& Z = mZ;
 
@@ -1546,7 +1546,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
 
             ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1556,7 +1556,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
             mX.insert(BEGIN, END);
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1570,7 +1570,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
             }
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
         }
 
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());

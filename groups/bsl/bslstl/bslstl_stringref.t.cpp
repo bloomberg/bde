@@ -2366,7 +2366,7 @@ int main(int argc, char *argv[])
           ASSERT(ES.data()    == EMPTY_STRING);
           ASSERT(ES.data()    == ES.begin());
           ASSERT(ES.end()     == EMPTY_STRING);
-          ASSERT(ES.length()  == (int)std::strlen(EMPTY_STRING));
+          ASSERT(ES.length()  == std::strlen(EMPTY_STRING));
           ASSERT(ES.isEmpty());
 
           bsl::string EString(EMPTY_STRING);

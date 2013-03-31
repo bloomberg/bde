@@ -1092,7 +1092,7 @@ void testAttribClass(const char* className)
     const Alloc DFLT_ALLOC(bslma::Default::allocator(0));
     const Alloc TST_ALLOC(&ta);
 
-    for (int i = 0; i < NUM_DATA; ++i) {
+    for (std::size_t i = 0; i < NUM_DATA; ++i) {
         const char        A = DATA[i].d_a;
         const int         B = DATA[i].d_b;
         const double      C = DATA[i].d_c;
@@ -1377,7 +1377,10 @@ void testAllocateDeallocate(const char *name)
         LOOP2_ASSERT(name, N, ta.lastAllocatedNumBytes() == blockSize);
         LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB + 1);
         LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB + 1);
-        LOOP2_ASSERT(name, N, ta.numBytesInUse()  == bytesInUseB + blockSize);
+        LOOP2_ASSERT(
+            name,
+            N,
+            (size_type) ta.numBytesInUse() == bytesInUseB + blockSize);
 
         // No constructors or destructors were called
         LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);
@@ -1400,7 +1403,10 @@ void testAllocateDeallocate(const char *name)
         LOOP2_ASSERT(name, N, ta.lastDeallocatedNumBytes() == blockSize);
         LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB);
         LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB - 1);
-        LOOP2_ASSERT(name, N, ta.numBytesInUse()  == bytesInUseB - blockSize);
+        LOOP2_ASSERT(
+            name,
+            N,
+            (size_type) ta.numBytesInUse() == bytesInUseB - blockSize);
 
         // No constructors or destructors were called
         LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);

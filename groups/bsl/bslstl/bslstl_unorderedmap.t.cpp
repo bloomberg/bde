@@ -7526,7 +7526,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7()
 
                 Obj Y11(X, &oa);
 
-                ASSERT(0 == LENGTH || oa.numBlocksTotal() > A);
+                ASSERT(0 == LENGTH ||
+                       (native_std::size_t) oa.numBlocksTotal() > A);
 
                 // Due of pooling of memory alloctioon, we can't predict
                 // whether this insert will allocate or not.
