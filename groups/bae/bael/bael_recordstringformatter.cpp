@@ -16,10 +16,9 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bael_recordattributes.h>
 #include <bael_severity.h>
 
+#include <bdema_bufferedsequentialallocator.h>
 #include <bdem_list.h>
-
 #include <bdet_datetime.h>
-
 #include <bdeu_print.h>
 
 #include <bsls_platform.h>
@@ -156,8 +155,19 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     const char* iter = d_formatSpec.data();
     const char* end  = iter + d_formatSpec.length();
 
-    bsl::string output;
-    output.reserve(1024);
+    // Create a buffer on the stack for formatting the record.  Note that the
+    // size of the buffer should be slightly larger than the amount we reserve
+    // in order to ensure only a single allocation occurs.
+
+    const int BUFFER_SIZE        = 512;
+    const int STRING_RESERVATION = BUFFER_SIZE - 
+                                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
+    char fixedBuffer[BUFFER_SIZE];
+    bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer, 
+                                                      BUFFER_SIZE);
+    bsl::string output(&stringAllocator);
+    output.reserve(STRING_RESERVATION);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
@@ -175,7 +185,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
               } break;
               case 'd': {
                 char buffer[32];
-                int length = timestamp.printToBuffer(buffer, sizeof buffer);
+                timestamp.printToBuffer(buffer, sizeof buffer);
 
                 output += buffer;
               } break;
