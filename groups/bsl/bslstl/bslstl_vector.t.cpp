@@ -8245,7 +8245,7 @@ template <class TYPE>
 TYPE& MyMatrix<TYPE>::theModifiableValue(int rowIndex, int columnIndex)
 {
     BSLS_ASSERT(0 <= rowIndex);
-    BSLS_ASSERT(rowIndex < d_matrix.size());
+    BSLS_ASSERT((typename MatrixType::size_type) rowIndex < d_matrix.size());
     BSLS_ASSERT(0 <= columnIndex);
     BSLS_ASSERT(columnIndex < d_numColumns);
 
@@ -8281,7 +8281,7 @@ template <class TYPE>
 const TYPE& MyMatrix<TYPE>::theValue(int rowIndex, int columnIndex) const
 {
     BSLS_ASSERT(0 <= rowIndex);
-    BSLS_ASSERT(rowIndex < d_matrix.size());
+    BSLS_ASSERT((typename MatrixType::size_type) rowIndex < d_matrix.size());
     BSLS_ASSERT(0 <= columnIndex);
     BSLS_ASSERT(columnIndex < d_numColumns);
 

@@ -1373,7 +1373,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
 
             ASSERTV(LINE, -1 == verifySpec(Y, SPEC));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
 
             ObjStlAlloc mZ;  const ObjStlAlloc& Z = mZ;
 
@@ -1394,7 +1394,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
             mX.insert(BEGIN, END);
             ASSERTV(LINE, -1 == verifySpec(X, SPEC));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -2690,7 +2690,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
 
                 Obj Y11(X, &oa);
 
-                ASSERT(0 == LENGTH || oa.numBlocksTotal() > A);
+                ASSERT(0 == LENGTH ||
+                       (native_std::size_t) oa.numBlocksTotal() > A);
 
                 // Due of pooling of memory alloctioon, we can't predict
                 // whether this insert will allocate or not.
