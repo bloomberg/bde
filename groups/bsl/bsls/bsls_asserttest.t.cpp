@@ -745,7 +745,7 @@ int main(int argc, char *argv[])
             const char *const EXPRESSION    = DATA[ti].d_expression;
             const int         ASSERTED_LINE = DATA[ti].d_assertedLine;
 
-            for (size_t i = 0; i != NUM_COMPATIBLE_NAMES_A; ++i) {
+            for (int i = 0; i != NUM_COMPATIBLE_NAMES_A; ++i) {
                 const bsls::AssertTestException EXCEPTION_AI(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[i],
@@ -773,7 +773,7 @@ int main(int argc, char *argv[])
                            bsls::AssertTest::catchProbe('F', EXCEPTION_ZZI, 0);
                 LOOP2_ASSERT(LINE, testResult, true == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     const bsls::AssertTestException EXCEPTION_AJ(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[j],
@@ -840,7 +840,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, testResult, true == testResult);
                 }
 
-                for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+                for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     if (veryVerbose) {
                         P_(EXCEPTION_AI.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
@@ -875,7 +875,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            for (size_t i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
+            for (int i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
                 const bsls::AssertTestException EXCEPTION_IN(
                                                          EXPRESSION,
                                                          INCOMPATIBLE_NAMES[i],
@@ -890,7 +890,7 @@ int main(int argc, char *argv[])
                                                           0);
                 LOOP_ASSERT(LINE, true == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
@@ -917,7 +917,7 @@ int main(int argc, char *argv[])
 
                }
 
-                for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+                for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     if (veryVerbose) {
                         P_(EXCEPTION_IN.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
@@ -1423,7 +1423,7 @@ int main(int argc, char *argv[])
             "a.t.cpP",
             "A.T.CPP",
         };
-        const int NUM_INVALID_NAMES = sizeof INVALID_NAMES /
+        const size_t NUM_INVALID_NAMES = sizeof INVALID_NAMES /
                                                          sizeof *INVALID_NAMES;
 
         static const struct {
@@ -1449,7 +1449,7 @@ int main(int argc, char *argv[])
             const int         ASSERTED_LINE = DATA[ti].d_assertedLine;
             const bool        RESULT        = DATA[ti].d_result;
 
-            for (size_t i = 0; i != NUM_COMPATIBLE_NAMES_A; ++i) {
+            for (int i = 0; i != NUM_COMPATIBLE_NAMES_A; ++i) {
                 if (veryVerbose) {
                     P_(i) P_(EXPRESSION) P_(ASSERTED_LINE) P(RESULT)
                     P_(COMPATIBLE_NAMES_A[i]) P(COMPATIBLE_NAMES_ZZ[i])
@@ -1482,7 +1482,7 @@ int main(int argc, char *argv[])
                            bsls::AssertTest::catchProbe('F', EXCEPTION_ZZI, 0);
                 LOOP3_ASSERT(LINE, RESULT, testResult, RESULT == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     const bsls::AssertTestException EXCEPTION_AJ(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[j],
@@ -1553,7 +1553,7 @@ int main(int argc, char *argv[])
                                  testResult == RESULT);
                 }
 
-                for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+                for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     if (veryVerbose) {
                         P_(EXCEPTION_AI.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
@@ -1622,7 +1622,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            for (size_t i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
+            for (int i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
                 const bsls::AssertTestException EXCEPTION_IN(
                                                          EXPRESSION,
                                                          INCOMPATIBLE_NAMES[i],
@@ -1637,7 +1637,7 @@ int main(int argc, char *argv[])
                                                           0);
                 LOOP3_ASSERT(LINE, RESULT, testResult, RESULT == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
@@ -1664,7 +1664,7 @@ int main(int argc, char *argv[])
 
                }
 
-               for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+               for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     const bool FAIL_RESULT = RESULT && (i == j);
                     if(veryVerbose) {
                         P_(i) P_(j) P(FAIL_RESULT)
@@ -1718,7 +1718,7 @@ int main(int argc, char *argv[])
                                                           0);
                 LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
@@ -1745,7 +1745,7 @@ int main(int argc, char *argv[])
 
                }
 
-                for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+                for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     if(veryVerbose) {
                         P_(EXCEPTION_IN.filename()) P(INCOMPATIBLE_NAMES[j])
                     }

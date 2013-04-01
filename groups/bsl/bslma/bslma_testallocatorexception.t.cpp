@@ -379,7 +379,7 @@ int main(int argc, char *argv[]) {
             const int NUM_TEST = sizeof NUM_BYTES / sizeof *NUM_BYTES;
             for (int i = 0; i < NUM_TEST; ++i) {
                 const bslma::TestAllocatorException X(NUM_BYTES[i]);
-                LOOP_ASSERT(i, NUM_BYTES[i] == X.numBytes());
+                LOOP_ASSERT(i, NUM_BYTES[i] == (int) X.numBytes());
             }
         }
       } break;

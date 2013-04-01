@@ -1287,8 +1287,8 @@ int main(int argc, char *argv[])
 
         const_iterator itReader = testData;
         const int* itValidator = testData;
-        for(int i = 0; i < sizeof(testData)/sizeof(int); ++itValidator,
-                                                         ++itReader, ++i) {
+        for(size_t i = 0; i < sizeof(testData)/sizeof(int); ++itValidator,
+                                                            ++itReader, ++i) {
             LOOP3_ASSERT(i, *itReader, *itValidator,&*itReader == itValidator);
         }
       } break;

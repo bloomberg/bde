@@ -318,7 +318,8 @@ bool isPrime(int candidate)
     // '2 <= candidate <= MAX_VALUE'
 {
     BSLMF_ASSERT(2 <= MAX_VALUE);
-    BSLS_ASSERT(2 <= candidate); BSLS_ASSERT(candidate <= MAX_VALUE);
+    BSLS_ASSERT(2 <= candidate);
+    BSLS_ASSERT((unsigned int) candidate <= MAX_VALUE);
 //..
 // Then, we declare a 'bsl::bitset', 'compositeFlags', that will contain flags
 // indicating whether a value corresponding to a given index is known to be
@@ -347,8 +348,8 @@ bool isPrime(int candidate)
 // Next, we compute 'sqrt(candidate)', which is as far as we need to look:
 //..
     // We need to cast the 'sqrt' argument to avoid an overload ambiguity.
-    const int sqrtOfCandidate = std::sqrt(static_cast<double>(candidate))
-                                + 0.01;  // fudge factor
+    const size_t sqrtOfCandidate = std::sqrt(static_cast<double>(candidate))
+                                   + 0.01;  // fudge factor
 //..
 // Now, we loop from 2 to 'sqrtOfCandidate', and use the sieve algorithm to
 // eliminate non-primes:
@@ -364,7 +365,7 @@ bool isPrime(int candidate)
         }
 
         for (std::size_t flagValue = i;
-             flagValue <= candidate;
+             flagValue <= (std::size_t) candidate;
              flagValue += i) {
             compositeFlags[flagValue] = true;
         }

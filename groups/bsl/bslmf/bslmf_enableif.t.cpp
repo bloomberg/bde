@@ -423,7 +423,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
            }
 
            d_storage = new T[d_length];
-           for (int i = 0; i != d_length; ++i) {
+           for (size_t i = 0; i != d_length; ++i) {
               d_storage[i] = *first++;
            }
         }
