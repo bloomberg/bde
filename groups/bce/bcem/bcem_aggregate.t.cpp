@@ -3690,6 +3690,70 @@ static void runBerBenchmark(bool verbose, bool veryVerbose,
     delete[] ENCODE_BUFFER;
 }
 
+static void testCase36(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
+        // --------------------------------------------------------------------
+        // TESTING ACCESING SCHEMA-LESS FIELD BY INDEX
+        //
+        // Concerns:
+        //: 1 Accessing fields by index for schema-less aggregates works as
+        //:   expected.
+        //
+        // Plan:
+        //: 1 Create a 'bcem_Aggregate' object, 'mX', and assign a table to
+        //:   it.
+        //:
+        //: 2 Access individual elements in a row of the table and ensure that
+        //:   they can be updated correctly.
+        //
+        // Testing:
+        //   const Obj fieldByIndex(int index) const;
+        //   const Obj setFieldByIndex(int index, const VAL& value) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING ACCESING SCHEMA-LESS FIELD BY INDEX"
+                          << "\n==========================================="
+                          << bsl::endl;
+
+        bdem_ElemType::Type TYPES[] = {
+            bdem_ElemType::BDEM_INT,
+            bdem_ElemType::BDEM_STRING
+        };
+        const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
+
+        bdem_Table table(TYPES, NUM_TYPES);
+
+        Obj mX(bdem_ElemType::BDEM_TABLE, table);  const Obj& X = mX;
+
+        if (veryVerbose) {
+            P(X);
+        }
+
+        const int         VA1 = 10, VA2 = 20;
+        const bsl::string VB1 = "Hello", VB2 = "World";
+
+        mX.resize(1);
+
+        Obj mA  = X[0];  const Obj& A = mA;
+        ASSERT(bdem_ElemType::BDEM_ROW == A.dataType());
+
+        Obj mB = mA.fieldByIndex(0);  const Obj& B = mB;
+        ASSERT(bdem_ElemType::BDEM_INT == B.dataType());
+
+        mB.setValue(VA1);
+        ASSERT(VA1 == mB.asInt());
+
+        mA.setFieldByIndex(0, VA2);
+        ASSERT(VA2 == mB.asInt());
+
+        Obj mC = mA.fieldByIndex(1);  const Obj& C = mC;
+        ASSERT(bdem_ElemType::BDEM_STRING == C.dataType());
+
+        mC.setValue(VB1);
+        ASSERT(VB1 == mC.asString());
+
+        mA.setFieldByIndex(1, VB2);
+        ASSERT(VB2 == mC.asString());
+}
 
 static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // --------------------------------------------------------------------
@@ -17429,6 +17493,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) \
     case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
+        CASE(36);
         CASE(35);
         CASE(34);
         CASE(33);
