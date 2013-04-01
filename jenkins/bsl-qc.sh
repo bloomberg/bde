@@ -92,7 +92,7 @@ mv /tmp/clang-*.log .
 sloccount --wide --details groups > sloccount.sc
 
 # Run cppcheck analysis
-#cppcheck -j${NUMCPUS} --xml-version=2 groups 2> cppcheck-result.xml
+cppcheck -j${NUMCPUS} --xml-version=2 --enable=warning groups 2> cppcheck-result.xml
 
 # Perform code coverage analysis
 # (Note: 'gather' step fails if run in parallel)
