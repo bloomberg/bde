@@ -27,6 +27,8 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
 
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -4515,7 +4517,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7_1()
             TestValues VALUES(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", (int)LENGTH);
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
 
@@ -4634,7 +4636,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7()
             const size_t      LENGTH = (int) strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", (int)LENGTH);
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
 
@@ -5271,7 +5273,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase3()
             Obj mX(&oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", (int)LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -5468,8 +5470,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
 
             if (0 < LENGTH) {
                 if (verbose) {
-                    printf("\t\tOn an object of initial length %d.\n",
-                           (int)LENGTH);
+                    printf("\t\tOn an object of initial length " ZU ".\n",
+                           LENGTH);
                 }
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
