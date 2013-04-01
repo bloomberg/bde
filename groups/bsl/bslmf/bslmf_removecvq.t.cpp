@@ -182,8 +182,6 @@ int main(int argc, char *argv[])
 
         ASSERT(pi && ppi && pppi && ppcpi && ppcpi1 && pm);
 
-        const MyType cm = MyType();
-
         // References should remain unchanged.
 
         ASSERT_REFTYPE_ISSAME(int              &);

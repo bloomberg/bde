@@ -630,6 +630,7 @@ int main(int argc, char *argv[])
         {
             MyInterfaceTest testObj;
             bsls::ProtocolTest_MethodReturnType proxy = testObj.markDone();
+            (void)proxy;
         }
 
         if (veryVerbose) printf("\t'markDoneRef' has a proper return type "
@@ -639,6 +640,7 @@ int main(int argc, char *argv[])
             MyInterfaceTest testObj;
             bsls::ProtocolTest_MethodReturnRefType proxy
                                                        = testObj.markDoneRef();
+            (void)proxy;
         }
 
         if (veryVerbose) printf("\t'markDoneVal' has a proper return type\n");

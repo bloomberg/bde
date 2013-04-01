@@ -1455,10 +1455,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    const char *SPEC, *lastSpec = "+";
-    for (size_t ti = 0; ti < NUM_DATA; ++ti, lastSpec = SPEC) {
+    
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const size_t LINE   = DATA[ti].d_line;
-                     SPEC   = DATA[ti].d_spec;
+        const char  *SPEC   = DATA[ti].d_spec;
         const size_t LENGTH = strlen(SPEC);
 
         TestValues values(SPEC, &scratch);
