@@ -1,4 +1,4 @@
-// bdeci_hashtable.cpp              -*-C++-*-
+// bdeci_hashtable.cpp                                                -*-C++-*-
 #include <bdeci_hashtable.h>
 
 #include <bdes_ident.h>
