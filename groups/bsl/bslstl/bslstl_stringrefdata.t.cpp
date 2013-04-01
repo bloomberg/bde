@@ -1120,7 +1120,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
             bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
             LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
+            LOOP_ASSERT(LINE, (size_t)(Y.end() - Y.begin()) == strlen(STR));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
         }
 

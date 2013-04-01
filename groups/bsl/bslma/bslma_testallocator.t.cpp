@@ -2007,7 +2007,7 @@ int main(int argc, char *argv[])
         if (BSLMA_SIZE_IS_SIGNED) {
             if (verbose) cout << "\tallocate -1" << endl;
             void *addr5 = a.allocate(-1);
-            ASSERT(-1 == a.lastAllocatedNumBytes());
+            ASSERT(-1 == (int) a.lastAllocatedNumBytes());
             ASSERT( 0 == a.lastAllocatedAddress());
             ASSERT( 1 == a.lastDeallocatedNumBytes());
             ASSERT(addr1 == a.lastDeallocatedAddress());
@@ -2016,7 +2016,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tdeallocate -1" << endl;
             a.deallocate(addr5);
-            ASSERT(-1 == a.lastAllocatedNumBytes());
+            ASSERT(-1 == (int) a.lastAllocatedNumBytes());
             ASSERT( 0 == a.lastAllocatedAddress());
             ASSERT( 0 == a.lastDeallocatedNumBytes());
             ASSERT( 0 == a.lastDeallocatedAddress());
@@ -2025,7 +2025,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tdeallocate 0" << endl;
             a.deallocate(addr5);
-            ASSERT(-1 == a.lastAllocatedNumBytes());
+            ASSERT(-1 == (int) a.lastAllocatedNumBytes());
             ASSERT( 0 == a.lastAllocatedAddress());
             ASSERT( 0 == a.lastDeallocatedNumBytes());
             ASSERT( 0 == a.lastDeallocatedAddress());
