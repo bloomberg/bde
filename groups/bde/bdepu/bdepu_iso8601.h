@@ -310,20 +310,21 @@ struct bdepu_Iso8601 {
         // is the optional fraction of a second, consisting of a '.' followed
         // by one or more decimal digits.  'hh' must be in the range
         // '[ 00, 24 )', 'mm' must be in the range '[ 00, 60 )', and 'ss' must
-        // be in the range '[ 00, 60 ]'.  If 'ss == 60', the time is
-        // interpreted as a leap second and rounded up to the following time
-        // for which 'ss == 00'.  If '{.d+}' contains more than 3 digits, the
-        // value will be rounded to the nearest value in milliseconds, possibly
-        // rounding '*result' up a full second.  Optional time zone information
-        // may be provided, in which case '*result' is converted to the
-        // equivalent GMT time.  An exceptional time value of '24:00:00' may be
-        // provided, in which case the fraction of a second must be 0 and the
-        // time zone must be absent or GMT.  Do not modify '*result' on
-        // failure.  Return 0 on success, and a non-zero otherwise.  Note that
-        // if 'inputLength' is longer than the length of the parsed data,
-        // parsing will fail.  Also note that it is possible for the resulting
-        // 'ss' value to be rounded up twice if originally 'ss == 60' and there
-        // was rounding up due to the '{.d+}' field.
+        // be in the range '[ 00, 60 ]'.  If 'ss == 60', then a value of 59 is
+        // loaded into the 'seconds' field, and after all fields are loaded, 1
+        // second is added to '*result'.  If '{.d+}' contains more than 3
+        // digits, the value will be rounded to the nearest value in
+        // milliseconds, possibly rounding '*result' up a full second.
+        // Optional time zone information may be provided, in which case
+        // '*result' is converted to the equivalent GMT time.  An exceptional
+        // time value of '24:00:00' may be provided, in which case the fraction
+        // of a second must be 0 and the time zone must be absent or GMT.  Do
+        // not modify '*result' on failure.  Return 0 on success, and a
+        // non-zero otherwise.  Note that if 'inputLength' is longer than the
+        // length of the parsed data, parsing will fail.  Also note that it is
+        // possible for the resulting 'ss' value to be rounded up twice if
+        // originally 'ss == 60' and there was rounding up due to the '{.d+}'
+        // field.
 
     static int parse(bdet_Datetime *result,
                      const char    *input,

@@ -185,7 +185,7 @@ int parseTime(int         *hour,
               int         *minute,
               int         *second,
               int         *millisecond,
-              int         *leapSecond,    // 0 or 1
+              bool        *hasLeapSecond,
               const char **begin,
               const char  *end)
     // Parse a time, represented in "hh:mm:ss[.d+]" format, from the string
@@ -198,13 +198,13 @@ int parseTime(int         *hour,
     // and seconds, ':' is literally a colon character, and [.d+] is the
     // optional fraction of a second, consisting of a '.' followed by one or
     // more decimal digits.  If '60 == ss', interpret it as a leap second, and
-    // set '*second' to 59 and set '*leapSecond' to 1, otherwise set
-    // '*leapSecond' to 0.  If '[.d+]' contains more than 3 digits, the value
-    // will be rounded to the nearest value in milliseconds.  Return 0 on
-    // success and a non-zero value if the string being parsed does not match
-    // the specified format (including partial representations).  Note that a
-    // fractional second value of '.9995' or more will be rounded to 1000
-    // milliseconds (and higher level functions are responsible for
+    // set '*second' to 59 and set '*hasLeapSecond' to 'true', otherwise set
+    // '*hasLeapSecond' to 'false'.  If '[.d+]' contains more than 3 digits,
+    // the value will be rounded to the nearest value in milliseconds.  Return
+    // 0 on success and a non-zero value if the string being parsed does not
+    // match the specified format (including partial representations).  Note
+    // that a fractional second value of '.9995' or more will be rounded to
+    // 1000 milliseconds (and higher level functions are responsible for
     // incrementing the represented value of 'seconds' if necessary).  Also
     // note that if the pattern is successfully completed before 'end' is
     // reached, that is not an error.
@@ -256,14 +256,14 @@ int parseTime(int         *hour,
         *millisecond = 0;
     }
 
-    // Parse leapSecond
+    // Parse hasLeapSecond
 
     if (60 == *second) {
-        *leapSecond = true;
+        *hasLeapSecond = true;
         *second = 59;
     }
     else {
-        *leapSecond = false;
+        *hasLeapSecond = false;
     }
 
     *begin = p;
@@ -355,7 +355,7 @@ char *generateInt(char *buffer, int val, int len)
 
     buffer += len;
     for (char *p = buffer; len != 0; --len) {
-        *--p = '0' + val % 10;
+        *--p = (char) ('0' + val % 10);
         val /= 10;
     }
 
@@ -697,18 +697,19 @@ int bdepu_Iso8601::parse(bdet_Time  *result,
     // not validate.
 
     bdet_Time localTime;
-    int hour, minute, second, millisecond, leapSecond;
+    int hour, minute, second, millisecond;
+    bool hasLeapSecond;
     if   (0 != parseTime(&hour,
                          &minute,
                          &second,
                          &millisecond,
-                         &leapSecond,
+                         &hasLeapSecond,
                          &begin,
                          end)
        || 0 != localTime.setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
     }
-    if (leapSecond) {
+    if (hasLeapSecond) {
         localTime.addSeconds(1);
     }
     if (millisecond) {
@@ -781,20 +782,21 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
     // might not validate.
 
     bdet_Datetime localDatetime;
-    int hour, minute, second, millisecond, leapSecond;
+    int hour, minute, second, millisecond;
+    bool hasLeapSecond;
     if   (0 != parseTime(&hour,
                          &minute,
                          &second,
                          &millisecond,
-                         &leapSecond,
+                         &hasLeapSecond,
                          &begin,
                          end)
        || 0 != localDatetime.setDatetimeIfValid(year, month, day,
                                                 hour, minute, second)) {
         return -1;                                                    // RETURN
     }
-    if (millisecond || leapSecond) {
-        localDatetime.addTime(0, 0, leapSecond, millisecond);
+    if (millisecond || hasLeapSecond) {
+        localDatetime.addTime(0, 0, hasLeapSecond, millisecond);
     }
 
     // Parse timezone, if any
@@ -890,18 +892,19 @@ int bdepu_Iso8601::parse(bdet_TimeTz *result,
     // else it might not validate.
 
     bdet_Time localTime;
-    int hour, minute, second, millisecond, leapSecond;
+    int hour, minute, second, millisecond;
+    bool hasLeapSecond;
     if   (0 != parseTime(&hour,
                          &minute,
                          &second,
                          &millisecond,
-                         &leapSecond,
+                         &hasLeapSecond,
                          &begin,
                          end)
        || 0 != localTime.setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
     }
-    if (leapSecond) {
+    if (hasLeapSecond) {
         localTime.addSeconds(1);
     }
     if (millisecond) {
@@ -970,20 +973,21 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
     // might not validate.
 
     bdet_Datetime localDatetime;
-    int hour, minute, second, millisecond, leapSecond;
+    int hour, minute, second, millisecond;
+    bool hasLeapSecond;
     if   (0 != parseTime(&hour,
                          &minute,
                          &second,
                          &millisecond,
-                         &leapSecond,
+                         &hasLeapSecond,
                          &begin,
                          end)
        || 0 != localDatetime.setDatetimeIfValid(year, month, day,
                                                 hour, minute, second)) {
         return -1;                                                    // RETURN
     }
-    if (millisecond || leapSecond) {
-        localDatetime.addTime(0, 0, leapSecond, millisecond);
+    if (millisecond || hasLeapSecond) {
+        localDatetime.addTime(0, 0, hasLeapSecond, millisecond);
     }
 
     // Parse timezone, if any
