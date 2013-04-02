@@ -1956,7 +1956,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bdetu_SystemTime::now() < timeout);
 
-        ASSERT(0 == mX.queue().length());
+        ASSERT(0 == mX.length());
 
         TestClass13 tc13(&mX, &barrier);
 
@@ -1971,22 +1971,21 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::microSleep(50*1000);        // 50 mSec
 
         ASSERT(4 == tc13.s_pushCount);
-        ASSERT(4 == mX.queue().length());  // 5th push is blocking on high
-                                           // watermark
+        ASSERT(4 == mX.length());  // 5th push is blocking on high watermark
 
         ASSERT(TestClass13::VALID_VAL == mX.popFront());
         ASSERT(!barrier.timedWait(timeout));
         bcemt_ThreadUtil::yield();
         bcemt_ThreadUtil::microSleep(50*1000);        // 50 mSec
         ASSERT(5 == tc13.s_pushCount);
-        ASSERT(4 == mX.queue().length());
+        ASSERT(4 == mX.length());
 
         ASSERT(TestClass13::VALID_VAL == mX.popBack());
         ASSERT(!barrier.timedWait(timeout));
         bcemt_ThreadUtil::yield();
         bcemt_ThreadUtil::microSleep(50*1000);        // 50 mSec
         ASSERT(6 == tc13.s_pushCount);
-        ASSERT(4 == mX.queue().length());
+        ASSERT(4 == mX.length());
 
         for (int i = 0; 4 > i; ++i) {
             bool back = !(1 & i);
@@ -1997,7 +1996,7 @@ int main(int argc, char *argv[])
                 ASSERT(TestClass13::VALID_VAL == mX.popFront());
             }
             ASSERT(6 == tc13.s_pushCount);
-            ASSERT(3 - i == mX.queue().length());
+            ASSERT(3 - i == mX.length());
         }
 
         {
@@ -2043,7 +2042,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bdetu_SystemTime::now() < timeout);
 
-        ASSERT(0 == mX.queue().length());
+        ASSERT(0 == mX.length());
 
         TestClass12 tc12(&mX, &barrier);
 
@@ -2052,14 +2051,14 @@ int main(int argc, char *argv[])
         mX.pushFront(e);
         mX.pushBack(e);
 
-        ASSERT(2 == mX.queue().length());
+        ASSERT(2 == mX.length());
 
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
 
-        ASSERT(0 == mX.queue().length());
+        ASSERT(0 == mX.length());
 
         for (int i = 0; i < 4; ++i) {
             enum { SLEEP_TIME = 10 * 1000 };        // 10 mSec
@@ -2067,13 +2066,13 @@ int main(int argc, char *argv[])
             ASSERT(!barrier.timedWait(timeout));
             bcemt_ThreadUtil::yield();
             bcemt_ThreadUtil::microSleep(SLEEP_TIME);
-            ASSERT(0 == mX.queue().length());
+            ASSERT(0 == mX.length());
 
             mX.pushBack(e);
-            ASSERT(1 >= mX.queue().length());
+            ASSERT(1 >= mX.length());
 
             ASSERT(!barrier.timedWait(timeout));
-            ASSERT(0 == mX.queue().length());
+            ASSERT(0 == mX.length());
         }
 
         e = TestClass12::TERMINATE;
@@ -2114,7 +2113,7 @@ int main(int argc, char *argv[])
         Element e;
         int sts;
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
 
         e = -7;
         sts = mX.tryPopFront(&e);
@@ -2124,7 +2123,7 @@ int main(int argc, char *argv[])
         ASSERT(v.empty());
         mX.tryPopFront(100);
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
 
         for (int i = 0; i < 10; ++i) {
             mX.pushBack((Element) i);
@@ -2186,7 +2185,7 @@ int main(int argc, char *argv[])
         ASSERT(3 == v.front());
         ASSERT(0 == v.back());
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
 
         v.clear();
         mX.tryPopBack(1, &v);
@@ -2216,7 +2215,7 @@ int main(int argc, char *argv[])
         }
         v.clear();
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
 
         ASSERT(0 != mX.tryPopBack(&e));
         ASSERT(0 != mX.tryPopFront(&e));
@@ -2234,7 +2233,7 @@ int main(int argc, char *argv[])
             ASSERT(i == e);
         }
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -2259,6 +2258,7 @@ int main(int argc, char *argv[])
             myWorkQueue.pushBack( myData() );
             myWork();
             ASSERT(0 == rawQueue.length());
+            ASSERT(0 == myWorkQueue.length());
         }
 
       } break;
@@ -2303,7 +2303,7 @@ int main(int argc, char *argv[])
             mX.pushBack(VC);
 
             mX.removeAll();
-            ASSERT(0 == mX.queue().length());
+            ASSERT(0 == mX.length());
         }
 
         {
@@ -2315,7 +2315,7 @@ int main(int argc, char *argv[])
             mX.pushBack(VC);
 
             mX.removeAll(&buffer);
-            ASSERT(0 == mX.queue().length());
+            ASSERT(0 == mX.length());
             ASSERT(3 == buffer.size());
             ASSERT(VA == buffer[0]);
             ASSERT(VB == buffer[1]);
@@ -2991,7 +2991,7 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::create(&thread, s3);
             bcemt_ThreadUtil::join(thread);
 
-            ASSERT(0 == x.queue().length());    // make sure thread ran
+            ASSERT(0 == x.length());    // make sure thread ran
         }
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -3386,7 +3386,7 @@ int main(int argc, char *argv[])
 
             tgroup.joinAll();
 
-            ASSERT(0 == queue.queue().length());
+            ASSERT(0 == queue.length());
 
             if (verbose) {
                 cout << "Total seconds = " <<

@@ -428,6 +428,7 @@ class bcec_Queue {
                                           // ("Expected an expression").
 
     // DATA
+    mutable
     bcemt_Mutex      d_mutex;             // mutex object used to synchronize
                                           // access to this queue
 
@@ -694,6 +695,9 @@ class bcec_Queue {
         // negative value indicates no suggested-maximum capacity, and is not
         // necessarily the same negative value that was passed to the
         // constructor.
+
+    int length() const;
+        // Return the length of the queue.
 };
 
 // ===========================================================================
@@ -1103,6 +1107,15 @@ inline
 int bcec_Queue<TYPE>::highWaterMark() const
 {
     return d_highWaterMark;
+}
+
+template <class TYPE>
+inline
+int bcec_Queue<TYPE>::length() const
+{
+    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+
+    return d_queue.length();
 }
 
 }  // close namespace BloombergLP
