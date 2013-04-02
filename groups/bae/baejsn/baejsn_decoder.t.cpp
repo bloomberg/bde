@@ -37,9 +37,6 @@
 #include <baexml_minireader.h>
 #include <baexml_errorinfo.h>
 
-// TBD: Remove
-#include <bael_record.h>
-
 #include <bsl_vector.h>
 #include <bsl_iostream.h>
 
@@ -515,7 +512,7 @@ static const struct {
     "      <selection2>1.5</selection2>\n"
     "    </element2>\n"
     "    <element3>\n"
-    "      <selection2>arbitrary string value</selection2>\n"
+    "      <selection2>&quot; strings with &quot; quotes &quot;</selection2>\n"
     "    </element3>\n"
     "    <element4>\n"
     "      <selection2>1.5</selection2>\n"
@@ -5945,14 +5942,14 @@ static const struct {
     "      </selection1>\n"
     "    </element1>\n"
     "    <element2>\n"
-    "      <selection4>\n"
-    "        <selection2>arbitrary string value</selection2>\n"
-    "      </selection4>\n"
+    "     <selection4>\n"
+    "      <selection2>&quot; strings with &quot; quotes &quot;</selection2>\n"
+    "     </selection4>\n"
     "    </element2>\n"
     "    <element2>\n"
-    "      <selection4>\n"
-    "        <selection2>arbitrary string value</selection2>\n"
-    "      </selection4>\n"
+    "     <selection4>\n"
+    "      <selection2>&quot; strings with &quot; quotes &quot;</selection2>\n"
+    "     </selection4>\n"
     "    </element2>\n"
     "    <element3>\n"
     "      <selection3>\n"
@@ -6310,14 +6307,14 @@ static const struct {
     "      </selection3>\n"
     "    </element3>\n"
     "    <element4>\n"
-    "      <selection4>\n"
-    "        <selection2>arbitrary string value</selection2>\n"
-    "      </selection4>\n"
+    "     <selection4>\n"
+    "      <selection2>&quot; strings with &quot; quotes &quot;</selection2>\n"
+    "     </selection4>\n"
     "    </element4>\n"
     "    <element4>\n"
-    "      <selection4>\n"
-    "        <selection2>arbitrary string value</selection2>\n"
-    "      </selection4>\n"
+    "     <selection4>\n"
+    "      <selection2>&quot; strings with &quot; quotes &quot;</selection2>\n"
+    "     </selection4>\n"
     "    </element4>\n"
     "    <element5>\n"
     "      <selection1>\n"
@@ -7732,9 +7729,9 @@ static const struct {
     "    <element2>0</element2>\n"
     "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
     "    <element4>\n"
-    "      <selection4>\n"
-    "        <selection2>arbitrary string value</selection2>\n"
-    "      </selection4>\n"
+    "     <selection4>\n"
+    "      <selection2>&quot; strings with &quot; quotes &quot;</selection2>\n"
+    "     </selection4>\n"
     "    </element4>\n"
     "    <element5>1.5</element5>\n"
     "  </selection3>\n"
@@ -10599,7 +10596,7 @@ static const struct {
     "    </selection1>\n"
     "    <selection6></selection6>\n"
     "    <selection8>\n"
-    "      <selection2>arbitrary string value</selection2>\n"
+    "      <selection2>&quot; strings with &quot; quotes &quot;</selection2>\n"
     "    </selection8>\n"
     "    <element4>\n"
     "      <element1>0</element1>\n"
@@ -12331,7 +12328,7 @@ static const struct {
     "      }\n"
     "    ],\n"
     "    \"element3\" : {\n"
-    "      \"selection2\" : \"arbitrary string value\"\n"
+    "      \"selection2\" : \"\\\" strings with \\\" quotes \\\"\"\n"
     "    },\n"
     "    \"element4\" : [\n"
     "      {\n"
@@ -22257,12 +22254,12 @@ static const struct {
     "    \"element2\" : [\n"
     "      {\n"
     "        \"selection4\" : {\n"
-    "          \"selection2\" : \"arbitrary string value\"\n"
+    "          \"selection2\" : \"\\\" strings with \\\" quotes \\\"\"\n"
     "        }\n"
     "      },\n"
     "      {\n"
     "        \"selection4\" : {\n"
-    "          \"selection2\" : \"arbitrary string value\"\n"
+    "          \"selection2\" : \"\\\" strings with \\\" quotes \\\"\"\n"
     "        }\n"
     "      }\n"
     "    ],\n"
@@ -22898,12 +22895,12 @@ static const struct {
     "    \"element4\" : [\n"
     "      {\n"
     "        \"selection4\" : {\n"
-    "          \"selection2\" : \"arbitrary string value\"\n"
+    "          \"selection2\" : \"\\\" strings with \\\" quotes \\\"\"\n"
     "        }\n"
     "      },\n"
     "      {\n"
     "        \"selection4\" : {\n"
-    "          \"selection2\" : \"arbitrary string value\"\n"
+    "          \"selection2\" : \"\\\" strings with \\\" quotes \\\"\"\n"
     "        }\n"
     "      }\n"
     "    ],\n"
@@ -25349,7 +25346,7 @@ static const struct {
     "    \"element3\" : \"2012-08-18T13:25:00.000+00:00\",\n"
     "    \"element4\" : {\n"
     "      \"selection4\" : {\n"
-    "        \"selection2\" : \"arbitrary string value\"\n"
+    "        \"selection2\" : \"\\\" strings with \\\" quotes \\\"\"\n"
     "      }\n"
     "    },\n"
     "    \"element5\" : 1.5\n"
@@ -30594,7 +30591,7 @@ static const struct {
     "    },\n"
     "    \"selection6\" : \"\",\n"
     "    \"selection8\" : {\n"
-    "      \"selection2\" : \"arbitrary string value\"\n"
+    "      \"selection2\" : \"\\\" strings with \\\" quotes \\\"\"\n"
     "    },\n"
     "    \"element4\" : {\n"
     "      \"element1\" : 0,\n"
@@ -33323,7 +33320,7 @@ true
 },
 {
 L_,
-"{\"selection1\":{\"element1\":{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}},\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element3\":{\"selection2\":\"arbitrary string value\"},\"element4\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element5\":[{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}},{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}}]}}",
+"{\"selection1\":{\"element1\":{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}},\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element3\":{\"selection2\":\"\\\" strings with \\\" quotes \\\"\"},\"element4\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element5\":[{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}},{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}}]}}",
 true,
 true
 },
@@ -33377,7 +33374,7 @@ true
 },
 {
 L_,
-"{\"selection1\":{\"element1\":{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}},\"element2\":[{\"selection4\":{\"selection2\":\"arbitrary string value\"}},{\"selection4\":{\"selection2\":\"arbitrary string value\"}}],\"element3\":{\"selection3\":{\"selection3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[null,null],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[null,null],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[null,null],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[null,null],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection3\":{\"element1\":[{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element4\":-980123,\"element8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":-980123,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[-980123,-980123],\"element18\":[],\"element19\":[]}},{\"selection3\":{\"element1\":[{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element4\":-980123,\"element8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":-980123,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[-980123,-980123],\"element18\":[],\"element19\":[]}}],\"element3\":\"\\/wAB\",\"element4\":-980123,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[],\"element17\":[-980123,-980123],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}}},\"element4\":[{\"selection4\":{\"selection2\":\"arbitrary string value\"}},{\"selection4\":{\"selection2\":\"arbitrary string value\"}}],\"element5\":[{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}},{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}}]}}",
+"{\"selection1\":{\"element1\":{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}},\"element2\":[{\"selection4\":{\"selection2\":\"\\\" strings with \\\" quotes \\\"\"}},{\"selection4\":{\"selection2\":\"\\\" strings with \\\" quotes \\\"\"}}],\"element3\":{\"selection3\":{\"selection3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[null,null],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[null,null],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"\",\"\"],\"element3\":true,\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[null,null],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[null,null],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection3\":{\"element1\":[{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element4\":-980123,\"element8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":-980123,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[-980123,-980123],\"element18\":[],\"element19\":[]}},{\"selection3\":{\"element1\":[{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[],\"element5\":[-980123,-980123],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element4\":-980123,\"element8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":-980123,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[-980123,-980123],\"element18\":[],\"element19\":[]}}],\"element3\":\"\\/wAB\",\"element4\":-980123,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[],\"element17\":[-980123,-980123],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}}},\"element4\":[{\"selection4\":{\"selection2\":\"\\\" strings with \\\" quotes \\\"\"}},{\"selection4\":{\"selection2\":\"\\\" strings with \\\" quotes \\\"\"}}],\"element5\":[{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}},{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]}}]}}",
 true,
 true
 },
@@ -33473,7 +33470,7 @@ true
 },
 {
 L_,
-"{\"selection3\":{\"element1\":\"custom\",\"element2\":0,\"element3\":\"2012-08-18T13:25:00.000+00:00\",\"element4\":{\"selection4\":{\"selection2\":\"arbitrary string value\"}},\"element5\":1.5}}",
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":0,\"element3\":\"2012-08-18T13:25:00.000+00:00\",\"element4\":{\"selection4\":{\"selection2\":\"\\\" strings with \\\" quotes \\\"\"}},\"element5\":1.5}}",
 true,
 true
 },
@@ -33647,7 +33644,7 @@ true
 },
 {
 L_,
-"{\"selection11\":{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]},\"selection6\":\"\",\"selection8\":{\"selection2\":\"arbitrary string value\"},\"element4\":{\"element1\":0,\"element4\":3123123123,\"element5\":255,\"element6\":[null,null],\"element7\":\"custom\",\"element8\":999,\"element10\":[0,0],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[null,null]}}}",
+"{\"selection11\":{\"selection1\":{\"element1\":255,\"element4\":3123123123,\"element5\":255,\"element6\":[999,999],\"element7\":\"custom\",\"element8\":999,\"element10\":[255,255],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[3123123123,3123123123]},\"selection6\":\"\",\"selection8\":{\"selection2\":\"\\\" strings with \\\" quotes \\\"\"},\"element4\":{\"element1\":0,\"element4\":3123123123,\"element5\":255,\"element6\":[null,null],\"element7\":\"custom\",\"element8\":999,\"element10\":[0,0],\"element11\":[],\"element12\":[],\"element13\":[255,255],\"element14\":[],\"element15\":[null,null]}}}",
 true,
 true
 },
