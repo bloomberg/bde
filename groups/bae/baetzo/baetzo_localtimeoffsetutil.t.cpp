@@ -11,6 +11,9 @@
 #include <bcemt_configuration.h> // case -1
 #include <bcemt_threadutil.h>    // case -1
 
+#include <bslma_defaultallocatorguard.h>  // case -5
+#include <bslma_testallocator.h>          // case -5
+
 #include <bsl_cstring.h>         // 'strcmp'
 #include <bsl_iostream.h>
 #include <bsls_asserttest.h>
@@ -33,7 +36,7 @@ using namespace bsl;
 // The component under test is a utility; however, as the functions provided
 // all serve to set or report on local time offset information (consisting of
 // value semnatic types), the test strategy of this component more closely
-// resembles that of a VST than of a typcial utility.  In particular, we will
+// resembles that of a VST than of a typical utility.  In particular, we will
 // informally categorize certain methods as "Primary Manipulators" and "Basic
 // Accessors" validate them, and then use them in tests for other methods.
 //
@@ -106,9 +109,10 @@ static void aSsErT(int c, const char *s, int i)
 #define T_  cout << "\t" << flush;          // Print a tab (w/o newline)
 #define L_ __LINE__                           // current Line number
 
-bool         g_verbose;
-bool     g_veryVerbose;
-bool g_veryVeryVerbose;
+bool             g_verbose;
+bool         g_veryVerbose;
+bool     g_veryVeryVerbose;
+bool g_veryVeryVeryVerbose;
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -164,7 +168,7 @@ struct LogVerbosityGuard {
     bool d_verbose;             // verbose mode does not disable logging
     int  d_defaultPassthrough;  // default passthrough log level
 
-    LogVerbosityGuard(bool verbose = false)
+    explicit LogVerbosityGuard(bool verbose = false)
         // If the specified 'verbose' is 'false' disable logging util this
         // guard is destroyed.
     {
@@ -188,7 +192,7 @@ struct LogVerbosityGuard {
         }
     }
 
-   ~LogVerbosityGuard()
+    ~LogVerbosityGuard()
         // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
@@ -333,10 +337,16 @@ void main1()
 
 int main(int argc, char *argv[])
 {
-    int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;         g_verbose =         verbose;
-    bool     veryVerbose = argc > 3;     g_veryVerbose =     veryVerbose;
-    bool veryVeryVerbose = argc > 4; g_veryVeryVerbose = veryVeryVerbose;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+                g_verbose =             verbose;
+            g_veryVerbose =         veryVerbose;
+        g_veryVeryVerbose =     veryVeryVerbose;
+    g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -562,16 +572,18 @@ int main(int argc, char *argv[])
         //: 1 The static members of 'baetzo_LocalTimeOffsetUtil' are statically
         //:   initialized to their expected default values.
         //:
-        //: 2 The static members of 'baetzo_LocalTimeOffsetUtil' are use the
-        //:   default allocator.
+        //: 2 The static members of 'baetzo_LocalTimeOffsetUtil' that take
+        //:   allocators use the default global allocator.
         //:
         // Plan:
         //: 1 Before any other use of 'baetzo_LocalTimeOffsetUtil', compare the
         //:   values of the static members to their expected values.  (C-1)
         //:
-        //: 2 Before any other use of 'baetzo_LocalTimeOffsetUtil', examine the
-        //:   allocator used by those static members that take allocators.
-        //:   (C-2)
+        //: 2 Install a test allocator as the default allocator (so that the
+        //:   global allocator can be distinguished from the default
+        //:   allocator).  For every static member taking an allocator, compare
+        //:   that allocator for equality with the default global allocator and
+        //:   inequality with the default allocator.  (C-2)
         //
         // Testing:
         //  CONCERN: This component uses the default allocator.
@@ -582,10 +594,18 @@ int main(int argc, char *argv[])
                           << "STATIC INITIALIZATION" << endl
                           << "=====================" << endl;
 
-        ASSERT(0                        == Util::timezone());
+        bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+        bslma_Default::setGlobalAllocator(&globalAllocator);
+
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
+
+        ASSERT(0                        == strcmp("", Util::timezone()));
         ASSERT(baetzo_LocalTimePeriod() == Util::localTimePeriod());
+        ASSERT(bslma::Default::globalAllocator()
+           ==  Util::localTimePeriod().allocator());
         ASSERT(bslma::Default::allocator()
-            == Util::localTimePeriod().allocator());
+           !=  Util::localTimePeriod().allocator());
 
       } break;
       case 4: {
@@ -1115,7 +1135,7 @@ int main(int argc, char *argv[])
         Util::loadLocalTimeOffset(&offset, newYearsDay);
 
         bsls::Stopwatch stopwatch;
-        stopwatch.start();
+        stopwatch.start(true);
 
         for (int i = 0;  i < numIterations; ++i) {
             Util::loadLocalTimeOffset(&offset, newYearsDay);
@@ -1176,7 +1196,7 @@ int main(int argc, char *argv[])
         const int numIterations2 = numIterations/2;
 
         bsls::Stopwatch stopwatch;
-        stopwatch.start();
+        stopwatch.start(true);
 
         for (int i = 0;  i < numIterations2; ++i) {
             Util::loadLocalTimeOffset(&offset, startOfDst);

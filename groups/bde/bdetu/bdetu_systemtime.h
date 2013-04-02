@@ -30,13 +30,12 @@ BDES_IDENT("$Id: $")
 // implementation by calling the 'loadSystemTimeDefault' method explicitly.
 //
 // This component also provides a similar callback mechanism for users to
-// customize the function that returns the differential between local time and
-// UTC time.  Note that if an application provides its own mechanism to
-// retrieve the local time offset, this mechanism will be used by all calls to
-// 'nowAsDdatetimeLocal' and 'localTimeOffset'.  Otherwise the default
-// implementation will be used.  An application can always use the default
-// implementation by calling the 'loadLocalTimeOffsetDefault' method
-// explicitly.
+// customize the function that returns the the system's local time offset from
+// UTC time.  Note that the callback mechanism used to determine the local time
+// offset is used by both the 'nowAsDatetimeLocal' and 'localTimeOffset'
+// functions.  By default, the callback used is 'loadLocalTimeOffsetDefault'.
+// Clients can override the default callback function by calling the '
+// 'setLoadLocalTimeOffsetCallback' function.
 //
 ///Usage 1
 ///-------
@@ -152,7 +151,9 @@ BDES_IDENT("$Id: $")
 // (e.g., for every record in a high frequency log), so the performance of the
 // default method for calculating local time offset is not adequate.  Creation
 // and installation of a specialized user-defined callback for local time
-// offset allows one to solve this problem.
+// offset allows one to solve this problem.  Note that
+// 'baetzo_localtimeoffsetutil' provides an efficient callback for computing
+// the local time offset of all standard time zones.
 //
 // First, create a utility class that provides a method of type
 // 'bdetu_SystemTime::LoadLocalTimeOffsetCallback' that is valid for the

@@ -162,27 +162,28 @@ static int inOrder(const bdet_TimeInterval&     lhs,
 
 class MyLocalTimeOffsetUtility {
 
-  // DATA
-  static const int *s_offset_p;  // address of offset returned by callback
-  static bool      *s_callbackInvoked_p;
-                                 // indication of callback invocation
+    // DATA
+    static const int *s_offset_p;  // address of offset returned by callback
+    static bool      *s_callbackInvoked_p;
+                                   // indication of callback invocation
 
- public:
-  // CLASS METHODS
-  static void loadLocalTimeOffset(int                  *result,
-                                 const bdet_Datetime&  utcDatetime);
-      // Load, to the to specified 'result', value at the address specified by
-      // the 'offset' argument of the last invocation of the 'setExternals'
-      // method and set to 'true' the value at the address specified by the
-      // 'callbackInvoked' argument of last invocation of the 'setExternals'
-      // method.  The specified 'utcDatetime' is ignored.  The behavior is
-      // undefined unless the value at 'callbackInvoked' is initially 'false'.
+  public:
+    // CLASS METHODS
+    static void loadLocalTimeOffset(int                  *result,
+                                   const bdet_Datetime&  utcDatetime);
+        // Load, to the to specified 'result', value at the address specified
+        // by the 'offset' argument of the last invocation of the
+        // 'setExternals' method and set to 'true' the value at the address
+        // specified by the 'callbackInvoked' argument of last invocation of
+        // the 'setExternals' method.  The specified 'utcDatetime' is ignored.
+        // The behavior is undefined unless the value at 'callbackInvoked' is
+        // initially 'false'.
 
-  static void setExternals(const int *status,
-                           const int *offset,
-                           bool      *callbackInvoked);
-      // Set the the specified addresses 'status' and 'offset' as the source of
-      // values returned by the 'localLocalTimeOffset' method.
+    static void setExternals(const int *status,
+                             const int *offset,
+                             bool      *callbackInvoked);
+        // Set the the specified addresses 'status' and 'offset' as the source
+        // of values returned by the 'localLocalTimeOffset' method.
 };
 
 const int *MyLocalTimeOffsetUtility::s_offset_p          = 0;
