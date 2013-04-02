@@ -26,73 +26,60 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 // Suppose we need to assign a value held in a 'bdet_TimeInterval' to an
-// 'unsigned int', where the 'unsigned int' is to contain the time in
-// milliseconds.  A 'bdet_TimeInterval' is able to represent many values that
-// cannot be represented in such an 'unsigned int', and what we want to do in
-// the event of such values is 'saturation', that is, the value assigned will
-// be the maximum or minimum value the destination can represent, whichever is
-// closer to the value that should be assigned.
-//..
-//  typedef bcemt_SaturatedTimeConversionImpUtil STC;
-//  typedef bsls::Types::Int64                   Int64;
+// 'unsigned int', where the 'unsigned int' is to contain an equilavent time
+// interval expressed in milliseconds.  A 'bdet_TimeInterval' is able to
+// represent intervals that are outside the range of intervals that can be
+// represented by an 'unsigned int' number of milliseconds (e.g., any negative
+// time interval).  'bcemt_SaturatedTimeConversionImpUtil' handles values
+// outside the representable range of the destination type by "saturating",
+// that is values outside the representable range of the destination type will
+// be assigned the maximum or minimum representable value of the destination
+// type (whichever is closer to the source value).
 //
-//  unsigned int dest;
-//  bdet_TimeInterval timeInt;
+// First, we define variables of our source ('bdet_TimeInterval') and
+// destination ('unsigned int') types:
 //..
-// First, we try a value that does not require saturation and observe that
-// 'toMillisec' converts it properly:
+//  unsigned int destinationInterval;
+//  bdet_TimeInterval sourceInterval;
 //..
-//  timeInt.setInterval(4, 321000000);
-//  STC::toMillisec(&dest, timeInt);
-//  assert(4321 == dest);
+// Then, we try a value that does not require saturation and observe that
+// 'toMillisec' converts it without modification (beyond loss of precision:
 //..
-// Then, we calculate the max legal value that can be stored and verify that it
-// translates to the maximum value:
+//  sourceInterval.setInterval(4, 321000000);
+//  bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+//                                       &destinationInterval, sourceInterval);
+//  assert(4321 == destinationInterval);
 //..
-//  const unsigned int maxDest = bsl::numeric_limits<unsigned int>::max();
-//  bdet_TimeInterval borderTimeInt(maxDest / 1000,
-//                                  (maxDest % 1000) * 1000 * 1000);
-//  STC::toMillisec(&dest, borderTimeInt);
-//  assert(maxDest == dest);
+// Next, we calculate the maximum value that can be represented in an
+// 'usngined int' number of milliseconds, and verify that converting an
+// equivalent 'bdet_TimeInterval' does not modify the value:
 //..
-// Next, we translate a value that should translate to 'maxDest - 1':
+//  const unsigned int maxDestinationInterval =
+//                                    bsl::numeric_limits<unsigned int>::max();
+//  bdet_TimeInterval maxiumumTimeInterval(
+//                              maxDestinationInterval / 1000,
+//                              (maxDestinationInterval % 1000) * 1000 * 1000);
+//  bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+//                                 &destinationInterval, maxiumumTimeInterval);
+//  assert(maxDestinationInterval == destinationInterval);
 //..
-//  timeInt = borderTimeInt - bdet_TimeInterval(0, 1000 * 1000);
-//  STC::toMillisec(&dest, timeInt);
-//  assert(maxDest - 1 == dest);
+// Now, we attempt to convert a value higher than the maximum representable in
+// an 'unsigned int' milliseconds and verify that the resulting value is the
+// maximum representable 'unsigned int' value:
 //..
-// Now, we try values higher than 'borderTimeInt' and observe saturation:
+//  bdet_TimeInterval aboveMaxInterval = maxiumumTimeInterval +
+//                                           bdet_TimeInterval(0, 1000 * 1000);
+//  bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+//                                     &destinationInterval, aboveMaxInterval);
+//  assert(maxDestinationInterval == destinationInterval);
 //..
-//  timeInt = borderTimeInt + bdet_TimeInterval(0, 1000 * 1000);
-//  STC::toMillisec(&dest, timeInt);
-//  assert(maxDest == dest);
-//
-//  timeInt.setInterval(bsl::numeric_limits<Int64>::max(), 999999999);
-//  STC::toMillisec(&dest, timeInt);
-//  assert(maxDest == dest);
-//
-//  timeInt.setInterval(1000 * 1000 * 1000, 0);
-//  STC::toMillisec(&dest, timeInt);
-//  assert(maxDest == dest);
+// Finally, we try a value less than 0 and observe the result of the saturated
+// conversion is 0 (the minimum representable value):
 //..
-// Finally, we try some negative values and observe our result is saturated to
-// 0:
-//..
-//  timeInt.setInterval(0, - 1000 * 1000);
-//  STC::toMillisec(&dest, timeInt);
-//  assert(0 == dest);
-//
-//  timeInt.setInterval(-1000, 0);
-//  STC::toMillisec(&dest, timeInt);
-//  assert(0 == dest);
-//
-//  timeInt.setInterval(-1000 * 1000 * 1000, -999 * 1000 * 1000);
-//  STC::toMillisec(&dest, timeInt);
-//  assert(0 == dest);
-//
-//  timeInt.setInterval(bsl::numeric_limits<Int64>::min(), -999999999);
-//  STC::toMillisec(&dest, timeInt);
-//  assert(0 == dest);
+//  bdet_TimeInterval belowMinimumInterval(-1, 0);
+//  bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+//                                 &destinationInterval, belowMinimumInterval);
+//  assert(0 == destinationInterval);
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION
@@ -182,21 +169,16 @@ struct bcemt_SaturatedTimeConversionImpUtil {
 #endif
 
     // CLASS METHODS
-    static void toTimeSpec(TimeSpec *dst, const bdet_TimeInterval& src);
-        // Assign to the specified 'dst' the value of the sepcified 'src', and
-        // if 'src' is less than the lowest representable 'Timespec' value, set
-        // 'dst' to the minimum 'Timespec' value, and if 'src' is greater than
-        // the highest representable 'Timespec' value, set 'dst' to the maximum
-        // 'Timespec' value.
 
 #if BSLS_PLATFORM_OS_DARWIN
     static void toTimeSpec(mach_timespec_t *dst, const bdet_TimeInterval& src);
-        // Assign to the specified 'dst' the value of the sepcified 'src', and
-        // if 'src' is less than the lowest representable 'Timespec' value, set
-        // 'dst' to the minimum 'Timespec' value, and if 'src' is greater than
-        // the highest representable 'Timespec' value, set 'dst' to the maximum
-        // 'Timespec' value.
 #endif
+    static void toTimeSpec(TimeSpec        *dst, const bdet_TimeInterval& src);
+        // Assign to the specified 'dst' the value of the sepcified 'src', and
+        // if 'src' is less than the lowest representable value of '*dst', set
+        // '*dst' to the minimum value it can represent, and if 'src' is
+        // greater than the highest representable value of '*dst', set '*dst'
+        // to the maximum value that it can represent.
 
     static void toTimeT(bsl::time_t *dst, const bsls::Types::Int64 src);
         // Assign to the specified 'dst' the value of the sepcified 'src', and

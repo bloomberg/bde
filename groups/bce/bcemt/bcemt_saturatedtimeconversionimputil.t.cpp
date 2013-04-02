@@ -555,16 +555,14 @@ int main(int argc, char *argv[])
         // Suppose we need to assign a value held in a 'bdet_TimeInterval' to
         // an 'unsigned int', where the 'unsigned int' is to contain an
         // equilavent time interval expressed in milliseconds.  A
-        // 'bdet_TimeInterval' can represent a positive time interval that is
-        // longer than that which can be represented with an 'unsigned int'
-        // holding milliseconds.  Similarly, 'bdet_TimeInterval' can represent
-        // a negative time interval, which also cannot be expressed with an
-        // 'unsigned int'.  In the cases where the source value is outside of
-        // the representable range of the destination type, the conversions
-        // provided by 'bcemt_saturatedtimeconversionimputil' will "saturate",
-        // meaning values below the minimum value are set to the minimum value
-        // of the result type, and values above the maximum value are set to
-        // the maximum value of the result type.
+        // 'bdet_TimeInterval' is able to represent intervals that are outside
+        // the range of intervals that can be represented by an 'unsigned int'
+        // number of milliseconds (e.g., any negative time interval).
+        // 'bcemt_SaturatedTimeConversionImpUtil' handles values outside the
+        // representable range of the destination type by "saturating", that is
+        // values outside the representable range of the destination type will
+        // be assigned the maximum or minimum representable value of the
+        // destination type (whichever is closer to the source value).
 
         // First, we define variables of our source ('bdet_TimeInterval') and
         // destination ('unsigned int') types:
@@ -605,7 +603,7 @@ int main(int argc, char *argv[])
         ASSERT(maxDestinationInterval == destinationInterval);
 
         // Finally, we try a value less than 0 and observe the result of the
-        // saturated conversion is 0:
+        // saturated conversion is 0 (the minimum representable value):
 
         bdet_TimeInterval belowMinimumInterval(-1, 0);
         bcemt_SaturatedTimeConversionImpUtil::toMillisec(

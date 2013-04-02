@@ -168,8 +168,9 @@ void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
         *dst = 0;
     }
     else {
-        // 'sec < 2^32', therefore 'sec * 1000 + 999 < 2^63', so this will
-        // work.  We also know that 'sec >= 1', so 'nanoMilliSeconds >= 0'.
+        // 'src.seconds() < 2^32', therefore
+        // 'src.seconds() * 1000 + 999 < 2^63', so this will work.  We also
+        // know that 'src' is a poitive time interval.
 
         toTimeTImp(dst, src.seconds() * 1000 + nanoMilliSeconds);
     }
