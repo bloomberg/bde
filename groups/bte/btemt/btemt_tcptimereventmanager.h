@@ -252,6 +252,10 @@ BDES_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
+#endif
+
 namespace BloombergLP {
 
 class btemt_TcpTimerEventManager_Request;
@@ -384,7 +388,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
                                                   // manager is internal or
                                                   // external
 
-    std::vector<bdef_Function<void (*)()> >
+    bsl::vector<bdef_Function<void (*)()> >
                               *d_executeQueue_p;  // queue of executed timers
                                                   // (pointer, to be swappable
                                                   // in dispatcher thread loop)
@@ -493,7 +497,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
         // must be started explicitly).
         //
         // DEPRECATED: Use the corresponding constructor without the
-        // 'regstrationHint' argument.
+        // 'registrationHint' argument.
 
     btemt_TcpTimerEventManager(bteso_EventManager  *rawEventManager,
                                bslma::Allocator    *basicAllocator = 0);
