@@ -44,18 +44,23 @@ using namespace bsl;
 //: o 'configure' (the overload with two parameters)
 //
 // Basic Accessors:
-//: o 'timezone'
-//: o 'localTimePeriod'
+//: o 'loadTimezone'
+//: o 'loadLocalTimePeriod'
 //
 // ----------------------------------------------------------------------------
 // CLASS METHODS
+                        // *** local time offset methods ***
 // [ 6] int loadLocalTimeOffset(int *result, const bdet_Datetime& utc);
-// [ 2] const baetzo_LocalTimePeriod& localTimePeriod();
 // [ 4] bdetu_SystemTime::LLTOC setLoadLocalTimeOffsetCallback();
+
+                        // *** configure methods ***
 // [ 3] int configure();
 // [ 3] int configure(const char *timezone);
 // [ 2] int configure(const char *timezone, const bdet_Datetime& utc);
-// [ 2] const char *timezone();
+
+                        // *** accessor methods ***
+// [ 2] void loadLocalTimePeriod(baetzo_LocalTimePeriod *localTimePeriod);
+// [ 2] bsl::string loadTimezone(bsl::string *timezone);
 // [ 6] int updateCount();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -269,8 +274,11 @@ void main1()
                                                                         26));
     ASSERT(0 == status);
     ASSERT(1 == baetzo_LocalTimeOffsetUtil::updateCount());
-    ASSERT(0 == strcmp("America/New_York",
-                       baetzo_LocalTimeOffsetUtil::timezone()));
+
+    bsl::string timezone;
+
+    baetzo_LocalTimeOffsetUtil::loadTimezone(&timezone);
+    ASSERT(0 == strcmp("America/New_York", timezone.c_str()));
 //..
 // Notice that the value returned by the 'updateCount' method is increased by
 // one after then time zone information has been set.
@@ -292,29 +300,30 @@ void main1()
 // For example, we can check the time offset in New York for three dates of
 // interest:
 //..
-    int offsetInSeconds;
+    int         offsetInSeconds;
 
     bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
                                           bdet_Datetime(2013,  2, 26));
     ASSERT(        0 == status);
     ASSERT(-5 * 3600 == offsetInSeconds);
     ASSERT(        1 == baetzo_LocalTimeOffsetUtil::updateCount());
-    ASSERT(        0 == strcmp("America/New_York",
-                                baetzo_LocalTimeOffsetUtil::timezone()));
+
+    baetzo_LocalTimeOffsetUtil::loadTimezone(&timezone);
+    ASSERT(        0 == strcmp("America/New_York", timezone.c_str()));
 
     bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
                                           bdet_Datetime(2013,  7,  4));
     ASSERT(-4 * 3600 == offsetInSeconds);
     ASSERT(        2 == baetzo_LocalTimeOffsetUtil::updateCount());
-    ASSERT(        0 == strcmp("America/New_York",
-                                baetzo_LocalTimeOffsetUtil::timezone()));
+    baetzo_LocalTimeOffsetUtil::loadTimezone(&timezone);
+    ASSERT(        0 == strcmp("America/New_York", timezone.c_str()));
 
     bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
                                           bdet_Datetime(2013, 12, 21));
     ASSERT(-5 * 3600 == offsetInSeconds);
     ASSERT(        3 == baetzo_LocalTimeOffsetUtil::updateCount());
-    ASSERT(        0 == strcmp("America/New_York",
-                                baetzo_LocalTimeOffsetUtil::timezone()));
+    baetzo_LocalTimeOffsetUtil::loadTimezone(&timezone);
+    ASSERT(        0 == strcmp("America/New_York", timezone.c_str()));
 //..
 // Notice that the value returned by 'updateCount()' is unchanged by our first
 // request, but incremented by the second and third request, which transitions
@@ -471,10 +480,11 @@ int main(int argc, char *argv[])
             bdet_Datetime resumeOfStdPlus(resumeOfStd);
                           resumeOfStdPlus.addMilliseconds(1);
 
-            const char             *priorTimezone        = Util::timezone();
-            baetzo_LocalTimePeriod  priorLocalTimePeriod = Util::
-                                                             localTimePeriod();
-            int                     priorUpdateCount     = Util::updateCount();
+            baetzo_LocalTimePeriod priorLocalTimePeriod;
+            Util::loadLocalTimePeriod(&priorLocalTimePeriod);
+            int                    priorUpdateCount     = Util::updateCount();
+            bsl::string            priorTimezone;
+            Util::loadTimezone(&priorTimezone);
 
             const struct {
                 int           d_line;
@@ -506,25 +516,27 @@ int main(int argc, char *argv[])
                 Util::loadLocalTimeOffset(&reportedOffset, UTC_DATETIME);
                 ASSERT(EXP_OFFSET == reportedOffset);
 
-                LOOP_ASSERT(LINE, priorTimezone == Util::timezone()); // Fixed
+                bsl::string timezone; Util::loadTimezone(&timezone);
+                LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
 
                 if (ti > 0 && DATA[ti - 1].d_expectedOffset != EXP_OFFSET) {
-                    LOOP_ASSERT(
-                              LINE,
-                              priorLocalTimePeriod != Util::localTimePeriod());
-                    LOOP_ASSERT(LINE,
-                                priorUpdateCount + 1 == Util::updateCount());
+                    baetzo_LocalTimePeriod localTimePeriod;
+                    Util::loadLocalTimePeriod(&localTimePeriod);
+                    LOOP_ASSERT(LINE, priorLocalTimePeriod != localTimePeriod);
+                    LOOP_ASSERT(LINE, priorUpdateCount + 1 ==
+                                                          Util::updateCount());
 
                 } else {
-                    LOOP_ASSERT(
-                              LINE,
-                              priorLocalTimePeriod == Util::localTimePeriod());
-                    LOOP_ASSERT(LINE, priorUpdateCount == Util::updateCount());
+                    baetzo_LocalTimePeriod localTimePeriod;
+                    Util::loadLocalTimePeriod(&localTimePeriod);
+                    LOOP_ASSERT(LINE, priorLocalTimePeriod == localTimePeriod);
+                    LOOP_ASSERT(LINE, priorUpdateCount     ==
+                                                          Util::updateCount());
                 }
 
-                priorTimezone        = Util::timezone();
-                priorLocalTimePeriod = Util::localTimePeriod();
-                priorUpdateCount     = Util::updateCount();
+                priorUpdateCount = Util::updateCount();
+                Util::loadTimezone(&priorTimezone);
+                Util::loadLocalTimePeriod(&priorLocalTimePeriod);
             }
 
             ASSERT(0 <= NUM_DATA - 1);
@@ -541,26 +553,28 @@ int main(int argc, char *argv[])
                 Util::loadLocalTimeOffset(&reportedOffset, UTC_DATETIME);
                 ASSERT(EXP_OFFSET == reportedOffset);
 
-                LOOP_ASSERT(LINE, priorTimezone == Util::timezone()); // Fixed
+                bsl::string timezone; Util::loadTimezone(&timezone);
+                LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
 
                 if (ti < NUM_DATA - 1
                  && DATA[ti + 1].d_expectedOffset != EXP_OFFSET) {
-                    LOOP_ASSERT(
-                              LINE,
-                              priorLocalTimePeriod != Util::localTimePeriod());
-                    LOOP_ASSERT(LINE,
-                                priorUpdateCount + 1 == Util::updateCount());
+                    baetzo_LocalTimePeriod localTimePeriod;
+                    Util::loadLocalTimePeriod(&localTimePeriod);
+                    LOOP_ASSERT(LINE, priorLocalTimePeriod != localTimePeriod);
+                    LOOP_ASSERT(LINE, priorUpdateCount + 1 ==
+                                                          Util::updateCount());
 
                 } else {
-                    LOOP_ASSERT(
-                              LINE,
-                              priorLocalTimePeriod == Util::localTimePeriod());
-                    LOOP_ASSERT(LINE, priorUpdateCount == Util::updateCount());
+                    baetzo_LocalTimePeriod localTimePeriod;
+                    Util::loadLocalTimePeriod(&localTimePeriod);
+                    LOOP_ASSERT(LINE, priorLocalTimePeriod == localTimePeriod);
+                    LOOP_ASSERT(LINE, priorUpdateCount     ==
+                                                          Util::updateCount());
                 }
 
-                priorTimezone        = Util::timezone();
-                priorLocalTimePeriod = Util::localTimePeriod();
-                priorUpdateCount     = Util::updateCount();
+                priorUpdateCount = Util::updateCount();
+                Util::loadTimezone(&priorTimezone);
+                Util::loadLocalTimePeriod(&priorLocalTimePeriod);
             }
         }
       } break;
@@ -594,6 +608,7 @@ int main(int argc, char *argv[])
                           << "STATIC INITIALIZATION" << endl
                           << "=====================" << endl;
 
+#if 0
         bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
         bslma_Default::setGlobalAllocator(&globalAllocator);
 
@@ -606,6 +621,7 @@ int main(int argc, char *argv[])
            ==  Util::localTimePeriod().allocator());
         ASSERT(bslma::Default::allocator()
            !=  Util::localTimePeriod().allocator());
+#endif
 
       } break;
       case 4: {
@@ -708,7 +724,8 @@ int main(int argc, char *argv[])
 
                 int status = Util::configure(TIMEZONE);
                 ASSERT(0 == status);
-                ASSERT(0 == strcmp(TIMEZONE, Util::timezone()));
+                bsl::string timezone; Util::loadTimezone(&timezone);
+                ASSERT(0 == strcmp(TIMEZONE, timezone.c_str()));
 
                 updateCount = Util::updateCount();
                 ASSERT(priorUpdateCount + 1 == updateCount);
@@ -716,13 +733,15 @@ int main(int argc, char *argv[])
 
                 // Race: utcDatetime is changing.
 
-                const baetzo_LocalTimePeriod observedLocalTimePeriod(
-                                                      Util::localTimePeriod());
+                baetzo_LocalTimePeriod observedLocalTimePeriod;
+                Util::loadLocalTimePeriod(&observedLocalTimePeriod);
 
                 bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
                 status = Util::configure(TIMEZONE, now);
                 ASSERT(0 == status);
-                ASSERT(Util::localTimePeriod() == observedLocalTimePeriod);
+                baetzo_LocalTimePeriod localTimePeriod;
+                Util::loadLocalTimePeriod(&localTimePeriod);
+                ASSERT(localTimePeriod == observedLocalTimePeriod);
 
                 updateCount = Util::updateCount();
                 ASSERT(priorUpdateCount + 1 == updateCount);
@@ -752,8 +771,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == strcmp(TIMEZONE, getenv("TZ")));
 
                 status = Util::configure();
+
                 ASSERT(0 == status);
-                ASSERT(0 == strcmp(TIMEZONE, Util::timezone()));
+                bsl::string timezone; Util::loadTimezone(&timezone);
+                ASSERT(0 == strcmp(TIMEZONE, timezone.c_str()));
 
                 updateCount = Util::updateCount();
                 ASSERT(priorUpdateCount + 1 == updateCount);
@@ -761,13 +782,15 @@ int main(int argc, char *argv[])
 
                 // Race: The UTC datetime  is changing.
 
-                const baetzo_LocalTimePeriod observedLocalTimePeriod(
-                                                      Util::localTimePeriod());
+                baetzo_LocalTimePeriod observedLocalTimePeriod;
+                Util::loadLocalTimePeriod(&observedLocalTimePeriod);
 
                 bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
                 status = Util::configure(TIMEZONE, now);
                 ASSERT(0 == status);
-                ASSERT(Util::localTimePeriod() == observedLocalTimePeriod);
+                baetzo_LocalTimePeriod localTimePeriod;
+                Util::loadLocalTimePeriod(&localTimePeriod);
+                ASSERT(localTimePeriod == observedLocalTimePeriod);
 
                 updateCount = Util::updateCount();
                 ASSERT(priorUpdateCount + 1 == updateCount);
@@ -782,10 +805,10 @@ int main(int argc, char *argv[])
             const char *invalidTimezone =    "FOO";
             char buffer[]               = "TZ=FOO";
 
-            const char *timezone0                               =
-                                                              Util::timezone();
-            const       baetzo_LocalTimePeriod localTimePeriod0 =
-                                                       Util::localTimePeriod();
+            bsl::string timezone0;
+            Util::loadTimezone(&timezone0);
+            baetzo_LocalTimePeriod localTimePeriod0;
+            Util::loadLocalTimePeriod(&localTimePeriod0);
 
             if (veryVeryVerbose) { T_ P(invalidTimezone) }
 
@@ -795,8 +818,11 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0                != status);
-            ASSERT(timezone0        == Util::timezone());
-            ASSERT(localTimePeriod0 == Util::localTimePeriod());
+            bsl::string timezone; Util::loadTimezone(&timezone);
+            ASSERT(timezone0        == timezone);
+            baetzo_LocalTimePeriod localTimePeriod;
+            Util::loadLocalTimePeriod(&localTimePeriod);
+            ASSERT(localTimePeriod0 == localTimePeriod);
 
             updateCount = Util::updateCount();
             ASSERT(priorUpdateCount == updateCount);
@@ -813,8 +839,9 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0                != status);
-            ASSERT(timezone0        == Util::timezone());
-            ASSERT(localTimePeriod0 == Util::localTimePeriod());
+            Util::loadTimezone(&timezone);
+            Util::loadLocalTimePeriod(&localTimePeriod);
+            ASSERT(localTimePeriod0 == localTimePeriod);
 
             updateCount = Util::updateCount();
             ASSERT(priorUpdateCount == updateCount);
@@ -836,6 +863,8 @@ int main(int argc, char *argv[])
         //: 3 The primary manipulator returns a non-zero value when an invalid
         //:   timezone is specified, and (QoI) there is no change in the static
         //:   members.
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the array-driven approach, generate test cases for several
@@ -853,11 +882,16 @@ int main(int argc, char *argv[])
         //: 2 Save the values of the static members, call 'configure' with an
         //:   unknown timezone, check the return value, and compare the current
         //:   values of the static members to the saved values.
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-4)
         //
         // Testing:
-        //   const baetzo_LocalTimePeriod& localTimePeriod();
         //   int configure(const char *timezone, const bdet_Datetime& utc);
-        //   const char *timezone();
+        //   void loadLocalTimePeriod(baetzo_LocalTimePeriod *localTimePeriod);
+        //   bsl::string loadTimezone(bsl::string *timezone);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -883,7 +917,9 @@ int main(int argc, char *argv[])
 
                     int status = Util::configure(TIMEZONE, UTC);
                     ASSERT(0 == status);
-                    ASSERT(0 == strcmp(TIMEZONE, Util::timezone()));
+
+                    bsl::string timezone; Util::loadTimezone(&timezone);
+                    ASSERT(0 == strcmp(TIMEZONE, timezone.c_str()));
 
                     updateCount = Util::updateCount();
                     ASSERT(priorUpdateCount + 1 == updateCount);
@@ -896,17 +932,20 @@ int main(int argc, char *argv[])
                                                       TIMEZONE,
                                                       UTC);
                     ASSERT(0 == status);
-                    ASSERT(expectedLocalTimePeriod == Util::localTimePeriod());
+
+                    baetzo_LocalTimePeriod localTimePeriod;
+                    Util::loadLocalTimePeriod(&localTimePeriod);
+
+                    ASSERT(expectedLocalTimePeriod == localTimePeriod);
                 }
             }
         }
 
         if (verbose) cout << "\nCheck invalid timezone" << endl;
         {
-            const char *timezone0                               =
-                                                              Util::timezone();
-            const       baetzo_LocalTimePeriod localTimePeriod0 =
-                                                       Util::localTimePeriod();
+            bsl::string timezone0; Util::loadTimezone(&timezone0);
+            baetzo_LocalTimePeriod localTimePeriod0;
+            Util::loadLocalTimePeriod(&localTimePeriod0);
 
             int status;
 
@@ -916,12 +955,34 @@ int main(int argc, char *argv[])
                                                                           2,
                                                                          28));
             }
+            bsl::string timezone; Util::loadTimezone(&timezone);
             ASSERT(0                != status);
-            ASSERT(timezone0        == Util::timezone());
-            ASSERT(localTimePeriod0 == Util::localTimePeriod());
+            ASSERT(timezone0        == timezone);
+            baetzo_LocalTimePeriod localTimePeriod;
+            Util::loadLocalTimePeriod(&localTimePeriod);
+            ASSERT(localTimePeriod0 == localTimePeriod);
 
             updateCount = Util::updateCount();
             ASSERT(priorUpdateCount == updateCount);
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\t'loadLocalTimePeriod'" << endl;
+            {
+                baetzo_LocalTimePeriod ltp;
+                ASSERT_SAFE_PASS(Util::loadLocalTimePeriod(&ltp));
+                ASSERT_SAFE_FAIL(Util::loadLocalTimePeriod(0));
+            }
+
+            if (veryVerbose) cout << "\t'loadTimezone'" << endl;
+            {
+                bsl::string s;
+                ASSERT_SAFE_PASS(Util::loadTimezone(&s));
+                ASSERT_SAFE_FAIL(Util::loadTimezone( 0));
+            }
         }
       } break;
       case 1: {
@@ -946,11 +1007,14 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
+        baetzo_LocalTimePeriod localTimePeriod;
+
         int status1 = Util::configure(NY);
         ASSERT(0 == status1);
 
         if (verbose) {
-            cout << Util::localTimePeriod() << endl;
+            Util::loadLocalTimePeriod(&localTimePeriod);
+            cout << localTimePeriod << endl;
         }
 
         bdet_Datetime startOfDst(2013, 3, 10, 7);
@@ -958,7 +1022,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == status2);
 
         if (verbose) {
-            cout << Util::localTimePeriod() << endl;
+            Util::loadLocalTimePeriod(&localTimePeriod);
+            cout << localTimePeriod << endl;
         }
 
         bdet_Datetime resumeOfStd(2013, 11, 3, 6);
@@ -966,7 +1031,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == status3);
 
         if (verbose) {
-            cout << Util::localTimePeriod() << endl;
+            Util::loadLocalTimePeriod(&localTimePeriod);
+            cout << localTimePeriod << endl;
         }
 
       } break;

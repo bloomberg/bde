@@ -30,6 +30,10 @@ BDES_IDENT("$Id: $")
 // cached information might be invalidated by updates to the Zoneinfo database;
 // however, those occur are also infrequent events.
 //
+// A successful return from one of the 'configure' methods is a prerequite
+// to the use of most of the other functions provided here.  Most methods 
+// are thread-safe.  Refer to the function-level documentation for details.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -182,6 +186,9 @@ struct baetzo_LocalTimeOffsetUtil {
 
     // CLASS METHODS
   public:
+
+                        // *** local time offset methods ***           
+
     static void loadLocalTimeOffset(int                  *result,
                                     const bdet_Datetime&  utcDatetime);
         // Efficiently load to the specified 'result' the offset of the local
@@ -190,21 +197,13 @@ struct baetzo_LocalTimeOffsetUtil {
         // has been previously established by a call to the 'configure' method.
         // This method *is* thread-safe.
 
-    static const baetzo_LocalTimePeriod& localTimePeriod();
-        // Return a reference providing non-modifiable access to the local time
-        // period information currently used by the 'loadLocalTimeOffset'
-        // method.  That information is updated when 'loadLocalTimeOffset' is
-        // called with a 'utcDatetime' outside the range
-        // 'localTimePeriod().utcStartTime()' (inclusive)
-        // 'localTimePeriod().utcEndTime()' (exclusive).  This method is *not*
-        // thread-safe.  The behavior is undefined if this method is invoked
-        // before the successful invocation of a 'configure' method.
-
     static bdetu_SystemTime::LoadLocalTimeOffsetCallback
                                               setLoadLocalTimeOffsetCallback();
         // Set 'loadLocalTimeOffset' as the local time offset callback of
         // 'bdetu_SystemTime'.  Return the previously installed callback.  This
         // method is *not* thread-safe.
+
+                        // *** configure methods ***           
 
     static int configure();
         // Set the local time period information used by the
@@ -228,9 +227,23 @@ struct baetzo_LocalTimeOffsetUtil {
         // the specified 'utcDatetime'.  Return 0 on success, and a non-zero
         // value otherwise.  This method is *not* thread-safe.
 
-    static const char *timezone();
-        // Return the time zone identifier used to determine the local time
-        // offset from UTC.  This method is *not* thread-safe.
+                        // *** accessor methods ***           
+
+    static void loadLocalTimePeriod(baetzo_LocalTimePeriod *localTimePeriod);
+        // Load to the specified 'localTimePeriod' the local time period
+        // information currently used by the 'loadLocalTimeOffset' method.
+        // That information is updated when 'loadLocalTimeOffset' is called
+        // with a 'utcDatetime' outside the range
+        // 'localTimePeriod().utcStartTime()' (inclusive)
+        // 'localTimePeriod().utcEndTime()' (exclusive).  This method is *not*
+        // thread-safe.  The behavior is undefined if this method is invoked
+        // before the successful invocation of a 'configure' method.
+
+    static void loadTimezone(bsl::string *timezone);
+        // Load to the specified 'timezone' time zone identifier used to
+        // determine the local time offset from UTC.  This method *is* not
+        // thread-safe.  The behavior is undefined if this method is invoked
+        // before the successful invocation of a 'configure' method.
 
     static int updateCount();
         // Return the number of successful updates of the local time period
@@ -250,11 +263,8 @@ struct baetzo_LocalTimeOffsetUtil {
                         // ---------------------------------
 
 // CLASS METHODS
-inline
-const baetzo_LocalTimePeriod& baetzo_LocalTimeOffsetUtil::localTimePeriod()
-{
-    return *privateLocalTimePeriod();
-}
+
+                        // *** local time offset methods ***           
 
 inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback
@@ -264,12 +274,7 @@ baetzo_LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
                              &baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset);
 }
 
-
-inline
-const char *baetzo_LocalTimeOffsetUtil::timezone()
-{
-    return privateTimezone()->c_str();
-}
+                        // *** accessor methods ***           
 
 inline
 int baetzo_LocalTimeOffsetUtil::updateCount()

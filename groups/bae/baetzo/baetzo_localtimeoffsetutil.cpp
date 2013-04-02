@@ -13,6 +13,7 @@ namespace BloombergLP {
                         // ---------------------------------
 
 // PRIVATE CLASS METHODS
+inline
 int baetzo_LocalTimeOffsetUtil::configureImp(const char           *timezone,
                                              const bdet_Datetime&  utcDatetime)
 {
@@ -30,6 +31,7 @@ int baetzo_LocalTimeOffsetUtil::configureImp(const char           *timezone,
     return retval;
 }
 
+inline
 baetzo_LocalTimePeriod *baetzo_LocalTimeOffsetUtil::privateLocalTimePeriod()
 {
     static baetzo_LocalTimePeriod localTimePeriod(
@@ -37,6 +39,7 @@ baetzo_LocalTimePeriod *baetzo_LocalTimeOffsetUtil::privateLocalTimePeriod()
     return &localTimePeriod;
 }
 
+inline
 bcemt_RWMutex *baetzo_LocalTimeOffsetUtil::privateLock()
 {
     static bcemt_RWMutex lock;
@@ -53,6 +56,9 @@ bsl::string *baetzo_LocalTimeOffsetUtil::privateTimezone()
 bsls::AtomicInt baetzo_LocalTimeOffsetUtil::s_updateCount(0);
 
 // CLASS METHODS
+
+                        // *** local time offset methods ***
+
 void baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
                                              int                  *result,
                                              const bdet_Datetime&  utcDatetime)
@@ -86,6 +92,8 @@ void baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
     }
 }
 
+                        // *** configure methods ***
+
 int  baetzo_LocalTimeOffsetUtil::configure()
 {
     const char *timezone = getenv("TZ");
@@ -112,6 +120,26 @@ int baetzo_LocalTimeOffsetUtil::configure(const char           *timezone,
 
     bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(privateLock());
     return configureImp(timezone, utcDatetime);
+}
+
+                        // *** accessor methods ***
+
+void baetzo_LocalTimeOffsetUtil::loadLocalTimePeriod(
+                                       baetzo_LocalTimePeriod *localTimePeriod)
+{
+    BSLS_ASSERT(localTimePeriod);
+
+    bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(privateLock());
+    *localTimePeriod = *privateLocalTimePeriod();
+}
+
+
+void baetzo_LocalTimeOffsetUtil::loadTimezone(bsl::string *timezone)
+{
+    BSLS_ASSERT(timezone);
+
+    bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(privateLock());
+    *timezone = *privateTimezone();
 }
 
 }  // close enterprise namespace
