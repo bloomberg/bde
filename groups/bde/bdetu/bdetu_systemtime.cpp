@@ -20,6 +20,8 @@ BDES_IDENT_RCSID(bdetu_systemtime_cpp,"$Id$ $CSID$")
 #endif
 #endif
 
+#include <limits.h>  // for 'INT_MAX'
+
 namespace BloombergLP {
                             // ----------------------
                             // class bdetu_SystemTime
@@ -45,7 +47,9 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeLocal()
 
     (*s_loadLocalTimeOffsetCallback_p)(&offsetInSeconds, now);
 
-    return now + bdet_DatetimeInterval(0, 0, 0, offsetInSeconds);
+    now.addSeconds(offsetInSeconds);
+
+    return now;
 }
 
                        // ** default callbacks **
@@ -78,7 +82,8 @@ void bdetu_SystemTime::loadLocalTimeOffsetDefault(
 
     bdet_DatetimeInterval offset = localDatetime - gmtDatetime;
 
-    *result = static_cast<int>(offset.totalSecondsAsDouble());
+    BSLS_ASSERT(offset.totalSeconds() < INT_MAX);
+    *result = offset.totalSeconds();
 }
 
 void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
