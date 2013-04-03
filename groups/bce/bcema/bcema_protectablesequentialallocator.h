@@ -287,20 +287,20 @@ class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
 
     int                    d_cursor;      // position of the next free byte
 
+    bsls::BlockGrowth::Strategy
+                           d_growthStrategy;
+                                          // strategy to use for for growth
+
+    bsls::Alignment::Strategy
+                           d_strategy;    // strategy to use for alignment
+
     char                  *d_buffer;      // holds current free memory buffer
 
     size_type              d_bufSize;     // the size of the free buffer
 
     size_type              d_growthLimit; // limit of buffer growth
 
-    bsls::BlockGrowth::Strategy
-                           d_growthStrategy;
-                                          // strategy to use for for growth
-
     size_type              d_size;        // total amount of allocated memory
-
-    bsls::Alignment::Strategy
-                           d_strategy;    // strategy to use for alignment
 
     bdema_ProtectableBlockList
                            d_blockList;   // provides memory

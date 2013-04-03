@@ -116,12 +116,12 @@ bcema_ProtectableSequentialAllocator::
 bcema_ProtectableSequentialAllocator(
                                bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_strategy(bsls::Alignment::BSLS_NATURAL)
 , d_buffer(0)
 , d_bufSize(0)
 , d_growthLimit(bsl::numeric_limits<size_type>::max())
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_size(0)
-, d_strategy(bsls::Alignment::BSLS_NATURAL)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
@@ -136,12 +136,12 @@ bcema_ProtectableSequentialAllocator(
                                bsls::Alignment::Strategy        strategy,
                                bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_strategy(strategy)
 , d_buffer(0)
 , d_bufSize(0)
 , d_growthLimit(bsl::numeric_limits<size_type>::max())
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_size(0)
-, d_strategy(strategy)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
@@ -158,13 +158,13 @@ bcema_ProtectableSequentialAllocator(
                           size_type                        bufferExpansionSize,
                           bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
+, d_growthStrategy(growthStrategy)
+, d_strategy(strategy)
 , d_buffer(0)
 , d_bufSize(0)
 , d_growthLimit(bufferExpansionSize ? bufferExpansionSize
                                     : bsl::numeric_limits<size_type>::max())
-, d_growthStrategy(growthStrategy)
 , d_size(0)
-, d_strategy(strategy)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
