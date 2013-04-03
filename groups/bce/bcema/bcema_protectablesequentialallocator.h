@@ -177,7 +177,9 @@ BDES_IDENT("$Id: $")
 //      : d_data_p()
 //      , d_stackSize(0)
 //      , d_maxSize(INITIAL_SIZE)
-//      , d_allocator(protectedDispenser)
+//      , d_allocator(protectedDispenser
+//                       ? protectedDispenser
+//                       : &bdema_NativeProtectableBlockDispenser::singleton())
 //      {
 //          d_data_p = static_cast<int *>(d_allocator.allocate(
 //                                                   d_maxSize * sizeof(int)));
@@ -187,24 +189,27 @@ BDES_IDENT("$Id: $")
 //      ~IntegerStack()
 //          // Destroy this object (and release its memory).
 //      {
+//          d_allocator.unprotect();
 //      }
 //
 //..
-// We must unprotect the dispenser before modifying or deallocating
-// memory:
+// We must unprotect the dispenser before modifying or deallocating memory.
+// Note that we use a 'bdema_ProtectableMemoryScopedGuard' to assure that the
+// memory will be re-protected in the event of an exception:
 //..
 //      // MANIPULATORS
 //      void push(int value)
 //          // Push the specified 'value' onto the stack.
 //      {
-//          d_allocator.unprotect();
+//          bdema_ProtectableMemoryScopedGuard
+//                  <bcema_ProtectableSequentialAllocator> guard(&d_allocator);
+//
 //          if (d_stackSize >= d_maxSize) {
 //              increaseSize();
 //          }
 //
 //          // Sufficient room is guaranteed.
 //          d_data_p[d_stackSize++] = value;
-//          d_allocator.protect();
 //      }
 //
 //      int pop()
