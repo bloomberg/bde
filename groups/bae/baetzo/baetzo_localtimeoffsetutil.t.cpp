@@ -1,6 +1,11 @@
 // baetzo_localtimeoffsetutil.t.cpp                                   -*-C++-*-
 #include <baetzo_localtimeoffsetutil.h>
 
+#include <baetzo_defaultzoneinfocache.h>  // for testing only
+#include <baetzo_testloader.h>            // for testing only
+#include <baetzo_zoneinfocache.h>         // for testing only
+#include <baetzo_zoneinfoutil.h>          // for testing only
+
 #include <bael_administration.h>
 #include <bael_defaultobserver.h>
 #include <bael_loggermanager.h>
@@ -10,9 +15,9 @@
 #include <bcemt_barrier.h>       // case -1
 #include <bcemt_configuration.h> // case -1
 #include <bcemt_threadutil.h>    // case -1
-
-#include <bslma_defaultallocatorguard.h>  // case -5
-#include <bslma_testallocator.h>          // case -5
+#include <bdepu_iso8601.h>                // case 5
+#include <bslma_defaultallocatorguard.h>  // case 5
+#include <bslma_testallocator.h>          // case 5
 
 #include <bsl_cstring.h>         // 'strcmp'
 #include <bsl_iostream.h>
@@ -159,6 +164,18 @@ const bdet_Datetime DEFAULT_DT_ARRAY[] = { bdet_Datetime(2012,  1,  1),
 const int DEFAULT_NUM_DT_ARRAY = sizeof  DEFAULT_DT_ARRAY
                                / sizeof *DEFAULT_DT_ARRAY;
 
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+#define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
+#else  // 64_BIT
+#define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
+                                 "123456789012345678901234567890123"
+#endif
+BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
+
+const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
+const char *const LONGER_STRING  = "ab_"  SUFFICIENTLY_LONG_STRING;
+const char *const LONGEST_STRING = "abc_" SUFFICIENTLY_LONG_STRING;
+
 // ============================================================================
 //                  GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
@@ -241,6 +258,56 @@ extern "C" void *workerThread(void *arg)
 
 typedef bsl::vector<bcemt_ThreadUtil::Handle> Handles;
 
+bdetu_Epoch::TimeT64 toTimeT(const bdet_Datetime& value)
+    // Return the interval in seconds from UNIX epoch time of the specified
+    // 'value'.  Note that this method is shorthand for
+    // 'bdetu_Epoch::convertToTimeT64'.
+{
+    return bdetu_Epoch::convertToTimeT64(value);
+}
+
+bdet_Datetime toDatetime(const char *iso8601TimeString)
+    // Return the datetime value indicated by the specified
+    // 'iso8601TimeString'.  The behavior is undefined unless
+    // 'iso8601TimeString' is a null-terminated C-string containing a time
+    // description matching the iso8601 specification (see 'bdepu_iso8601').
+{
+    bdet_Datetime time;
+    int rc = bdepu_Iso8601::parse(&time,
+                                  iso8601TimeString,
+                                  bsl::strlen(iso8601TimeString));
+    BSLS_ASSERT(0 == rc);
+    return time;
+}
+
+struct TransitionDescription {
+    // A 'struct' describing a transitions.  Note that this type is meant to
+    // be used to create data tables for use with 'addTransitions'.
+
+    int         d_line;
+    const char *d_transitionTime;
+    int         d_offsetMins;
+    const char *d_abbrev;
+    bool        d_isDst;
+};
+
+void addTransitions(baetzo_Zoneinfo             *result,
+                    const TransitionDescription *descriptions,
+                    int                          numDescriptions)
+    // Insert to the specified 'result' the contiguous sequence of specified
+    // 'descriptions', of length 'numDescriptions'.
+{
+    BSLS_ASSERT(result);
+
+    for (int i = 0; i < numDescriptions; ++i) {
+        const char *TRANS = descriptions[i].d_transitionTime;
+        baetzo_LocalTimeDescriptor desc(descriptions[i].d_offsetMins * 60,
+                                        descriptions[i].d_isDst,
+                                        descriptions[i].d_abbrev);
+        result->addTransition(toTimeT(toDatetime(TRANS)), desc);
+    }
+}
+
 // ============================================================================
 //                                 USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -300,7 +367,7 @@ void main1()
 // For example, we can check the time offset in New York for three dates of
 // interest:
 //..
-    int         offsetInSeconds;
+    int offsetInSeconds;
 
     bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
                                           bdet_Datetime(2013,  2, 26));
@@ -583,45 +650,87 @@ int main(int argc, char *argv[])
         // STATIC INITIALIZATION
         //
         // Concerns:
-        //: 1 The static members of 'baetzo_LocalTimeOffsetUtil' are statically
-        //:   initialized to their expected default values.
+        //: 1 The 'updateCount' method returns 0 before configuration.
         //:
         //: 2 The static members of 'baetzo_LocalTimeOffsetUtil' that take
         //:   allocators use the default global allocator.
         //:
         // Plan:
-        //: 1 Before any other use of 'baetzo_LocalTimeOffsetUtil', compare the
-        //:   values of the static members to their expected values.  (C-1)
+        //: 1 Before any other use of 'baetzo_LocalTimeOffsetUtil', check the
+        //:   value returned by the 'updateCount' method.
         //:
-        //: 2 Install a test allocator as the default allocator (so that the
-        //:   global allocator can be distinguished from the default
-        //:   allocator).  For every static member taking an allocator, compare
-        //:   that allocator for equality with the default global allocator and
-        //:   inequality with the default allocator.  (C-2)
+        //: 2 Install the test allocators as the default and global allocators.
+        //:   Since the memory for the static members will be deleted after the
+        //:   return of 'main', we use a statically initialized allocator for
+        //:   the global allocator which will outlive the static members.
+        //:
+        //: 3 Using 'baetzo_TestLoader' and several helper functions, define a
+        //:   time zone with a description and a timezone name sufficiently
+        //:   long as to require memory allocation from 'bsl::string' (which
+        //:   has a short string optimization).  Construct a
+        //:   'baetzo_ZoneinfoCache' using the configured test loader and
+        //:   install that cache as the default timezone cache.
+        //:
+        //: 4 Configure our mechanism to use the custom-made timezone.  Check
+        //:   the block count of each allocator before and after configuration
+        //:   and compare to the expected values.
         //
         // Testing:
-        //  CONCERN: This component uses the default allocator.
-        //  CONCERN: The static members have the expected initial values.
+        //  CONCERN: This component uses the global allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "STATIC INITIALIZATION" << endl
                           << "=====================" << endl;
 
-#if 0
-        bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-        bslma_Default::setGlobalAllocator(&globalAllocator);
+        if (verbose) cout << "\nCheck Initial Values" << endl;
+        {
+            ASSERT(0 == Util::updateCount());
+        }
 
-        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma_DefaultAllocatorGuard dag(&da);
+        if (verbose) cout << "\nCheck For Global Allocators" << endl;
+        {
+            const char LONG_DESCRIPTION[] = "Description: "
+                                                      SUFFICIENTLY_LONG_STRING;
+            const char LONG_TIMEZONE[]    = "Timezone: "
+                                                      SUFFICIENTLY_LONG_STRING;
 
-        ASSERT(0                        == strcmp("", Util::timezone()));
-        ASSERT(baetzo_LocalTimePeriod() == Util::localTimePeriod());
-        ASSERT(bslma::Default::globalAllocator()
-           ==  Util::localTimePeriod().allocator());
-        ASSERT(bslma::Default::allocator()
-           !=  Util::localTimePeriod().allocator());
-#endif
+            const TransitionDescription TZ_DATA[] = {
+              { L_, "0001-01-01T00:00:00.000",     0, "A",              false},
+              { L_, "2013-01-01T12:00:00.000",  1439, LONG_DESCRIPTION, false},
+              { L_, "9999-12-31T23:59:59.000",     0, "B",              false}
+             };
+            const int NUM_TZ_DATA = sizeof TZ_DATA / sizeof *TZ_DATA;
+
+            baetzo_Zoneinfo testZoneInfo;
+            addTransitions(&testZoneInfo, TZ_DATA, NUM_TZ_DATA);
+            testZoneInfo.setIdentifier(LONG_TIMEZONE);
+            ASSERT(baetzo_ZoneinfoUtil::isWellFormed(testZoneInfo));
+
+            baetzo_TestLoader testLoader;
+            testLoader.setTimeZone(testZoneInfo);
+
+            baetzo_ZoneinfoCache testCache(&testLoader);
+            baetzo_DefaultZoneinfoCache::setDefaultCache(&testCache);
+
+            static bslma_TestAllocator staticGlobalAllocator(
+                                                          "global",
+                                                          veryVeryVeryVerbose);
+
+            bslma_Default::setGlobalAllocator(&staticGlobalAllocator);
+ 
+            bslma_TestAllocator da("default", veryVeryVeryVerbose);
+            bslma_Default::setDefaultAllocator(&da);
+
+            ASSERT(0 == staticGlobalAllocator.numBlocksInUse());
+            ASSERT(0 == da.numBlocksInUse());
+
+            int status = Util::configure(LONG_TIMEZONE,
+                                         bdet_Datetime(2013, 1, 1, 12));
+ 
+            ASSERT(2 == staticGlobalAllocator.numBlocksInUse());
+            ASSERT(0 == da.numBlocksInUse());
+        }
 
       } break;
       case 4: {

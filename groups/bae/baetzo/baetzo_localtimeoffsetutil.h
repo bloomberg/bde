@@ -31,7 +31,7 @@ BDES_IDENT("$Id: $")
 // however, those occur are also infrequent events.
 //
 // A successful return from one of the 'configure' methods is a prerequite
-// to the use of most of the other functions provided here.  Most methods 
+// to the use of most of the other functions provided here.  Most methods
 // are thread-safe.  Refer to the function-level documentation for details.
 //
 ///Usage
@@ -59,8 +59,11 @@ BDES_IDENT("$Id: $")
 //                                                                      26));
 //  assert(0 == status);
 //  assert(1 == baetzo_LocalTimeOffsetUtil::updateCount());
-//  assert(0 == strcmp("America/New_York",
-//                     baetzo_LocalTimeOffsetUtil::timezone()));
+//
+//  bsl::string timezone;
+//
+//  baetzo_LocalTimeOffsetUtil::loadTimezone(&timezone);
+//  assert(0 == strcmp("America/New_York", timezone.c_str()));
 //..
 // Notice that the value returned by the 'updateCount' method is increased by
 // one after then time zone information has been set.
@@ -89,22 +92,23 @@ BDES_IDENT("$Id: $")
 //  assert(        0 == status);
 //  assert(-5 * 3600 == offsetInSeconds);
 //  assert(        1 == baetzo_LocalTimeOffsetUtil::updateCount());
-//  assert(        0 == strcmp("America/New_York",
-//                              baetzo_LocalTimeOffsetUtil::timezone()));
+//
+//  baetzo_LocalTimeOffsetUtil::loadTimezone(&timezone);
+//  assert(        0 == strcmp("America/New_York", timezone.c_str()));
 //
 //  bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
 //                                        bdet_Datetime(2013,  7,  4));
 //  assert(-4 * 3600 == offsetInSeconds);
 //  assert(        2 == baetzo_LocalTimeOffsetUtil::updateCount());
-//  assert(        0 == strcmp("America/New_York",
-//                              baetzo_LocalTimeOffsetUtil::timezone()));
+//  baetzo_LocalTimeOffsetUtil::loadTimezone(&timezone);
+//  assert(        0 == strcmp("America/New_York", timezone.c_str()));
 //
 //  bdetu_SystemTime::loadLocalTimeOffset(&offsetInSeconds,
 //                                        bdet_Datetime(2013, 12, 21));
 //  assert(-5 * 3600 == offsetInSeconds);
 //  assert(        3 == baetzo_LocalTimeOffsetUtil::updateCount());
-//  assert(        0 == strcmp("America/New_York",
-//                              baetzo_LocalTimeOffsetUtil::timezone()));
+//  baetzo_LocalTimeOffsetUtil::loadTimezone(&timezone);
+//  assert(        0 == strcmp("America/New_York", timezone.c_str()));
 //..
 // Notice that the value returned by 'updateCount()' is unchanged by our first
 // request, but incremented by the second and third request, which transitions
@@ -187,7 +191,7 @@ struct baetzo_LocalTimeOffsetUtil {
     // CLASS METHODS
   public:
 
-                        // *** local time offset methods ***           
+                        // *** local time offset methods ***
 
     static void loadLocalTimeOffset(int                  *result,
                                     const bdet_Datetime&  utcDatetime);
@@ -203,7 +207,7 @@ struct baetzo_LocalTimeOffsetUtil {
         // 'bdetu_SystemTime'.  Return the previously installed callback.  This
         // method is *not* thread-safe.
 
-                        // *** configure methods ***           
+                        // *** configure methods ***
 
     static int configure();
         // Set the local time period information used by the
@@ -227,7 +231,7 @@ struct baetzo_LocalTimeOffsetUtil {
         // the specified 'utcDatetime'.  Return 0 on success, and a non-zero
         // value otherwise.  This method is *not* thread-safe.
 
-                        // *** accessor methods ***           
+                        // *** accessor methods ***
 
     static void loadLocalTimePeriod(baetzo_LocalTimePeriod *localTimePeriod);
         // Load to the specified 'localTimePeriod' the local time period
@@ -264,7 +268,7 @@ struct baetzo_LocalTimeOffsetUtil {
 
 // CLASS METHODS
 
-                        // *** local time offset methods ***           
+                        // *** local time offset methods ***
 
 inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback
@@ -274,7 +278,7 @@ baetzo_LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
                              &baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset);
 }
 
-                        // *** accessor methods ***           
+                        // *** accessor methods ***
 
 inline
 int baetzo_LocalTimeOffsetUtil::updateCount()

@@ -1,6 +1,11 @@
 // baetzo_localtimeoffsetutil.cpp                                     -*-C++-*-
 #include <baetzo_localtimeoffsetutil.h>
 
+#include <baetzo_defaultzoneinfocache.h>  // for testing only
+#include <baetzo_testloader.h>            // for testing only
+#include <baetzo_zoneinfocache.h>         // for testing only
+#include <baetzo_zoneinfoutil.h>          // for testing only
+
 #include <bcemt_readlockguard.h>
 #include <bcemt_writelockguard.h>
 #include <bdet_datetime.h>
