@@ -24,12 +24,13 @@ namespace {
 
 // STATIC HELPER FUNCTIONS
 static inline
-bsls::Types::size_type roundUp(bsls::Types::size_type value,
-                               bsls::Types::size_type multiple)
+bcema_ProtectableSequentialAllocator::size_type roundUp(
+                      bcema_ProtectableSequentialAllocator::size_type value,
+                      bcema_ProtectableSequentialAllocator::size_type multiple)
     // Return the specified 'value' rounded up to the next highest multiple of
     // the specified 'multiple'
 {
-    return (value + multiple - 1) & ~(multiple - 1);
+    return value == 0 ? 0 : multiple * (1 + ((value - 1) / multiple));
 }
 
 }  // close unnamed namespace
