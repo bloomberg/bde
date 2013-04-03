@@ -718,7 +718,7 @@ int main(int argc, char *argv[])
                                                           veryVeryVeryVerbose);
 
             bslma_Default::setGlobalAllocator(&staticGlobalAllocator);
- 
+
             bslma_TestAllocator da("default", veryVeryVeryVerbose);
             bslma_Default::setDefaultAllocator(&da);
 
@@ -727,7 +727,7 @@ int main(int argc, char *argv[])
 
             int status = Util::configure(LONG_TIMEZONE,
                                          bdet_Datetime(2013, 1, 1, 12));
- 
+
             ASSERT(2 == staticGlobalAllocator.numBlocksInUse());
             ASSERT(0 == da.numBlocksInUse());
         }
