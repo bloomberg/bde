@@ -667,13 +667,60 @@ struct bsls_Platform_Assert;
 #endif
 // ---------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86)
-    #define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+// Determine endianness.
+
+// Glibc or Linux
+#if defined(__GLIBC__) || defined(BSLS_PLATFORM_OS_LINUX)
+#include <endian.h>
+#if (__BYTE_ORDER == __LITTLE_ENDIAN)
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif (__BYTE_ORDER == __BIG_ENDIAN)
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
 #endif
 
-#if !defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
-   #define BSLS_PLATFORM_IS_BIG_ENDIAN 1
+// AIX
+#elif defined(BSLS_PLATFORM_OS_AIX)
+#include <sys/machine.h>
+#if BYTE_ORDER == LITTLE_ENDIAN
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif BYTE_ORDER == BIG_ENDIAN
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
 #endif
+
+// Sun/Solaris
+#elif defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+#include <sys/isa_defs.h>
+#if defined(_LITTLE_ENDIAN)
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif defined(_BIG_ENDIAN)
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
+#endif
+
+// Darwin
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+#include <machine/endian.h>
+#if BYTE_ORDER == LITTLE_ENDIAN
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif BYTE_ORDER == BIG_ENDIAN
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
+#endif
+
+// HPUX
+#elif defined(BSLS_PLATFORM_OS_HPUX)
+#include <machine/param.h>
+#if defined(_LITTLE_ENDIAN)
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif defined(_BIG_ENDIAN)
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
+#endif
+
+// MSVC and Windows
+#elif defined(BSLS_PLATFORM_CMP_MSVC) && defined(BSLS_PLATFORM_OS_WINDOWS)
+#   defined BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#endif
+
+// Endianness sanity check is done further in this header.
+
 // ----------------------------------------------------------------------------
 
 
