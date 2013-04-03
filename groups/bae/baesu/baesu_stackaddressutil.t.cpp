@@ -182,33 +182,62 @@ static int findIndex(const void *retAddress)
 // Have a volatile global in calculations to discourange optimizers from
 // inlining.
 
-volatile int volatileGlobal = 2;
+volatile unsigned volatileGlobal = 1;
 
 // Then, we define a chain of functions that will call each other and do some
 // random calculation to generate some code, and eventually call 'func1' which
 // will call 'getAddresses' and verify that the addresses returned correspond
 // to the functions we expect them to.
+//
+// Note that we know the 'if' conditions in these 5 subroutines never evaluate
+// to 'true', however, the optimizer cannot figure that out, and that will
+// prevent it from inlining here.
 
-static int func1();
-static int func2()
+static unsigned func1();
+static unsigned func2()
 {
-    return volatileGlobal * 2 * func1();
+    if (volatileGlobal > 10) {
+        return (volatileGlobal -= 100) * 2 * func2();                 // RETURN
+    }
+    else {
+        return volatileGlobal * 2 * func1();                          // RETURN
+    }
 }
-static int func3()
+static unsigned func3()
 {
-    return volatileGlobal * 3 * func2();
+    if (volatileGlobal > 10) {
+        return (volatileGlobal -= 100) * 2 * func3();                 // RETURN
+    }
+    else {
+        return volatileGlobal * 3 * func2();                          // RETURN
+    }
 }
-static int func4()
+static unsigned func4()
 {
-    return volatileGlobal * 4 * func3();
+    if (volatileGlobal > 10) {
+        return (volatileGlobal -= 100) * 2 * func4();                 // RETURN
+    }
+    else {
+        return volatileGlobal * 4 * func3();                          // RETURN
+    }
 }
-static int func5()
+static unsigned func5()
 {
-    return volatileGlobal * 5 * func4();
+    if (volatileGlobal > 10) {
+        return (volatileGlobal -= 100) * 2 * func5();                 // RETURN
+    }
+    else {
+        return volatileGlobal * 5 * func4();                          // RETURN
+    }
 }
-static int func6()
+static unsigned func6()
 {
-    return volatileGlobal * 6 * func5();
+    if (volatileGlobal > 10) {
+        return (volatileGlobal -= 100) * 2 * func6();                 // RETURN
+    }
+    else {
+        return volatileGlobal * 6 * func5();                          // RETURN
+    }
 }
 
 // Next, we define the macro FUNC_ADDRESS, which will take as an arg a
@@ -227,7 +256,7 @@ static int func6()
 // Then, we define 'func1', which is the last of the chain of our functions
 // that is called, which will do most of our work.
 
-int func1()
+unsigned func1()
     // Call 'getAddresses' and verify that the returned set of addresses
     // matches our expectations.
 {
@@ -288,7 +317,7 @@ int func1()
         }
     }
 
-    return 3;    // random value
+    return volatileGlobal;
 }
 
 #undef FUNC_ADDRESS
@@ -333,17 +362,21 @@ static int findIndex(AddressEntry *entries, int numAddresses, UintPtr funcP)
     return ret;
 }
 
-#define CASE3_FUNC(nMinus1, n)                       \
-    int func ## n()                                  \
-    {                                                \
-        int i = (n);                                 \
-                                                     \
-        i += func ## nMinus1();                      \
-                                                     \
-        return i * (n) + i / bsl::max(1, (nMinus1)); \
+#define CASE3_FUNC(nMinus1, n)                                                \
+    void func ## n(int *pi)                                                   \
+    {                                                                         \
+        ++*pi;                                                                \
+        if (*pi > 100) {                                                      \
+            func ## n(pi);                                                    \
+        }                                                                     \
+        else if (*pi < 100) {                                                 \
+            func ## nMinus1(pi);                                              \
+        }                                                                     \
+                                                                              \
+        ++*pi;                                                                \
     }
 
-int func0();
+void func0(int *pi);
 CASE3_FUNC(0, 1)
 CASE3_FUNC(1, 2)
 CASE3_FUNC(2, 3)
@@ -359,11 +392,13 @@ CASE3_FUNC(4, 5)
 # define FUNC_ADDRESS_NUM(p) ((UintPtr) (p))
 #endif
 
-int func0()
+void func0(int *pi)
 {
     enum { BUFFER_LENGTH = 100,
            IGNORE_FRAMES = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES
-     };
+    };
+
+    *pi += 2;
 
     void *buffer[BUFFER_LENGTH];
     AddressEntry entries[BUFFER_LENGTH];
@@ -419,8 +454,6 @@ int func0()
              myHex(e->d_returnAddress) << ", ti = " << e->d_traceIndex << endl;
         }
     }
-
-    return 0;
 }
 
 }  // close namespace CASE_THREE
@@ -557,7 +590,8 @@ int main(int argc, char *argv[])
         // 'thunk' functions which just call the actual routine.  I wish they
         // wouldn't do that.
 
-        ASSERT(CASE_FOUR::func6() != 0);
+        unsigned result = CASE_FOUR::func6();
+        LOOP2_ASSERT(result, 6 * 5 * 4 * 3 * 2, result == 6 * 5 * 4 * 3 * 2);
 // #endif
       }  break;
       case 3: {
@@ -601,7 +635,9 @@ int main(int argc, char *argv[])
         // 'thunk' functions which just call the actual routine.  I wish they
         // wouldn't do that.
 
-        ASSERT(CASE_THREE::func5() > 0);
+        int i = 0;
+        CASE_THREE::func5(&i);
+        LOOP_ASSERT(i, 12 == i);
 #endif
 
         if (verbose) cout << "\nNegative Testing." << endl;

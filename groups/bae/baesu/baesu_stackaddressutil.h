@@ -83,33 +83,62 @@ BDES_IDENT("$Id: $")
 // Have a volatile global in calculations to discourange optimizers from
 // inlining.
 //..
-//  volatile int volatileGlobal = 2;
+//  volatile int volatileGlobal = 1;
 //..
 // Then, we define a chain of functions that will call each other and do some
 // random calculation to generate some code, and eventually call 'func1' which
 // will call 'getAddresses' and verify that the addresses returned correspond
 // to the functions we expect them to.
+//
+// Note that we know the 'if' conditions in these 5 subroutines never evaluate
+// to 'true', however, the optimizer cannot figure that out, and that will
+// prevent it from inlining here.
 //..
-//  static int func1();
-//  static int func2()
+//  static unsigned func1();
+//  static unsigned func2()
 //  {
-//      return volatileGlobal * 2 * func1();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func2();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 2 * func1();                      // RETURN
+//      }
 //  }
-//  static int func3()
+//  static unsigned func3()
 //  {
-//      return volatileGlobal * 3 * func2();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func3();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 3 * func2();                      // RETURN
+//      }
 //  }
-//  static int func4()
+//  static unsigned func4()
 //  {
-//      return volatileGlobal * 4 * func3();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func4();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 4 * func3();                      // RETURN
+//      }
 //  }
-//  static int func5()
+//  static unsigned func5()
 //  {
-//      return volatileGlobal * 5 * func4();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func5();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 5 * func4();                      // RETURN
+//      }
 //  }
-//  static int func6()
+//  static unsigned func6()
 //  {
-//      return volatileGlobal * 6 * func5();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func6();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 6 * func5();                      // RETURN
+//      }
 //  }
 //..
 // Next, we define the macro FUNC_ADDRESS, which will take as an arg a
@@ -176,7 +205,7 @@ BDES_IDENT("$Id: $")
 //          assert(funcIdx == findIndex(buffer[stackIdx]));
 //      }
 //
-//      return 3;    // random value
+//      return volatileGlobal;
 //  }
 //
 //  int main()

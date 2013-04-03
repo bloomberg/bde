@@ -335,23 +335,23 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 That, given invalid data, the stack trace facility won't
         //:   segfault.
-	//:
+        //:
         //: 2 That, given invalid data, the stack trace facility won't fail an
         //:   assert.
-	//:
+        //:
         //: 3 That, given invalid data, the stack trace facility won't return a
         //:   non-zero status.
         //
         // Plan:
         //: 1 Seed a long stackTrace of StackTraceFrames with a combination of
         //:   random and maliciously chosen garbase addresses.
-	//:
+        //:
         //: 2 Resolve it.
-	//:
+        //:
         //: 3 Observe if it segfaults or fails any asserts.
-	//:
+        //:
         //: 4 Observe if it returns a non-zero return code.
-	//:
+        //:
         //: 5 Stream all the frames to a stringstream to see if the stream
         //:   operator causes any segfaults of failed asserts.
         // --------------------------------------------------------------------
@@ -425,9 +425,9 @@ int main(int argc, char *argv[])
         //:   expected.
         //:
         //: 8 For the non-static symbols, verify they demangled properly.
-	//
-	// TESTING:
-	//    static int resolve(baesu_StackTrace *, bool);
+        //
+        // TESTING:
+        //    static int resolve(baesu_StackTrace *, bool);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "SUCCESSFUL RESOLVE TEST\n"

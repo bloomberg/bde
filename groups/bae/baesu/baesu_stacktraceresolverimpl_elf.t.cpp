@@ -435,8 +435,8 @@ int main(int argc, char *argv[])
 
 #ifndef BSLS_PLATFORM_OS_LINUX
             for (int i = 0; i < stackTrace.length(); ++i) {
-                if (0 == i || 2 == i || 4 == i) {
-                    ASSERT(!stackTrace[i].isSourceFileNameKnown());
+                if (0 == i || 3 == i) {
+                    LOOP_ASSERT(i, !stackTrace[i].isSourceFileNameKnown());
                     continue;
                 }
 
