@@ -125,12 +125,12 @@ void aSsErT(bool b, const char *s, int i)
 // bits of the return value will change for a 1-bit change in the hashed value.
 // We then use the result of the hash function to index into our array of
 // 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
-// array of 'TYPE' objects.  We will resovle hash collisions in our array
-// through 'linear probing', where we will search consequetive buckets
-// following the bucket where the collision occurred, testing occupied buckets
-// for equality with the value we are searching on, and concluding that the
-// value is not in the table if we encounter an empty bucket before we
-// encounter one referring to an equal element.
+// array of 'TYPE' objects.  We will resolve hash collisions in our array
+// through 'linear probing', where we will search consecutive buckets following
+// the bucket where the collision occurred, testing occupied buckets for
+// equality with the value we are searching on, and concluding that the value
+// is not in the table if we encounter an empty bucket before we encounter one
+// referring to an equal element.
 //
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
@@ -700,13 +700,17 @@ int main(int argc, char *argv[])
         const char *C_STRING_2 = STRING_2;
         ASSERT(C_STRING_1 != C_STRING_2);
 
+//#if defined(BDE_OMIT_TRANSITIONAL) || defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         const ::bsl::hash<const char *> C_STRING_HASH =
                                                    ::bsl::hash<const char *>();
+
 #ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
         ASSERT(C_STRING_HASH(C_STRING_1) == C_STRING_HASH(C_STRING_2));
-#else
+#elif  defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
-#endif        
+#endif
+
+//#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -845,11 +849,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

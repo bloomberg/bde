@@ -1,13 +1,17 @@
-// bdetu_systemtime.t.cpp         -*-C++-*-
+// bdetu_systemtime.t.cpp                                             -*-C++-*-
 
 #include <bdetu_systemtime.h>
 #include <bdet_datetimeinterval.h>
 #include <bdetu_epoch.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // atoi(), getenv(), putenv(),
 #include <bsl_cstring.h>     // strcmp()
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define snprintf _snprintf
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -29,14 +33,23 @@ using namespace bsl;  // automatically added by script
 // [ 5] bdet_TimeInterval now();
 // [ 3] void loadCurrentTime(bdet_TimeInterval *result);
 // [ 1] void loadSystemTimeDefault(bdet_TimeInterval *result);
-// [ 2] SystemTimeCallback setSystemTimeCallback(SystemTimeCallback callback);
-// [ 2] SystemTimeCallback currentCallback();
+// [ 1] loadLocalTimeOffsetDefault(bdet_TimeInterval *result);
+// [ 2] setSystemTimeCallback(SystemTimeCallback callback);
+// [ 2] currentCallback();
+// [ 2] currentSystemTimeCallback();
+// [ 2] setSystemLocalTimeOffsetCallback(LocalTimeOffsetCallback callback);
+// [ 2] currentLocalTimeOffsetCallback();
+// [13] int lLTOC(int *result, const bdet_Datetime&  utcDatetime);
+// [13] int lLTOCDefault(int *result, const bdet_Datetime&  utcDatetime);
+// [13] LLTOC setLLTOC(LLTOC callback);
+// [13] LLTOC currentLLTOC();
 //---------------------------------------------------------------------------
-// [13] USAGE example
+// [14] USAGE example
 // [ 9] bdet_Datetime nowAsDatetime() stress test
 // [ 8] bdet_Datetime nowAsDatetimeUtc() stress test
 // [ 7] bdet_TimeInterval now() stress test
 // [ 4] static int inOrder();
+
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -92,16 +105,11 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-
+typedef bdetu_SystemTime Obj;
 
 // ==========================================================================
 //                      HELPER FUNCTIONS FOR TESTING
 // --------------------------------------------------------------------------
-
-void getClientTime(bdet_TimeInterval *result)
-{
-    result->setInterval(1,1);
-}
 
 void IncrementInterval(bdet_TimeInterval *result)
 {
@@ -118,6 +126,16 @@ void f1(bdet_TimeInterval *result)
 void f2(bdet_TimeInterval *result)
 {
     result->setInterval(1,1);
+}
+
+bdet_DatetimeInterval f3()
+{
+    return bdet_DatetimeInterval();
+}
+
+bdet_DatetimeInterval f4()
+{
+    return bdet_DatetimeInterval();
 }
 
 static int inOrder(const bdet_DatetimeInterval& lhs,
@@ -138,23 +156,232 @@ static int inOrder(const bdet_TimeInterval&     lhs,
     return -inOrder(rhs, lhs);
 }
 
-// =========================================================================
-//                          MAIN PROGRAM
-// -------------------------------------------------------------------------
+// ==========================================================================
+//                      HELPER CLASSES FOR TESTING
+// --------------------------------------------------------------------------
 
+class MyLocalTimeOffsetUtility {
+
+    // DATA
+    static const int *s_offset_p;  // address of offset returned by callback
+    static bool      *s_callbackInvoked_p;
+                                   // indication of callback invocation
+
+  public:
+    // CLASS METHODS
+    static void loadLocalTimeOffset(int                  *result,
+                                   const bdet_Datetime&  utcDatetime);
+        // Load, to the to specified 'result', value at the address specified
+        // by the 'offset' argument of the last invocation of the
+        // 'setExternals' method and set to 'true' the value at the address
+        // specified by the 'callbackInvoked' argument of last invocation of
+        // the 'setExternals' method.  The specified 'utcDatetime' is ignored.
+        // The behavior is undefined unless the value at 'callbackInvoked' is
+        // initially 'false'.
+
+    static void setExternals(const int *status,
+                             const int *offset,
+                             bool      *callbackInvoked);
+        // Set the the specified addresses 'status' and 'offset' as the source
+        // of values returned by the 'localLocalTimeOffset' method.
+};
+
+const int *MyLocalTimeOffsetUtility::s_offset_p          = 0;
+bool      *MyLocalTimeOffsetUtility::s_callbackInvoked_p = 0;
+
+void MyLocalTimeOffsetUtility::setExternals(const int *status,
+                                            const int *offset,
+                                            bool      *callbackInvoked)
+{
+    ASSERT(status);
+    ASSERT(offset);
+
+    s_offset_p          = offset;
+    s_callbackInvoked_p = callbackInvoked;
+}
+
+void MyLocalTimeOffsetUtility::loadLocalTimeOffset(
+                                             int                  *result,
+                                             const bdet_Datetime&  )
+{
+    ASSERT(result);
+    ASSERT(!*s_callbackInvoked_p);
+
+    *result              = *s_offset_p;
+    *s_callbackInvoked_p = true;
+}
+
+// ============================================================================
+//                             USAGE EXAMPLES
+// ----------------------------------------------------------------------------
+
+///Usage 3
+///-------
+// For applications that choose to define there own mechanism for determining
+// system time, the 'bdetu_SystemTime' utility provides the ability to install
+// a custom system-time callback.
+//
+// First define the user-defined callback function 'getClientTime':
+//..
+void getClientTime(bdet_TimeInterval *result)
+{
+    result->setInterval(1,1);
+}
+//..
+
+///Usage 4
+///-------
+// For applications that choose to define there own mechanism for determining
+// the differential between local time and UTC time, the 'bdetu_SystemTime'
+// utility provides the ability to install a custom local-time-offset callback.
+//
+// First, we define the user-defined callback function 'getLocalTimeOffset':
+//..
+bdet_DatetimeInterval getLocalTimeOffset()
+{
+    return bdet_DatetimeInterval(0, 1);  // an hour differential
+}
+//..
+
+namespace UsageExample4 {
+
+///Example 4: Using the Local Time Offset Callback
+///-----------------------------------------------
+// Suppose one has to provide time stamp values that always reflect local time
+// for a given location, even when local time transitions into and out of
+// daylight saving time.  Further suppose that one must do this quite often
+// (e.g., for every record in a high frequency log), so the performance of the
+// default method for calculating local time offset is not adequate.  Creation
+// and installation of a specialized user-defined callback for local time
+// offset allows one to solve this problem.
+// 
+// First, create a utility class that provides a method of type
+// 'bdetu_SystemTime::LoadLocalTimeOffsetCallback' that is valid for the
+// location of interest (New York) for the period of interest (the year 2013).
+// Note that the transition times into and out of daylight savings for
+// New York are given in UTC.
+//..
+    struct MyLocalTimeOffsetUtilNewYork2013 {
+
+      private:
+        // DATA
+        static int           s_useCount;
+        static bdet_Datetime s_startOfDaylightSavingTime;  // UTC Datetime
+        static bdet_Datetime s_resumptionOfStandardTime;   // UTC Datetime
+
+      public:
+        // CLASS METHODS
+        static void loadLocalTimeOffset(int                  *result,
+                                        const bdet_Datetime&  utcDatetime);
+            // Load, into the specified 'result', the offset between the local
+            // time for the "America/New_York" timezone and UTC at the
+            // specified 'utcDatetime'.  The behavior is undefined unless
+            // '2013 == utcDatetime.date().year()'.
+
+        static int useCount();
+            // Return the number of invocations of the 'loadLocalTimeOffset'
+            // since the start of the process.
+    };
+
+    // DATA
+    int MyLocalTimeOffsetUtilNewYork2013::s_useCount = 0;
+
+    bdet_Datetime
+    MyLocalTimeOffsetUtilNewYork2013::s_startOfDaylightSavingTime(2013,
+                                                                     3,
+                                                                    10,
+                                                                     7);
+    bdet_Datetime
+    MyLocalTimeOffsetUtilNewYork2013::s_resumptionOfStandardTime(2013,
+                                                                   11,
+                                                                    3,
+                                                                    6);
+    // CLASS METHODS
+    void MyLocalTimeOffsetUtilNewYork2013::loadLocalTimeOffset(
+                                             int                  *result,
+                                             const bdet_Datetime&  utcDatetime)
+    {
+        ASSERT(result);
+        ASSERT(2013 == utcDatetime.date().year());
+
+        *result = utcDatetime < s_startOfDaylightSavingTime ? -18000:
+                  utcDatetime < s_resumptionOfStandardTime  ? -14400:
+                                                              -18000;
+        ++s_useCount;
+    }
+
+    int MyLocalTimeOffsetUtilNewYork2013::useCount()
+    {
+        return s_useCount;
+    }
+//..
+// Notice that we do not attempt to make the 'loadLocalTimeOffset' method
+// 'inline', since we must take its address to install it as the callback.
+//
+void main4()
+{
+// Next, we install this 'loadLocalTimeOffset' as the local time offset
+// callback.
+//..
+    bdetu_SystemTime::LoadLocalTimeOffsetCallback defaultCallback =
+                              bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
+                                         &MyLocalTimeOffsetUtilNewYork2013::
+                                                          loadLocalTimeOffset);
+
+    ASSERT(bdetu_SystemTime::loadLocalTimeOffsetDefault == defaultCallback);
+    ASSERT(&MyLocalTimeOffsetUtilNewYork2013::loadLocalTimeOffset
+         == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
+//..
+// Now, we can use the 'bdetu_SystemTime::loadLocalTimeOffset' method to obtain
+// the local time offsets in New York on several dates of interest.  The
+// increasing values from our 'useCount' method assures us that the callback we
+// defined is indeed being used.
+//..
+    ASSERT(0 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+
+    int offset;
+    bdet_Datetime     newYearsDay(2013,  1,  1);
+    bdet_Datetime independenceDay(2013,  7,  4);
+    bdet_Datetime     newYearsEve(2013, 12, 31);
+
+    bdetu_SystemTime::loadLocalTimeOffset(&offset, newYearsDay);
+    ASSERT(-5 * 3600 == offset);
+    ASSERT(        1 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+
+    bdetu_SystemTime::loadLocalTimeOffset(&offset, independenceDay);
+    ASSERT(-4 * 3600 == offset);
+    ASSERT(        2 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+    
+    bdetu_SystemTime::loadLocalTimeOffset(&offset, newYearsEve);
+    ASSERT(-5 * 3600 == offset);
+    ASSERT(        3 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+//..
+// Finally, to be neat, we restore the local time offset callback to the
+// default callback:
+//..
+    bdetu_SystemTime::setLoadLocalTimeOffsetCallback(defaultCallback);
+    ASSERT(&bdetu_SystemTime::loadLocalTimeOffsetDefault
+        == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
+//..
+}
+}  // end usage example
+
+// ============================================================================
+//                          MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
 
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
+    int veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-    case 13: {
+    case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -171,64 +398,439 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example 1"
                           << "\n=======================" << endl;
         {
-            bdet_TimeInterval i0;
-            ASSERT( 0 == i0 );
-
-            i0 = bdetu_SystemTime::now();
-            ASSERT( 0 != i0 );
-
-            bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeUtc();
-            ASSERT( bdetu_Epoch::epoch() < i1 );
-            bdet_DatetimeInterval dti = i1-bdetu_Epoch::epoch();
-            ASSERT( 0 <= inOrder(i0, dti) );  // i0 <= i1
-
-            bdet_TimeInterval i2;
-            ASSERT( 0 == i2);
-
-            bdetu_SystemTime::loadCurrentTime(&i2);
-            ASSERT( 0 != i2 );
-            ASSERT( 0 <= inOrder(dti, i2) );    // i1 <= i2
+///Usage 1
+///-------
+// The following snippets of code illustrate how to use this utility component
+// to obtain the system time by calling 'now', 'nowAsDatetimeUtc', or
+// 'loadCurrentTime'.
+//..
+      bdet_TimeInterval i0;
+      ASSERT(0 == i0);
+//..
+// Next call the utility function 'now' to obtain the system time.
+//..
+      i0 = bdetu_SystemTime::now();
+      ASSERT(0 != i0);
+//..
+// Next call the utility function 'nowAsDatetimeUtc' to obtain the system time.
+//..
+      bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeUtc();
+      ASSERT(bdetu_Epoch::epoch() < i1);
+      bdet_DatetimeInterval dti = i1 - bdetu_Epoch::epoch();
+      ASSERT(i0.totalMilliseconds() <= dti.totalMilliseconds());
+//..
+// Now call the utility function 'loadCurrentTime' to load the system time
+// into i2;
+//..
+      bdet_TimeInterval i2;
+      ASSERT(0 == i2);
+      bdetu_SystemTime::loadCurrentTime(&i2);
+      ASSERT(0 != i2);
+      ASSERT(dti.totalMilliseconds() <= i2.totalMilliseconds());
+                                               //  Presumably, 0 < i0 < i1 < i2
+//..
         }
 
         if (verbose) cout << "\nTesting Usage Example 2"
                           << "\n=======================" << endl;
         {
-            bdet_TimeInterval i3;
-            ASSERT( 0 == i3 );
-
-            bdetu_SystemTime::loadSystemTimeDefault(&i3);
-            ASSERT( 0 != i3);
-
-            bdet_TimeInterval i4;
-            ASSERT( 0 == i4 );
-
-            bdetu_SystemTime::loadSystemTimeDefault(&i4);
-            ASSERT( i4 >= i3 );
+///Usage 2
+///-------
+// The following snippets of code illustrate how to use 'loadSystemTimeDefault'
+// function (Note that 'loadSystemTimeDefault') provides a default
+// implementation to retrieve system time.
+//
+// First create a default object 'i3' of 'bdet_TimeInterval'.
+//..
+      bdet_TimeInterval i3;
+      ASSERT(0 == i3);
+//..
+// Next call the utility function 'loadSystemTimeDefault' to load the
+// system time into 'i3'.
+//..
+      bdetu_SystemTime::loadSystemTimeDefault(&i3);
+      ASSERT(0 != i3);
+//..
+// Create another object 'i4' of 'bdet_TimeInterval'
+//..
+      bdet_TimeInterval i4;
+      ASSERT(0 == i4);
+//..
+// Then call the utility function 'loadSystemTimeDefault' again to load the
+// system time into 'i4'.
+//..
+      bdetu_SystemTime::loadSystemTimeDefault(&i4);
+      ASSERT(i4 >= i3);
+//..
         }
 
         if (verbose) cout << "\nTesting Usage Example 3"
                           << "\n=======================" << endl;
         {
-            const bdetu_SystemTime::SystemTimeCallback
-                                    callback_user_ptr1 = &getClientTime;
-
-            bdetu_SystemTime::setSystemTimeCallback(callback_user_ptr1);
-            ASSERT(callback_user_ptr1 == bdetu_SystemTime::currentCallback());
-
-            bdet_TimeInterval i5;
-            ASSERT( 0 == i5 );
-            bdet_TimeInterval i6;
-            ASSERT( 0 == i6 );
-
-            i5 = bdetu_SystemTime::now();
-            ASSERT( 1 == i5.seconds() );
-            ASSERT( 1 == i5.nanoseconds() );
-
-            bdetu_SystemTime::loadCurrentTime(&i6);
-            ASSERT( 1 == i6.seconds() );
-            ASSERT( 1 == i6.nanoseconds() );
+// Then, store the address of the user-defined callback function
+// 'getClientTime' into 'callback_user_ptr1':
+//..
+      const bdetu_SystemTime::SystemTimeCallback callback_user_ptr1
+                                                              = &getClientTime;
+//..
+// Next, call the utility function 'setSystemTimeCallback' to load the
+// user-defined callback function:
+//..
+      bdetu_SystemTime::setSystemTimeCallback(callback_user_ptr1);
+      ASSERT(callback_user_ptr1
+                             == bdetu_SystemTime::currentSystemTimeCallback());
+//..
+// Then, create object 'i5' and 'i6' of 'bdet_TimeInterval':
+//..
+      bdet_TimeInterval i5;
+      ASSERT(0 == i5);
+      bdet_TimeInterval i6;
+      ASSERT(0 == i6);
+//..
+// Now, call the utility function 'now' and get the system time into 'i5':
+//..
+      i5 = bdetu_SystemTime::now();
+      ASSERT(1 == i5.seconds());
+      ASSERT(1 == i5.nanoseconds());
+//..
+// Finally, call utility function 'loadCurrentTime' to load the system time
+// into 'i6':
+//..
+      bdetu_SystemTime::loadCurrentTime(&i6);
+      ASSERT(1 == i6.seconds());
+      ASSERT(1 == i6.nanoseconds());
+//..
         }
 
+        if (verbose) cout << "\nTesting Usage Example 4"
+                          << "\n=======================" << endl;
+
+        // Restore state changed in Example 3.
+
+        Obj::setSystemTimeCallback(Obj::loadSystemTimeDefault);
+        ASSERT(&Obj::loadSystemTimeDefault
+            == Obj::currentSystemTimeCallback());
+
+        UsageExample4::main4();
+
+    } break;
+    case 13: {
+      // --------------------------------------------------------------------
+      // LOCAL TIME OFFSET CALLBACK FACILITY
+      //
+      // Concerns:
+      //: 1 The 'loadSystemTimeDefault' method is installed as the default
+      //:   callback.
+      //:
+      //: 2 The 'currentLoadLocalTimeOffsetCallback' method shows the currently
+      //:   installed callback.
+      //:
+      //: 3 The 'setLoadLocalTimeOffsetCallback' returns the previously
+      //:   installed callback, and sets the specified callback.
+      //:
+      //: 4 The installed callback is called by each of the methods that must
+      //:   do so, that that the value generated by the callback is reflected
+      //:   in the values returned by these methods The relevant methods are:
+      //:   1 'nowAsDatetimeLocal'
+      //:   2 'localTimeOffset'
+      //:   3 'loadLocalTimeOffset'
+      //:
+      //: 5 The user-defined callback used in this test operates correctly.
+      //:
+      //: 6 The 'loadSystemTimeDefault' returns expected values.
+      //
+      // Plan:
+      //: 1 Use the 'setLoadLocalTimeOffsetCallback' and
+      //:   'currentLoadLocalTimeOffsetCallback' methods to check, change to a
+      //:   user-defined callback, and restore initial callback.  Confirm that
+      //:   the expected values are returned by each method at each stage.
+      //:   (C-1..3)
+      //:
+      //: 2 Create a user-defined callback that provides an external indication
+      //:   when called, and provides user-specified offset to its caller.
+      //:   Using an array-drive test, demonstrate that the callback works as
+      //:   designed for several offset values (C-5), and, when the
+      //:   user-defined callback is installed as the local time offset
+      //:   callback, demonstrate that the 'loadLocalTimeOffset' method passes
+      //:   through that same offset value exactly (C-4.3).
+      //:
+      //: 3 Install the user-defined callback, and then call the
+      //:   'nowAsDatetimeLocal' and 'localTimeOffset' methods, and confirm
+      //:   that their results match the values expected given the known values
+      //:   coming from the user-defined callback.  (C-4.1, C-4.2)
+      //:
+      //:   o The test of 'nowAsDatetimeLocal' requires two measurements UTC
+      //:     time (one implicit in the method calls the other explicit to
+      //:     obtain a value for comparison).  Since time changes between the
+      //:     two calls, the results cannot be expected to always compare
+      //:     exactly; some positive variance is accepted.
+      //:
+      //:   o Also, we assume that there is no change in offset (e.g., the
+      //:     start of daylight saving time) between the two measures of UTC
+      //:     time.
+      //:
+      //: 4 Compare the results of the 'loadSystemTimeDefault' method with an
+      //:   independent source for local time offset.  (C-6)
+      //
+      // Testing:
+      //  int lLTOC(int *result, const bdet_Datetime&  utcDatetime);
+      //  int lLTOCDefault(int *result, const bdet_Datetime&  utcDatetime);
+      //  LLTOC setLLTOC(LLTOC callback);
+      //  LLTOC currentLLTOC();
+      // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "LOCAL TIME OFFSET CALLBACK FACILITY" << endl
+                          << "===================================" << endl;
+
+        if (verbose) cout << "\n'currentLoadLocalTimeOffsetCallback' and "
+                             "'setLoadLocalTimeOffsetCallback'" << endl;
+        {
+            if (veryVerbose) { T_() Q(Check for Default Initially) }
+
+            ASSERT(Obj::loadLocalTimeOffsetDefault
+                == Obj::currentLoadLocalTimeOffsetCallback());
+
+            if (veryVerbose) { T_() Q(Set User-Defined Callback) }
+
+            struct MyLocalTimeOffsetUtil {
+
+                // CLASS METHODS
+                static void loadLocalTimeOffset(
+                                           int                  *result,
+                                           const bdet_Datetime&  ) {
+                    ASSERT(result);
+                    *result = 0;
+                }
+            };
+
+            Obj::LoadLocalTimeOffsetCallback defaultCallback =
+                   Obj::setLoadLocalTimeOffsetCallback(&MyLocalTimeOffsetUtil::
+                                                          loadLocalTimeOffset);
+            ASSERT(Obj::loadLocalTimeOffsetDefault == defaultCallback);
+            ASSERT(&MyLocalTimeOffsetUtil::loadLocalTimeOffset
+                == Obj::currentLoadLocalTimeOffsetCallback());
+        
+            if (veryVerbose) { T_() Q(Restore Default Callback) }
+
+            Obj::LoadLocalTimeOffsetCallback userCallback =
+                   Obj::setLoadLocalTimeOffsetCallback(
+                                             &Obj::loadLocalTimeOffsetDefault);
+
+            ASSERT(&MyLocalTimeOffsetUtil::loadLocalTimeOffset
+                == userCallback);
+            ASSERT(Obj::loadLocalTimeOffsetDefault
+                == Obj::currentLoadLocalTimeOffsetCallback());
+        }
+
+        if (verbose) cout << "\n'MyLocalTimeOffsetUtility' and"
+                             "'loadLocalTimeOffset'" << endl;
+        {
+            const int INPUT[]   = { INT_MIN, -1, 0, 1, INT_MAX};
+            const int NUM_INPUT = sizeof(INPUT)/sizeof(*INPUT);
+
+            int resultHelper;
+            int resultMethod;
+
+            int  expectedStatus;
+            int  expectedOffset;
+            bool callbackInvoked;
+
+            MyLocalTimeOffsetUtility::setExternals(&expectedStatus,
+                                                   &expectedOffset, 
+                                                   &callbackInvoked);
+
+            Obj::LoadLocalTimeOffsetCallback defaultCallback =
+                              Obj::setLoadLocalTimeOffsetCallback(
+                               &MyLocalTimeOffsetUtility::loadLocalTimeOffset);
+
+            ASSERT(Obj::loadLocalTimeOffsetDefault == defaultCallback);
+            ASSERT(&MyLocalTimeOffsetUtility::loadLocalTimeOffset
+                == Obj::currentLoadLocalTimeOffsetCallback());
+
+            for (int i = 0; i < NUM_INPUT; ++i) {
+                expectedStatus = INPUT[i];
+
+                if (veryVerbose) { P(expectedStatus) }
+
+                for (int j = 0; j < NUM_INPUT; ++j) {
+                    expectedOffset  = INPUT[j];
+
+                    if (veryVerbose) { T_() P(expectedOffset) }
+
+                    callbackInvoked = false;
+                    ASSERT(!callbackInvoked);
+                    MyLocalTimeOffsetUtility::loadLocalTimeOffset(
+                                                              &resultHelper,
+                                                              bdet_Datetime());
+                    ASSERT(callbackInvoked);
+                    ASSERT(expectedOffset == resultHelper);
+
+                    callbackInvoked = false;
+                    ASSERT(!callbackInvoked);
+                    Obj::loadLocalTimeOffset(&resultMethod, bdet_Datetime());
+                    ASSERT(callbackInvoked);
+                    ASSERT(expectedOffset == resultMethod);
+
+                    ASSERT(resultHelper == resultMethod);
+                }
+            }
+
+            // Restore default local time callback
+
+            Obj::setLoadLocalTimeOffsetCallback(defaultCallback);
+            ASSERT(&Obj::loadLocalTimeOffsetDefault
+                == Obj::currentLoadLocalTimeOffsetCallback());
+        }
+
+        if (verbose) cout << "\n'MyLocalTimeOffsetUtility' and"
+                             "'loadLocalTimeOffset'" << endl;
+        {
+            const int OFFSETS[]   = {  -48 * 3600, 0, 72 * 3600 };
+            const int NUM_OFFSETS = sizeof(OFFSETS)/sizeof(*OFFSETS);
+
+            int resultHelper;
+            int resultMethod;
+
+            const int expectedStatus = 0;
+            int       expectedOffset;
+            bool      callbackInvoked;
+
+            MyLocalTimeOffsetUtility::setExternals(&expectedStatus,
+                                                   &expectedOffset, 
+                                                   &callbackInvoked);
+
+            Obj::LoadLocalTimeOffsetCallback defaultCallback =
+                              Obj::setLoadLocalTimeOffsetCallback(
+                               &MyLocalTimeOffsetUtility::loadLocalTimeOffset);
+
+            ASSERT(Obj::loadLocalTimeOffsetDefault == defaultCallback);
+            ASSERT(&MyLocalTimeOffsetUtility::loadLocalTimeOffset
+                == Obj::currentLoadLocalTimeOffsetCallback());
+
+            for (int i = 0; i < NUM_OFFSETS; ++i) {
+                expectedOffset = OFFSETS[i];
+
+                if (veryVerbose) { P(expectedOffset) }
+
+                bdet_Datetime utcDatetime;
+                double        measuredOffset;
+                double        delta;
+
+                // test 'nowAsDatetimeLocal'
+
+                callbackInvoked = false;
+                bdet_Datetime  lclDatetime = Obj::nowAsDatetimeLocal();
+                ASSERT(callbackInvoked);
+
+                // Race condition:  UTC time is advancing, effectively
+                // lengthening the offet between local and GMT time.
+
+                utcDatetime    = Obj::nowAsDatetimeUtc();
+                measuredOffset = (lclDatetime - utcDatetime).
+                                                        totalSecondsAsDouble();
+                delta = measuredOffset - static_cast<double>(expectedOffset);
+
+                if (veryVeryVerbose) { T_()
+                                       P_(utcDatetime)
+                                       P_(lclDatetime)
+                                       P_(expectedOffset)
+                                       P_(measuredOffset)
+                                       P(delta)
+                                     }
+
+                LOOP3_ASSERT(lclDatetime, utcDatetime, delta, 0.0 <= delta);
+                LOOP3_ASSERT(lclDatetime, utcDatetime, delta, 1.1 >  delta);
+
+                // test 'localTimeOffset'
+
+                callbackInvoked = false;
+                bdet_DatetimeInterval reportedOffset = Obj::localTimeOffset();
+                ASSERT(callbackInvoked);
+
+                delta = reportedOffset.totalSecondsAsDouble()
+                      - static_cast<double>(expectedOffset);
+
+                if (veryVeryVerbose) { T_()
+                                       P_(reportedOffset)
+                                       P_(expectedOffset)
+                                       P(delta)
+                                     }
+
+                LOOP3_ASSERT(reportedOffset,
+                             expectedOffset,
+                             delta,
+                             0.0 == delta);
+
+            }
+        }
+
+        if (verbose) cout << "\nCompare 'loadLocalTimeOffsetDefault' "
+                             "to Alternate Implementation" << endl;
+        {
+            static const char *INPUT[]   = {  "America/New_York",
+                                              "Utc/GMT",
+                                              "Europe/Berlin"
+                                           };
+            static const int NUM_INPUT = sizeof(INPUT)/sizeof(*INPUT);
+
+            static char tzEquals[] = "TZ=";
+
+            for (int i = 0; i < NUM_INPUT; ++i) {
+                const char *const TZ = INPUT[i];
+
+                if (verbose) { T_() P(TZ) }
+
+                char buffer[80];
+                ASSERT(sizeof(buffer) > sizeof(tzEquals) -1 + strlen(TZ) + 1);
+                snprintf(buffer, sizeof(buffer), "%s%s", tzEquals, TZ);
+        
+                if (veryVeryVerbose) { T_() P(buffer) }
+
+                int status = putenv(buffer);
+                ASSERT(0 == status);
+                ASSERT(0 == strcmp(TZ,
+                                   const_cast<const char *>(getenv("TZ"))));
+                tzset();
+
+                bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
+                int offset;
+                bdetu_SystemTime::loadLocalTimeOffsetDefault(&offset, now);
+    
+                if (veryVeryVerbose) { T_() P_(now) P(offset) }
+    
+                time_t currentTime;
+                bdetu_Datetime::convertToTimeT(&currentTime, now);
+    
+                struct tm gmtTM =    *gmtime(&currentTime);
+                struct tm lclTM = *localtime(&currentTime);
+
+                bdet_Datetime         gmtDatetime(gmtTM.tm_year + 1900,
+                                                  gmtTM.tm_mon  +    1,
+                                                  gmtTM.tm_mday,
+                                                  gmtTM.tm_hour,
+                                                  gmtTM.tm_min,
+                                                  gmtTM.tm_sec);
+
+                bdet_Datetime         lclDatetime(lclTM.tm_year + 1900,
+                                                  lclTM.tm_mon  +    1,
+                                                  lclTM.tm_mday,
+                                                  lclTM.tm_hour,
+                                                  lclTM.tm_min,
+                                                  lclTM.tm_sec);
+
+                bdet_DatetimeInterval diffInterval = lclDatetime - gmtDatetime;
+
+                if (veryVeryVerbose) {
+                    P(gmtDatetime)
+                    P(lclDatetime)
+                    P(diffInterval);
+                }
+
+                ASSERT(diffInterval.totalSeconds() == offset);
+            }
+        }
+         
     } break;
     case 12: {
       // --------------------------------------------------------------------
@@ -674,7 +1276,8 @@ int main(int argc, char *argv[])
                  << endl;
         {
             bdetu_SystemTime::setSystemTimeCallback(&getClientTime);
-            ASSERT( &getClientTime == bdetu_SystemTime::currentCallback() );
+            ASSERT(&getClientTime
+                             == bdetu_SystemTime::currentSystemTimeCallback());
 
             bdet_TimeInterval i1;
             ASSERT( 0 == i1 );
@@ -705,7 +1308,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == inOrder(i1, dti)); // i1 == dti == 1 second interval
 
             bdetu_SystemTime::setSystemTimeCallback(&IncrementInterval);
-            ASSERT(&IncrementInterval == bdetu_SystemTime::currentCallback());
+            ASSERT(&IncrementInterval
+                             == bdetu_SystemTime::currentSystemTimeCallback());
 
             bdet_TimeInterval i2;
             ASSERT( 0 == i2);
@@ -756,7 +1360,8 @@ int main(int argc, char *argv[])
             ASSERT( i6 >= i5 );
 
             bdetu_SystemTime::setSystemTimeCallback(&getClientTime);
-            ASSERT( &getClientTime == bdetu_SystemTime::currentCallback() );
+            ASSERT(&getClientTime
+                             == bdetu_SystemTime::currentSystemTimeCallback());
 
             bdet_TimeInterval i7;
             ASSERT( 0 == i7 );
@@ -850,7 +1455,8 @@ int main(int argc, char *argv[])
                     "=================" << endl;
         {
             bdetu_SystemTime::setSystemTimeCallback(&getClientTime);
-            ASSERT( &getClientTime == bdetu_SystemTime::currentCallback() );
+            ASSERT(&getClientTime
+                             == bdetu_SystemTime::currentSystemTimeCallback());
 
             bdet_TimeInterval i1;
             ASSERT( 0 == i1 );
@@ -881,7 +1487,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == inOrder(i1, dti)); // i1 == dti == 1 second interval
 
             bdetu_SystemTime::setSystemTimeCallback(&IncrementInterval);
-            ASSERT(&IncrementInterval == bdetu_SystemTime::currentCallback());
+            ASSERT(&IncrementInterval
+                             == bdetu_SystemTime::currentSystemTimeCallback());
 
             bdet_TimeInterval i2;
             ASSERT( 0 == i2);
@@ -932,7 +1539,8 @@ int main(int argc, char *argv[])
             ASSERT( i6 >= i5 );
 
             bdetu_SystemTime::setSystemTimeCallback(&getClientTime);
-            ASSERT( &getClientTime == bdetu_SystemTime::currentCallback() );
+            ASSERT(&getClientTime
+                             == bdetu_SystemTime::currentSystemTimeCallback());
 
             bdet_TimeInterval i7;
             ASSERT( 0 == i7 );
@@ -1064,7 +1672,8 @@ int main(int argc, char *argv[])
                << endl;
         {
             bdetu_SystemTime::setSystemTimeCallback(&getClientTime);
-            ASSERT( &getClientTime == bdetu_SystemTime::currentCallback() );
+            ASSERT(&getClientTime
+                             == bdetu_SystemTime::currentSystemTimeCallback());
 
             bdet_TimeInterval i1;
             ASSERT( 0 == i1 );
@@ -1073,7 +1682,8 @@ int main(int argc, char *argv[])
             ASSERT( 1 == i1.seconds() && 1 == i1.nanoseconds() );
 
             bdetu_SystemTime::setSystemTimeCallback(&IncrementInterval);
-            ASSERT(&IncrementInterval == bdetu_SystemTime::currentCallback());
+            ASSERT(&IncrementInterval
+                             == bdetu_SystemTime::currentSystemTimeCallback());
 
             bdet_TimeInterval i2;
             ASSERT( 0 == i2);
@@ -1101,7 +1711,8 @@ int main(int argc, char *argv[])
             ASSERT( i6 >= i5 );
 
             bdetu_SystemTime::setSystemTimeCallback(&getClientTime);
-            ASSERT( &getClientTime == bdetu_SystemTime::currentCallback() );
+            ASSERT(&getClientTime
+                             == bdetu_SystemTime::currentSystemTimeCallback());
 
             bdet_TimeInterval i7;
             ASSERT( 0 == i7 );
@@ -1114,28 +1725,37 @@ int main(int argc, char *argv[])
       case 2: {
 
         // --------------------------------------------------------------------
-        // TESTING 'setSystemTimeCallback' and 'currentCallback' METHODS
+        // TESTING CALLBACK RELATED FUNCTIONS
         //  Install the user specified 'callback' function which will be used
-        //  to actually retrieve the system time.
+        //  to actually retrieve the system time and the differential between
+        //  local time and UTC time.
         //
         // Plan:
-        //   First install default callback function by calling
+        // 1 First install default system-time callback function by calling
         //   'setSystemTimeCallback' and then verify it by calling
-        //   'currentCallback'.  Next repeat the same process for the user
-        //   defined callback function.
-        //   Apply the same test again and load some generic functions and
-        //   verify them by calling 'currentCallback'.
+        //   'currentSystemTimeCallback'.  Next repeat the same process for the
+        //   user defined callback function.  Apply the same test again and
+        //   load some generic functions and verify them by calling
+        //   'currentSystemTimeCallback'.
+        //
+        // 2 Then install local-time-offset default callback function by calling
+        //   'setLocalTimeOffsetCallback' and then verify it by calling
+        //   'currentLocalTimeOffsetCallback'.  Next repeat the same process
+        //   for the user defined callback function.  Apply the same test again
+        //   and load some generic functions and verify them by calling
+        //   'currentLocalTimeOffsetCallback'.
         //
         // Testing:
         //   setSystemTimeCallback(SystemTimeCallback callback)
-        //   SystemTimeCallback currentCallback()
+        //   SystemTimeCallback currentSystemTimeCallback()
+        //   setLocalTimeOffsetCallback(SystemLocalTimeOffsetCallback callback)
+        //   SystemLocalTimeOffsetCallback currentLocalTimeOffsetCallback()
         // --------------------------------------------------------------------
 
-        if (verbose)
-           cout << "\nTesting 'setSystemTimeCallback' and 'currentCallback' "
-                   "METHODS"
-                   "\n======================================================"
-                   "=======" << endl;
+        if (verbose) cout <<
+            "\nTesting 'setSystemTimeCallback' and 'currentSystemTimeCallback'"
+            "\n==============================================================="
+            << endl;
         {
            bdetu_SystemTime::SystemTimeCallback callback_default_p1;
            callback_default_p1  = &bdetu_SystemTime::loadSystemTimeDefault;
@@ -1143,13 +1763,14 @@ int main(int argc, char *argv[])
            bdetu_SystemTime::setSystemTimeCallback(callback_default_p1);
 
            bdetu_SystemTime::SystemTimeCallback callback_default_p2;
-           callback_default_p2 = bdetu_SystemTime::currentCallback();
+           callback_default_p2 = bdetu_SystemTime::currentSystemTimeCallback();
            ASSERT( callback_default_p2 == callback_default_p1);
 
            const bdetu_SystemTime::SystemTimeCallback callback_user_p1
                                                      = &getClientTime;
            bdetu_SystemTime::setSystemTimeCallback(callback_user_p1);
-           ASSERT( callback_user_p1 == bdetu_SystemTime::currentCallback() );
+           ASSERT(callback_user_p1
+                             == bdetu_SystemTime::currentSystemTimeCallback());
         }
 
         if (verbose)
@@ -1157,19 +1778,20 @@ int main(int argc, char *argv[])
                    "defined functions"
                    "\n======================================================="
                    "=================" << endl;
-
+        {
             const bdetu_SystemTime::SystemTimeCallback user_p1 = &f1;
             bdetu_SystemTime::setSystemTimeCallback(user_p1);
-            ASSERT( user_p1 == bdetu_SystemTime::currentCallback() );
+            ASSERT( user_p1 == bdetu_SystemTime::currentSystemTimeCallback() );
 
             const bdetu_SystemTime::SystemTimeCallback user_p2 = &f2;
             bdetu_SystemTime::setSystemTimeCallback(user_p2);
-            ASSERT( user_p2 == bdetu_SystemTime::currentCallback() );
+            ASSERT( user_p2 == bdetu_SystemTime::currentSystemTimeCallback() );
+        }
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'loadSystemTimeDefault' METHOD
+        // TESTING 'loadSystemTimeDefault' and 'loadLocalTimeOffsetDefault'
         //   Provides a default implementation for system time retrieval.
         //   The obtained system time is expressed as a time interval between
         //   the current time and '00:00 UTC, January 1, 1970'.  On UNIX
@@ -1178,11 +1800,18 @@ int main(int argc, char *argv[])
         //   it provides resolution in '100*nanoseconds'.
         //
         // Plan:
-        //   First create bdet_TimeInterval object and then load the system
-        //   time into this bdet_TimeInterval object.  Then test the
+        // 1 Create 'bdet_TimeInterval' object and then load the system time
+        //   into this bdet_TimeInterval object.  Repeat the process, verify
+        //   the 'bdet_TimeInterval' created later always compares greater
+        //   than the 'bdet_TimeInterval' object created earlier.
+        //
+        // 2 Call 'loadLocalTimeOffsetDefault' twice, store the return values
+        //   to two 'bdet_DatetimeInterval' objects.  Verify these two objects
+        //   compare equal.
         //
         // Testing:
         //   loadSystemTimeDefault(bdet_TimeInterval *result)
+        //   loadLocalTimeOffsetDefault()
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'loadSystemTimeDefault' METHOD"
@@ -1244,7 +1873,6 @@ int main(int argc, char *argv[])
                 P_(i4); P(i5);
             }
         }
-
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -1275,11 +1903,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

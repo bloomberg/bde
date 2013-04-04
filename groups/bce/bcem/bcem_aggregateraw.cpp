@@ -411,9 +411,11 @@ int bcem_AggregateRaw::descendIntoArrayItem(
 
             itemType                   = ref.type();
             itemPtr                    = ref.dataRaw();
-            const bdem_FieldDef& field = d_recordDef_p->field(0);
-            d_recordDef_p              = field.recordConstraint();
-            d_fieldDef_p               = &field;
+            if (d_recordDef_p) {
+                const bdem_FieldDef& field = d_recordDef_p->field(0);
+                d_recordDef_p              = field.recordConstraint();
+                d_fieldDef_p               = &field;
+            }
             d_parentType               = bdem_ElemType::BDEM_ROW;
             d_parentData_p             = row;
             d_indexInParent            = 0;
@@ -576,11 +578,15 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
         d_indexInParent = fieldIndex;
         *d_isTopLevelAggregateNull_p = 0;  // don't care
 
-        const bdem_FieldDef& field = d_recordDef_p->field(fieldIndex);
-        d_dataType    = field.elemType();
-        d_recordDef_p = field.recordConstraint();
-        d_fieldDef_p  = &field;
-        d_value_p     = row[fieldIndex].dataRaw();
+        if (d_recordDef_p) {
+            const bdem_FieldDef& field = d_recordDef_p->field(fieldIndex);
+            d_recordDef_p = field.recordConstraint();
+            d_fieldDef_p  = &field;
+        }
+
+        bdem_ElemRef dataRef = row[fieldIndex];
+        d_dataType = dataRef.type();
+        d_value_p  = dataRef.dataRaw();
       } break;
 
       case bdem_ElemType::BDEM_CHOICE:
@@ -620,11 +626,15 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
         *d_isTopLevelAggregateNull_p = 0;  // don't care
 
         // Descend into current selection
-        const bdem_FieldDef& field = d_recordDef_p->field(selectorIndex);
-        d_dataType    = field.elemType();
-        d_recordDef_p = field.recordConstraint();
-        d_fieldDef_p  = &field;
-        d_value_p     = choiceItem.selection().dataRaw();
+        if (d_recordDef_p) {
+            const bdem_FieldDef& field = d_recordDef_p->field(selectorIndex);
+            d_recordDef_p              = field.recordConstraint();
+            d_fieldDef_p               = &field;
+        }
+
+        bdem_ElemRef dataRef = choiceItem.selection();
+        d_dataType = dataRef.type();
+        d_value_p  = dataRef.dataRaw();
       } break;
 
       default: {
@@ -1057,28 +1067,6 @@ bcem_AggregateRaw::bcem_AggregateRaw(const bcem_AggregateRaw& original)
 , d_isTopLevelAggregateNull_p(original.d_isTopLevelAggregateNull_p)
 {
 }
-
-#ifdef BDE_BUILD_TARGET_SAFE
-bcem_AggregateRaw::~bcem_AggregateRaw()
-{
-    // Assert invariants (see member variable description in class definition)
-    if (d_dataType != bdem_ElemType::BDEM_VOID) {
-        BSLS_ASSERT(d_schema_p || (!d_recordDef_p && !d_fieldDef_p));
-
-        BSLS_ASSERT(!d_schema_p || (d_recordDef_p || d_fieldDef_p));
-
-        BSLS_ASSERT(! d_recordDef_p || &d_recordDef_p->schema() == d_schema_p);
-
-        // Cannot easily test that 'd_fieldDef_p' is within 'd_schema_p'
-        BSLS_ASSERT(! d_fieldDef_p
-                    || d_fieldDef_p->elemType() == d_dataType
-                    || d_fieldDef_p->elemType() ==
-                            bdem_ElemType::toArrayType(d_dataType));
-        BSLS_ASSERT(! d_fieldDef_p
-                    || d_recordDef_p  == d_fieldDef_p->recordConstraint());
-    }
-}
-#endif
 
 // MANIPULATORS
 bcem_AggregateRaw& bcem_AggregateRaw::operator=(const bcem_AggregateRaw& rhs)

@@ -5,11 +5,10 @@
 #include <bslmf_issame.h>    // for testing only
 #include <bslmf_typelist.h>
 
-#include <cstdlib>           // atoi()
-#include <iostream>
+#include <stdio.h>           // printf
+#include <stdlib.h>          // atoi
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -24,124 +23,46 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // [1 ] Breathing test
+
 //=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool b, const char *s, int i)
 {
-   if (c) {
-       cout << "Error " << __FILE__ << "(" << i << "): " << s
-            << "    (failed)" << endl;
-       if (0 <= testStatus && testStatus <= 100) ++testStatus;
-   }
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define ASSERT_SAME(T1,T2) ASSERT((1 == bsl::is_same<T1,T2>::value))
-
-//=============================================================================
-//                  STANDARD BDEX EXCEPTION TEST MACROS
-//-----------------------------------------------------------------------------
-
-#ifdef BDE_BUILD_TARGET_EXC
-#define BEGIN_BSLX_EXCEPTION_TEST                                           \
-{                                                                           \
-    {                                                                       \
-        static int firstTime = 1;                                           \
-        if (veryVerbose && firstTime)  cout <<                              \
-            "### BDEX EXCEPTION TEST -- (ENABLED) --" << endl;              \
-        firstTime = 0;                                                      \
-    }                                                                       \
-    if (veryVeryVerbose) cout <<                                            \
-        "### Begin bdex exception test." << endl;                           \
-    int bdexExceptionCounter = 0;                                           \
-    static int bdexExceptionLimit = 100;                                    \
-    testInStream.setInputLimit(bdexExceptionCounter);                       \
-    do {                                                                    \
-        try {
-
-#define END_BSLX_EXCEPTION_TEST                                             \
-        } catch (bslx_TestInStreamException& e) {                           \
-            if (veryVerbose && bdexExceptionLimit || veryVeryVerbose)       \
-            {                                                               \
-                --bdexExceptionLimit;                                       \
-                cout << "(" <<                                              \
-                bdexExceptionCounter << ')';                                \
-                if (veryVeryVerbose) { cout << " BSLX_EXCEPTION: "          \
-                    << "input limit = " << bdexExceptionCounter << ", "     \
-                    << "last data type = " << e.dataType();                 \
-                }                                                           \
-                else if (0 == bdexExceptionLimit) {                         \
-                    cout << " [ Note: 'bdexExceptionLimit' reached. ]";     \
-                }                                                           \
-                cout << endl;                                               \
-            }                                                               \
-            testInStream.setInputLimit(++bdexExceptionCounter);             \
-            continue;                                                       \
-        }                                                                   \
-        testInStream.setInputLimit(-1);                                     \
-        break;                                                              \
-    } while (1);                                                            \
-    if (veryVeryVerbose) cout <<                                            \
-        "### End bdex exception test." << endl;                             \
-}
-#else
-#define BEGIN_BSLX_EXCEPTION_TEST                                           \
-{                                                                           \
-    static int firstTime = 1;                                               \
-    if (verbose && firstTime) { cout <<                                     \
-        "### BDEX EXCEPTION TEST -- (NOT ENABLED) --" << endl;              \
-        firstTime = 0;                                                      \
-    }                                                                       \
-}
-#define END_BSLX_EXCEPTION_TEST
-#endif
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+#define ASSERT_SAME(T1,T2) ASSERT((1 == bsl::is_same<T1,T2>::value))
+
 struct T0  {};
 struct T1  {};
 struct T2  {};
@@ -276,16 +197,17 @@ typedef void (*TestVoidFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     (void) verbose;          // eliminate unused variable warning
     (void) veryVerbose;      // eliminate unused variable warning
     (void) veryVeryVerbose;  // eliminate unused variable warning
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
 
     switch (test) {
       case 0:  // Zero is always the leading case.
@@ -572,21 +494,36 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
+
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

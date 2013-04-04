@@ -1823,21 +1823,21 @@ void intNodeTreeToSpec(IntNode *root)
 //..
         for (int i = 0; i < NUM_NODES; ++i) {
             int comparisonResult;
-            SimpleIntNodeValueComparator comp;
+            SimpleIntNodeValueComparator comparator;
             RbTreeNode *insertLocation = RbTreeUtil::findUniqueInsertLocation(
                                                 &comparisonResult,
                                                 &tree,
-                                                comp,
+                                                comparator,
                                                 nodes[i].d_value);
-            BSLS_ASSERT(0 != comparisonResult);
+            BSLS_ASSERT(comparisonResult);
             RbTreeUtil::insertAt(&tree,
                                  insertLocation,
                                  comparisonResult < 0,
                                  &nodes[i]);
         }
 //..
-// And verify the resulting 'tree' holds 5 nodes, the first node has
-// the value 0, and the last node has the value 4:
+// And verify the resulting 'tree' holds 5 nodes, and the first node has
+// the value 0:
 //..
         ASSERT(5 == tree.numNodes());
         ASSERT(0 == static_cast<SimpleIntNode *>(tree.firstNode())->d_value);
@@ -1847,10 +1847,10 @@ void intNodeTreeToSpec(IntNode *root)
 //..
         const RbTreeNode *nodeIterator = tree.firstNode();
         while (tree.sentinel() != nodeIterator) {
-            if (verbose) {   // ============ DO NOT COPY=====================
+if (verbose) {
             printf("Node value: %d\n",
                    static_cast<const SimpleIntNode *>(nodeIterator)->d_value);
-            }
+}
             nodeIterator = RbTreeUtil::next(nodeIterator);
         }
     }
@@ -1992,7 +1992,7 @@ void intNodeTreeToSpec(IntNode *root)
     struct IntSet_NodeValueComparator {
         // This class defines a comparator providing comparison operations
         // between 'IntSet_Node' objects, and 'int' values.
-
+//
         bool operator()(const RbTreeNode& lhs, int rhs) const
         {
             return static_cast<const IntSet_Node&>(lhs).value() < rhs;
@@ -2041,7 +2041,6 @@ void intNodeTreeToSpec(IntNode *root)
             newNode->value() = static_cast<const IntSet_Node&>(node).value();
             return newNode;
         }
-//
         void deleteNode(RbTreeNode *node) const
         {
             d_allocator_p->deleteObject(static_cast<IntSet_Node *>(node));
@@ -2224,7 +2223,7 @@ void intNodeTreeToSpec(IntNode *root)
 //
     IntSet::const_iterator IntSet::erase(const_iterator iterator)
     {
-        BSLS_ASSERT(0 != iterator.nodePtr());
+        BSLS_ASSERT(iterator.nodePtr());
         IntSet_Node *node = const_cast<IntSet_Node *>(iterator.nodePtr());
 //
         // Before removing the node, we first find the subsequent node to which
@@ -2288,7 +2287,6 @@ void intNodeTreeToSpec(IntNode *root)
         return !(lhs == rhs);
     }
 //..
-
 
 void printIntSetNode(FILE *file, const RbTreeNode *node)
 {
@@ -8275,11 +8273,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

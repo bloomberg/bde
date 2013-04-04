@@ -31,8 +31,8 @@ such as 'bcem_Aggregate' can be used.
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'baejsn'.
-..
+ The following is a brief synopsis of the components in 'baejsn':
+
 : 'baejsn_decoder':
 :      Provide a JSON decoder for 'bdeat' compatible types.
 :
@@ -53,4 +53,4 @@ such as 'bcem_Aggregate' can be used.
 :
 : 'baejsn_tokenizer':
 :      Provide a tokenizer for extracting JSON data from a 'streambuf'.
-..
+

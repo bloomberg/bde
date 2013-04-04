@@ -111,98 +111,108 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following example uses the 'bcema_ProtectableSequentialAllocator'
-// to create a protected stack of integers.  Integers can be pushed onto and
+// In this section we show intended usage of this component.
+//
+///Example 1: Implementing a Protectable Stack
+///- - - - - - - - - - - - - - - - - - - - - -
+// The following example uses the 'bcema_ProtectableSequentialAllocator' to
+// create a protected stack of integers.  Integers can be pushed onto and
 // popped off of the stack, but the memory in the stack is protected so that a
 // segmentation violation will occur if any of the memory in the container is
 // written to outside of the 'IntegerStack' container.  Since a sequential
 // allocator will not release individual blocks of memory when deallocated,
 // this container is not very efficient:
 //..
-//    class IntegerStack {
-//        // This is a trivial implementation of a stack of 'int' values whose
-//        // data has READ-ONLY access protection.  It does not perform bounds
-//        // checking.
+//  class IntegerStack {
+//      // This is a trivial implementation of a stack of ints whose data has
+//      // READ-ONLY access protection.  It does not perform bounds checking.
 //
-//        // DATA
-//        int                       *d_data_p;     // memory for the stack
+//      // DATA
+//      int                            *d_data_p;     // memory for the stack
 //
-//        int                        d_stackSize;  // index of top of stack
+//      int                             d_stackSize;  // index of top of stack
 //
-//        int                        d_maxSize;    // max stack size
+//      int                             d_maxSize;    // max stack size
 //
-//        bcema_ProtectableSequentialAllocator
-//                                   d_allocator;  // owned memory allocator
+//      bcema_ProtectableSequentialAllocator
+//                                      d_allocator;  // owned memory allocator
 //
-//  // ...
+//    private:
+//      // NOT IMPLEMENTED
+//      IntegerStack(const IntegerStack&);
+//      IntegerStack& operator=(const IntegerStack&);
 //
-//        // PRIVATE TYPES
-//        enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
-//..
-// Note that the 'increaseSize' method below will waste the previously
-// allocated memory because a sequential allocator is incapable of releasing
-// individual blocks of memory:
-//..
-//      private:
-//        // PRIVATE MANIPULATORS
-//        void increaseSize()
-//            // Geometrically increase the size of this stack's memory by the
-//            // growth factor.  The behavior is undefined unless the stacks
-//            // allocator is in an unprotected state.
-//        {
-//            int *oldData = d_data_p;
-//            int  oldSize = d_maxSize;
-//            d_maxSize *= GROW_FACTOR;
-//            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
-//            bsl::memcpy(d_data_p, oldData, sizeof(int) * oldSize);
-//        }
-//
-//      public:
-//        // CREATORS
-//        IntegerStack(bdema_ProtectableBlockDispenser *dispenser = 0)
-//            // Create an 'IntegerStack'.  Optionally specify a 'dispenser'
-//            // used to supply protectable memory.  If 'dispenser' is not
-//            // specified, the
-//            // 'bdema_NativeProtectableBlockDispenser::singleton()' is used.
-//        : d_stackSize(0)
-//        , d_maxSize(INITIAL_SIZE)
-//        , d_allocator(dispenser)
-//        {
-//            d_allocator.unprotect();
-//            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
-//            d_allocator.protect();
-//        }
-//
-//        ~IntegerStack()
-//            // Destroy this object (and release its memory).
-//        {
-//        }
+//      // PRIVATE TYPES
+//      enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 //
 //..
-// We must unprotect the dispenser before modifying or deallocating memory:
+// Note that the increaseSize() method below will waste the previously
+// allocated memory because a sequential allocator does not provide a means to
+// deallocate it.
 //..
-//        // MANIPULATORS
-//        void push(int value)
-//            // Push the specified 'value' onto the stack.
-//        {
-//            d_allocator.unprotect();
-//            if (d_stackSize >= d_maxSize) {
-//                increaseSize();
-//            }
+//      // PRIVATE MANIPULATORS
+//      void increaseSize()
+//          // Geometrically increase the size of this stack's memory by the
+//          // growth factor.  The behavior is undefined unless the stack's
+//          // allocator is in an unprotected state.
+//      {
+//          int      *oldData = d_data_p;
+//          int       oldSize = d_maxSize;
+//          d_maxSize *= GROW_FACTOR;
+//          d_data_p = new(&d_allocator) int[d_maxSize];
+//          bsl::copy(oldData, oldData + oldSize, d_data_p);
+//      }
 //
-//            // Sufficient room is guaranteed.
-//            d_data_p[d_stackSize++] = value;
-//            d_allocator.protect();
-//        }
 //
-//        int pop()
-//            // Remove the top value from the stack and return it.
-//        {
-//            // Memory is being read, not written, so there is no need to
-//            // unprotect it.
-//            return d_data_p[--d_stackSize];
-//        }
-//    };
+//    public:
+//
+//      // CREATORS
+//      explicit IntegerStack(
+//                     bdema_ProtectableBlockDispenser *protectedDispenser = 0)
+//          // Create an 'IntegerStack'.  Optionally specify a 'dispenser'
+//          // used to supply protectable memory.  If 'dispenser' is not
+//          // specified, the
+//          // 'bdema_NativeProtectableBlockDispenser::singleton()' is used.
+//      : d_data_p()
+//      , d_stackSize(0)
+//      , d_maxSize(INITIAL_SIZE)
+//      , d_allocator(protectedDispenser)
+//      {
+//          d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
+//          d_allocator.protect();
+//      }
+//
+//      ~IntegerStack()
+//          // Destroy this object (and release its memory).
+//      {
+//      }
+//
+//..
+// We must unprotect the dispenser before modifying or deallocating
+// memory:
+//..
+//      // MANIPULATORS
+//      void push(int value)
+//          // Push the specified 'value' onto the stack.
+//      {
+//          d_allocator.unprotect();
+//          if (d_stackSize >= d_maxSize) {
+//              increaseSize();
+//          }
+//
+//          // Sufficient room is guaranteed.
+//          d_data_p[d_stackSize++] = value;
+//          d_allocator.protect();
+//      }
+//
+//      int pop()
+//          // Remove the top value from the stack and return it.
+//      {
+//          // Memory is being read, not written, so there is no need to
+//          // unprotect it.
+//          return d_data_p[--d_stackSize];
+//      }
+//  };
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION
@@ -233,8 +243,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_alignment.h>
 #endif
 
-#ifndef INCLUDED_BSL_CLIMITS
-#include <bsl_climits.h>       // for 'INT_MAX'
+#ifndef INCLUDED_BSLS_BLOCKGROWTH
+#include <bsls_blockgrowth.h>
 #endif
 
 namespace BloombergLP {
@@ -260,6 +270,11 @@ class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
     // both 'allocate' and 'deallocate' is undefined unless the allocator is in
     // the unprotected state.
 
+  public:
+    // PUBLIC TYPES
+    typedef bslma::Allocator::size_type size_type;
+
+  private:
     // DATA
     mutable bcemt_Mutex    d_mutex;       // synchronize access to data
 
@@ -269,10 +284,13 @@ class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
 
     size_type              d_bufSize;     // the size of the free buffer
 
-    int                    d_geometricGrowthLimit;
-                                          // limit of geometric expansion
+    size_type              d_growthLimit; // limit of buffer growth
 
-    int                    d_size;        // total amount of allocated memory
+    bsls::BlockGrowth::Strategy
+                           d_growthStrategy;
+                                          // strategy to use for for growth
+
+    size_type              d_size;        // total amount of allocated memory
 
     bsls::Alignment::Strategy
                            d_strategy;    // strategy to use for alignment
@@ -283,13 +301,13 @@ class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
     bdema_ProtectableBlockDispenser
                           *d_dispenser_p; // dispenser (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     bcema_ProtectableSequentialAllocator(
                                   const bcema_ProtectableSequentialAllocator&);
     bcema_ProtectableSequentialAllocator& operator=(
                                   const bcema_ProtectableSequentialAllocator&);
 
-  private:
     // PRIVATE MANIPULATORS
     void *allocateWithoutLock(size_type size);
         // Allocate a contiguous block of memory of the specified 'size' in
@@ -300,32 +318,35 @@ class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
 
   public:
     // CREATORS
-    bcema_ProtectableSequentialAllocator(
+    explicit bcema_ProtectableSequentialAllocator(
                           bdema_ProtectableBlockDispenser *blockDispenser = 0);
-    bcema_ProtectableSequentialAllocator(
+    explicit bcema_ProtectableSequentialAllocator(
                           bsls::Alignment::Strategy        strategy,
                           bdema_ProtectableBlockDispenser *blockDispenser = 0);
     bcema_ProtectableSequentialAllocator(
                           bsls::Alignment::Strategy        strategy,
-                          int                              bufferExpansionSize,
+                          bsls::BlockGrowth::Strategy      growthStrategy,
+                          size_type                        bufferExpansionSize,
                           bdema_ProtectableBlockDispenser *blockDispenser = 0);
-        // Create a sequential allocator that dispenses protectable memory
-        // from an internal buffer.  Optionally specify a 'strategy' to
-        // determine the alignment used for allocating memory from the internal
-        // buffer (as detailed in the component documentation); natural
-        // alignment is used by default.  Optionally specify a
+        // Create a sequential allocator that dispenses protectable memory from
+        // an internal buffer.  Optionally specify a 'strategy' to determine
+        // the alignment used for allocating memory from the internal buffer
+        // (as detailed in the component documentation); natural alignment is
+        // used by default.  Optionally specify a 'growthStrategy' and
         // 'bufferExpansionSize' to configure the internal memory buffer growth
-        // (as detailed in the component documentation).  If
-        // 'bufferExpansionSize' is positive, the internal buffer will grow
+        // (as detailed in the component documentation).  If 'growthStrategy'
+        // is 'bsls::BlockGrowth::BSLS_CONSTANT', the internal buffer will grow
         // linearly in increments of 'bufferExpansionSize'.  If
-        // 'bufferExpansionSize' is negative the internal buffer will grow
-        // geometrically up to an increment of |'bufferExpansionSize'|, after
-        // which point the buffer will grow linearly in increments of
-        // |'bufferExpansionSize'|.  If 'bufferExpansionSize' is not supplied
-        // or 0 the internal buffer will grow geometrically indefinitely (i.e.,
-        // until available memory is exhausted).  Optionally specify a
-        // 'blockDispenser' to supply protectable blocks of memory.  If
-        // 'blockDispenser' is 0, the
+        // 'growthStrategy' is 'bsls::BlockGrowth::BSLS_GEOMETRIC' the internal
+        // buffer will grow geometrically up to an increment of
+        // 'bufferExpansionSize', after which point the buffer will grow
+        // linearly in increments of 'bufferExpansionSize'.  If
+        // 'growthStrategy' and 'bufferExpansionSize' are not supplied, or if
+        // 'growthStrategy' is 'bsls::BlockGrowth::BSLS_GEOMETRIC' and
+        // 'bufferExpansionSize' is 0, the internal buffer will grow
+        // geometrically indefinitely (i.e., until available memory is
+        // exhausted).  Optionally specify a 'blockDispenser' to supply
+        // protectable blocks of memory.  If 'blockDispenser' is 0, the
         // 'bdema_NativeProtectableBlockDispenser::singleton' is used.
 
     virtual ~bcema_ProtectableSequentialAllocator();
@@ -347,18 +368,19 @@ class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
         //
         // This implementation does not release the memory for reuse.
 
-    int expand(void      *address,
-               size_type  originalNumBytes,
-               size_type  maxNumBytes = 0);
+    size_type expand(void      *address,
+                     size_type  originalNumBytes,
+                     size_type  maxNumBytes = 0);
         // Increase the amount of memory allocated at the specified 'address'
-        // from the specified 'originalNumBytes' to the maximum amount that
-        // can be obtained without replenishing the allocator's internal
-        // buffer, up to the optionally specified 'maxNumBytes'.  If
-        // 'maxNumBytes' is 0 then expand the memory allocated at 'address' to
-        // the maximum amount possible without growing the allocator's
-        // internal buffer.  The behavior is undefined unless the call to this
-        // allocator that provided the 'address' was performed with the
-        // 'originalNumBytes' and 'originalNumBytes < maxNumBytes'.
+        // from the specified 'originalNumBytes' to the maximum amount that can
+        // be obtained without replenishing the allocator's internal buffer, up
+        // to the optionally specified 'maxNumBytes'.  Return the memory size
+        // after expansion.  If 'maxNumBytes' is 0 then expand the memory
+        // allocated at 'address' to the maximum amount possible without
+        // growing the allocator's internal buffer.  The behavior is undefined
+        // unless the call to this allocator that provided the 'address' was
+        // performed with the 'originalNumBytes' and either
+        // 'originalNumBytes < maxNumBytes' or 'maxNumBytes == 0'.
 
     virtual void release();
         // Unprotect and deallocate all memory managed by this object without

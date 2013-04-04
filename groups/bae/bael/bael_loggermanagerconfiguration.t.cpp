@@ -297,9 +297,9 @@ int main(int argc, char *argv[])
                       bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
 //
        ASSERT(           schema == config.userSchema());
-       ASSERT(        populator == config.userPopulatorCallback());
-       ASSERT(       nameFilter == config.categoryNameFilterCallback());
-       ASSERT(defaultThresholds == config.defaultThresholdLevelsCallback());
+//       ASSERT(        populator == config.userPopulatorCallback());
+//       ASSERT(       nameFilter == config.categoryNameFilterCallback());
+//       ASSERT(defaultThresholds == config.defaultThresholdLevelsCallback());
        ASSERT(bael_LoggerManagerConfiguration::BAEL_FIFO == config.logOrder());
        ASSERT(bael_LoggerManagerConfiguration::BAEL_NO_MARKERS
                                                    == config.triggerMarkers());
@@ -606,10 +606,15 @@ if (veryVerbose)
 
         ASSERT(    D0 == X1.defaults());
         ASSERT(    S0 == X1.userSchema());
+#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
         ASSERT(  PCB0 == X1.userPopulatorCallback());
         ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
         ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
-
+#else
+        ASSERT(!X1.userPopulatorCallback());
+        ASSERT(!X1.categoryNameFilterCallback());
+        ASSERT(!X1.defaultThresholdLevelsCallback());
+#endif
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
         ASSERT(1 == (Z1 == Y1));          ASSERT(0 == (Z1 != Y1));
@@ -624,9 +629,15 @@ if (veryVerbose)
 
         ASSERT(    D0 == X1.defaults());
         ASSERT(    S0 == X1.userSchema());
+#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
         ASSERT(  PCB0 == X1.userPopulatorCallback());
         ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
         ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
+#else
+        ASSERT(!X1.userPopulatorCallback());
+        ASSERT(!X1.categoryNameFilterCallback());
+        ASSERT(!X1.defaultThresholdLevelsCallback());
+#endif
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
@@ -644,9 +655,15 @@ if (veryVerbose)
 
         ASSERT(    D1 == X1.defaults());
         ASSERT(    S0 == X1.userSchema());
+#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
         ASSERT(  PCB0 == X1.userPopulatorCallback());
         ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
         ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
+#else
+        ASSERT(!X1.userPopulatorCallback());
+        ASSERT(!X1.categoryNameFilterCallback());
+        ASSERT(!X1.defaultThresholdLevelsCallback());
+#endif
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
@@ -682,9 +699,15 @@ if (veryVerbose)
 
         ASSERT(    D0 == X1.defaults());
         ASSERT(    S1 == X1.userSchema());
+#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
         ASSERT(  PCB1 == X1.userPopulatorCallback());
         ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
         ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
+#else
+        ASSERT(X1.userPopulatorCallback());
+        ASSERT(!X1.categoryNameFilterCallback());
+        ASSERT(!X1.defaultThresholdLevelsCallback());
+#endif
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
@@ -721,9 +744,15 @@ if (veryVerbose)
 
         ASSERT(    D0 == X1.defaults());
         ASSERT(    S0 == X1.userSchema());
+#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
         ASSERT(  PCB0 == X1.userPopulatorCallback());
         ASSERT(CNFCB1 == X1.categoryNameFilterCallback());
         ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
+#else
+        ASSERT(!X1.userPopulatorCallback());
+        ASSERT(X1.categoryNameFilterCallback());
+        ASSERT(!X1.defaultThresholdLevelsCallback());
+#endif
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
@@ -760,9 +789,15 @@ if (veryVerbose)
 
         ASSERT(    D0 == X1.defaults());
         ASSERT(    S0 == X1.userSchema());
+#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
         ASSERT(  PCB0 == X1.userPopulatorCallback());
         ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
         ASSERT( DTCB1 == X1.defaultThresholdLevelsCallback());
+#else
+        ASSERT(!X1.userPopulatorCallback());
+        ASSERT(!X1.categoryNameFilterCallback());
+        ASSERT(X1.defaultThresholdLevelsCallback());
+#endif
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));

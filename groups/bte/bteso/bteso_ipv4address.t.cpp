@@ -130,6 +130,11 @@ typedef bdex_TestOutStream Out;
 
 int main(int argc, char *argv[])
 {
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)
+    // drqs 38679960 - clang can use up all the memory on Linux compiling
+    // this test driver, crashing the machine.
+    return -1;
+#endif
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;

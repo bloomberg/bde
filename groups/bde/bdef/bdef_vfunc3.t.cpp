@@ -1,9 +1,9 @@
-// bdef_vfunc3.t.cpp              -*-C++-*-
+// bdef_vfunc3.t.cpp                                                  -*-C++-*-
 
 #include <bdef_vfunc3.h>
 
-#include <bslma_testallocator.h>                // for testing only
 #include <bslma_default.h>
+#include <bslma_testallocator.h>                // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_c_stdlib.h>     // atoi()
@@ -11,14 +11,13 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The 'bdef_Vfunc3' class holds a pointer to an instance of a 'bdefr_Vfunc3'
-// (an abstact class), and manipulates it appropriately.  Our main objective
+// (an abstract class), and manipulates it appropriately.  Our main objective
 // is to make sure that the 'bdefr_Vfunc3' object is initialized correctly and
 // that its integer data (the reference count) is modified by the methods of
 // 'bdef_Vfunc3' as expected.
@@ -82,7 +81,7 @@ class FunctorRep : public bdefr_Vfunc3<A1, A2, A3> {
     // It mimics the behavior of classes in 'bdefi' with one exception: it
     // allows to count the number of time the 'execute' function has been
     // called, which is used to verify that different functors, that are
-    // supposed to share the implementation (as a result of copy constrution
+    // supposed to share the implementation (as a result of copy construction
     // or assignment) indeed share the implementation.
 
     F  d_f;  // function pointer or function object (functor)
@@ -299,12 +298,12 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT OPERATOR
         //
         //   We need to test the following six cases:
-        //    a. Assignment to uninitialized object from unitialized object.
-        //    b. Assignment to initialized object from unitialized object.
-        //    c. Assignment of unitialized object to self.
-        //    d. Assignment to uninitialized object from itialized object.
-        //    e. Assignment to initialized object from itialized object.
-        //    f. Assignment of itialized object to self.
+        //    a. Assignment to uninitialized object from uninitialized object.
+        //    b. Assignment to initialized object from uninitialized object.
+        //    c. Assignment of uninitialized object to self.
+        //    d. Assignment to uninitialized object from initialized object.
+        //    e. Assignment to initialized object from initialized object.
+        //    f. Assignment of initialized object to self.
         //
         //   We have the following specific concerns for each case:
         //    1. The assignment operator fully initializes the object

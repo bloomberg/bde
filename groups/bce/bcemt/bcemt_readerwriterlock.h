@@ -85,8 +85,8 @@ BDES_IDENT("$Id: $")
 // class UserInfoCache {
 //     typedef bsl::map<int, UserInfo> InfoMap;
 //
-//     Obj     d_lock;
-//     InfoMap d_infoMap;
+//     bcemt_ReaderWriterLock d_lock;
+//     InfoMap                d_infoMap;
 //   public:
 //     UserInfoCache();
 //     ~UserInfoCache();

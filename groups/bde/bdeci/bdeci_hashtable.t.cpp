@@ -1,7 +1,11 @@
-// bdeci_hashtable.t.cpp           -*-C++-*-
+// bdeci_hashtable.t.cpp                                              -*-C++-*-
 
 #include <bdeci_hashtable.h>
 #include <bdeci_hashtableimputil.h>
+
+#include <bdeimp_int64hash.h>
+#include <bdeimp_inthash.h>
+#include <bdeimp_strhash.h>
 
 #include <bdema_bufferedsequentialallocator.h>
 
@@ -11,10 +15,7 @@
 
 #include <bsls_types.h>
 
-#include <bdeimp_int64hash.h>
-#include <bdeimp_inthash.h>
-#include <bdeimp_strhash.h>
-
+#include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 #include <bsl_new.h>         // placement syntax
 #include <bsl_string.h>
@@ -389,7 +390,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -479,6 +480,157 @@ int main(int argc, char *argv[])
             manip.addRaw(E1);
             manip.setSlot(ht.hash(E2));
             manip.addRaw(E2);
+        }
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING INITIALIZE OPERATOR:
+        // We are concerned that, for an array of any length, 'initialize' must
+        // set the value of every element regardless of the element type.
+        //
+        // Plan:
+        //   Specify a set of test vectors which define all relevant test
+        //   patterns as well as the expected result.  Iterate over the test
+        //   vectors and ensure the expected result is obtained through use of
+        //   'areEqual'.  Repeat the process with various element types.
+        //
+        // Testing:
+        //   void initializeRaw(T *array, T value, int numElements);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "Testing 'initialize'" << endl
+                 << "====================" << endl;
+
+        if (verbose) cout << "\nTesting 'initialize(array, value, ne)' "
+                          << "for 'int'."
+                          << endl;
+        {
+            const int SZ = 32;
+            static struct {
+                int d_lineNum;    // source line number
+                int d_dst_p[SZ];  // destination array
+                int d_value;      // initialization value
+                int d_ne;         // number of elements
+                int d_exp_p[SZ];  // source array (not const; Windows)
+            } DATA[] = {
+                //line  dst                   val.  ne  exp
+                //----  --------------------  ----  --  --------------------
+                { L_,   { 1 },                 0,    0, { 0 }                },
+                { L_,   { 1 },                 0,    1, { 0 }                },
+                { L_,   { 1 },                 2,    1, { 2 }                },
+                { L_,   { 2 },                 0,    1, { 0 }                },
+                { L_,   { 1, 2, 3 },           0,    1, { 0, 2, 3 }          },
+                { L_,   { 1, 2, 3 },           0,    2, { 0, 0, 3 }          },
+                { L_,   { 1, 2, 3 },           0,    3, { 0, 0, 0 }          },
+                { L_,   { 1, 2, 3 },           4,    1, { 4, 2, 3 }          },
+                { L_,   { 1, 2, 3 },           4,    2, { 4, 4, 3 }          },
+                { L_,   { 1, 2, 3 },           4,    3, { 4, 4, 4 }          },
+                { L_,   { 1, 2, 3, 4 },        0,    4, { 0, 0, 0, 0 }       },
+                { L_,   { 1, 2, 3, 4, 5 },     0,    5, { 0, 0, 0, 0, 0 }    },
+                { L_,   { 1, 2, 3, 4, 5, 6 },  0,    6, { 0, 0, 0, 0, 0, 0 } },
+                { L_,   { 1, 2, 3, 4, 5, 6, 7 },
+                                               0,    7,
+                                                     { 0, 0, 0, 0, 0, 0, 0 } },
+                { L_,   { 1, 2, 3, 4, 5, 6, 7, 8 },
+                                               0,    8,
+                                                  { 0, 0, 0, 0, 0, 0, 0, 0 } },
+                { L_,   { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+                                               0,    9,
+                                               { 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+                { L_,   { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 },
+                                               0,    15,
+                                           { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } },
+                { L_,   { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 },
+                                               0,    16,
+                                         { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } },
+                { L_,   { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 },
+                                               0,    17,
+                                       { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int  LINE   = DATA[ti].d_lineNum;
+                int       *DST    = DATA[ti].d_dst_p;
+                const int  VALUE  = DATA[ti].d_value;
+                const int  NE     = DATA[ti].d_ne;
+                const int *EXP    = DATA[ti].d_exp_p;
+
+                int dest[SZ];
+                memcpy(dest, DST, SZ * sizeof(int));
+
+                bdeci_Hashtable_ImpUtil<int>::initializeRaw(dest, VALUE, NE);
+                LOOP_ASSERT(LINE, bsl::equal(dest, dest + NE, EXP));
+                LOOP_ASSERT(LINE, dest[NE] == DST[NE]);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'initialize(array, value, ne)' "
+                          << "for 'double'."
+                          << endl;
+        {
+            const int SZ = 32;
+            static struct {
+                int    d_lineNum;    // source line number
+                double d_dst_p[SZ];  // destination array
+                double d_value;      // initialization value
+                int    d_ne;         // number of elements
+                double d_exp_p[SZ];  // source array (not const; Windows)
+            } DATA[] = {
+                //line  dst                   val.  ne  exp
+                //----  --------------------  ----  --  --------------------
+                { L_,   { 1 },                 0,    0, { 0 }                },
+                { L_,   { 1 },                 0,    1, { 0 }                },
+                { L_,   { 1 },                 2,    1, { 2 }                },
+                { L_,   { 2 },                 0,    1, { 0 }                },
+                { L_,   { 1, 2, 3 },           0,    1, { 0, 2, 3 }          },
+                { L_,   { 1, 2, 3 },           0,    2, { 0, 0, 3 }          },
+                { L_,   { 1, 2, 3 },           0,    3, { 0, 0, 0 }          },
+                { L_,   { 1, 2, 3 },           4,    1, { 4, 2, 3 }          },
+                { L_,   { 1, 2, 3 },           4,    2, { 4, 4, 3 }          },
+                { L_,   { 1, 2, 3 },           4,    3, { 4, 4, 4 }          },
+                { L_,   { 1, 2, 3, 4 },        0,    4, { 0, 0, 0, 0 }       },
+                { L_,   { 1, 2, 3, 4, 5 },     0,    5, { 0, 0, 0, 0, 0 }    },
+                { L_,   { 1, 2, 3, 4, 5, 6 },  0,    6, { 0, 0, 0, 0, 0, 0 } },
+                { L_,   { 1, 2, 3, 4, 5, 6, 7 },
+                                               0,    7,
+                                                     { 0, 0, 0, 0, 0, 0, 0 } },
+                { L_,   { 1, 2, 3, 4, 5, 6, 7, 8 },
+                                               0,    8,
+                                                  { 0, 0, 0, 0, 0, 0, 0, 0 } },
+                { L_,   { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+                                               0,    9,
+                                               { 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+                { L_,   { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 },
+                                               0,    15,
+                                           { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } },
+                { L_,   { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 },
+                                               0,    16,
+                                         { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } },
+                { L_,   { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 },
+                                               0,    17,
+                                       { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int     LINE   = DATA[ti].d_lineNum;
+                double       *DST    = DATA[ti].d_dst_p;
+                const double  VALUE  = DATA[ti].d_value;
+                const int     NE     = DATA[ti].d_ne;
+                const double *EXP    = DATA[ti].d_exp_p;
+
+                double dest[SZ];
+                memcpy(dest, DST, SZ * sizeof(double));
+
+                bdeci_Hashtable_ImpUtil<double>::initializeRaw(dest,
+                                                               VALUE,
+                                                               NE);
+                LOOP_ASSERT(LINE, bsl::equal(dest, dest + NE, EXP));
+                LOOP_ASSERT(LINE, dest[NE] == DST[NE]);
+            }
         }
       } break;
       case 17: {

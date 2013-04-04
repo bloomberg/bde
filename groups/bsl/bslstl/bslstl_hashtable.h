@@ -1497,10 +1497,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MALLOCFREEALLOCATOR
-#include <bslma_mallocfreeallocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -2622,10 +2618,9 @@ struct HashTable_ImpDetails {
         // preceding value).
 
     static bslalg::HashTableBucket *defaultBucketAddress();
-        // Return that address of a statically initialized empty bucket that
+        // Return the address of a statically initialized empty bucket that
         // can be shared as the (un-owned) bucket array by all empty hash
         // tables.
-
 
     static size_t growBucketsForLoadFactor(size_t *capacity,
                                            size_t  minElements,
@@ -2639,6 +2634,15 @@ struct HashTable_ImpDetails {
         // could index without exceeding the maxLoadFactor.  The behavior is
         // undefined unless '0 < maxLoadFactor', '0 < minElements' and
         // '0 < requestedBuckets'.
+
+    static bslma::Allocator *incidentalAllocator();
+        // Return that address of an allocator that can be used to allocate
+        // temporary storage, but that is neither the default nor global
+        // allocator.  Note that this function is intended to support detailed
+        // checks in 'SAFE_2' builds, that may need additional storage for the
+        // evaluation of a validity check on a large data structure, but that
+        // should not change the expected values computed for regular allocator
+        // usage of the component as validated by the test driver.
 };
 
                     // ====================
@@ -3318,18 +3322,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
     // MallocFree allocator might also run out of resources, that is not the
     // kind of catastrophic failure we are concerned with handling in an
     // invariant check that runs only in SAFE_2 builds from a destructor.
-    //
 
     BSLS_ASSERT_SAFE(bslalg::HashTableImpUtil::isWellFormed<KEY_CONFIG>(
-                                    this->d_anchor,
-                                    this->d_parameters.hasher(),
-                                    &bslma::MallocFreeAllocator::singleton()));
-
-    // TBD This forces a check for corruption that should be otherwise picked
-    //     up by a test driver.  It should be removed before releasing the
-    //     final code.
-
-    BSLS_ASSERT_SAFE(HashTable_ImpDetails::defaultBucketAddress());
+                                 this->d_anchor,
+                                 this->d_parameters.hasher(),
+                                 HashTable_ImpDetails::incidentalAllocator()));
 #endif
 
     this->removeAllAndDeallocate();
@@ -4390,11 +4387,24 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
