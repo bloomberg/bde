@@ -4,6 +4,7 @@ baetzo_dstpolicy
 baetzo_errorcode
 baetzo_loader
 baetzo_localtimedescriptor
+baetzo_localtimeoffsetutil
 baetzo_localtimeperiod
 baetzo_localtimevalidity
 baetzo_testloader
