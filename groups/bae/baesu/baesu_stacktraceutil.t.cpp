@@ -70,8 +70,12 @@ using bsl::flush;
 // [ 7] large symbols
 // [ 8] output of trace with fprintf rather than stream
 // [ 9] line #'s and offsets
-// [10] usage 1
-// [11] usage 2
+// [10] multithreaded
+// [11] hexStackTrace
+// [12] printHexStackTrace
+// [13] usage 1
+// [14] usage 2
+// [15] usage 3
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -356,9 +360,7 @@ void stackTop()
         ss << Util::hexStackTrace;
     }
     else {
-        bsl::ostream *ps = &Util::printHexStackTrace(ss,
-                                                     -1,
-                                                     '\n');
+        bsl::ostream *ps = &Util::printHexStackTrace(ss, '\n');
         ASSERT(&ss == ps);
     }
 
@@ -1269,20 +1271,21 @@ void bottom(bslma::Allocator *alloc)
 
 // Example 3: Outputting a hex stack trace.
 
-// In this example, we demonstrate output return addresses from the stack to a
-// stream.  Note that in this case the stack trace is never stored to a data
-// object, -- the 'operator<<' gathers the stack addresses and immediately
-// streams them out.  After the 'operator<<' is finished, the stack addresses
-// are no longer stored anywhere.
+// In this example, we demonstrate how to output return addresses from the
+// stack to a stream in hex.  Note that in this case the stack trace is never
+// stored to a data object -- when the 'operator<<' is passed a pointer to the
+// 'hexStackTrace' function, it calls the 'hexStackTrace' function, which
+// gathers the stack addresses and immediately streams them out.  After the
+// 'operator<<' is finished, the stack addresses are no longer stored anywhere.
 
 // First, we define a routine 'recurseExample3' which will recurse the
-// specified 'depth' times, then call 'traceExample2'.
+// specified 'depth' times, then call 'traceExample3'.
 
 void traceExample3();    // forward declaration
 
 static void recurseExample3(int *depth)
     // Recurse the specified 'depth' number of times, then call
-    // 'traceExample2', which will print a stack-trace.
+    // 'traceExample3', which will print a stack-trace.
 {
     if (--*depth > 0) {
         recurseExample3(depth);

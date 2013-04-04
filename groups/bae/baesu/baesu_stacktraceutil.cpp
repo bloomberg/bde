@@ -99,7 +99,7 @@ bsl::ostream& baesu_StackTraceUtil::hexStackTrace(bsl::ostream &stream)
     // potentially an extra pointer to be printed out, by passing '1' to
     // 'additionalIgnoreFrames'.
 
-    return printHexStackTrace(stream, -1, ' ', 1);
+    return printHexStackTrace(stream, ' ', -1, 1);
 }
 
 int baesu_StackTraceUtil::loadStackTraceFromAddressArray(
@@ -236,8 +236,8 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
 
 bsl::ostream& baesu_StackTraceUtil::printHexStackTrace(
                                       bsl::ostream&     stream,
-                                      int               maxFrames,
                                       char              delimiter,
+                                      int               maxFrames,
                                       int               additionalIgnoreFrames,
                                       bslma::Allocator *allocator)
 {
