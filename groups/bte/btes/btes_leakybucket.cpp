@@ -207,8 +207,8 @@ bdet_TimeInterval btes_LeakyBucket::calculateTimeToSubmit(
 void btes_LeakyBucket::setRateAndCapacity(bsls_Types::Uint64 newRate,
                                           bsls_Types::Uint64 newCapacity)
 {
-    BSLS_ASSERT_SAFE(0 < d_drainRate);
-    BSLS_ASSERT_SAFE(0 < d_capacity);
+    BSLS_ASSERT_SAFE(0 < newRate);
+    BSLS_ASSERT_SAFE(0 < newCapacity);
 
     d_drainRate  = newRate;
     d_capacity   = newCapacity;
