@@ -752,7 +752,7 @@ typename allocator<T>::size_type allocator<T>::max_size() const
     // 'bslma::Allocator::size_type' is just an alias for 'std::size_t'.  First
     // demonstrate that is true:
 
-    BSLMF_ASSERT((bsl::is_same<BloombergLP::bslma::Allocator::size_type, 
+    BSLMF_ASSERT((bsl::is_same<BloombergLP::bslma::Allocator::size_type,
                                                          std::size_t>::value));
 
     static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
