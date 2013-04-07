@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 #define BSL_VERSION_MAJOR    2
     // Provide the major version number of the current (latest) BSL release.
 
-#define BSL_VERSION_MINOR    16
+#define BSL_VERSION_MINOR    17
     // Provide the minor version number of the current (latest) BSL release.
 
 #define BSL_MAKE_VERSION(major, minor) ((major) * 10000 \
@@ -93,7 +93,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

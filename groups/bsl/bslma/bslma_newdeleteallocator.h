@@ -262,6 +262,7 @@ class NewDeleteAllocator : public Allocator {
     // should generally not be used directly by typical clients (see
     // 'bslma_default' for more information).
 
+  private:
     // NOT IMPLEMENTED
     NewDeleteAllocator(const NewDeleteAllocator&);
     NewDeleteAllocator& operator=(const NewDeleteAllocator&);
@@ -369,7 +370,7 @@ void NewDeleteAllocator::deallocate(void *address)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

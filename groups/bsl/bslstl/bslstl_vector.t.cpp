@@ -3,8 +3,8 @@
 #include <bslstl_vector.h>
 
 #include <bslstl_allocator.h>
-#include <bslstl_iterator.h>
 #include <bslstl_forwarditerator.h>
+#include <bslstl_iterator.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -12,15 +12,19 @@
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>           // for testing only
 #include <bslma_testallocatorexception.h>  // for testing only
+
 #include <bslmf_issame.h>                  // for testing only
-#include <bsls_objectbuffer.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_exceptionutil.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>                // for testing only
 #include <bsls_util.h>
+
 #include <bsltf_nontypicaloverloadstesttype.h>
 
 #include <iterator>   // 'iterator_traits'
@@ -5428,7 +5432,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("\t\tCreating object of "); P(LENGTH);
                 }
 
-                try {
+                BSLS_TRY {
                     const bsls::Types::Int64 TB =
                                            defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
@@ -5443,7 +5447,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (...) {
+                BSLS_CATCH(...) {
                     break;
                 }
                 ASSERT(0 == globalAllocator_p->numBytesInUse());
@@ -5465,7 +5469,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("using "); P(VALUE);
                 }
 
-                try {
+                BSLS_TRY {
                     const bsls::Types::Int64 TB =
                                            defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
@@ -5480,7 +5484,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (...) {
+                BSLS_CATCH(...) {
 
                     break;
                 }
@@ -9352,7 +9356,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

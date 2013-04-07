@@ -5,7 +5,7 @@
 
 #include <bsls_platform.h>            // for testing only
 
-#include <cstdlib>    // atoi()
+#include <stdlib.h>    // atoi()
 #include <iostream>
 #include <typeinfo>
 
@@ -327,7 +327,11 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ArrayToPointer<const char [6]>::Type, const char*);
         if (verbose) {
             //P(bslmf::ArrayToPointer<const char [6]>::ID);
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
+            // Note that there is a bug in the Clang 3.1 compiler that causes
+            // the front end to assert on the following 'typeid' expression:
             P(typeid(const char [6]).name());
+#endif
             P(typeid(bslmf::ArrayToPointer<const char [6]>::Type).name());
         }
 
@@ -538,7 +542,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

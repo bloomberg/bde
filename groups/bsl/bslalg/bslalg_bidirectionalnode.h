@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //                              // ===============
 //                              // MyList_Iterator
 //                              // ===============
-//..
+//
 //  template <class PAYLOAD>
 //  class MyList_Iterator {
 //      // This iterator is used to refer to positions within a list.
@@ -377,7 +377,7 @@ const VALUE& BidirectionalNode<VALUE>::value() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

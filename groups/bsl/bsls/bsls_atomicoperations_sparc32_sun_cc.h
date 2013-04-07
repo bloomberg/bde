@@ -133,9 +133,8 @@ struct AtomicOperations_SPARC32_SUN_CC
 {
     typedef Atomic_TypeTraits<AtomicOperations_SPARC32_SUN_CC> AtomicTypes;
 
-                    // *** atomic functions for Int64 ***
+        // *** atomic functions for Int64 ***
 
-    // CLASS METHODS
     static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
 
     static Types::Int64 getInt64Relaxed(const AtomicTypes::Int64 *atomicInt);
@@ -299,7 +298,7 @@ Types::Int64 AtomicOperations_SPARC32_SUN_CC::
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -1,10 +1,24 @@
-// bsltf_stdtestallocator.cpp                                 -*-C++-*-
+// bsltf_stdtestallocator.cpp                                         -*-C++-*-
 #include <bsltf_stdtestallocator.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslma_newdeleteallocator.h>
+
 #include <bsls_assert.h>
+
+#include <limits.h>
+
+namespace
+{
+// STATIC DATA
+// This global static data is declared and defined entirely hidden inside
+// the .cpp file, as the IBM compiler may create multiple copies if accessed
+// through inline functions defined in the header.
+    static ::BloombergLP::bslma::Allocator
+                              *s_StdTestAllocatorConfiguration_allocator_p = 0;
+}  // close anonymous namespace
 
 namespace BloombergLP {
 namespace bsltf {
@@ -14,15 +28,29 @@ namespace bsltf {
                         // class StdTestAllocatorConfiguration
                         // -----------------------------------
 
-// STATIC DATA
-bslma::Allocator *StdTestAllocatorConfiguration::s_allocator_p = 0;
-
-
 // CLASS METHODS
+bslma::Allocator* StdTestAllocatorConfiguration::delegateAllocator()
+{
+    return s_StdTestAllocatorConfiguration_allocator_p
+         ? s_StdTestAllocatorConfiguration_allocator_p
+         : &bslma::NewDeleteAllocator::singleton();
+}
+
 void StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
                                               bslma::Allocator *basicAllocator)
 {
-    s_allocator_p = basicAllocator;
+    BSLS_ASSERT_OPT(basicAllocator);
+
+    s_StdTestAllocatorConfiguration_allocator_p = basicAllocator;
+}
+
+                        // -----------------------
+                        // struct StdTestAllocator
+                        // -----------------------
+
+unsigned int StdTestAllocator_CommonUtil::maxSize(size_t elementSize)
+{
+    return UINT_MAX  / elementSize;
 }
 
                         // ----------------------
@@ -34,7 +62,7 @@ void StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

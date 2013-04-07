@@ -1,11 +1,11 @@
-// bsltf_stdtestallocator.t.cpp                               -*-C++-*-
+// bsltf_stdtestallocator.t.cpp                                       -*-C++-*-
 #include <bsltf_stdtestallocator.h>
 
 #include <bsltf_simpletesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -14,6 +14,8 @@
 #include <bslmf_issame.h>
 
 #include <limits>
+
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -101,10 +103,11 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) { ++testStatus; }
     }
 }
 
@@ -179,8 +182,8 @@ class MyContainer {
     TYPE      *d_object_p;   // pointer to the contained object
 
   public:
-    // CONSTRUCTORS
-    MyContainer(const TYPE& object);
+    // CREATORS
+    explicit MyContainer(const TYPE& object);
         // Create an container containing the specified 'object', using the
         // parameterized 'ALLOCATOR' to allocate memory.
 
@@ -243,7 +246,7 @@ class TestType {
 
   public:
     // CREATORS
-    TestType(int data)
+    explicit TestType(int data)
     : d_data(data)
     {
     }
@@ -266,12 +269,13 @@ class TestType {
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test                = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose             = argc > 2;
-    int veryVerbose         = argc > 3;
-    int veryVeryVerbose     = argc > 4;
-    int veryVeryVeryVerbose = argc > 4;
+int main(int argc, char *argv[])
+{
+    int  test                = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose             = argc > 2;
+    bool veryVerbose         = argc > 3;
+    bool veryVeryVerbose     = argc > 4;
+    bool veryVeryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -325,30 +329,7 @@ int main(int argc, char *argv[]) {
         // This part has been copied from bslstl_allocator's test driver and
         // had been originally written by Pablo.
 
-        typedef bslma::Allocator::size_type bsize;
-
-        enum {
-            BSLMA_SIZE_IS_SIGNED = ~bslma::Allocator::size_type(0) < 0,
-            MAX_NUM_BYTES = ~std::size_t(0) /
-            (BSLMA_SIZE_IS_SIGNED ? 2 : 1),
-            MAX_ELEMENTS1 = MAX_NUM_BYTES / sizeof(char),
-            MAX_ELEMENTS2 = (std::size_t)MAX_NUM_BYTES / sizeof(char)
-        };
-
-        if (verbose) {
-            printf("Illustrating the reason for the cast in the"
-                   " enumeration (on AIX 64-bit mode):\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
-            printf("\tMAX_NUM_BYTES = %ld\n", (bsize)MAX_NUM_BYTES);
-            printf("\tMAX_ELEMENTS1 = %ld\n", (bsize)MAX_ELEMENTS1);
-            printf("\tMAX_ELEMENTS2 = %ld\n", (bsize)MAX_ELEMENTS2);
-
-            printf("Printing the same values as unsigned:\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
-            printf("\tMAX_NUM_BYTES = %lu\n", (bsize)MAX_NUM_BYTES);
-            printf("\tMAX_ELEMENTS1 = %lu\n", (bsize)MAX_ELEMENTS1);
-            printf("\tMAX_ELEMENTS2 = %lu\n", (bsize)MAX_ELEMENTS2);
-        }
+        typedef StdTestAllocator<char>::size_type bsize;
 
         StdTestAllocator<char> X;
         bsize cas = X.max_size();
@@ -453,10 +434,10 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //: 1 The 'allocate' method forwards allocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //:
         //: 2 The 'deallocate' method forwards the deallocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //
         // Plan:
         //: 1 Create a 'bslma_Allocator' object and install it as the delegate
@@ -502,7 +483,7 @@ int main(int argc, char *argv[]) {
         //:   by the C++03 standard for template instances parameterized on the
         //:   'void' and other types .
         //:
-        //: 2 'size_type' is unsigned while 'difference_type' is signed.
+        //: 2 'size_type' is 'unsigned int' while 'difference_type' is 'int'.
         //:
         //: 3 'rebind<OTHER_TYPE>::other' defines a template instance for
         //:   'StdTestAllocator' parameterized on the 'OTHER_TYPE' type.
@@ -546,20 +527,14 @@ int main(int argc, char *argv[]) {
 
         if (verbose) printf("\tTesting 'size_type'.\n");
         {
-            ASSERT(sizeof(AI::size_type) == sizeof(int*));
-            ASSERT(sizeof(AV::size_type) == sizeof(void*));
-
-            ASSERT(0 < ~(AI::size_type)0);
-            ASSERT(0 < ~(AV::size_type)0);
+            ASSERT((bsl::is_same<AI::size_type, unsigned int>::value));
+            ASSERT((bsl::is_same<AV::size_type, unsigned int>::value));
         }
 
         if (verbose) printf("\tTesting 'difference_type'.\n");
         {
-            ASSERT(sizeof(AI::difference_type) == sizeof(int*));
-            ASSERT(sizeof(AV::difference_type) == sizeof(void*));
-
-            ASSERT(0 > ~(AI::difference_type)0);
-            ASSERT(0 > ~(AV::difference_type)0);
+            ASSERT((bsl::is_same<AI::difference_type, int>::value));
+            ASSERT((bsl::is_same<AV::difference_type, int>::value));
         }
 
         if (verbose) printf("\tTesting 'pointer'.\n");
@@ -633,7 +608,7 @@ int main(int argc, char *argv[]) {
         //:   copy-assignment operator defined in this component.  (C-1)
         //:
         //: 2 Create two sets of 'StdTestAllocator' objects (parameterized on
-        //:   void and int) and assign a non-modifiable refernce of one to the
+        //:   void and int) and assign a non-modifiable reference of one to the
         //:   other.  (C-2)
         //
         // Testing:
@@ -715,7 +690,7 @@ int main(int argc, char *argv[]) {
         //: 1 'operator==' always return true, even for objects of different
         //:   template instances.
         //:
-        //: 2 'operator!=' always return false, enve for objects of different
+        //: 2 'operator!=' always return false, even for objects of different
         //:   template instances.
         //
         //: 3 The equality operator's signature and return type are standard.
@@ -877,7 +852,7 @@ int main(int argc, char *argv[]) {
           ASSERT(0 == oa.numBytesInUse());
 
           StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
-                                       &bslma::NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
 
       } break;
       case 1: {
@@ -928,7 +903,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

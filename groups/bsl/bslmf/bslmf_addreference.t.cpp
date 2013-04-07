@@ -2,8 +2,9 @@
 
 #include <bslmf_addreference.h>
 
-#include <bslmf_issame.h>
 #include <bslmf_addrvaluereference.h>
+#include <bslmf_issame.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>    // atoi()
@@ -115,7 +116,7 @@ namespace USAGE_EXAMPLE_1 {
         typedef typename bslmf::AddReference<TYPE>::Type WrappedType;
 
         // CREATORS
-        Wrapper(TYPE value) : d_data(value) {}
+        Wrapper(TYPE value) : d_data(value) {}                      // IMPLICIT
             // Create a 'Wrapper' object having the specified 'value'.
 
         //! ~Wrapper() = default;
@@ -442,7 +443,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

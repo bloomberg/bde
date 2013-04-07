@@ -426,7 +426,7 @@
                         '<@(bsls_pkgdeps)', 'bsls' ],
       'include_dirs': [ '.' ],
       'sources': [ 'bsls_byteorder.t.cpp' ],
-      # XXX: when generating .gyp from bde metadata, need to special-case
+      # XXX: when generating .gyp from bsl metadata, need to special-case
       'conditions': [
         # ws2_32.lib required only to portably test htonl ntohl htons ntohs
         [ 'OS == "win"',  {'link_settings': {'libraries': [ 'ws2_32.lib'] } } ],

@@ -1,4 +1,4 @@
-// bslmf_nestedtraitdeclaration.h                  -*-C++-*-
+// bslmf_nestedtraitdeclaration.h                                     -*-C++-*-
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #define INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 
@@ -22,6 +22,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 namespace BloombergLP {
 
@@ -78,7 +82,7 @@ class NestedTraitDeclaration {
 #endif // ! defined(INCLUDED_BSLMF_NESTEDTRAITDECLARATION)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

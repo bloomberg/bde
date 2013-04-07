@@ -5,15 +5,11 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::atoi;
-using std::fprintf;
-using std::printf;
 
 //=============================================================================
 //                                TEST PLAN
@@ -82,7 +78,6 @@ struct TestType {
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -131,8 +126,8 @@ int main(int argc, char *argv[])
 // Now, we add a 'const'-qualifier to 'MyType' using 'bsl::add_const' and
 // verify that the resulting type is the same as 'MyConstType':
 //..
-        ASSERT(true ==
-               (bsl::is_same<bsl::add_const<MyType>::type, MyConstType>::value));
+        ASSERT(true == (bsl::is_same<bsl::add_const<MyType>::type,
+                                                         MyConstType>::value));
 //..
 
       } break;
@@ -188,7 +183,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

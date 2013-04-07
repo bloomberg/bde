@@ -143,6 +143,7 @@ class MallocFreeAllocator : public Allocator {
     // from the time the method is called until after the program (not just
     // 'main') exits.
 
+  private:
     // NOT IMPLEMENTED
     MallocFreeAllocator(const MallocFreeAllocator&);
     MallocFreeAllocator& operator=(const MallocFreeAllocator&);
@@ -160,7 +161,7 @@ class MallocFreeAllocator : public Allocator {
         // supply memory.  Note that all objects of this class share the same
         // underlying resource.
 
-    ~MallocFreeAllocator();
+    virtual ~MallocFreeAllocator();
         // Destroy this allocator.  Note that the behavior of destroying an
         // allocator while memory is allocated from it is not specified.
         // (Unless you *know* that it is valid to do so, don't!)
@@ -239,7 +240,7 @@ void MallocFreeAllocator::deallocate(void *address)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

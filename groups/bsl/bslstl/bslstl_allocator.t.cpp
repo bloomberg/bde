@@ -199,8 +199,8 @@ template <class T, class ALLOC>
     // CREATORS
     template<class T, class ALLOC>
     my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(int          length,
-                                                  const ALLOC& alloc)
-    : d_allocator(alloc), d_length(length)
+                                                  const ALLOC& allocator)
+    : d_allocator(allocator), d_length(length)
 {
     d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 
@@ -212,15 +212,15 @@ template <class T, class ALLOC>
 
 template<class T, class ALLOC>
     my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(
-        const my_FixedSizeArray& rhs,
-    const ALLOC&               alloc)
-    : d_allocator(alloc), d_length(rhs.d_length)
+                                            const my_FixedSizeArray& original,
+                                            const ALLOC&             allocator)
+    : d_allocator(allocator), d_length(original.d_length)
 {
     d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 
     // copy construct each element of the array:
     for (int i = 0; i < d_length; ++i) {
-        d_allocator.construct(&d_array[i], rhs.d_array[i]);
+        d_allocator.construct(&d_array[i], original.d_array[i]);
     }
 }
 
@@ -799,7 +799,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

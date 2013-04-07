@@ -1,4 +1,4 @@
-// bsltf_nontypicaloverloadstesttype.cpp                             -*-C++-*-
+// bsltf_nontypicaloverloadstesttype.cpp                              -*-C++-*-
 #include <bsltf_nontypicaloverloadstesttype.h>
 
 #include <bsls_ident.h>
@@ -15,7 +15,7 @@ namespace bsltf {
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

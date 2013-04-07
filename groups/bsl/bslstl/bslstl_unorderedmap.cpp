@@ -1,6 +1,11 @@
 // bslstl_unorderedmap.cpp                                            -*-C++-*-
 #include <bslstl_unorderedmap.h>
 
+#include <bslstl_hash.h>    // for testing only
+#include <bslstl_pair.h>    // for testing only
+#include <bslstl_string.h>  // for testing only
+#include <bslstl_vector.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
@@ -9,7 +14,7 @@ namespace bsl
 
 }  // close namespace
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

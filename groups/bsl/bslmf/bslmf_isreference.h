@@ -65,7 +65,7 @@ namespace bsl {
                          // struct is_reference
                          // ===================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_reference : integral_constant<bool,
                                         is_lvalue_reference<TYPE>::value
                                      || is_rvalue_reference<TYPE>::value> {
@@ -81,7 +81,7 @@ struct is_reference : integral_constant<bool,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -1,9 +1,9 @@
 // bsltf_enumeratedtesttype.t.cpp                                     -*-C++-*-
 #include <bsltf_enumeratedtesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -20,7 +20,7 @@ using namespace BloombergLP::bsltf;
 //                              Overview
 //                              --------
 // The component under test implements a single enumeration supporting
-// convertion from integral values (0 to 127) to and from the enumeration.
+// conversion from integral values (0 to 127) to and from the enumeration.
 //
 //-----------------------------------------------------------------------------
 // TYPES
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
           EnumeratedTestType::Enum first = EnumeratedTestType::FIRST;
           ASSERT(static_cast<int>(first) == 0);
 //..
-// Finally, we create an 'EnumeratedTestType::Enum' value and initilize it to
+// Finally, we create an 'EnumeratedTestType::Enum' value and initialize it to
 // the last possible value:
 //..
           EnumeratedTestType::Enum last = EnumeratedTestType::LAST;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
         // TESTING 'enum'
         //
         // Concerns:
-        //: 1 The 'enum' support convertion to and from integral values 0 to
+        //: 1 The 'enum' support conversion to and from integral values 0 to
         //:   127.
         //
         // Plan:
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

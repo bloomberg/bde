@@ -462,26 +462,9 @@ class ConstructorProxy {
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
-}  // close namespace bslalg
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-namespace bslma {
-
-template <typename OBJECT_TYPE>
-struct UsesBslmaAllocator<bslalg::ConstructorProxy<OBJECT_TYPE> >
-    : bsl::true_type
-{};
-
-}  // close namespace bslma
-
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
-
-namespace bslalg {
 
                         // ----------------------
                         // class ConstructorProxy
@@ -744,13 +727,26 @@ const OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() const
 
 }  // close package namespace
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace bslma {
+
+template <typename OBJECT_TYPE>
+struct UsesBslmaAllocator<bslalg::ConstructorProxy<OBJECT_TYPE> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
 
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

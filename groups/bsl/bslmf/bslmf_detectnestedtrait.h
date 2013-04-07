@@ -1,4 +1,4 @@
-// bslmf_detectnestedtrait.h                  -*-C++-*-
+// bslmf_detectnestedtrait.h                                          -*-C++-*-
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #define INCLUDED_BSLMF_DETECTNESTEDTRAIT
 
@@ -19,16 +19,28 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
+#include <bslmf_isconvertibletoany.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
 #endif
 
 namespace BloombergLP {
@@ -60,10 +72,16 @@ class DetectNestedTrait_Imp {
     DetectNestedTrait_Imp(const DetectNestedTrait_Imp&);
     ~DetectNestedTrait_Imp();
 
+    enum {
+        CONVERTIBLE_TO_NESTED_TRAIT = sizeof(check(TypeRep<TYPE>::rep(), 0))
+                                      == sizeof(char),
+        CONVERTIBLE_TO_ANY_TYPE     = IsConvertibleToAny<TYPE>::value
+    };
+
   public:
     // PUBLIC CONSTANTS
 
-    enum { VALUE = (1 == sizeof(check(TypeRep<TYPE>::rep(), 0))) };
+    enum { VALUE = CONVERTIBLE_TO_NESTED_TRAIT && !CONVERTIBLE_TO_ANY_TYPE };
         // Non-zero if 'TRAIT' is associated with 'TYPE' using the nested type
         // trait mechanism; otherwise zero.
 
@@ -97,7 +115,7 @@ struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::Type {
 #endif // ! defined(INCLUDED_BSLMF_DETECTNESTEDTRAIT)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

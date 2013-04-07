@@ -101,12 +101,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NIL
-#include <bslmf_nil.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
 #endif
 
 namespace BloombergLP {
@@ -137,7 +137,7 @@ struct If {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

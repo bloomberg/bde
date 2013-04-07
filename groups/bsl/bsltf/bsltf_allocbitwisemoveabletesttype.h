@@ -71,6 +71,10 @@ BSLS_IDENT("$Id: $")
 //  Type defines bslmf::IsBitwiseMoveable.
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -161,23 +165,6 @@ class AllocBitwiseMoveableTestType {
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
 };
-
-}
-
-// TRAITS
-namespace bslma {
-template <>
-struct UsesBslmaAllocator<bsltf::AllocBitwiseMoveableTestType>
-    : bsl::true_type {};
-}
-
-namespace bslmf {
-template <>
-struct IsBitwiseMoveable<bsltf::AllocBitwiseMoveableTestType>
-    : bsl::true_type {};
-}
-
-namespace bsltf {
 
 // FREE OPERATORS
 bool operator==(const AllocBitwiseMoveableTestType& lhs,
@@ -274,28 +261,43 @@ bslma::Allocator *AllocBitwiseMoveableTestType::allocator() const
     return d_allocator_p;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const AllocBitwiseMoveableTestType& lhs,
-                const AllocBitwiseMoveableTestType& rhs)
+bool bsltf::operator==(const AllocBitwiseMoveableTestType& lhs,
+                       const AllocBitwiseMoveableTestType& rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const AllocBitwiseMoveableTestType& lhs,
-                const AllocBitwiseMoveableTestType& rhs)
+bool bsltf::operator!=(const AllocBitwiseMoveableTestType& lhs,
+                       const AllocBitwiseMoveableTestType& rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+
+// TRAITS
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<bsltf::AllocBitwiseMoveableTestType>
+    : bsl::true_type {};
+}  // close namespace bslma
+
+namespace bslmf {
+template <>
+struct IsBitwiseMoveable<bsltf::AllocBitwiseMoveableTestType>
+    : bsl::true_type {};
+}  // close namespace bslmf
+
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

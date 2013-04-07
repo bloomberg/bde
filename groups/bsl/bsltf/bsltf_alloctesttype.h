@@ -73,24 +73,21 @@ BSLS_IDENT("$Id: $")
 //  Type does not define bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
-#include <bslmf_isbitwisemoveable.h>
-#endif
+namespace BloombergLP
+{
 
-namespace BloombergLP {
-namespace bsltf {
+namespace bslma { class Allocator; }
+
+namespace bsltf
+{
 
                         // ===================
                         // class AllocTestType
@@ -162,17 +159,6 @@ class AllocTestType {
         // installed default allocator is used.
 };
 
-}
-
-// TRAITS
-namespace bslma {
-template <>
-struct UsesBslmaAllocator<bsltf::AllocTestType>
-    : bsl::true_type {};
-}
-
-namespace bsltf {
-
 // FREE OPERATORS
 bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
@@ -192,60 +178,7 @@ bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs);
                         // class AllocTestType
                         // -------------------
 
-// CREATORS
-inline
-AllocTestType::AllocTestType(bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = 0;
-}
-
-inline
-AllocTestType::AllocTestType(int data, bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = data;
-}
-
-inline
-AllocTestType::AllocTestType(const AllocTestType& original,
-                             bslma::Allocator     *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = *original.d_data_p;
-}
-
-inline
-AllocTestType::~AllocTestType()
-{
-    d_allocator_p->deallocate(d_data_p);
-
-    // Ensure that this objects has not been bitwise moved.
-
-    BSLS_ASSERT_OPT(this == d_self_p);
-}
-
 // MANIPULATORS
-inline
-AllocTestType& AllocTestType::operator=(const AllocTestType& rhs)
-{
-    if (&rhs != this)
-    {
-        int *newData = reinterpret_cast<int *>(
-                                         d_allocator_p->allocate(sizeof(int)));
-        d_allocator_p->deallocate(d_data_p);
-        d_data_p = newData;
-        *d_data_p = *rhs.d_data_p;
-    }
-    return *this;
-}
-
 inline
 void AllocTestType::setData(int value)
 {
@@ -267,26 +200,34 @@ bslma::Allocator *AllocTestType::allocator() const
     return d_allocator_p;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const AllocTestType& lhs, const AllocTestType& rhs)
+bool bsltf::operator==(const AllocTestType& lhs, const AllocTestType& rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
+bool bsltf::operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+// TRAITS
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<bsltf::AllocTestType>
+    : bsl::true_type {};
+}  // close namespace bslma
+
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

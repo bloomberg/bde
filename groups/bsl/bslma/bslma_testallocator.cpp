@@ -780,11 +780,21 @@ int TestAllocator::status() const
 // FREE OPERATORS
 void TestAllocator::print() const
 {
-    std::printf("\n"
-                "==================================================\n"
-                "                TEST ALLOCATOR STATE\n"
-                "--------------------------------------------------\n"
-                "        Category\tBlocks\tBytes\n"
+    if (d_name_p) {
+        std::printf("\n"
+                    "==================================================\n"
+                    "                TEST ALLOCATOR %s STATE\n"
+                    "--------------------------------------------------\n",
+                    d_name_p);
+    }
+    else {
+        std::printf("\n"
+                    "==================================================\n"
+                    "                TEST ALLOCATOR STATE\n"
+                    "--------------------------------------------------\n");
+    }
+
+    std::printf("        Category\tBlocks\tBytes\n"
                 "        --------\t------\t-----\n"
                 "          IN USE\t%lld\t%lld\n"
                 "             MAX\t%lld\t%lld\n"
@@ -809,7 +819,7 @@ void TestAllocator::print() const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

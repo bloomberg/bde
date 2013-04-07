@@ -233,7 +233,6 @@ struct IsConvertible_Imp {
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
 #   pragma warning(pop)
-#   pragma warning(disable: 4244)  // loss of precision warning ignored
 #endif
 
     typedef bsl::integral_constant<bool, value> type;
@@ -270,23 +269,23 @@ struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND>                        \
     // arguments 'FROM' and 'TO' are cv-qualified type expressions constructed
     // out of 'FROM_TYPE' and 'TO_TYPE', respectively.
 
-BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(0, const volatile TYPE, const TYPE&, 1, 1);
-BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(0,       volatile TYPE, const TYPE&, 1, 1);
+BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(0, const volatile TYPE, const TYPE&, 1, 1)
+BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(0,       volatile TYPE, const TYPE&, 1, 1)
     // These two partial specializations are instantiated when a (possibly
     // 'const'-qualified) 'volatile' fundamental type is tested for
     // convertibility to its 'const' reference type.  The conversion shall
     // fail.
 
-BSLMF_ISCONVERTIBLE_VALUE(1, const volatile FROM_TYPE, const TO_TYPE&, 1, 1);
-BSLMF_ISCONVERTIBLE_VALUE(1,       volatile FROM_TYPE, const TO_TYPE&, 1, 1);
+BSLMF_ISCONVERTIBLE_VALUE(1, const volatile FROM_TYPE, const TO_TYPE&, 1, 1)
+BSLMF_ISCONVERTIBLE_VALUE(1,       volatile FROM_TYPE, const TO_TYPE&, 1, 1)
     // These two partial specializations are instantiated when a (possibly
     // 'const'-qualified) 'volatile' type is tested for convertibility to the
     // 'const' reference type of another fundamental type.  These partial
     // specializations will be picked up if the previous two fail to match.
     // The conversion shall succeed.
 
-BSLMF_ISCONVERTIBLE_VALUE(1, const FROM_TYPE, const TO_TYPE&, 1, 1);
-BSLMF_ISCONVERTIBLE_VALUE(1,       FROM_TYPE, const TO_TYPE&, 1, 1);
+BSLMF_ISCONVERTIBLE_VALUE(1, const FROM_TYPE, const TO_TYPE&, 1, 1)
+BSLMF_ISCONVERTIBLE_VALUE(1,       FROM_TYPE, const TO_TYPE&, 1, 1)
     // These two partial specializations are instantiated when a (possibly
     // 'const'-qualified) fundamental type is tested for convertibility to the
     // 'const' reference type of another fundamental type.  These partial
@@ -294,25 +293,25 @@ BSLMF_ISCONVERTIBLE_VALUE(1,       FROM_TYPE, const TO_TYPE&, 1, 1);
     // The conversion shall succeed.
 
 BSLMF_ISCONVERTIBLE_FORWARD(const volatile FROM_TYPE,
-                            const volatile TO_TYPE&, 1, 1);
+                            const volatile TO_TYPE&, 1, 1)
 BSLMF_ISCONVERTIBLE_FORWARD(      volatile FROM_TYPE,
-                            const volatile TO_TYPE&, 1, 1);
+                            const volatile TO_TYPE&, 1, 1)
 BSLMF_ISCONVERTIBLE_FORWARD(const          FROM_TYPE,
-                            const volatile TO_TYPE&, 1, 1);
+                            const volatile TO_TYPE&, 1, 1)
 BSLMF_ISCONVERTIBLE_FORWARD(               FROM_TYPE,
-                            const volatile TO_TYPE&, 1, 1);
+                            const volatile TO_TYPE&, 1, 1)
     // These four partial specializations are instantiated when a (possibly
     // cv-qualified) fundamental type is tested for convertibility to the
     // 'const volatile' reference type of another fundamental type.
 
 BSLMF_ISCONVERTIBLE_FORWARD(const volatile FROM_TYPE,
-                                  volatile TO_TYPE&, 1, 1);
+                                  volatile TO_TYPE&, 1, 1)
 BSLMF_ISCONVERTIBLE_FORWARD(      volatile FROM_TYPE,
-                                  volatile TO_TYPE&, 1, 1);
+                                  volatile TO_TYPE&, 1, 1)
 BSLMF_ISCONVERTIBLE_FORWARD(const          FROM_TYPE,
-                                  volatile TO_TYPE&, 1, 1);
+                                  volatile TO_TYPE&, 1, 1)
 BSLMF_ISCONVERTIBLE_FORWARD(               FROM_TYPE,
-                                  volatile TO_TYPE&, 1, 1);
+                                  volatile TO_TYPE&, 1, 1)
     // These four partial specializations are instantiated when a (possibly
     // cv-qualified) fundamental type is tested for convertibility to the
     // 'volatile' reference type of another fundamental type.
@@ -506,7 +505,7 @@ struct IsConvertible : bsl::is_convertible<FROM_TYPE, TO_TYPE>::type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

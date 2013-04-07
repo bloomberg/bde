@@ -1,5 +1,27 @@
 #!/usr/bin/env python
 
+# ----------------------------------------------------------------------------
+# Copyright (C) 2012-2013 Bloomberg L.P.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+# ----------------------------------------------------------------------------
+
 # Usage: (python2.6) run_unit_tests.py test_driver.t test_driver_flag_file [--abi=<bits>] [--libs=<static or shared>] [--junit=junitoutput.xml]
 # Arguments: test (*.t) and target (*.t.ran)
 # Options  : --abi=<ABI_bits setting>
@@ -23,6 +45,7 @@ def parseOptions():
     parser.add_option("--abi", dest="abi")
     parser.add_option("--lib", dest="lib")
     parser.add_option("--junit", dest="junit")
+    parser.add_option("--valgrind", dest="valgrind")
     (options, args) = parser.parse_args()
 
     return options
@@ -102,7 +125,7 @@ class TextOutputGenerator:
         print >>sys.stderr, "Abnormal test failure: %d" % (returncode)
         return
                         
-    def reportExcpectedTestCaseFailure(self, test, testNumber, returncode):
+    def reportExpectedTestCaseFailure(self, test, testNumber, returncode):
         print >>sys.stderr, "Test failure for case %d of test %s was expected."\
                                                  % (testNumber, test)
         return
@@ -229,7 +252,7 @@ class JUnitOutputGenerator:
         self.failureCount += 1
         return
                         
-    def reportExcpectedTestCaseFailure(self, test, testNumber, returncode):
+    def reportExpectedTestCaseFailure(self, test, testNumber, returncode):
         self.currentCase.set('status', 'expected failure')
         return
 
@@ -381,7 +404,7 @@ class TestRunner:
         return TestRunner.testOver.match(line)
 
     @staticmethod
-    def runTest(test, verbosityLevel, timeout):
+    def runTest(test, verbosityLevel, timeout, valgrind):
         failures = 0
         testNumber = 1
 
@@ -394,7 +417,14 @@ class TestRunner:
                 
             policy = PolicyFilter.getTestPolicy(test, testNumber)
                 
-            args = [program, str(testNumber)]
+            args = []
+
+            if (valgrind):
+                valgrindFile = valgrind % (testNumber)
+                args.extend(['valgrind','--quiet','--tool=memcheck','--leak-check=yes','--xml=yes',"--xml-file=%s" % valgrindFile])
+
+            args.extend([program, str(testNumber)])
+
             out.startTestCase(testNumber)
             if verbosityLevel >= 0:
                 args.extend(['v' for n in range(verbosityLevel)])
@@ -455,7 +485,7 @@ class TestRunner:
                     failures += 1
                 elif returncode != 0:
                     if policy == Policy.ignore:
-                        out.reportExcpectedTestCaseFailure(test, testNumber, returncode)
+                        out.reportExpectedTestCaseFailure(test, testNumber, returncode)
                     else:
                         # Test failure. Report it.
                         out.reportTestCaseFailure(returncode)
@@ -484,7 +514,7 @@ if 'TIMEOUT' in os.environ:
 
 out.startTestSuite(sys.argv[1], verbosityLevel, timeout)
 
-returncode = TestRunner.runTest(sys.argv[1], verbosityLevel, timeout)
+returncode = TestRunner.runTest(sys.argv[1], verbosityLevel, timeout, commandLineOptions.valgrind)
 
 returncode = out.endTestSuite(returncode)
 

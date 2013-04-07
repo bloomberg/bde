@@ -14,10 +14,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@DESCRIPTION: This component provides a template unary functor,
-//'bsl::hash', implementing the 'std::hash' functor.  'bsl::hash' applies a C++
-//standard compliant, implementation defined, hash function to fundamental
-//types returning the result of such application.
+//@DESCRIPTION: This component provides a template unary functor, 'bsl::hash',
+// implementing the 'std::hash' functor.  'bsl::hash' applies a C++ standard
+// compliant, implementation defined, hash function to fundamental types
+// returning the result of such application.
 //
 /// Standard Hash Function
 // According to the C++ standard the requirements of a standard hash function
@@ -61,12 +61,12 @@ BSLS_IDENT("$Id: $")
 // bits of the return value will change for a 1-bit change in the hashed value.
 // We then use the result of the hash function to index into our array of
 // 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
-// array of 'TYPE' objects.  We will resovle hash collisions in our array
-// through 'linear probing', where we will search consequetive buckets
-// following the bucket where the collision occurred, testing occupied buckets
-// for equality with the value we are searching on, and concluding that the
-// value is not in the table if we encounter an empty bucket before we
-// encounter one referring to an equal element.
+// array of 'TYPE' objects.  We will resolve hash collisions in our array
+// through 'linear probing', where we will search consecutive buckets following
+// the bucket where the collision occurred, testing occupied buckets for
+// equality with the value we are searching on, and concluding that the value
+// is not in the table if we encounter an empty bucket before we encounter one
+// referring to an equal element.
 //
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
@@ -416,28 +416,6 @@ struct hash;
     // will generate error messages that are more clear when someone tries to
     // use a key that does not have a corresponding hash function.
 
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL 'hash'
-//: o 'bsl::hash<TYPE>' is trivially default constructible.
-//: o 'bsl::hash<TYPE>' is trivially copyable.
-//: o 'bsl::hash<TYPE>' is bitwise movable.
-
-template <class TYPE>
-struct is_trivially_default_constructible<hash<TYPE> >
-: bsl::true_type
-{};
-
-template <class TYPE>
-struct is_trivially_copyable<hash<TYPE> >
-: bsl::true_type
-{};
-
-}  // close namespace bsl
-
-namespace bsl {
 
 // ============================================================================
 //                  SPECIALIZATIONS FOR FUNDAMENTAL TYPES
@@ -1021,6 +999,7 @@ struct hash<long double> {
         // Return a hash value computed using the specified 'x'.
 };
 
+
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -1074,7 +1053,7 @@ std::size_t hash<char>::operator()(char32_t x) const
 {
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
 }
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 
 inline
 std::size_t hash<short>::operator()(short x) const
@@ -1142,12 +1121,31 @@ std::size_t hash<long double>::operator()(long double x) const
     return ::BloombergLP::bslalg::HashUtil::computeHash((double)x);
 }
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL 'hash'
+//: o 'bsl::hash<TYPE>' is trivially default constructible.
+//: o 'bsl::hash<TYPE>' is trivially copyable.
+//: o 'bsl::hash<TYPE>' is bitwise movable.
+
+template <class TYPE>
+struct is_trivially_default_constructible<hash<TYPE> >
+: bsl::true_type
+{};
+
+template <class TYPE>
+struct is_trivially_copyable<hash<TYPE> >
+: bsl::true_type
+{};
+
 }  // close namespace bsl
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

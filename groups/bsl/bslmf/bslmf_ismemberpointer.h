@@ -56,14 +56,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecv.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISREFERENCE
-#include <bslmf_isreference.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
 #include <bslmf_ismemberfunctionpointer.h>
 #endif
@@ -95,7 +87,7 @@ struct is_member_pointer
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

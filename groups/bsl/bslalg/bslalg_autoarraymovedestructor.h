@@ -319,9 +319,12 @@ class AutoArrayMoveDestructor {
         // 'OBJECT_TYPE' in the specified range '[ begin, end )' which, upon
         // destruction, moves the range '[ begin, middle )' to the specified
         // 'destination' and destroys the '[ middle, end )' range.  The
-        // behavior is undefined unless 'begin <= middle <= end', either
-        // 'destination < begin' or 'end <= destination', and each element in
-        // the range '[ begin, end )' has been initialized.
+        // behavior is undefined unless 'begin', 'middle', and 'end' refer to
+        // a contiguous sequence of initialized 'OBJECT_TYPE' objects, where 
+        // 'begin <= middle <= end', and 'destination' refers to a contiguous
+        // sequence of (uninitialized) memory of sufficent size to hold 
+        // 'end - begin' 'OBJECT_TYPE' objects (which must not overlap
+        // '[begin, end)').
 
     ~AutoArrayMoveDestructor();
         // Bit-wise move the range '[ middle(), end() )' to the 'destination()'
@@ -376,10 +379,6 @@ AutoArrayMoveDestructor<OBJECT_TYPE>::AutoArrayMoveDestructor(
     BSLS_ASSERT_SAFE(begin  <= middle);
     BSLS_ASSERT_SAFE(middle <= end);
 
-    typedef const char CChar;
-    std::size_t numBytes = (CChar *) d_end_p - (CChar *) d_middle_p;
-    BSLS_ASSERT_SAFE((CChar *) destination + numBytes <= (CChar *) begin ||
-                                       (CChar *) end <= (CChar *) destination);
 }
 
 template <class OBJECT_TYPE>
@@ -411,8 +410,7 @@ void AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
     ++d_middle_p;
     ++d_dst_p;
 
-    BSLS_ASSERT_SAFE(d_dst_p > d_end_p || d_dst_p < d_begin_p ||
-                              (d_middle_p == d_end_p && d_dst_p == d_begin_p));
+    BSLS_ASSERT_SAFE(d_dst_p != d_begin_p || d_middle_p == d_end_p);
 }
 
 // ACCESSORS
@@ -452,7 +450,7 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

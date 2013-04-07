@@ -2593,18 +2593,12 @@ void TestDriver<TYPE,ALLOC>::testCase22()
     const int PADDING = 16;
     const Obj X;
 
-    const size_t EXP_MAX_SIZE = ((size_t)-1) / sizeof(TYPE) - 1;
-    ASSERT(EXP_MAX_SIZE > X.max_size());
-
-    if (X.max_size() > EXP_MAX_SIZE) {
-        printf("\n\nERROR: Cannot continue this test case without attempting\n"
-               "to allocate huge amounts of memory.  *** Aborting. ***\n\n");
-        return;                                                       // RETURN
-    }
+    if (verbose) printf("\nTesting requests for '(size_t) -1' elements with "
+                        "default allocator.\n");
 
     if (verbose) printf("\nConstructor 'deque(n, T x, a = A())'"
                         " and 'max_size()' equal to %llu.\n",
-                        (Uint64) EXP_MAX_SIZE);
+                        (Uint64) X.max_size());
     {
         bool exceptionCaught = false;
 
@@ -2641,7 +2635,7 @@ void TestDriver<TYPE,ALLOC>::testCase22()
 
     if (verbose) printf("\nWith 'reserve/resize' and"
                         " 'max_size()' equal to %llu.\n",
-                        (Uint64) EXP_MAX_SIZE);
+                        (Uint64) X.max_size());
 
     for (int capacityMethod = 0; capacityMethod <= 2; ++capacityMethod)
     {
@@ -2689,8 +2683,9 @@ void TestDriver<TYPE,ALLOC>::testCase22()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'insert' and 'max_size()' equal to %llu.\n",
-                        (Uint64) EXP_MAX_SIZE);
+    if (verbose) printf("\nTesting requests for 'X.max_size() + n' elements "
+                        "with 'insert' and 'max_size()' equal to %llu.\n",
+                        (Uint64) X.max_size());
 
     for (int insertMethod = 0; insertMethod <= 1; insertMethod += 2) {
 
@@ -5557,7 +5552,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("\t\tCreating object of "); P(LENGTH);
                 }
 
-                try {
+                BSLS_TRY {
                     const int TB = (int) defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
                     ASSERT(TB == defaultAllocator_p->numBytesInUse());
@@ -5571,7 +5566,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (std::bad_alloc) {
+                BSLS_CATCH(const std::bad_alloc&) {
                     break;
                 }
 
@@ -5594,7 +5589,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("using "); P(VALUE);
                 }
 
-                try {
+                BSLS_TRY {
                     const int TB = (int) defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
                     ASSERT(TB == defaultAllocator_p->numBytesInUse());
@@ -5608,7 +5603,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         ASSERT(0 != objectAllocator_p->numBytesInUse());
                     }
                 }
-                catch (std::bad_alloc) {
+                BSLS_CATCH(const std::bad_alloc&) {
                     break;
                 }
 
@@ -9049,7 +9044,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

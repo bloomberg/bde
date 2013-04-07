@@ -1,29 +1,29 @@
 // bslmf_removereference.t.cpp                                        -*-C++-*-
 #include <bslmf_removereference.h>
 
-#include <bslmf_issame.h>          // for testing only
+#include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines two meta-function, 'bsl::remove_reference'
-// and 'bslmf::RemoveReference', both of which removes the reference-ness of
-// the (template parameter) 'TYPE'.  Thus, we need to ensure that the value
-// returned by this meta-functions is correct for each possible category of
+// The component under test defines two meta-functions, 'bsl::remove_reference'
+// and 'bslmf::RemoveReference', both of which remove the reference-ness of the
+// (template parameter) 'TYPE'.  Thus, we need to ensure that the values
+// returned by these meta-functions are correct for each possible category of
 // types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
+// PUBLIC TYPES
 // [ 1] bsl::remove_reference::type
 // [ 2] bslmf::RemoveReference::Type
 //
@@ -158,9 +158,8 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to remove reference-ness on a set of types.
 //
-// Now, we instantiate the 'bsl::remove_reference' template for each of these
-// types, and use the 'bsl::is_same' meta-function to assert the 'type' static
-// data member of each instantiation:
+// Now, for a set of types, we remove the reference-ness of each type using
+// 'bsl::remove_reference' and verify the result:
 //..
     ASSERT(true  ==
                (bsl::is_same<bsl::remove_reference<int&>::type, int >::value));
@@ -180,16 +179,16 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // 'bslmf::RemoveReference::Type'
-        //   Ensure that the static data member 'Type' of
-        //   'bslmf::RemoveReference' instantiations having various (template
-        //   parameter) 'TYPE' has the correct value.
+        //   Ensure that the 'typedef' 'Type' of 'bslmf::RemoveReference'
+        //   instantiations having various (template parameter) 'TYPE's has the
+        //   correct value.
         //
         // Concerns:
-        //: 1 'RemoveReference::Type' correctly removes reference-ness from
-        //:   'TYPE' if 'TYPE' is an (lvalue or rvalue) reference type.
+        //: 1 'RemoveReference' correctly removes reference-ness from 'TYPE' if
+        //:   'TYPE' is an (lvalue or rvalue) reference type.
         //:
-        //: 2 'RemoveReference::Type' does not transform 'TYPE' when 'TYPE' is
-        //:   not a reference type.
+        //: 2 'RemoveReference' does not transform 'TYPE' when 'TYPE' is not a
+        //:   reference type.
         //
         // Plan:
         //   Instantiate 'bslmf::RemoveReference' with various types and
@@ -271,16 +270,16 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::remove_reference::type'
-        //   Ensure that the static data member 'type' of
-        //   'bsl::remove_reference' instantiations having various (template
-        //   parameter) 'TYPE' has the correct value.
+        //   Ensure that the 'typedef' 'type' of 'bsl::remove_reference'
+        //   instantiations having various (template parameter) 'TYPE's has the
+        //   correct value.
         //
         // Concerns:
-        //: 1 'remove_reference::type' correctly removes reference-ness from
-        //:   'TYPE' if 'TYPE' is an (lvalue or rvalue) reference type.
+        //: 1 'remove_reference' correctly removes reference-ness from 'TYPE'
+        //:   if 'TYPE' is an (lvalue or rvalue) reference type.
         //:
-        //: 2 'remove_reference::type' does not transform 'TYPE' when 'TYPE' is
-        //:   not a reference type.
+        //: 2 'remove_reference' does not transform 'TYPE' when 'TYPE' is not a
+        //:   reference type.
         //
         // Plan:
         //   Instantiate 'bsl::remove_reference' with various types and
@@ -370,7 +369,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

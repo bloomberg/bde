@@ -104,10 +104,6 @@ bool globalVeryVeryVerbose = false;
         TARGET_TYPE *d_target_p;    // wrapped pointer
         DeleterFn   *d_deleter_fn;  // deleter function
 
-        // Objects of this type cannot be copied.
-        ScopedPointer(const ScopedPointer&);
-        ScopedPointer& operator=(const ScopedPointer&);
-
         template<class SOURCE_TYPE>
         static void defaultDeleteFn(TARGET_TYPE *ptr);
             // Destroy the specified '*ptr' by calling 'delete' on the pointer
@@ -115,7 +111,14 @@ bool globalVeryVeryVerbose = false;
             // instantiate this template with a 'SOURCE_TYPE' that is not
             // derived from (and cv-compatible with) 'TARGET_TYPE'.
 
+      private:
+        // NOT IMPLEMENTED
+        ScopedPointer(const ScopedPointer&);
+        ScopedPointer& operator=(const ScopedPointer&);
+            // Objects of this type cannot be copied.
+
       public:
+        // CREATORS
         template<class SOURCE_TYPE>
         ScopedPointer(SOURCE_TYPE *pointer,
                       DeleterFn   *fn = &defaultDeleteFn<SOURCE_TYPE>);
@@ -420,7 +423,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

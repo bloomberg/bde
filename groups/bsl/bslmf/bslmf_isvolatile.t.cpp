@@ -3,15 +3,11 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace bsl;
 using namespace BloombergLP;
-
-using std::atoi;
-using std::printf;
-using std::fprintf;
 
 //=============================================================================
 //                                TEST PLAN
@@ -19,7 +15,7 @@ using std::fprintf;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function, 'bsl::is_volatile', that
-// determine whether a template parameter type is a 'volatile'-qualified type.
+// determines whether a template parameter type is a 'volatile'-qualified type.
 // Thus, we need to ensure that the value returned by the meta-function is
 // correct for each possible category of types.
 //
@@ -180,7 +176,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

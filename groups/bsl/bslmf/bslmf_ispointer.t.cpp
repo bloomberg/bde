@@ -4,11 +4,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdlib>
-#include <cstdio>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -226,7 +225,7 @@ int main(int argc, char *argv[])
         //:   member.
         //:
         //: 4 'is_pointer::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer to a (possibly cv-qualifie) type.
+        //:   cv-qualified) pointer to a (possibly cv-qualified) type.
         //
         // Plan:
         //   Verify that 'bsl::is_pointer::value' has the correct value for
@@ -273,7 +272,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

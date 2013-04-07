@@ -26,15 +26,11 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 namespace BloombergLP {
 
 namespace bslmf {
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPair : bsl::false_type {};
 
 }  // close package namespace
@@ -43,7 +39,7 @@ struct IsPair : bsl::false_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

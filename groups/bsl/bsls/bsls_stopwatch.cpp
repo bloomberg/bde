@@ -1,6 +1,9 @@
 // bsls_stopwatch.cpp                                                 -*-C++-*-
 #include <bsls_stopwatch.h>
 
+#include <bsls_bsltestutil.h>  // for testing only
+#include <bsls_platform.h>     // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
@@ -64,7 +67,7 @@ void Stopwatch::accumulatedTimes(double *systemTime,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

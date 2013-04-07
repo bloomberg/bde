@@ -47,6 +47,10 @@ BSLS_IDENT("$Id: $")
 //  assert(X != Y); // This will not compile
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 namespace BloombergLP {
 namespace bsltf {
 
@@ -138,7 +142,7 @@ int NonEqualComparableTestType::data() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
