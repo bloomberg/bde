@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 ///Alignment Strategy
 ///------------------
 // This component supports three alignment strategies: 1) MAXIMUM ALIGNMENT,
-// 2) NATURAL ALIGNMENT, and 3) MINIMUM ALIGNMENT.
+// 2) NATURAL ALIGNMENT, and 3) 1-BYTE ALIGNMENT.
 //..
 //  MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
 //  'BSLS_MAXIMUM', specifies that a memory block be aligned as per the *most*
@@ -36,10 +36,10 @@ BSLS_IDENT("$Id: $")
 //  the address of the aggregate.  Natural alignment is always at least as
 //  restrictive as the compiler's required alignment.
 //
-//  MINIMUM ALIGNMENT: This strategy, as indicated by the enumerator
-//  'BSLS_MINIMUM', specifies that a memory block be aligned as per the *least*
-//  restrictive alignment requirement on the host platform, which will
-//  typically be byte alignment.
+//  1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
+//  'BSLS_BYTEALIGNED', specifies that a memory block may be aligned
+//  arbitrarily on any 1-byte boundary.  This is the *least* restrictive
+//  alignment requirement.
 //..
 ///Usage
 ///-----
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 // 'bsls::Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
 // 'bsls::Alignment::BSLS_MAXIMUM', we use the platform-dependent
 // 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value; and for
-// 'bsls::Alignment::BSLS_MINIMUM', we simply use 1:
+// 'bsls::Alignment::BSLS_BYTEALIGNED', we simply use 1:
 //..
 //      const int alignment =
 //                         strategy == bsls::Alignment::BSLS_NATURAL
@@ -185,9 +185,9 @@ struct Alignment {
             // Align memory block on an address that is the largest power of
             // two that evenly divides the size (in bytes) of the block.
 
-        BSLS_MINIMUM = 2
+        BSLS_BYTEALIGNED = 2
             // Align memory block based on the least restrictive alignment
-            // requirements of the host platform.
+            // requirements of the host platform (1-byte aligned).
     };
 
 

@@ -21,7 +21,7 @@ const char *Alignment::toAscii(Alignment::Strategy value)
     switch (value) {
       CASE(MAXIMUM)
       CASE(NATURAL)
-      CASE(MINIMUM)
+      CASE(BYTEALIGNED)
       default: return "(* UNKNOWN *)";
     }
 

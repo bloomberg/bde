@@ -159,7 +159,7 @@ const int NUM_ENUMERATORS = 3;
 // 'bsls::Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
 // 'bsls::Alignment::BSLS_MAXIMUM', we use the platform-dependent
 // 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value; and for
-// 'bsls::Alignment::BSLS_MINIMUM', we simply use 1:
+// 'bsls::Alignment::BSLS_BYTEALIGNED', we simply use 1:
 //..
         const int alignment =
                            strategy == bsls::Alignment::BSLS_NATURAL
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
             // ----    ---------------------------     -----------------
             {  L_,     Obj::BSLS_MAXIMUM,              "MAXIMUM"         },
             {  L_,     Obj::BSLS_NATURAL,              "NATURAL"         },
-            {  L_,     Obj::BSLS_MINIMUM,              "MINIMUM"         },
+            {  L_,     Obj::BSLS_BYTEALIGNED,          "BYTEALIGNED"     },
 
             {  L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT    },
             {  L_,     (Enum)-1,                       UNKNOWN_FORMAT    },
