@@ -67,8 +67,9 @@ const int NUM_INTS_PER_CAPTURED_STRING = 3;
 
 // CLASS DATA
 
-bsls::AtomicInt bdepcre_RegEx::s_depthLimit(10000000); // from pcre's config.h
-                                                       // MATCH_LIMIT value
+bsls::AtomicOperations::AtomicTypes::Int
+        bdepcre_RegEx::s_depthLimit = {10000000}; // from pcre's config.h
+                                                  // MATCH_LIMIT value
 
 // CREATORS
 
@@ -76,7 +77,7 @@ bdepcre_RegEx::bdepcre_RegEx(bslma::Allocator *basicAllocator)
 : d_flags(0)
 , d_pattern(basicAllocator)
 , d_pcre_p(0)
-, d_depthLimit(s_depthLimit)
+, d_depthLimit(bdepcre_RegEx::defaultDepthLimit())
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
