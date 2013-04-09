@@ -8,6 +8,8 @@
 
 #include <bsl_iostream.h>
 
+#include <cstddef>
+
 using namespace BloombergLP;
 using namespace bsl;
 using namespace BloombergLP::btemt;
@@ -178,10 +180,53 @@ int main(int argc, char *argv[]) {
         //   
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "PRIMARY ACCESSORS" << endl
-                                  << "=================" << endl;
+        if (verbose) cout << endl << "SIZE & OFFSET TEST" << endl
+                                  << "==================" << endl;
         
-        // . . . 
+        struct S1 {
+            char d_byte;
+        };
+        ASSERT(sizeof(S1) == 1);
+        
+        struct S3 {
+            unsigned char         d_byte;
+            PackedBigEndianUint16 d_ushort;
+        };
+        ASSERT(sizeof(S3) == 3);
+        
+        struct S5 {
+            unsigned char         d_byte;
+            PackedBigEndianInt32  d_int;
+        };
+        ASSERT(offsetof(struct S5, d_int) == 1);
+        ASSERT(sizeof(S5) == 5);
+        
+        struct S7 {
+            PackedBigEndianInt16  d_ushort;
+            unsigned char         d_byte;
+            PackedBigEndianUint32 d_int;
+        };
+        ASSERT(offsetof(struct S7, d_byte) == 2);
+        ASSERT(offsetof(struct S7, d_int) == 3);
+        ASSERT(sizeof(S7) == 7);
+        
+        struct S9 {
+            unsigned char         d_byte[1];
+            PackedBigEndianInt32  d_uint;
+            PackedBigEndianUint32 d_int;
+        };
+        ASSERT(offsetof(struct S9, d_uint) == 1);
+        ASSERT(offsetof(struct S9, d_int) == 5);
+        ASSERT(sizeof(S9) == 9);
+        
+        struct S11 {
+            unsigned char         d_byte;
+            PackedBigEndianUint64 d_uint;
+            PackedBigEndianInt16  d_short;
+        };
+        ASSERT(offsetof(struct S11, d_uint) == 1);
+        ASSERT(offsetof(struct S11, d_short) == 9);
+        ASSERT(sizeof(S11) == 11);
         
       } break;
       case 1: {
@@ -200,8 +245,11 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
         
-        // . . . 
-        
+        PackedBigEndianUint64 u64;
+        PackedBigEndianInt32  i32;
+        PackedBigEndianUint32 u32;
+        PackedBigEndianInt16  i16;
+        PackedBigEndianUint16 u16;
       } break;
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
