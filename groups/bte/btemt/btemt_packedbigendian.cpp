@@ -18,7 +18,7 @@ bsl::ostream& PackedBigEndianUint64::print(bsl::ostream& stream,
 {
     bdeut_BigEndianUint64 tmp;
     bsl::memcpy(&tmp, this, sizeof(*this)); // TBD optimize
-    tmp.print(stream, level, spacesPerLevel);
+    return tmp.print(stream, level, spacesPerLevel);
 }
 
                         // --------------------------
@@ -32,7 +32,7 @@ bsl::ostream& PackedBigEndianInt32::print(bsl::ostream& stream,
 {
     bdeut_BigEndianInt32 tmp;
     bsl::memcpy(&tmp, this, sizeof(*this)); // TBD optimize
-    tmp.print(stream, level, spacesPerLevel);
+    return tmp.print(stream, level, spacesPerLevel);
 }
 
                         // ---------------------------
@@ -46,7 +46,7 @@ bsl::ostream& PackedBigEndianUint32::print(bsl::ostream& stream,
 {
     bdeut_BigEndianUint32 tmp;
     bsl::memcpy(&tmp, this, sizeof(*this)); // TBD optimize
-    tmp.print(stream, level, spacesPerLevel);
+    return tmp.print(stream, level, spacesPerLevel);
 }
 
                         // --------------------------
@@ -60,7 +60,7 @@ bsl::ostream& PackedBigEndianInt16::print(bsl::ostream& stream,
 {
     bdeut_BigEndianInt16 tmp;
     bsl::memcpy(&tmp, this, sizeof(*this)); // TBD optimize
-    tmp.print(stream, level, spacesPerLevel);
+    return tmp.print(stream, level, spacesPerLevel);
 }
 
                         // ---------------------------
@@ -74,7 +74,7 @@ bsl::ostream& PackedBigEndianUint16::print(bsl::ostream& stream,
 {
     bdeut_BigEndianUint16 tmp;
     bsl::memcpy(&tmp, this, sizeof(*this)); // TBD optimize
-    tmp.print(stream, level, spacesPerLevel);
+    return tmp.print(stream, level, spacesPerLevel);
 }
 
 }  // close package-level namespace
