@@ -438,8 +438,7 @@ class stack {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args>
     void emplace(Args&&... args);
         // TBD
@@ -666,9 +665,7 @@ stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(const stack& rhs)
     return *this;
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class CONTAINER>
 template <class... Args>
 inline
@@ -676,7 +673,6 @@ void stack<VALUE, CONTAINER>::emplace(Args&&... args)
 {
     d_container.emplace_back(std::forward<Args>(args)...);
 }
-
 #endif
 
 template <class VALUE, class CONTAINER>
@@ -696,14 +692,12 @@ void stack<VALUE, CONTAINER>::push(const value_type& value)
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
 template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::push(value_type&& value)
 {
     d_container.push_back(std::move(value));
 }
-
 #endif
 
 template <class VALUE, class CONTAINER>

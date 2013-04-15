@@ -1191,83 +1191,22 @@ class list
         // at least one element.
 
     // 23.3.5.4 modifiers:
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-    template <class... Args>
-    void emplace_front(Args&&... args);
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    void emplace_front(ARGS&&... args);
         // Insert a new element at the front of this list and construct it
         // using "emplace-construction" from the specified 'args'.
-#else
-    void emplace_front();
-        // Insert a new element at the front of this list and construct it
-        // using "default-insertion".
-    template <class ARG1>
-    void emplace_front(const ARG1& a1);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified argument 'a1'.
-    template <class ARG1, class ARG2>
-    void emplace_front(const ARG1& a1, const ARG2& a2);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1' and
-        // 'a2'.
-    template <class ARG1, class ARG2, class ARG3>
-    void emplace_front(const ARG1& a1, const ARG2& a2, const ARG3& a3);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', and 'a3'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4>
-    void emplace_front(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                       const ARG4& a4);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', 'a3', and 'a4'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-    void emplace_front(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                       const ARG4& a4, const ARG5& a5);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', 'a3', 'a4', and 'a5'.
 #endif
+
     void pop_front();
         // Remove and destroy the first element of this list.  The behavior is
         // undefined unless this list contains at least one element.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-    template <class... Args>
-    void emplace_back(Args&&... args);
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    void emplace_back(ARGS&&... args);
         // Insert a new element at the back of this list and construct it
         // using "emplace-construction" from the specified 'args'.
-#else
-    void emplace_back();
-        // Insert a new element at the back of this list and construct it
-        // using "default-insertion".
-    template <class ARG1>
-    void emplace_back(const ARG1& a1);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified argument 'a1'.
-    template <class ARG1, class ARG2>
-    void emplace_back(const ARG1& a1, const ARG2& a2);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1' and
-        // 'a2'.
-    template <class ARG1, class ARG2, class ARG3>
-    void emplace_back(const ARG1& a1, const ARG2& a2, const ARG3& a3);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', and 'a3'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4>
-    void emplace_back(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                       const ARG4& a4);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', 'a3', and 'a4'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-    void emplace_back(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                       const ARG4& a4, const ARG5& a5);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', 'a3', 'a4', and 'a5'.
 #endif
 
     void pop_back();
@@ -1287,45 +1226,12 @@ class list
     void push_back(VALUE&& value);
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-    template <class... Args>
-    iterator emplace(const_iterator position, Args&&... args);
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    iterator emplace(const_iterator position, ARGS&&... args);
         // Insert a new element into this list before the element at the
         // specified 'position' using "emplace-construction" from the specified
         // 'args'.
-#else
-    iterator emplace(const_iterator position);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "default-insertion".
-    template <class ARG1>
-    iterator emplace(const_iterator position, const ARG1& a1);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // argument 'a1'.
-    template <class ARG1, class ARG2>
-    iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // arguments 'a1' and 'a2'.
-    template <class ARG1, class ARG2, class ARG3>
-    iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2,
-                     const ARG3& a3);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // arguments 'a1', 'a2', and 'a3'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4>
-    iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2,
-                     const ARG3& a3, const ARG4& a4);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // arguments 'a1', 'a2', 'a3', and 'a4'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-    iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2,
-                     const ARG3& a3, const ARG4& a4, const ARG5& a5);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // arguments 'a1', 'a2', 'a3', 'a4', and 'a5'.
 #endif
 
     iterator insert(const_iterator position, const VALUE& value);
@@ -2262,70 +2168,13 @@ VALUE& list<VALUE, ALLOCATOR>::back()
 }
 
 // 23.3.5.4 modifiers:
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class ALLOCATOR>
-template <class... Args>
+template <class... ARGS>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(Args&&... args)
+void list<VALUE, ALLOCATOR>::emplace_front(ARGS&&... args)
 {
-    emplace(begin(), std::forward<Args>(args)...);
-}
-#else
-template <class VALUE, class ALLOCATOR>
-inline
-void list<VALUE, ALLOCATOR>::emplace_front()
-{
-    emplace(begin());
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1>
-inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1)
-{
-    emplace(begin(), a1);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2>
-inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1, const ARG2& a2)
-{
-    emplace(begin(), a1, a2);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3>
-inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3)
-{
-    emplace(begin(), a1, a2, a3);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4>
-inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3,
-                                          const ARG4& a4)
-{
-    emplace(begin(), a1, a2, a3, a4);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3,
-                                          const ARG4& a4,
-                                          const ARG5& a5)
-{
-    emplace(begin(), a1, a2, a3, a4, a5);
+    emplace(begin(), std::forward<ARGS>(args)...);
 }
 #endif
 
@@ -2338,70 +2187,13 @@ void list<VALUE, ALLOCATOR>::pop_front()
     erase(begin());
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class ALLOCATOR>
-template <class... Args>
+template <class... ARGS>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(Args&&... args)
+void list<VALUE, ALLOCATOR>::emplace_back(ARGS&&... args)
 {
-    emplace(end(), std::forward<Args>(args)...);
-}
-#else
-template <class VALUE, class ALLOCATOR>
-inline
-void list<VALUE, ALLOCATOR>::emplace_back()
-{
-    emplace(end());
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1>
-inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1)
-{
-    emplace(end(), a1);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2>
-inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1, const ARG2& a2)
-{
-    emplace(end(), a1, a2);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3>
-inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3)
-{
-    emplace(end(), a1, a2, a3);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4>
-inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3,
-                                          const ARG4& a4)
-{
-    emplace(end(), a1, a2, a3, a4);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3,
-                                          const ARG4& a4,
-                                          const ARG5& a5)
-{
-    emplace(end(), a1, a2, a3, a4, a5);
+    emplace(end(), std::forward<ARGS>(args)...);
 }
 #endif
 
@@ -2444,126 +2236,20 @@ void list<VALUE, ALLOCATOR>::push_back(VALUE&& value)
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class ALLOCATOR>
-template <class... Args>
+template <class... ARGS>
 typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position, Args&&... args)
+list<VALUE, ALLOCATOR>::emplace(const_iterator position, ARGS&&... args)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           std::forward<Args>(args)...);
+                           std::forward<ARGS>(args)...);
     proctor.release();
     return insert_node(position, p);
 }
-#else
-template <class VALUE, class ALLOCATOR>
-typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position)
-{
-    NodePtr p = allocate_node();
-    NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value));
-    proctor.release();
-    return insert_node(position, p);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1>
-typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position, const ARG1& a1)
-{
-    NodePtr p = allocate_node();
-    NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
-                           a1);
-    proctor.release();
-    return insert_node(position, p);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2>
-typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                               const ARG1& a1,
-                               const ARG2& a2)
-{
-    NodePtr p = allocate_node();
-    NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(),
-                       BloombergLP::bsls::Util::addressOf(p->d_value), a1, a2);
-    proctor.release();
-    return insert_node(position, p);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3>
-typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                               const ARG1& a1,
-                               const ARG2& a2,
-                               const ARG3& a3)
-{
-    NodePtr p = allocate_node();
-    NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
-                           a1,
-                           a2,
-                           a3);
-    proctor.release();
-    return insert_node(position, p);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4>
-typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                               const ARG1& a1,
-                               const ARG2& a2,
-                               const ARG3& a3,
-                               const ARG4& a4)
-{
-    NodePtr p = allocate_node();
-    NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
-                           a1,
-                           a2,
-                           a3,
-                           a4);
-    proctor.release();
-    return insert_node(position, p);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                               const ARG1& a1,
-                               const ARG2& a2,
-                               const ARG3& a3,
-                               const ARG4& a4,
-                               const ARG5& a5)
-{
-    NodePtr p = allocate_node();
-    NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
-                           a1,
-                           a2,
-                           a3,
-                           a4,
-                           a5);
-    proctor.release();
-    return insert_node(position, p);
-}
-
 #endif
 
 template <class VALUE, class ALLOCATOR>

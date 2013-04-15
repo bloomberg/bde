@@ -586,6 +586,8 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
+#include <cstdio>
+
 namespace bsl {
 
                           // ==================
@@ -1014,7 +1016,15 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // it can accommodate without reallocation.  The actual storage
         // allocated may be higher.
 
+    void shrink_to_fit();
+        // Reduce the capacity of this vector to its size.  The method has no
+        // effect if the capacity is equivalent to the size.
+
                         // *** 23.2.4.3 modifiers: ***
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args> void emplace_back(Args&&... args);
+#endif
 
     void push_back(const VALUE_TYPE& value);
         // Append a copy of the specified 'value' at the end of this vector.
@@ -1029,6 +1039,11 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     void pop_back();
         // Erase the last element from this vector.  The behavior is undefined
         // if this vector is empty.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    VALUE_TYPE* emplace(const_iterator position, Args&&... args);
+#endif
 
     iterator insert(const_iterator position, const VALUE_TYPE& value);
         // Insert at the specified 'position' in this vector a copy of the
@@ -1395,6 +1410,9 @@ class vector< VALUE_TYPE *, ALLOCATOR >
         { Base::resize(newLength, (void *)value); }
 
     // void reserve(size_type newCapacity);
+    // can be inherited from Base without cast
+
+    // void shrink_to_fit();
     // can be inherited from Base without cast
 
                         // *** 23.2.4.3 modifiers: ***
@@ -2569,7 +2587,47 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::reserve(size_type newCapacity)
     }
 }
 
+template <class VALUE_TYPE, class ALLOCATOR>
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
+{
+    if (this->size() < this->d_capacity) {
+        Vector_Imp temp(this->get_allocator());
+        temp.privateReserveEmpty(this->size());
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       temp.d_dataBegin,
+                                                       this->d_dataBegin,
+                                                       this->d_dataEnd,
+                                                       this->bslmaAllocator());
+
+        temp.d_dataEnd += this->size();
+        this->d_dataEnd = this->d_dataBegin;
+        Vector_Util::swap(&this->d_dataBegin, &temp.d_dataBegin);
+    }
+}
+
                         // *** 23.2.4.3 modifiers: ***
+
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class... Args>
+inline
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...args)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                                                   this->d_dataEnd,
+                                                   std::forward<Args>(args)...,
+                                                   this->bslmaAllocator());
+        ++this->d_dataEnd;
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        emplace(this->d_dataEnd, std::forward<Args>(args)...);
+    }
+}
+#endif
+
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
@@ -2596,6 +2654,87 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::pop_back()
     BloombergLP::bslalg::ScalarDestructionPrimitives
                                                   ::destroy(--this->d_dataEnd);
 }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class... Args>
+inline
+VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
+                                                       Args&&...      args)
+{
+    BSLS_ASSERT_SAFE(this->begin() <= position);
+    BSLS_ASSERT_SAFE(position      <= this->end());
+
+    const size_type index = position - this->begin();
+
+    const iterator& pos = const_cast<const iterator&>(position);
+
+    const size_type maxSize = max_size();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(1 > maxSize - this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                            "vector<...>::emplace(pos,args): vector too long");
+    }
+
+    const size_type newSize = this->size() + 1;
+    if (newSize > this->d_capacity) {
+        size_type newCapacity = Vector_Util::computeNewCapacity(
+                                                              newSize,
+                                                              this->d_capacity,
+                                                              maxSize);
+        Vector_Imp temp(this->get_allocator());
+        temp.privateReserveEmpty(newCapacity);
+
+        // Move '[pos, this->d_dataEnd)' to 'temp' array.
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                  temp.d_dataBegin + index + 1,
+                                                  pos,
+                                                  this->d_dataEnd,
+                                                  this->bslmaAllocator());
+
+        // Set guard to auto destroy the previouly created elements.
+
+        BloombergLP::bslalg::AutoArrayDestructor<VALUE_TYPE> guard(
+                                                  temp.d_dataBegin + index + 1,
+                                                  temp.d_dataBegin + newSize);
+
+        this->d_dataEnd = pos;  // Set the length to keep exception-neutral.
+
+        // Construct the new element.
+
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                                                   temp.d_dataBegin + index,
+                                                   std::forward<Args>(args)...,
+                                                   this->bslmaAllocator());
+        guard.moveBegin(-1);
+
+        // Move '[0, pos)' to 'temp' array.
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       temp.d_dataBegin,
+                                                       this->d_dataBegin,
+                                                       pos,
+                                                       this->bslmaAllocator());
+        guard.release();
+
+        temp.d_dataEnd += newSize;
+        this->d_dataEnd = this->d_dataBegin;
+        Vector_Util::swap(&this->d_dataBegin, &temp.d_dataBegin);
+    }
+    else {
+        BloombergLP::bslalg::ArrayPrimitives::emplace(
+                                                  pos,
+                                                  this->end(),
+                                                  1,
+                                                  this->bslmaAllocator(),
+                                                  std::forward<Args>(args)...);
+        this->d_dataEnd += 1;
+    }
+
+    return this->begin() + index;
+}
+#endif
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline

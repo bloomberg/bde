@@ -191,7 +191,7 @@ class NonBslmaAllocator
         return pointer(d_mechanism->allocate(n * sizeof(T)));
     }
 
-    void deallocate(pointer p, size_type n = 1)
+    void deallocate(pointer p, size_type = 1)
         { d_mechanism->deallocate(p); }
 
     void construct(T *p, const T& val) { ::new ((void*)p) T(val); }
@@ -261,7 +261,7 @@ class BslmaAllocator
         return pointer(d_mechanism->allocate(n * sizeof(T)));
     }
 
-    void deallocate(pointer p, size_type n = 1)
+    void deallocate(pointer p, size_type = 1)
         { d_mechanism->deallocate(p); }
 
     void construct(T *p, const T& val)
@@ -369,7 +369,7 @@ class FunkyAllocator
         return pointer((T*) d_mechanism->allocate(n * sizeof(T)), 0);
     }
 
-    void deallocate(pointer p, size_type n = 1)
+    void deallocate(pointer p, size_type = 1)
         { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
 
     void construct(T *p, const T& val)
@@ -1092,7 +1092,7 @@ void testAttribClass(const char* className)
     const Alloc DFLT_ALLOC(bslma::Default::allocator(0));
     const Alloc TST_ALLOC(&ta);
 
-    for (int i = 0; i < NUM_DATA; ++i) {
+    for (std::size_t i = 0; i < NUM_DATA; ++i) {
         const char        A = DATA[i].d_a;
         const int         B = DATA[i].d_b;
         const double      C = DATA[i].d_c;
@@ -1355,7 +1355,7 @@ void testAllocateDeallocate(const char *name)
         const int blocksInUseB = ta.numBlocksInUse();
         const int bytesInUseB  = ta.numBytesInUse();
 
-        const size_type blockSize = N * sizeof(value_type);
+        const int blockSize = N * sizeof(value_type);
 
         g_lastHint = nonHint;
         if (useHint) {
@@ -1392,7 +1392,7 @@ void testAllocateDeallocate(const char *name)
         const int blocksInUseB = ta.numBlocksInUse();
         const int bytesInUseB  = ta.numBytesInUse();
 
-        const size_type blockSize = N * sizeof(value_type);
+        const int blockSize = N * sizeof(value_type);
 
         TraitsT::deallocate(a, pointers[i], N);
 
@@ -1734,7 +1734,7 @@ int main(int argc, char *argv[])
         //:   resulted in the constructed object using allocator 'a'.
         //:   Otherwise, the constructed object uses the default allocator.
         //:   (C3)
-        //: o Call 'allocator_traits<ALLOC>::construct(a, &b)' and verify that
+        //: o Call 'allocator_traits<ALLOC>::destroy(a, &b)' and verify that
         //:   the 'T' destructor for the object in 'b' has been invoked. (C4)
         //: o Instantiate and invoke 'testConstructDestroy' on each meaningful
         //:   combination of attribute classes ('AttribClass5',

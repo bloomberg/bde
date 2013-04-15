@@ -199,6 +199,44 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 
+    //  *** Simulate various C++11 features ***
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#   define BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES 1
+
+#   ifndef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#       define BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES 1
+#   endif
+#endif
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#   define BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND 1
+
+#   ifndef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#       define BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES 1
+#   endif
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
+// Use a work-around for the absence of perfect-forwarding.
+
+#   define BSLS_COMPILERFEATURES_FORWARD_REF(T) const T&
+    // On compilers that support C++11 perfect forwarding, replace with 'T&&',
+    // i.e., an argument that can be perfect-forwarded; otherwise, replace
+    // with 'const T&', the classic way to accept arguments of unknown
+    // rvalue/lvalue-ness.
+
+#   define BSLS_COMPILERFEATURES_FORWARD(T,V) (V)
+    // On compilers that support C++11 perfect forwarding, replace with
+    // 'bsl::forward<T>(V)', i.e., use perfect-forwarding; otherwise, replace
+    // with '(V)', the classic way to forward arguments safely.
+
+#else
+// Use real perfect-forwarding; no workaround needed.
+#   define BSLS_COMPILERFEATURES_FORWARD_REF(T) T&&
+#   define BSLS_COMPILERFEATURES_FORWARD(T,V)   bsl::forward<T>(V)
+#endif
+
 #endif
 
 // ----------------------------------------------------------------------------
