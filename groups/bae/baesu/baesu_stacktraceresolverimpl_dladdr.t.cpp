@@ -99,7 +99,7 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> Obj;
 typedef baesu_StackTraceFrame                                        Frame;
-typedef bsls_Types::UintPtr                                          UintPtr;
+typedef bsls::Types::UintPtr                                         UintPtr;
 
 //=============================================================================
 // GLOBAL HELPER VARIABLES FOR TESTING
@@ -180,7 +180,7 @@ int funcStaticInlineOne(int i)
 }
 
 static
-const void *addFixedOffset(bsls_Types::UintPtr funcAddress)
+const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
     // Given a function pointer stored in a 'UintPtr', add an offset to the
     // pointer and return it as a 'const void *'.
 {
@@ -251,14 +251,14 @@ const char *ng(const char *str)
     return str ? str : "(null)";
 }
 
-static bsls_Types::Uint64 bigRandSeed = 0;
-static const bsls_Types::Uint64 randA = 6364136223846793005ULL;
-static const bsls_Types::Uint64 randC = 1442695040888963407ULL;
+static bsls::Types::Uint64 bigRandSeed = 0;
+static const bsls::Types::Uint64 randA = 6364136223846793005ULL;
+static const bsls::Types::Uint64 randC = 1442695040888963407ULL;
 
 static
 UintPtr bigRand()
 {
-    typedef bsls_Types::Uint64 Uint64;
+    typedef bsls::Types::Uint64 Uint64;
 
     Uint64 next = randA * bigRandSeed + randC;
     UintPtr lowBits = next >> 32;
@@ -324,8 +324,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
       case 3: {
@@ -335,23 +335,23 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 That, given invalid data, the stack trace facility won't
         //:   segfault.
-	//:
+        //:
         //: 2 That, given invalid data, the stack trace facility won't fail an
         //:   assert.
-	//:
+        //:
         //: 3 That, given invalid data, the stack trace facility won't return a
         //:   non-zero status.
         //
         // Plan:
         //: 1 Seed a long stackTrace of StackTraceFrames with a combination of
         //:   random and maliciously chosen garbase addresses.
-	//:
+        //:
         //: 2 Resolve it.
-	//:
+        //:
         //: 3 Observe if it segfaults or fails any asserts.
-	//:
+        //:
         //: 4 Observe if it returns a non-zero return code.
-	//:
+        //:
         //: 5 Stream all the frames to a stringstream to see if the stream
         //:   operator causes any segfaults of failed asserts.
         // --------------------------------------------------------------------
@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Invalid Input Test\n"
                              "==================\n";
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
 
         baesu_StackTrace stackTrace(&ta);
         stuffRandomAddresses(&stackTrace);
@@ -425,9 +425,9 @@ int main(int argc, char *argv[])
         //:   expected.
         //:
         //: 8 For the non-static symbols, verify they demangled properly.
-	//
-	// TESTING:
-	//    static int resolve(baesu_StackTrace *, bool);
+        //
+        // TESTING:
+        //    static int resolve(baesu_StackTrace *, bool);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "SUCCESSFUL RESOLVE TEST\n"
@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
         // a shared library.  We'll leave the testing of symbols in shared
         // libraries to 'baesu_stacktraceutil.t.cpp.
 
-        typedef bsls_Types::UintPtr UintPtr;
+        typedef bsls::Types::UintPtr UintPtr;
 
         for (int ti = 0; ti < 2; ++ti) {
             const bool demangle = ti;

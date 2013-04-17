@@ -219,31 +219,31 @@ int main(int argc, char *argv[])
     defined(BSLS_PLATFORM_OS_LINUX)   || \
     defined(BSLS_PLATFORM_OS_HPUX)
 
-        ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Dladdr>()));
+        ASSERT(1 == (bslmf::IsSame<Obj::Policy, Obj::Elf>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Xcoff>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Windows>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Dladdr>()));
 
 #elif defined(BSLS_PLATFORM_OS_AIX)
 
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
-        ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Dladdr>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Elf>()));
+        ASSERT(1 == (bslmf::IsSame<Obj::Policy, Obj::Xcoff>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Windows>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Dladdr>()));
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
-        ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Dladdr>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Elf>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Xcoff>()));
+        ASSERT(1 == (bslmf::IsSame<Obj::Policy, Obj::Windows>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Dladdr>()));
 
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
-        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
-        ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Dladdr>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Elf>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Xcoff>()));
+        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Windows>()));
+        ASSERT(1 == (bslmf::IsSame<Obj::Policy, Obj::Dladdr>()));
 
 #else
 #       error Unrecognized platform
