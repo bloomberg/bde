@@ -605,6 +605,79 @@ struct ArrayPrimitives {
         // operator for 'TARGET_TYPE' throws an exception, then any elements
         // created after 'toEnd' are destroyed and the elements in the range '[
         // toBegin, toEnd )' will have unspecified, but valid, values.
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg/bslalg_arrayprimitives.h
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void emplace(TARGET_TYPE               *toBegin,
+                        TARGET_TYPE               *toEnd,
+                        size_type                  numElements,
+                        ALLOCATOR                 *allocator);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1>
+    static void emplace(TARGET_TYPE               *toBegin,
+                        TARGET_TYPE               *toEnd,
+                        size_type                  numElements,
+                        ALLOCATOR                 *allocator,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2>
+    static void emplace(TARGET_TYPE               *toBegin,
+                        TARGET_TYPE               *toEnd,
+                        size_type                  numElements,
+                        ALLOCATOR                 *allocator,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3>
+    static void emplace(TARGET_TYPE               *toBegin,
+                        TARGET_TYPE               *toEnd,
+                        size_type                  numElements,
+                        ALLOCATOR                 *allocator,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3,
+                                                  class Args_4>
+    static void emplace(TARGET_TYPE               *toBegin,
+                        TARGET_TYPE               *toEnd,
+                        size_type                  numElements,
+                        ALLOCATOR                 *allocator,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3,
+                                                  class Args_4,
+                                                  class Args_5>
+    static void emplace(TARGET_TYPE               *toBegin,
+                        TARGET_TYPE               *toEnd,
+                        size_type                  numElements,
+                        ALLOCATOR                 *allocator,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5);
+
+#else
+    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+    static void emplace(TARGET_TYPE               *toBegin,
+                        TARGET_TYPE               *toEnd,
+                        size_type                  numElements,
+                        ALLOCATOR                 *allocator,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+// }}} END GENERATED CODE
 #endif
 
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
@@ -1044,6 +1117,234 @@ struct ArrayPrimitives_Imp {
         // exception, then any elements created after 'toEnd' are destroyed and
         // the elements in the range '[ toBegin, toEnd )' will have
         // unspecified, but valid, values.
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg/bslalg_arrayprimitives.h
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3,
+                                                  class Args_4>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3,
+                                                  class Args_4,
+                                                  class Args_5>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5);
+
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3,
+                                                  class Args_4>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3,
+                                                  class Args_4,
+                                                  class Args_5>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5);
+
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void emplace(TARGET_TYPE                *toBegin,
+                        TARGET_TYPE                *toEnd,
+                        size_type                   numElements,
+                        ALLOCATOR                  *allocator,
+                        bslmf::MetaInt<NIL_TRAITS> *);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1>
+    static void emplace(TARGET_TYPE                *toBegin,
+                        TARGET_TYPE                *toEnd,
+                        size_type                   numElements,
+                        ALLOCATOR                  *allocator,
+                        bslmf::MetaInt<NIL_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2>
+    static void emplace(TARGET_TYPE                *toBegin,
+                        TARGET_TYPE                *toEnd,
+                        size_type                   numElements,
+                        ALLOCATOR                  *allocator,
+                        bslmf::MetaInt<NIL_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3>
+    static void emplace(TARGET_TYPE                *toBegin,
+                        TARGET_TYPE                *toEnd,
+                        size_type                   numElements,
+                        ALLOCATOR                  *allocator,
+                        bslmf::MetaInt<NIL_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3,
+                                                  class Args_4>
+    static void emplace(TARGET_TYPE                *toBegin,
+                        TARGET_TYPE                *toEnd,
+                        size_type                   numElements,
+                        ALLOCATOR                  *allocator,
+                        bslmf::MetaInt<NIL_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4);
+
+    template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                                  class Args_2,
+                                                  class Args_3,
+                                                  class Args_4,
+                                                  class Args_5>
+    static void emplace(TARGET_TYPE                *toBegin,
+                        TARGET_TYPE                *toEnd,
+                        size_type                   numElements,
+                        ALLOCATOR                  *allocator,
+                        bslmf::MetaInt<NIL_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5);
+
+#else
+    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+    static void emplace(TARGET_TYPE                             *toBegin,
+                        TARGET_TYPE                             *toEnd,
+                        size_type                                numElements,
+                        ALLOCATOR                               *allocator,
+                        bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+    static void emplace(TARGET_TYPE                *toBegin,
+                        TARGET_TYPE                *toEnd,
+                        size_type                   numElements,
+                        ALLOCATOR                  *allocator,
+                        bslmf::MetaInt<NIL_TRAITS> *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+// }}} END GENERATED CODE
 #endif
 
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
@@ -1570,6 +1871,263 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                                  (bslmf::MetaInt<VALUE>*)0,
                                  std::forward<Args>(args)...);
 }
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg/bslalg_arrayprimitives.h
+template <class TARGET_TYPE, class ALLOCATOR>
+inline
+void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
+                              TARGET_TYPE               *toEnd,
+                              size_type                  numElements,
+                              ALLOCATOR                 *allocator)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+    if (0 == numElements) {
+        return;
+    }
+
+    enum {
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_MOVEABLE_TRAITS
+                  : Imp::NIL_TRAITS
+    };
+
+    ArrayPrimitives_Imp::emplace(toBegin,
+                                 toEnd,
+                                 numElements,
+                                 allocator,
+                                 (bslmf::MetaInt<VALUE>*)0);
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1>
+inline
+void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
+                              TARGET_TYPE               *toEnd,
+                              size_type                  numElements,
+                              ALLOCATOR                 *allocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+    if (0 == numElements) {
+        return;
+    }
+
+    enum {
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_MOVEABLE_TRAITS
+                  : Imp::NIL_TRAITS
+    };
+
+    ArrayPrimitives_Imp::emplace(toBegin,
+                                 toEnd,
+                                 numElements,
+                                 allocator,
+                                 (bslmf::MetaInt<VALUE>*)0,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1));
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2>
+inline
+void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
+                              TARGET_TYPE               *toEnd,
+                              size_type                  numElements,
+                              ALLOCATOR                 *allocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+    if (0 == numElements) {
+        return;
+    }
+
+    enum {
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_MOVEABLE_TRAITS
+                  : Imp::NIL_TRAITS
+    };
+
+    ArrayPrimitives_Imp::emplace(toBegin,
+                                 toEnd,
+                                 numElements,
+                                 allocator,
+                                 (bslmf::MetaInt<VALUE>*)0,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2));
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3>
+inline
+void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
+                              TARGET_TYPE               *toEnd,
+                              size_type                  numElements,
+                              ALLOCATOR                 *allocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+    if (0 == numElements) {
+        return;
+    }
+
+    enum {
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_MOVEABLE_TRAITS
+                  : Imp::NIL_TRAITS
+    };
+
+    ArrayPrimitives_Imp::emplace(toBegin,
+                                 toEnd,
+                                 numElements,
+                                 allocator,
+                                 (bslmf::MetaInt<VALUE>*)0,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3));
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3,
+                                              class Args_4>
+inline
+void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
+                              TARGET_TYPE               *toEnd,
+                              size_type                  numElements,
+                              ALLOCATOR                 *allocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+    if (0 == numElements) {
+        return;
+    }
+
+    enum {
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_MOVEABLE_TRAITS
+                  : Imp::NIL_TRAITS
+    };
+
+    ArrayPrimitives_Imp::emplace(toBegin,
+                                 toEnd,
+                                 numElements,
+                                 allocator,
+                                 (bslmf::MetaInt<VALUE>*)0,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_4, args_4));
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3,
+                                              class Args_4,
+                                              class Args_5>
+inline
+void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
+                              TARGET_TYPE               *toEnd,
+                              size_type                  numElements,
+                              ALLOCATOR                 *allocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+    if (0 == numElements) {
+        return;
+    }
+
+    enum {
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_MOVEABLE_TRAITS
+                  : Imp::NIL_TRAITS
+    };
+
+    ArrayPrimitives_Imp::emplace(toBegin,
+                                 toEnd,
+                                 numElements,
+                                 allocator,
+                                 (bslmf::MetaInt<VALUE>*)0,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_4, args_4),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_5, args_5));
+}
+
+#else
+template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+inline
+void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
+                              TARGET_TYPE               *toEnd,
+                              size_type                  numElements,
+                              ALLOCATOR                 *allocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+    if (0 == numElements) {
+        return;
+    }
+
+    enum {
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_MOVEABLE_TRAITS
+                  : Imp::NIL_TRAITS
+    };
+
+    ArrayPrimitives_Imp::emplace(toBegin,
+                                 toEnd,
+                                 numElements,
+                                 allocator,
+                                 (bslmf::MetaInt<VALUE>*)0,
+                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+}
+// }}} END GENERATED CODE
 #endif
 
 template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
@@ -2590,6 +3148,1159 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
         guard.release();
     }
 }
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg/bslalg_arrayprimitives.h
+template <class TARGET_TYPE, class ALLOCATOR>
+inline
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
+{
+
+    ArrayPrimitives_Imp::emplace(
+                             toBegin,
+                             toEnd,
+                             numElements,
+                             allocator,
+                             (bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>*)0);
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1>
+inline
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
+{
+
+    ArrayPrimitives_Imp::emplace(
+                             toBegin,
+                             toEnd,
+                             numElements,
+                             allocator,
+                             (bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>*)0,
+                             BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1));
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2>
+inline
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
+{
+
+    ArrayPrimitives_Imp::emplace(
+                             toBegin,
+                             toEnd,
+                             numElements,
+                             allocator,
+                             (bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>*)0,
+                             BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2));
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3>
+inline
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
+{
+
+    ArrayPrimitives_Imp::emplace(
+                             toBegin,
+                             toEnd,
+                             numElements,
+                             allocator,
+                             (bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>*)0,
+                             BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3));
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3,
+                                              class Args_4>
+inline
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
+{
+
+    ArrayPrimitives_Imp::emplace(
+                             toBegin,
+                             toEnd,
+                             numElements,
+                             allocator,
+                             (bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>*)0,
+                             BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_4, args_4));
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3,
+                                              class Args_4,
+                                              class Args_5>
+inline
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
+{
+
+    ArrayPrimitives_Imp::emplace(
+                             toBegin,
+                             toEnd,
+                             numElements,
+                             allocator,
+                             (bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>*)0,
+                             BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_4, args_4),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_5, args_5));
+}
+
+
+template <class TARGET_TYPE, class ALLOCATOR>
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    size_type tailLen    = toEnd - toBegin;
+    size_type numGuarded = tailLen < numElements ? tailLen : numElements;
+
+
+    TARGET_TYPE *destBegin = toBegin + numElements;
+    std::memmove(destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+
+
+    TARGET_TYPE *destEnd = toEnd + numElements;
+    AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
+                                               destEnd - numGuarded,
+                                               destEnd - numGuarded,
+                                               destEnd);
+
+    while (guard.middle() != guard.end()) {
+        ScalarPrimitives::construct(guard.destination(),
+                                    allocator);
+        guard.advance();
+    }
+
+
+    if (tailLen < numElements) {
+
+        AutoArrayDestructor<TARGET_TYPE> endGuard(destBegin, destEnd);
+
+
+        while (toEnd != destBegin) {
+            ScalarPrimitives::construct(--destBegin,
+                                        allocator);
+            endGuard.moveBegin(-1);
+        }
+        endGuard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1>
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    size_type tailLen    = toEnd - toBegin;
+    size_type numGuarded = tailLen < numElements ? tailLen : numElements;
+
+
+    TARGET_TYPE *destBegin = toBegin + numElements;
+    std::memmove(destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+
+
+    TARGET_TYPE *destEnd = toEnd + numElements;
+    AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
+                                               destEnd - numGuarded,
+                                               destEnd - numGuarded,
+                                               destEnd);
+
+    while (guard.middle() != guard.end()) {
+        ScalarPrimitives::construct(guard.destination(),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    args_1),
+                                    allocator);
+        guard.advance();
+    }
+
+
+    if (tailLen < numElements) {
+
+        AutoArrayDestructor<TARGET_TYPE> endGuard(destBegin, destEnd);
+
+
+        while (toEnd != destBegin) {
+            ScalarPrimitives::construct(--destBegin,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        allocator);
+            endGuard.moveBegin(-1);
+        }
+        endGuard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2>
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    size_type tailLen    = toEnd - toBegin;
+    size_type numGuarded = tailLen < numElements ? tailLen : numElements;
+
+
+    TARGET_TYPE *destBegin = toBegin + numElements;
+    std::memmove(destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+
+
+    TARGET_TYPE *destEnd = toEnd + numElements;
+    AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
+                                               destEnd - numGuarded,
+                                               destEnd - numGuarded,
+                                               destEnd);
+
+    while (guard.middle() != guard.end()) {
+        ScalarPrimitives::construct(guard.destination(),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    args_1),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                    args_2),
+                                    allocator);
+        guard.advance();
+    }
+
+
+    if (tailLen < numElements) {
+
+        AutoArrayDestructor<TARGET_TYPE> endGuard(destBegin, destEnd);
+
+
+        while (toEnd != destBegin) {
+            ScalarPrimitives::construct(--destBegin,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        args_2),
+                                        allocator);
+            endGuard.moveBegin(-1);
+        }
+        endGuard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3>
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    size_type tailLen    = toEnd - toBegin;
+    size_type numGuarded = tailLen < numElements ? tailLen : numElements;
+
+
+    TARGET_TYPE *destBegin = toBegin + numElements;
+    std::memmove(destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+
+
+    TARGET_TYPE *destEnd = toEnd + numElements;
+    AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
+                                               destEnd - numGuarded,
+                                               destEnd - numGuarded,
+                                               destEnd);
+
+    while (guard.middle() != guard.end()) {
+        ScalarPrimitives::construct(guard.destination(),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    args_1),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                    args_2),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                    args_3),
+                                    allocator);
+        guard.advance();
+    }
+
+
+    if (tailLen < numElements) {
+
+        AutoArrayDestructor<TARGET_TYPE> endGuard(destBegin, destEnd);
+
+
+        while (toEnd != destBegin) {
+            ScalarPrimitives::construct(--destBegin,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        args_2),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        args_3),
+                                        allocator);
+            endGuard.moveBegin(-1);
+        }
+        endGuard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3,
+                                              class Args_4>
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    size_type tailLen    = toEnd - toBegin;
+    size_type numGuarded = tailLen < numElements ? tailLen : numElements;
+
+
+    TARGET_TYPE *destBegin = toBegin + numElements;
+    std::memmove(destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+
+
+    TARGET_TYPE *destEnd = toEnd + numElements;
+    AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
+                                               destEnd - numGuarded,
+                                               destEnd - numGuarded,
+                                               destEnd);
+
+    while (guard.middle() != guard.end()) {
+        ScalarPrimitives::construct(guard.destination(),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    args_1),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                    args_2),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                    args_3),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                    args_4),
+                                    allocator);
+        guard.advance();
+    }
+
+
+    if (tailLen < numElements) {
+
+        AutoArrayDestructor<TARGET_TYPE> endGuard(destBegin, destEnd);
+
+
+        while (toEnd != destBegin) {
+            ScalarPrimitives::construct(--destBegin,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        args_2),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        args_3),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                        args_4),
+                                        allocator);
+            endGuard.moveBegin(-1);
+        }
+        endGuard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3,
+                                              class Args_4,
+                                              class Args_5>
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    size_type tailLen    = toEnd - toBegin;
+    size_type numGuarded = tailLen < numElements ? tailLen : numElements;
+
+
+    TARGET_TYPE *destBegin = toBegin + numElements;
+    std::memmove(destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+
+
+    TARGET_TYPE *destEnd = toEnd + numElements;
+    AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
+                                               destEnd - numGuarded,
+                                               destEnd - numGuarded,
+                                               destEnd);
+
+    while (guard.middle() != guard.end()) {
+        ScalarPrimitives::construct(guard.destination(),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    args_1),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                    args_2),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                    args_3),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                    args_4),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_5, 
+                                    args_5),
+                                    allocator);
+        guard.advance();
+    }
+
+
+    if (tailLen < numElements) {
+
+        AutoArrayDestructor<TARGET_TYPE> endGuard(destBegin, destEnd);
+
+
+        while (toEnd != destBegin) {
+            ScalarPrimitives::construct(--destBegin,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        args_2),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        args_3),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                        args_4),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_5, 
+                                        args_5),
+                                        allocator);
+            endGuard.moveBegin(-1);
+        }
+        endGuard.release();
+    }
+}
+
+
+template <class TARGET_TYPE, class ALLOCATOR>
+void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
+                                  TARGET_TYPE                *toEnd,
+                                  size_type                   numElements,
+                                  ALLOCATOR                  *allocator,
+                                  bslmf::MetaInt<NIL_TRAITS> *)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    const size_type tailLen = toEnd - toBegin;
+    if (tailLen >= numElements) {
+
+
+        copyConstruct(toEnd,
+                      toEnd - numElements,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
+                                               toEnd + numElements);
+
+
+        ConstructorProxy<TARGET_TYPE> tempValue(
+                                           bslma::Default::allocator());
+
+
+        reverseAssign(toBegin + numElements, toBegin, toEnd - numElements);
+
+
+        assign(toBegin, toBegin + numElements, tempValue.object());
+
+        guard.release();
+    }
+    else {
+
+        difference_type remElements = numElements - tailLen;
+
+
+        copyConstruct(toBegin + numElements,
+                      toBegin,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
+                                               toEnd + numElements);
+
+
+        TARGET_TYPE *addr = toEnd + remElements - 1;
+        for (; addr != toEnd - 1; --addr) {
+            ScalarPrimitives::construct(addr,
+                                        allocator);
+            guard.moveBegin(-1);
+        }
+
+
+        assign(toBegin, toEnd, *toEnd);
+
+        guard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1>
+void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
+                                  TARGET_TYPE                *toEnd,
+                                  size_type                   numElements,
+                                  ALLOCATOR                  *allocator,
+                                  bslmf::MetaInt<NIL_TRAITS> *,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    const size_type tailLen = toEnd - toBegin;
+    if (tailLen >= numElements) {
+
+
+        copyConstruct(toEnd,
+                      toEnd - numElements,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
+                                               toEnd + numElements);
+
+
+        ConstructorProxy<TARGET_TYPE> tempValue(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                         args_1),
+                                                bslma::Default::allocator());
+
+
+        reverseAssign(toBegin + numElements, toBegin, toEnd - numElements);
+
+
+        assign(toBegin, toBegin + numElements, tempValue.object());
+
+        guard.release();
+    }
+    else {
+
+        difference_type remElements = numElements - tailLen;
+
+
+        copyConstruct(toBegin + numElements,
+                      toBegin,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
+                                               toEnd + numElements);
+
+
+        TARGET_TYPE *addr = toEnd + remElements - 1;
+        for (; addr != toEnd - 1; --addr) {
+            ScalarPrimitives::construct(addr,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        allocator);
+            guard.moveBegin(-1);
+        }
+
+
+        assign(toBegin, toEnd, *toEnd);
+
+        guard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2>
+void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
+                                  TARGET_TYPE                *toEnd,
+                                  size_type                   numElements,
+                                  ALLOCATOR                  *allocator,
+                                  bslmf::MetaInt<NIL_TRAITS> *,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    const size_type tailLen = toEnd - toBegin;
+    if (tailLen >= numElements) {
+
+
+        copyConstruct(toEnd,
+                      toEnd - numElements,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
+                                               toEnd + numElements);
+
+
+        ConstructorProxy<TARGET_TYPE> tempValue(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                         args_1),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                         args_2),
+                                                bslma::Default::allocator());
+
+
+        reverseAssign(toBegin + numElements, toBegin, toEnd - numElements);
+
+
+        assign(toBegin, toBegin + numElements, tempValue.object());
+
+        guard.release();
+    }
+    else {
+
+        difference_type remElements = numElements - tailLen;
+
+
+        copyConstruct(toBegin + numElements,
+                      toBegin,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
+                                               toEnd + numElements);
+
+
+        TARGET_TYPE *addr = toEnd + remElements - 1;
+        for (; addr != toEnd - 1; --addr) {
+            ScalarPrimitives::construct(addr,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        args_2),
+                                        allocator);
+            guard.moveBegin(-1);
+        }
+
+
+        assign(toBegin, toEnd, *toEnd);
+
+        guard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3>
+void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
+                                  TARGET_TYPE                *toEnd,
+                                  size_type                   numElements,
+                                  ALLOCATOR                  *allocator,
+                                  bslmf::MetaInt<NIL_TRAITS> *,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    const size_type tailLen = toEnd - toBegin;
+    if (tailLen >= numElements) {
+
+
+        copyConstruct(toEnd,
+                      toEnd - numElements,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
+                                               toEnd + numElements);
+
+
+        ConstructorProxy<TARGET_TYPE> tempValue(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                         args_1),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                         args_2),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                         args_3),
+                                                bslma::Default::allocator());
+
+
+        reverseAssign(toBegin + numElements, toBegin, toEnd - numElements);
+
+
+        assign(toBegin, toBegin + numElements, tempValue.object());
+
+        guard.release();
+    }
+    else {
+
+        difference_type remElements = numElements - tailLen;
+
+
+        copyConstruct(toBegin + numElements,
+                      toBegin,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
+                                               toEnd + numElements);
+
+
+        TARGET_TYPE *addr = toEnd + remElements - 1;
+        for (; addr != toEnd - 1; --addr) {
+            ScalarPrimitives::construct(addr,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        args_2),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        args_3),
+                                        allocator);
+            guard.moveBegin(-1);
+        }
+
+
+        assign(toBegin, toEnd, *toEnd);
+
+        guard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3,
+                                              class Args_4>
+void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
+                                  TARGET_TYPE                *toEnd,
+                                  size_type                   numElements,
+                                  ALLOCATOR                  *allocator,
+                                  bslmf::MetaInt<NIL_TRAITS> *,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    const size_type tailLen = toEnd - toBegin;
+    if (tailLen >= numElements) {
+
+
+        copyConstruct(toEnd,
+                      toEnd - numElements,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
+                                               toEnd + numElements);
+
+
+        ConstructorProxy<TARGET_TYPE> tempValue(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                         args_1),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                         args_2),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                         args_3),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                         args_4),
+                                                bslma::Default::allocator());
+
+
+        reverseAssign(toBegin + numElements, toBegin, toEnd - numElements);
+
+
+        assign(toBegin, toBegin + numElements, tempValue.object());
+
+        guard.release();
+    }
+    else {
+
+        difference_type remElements = numElements - tailLen;
+
+
+        copyConstruct(toBegin + numElements,
+                      toBegin,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
+                                               toEnd + numElements);
+
+
+        TARGET_TYPE *addr = toEnd + remElements - 1;
+        for (; addr != toEnd - 1; --addr) {
+            ScalarPrimitives::construct(addr,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        args_2),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        args_3),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                        args_4),
+                                        allocator);
+            guard.moveBegin(-1);
+        }
+
+
+        assign(toBegin, toEnd, *toEnd);
+
+        guard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class Args_1,
+                                              class Args_2,
+                                              class Args_3,
+                                              class Args_4,
+                                              class Args_5>
+void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
+                                  TARGET_TYPE                *toEnd,
+                                  size_type                   numElements,
+                                  ALLOCATOR                  *allocator,
+                                  bslmf::MetaInt<NIL_TRAITS> *,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    const size_type tailLen = toEnd - toBegin;
+    if (tailLen >= numElements) {
+
+
+        copyConstruct(toEnd,
+                      toEnd - numElements,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
+                                               toEnd + numElements);
+
+
+        ConstructorProxy<TARGET_TYPE> tempValue(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                         args_1),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                         args_2),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                         args_3),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                         args_4),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_5, 
+                                         args_5),
+                                                bslma::Default::allocator());
+
+
+        reverseAssign(toBegin + numElements, toBegin, toEnd - numElements);
+
+
+        assign(toBegin, toBegin + numElements, tempValue.object());
+
+        guard.release();
+    }
+    else {
+
+        difference_type remElements = numElements - tailLen;
+
+
+        copyConstruct(toBegin + numElements,
+                      toBegin,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
+                                               toEnd + numElements);
+
+
+        TARGET_TYPE *addr = toEnd + remElements - 1;
+        for (; addr != toEnd - 1; --addr) {
+            ScalarPrimitives::construct(addr,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        args_1),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        args_2),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        args_3),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                        args_4),
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_5, 
+                                        args_5),
+                                        allocator);
+            guard.moveBegin(-1);
+        }
+
+
+        assign(toBegin, toEnd, *toEnd);
+
+        guard.release();
+    }
+}
+
+#else
+template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+inline
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+
+    ArrayPrimitives_Imp::emplace(
+                             toBegin,
+                             toEnd,
+                             numElements,
+                             allocator,
+                             (bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>*)0,
+                             BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+void ArrayPrimitives_Imp::emplace(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    size_type tailLen    = toEnd - toBegin;
+    size_type numGuarded = tailLen < numElements ? tailLen : numElements;
+
+
+    TARGET_TYPE *destBegin = toBegin + numElements;
+    std::memmove(destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+
+
+    TARGET_TYPE *destEnd = toEnd + numElements;
+    AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
+                                               destEnd - numGuarded,
+                                               destEnd - numGuarded,
+                                               destEnd);
+
+    while (guard.middle() != guard.end()) {
+        ScalarPrimitives::construct(guard.destination(),
+                                    BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                    args)...,
+                                    allocator);
+        guard.advance();
+    }
+
+
+    if (tailLen < numElements) {
+
+        AutoArrayDestructor<TARGET_TYPE> endGuard(destBegin, destEnd);
+
+
+        while (toEnd != destBegin) {
+            ScalarPrimitives::construct(--destBegin,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                        args)...,
+                                        allocator);
+            endGuard.moveBegin(-1);
+        }
+        endGuard.release();
+    }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
+                                  TARGET_TYPE                *toEnd,
+                                  size_type                   numElements,
+                                  ALLOCATOR                  *allocator,
+                                  bslmf::MetaInt<NIL_TRAITS> *,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+
+
+    const size_type tailLen = toEnd - toBegin;
+    if (tailLen >= numElements) {
+
+
+        copyConstruct(toEnd,
+                      toEnd - numElements,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
+                                               toEnd + numElements);
+
+
+        ConstructorProxy<TARGET_TYPE> tempValue(
+                                           BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                           args)...,
+                                                bslma::Default::allocator());
+
+
+        reverseAssign(toBegin + numElements, toBegin, toEnd - numElements);
+
+
+        assign(toBegin, toBegin + numElements, tempValue.object());
+
+        guard.release();
+    }
+    else {
+
+        difference_type remElements = numElements - tailLen;
+
+
+        copyConstruct(toBegin + numElements,
+                      toBegin,
+                      toEnd,
+                      allocator,
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
+                                               toEnd + numElements);
+
+
+        TARGET_TYPE *addr = toEnd + remElements - 1;
+        for (; addr != toEnd - 1; --addr) {
+            ScalarPrimitives::construct(addr,
+                                        BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                        args)...,
+                                        allocator);
+            guard.moveBegin(-1);
+        }
+
+
+        assign(toBegin, toEnd, *toEnd);
+
+        guard.release();
+    }
+}
+// }}} END GENERATED CODE
 #endif
 
                   // *** 'insert' with 'FWD_ITER' overloads: ***
