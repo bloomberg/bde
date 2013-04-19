@@ -866,8 +866,11 @@ int main(int argc, char *argv[])
 
         typedef bdesu_FileUtil::FileDescriptor FD;
 
-        const int PAGE_SIZE  = bdesu_MemoryUtil::pageSize();
-        const int SIZE       = PAGE_SIZE;
+        // Note that there appear to be '#define' for PAGESIZE and PAGE_SIZE
+        // on AIX. 
+
+        const int MYPAGESIZE = bdesu_MemoryUtil::pageSize();
+        const int SIZE       = MYPAGESIZE;
         const int READ       = bdesu_MemoryUtil::BDESU_ACCESS_READ;
         const int READ_WRITE = bdesu_MemoryUtil::BDESU_ACCESS_READ |
                                bdesu_MemoryUtil::BDESU_ACCESS_WRITE;
@@ -944,7 +947,7 @@ int main(int argc, char *argv[])
 
             int address;
 
-            rc = Obj::sync((char *)&address, PAGE_SIZE, true);
+            rc = Obj::sync((char *)&address, MYPAGESIZE, true);
             ASSERT(0 != rc);
 
             // Note that this is a white-box test that we return 'errno' on
@@ -966,7 +969,7 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(Obj::sync(writeBuffer + 1, SIZE, true));
 
         }
-
+        Obj::remove(testFileName);
         close(writeFd);
         close(readFd);
       } break;
