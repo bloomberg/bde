@@ -6,6 +6,9 @@
 #include <bdet_datetime.h>
 #include <bdetu_systemtime.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -29,8 +32,13 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#include <pthread.h>
+#include <sys/time.h>
+typedef pthread_t my_thread_t;
 #else
 #include <windows.h>  // for Sleep, GetLastError
+typedef HANDLE my_thread_t;
 #endif
 
 #include <bsl_algorithm.h>
@@ -103,6 +111,17 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
@@ -294,6 +313,276 @@ class MMIXRand {
 };
 
 
+void NoOpAssertHandler(const char *, const char *, int)
+{
+}
+
+
+
+class my_Mutex {
+    // This class implements a cross-platform mutual exclusion primitive
+    // similar to posix mutexes.
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    HANDLE d_mutex;
+#else
+    pthread_mutex_t d_mutex;
+#endif
+
+  public:
+    my_Mutex();
+        // Construct an 'my_Mutex' object.
+    ~my_Mutex();
+        // Destroy an 'my_Mutex' object.
+
+    void lock();
+        // Lock this mutex.
+
+    void unlock();
+        // Unlock this mutex;
+};
+
+class my_Conditional {
+    // This class implements a cross-platform waitable state indicator used for
+    // testing.  It has two states, signaled and non-signaled.  Once
+    // signaled('signal'), the state will persist until explicitly 'reset'.
+    // Calls to wait when the state is signaled, will succeed immediately.
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    HANDLE d_cond;
+#else
+    pthread_mutex_t d_mutex;
+    pthread_cond_t  d_cond;
+    volatile int   d_signaled;
+#endif
+
+  public:
+    my_Conditional();
+    ~my_Conditional();
+
+    void reset();
+        // Reset the state of this indicator to non-signaled.
+
+    void signal();
+        // Signal the state of the indicator and unblock any thread waiting
+        // for the state to be signaled.
+
+    void wait();
+        // Wait until the state of this indicator becomes signaled.  If the
+        // state is already signaled then return immediately.
+
+    int  timedWait(int timeout);
+        // Wait until the state of this indicator becomes signaled or until or
+        // for the specified 'timeout'(in milliseconds).  Return 0 if the state
+        // is signaled, non-zero if the timeout has expired.  If the state is
+        // already signaled then return immediately.
+};
+
+inline
+my_Mutex::my_Mutex()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    d_mutex = CreateMutex(0,FALSE,0);
+#else
+    pthread_mutex_init(&d_mutex,0);
+#endif
+}
+
+inline
+my_Mutex::~my_Mutex()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    CloseHandle(d_mutex);
+#else
+    pthread_mutex_destroy(&d_mutex);
+#endif
+}
+
+inline
+void my_Mutex::lock()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    WaitForSingleObject(d_mutex, INFINITE);
+#else
+    pthread_mutex_lock(&d_mutex);
+#endif
+}
+
+inline
+void my_Mutex::unlock()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    ReleaseMutex(d_mutex);
+#else
+    pthread_mutex_unlock(&d_mutex);
+#endif
+}
+
+
+my_Conditional::my_Conditional()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    d_cond = CreateEvent(0,TRUE,FALSE,0);
+#else
+    pthread_mutex_init(&d_mutex,0);
+    pthread_cond_init(&d_cond,0);
+    d_signaled = 0;
+#endif
+}
+
+my_Conditional::~my_Conditional()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    CloseHandle(d_cond);
+#else
+    pthread_cond_destroy(&d_cond);
+    pthread_mutex_destroy(&d_mutex);
+#endif
+}
+
+void my_Conditional::reset()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    ResetEvent(d_cond);
+#else
+    pthread_mutex_lock(&d_mutex);
+    d_signaled = 0;
+    pthread_mutex_unlock(&d_mutex);
+#endif
+}
+
+void my_Conditional::signal()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    SetEvent(d_cond);
+#else
+    pthread_mutex_lock(&d_mutex);
+    d_signaled = 1;
+    pthread_cond_broadcast(&d_cond);
+    pthread_mutex_unlock(&d_mutex);
+#endif
+}
+
+
+void my_Conditional::wait()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    WaitForSingleObject(d_cond,INFINITE);
+#else
+    pthread_mutex_lock(&d_mutex);
+    while (!d_signaled) pthread_cond_wait(&d_cond,&d_mutex);
+    pthread_mutex_unlock(&d_mutex);
+#endif
+}
+
+int my_Conditional::timedWait(int timeout)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    DWORD res = WaitForSingleObject(d_cond,timeout);
+    return res == WAIT_OBJECT_0 ? 0 : -1;
+#else
+    struct timeval now;
+    struct timespec tspec;
+    int res;
+
+    gettimeofday(&now,0);
+    tspec.tv_sec  = now.tv_sec + timeout/1000;
+    tspec.tv_nsec = (now.tv_usec + (timeout%1000) * 1000) * 1000;
+    pthread_mutex_lock(&d_mutex);
+    while ((res = pthread_cond_timedwait(&d_cond,&d_mutex,&tspec)) == 0 &&
+           !d_signaled) {
+        ;
+     }
+    pthread_mutex_unlock(&d_mutex);
+    return res;
+#endif
+}
+
+extern "C" {
+typedef void* (*THREAD_ENTRY)(void *arg);
+}
+
+static int myCreateThread(my_thread_t  *aHandle, 
+                          THREAD_ENTRY  aEntry,
+                          void         *arg )
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    *aHandle = CreateThread( 0, 0, (LPTHREAD_START_ROUTINE)aEntry,arg,0,0);
+    return *aHandle ? 0 : -1;
+#else
+    return pthread_create(aHandle, 0, aEntry, arg);
+#endif
+}
+
+static void  myJoinThread(my_thread_t aHandle)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    WaitForSingleObject(aHandle,INFINITE);
+    CloseHandle(aHandle);
+#else
+    pthread_join(aHandle,0);
+#endif
+}
+
+struct TestArgs {
+    Obj::FileDescriptor  d_fd;
+    char                *d_buffer;
+    int                  d_bufferSize;
+    my_Mutex            *d_startMutex;
+    bsls::AtomicInt     *d_iteration;
+    bsls::AtomicInt     *d_readComplete;
+};
+
+extern "C" void *writeJob(void *inputArgs)
+{
+    TestArgs& args = *(TestArgs *)inputArgs;
+    my_Mutex& startMutex = *args.d_startMutex;
+    bsls::AtomicInt &iteration = *args.d_iteration;
+    bsls::AtomicInt &readComplete = *args.d_readComplete;
+
+
+    startMutex.lock();
+    startMutex.unlock();
+
+    for (int i = 0; i < 1000; ++i) {
+        while (!readComplete) { }
+        sprintf(args.d_buffer, "%d", i);
+        Obj::sync(args.d_buffer, args.d_bufferSize, true);
+        readComplete = 0;
+        iteration    = i;
+    }
+    return 0;
+}
+
+extern "C" void * readJob(void *inputArgs)
+{
+    TestArgs& args = *(TestArgs *)inputArgs;
+    my_Mutex& startMutex = *args.d_startMutex;
+    bsls::AtomicInt &iteration = *args.d_iteration;
+    bsls::AtomicInt &readComplete = *args.d_readComplete;
+    
+    
+    startMutex.lock();
+    startMutex.unlock();
+
+    int rc = Obj::seek(args.d_fd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
+    ASSERT(0 == rc);
+
+    char buffer[] = { 0, 0, 0, 0, 0};
+    int result;
+    for (int i = 0; i < 1000; ++i) {
+        while (i != iteration) { }
+        rc = Obj::read(args.d_fd, buffer, 4);
+        ASSERT(0 < rc);
+        sscanf(buffer, "%d", &result);
+        ASSERT(i == result);
+
+        int rc = Obj::seek(args.d_fd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(0 == rc);
+        readComplete = 1;
+    }
+    return 0;
+}
+
+
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -353,7 +642,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch(test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -440,7 +729,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -531,6 +820,155 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING: sync
+        //
+        // Note that this is a white-box test, that aims to verify the
+        // underlying system call is called with the appropriate arguments (it
+        // is not a test of the operating system behavior).
+        //
+        // Unfortunately, in practice, we have been unable to create a test
+        // that would fail without the use of 'sync', which makes testing
+        // concerns 1, 2, and 3 impossible.
+        //
+        // Concerns:
+        //  1 On success the mapped bytes are synchronized with their values
+        //    in the file.
+        //
+        //  2 That only the region of memory at the specified location 
+        //    is synchronized.
+        //
+        //  3 That only the indicated number of bytes are synchronized.
+        //
+        //  4 That on failure an error status is return.
+        //
+        //  5 QoI: Asserted precondition violations are detected when enabled.
+        //        
+        //
+        // Plan:
+        //  1 Call 'seek' with an invalid set of arguments (having disabled
+        //    assertions that would prevent the arguments being supplied to the
+        //    underlying system call)  (C-4)
+        //
+        //  2 Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values (using the 'BSLS_ASSERTTEST_*'
+        //    macros).  (C-5)
+        //
+        // Testing:
+        //   static int sync(char *, int , bool );
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING: 'sync'" << endl
+                          << "===============" << endl;
+
+        typedef bdesu_FileUtil::FileDescriptor FD;
+
+        const int PAGE_SIZE  = bdesu_MemoryUtil::pageSize();
+        const int SIZE       = PAGE_SIZE;
+        const int READ       = bdesu_MemoryUtil::BDESU_ACCESS_READ;
+        const int READ_WRITE = bdesu_MemoryUtil::BDESU_ACCESS_READ |
+                               bdesu_MemoryUtil::BDESU_ACCESS_WRITE;
+        int rc = 0;
+
+        bsl::string testFileName(tempFileName());
+        Obj::remove(testFileName);
+        FD writeFd = Obj::open(testFileName, true, false, false); 
+        FD readFd  = Obj::open(testFileName, false, true, false); 
+
+        ASSERT(Obj::INVALID_FD != writeFd);
+        ASSERT(Obj::INVALID_FD != readFd);
+
+        rc = Obj::seek(writeFd, SIZE, Obj::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(SIZE == rc);
+        rc = Obj::write(writeFd, testFileName.c_str(), 1);
+        ASSERT(1 == rc);
+
+        rc = Obj::seek(writeFd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
+
+        ASSERT(0 == rc);
+        void *writeMemory, *readMemory;
+
+        rc = Obj::map(writeFd, &writeMemory, 0, SIZE, READ_WRITE);
+        ASSERT(0 == rc);
+
+        rc = Obj::map(readFd,   &readMemory, 0, SIZE, READ);
+        ASSERT(0 == rc);
+
+        ASSERT(readFd != writeFd);
+
+        char *writeBuffer = static_cast<char *>(writeMemory);
+        char *readBuffer  = static_cast<char *>(readMemory);
+
+
+        {
+            if (veryVerbose) {
+                cout << "\tTesting msync is performed" << endl;
+            }
+
+            bsls::AtomicInt iteration(-1), readComplete(1);
+            my_Mutex mutex;
+        
+            TestArgs threadArgs[] = {
+             { writeFd, writeBuffer, SIZE, &mutex, &iteration, &readComplete },
+             { readFd,  readBuffer, SIZE, &mutex, &iteration, &readComplete }
+            };
+
+            mutex.lock();
+
+            my_thread_t writeThread, readThread;
+            rc = myCreateThread(&writeThread, writeJob, &threadArgs[0]);
+            ASSERT(0 == rc);
+            rc = myCreateThread(&readThread, readJob, &threadArgs[0]);
+            ASSERT(0 == rc);
+
+            mutex.unlock();
+            myJoinThread(writeThread);
+            myJoinThread(readThread);
+        }
+        {
+            if (veryVerbose) {
+                cout << "\tTesting msync returns an error status" << endl;
+            }
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+
+            // Note that, experimentally, the only sane way to force an error
+            // code from sync is to pass a address that is not aligned on a
+            // page boundary.  We must first disable our own assertion handler
+            // in order for the underlying system call to be invoked.
+
+            bsls::AssertFailureHandlerGuard hg(NoOpAssertHandler);
+
+            int address;
+
+            rc = Obj::sync((char *)&address, PAGE_SIZE, true);
+            ASSERT(0 != rc);
+
+            // Note that this is a white-box test that we return 'errno' on
+            // error, which is not required by the method contract.
+            ASSERT(EINVAL == rc);
+            if (veryVeryVerbose) {
+                P(rc);
+            }
+#endif
+        }
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                            bsls::AssertTest::failTestDriver);
+            if (veryVerbose) cout << "\tTest assertions." << endl;
+
+            ASSERT_PASS(Obj::sync(writeBuffer, SIZE, true));
+            ASSERT_FAIL(Obj::sync(0, SIZE, true));
+            ASSERT_FAIL(Obj::sync(writeBuffer, SIZE / 2, true));
+            ASSERT_FAIL(Obj::sync(writeBuffer + 1, SIZE, true));
+
+        }
+
+        close(writeFd);
+        close(readFd);
       } break;
       case 12: {
         // --------------------------------------------------------------------

@@ -225,10 +225,10 @@ bdesu_FileUtil::open(const char *pathName,
                                          : 0);
     DWORD creationInfo = existFlag ? OPEN_EXISTING : CREATE_ALWAYS;
 
-    // The file locking behavior for the opened file 
+    // The file locking behavior for the opened file
     // ('FILE_SHARE_READ | FILE_SHARE_WRITE') is chosen to match the posix
     // behavior for open (DRQS 30568749).
- 
+
     return CreateFile(pathName,
                       accessMode,
                       FILE_SHARE_READ | FILE_SHARE_WRITE, // do not lock
@@ -374,8 +374,12 @@ int bdesu_FileUtil::unmap(void *addr, int)
 
 int bdesu_FileUtil::sync(char *addr, int numBytes, bool)  // 3rd arg is sync
 {
-    BSLS_ASSERT(addr);
+    BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
+    BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+                     bdesu_MemoryUtil::pageSize());
+
 
     // The meaning of the 'sync' flag (cause this function to be
     // synchronous vs. asynchronous) does not appear to be supported by
@@ -846,10 +850,19 @@ int  bdesu_FileUtil::unmap(void *addr, int len)
 
 int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
 {
-    BSLS_ASSERT(addr);
+    BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
+    BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+                     bdesu_MemoryUtil::pageSize());
 
-    return ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
+    int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
+
+    // We do not contractually offer meaningful return codes (providing status
+    // in a cross-platform way is problematic), however the returned value may
+    // be logged, so providing a more informative value may aid in debugging.
+
+    return 0 == rc ? 0 : errno;
 }
 
 int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
