@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 //  template <class ALLOCATOR>
 //  bool IntSet<ALLOCATOR>::remove(int value)
 //  {
-        IntNodeComparator comparator;
+//      IntNodeComparator comparator;
 //      bslalg::RbTreeNode *node =
 //                bslalg::RbTreeUtil::find(d_tree, comparator, value);
 //..
