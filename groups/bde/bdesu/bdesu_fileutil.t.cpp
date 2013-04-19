@@ -577,8 +577,8 @@ extern "C" void * readJob(void *inputArgs)
 
         int rc = Obj::seek(args.d_fd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
         ASSERT(0 == rc);
-        readComplete = 1;
-    }
+        readComplete = 1;        
+    }     
     return 0;
 }
 
@@ -936,8 +936,6 @@ int main(int argc, char *argv[])
                 cout << "\tTesting msync returns an error status" << endl;
             }
 
-#ifdef BSLS_PLATFORM_OS_UNIX
-
             // Note that, experimentally, the only sane way to force an error
             // code from sync is to pass a address that is not aligned on a
             // page boundary.  We must first disable our own assertion handler
@@ -949,7 +947,7 @@ int main(int argc, char *argv[])
 
             rc = Obj::sync((char *)&address, MYPAGESIZE, true);
             ASSERT(0 != rc);
-
+#ifdef BSLS_PLATFORM_OS_UNIX
             // Note that this is a white-box test that we return 'errno' on
             // error, which is not required by the method contract.
             ASSERT(EINVAL == rc);
@@ -970,8 +968,8 @@ int main(int argc, char *argv[])
 
         }
         Obj::remove(testFileName);
-        close(writeFd);
-        close(readFd);
+        Obj::close(writeFd);
+        Obj::close(readFd);
       } break;
       case 12: {
         // --------------------------------------------------------------------
