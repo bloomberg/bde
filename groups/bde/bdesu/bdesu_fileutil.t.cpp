@@ -317,272 +317,6 @@ void NoOpAssertHandler(const char *, const char *, int)
 {
 }
 
-
-
-class my_Mutex {
-    // This class implements a cross-platform mutual exclusion primitive
-    // similar to posix mutexes.
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    HANDLE d_mutex;
-#else
-    pthread_mutex_t d_mutex;
-#endif
-
-  public:
-    my_Mutex();
-        // Construct an 'my_Mutex' object.
-    ~my_Mutex();
-        // Destroy an 'my_Mutex' object.
-
-    void lock();
-        // Lock this mutex.
-
-    void unlock();
-        // Unlock this mutex;
-};
-
-class my_Conditional {
-    // This class implements a cross-platform waitable state indicator used for
-    // testing.  It has two states, signaled and non-signaled.  Once
-    // signaled('signal'), the state will persist until explicitly 'reset'.
-    // Calls to wait when the state is signaled, will succeed immediately.
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    HANDLE d_cond;
-#else
-    pthread_mutex_t d_mutex;
-    pthread_cond_t  d_cond;
-    volatile int   d_signaled;
-#endif
-
-  public:
-    my_Conditional();
-    ~my_Conditional();
-
-    void reset();
-        // Reset the state of this indicator to non-signaled.
-
-    void signal();
-        // Signal the state of the indicator and unblock any thread waiting
-        // for the state to be signaled.
-
-    void wait();
-        // Wait until the state of this indicator becomes signaled.  If the
-        // state is already signaled then return immediately.
-
-    int  timedWait(int timeout);
-        // Wait until the state of this indicator becomes signaled or until or
-        // for the specified 'timeout'(in milliseconds).  Return 0 if the state
-        // is signaled, non-zero if the timeout has expired.  If the state is
-        // already signaled then return immediately.
-};
-
-inline
-my_Mutex::my_Mutex()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    d_mutex = CreateMutex(0,FALSE,0);
-#else
-    pthread_mutex_init(&d_mutex,0);
-#endif
-}
-
-inline
-my_Mutex::~my_Mutex()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    CloseHandle(d_mutex);
-#else
-    pthread_mutex_destroy(&d_mutex);
-#endif
-}
-
-inline
-void my_Mutex::lock()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    WaitForSingleObject(d_mutex, INFINITE);
-#else
-    pthread_mutex_lock(&d_mutex);
-#endif
-}
-
-inline
-void my_Mutex::unlock()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    ReleaseMutex(d_mutex);
-#else
-    pthread_mutex_unlock(&d_mutex);
-#endif
-}
-
-
-my_Conditional::my_Conditional()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    d_cond = CreateEvent(0,TRUE,FALSE,0);
-#else
-    pthread_mutex_init(&d_mutex,0);
-    pthread_cond_init(&d_cond,0);
-    d_signaled = 0;
-#endif
-}
-
-my_Conditional::~my_Conditional()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    CloseHandle(d_cond);
-#else
-    pthread_cond_destroy(&d_cond);
-    pthread_mutex_destroy(&d_mutex);
-#endif
-}
-
-void my_Conditional::reset()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    ResetEvent(d_cond);
-#else
-    pthread_mutex_lock(&d_mutex);
-    d_signaled = 0;
-    pthread_mutex_unlock(&d_mutex);
-#endif
-}
-
-void my_Conditional::signal()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    SetEvent(d_cond);
-#else
-    pthread_mutex_lock(&d_mutex);
-    d_signaled = 1;
-    pthread_cond_broadcast(&d_cond);
-    pthread_mutex_unlock(&d_mutex);
-#endif
-}
-
-
-void my_Conditional::wait()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    WaitForSingleObject(d_cond,INFINITE);
-#else
-    pthread_mutex_lock(&d_mutex);
-    while (!d_signaled) pthread_cond_wait(&d_cond,&d_mutex);
-    pthread_mutex_unlock(&d_mutex);
-#endif
-}
-
-int my_Conditional::timedWait(int timeout)
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    DWORD res = WaitForSingleObject(d_cond,timeout);
-    return res == WAIT_OBJECT_0 ? 0 : -1;
-#else
-    struct timeval now;
-    struct timespec tspec;
-    int res;
-
-    gettimeofday(&now,0);
-    tspec.tv_sec  = now.tv_sec + timeout/1000;
-    tspec.tv_nsec = (now.tv_usec + (timeout%1000) * 1000) * 1000;
-    pthread_mutex_lock(&d_mutex);
-    while ((res = pthread_cond_timedwait(&d_cond,&d_mutex,&tspec)) == 0 &&
-           !d_signaled) {
-        ;
-     }
-    pthread_mutex_unlock(&d_mutex);
-    return res;
-#endif
-}
-
-extern "C" {
-typedef void* (*THREAD_ENTRY)(void *arg);
-}
-
-static int myCreateThread(my_thread_t  *aHandle,
-                          THREAD_ENTRY  aEntry,
-                          void         *arg )
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    *aHandle = CreateThread( 0, 0, (LPTHREAD_START_ROUTINE)aEntry,arg,0,0);
-    return *aHandle ? 0 : -1;
-#else
-    return pthread_create(aHandle, 0, aEntry, arg);
-#endif
-}
-
-static void  myJoinThread(my_thread_t aHandle)
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    WaitForSingleObject(aHandle,INFINITE);
-    CloseHandle(aHandle);
-#else
-    pthread_join(aHandle,0);
-#endif
-}
-
-struct TestArgs {
-    Obj::FileDescriptor  d_fd;
-    char                *d_buffer;
-    int                  d_bufferSize;
-    my_Mutex            *d_startMutex;
-    bsls::AtomicInt     *d_iteration;
-    bsls::AtomicInt     *d_readComplete;
-};
-
-extern "C" void *writeJob(void *inputArgs)
-{
-    TestArgs& args = *(TestArgs *)inputArgs;
-    my_Mutex& startMutex = *args.d_startMutex;
-    bsls::AtomicInt &iteration = *args.d_iteration;
-    bsls::AtomicInt &readComplete = *args.d_readComplete;
-
-
-    startMutex.lock();
-    startMutex.unlock();
-
-    for (int i = 0; i < 1000; ++i) {
-        while (!readComplete) { }
-        sprintf(args.d_buffer, "%d", i);
-        Obj::sync(args.d_buffer, args.d_bufferSize, true);
-        readComplete = 0;
-        iteration    = i;
-    }
-    return 0;
-}
-
-extern "C" void * readJob(void *inputArgs)
-{
-    TestArgs& args = *(TestArgs *)inputArgs;
-    my_Mutex& startMutex = *args.d_startMutex;
-    bsls::AtomicInt &iteration = *args.d_iteration;
-    bsls::AtomicInt &readComplete = *args.d_readComplete;
-
-
-    startMutex.lock();
-    startMutex.unlock();
-
-    int rc = Obj::seek(args.d_fd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
-    ASSERT(0 == rc);
-
-    char buffer[] = { 0, 0, 0, 0, 0};
-    int result;
-    for (int i = 0; i < 1000; ++i) {
-        while (i != iteration) { }
-        rc = Obj::read(args.d_fd, buffer, 4);
-        ASSERT(0 < rc);
-        sscanf(buffer, "%d", &result);
-        ASSERT(i == result);
-
-        int rc = Obj::seek(args.d_fd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
-        ASSERT(0 == rc);
-        readComplete = 1;
-    }
-    return 0;
-}
-
-
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -874,7 +608,8 @@ int main(int argc, char *argv[])
         const int READ       = bdesu_MemoryUtil::BDESU_ACCESS_READ;
         const int READ_WRITE = bdesu_MemoryUtil::BDESU_ACCESS_READ |
                                bdesu_MemoryUtil::BDESU_ACCESS_WRITE;
-        int rc = 0;
+        int         rc     = 0;
+        Obj::Offset offset = 0;
 
         bsl::string testFileName(tempFileName());
         Obj::remove(testFileName);
@@ -884,14 +619,14 @@ int main(int argc, char *argv[])
         ASSERT(Obj::INVALID_FD != writeFd);
         ASSERT(Obj::INVALID_FD != readFd);
 
-        rc = Obj::seek(writeFd, SIZE, Obj::BDESU_SEEK_FROM_BEGINNING);
-        ASSERT(SIZE == rc);
+        offset = Obj::seek(writeFd, SIZE, Obj::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(SIZE == offset);
         rc = Obj::write(writeFd, testFileName.c_str(), 1);
         ASSERT(1 == rc);
 
-        rc = Obj::seek(writeFd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
+        offset = Obj::seek(writeFd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(0 == offset);
 
-        ASSERT(0 == rc);
         void *writeMemory, *readMemory;
 
         rc = Obj::map(writeFd, &writeMemory, 0, SIZE, READ_WRITE);
@@ -903,8 +638,6 @@ int main(int argc, char *argv[])
         ASSERT(readFd != writeFd);
 
         char *writeBuffer = static_cast<char *>(writeMemory);
-        char *readBuffer  = static_cast<char *>(readMemory);
-
 
         {
 
@@ -915,32 +648,17 @@ int main(int argc, char *argv[])
             rc = Obj::sync(writeBuffer, SIZE, true);
             ASSERT(0 == rc);
 
-
-        }
-        {
-            if (veryVerbose) {
-                cout << "\tTesting msync is performed" << endl;
-            }
-
-            bsls::AtomicInt iteration(-1), readComplete(1);
-            my_Mutex mutex;
-
-            TestArgs threadArgs[] = {
-             { writeFd, writeBuffer, SIZE, &mutex, &iteration, &readComplete },
-             { readFd,  readBuffer, SIZE, &mutex, &iteration, &readComplete }
-            };
-
-            mutex.lock();
-
-            my_thread_t writeThread, readThread;
-            rc = myCreateThread(&writeThread, writeJob, &threadArgs[0]);
-            ASSERT(0 == rc);
-            rc = myCreateThread(&readThread, readJob, &threadArgs[0]);
-            ASSERT(0 == rc);
-
-            mutex.unlock();
-            myJoinThread(writeThread);
-            myJoinThread(readThread);
+            // Unfortunately, there has been no means found for verifying the
+            // behavior of 'sync' as I found no way to observer an
+            // "unsynchronized" write to a memory mapped file.  For reference,
+            // an experimental test that writes to mapped-memory on one
+            // thread, and reads from a different file descriptor to the same
+            // file, can be found at 'devgit:bde/bde-core' commit:
+            //..
+            //  commit a93a90d9c567d7a24994811f79c65b38c2cb9791
+            //  Author: (Henry) Mike Verschell <hverschell@bloomberg.net>
+            //  Date:   Fri Apr 19 16:28:50 2013 -0400
+            //..
         }
         {
             if (veryVerbose) {
@@ -978,9 +696,9 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(Obj::sync(writeBuffer + 1, SIZE, true));
 
         }
-        Obj::remove(testFileName);
         Obj::close(writeFd);
         Obj::close(readFd);
+        Obj::remove(testFileName);
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -2343,7 +2061,8 @@ int main(int argc, char *argv[])
                                            bdet_TimeInterval(3 * 24 * 3600, 0);
             if (isOld) {
                 struct utimbuf timeInfo;
-                timeInfo.actime = timeInfo.modtime = threeDaysAgo.seconds();
+                timeInfo.actime = timeInfo.modtime = 
+                                         (bsl::time_t)threeDaysAgo.seconds();
 
                 //test invariant:
 
