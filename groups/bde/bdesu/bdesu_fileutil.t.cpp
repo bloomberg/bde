@@ -563,32 +563,35 @@ int main(int argc, char *argv[])
         // underlying system call is called with the appropriate arguments (it
         // is not a test of the operating system behavior).
         //
-        // Unfortunately, in practice, we have been unable to create a test
-        // that would fail without the use of 'sync', which makes testing
-        // concerns 1, 2, and 3 impossible.
+        // Unfortunately, in practice, I've been unable to create a test
+        // that would fail without the use of 'sync', which makes in
+        // impossible to test concerns 1, 2, and 3 effectively.
         //
         // Concerns:
-        //  1 On success the mapped bytes are synchronized with their values
-        //    in the file.
+        //: 1 On success the mapped bytes are synchronized with their values
+        //:   in the file.
+        //:
+        //: 2 That only the region of memory at the specified location
+        //:   is synchronized.
+        //:
+        //: 3 That only the indicated number of bytes are synchronized.
+        //:
+        //: 4 That on failure an error status is return.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
-        //  2 That only the region of memory at the specified location
-        //    is synchronized.
         //
-        //  3 That only the indicated number of bytes are synchronized.
-        //
-        //  4 That on failure an error status is return.
-        //
-        //  5 QoI: Asserted precondition violations are detected when enabled.
-        //
-        //
-        // Plan:
-        //  1 Call 'seek' with an invalid set of arguments (having disabled
-        //    assertions that would prevent the arguments being supplied to the
-        //    underlying system call)  (C-4)
-        //
-        //  2 Verify that, in appropriate build modes, defensive checks are
-        //    triggered for argument values (using the 'BSLS_ASSERTTEST_*'
-        //    macros).  (C-5)
+        //:Plan:
+        //: 1 Call 'sync' will valid arguments and verify it returns
+        //:   successfully.
+        //:
+        //: 2 Call 'seek' with an invalid set of arguments (having disabled
+        //:   assertions that would prevent the arguments being supplied to the
+        //:   underlying system call)  (C-4)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for argument values (using the 'BSLS_ASSERTTEST_*'
+        //:   macros).  (C-5)
         //
         // Testing:
         //   static int sync(char *, int , bool );
@@ -648,12 +651,12 @@ int main(int argc, char *argv[])
             rc = Obj::sync(writeBuffer, SIZE, true);
             ASSERT(0 == rc);
 
-            // Unfortunately, there has been no means found for verifying the
-            // behavior of 'sync' as I found no way to observer an
+            // Unfortunately, I haven't found a way to verify the
+            // behavior of 'sync' because I was unable observe an
             // "unsynchronized" write to a memory mapped file.  For reference,
-            // an experimental test that writes to mapped-memory on one
-            // thread, and reads from a different file descriptor to the same
-            // file, can be found at 'devgit:bde/bde-core' commit:
+            // you can find some experiments writing to mapped-memory, and
+            // read from a different file descriptor to the same file, in
+            // 'devgit:bde/bde-core' commit:
             //..
             //  commit a93a90d9c567d7a24994811f79c65b38c2cb9791
             //  Author: (Henry) Mike Verschell <hverschell@bloomberg.net>
