@@ -500,7 +500,7 @@ extern "C" {
 typedef void* (*THREAD_ENTRY)(void *arg);
 }
 
-static int myCreateThread(my_thread_t  *aHandle, 
+static int myCreateThread(my_thread_t  *aHandle,
                           THREAD_ENTRY  aEntry,
                           void         *arg )
 {
@@ -558,8 +558,8 @@ extern "C" void * readJob(void *inputArgs)
     my_Mutex& startMutex = *args.d_startMutex;
     bsls::AtomicInt &iteration = *args.d_iteration;
     bsls::AtomicInt &readComplete = *args.d_readComplete;
-    
-    
+
+
     startMutex.lock();
     startMutex.unlock();
 
@@ -577,8 +577,8 @@ extern "C" void * readJob(void *inputArgs)
 
         int rc = Obj::seek(args.d_fd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
         ASSERT(0 == rc);
-        readComplete = 1;        
-    }     
+        readComplete = 1;
+    }
     return 0;
 }
 
@@ -837,7 +837,7 @@ int main(int argc, char *argv[])
         //  1 On success the mapped bytes are synchronized with their values
         //    in the file.
         //
-        //  2 That only the region of memory at the specified location 
+        //  2 That only the region of memory at the specified location
         //    is synchronized.
         //
         //  3 That only the indicated number of bytes are synchronized.
@@ -845,7 +845,7 @@ int main(int argc, char *argv[])
         //  4 That on failure an error status is return.
         //
         //  5 QoI: Asserted precondition violations are detected when enabled.
-        //        
+        //
         //
         // Plan:
         //  1 Call 'seek' with an invalid set of arguments (having disabled
@@ -867,7 +867,7 @@ int main(int argc, char *argv[])
         typedef bdesu_FileUtil::FileDescriptor FD;
 
         // Note that there appear to be '#define' for PAGESIZE and PAGE_SIZE
-        // on AIX. 
+        // on AIX.
 
         const int MYPAGESIZE = bdesu_MemoryUtil::pageSize();
         const int SIZE       = MYPAGESIZE;
@@ -878,8 +878,8 @@ int main(int argc, char *argv[])
 
         bsl::string testFileName(tempFileName());
         Obj::remove(testFileName);
-        FD writeFd = Obj::open(testFileName, true, false, false); 
-        FD readFd  = Obj::open(testFileName, false, true, false); 
+        FD writeFd = Obj::open(testFileName, true, false, false);
+        FD readFd  = Obj::open(testFileName, false, true, false);
 
         ASSERT(Obj::INVALID_FD != writeFd);
         ASSERT(Obj::INVALID_FD != readFd);
@@ -907,13 +907,24 @@ int main(int argc, char *argv[])
 
 
         {
+
+            if (veryVerbose) {
+                cout << "\tTesting msync is performed" << endl;
+            }
+
+            rc = Obj::sync(writeBuffer, SIZE, true);
+            ASSERT(0 == rc);
+
+
+        }
+        {
             if (veryVerbose) {
                 cout << "\tTesting msync is performed" << endl;
             }
 
             bsls::AtomicInt iteration(-1), readComplete(1);
             my_Mutex mutex;
-        
+
             TestArgs threadArgs[] = {
              { writeFd, writeBuffer, SIZE, &mutex, &iteration, &readComplete },
              { readFd,  readBuffer, SIZE, &mutex, &iteration, &readComplete }
