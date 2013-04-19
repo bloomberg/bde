@@ -359,20 +359,28 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
-#include <bslmf_istriviallycopyable.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include <bslmf_isbitwiseequalitycomparable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
-#include <bslmf_isbitwiseequalitycomparable.h>
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -740,12 +748,15 @@ typename allocator<T>::size_type allocator<T>::max_size() const
     // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
     // 'size_type'.
 
-    // TBD Should these 'const' variables be declared 'static'?
-    static const bool BSLMA_SIZE_IS_SIGNED =
-                              ~BloombergLP::bslma::Allocator::size_type(0) < 0;
-    static const std::size_t MAX_NUM_BYTES        =
-                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
-    static const std::size_t MAX_NUM_ELEMENTS     =
+    // We will calculate MAX_NUM_BYTES based on our knowledge that
+    // 'bslma::Allocator::size_type' is just an alias for 'std::size_t'.  First
+    // demonstrate that is true:
+
+    BSLMF_ASSERT((bsl::is_same<BloombergLP::bslma::Allocator::size_type,
+                                                         std::size_t>::value));
+
+    static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
+    static const std::size_t MAX_NUM_ELEMENTS =
                               std::size_t(MAX_NUM_BYTES) / sizeof(T);
 
     return MAX_NUM_ELEMENTS;
