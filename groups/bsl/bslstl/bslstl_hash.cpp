@@ -15,7 +15,7 @@ std::size_t hash<const char *>::operator()(const char *x) const
     static bool firstCall = true;
     if (firstCall) {
         firstCall = false;
-        printf("ERROR: bsl::hash called for 'const char *',"
+        fprintf(stderr, "ERROR: bsl::hash called for 'const char *',"
                " see {TEAM BDEI:STANDARD HASH<GO}\n");
     }
 
@@ -29,7 +29,7 @@ std::size_t hash<const char *>::operator()(const char *x) const
 
 }  // close namespace bsl
 
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.
