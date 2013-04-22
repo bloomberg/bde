@@ -9,9 +9,9 @@ namespace BloombergLP {
 
 // CREATORS
 btes_RateLimiter::btes_RateLimiter(
-                                  bsls_Types::Uint64       sustainedRateLimit,
+                                  bsls::Types::Uint64      sustainedRateLimit,
                                   const bdet_TimeInterval& sustainedRateWindow,
-                                  bsls_Types::Uint64       peakRateLimit,
+                                  bsls::Types::Uint64      peakRateLimit,
                                   const bdet_TimeInterval& peakRateWindow,
                                   const bdet_TimeInterval& currentTime)
 : d_peakRateBucket(1, 1, currentTime)
@@ -51,9 +51,9 @@ btes_RateLimiter::~btes_RateLimiter()
 // MANIPULATORS
 
 void btes_RateLimiter::setRateLimits(
-                               bsls_Types::Uint64       sustainedRateLimit,
+                               bsls::Types::Uint64      sustainedRateLimit,
                                const bdet_TimeInterval& sustainedRateWindow,
-                               bsls_Types::Uint64       peakRateLimit,
+                               bsls::Types::Uint64      peakRateLimit,
                                const bdet_TimeInterval& peakRateWindow)
 {
     BSLS_ASSERT(sustainedRateLimit > 0);
@@ -73,7 +73,7 @@ void btes_RateLimiter::setRateLimits(
                                                             sustainedRateLimit,
                                                             true));
 
-    bsls_Types::Uint64 capacity = btes_LeakyBucket::calculateCapacity(
+    bsls::Types::Uint64 capacity = btes_LeakyBucket::calculateCapacity(
                                                           sustainedRateLimit,
                                                           sustainedRateWindow);
 

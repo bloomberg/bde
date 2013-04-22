@@ -44,14 +44,14 @@ using namespace bsl;
 //
 // CREATORS
 //  [4] ~btes_ReservationGuard();
-//  [3] btes_ReservationGuard(TYPE* reserve, bsls_Types::Uint64 numOfUnits);
+//  [3] btes_ReservationGuard(TYPE* reserve, bsls::Types::Uint64 numOfUnits);
 //
 // MANIPULATORS
-//  [6] void cancelReserved(bsls_Types::Uint64 numOfUnits);
-//  [5] void submitReserved(bsls_Types::Uint64 numOfUnits);
+//  [6] void cancelReserved(bsls::Types::Uint64 numOfUnits);
+//  [5] void submitReserved(bsls::Types::Uint64 numOfUnits);
 //
 // ACCESSORS
-//  [3] bsls_Types::Uint64 unitsReserved() const;
+//  [3] bsls::Types::Uint64 unitsReserved() const;
 //  [3] TYPE *ptr() const;
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
@@ -135,8 +135,8 @@ class my_Reserve {
 
 
     // DATA
-    bsls_Types::Uint64 d_unitsSubmitted;
-    bsls_Types::Uint64 d_unitsReserved;
+    bsls::Types::Uint64 d_unitsSubmitted;
+    bsls::Types::Uint64 d_unitsReserved;
 
 public:
     // CREATORS
@@ -145,16 +145,16 @@ public:
         // 'unitsSubmitted'
 
     // MANIPULATORS
-    void reserve(bsls_Types::Uint64 numUnits);
+    void reserve(bsls::Types::Uint64 numUnits);
         // Add the specified 'numUnits' to the 'unitsReserved' counter.
 
-    void submitReserved(bsls_Types::Uint64 numUnits);
+    void submitReserved(bsls::Types::Uint64 numUnits);
         // Subtract the specified 'numUnits' from 'unitsReserved' and add it
         // to 'unitsSubmitted', if 'numUnits' is less than 'unitsReserved'.
         // Otherwise, add 'unitsReserved' to 'unitsSubmitted' and set
         // 'unitsReserved' to 0.
 
-    void cancelReserved(bsls_Types::Uint64 numUnits);
+    void cancelReserved(bsls::Types::Uint64 numUnits);
         // Subtract the specified 'numUnits' from 'unitsReserved' if 'numUnits'
         // is less than 'unitsReserved'; otherwise, set 'unitsReserved' to 0.
 
@@ -162,10 +162,10 @@ public:
         // Reset this 'my_Reserve' object to its default-constructed state.
 
     // ACCESSORS
-    bsls_Types::Uint64 unitsReserved() const;
+    bsls::Types::Uint64 unitsReserved() const;
         // Return the number of units reserved.
 
-    bsls_Types::Uint64 unitsSubmitted() const;
+    bsls::Types::Uint64 unitsSubmitted() const;
         // Return the number of units submitted.
 };
 
@@ -179,13 +179,13 @@ my_Reserve::my_Reserve()
 
 // MANIPULATORS
 inline
-void my_Reserve::reserve(bsls_Types::Uint64 numOfUnits)
+void my_Reserve::reserve(bsls::Types::Uint64 numOfUnits)
 {
     d_unitsReserved += numOfUnits;
 }
 
 inline
-void my_Reserve::submitReserved(bsls_Types::Uint64 numOfUnits)
+void my_Reserve::submitReserved(bsls::Types::Uint64 numOfUnits)
 {
     if (numOfUnits < d_unitsReserved) {
         d_unitsReserved -= numOfUnits;
@@ -197,7 +197,7 @@ void my_Reserve::submitReserved(bsls_Types::Uint64 numOfUnits)
 }
 
 inline
-void my_Reserve::cancelReserved(bsls_Types::Uint64 numOfUnits)
+void my_Reserve::cancelReserved(bsls::Types::Uint64 numOfUnits)
 {
     if (numOfUnits < d_unitsReserved) {
         d_unitsReserved -= numOfUnits;
@@ -216,13 +216,13 @@ void my_Reserve::reset()
 
 // ACCESSORS
 inline
-bsls_Types::Uint64 my_Reserve::unitsReserved() const
+bsls::Types::Uint64 my_Reserve::unitsReserved() const
 {
     return d_unitsReserved;
 }
 
 inline
-bsls_Types::Uint64 my_Reserve::unitsSubmitted() const
+bsls::Types::Uint64 my_Reserve::unitsSubmitted() const
 {
     return d_unitsSubmitted;
 }
@@ -230,7 +230,7 @@ bsls_Types::Uint64 my_Reserve::unitsSubmitted() const
 
 typedef btes_ReservationGuard<my_Reserve> Obj;
 typedef bdet_TimeInterval                 Ti;
-typedef bsls_Types::Uint64                Uint64;
+typedef bsls::Types::Uint64               Uint64;
 typedef unsigned int                      uint;
 
 //=============================================================================
@@ -247,7 +247,7 @@ typedef unsigned int                      uint;
 // 'btes_LeakyBucket' object.  We send data buffer over a network interface
 // using the 'mySendData' function:
 //..
-static bsls_Types::Uint64 sendData(size_t dataSize)
+static bsls::Types::Uint64 sendData(size_t dataSize)
     // Send a specified 'dataSize' amount of data over the network.  Return
     // the amount of data actually sent.  Throw an exception if a network
     // failure is detected.
@@ -308,17 +308,17 @@ int main(int argc, char *argv[]) {
 // First, we define the size of each data chunk and the total size of the data
 // to send:
 //..
-  const unsigned int CHUNK_SIZE = 256;
-  bsls_Types::Uint64 bytesSent  = 0;
-  bsls_Types::Uint64 totalSize  = 10 * 1024; // in bytes
+  const unsigned int  CHUNK_SIZE = 256;
+  bsls::Types::Uint64 bytesSent  = 0;
+  bsls::Types::Uint64 totalSize  = 10 * 1024; // in bytes
 //..
 // Then, we create a 'btes_LeakyBucket' object to limit the rate of data
 // transmission:
 //..
-  bsls_Types::Uint64 rate     = 512;
-  bsls_Types::Uint64 capacity = 1536;
-  bdet_TimeInterval  now      = bdetu_SystemTime::now();
-  btes_LeakyBucket   bucket(rate, capacity, now);
+  bsls::Types::Uint64 rate     = 512;
+  bsls::Types::Uint64 capacity = 1536;
+  bdet_TimeInterval   now      = bdetu_SystemTime::now();
+  btes_LeakyBucket    bucket(rate, capacity, now);
 //..
 // Next, we send the chunks of data using a loop.  For each iteration, we check
 // whether submitting another byte would cause the leaky bucket to overflow:
@@ -338,7 +338,7 @@ int main(int argc, char *argv[]) {
 // network.  After the data had been sent, we submit the amount of reserved
 // data that was actually sent:
 //..
-          bsls_Types::Uint64 result;
+          bsls::Types::Uint64 result;
           result = sendData(CHUNK_SIZE);
           bytesSent += result;
           guard.submitReserved(result);
@@ -358,7 +358,7 @@ int main(int argc, char *argv[]) {
       else {
 
           bdet_TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
-          bsls_Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
                                   (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
           bcemt_ThreadUtil::microSleep(uS);
       }
@@ -378,7 +378,7 @@ int main(int argc, char *argv[]) {
         //: 3 The method submits no units.
         //
         // Testing:
-        //   void cancelReserved(bsls_Types::Uint64 numOfUnits);
+        //   void cancelReserved(bsls::Types::Uint64 numOfUnits);
         //-----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -419,10 +419,10 @@ int main(int argc, char *argv[]) {
 
                 for (unsigned int i = 1; i <= N_CANCELS; i++) {
 
-                    bsls_Types::Uint64 expGuardReserve =
+                    bsls::Types::Uint64 expGuardReserve =
                         (i*CANCEL > RESERVE ? 0 : (RESERVE - i*CANCEL));
 
-                    bsls_Types::Uint64 expReserve = INIT_RESERVE +
+                    bsls::Types::Uint64 expReserve = INIT_RESERVE +
                         expGuardReserve;
 
                     x.cancelReserved(CANCEL);
@@ -448,8 +448,8 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             my_Reserve r;
             Obj y(&r, 42);
@@ -470,7 +470,7 @@ int main(int argc, char *argv[]) {
         //: 2 The method decrements the 'unitsReserved' counter.
         //
         // Testing:
-        //   void submitReserved(bsls_Types::Uint64 numOfUnits);
+        //   void submitReserved(bsls::Types::Uint64 numOfUnits);
         //-----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -505,7 +505,7 @@ int main(int argc, char *argv[]) {
 
                 for (unsigned int i = 1; i <= N_SUBMITS; i++) {
 
-                    bsls_Types::Uint64 expReserve =
+                    bsls::Types::Uint64 expReserve =
                         i*SUBMIT > RESERVE ? 0 : (RESERVE - i*SUBMIT);
 
                     x.submitReserved(SUBMIT);
@@ -525,8 +525,8 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             my_Reserve r;
             Obj y(&r, 42);
@@ -556,8 +556,8 @@ int main(int argc, char *argv[]) {
                           << "DTOR" << endl
                           << "====" << endl;
 
-        const bsls_Types::Uint64 INIT_SUBMITTED = 5;
-        const bsls_Types::Uint64 INIT_RESERVED  = 37;
+        const bsls::Types::Uint64 INIT_SUBMITTED = 5;
+        const bsls::Types::Uint64 INIT_RESERVED  = 37;
 
         struct {
 
@@ -615,10 +615,10 @@ int main(int argc, char *argv[]) {
         //:   behavior in specific build configuration.
         //
         // Testing:
-        //   btes_ReservationGuard(TYPE*              reserve,
-        //                         bsls_Types::Uint64 numOfUnits);
+        //   btes_ReservationGuard(TYPE*               reserve,
+        //                         bsls::Types::Uint64 numOfUnits);
         //   TYPE* ptr() const;
-        //   bsls_Types::Uint64 unitsReserved() const;
+        //   bsls::Types::Uint64 unitsReserved() const;
         //-----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -646,8 +646,8 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             ASSERT_SAFE_FAIL(Obj x(0,42));
         }
