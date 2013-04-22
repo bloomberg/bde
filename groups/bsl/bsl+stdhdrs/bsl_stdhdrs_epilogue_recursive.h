@@ -206,6 +206,17 @@
 # endif
 #endif
 
+// If '<functional>' was included, then include extensions to functional.
+#ifdef INCLUDED_NATIVE_FUNCTIONAL
+# ifndef INCLUDED_BSLSTL_EQUALTO
+#   include <bslstl_equalto.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_HASH
+#   include <bslstl_hash.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
 
 // If '<memory>' was included, then include our implementation of allocators.
 #ifdef INCLUDED_NATIVE_MEMORY
