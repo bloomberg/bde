@@ -1,71 +1,18 @@
-#ifndef BSL_OVERRIDES_STD
-#define BSL_OVERRIDES_STD
-#endif
-// Include all standard headers in reverse alphabetical order
+// These dummy headers are trying to accomplish the following: bde_build.pl
+// automatically copy all the .h files to the include directory for a non
+// standard compliant package (bsl+stdhdrs in this case).
 
-#include <vector>
-#include <valarray>
-#include <utility>
-#include <unordered_set>
-#include <unordered_map>
-#include <typeinfo>
-#include <strstream>
-#include <string>
-#include <streambuf>
-#include <stdexcept>
-#include <stack>
-#include <sstream>
-#include <set>
-#include <queue>
-#include <ostream>
-#include <numeric>
-#include <new>
-#include <memory>
-#include <map>
-#include <locale>
-#include <list>
-#include <limits>
-#include <iterator>
-#include <istream>
-#include <iostream>
-#include <iosfwd>
-#include <ios>
-#include <iomanip>
-#include <functional>
-#include <fstream>
-#include <exception>
-#include <deque>
-#include <cwctype>
-#include <cwchar>
-#include <ctime>
-#include <cstring>
-#include <cstdlib>
-#include <cstdio>
-#include <cstddef>
-#include <cstdarg>
-#include <csignal>
-#include <csetjmp>
-//#include <complex>
-#include <cmath>
-#include <clocale>
-#include <climits>
-#include <ciso646>
-#include <cfloat>
-#include <cerrno>
-#include <cctype>
-#include <cassert>
-#include <bitset>
-#include <algorithm>
+// However, this process is complicated by two problems.  First, there are a
+// lot of headers that does not end with .h here, such as <limits> and
+// <limits.SUNWCCh>.  This problem is solved by creating a script 'cphdrs.pl'
+// that, given a header file name (provided by bde_build.pl), it will copy that
+// file and also its corresponding without the .h and with the .SUNWCCh.
 
-#ifndef std
-# error std was expected to be a macro
-#endif
-int main()
-{
-    std::size_t a = 0;
-    std::pair<std::size_t,int> b(a, 0);
-    return 0;
-}
+// The second problem is that when a header does not have a
+// corresponding .h file, such as <algorithm>, there is no way to make
+// bde_build.pl provide this name unless we create this dummy header file.
+
+#error "This dummy file is used by build script and should not be included"
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.

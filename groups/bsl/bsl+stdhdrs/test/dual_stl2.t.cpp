@@ -27,7 +27,6 @@
 #include <stdexcept>
 #include <stack>
 #include <sstream>
-// #include <slist>
 #include <set>
 #include <queue>
 #include <ostream>
@@ -44,8 +43,6 @@
 #include <iosfwd>
 #include <ios>
 #include <iomanip>
-// #include <hash_set>
-// #include <hash_map>
 #include <functional>
 #include <fstream>
 #include <exception>
