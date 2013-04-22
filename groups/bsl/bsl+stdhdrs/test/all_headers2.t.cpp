@@ -15,7 +15,9 @@
 #include <stdexcept>
 #include <stack>
 #include <sstream>
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #include <slist>
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 #include <set>
 #include <queue>
 #include <ostream>
@@ -32,8 +34,10 @@
 #include <iosfwd>
 #include <ios>
 #include <iomanip>
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #include <hash_set>
 #include <hash_map>
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 #include <functional>
 #include <fstream>
 #include <exception>
