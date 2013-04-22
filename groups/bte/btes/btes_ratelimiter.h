@@ -287,7 +287,6 @@ BDES_IDENT("$Id: $")
 //..
 // Notice that we wait by putting the thread into a sleep state instead of
 // using busy-waiting to better optimize for multi-threaded applications.
-//..
 
 #ifndef INCLUDED_BTESCM_VERSION
 #include <btescm_version.h>

@@ -325,7 +325,6 @@ BDES_IDENT("$Id: $")
 //      return d_sailors.end() == it ? 0 : *it;
 //  }
 //..
-//..
 // Next, in 'main', we create our file './shipscrew.txt' describing the crew of
 // the ship.  Note that the order of crew members is not important:
 //..
