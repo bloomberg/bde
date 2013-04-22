@@ -244,13 +244,14 @@
 # endif
 #endif
 
-#ifndef BDE_OMIT_TRANSITIONAL // STP
-// If '<functional>' was included, then include SGI extension to functional.
+// If '<functional>' was included, then include extensions to functional.
 #ifdef INCLUDED_NATIVE_FUNCTIONAL
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 # ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
 #   include <bslstp_exfunctional.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
 # ifndef INCLUDED_BSLSTL_EQUALTO
 #   include <bslstl_equalto.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
@@ -260,7 +261,6 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 // If '<memory>' was included, then include our implementation of allocators.
 #ifdef INCLUDED_NATIVE_MEMORY
