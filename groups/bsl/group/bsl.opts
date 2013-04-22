@@ -6,7 +6,6 @@
 # to the group install stage
 #!! *			_	STL_INCLUDE	= -I$(BSL_LOCN)/bsl+stdhdrs/include/$(UPLID)/$(UFID)
 
-# Allow the C files in STLport to include the C++ headers
 *			_	BDE_CINCLUDE	= $(STL_INCLUDE)
 
 -- unix-SunOS-*-*-cc	_	AR_PACKAGE	= $(SET_TEMPLATE_CACHE_DIR)
@@ -19,9 +18,5 @@
 !! unix-Linux-*-*-*        shr SHR_SHLIB_DEPS  = -lrt
 !! unix-HP_UX-*-*-*        shr SHR_SHLIB_DEPS  = -lstd_v2 -lCsup -lunwind -lc
 
-windows			shr	STL_DEFINES	= /D_STLP_DESIGNATED_DLL
-
-# DRQS 29608792: Build windows with BSL_LEGACY=0 to match release process
-# TREQ 2275517: Sanitize BSL code-base: change BSL_LEGACY to BDE_OMIT_INTERNAL_DEPRECATED 
 windows             _       BDE_CXXFLAGS     = /DBDE_OMIT_INTERNAL_DEPRECATED
 
