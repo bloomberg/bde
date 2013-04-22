@@ -115,11 +115,10 @@ struct Atomic_TypeTraits<AtomicOperations_SPARC32_SUN_CC>
     struct Pointer
     {
 #ifdef BSLS_PLATFORM_CMP_GNU
-        void const * volatile d_value
-                                  __attribute__((__aligned__(sizeof(void *))));
+        void * volatile d_value __attribute__((__aligned__(sizeof(void *))));
 #else
 #       pragma align 4 (d_value)
-        void const * volatile d_value;
+        void * volatile d_value;
 #endif
     };
 };

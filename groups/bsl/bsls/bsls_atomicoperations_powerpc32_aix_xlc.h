@@ -126,8 +126,7 @@ struct Atomic_TypeTraits<AtomicOperations_POWERPC32_AIX_XLC>
 
     struct Pointer
     {
-        void const * volatile d_value
-              __attribute__((__aligned__(sizeof(void *))));
+        void * volatile d_value __attribute__((__aligned__(sizeof(void *))));
     };
 };
 
