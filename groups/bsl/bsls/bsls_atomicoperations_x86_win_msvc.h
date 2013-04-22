@@ -79,7 +79,7 @@ struct Atomic_TypeTraits<AtomicOperations_X86_WIN_MSVC>
     struct Pointer
     {
         __declspec(align(4))
-        void const * volatile d_value;
+        void * volatile d_value;
     };
 };
 
