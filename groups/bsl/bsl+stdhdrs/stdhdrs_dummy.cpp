@@ -1,10 +1,16 @@
-#undef BSL_OVERRIDES_STD
-#include <bsl_slist.h>
-#ifdef std
-#   error std was not expected to be a macro
-#endif
-namespace std { }
-int main() { return 0; }
+// stdhdrs_dummy.cpp                                                  -*-C++-*-
+
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Workaround for build tool.
+//
+//@DESCRIPTION: This is a workaround for the build tool since the tool requires
+// at least one implementation file in a package.
+
+// This symbol exists to avoid 'getarsym' errors when linking tests against the
+// 'bsl+stdhdrs' package library on SunOS with gcc.
+char stdhdrs_dummy_cpp_this_symbol_avoids_an_empty_package_library;
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.

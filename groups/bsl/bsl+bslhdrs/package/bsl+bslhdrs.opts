@@ -1,0 +1,17 @@
+*        _     OPTS_FILE    = bsl+bslhdrs.opts
+
+# disable BSL_OVERRIDE_STD
+!! *     _       BSL_STD_FLAG    =
+
+unix     _       BSLHDRS_TEST    = $(BSL_LOCN)/bsl+bslhdrs/test
+windows  _       BSLHDRS_TEST    = $(BSL_LOCN)\bsl+bslhdrs\test
+
+*        _       TEST_DEFINES    = -DTEST_RW_PEDANTIC=0
+
+unix     _       DEF_INCLUDE     = -I$(BSL_LOCN)/bsl+bslhdrs
+windows  _       DEF_INCLUDE     = -I$(BSL_LOCN)\bsl+bslhdrs
+
+*        _       TEST_RUNPREFIX  =
+*        _       TEST_RUNSUFFIX  =
+
+*-Linux  _       DEF_CXXFLAGS    = -D_RWSTD_LINUX_RELEASE=\"`uname -r`\"
