@@ -168,8 +168,8 @@ BDES_IDENT("$Id: $")
 //      int                             d_ioTimeout;
 //      bcemt_Mutex                     d_timerMonitorMutex;
 //      bcemt_Condition                 d_timerChangedCond;
-//      bcemt_ThreadUtil::Handle        d_timerThreadHandle;
 //      bcemt_ThreadUtil::Handle        d_connectionThreadHandle;
+//      bcemt_ThreadUtil::Handle        d_timerThreadHandle;
 //
 //    protected:
 //      void newConnection(my_Connection *connection);
@@ -599,11 +599,14 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+
 template <typename DATA> class bcec_TimeQueueItem;
 
-                             // =====================
+
+
+                             // ====================
                              // class bcec_TimeQueue
-                             // =====================
+                             // ====================
 template <typename DATA>
 class bcec_TimeQueue {
     // This parameterized class provides a public interface which is
@@ -720,16 +723,6 @@ class bcec_TimeQueue {
                                                // is singly linked only, using
                                                // d_next_p)
 
-    // Due to the initialization dependency between 'd_mapAllocatorPtr'
-    // and 'd_map' their declaration order should always be as follows.
-
-    bdema_ManagedPtr<bcema_PoolAllocator>
-                             d_mapAllocatorPtr;// pointer to the pool
-                                               // allocator supplied to
-                                               // 'd_map' if the client
-                                               // specifies that timers stored
-                                               // in 'd_map' be pooled
-
     NodeMap                  d_map;            // list of time values in
                                                // increasing time order
 
@@ -765,13 +758,8 @@ class bcec_TimeQueue {
   public:
     // CREATORS
     explicit bcec_TimeQueue(bslma::Allocator *basicAllocator = 0);
-    explicit bcec_TimeQueue(bool              poolTimerMemory,
-                            bslma::Allocator *basicAllocator = 0);
     explicit bcec_TimeQueue(int               numIndexBits,
                             bslma::Allocator *basicAllocator = 0);
-    bcec_TimeQueue(int               numIndexBits,
-                   bool              poolTimerMemory,
-                   bslma::Allocator *basicAllocator = 0);
         // Construct an empty time queue.  Optionally specify 'numIndexBits' to
         // configure the number of index bits used by this object.  If
         // 'numIndexBits' is not specified a default value of 17 is used.
@@ -782,6 +770,17 @@ class bcec_TimeQueue {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  See component-level documentation for more information
         // regarding 'numIndexBits'.
+
+    explicit bcec_TimeQueue(bool              poolTimerMemory,
+                            bslma::Allocator *basicAllocator = 0);
+    bcec_TimeQueue(int               numIndexBits,
+                   bool              poolTimerMemory,
+                   bslma::Allocator *basicAllocator = 0);
+        // [!DEPRECATED!] Use the other constructor overloads instead.  Note
+        // that the 'poolTimerMemory' (optional) argument controlled whether
+        // additional memory used by an internal 'bsl::map' was pooled.  When
+        // 'bsl::map' was modified to pool its own nodes, this option became
+        // irrelevant.
 
     ~bcec_TimeQueue();
         // Destroy this time queue.
@@ -1075,7 +1074,6 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bslma::Allocator *basicAllocator)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
-, d_mapAllocatorPtr(0)
 , d_map(basicAllocator)
 , d_length(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -1091,16 +1089,14 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bool              poolTimerMemory,
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
-, d_mapAllocatorPtr(poolTimerMemory
-                    ? new (*bslma::Default::allocator(basicAllocator))
-                                            bcema_PoolAllocator(sizeof(Node),
-                                                                basicAllocator)
-                    : 0,
-                    bslma::Default::allocator(basicAllocator))
-, d_map(poolTimerMemory ? d_mapAllocatorPtr.ptr() : basicAllocator)
+, d_map(basicAllocator)
 , d_length(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
+    // The 'poolTimerMemory' option has been deprecated (see method
+    // documentation).
+
+    (bool)poolTimerMemory;
 }
 
 template <typename DATA>
@@ -1112,8 +1108,6 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
-, d_mapAllocatorPtr(0)
-, d_map(basicAllocator)
 , d_length(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -1131,18 +1125,18 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
-, d_mapAllocatorPtr(poolTimerMemory
-                    ? new (*bslma::Default::allocator(basicAllocator))
-                                            bcema_PoolAllocator(sizeof(Node),
-                                                                basicAllocator)
-                    : 0,
-                    bslma::Default::allocator(basicAllocator))
-, d_map(poolTimerMemory ? d_mapAllocatorPtr.ptr() : basicAllocator)
+, d_map(basicAllocator)
 , d_length(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(BCEC_NUM_INDEX_BITS_MIN <= numIndexBits
              && BCEC_NUM_INDEX_BITS_MAX >= numIndexBits);
+
+    // The 'poolTimerMemory' option has been deprecated (see method
+    // documentation).
+
+    (bool)poolTimerMemory;
+
 }
 
 template <typename DATA>
