@@ -38,6 +38,7 @@
      bslma_testallocator
 
   3. bslma_mallocfreeallocator
+     bslma_managedallocator
      bslma_newdeleteallocator
      bslma_usesbslmaallocator
      bslma_testallocatorexception
@@ -85,6 +86,9 @@
 :
 : 'bslma_mallocfreeallocator':
 :      Provide malloc/free adaptor to 'bslma::Allocator' protocol.
+:
+: 'bslma_managedallocator':
+:      Provide a protocol for memory allocators that support 'release'.
 :
 : 'bslma_newdeleteallocator':
 :      Provide singleton new/delete adaptor to 'bslma::Allocator' protocol.
