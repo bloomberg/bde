@@ -260,7 +260,8 @@ bcema_SharedPtr<void> bcem_Aggregate::dataPtr() const
         return bcema_SharedPtr<void>();                               // RETURN
     }
     d_valueRep_p->acquireRef();
-    return bcema_SharedPtr<void>((void *)d_aggregateRaw.data(), d_valueRep_p);
+    return bcema_SharedPtr<void>(const_cast<void *>(d_aggregateRaw.data()),
+                                 d_valueRep_p);
 }
 
 void bcem_Aggregate::init(

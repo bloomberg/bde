@@ -671,8 +671,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             TestAllocator t;
             const TestAllocator& T = t;
-            void *memory       = (void *) DATA[i];
-            const void *MEMORY = (void *) memory;
+            void *memory       = const_cast<void *>(DATA[i]);
+            const void *MEMORY = memory;
 
             LOOP_ASSERT(i, false == T.isDeallocateCalled());
             LOOP_ASSERT(i, 0     == T.lastDeallocateAddress());
@@ -737,7 +737,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == X.lastDeallocateAddress());
         ASSERT(!X.isDeallocateCalled());
         for (int di = 0; di < NUM_DATA; ++di) {
-            void *addr = (void *) DATA[di];    const void *ADDR = addr;
+            void *addr = const_cast<void *>(DATA[di]);
+            const void *ADDR = addr;
             mX.deallocate(addr);
             if (veryVerbose) { T_ P_(di) P(ADDR) }
             LOOP_ASSERT(di, ADDR == X.lastDeallocateAddress());

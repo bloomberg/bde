@@ -2031,7 +2031,7 @@ ERef getERef(ET::Type type, int value)
     // (one of 'A', 'B', 'N') of the specified 'type'.
 {
     CERef T = getCERef(type, value);
-    return ERef((void *) T.data(), T.descriptor());
+    return ERef(const_cast<void *>(T.data()), T.descriptor());
 }
 
 bool isUnset(const CERef& ref)
@@ -15521,7 +15521,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 const ERef  EA = getERef(TYPE, 1);
                 const ERef  EB = getERef(TYPE, 2);
-                const ERef NULL_ER((void *) CEN.data(),
+                const ERef NULL_ER(const_cast<void *>(CEN.data()),
                                    CEN.descriptor(),
                                    &NULLNESS_FLAGS,
                                    NULLNESS_BIT_IDX);

@@ -1878,7 +1878,7 @@ int ggAggData(Obj *agg, const RecDef& record, bslma::Allocator *basicAllocator)
 int destroyAggData(Obj *agg, bslma::Allocator *allocator)
 {
     EType::Type  elemType = agg->dataType();
-    void        *aggData  = (void *) agg->data();
+    void        *aggData  = const_cast<void *>(agg->data());
     switch (elemType) {
       case bdem_ElemType::BDEM_LIST: {
         bdem_List *list = (bdem_List *) aggData;
@@ -2481,7 +2481,7 @@ ERef getERef(ET::Type type, int value)
     // (one of 'A', 'B', 'N') of the specified 'type'.
 {
     CERef T = getCERef(type, value);
-    return ERef((void *) T.data(), T.descriptor());
+    return ERef(const_cast<void *>(T.data()), T.descriptor());
 }
 
 bool isUnset(const CERef& ref)
@@ -6396,7 +6396,7 @@ void testCase20() {
 
                 Obj mX;
                 mX.setDataType(ET::BDEM_DOUBLE);
-                mX.setData((void *) CEA.data());
+                mX.setData(const_cast<void *>(CEA.data()));
                 int rc = mX.numSelections();
                 ASSERT(rc);
             }
@@ -9039,7 +9039,7 @@ void testCase11() {
 
                 const ERef  EA = getERef(TYPE, 1);
                 const ERef  EB = getERef(TYPE, 2);
-                const ERef NULL_ER((void *) CEN.data(),
+                const ERef NULL_ER(const_cast<void *>(CEN.data()),
                                    CEN.descriptor(),
                                    &NULLNESS_FLAGS,
                                    NULLNESS_BIT_IDX);
@@ -14149,7 +14149,7 @@ void testCase3() {
 
                 const ERef  EA = getERef(TYPE, 1);
                 const ERef  EB = getERef(TYPE, 2);
-                const ERef NULL_ER((void *) CEN.data(),
+                const ERef NULL_ER(const_cast<void *>(CEN.data()),
                                    CEN.descriptor(),
                                    &NULLNESS_FLAGS,
                                    NULLNESS_BIT_IDX);

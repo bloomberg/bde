@@ -1443,7 +1443,7 @@ ERef getERef(ET::Type type, char valueSpec)
     // (one of 'A', 'B', 'N') of the specified 'type'.
 {
     CERef T = getCERef(type, valueSpec);
-    return ERef((void *) T.data(), T.descriptor());
+    return ERef(const_cast<void *>(T.data()), T.descriptor());
 }
 
 static const void *getValueA(char spec)
@@ -2324,7 +2324,7 @@ int main(int argc, char *argv[])
                             rc = ggg(&mA, SPEC, &ta);
                             LOOP_ASSERT(LINE, !rc);
 
-                            LA = (Layout *) A.rowLayout();
+                            LA = const_cast<Layout *>(A.rowLayout());
 
                             mA.removeElement(k);
                             LA->remove(k);
@@ -2349,7 +2349,7 @@ int main(int argc, char *argv[])
                                 rc = ggg(&mA, SPEC, &ta);
                                 LOOP_ASSERT(LINE, !rc);
 
-                                LA = (Layout *) A.rowLayout();
+                                LA = const_cast<Layout *>(A.rowLayout());
 
                                 mA.removeElements(si, ne);
                                 LA->remove(si, ne);
@@ -2656,9 +2656,12 @@ int main(int argc, char *argv[])
                                                      &testAllocator);
                                             LOOP_ASSERT(LINE, !rc);
 
-                                            LC = (Layout *) C.rowLayout();
-                                            LD = (Layout *) D.rowLayout();
-                                            LE = (Layout *) E.rowLayout();
+                                            LC = const_cast<Layout *>(
+                                                    C.rowLayout());
+                                            LD = const_cast<Layout *>(
+                                                    D.rowLayout());
+                                            LE = const_cast<Layout *>(
+                                                    E.rowLayout());
 
                                             if (veryVerbose) { T_ P_(LINE)
                                                               P_(LINE2) P(C)
