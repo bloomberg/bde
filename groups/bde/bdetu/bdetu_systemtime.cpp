@@ -20,36 +20,70 @@ BDES_IDENT_RCSID(bdetu_systemtime_cpp,"$Id$ $CSID$")
 #endif
 #endif
 
+#include <limits.h>  // for 'INT_MAX'
+
 namespace BloombergLP {
-
-bdetu_SystemTime::SystemTimeCallback
-bdetu_SystemTime::s_callback_p = bdetu_SystemTime::loadSystemTimeDefault;
-
                             // ----------------------
                             // class bdetu_SystemTime
                             // ----------------------
 
+// DATA
+bdetu_SystemTime::SystemTimeCallback
+bdetu_SystemTime::s_systime_callback_p =
+                                       bdetu_SystemTime::loadSystemTimeDefault;
+
+bdetu_SystemTime::LoadLocalTimeOffsetCallback
+bdetu_SystemTime::s_loadLocalTimeOffsetCallback_p =
+                                  bdetu_SystemTime::loadLocalTimeOffsetDefault;
+
 // CLASS METHODS
+
+                        // ** now methods **
+
 bdet_Datetime bdetu_SystemTime::nowAsDatetimeLocal()
 {
-    return nowAsDatetimeUtc() + localTimeOffset();
+    int           offsetInSeconds;
+    bdet_Datetime now = nowAsDatetimeUtc();
+
+    (*s_loadLocalTimeOffsetCallback_p)(&offsetInSeconds, now);
+
+    now.addSeconds(offsetInSeconds);
+
+    return now;
 }
 
-bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
+                       // ** default callbacks **
+
+void bdetu_SystemTime::loadLocalTimeOffsetDefault(
+                                             int                  *result,
+                                             const bdet_Datetime&  utcDatetime)
 {
-    time_t currentTime = time(0);
-    struct tm localtm, gmtm;
+    BSLS_ASSERT(result);
+
+    bsl::time_t currentTime;
+    int         status = bdetu_Epoch::convertToTimeT(&currentTime,
+                                                     utcDatetime);
+    BSLS_ASSERT(0 == status);
+
+    struct tm localTm;
+    struct tm   gmtTm;
 #if defined(BSLS_PLATFORM_OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
-    localtm = *localtime(&currentTime);
-    gmtm    = *gmtime(&currentTime);
+    localTm = *localtime(&currentTime);
+      gmtTm =    *gmtime(&currentTime);
 #else
-    localtime_r(&currentTime, &localtm);
-    gmtime_r(&currentTime, &gmtm);
+    localtime_r(&currentTime, &localTm);
+       gmtime_r(&currentTime,   &gmtTm);
 #endif
-    bdet_Datetime gmtDateTime, localDateTime;
-    bdetu_Datetime::convertFromTm(&gmtDateTime, gmtm);
-    bdetu_Datetime::convertFromTm(&localDateTime, localtm);
-    return localDateTime - gmtDateTime;
+
+    bdet_Datetime localDatetime;
+    bdet_Datetime   gmtDatetime;
+    bdetu_Datetime::convertFromTm(&localDatetime, localTm);
+    bdetu_Datetime::convertFromTm(  &gmtDatetime,   gmtTm);
+
+    bdet_DatetimeInterval offset = localDatetime - gmtDatetime;
+
+    BSLS_ASSERT(offset.totalSeconds() < INT_MAX);
+    *result = offset.totalSeconds();
 }
 
 void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
@@ -87,11 +121,11 @@ void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
 
 }  // close namespace BloombergLP
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

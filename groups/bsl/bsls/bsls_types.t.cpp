@@ -533,10 +533,12 @@ int main(int argc, char *argv[])
         //     typedef statements concerned for those types were wrong.  We
         //     must ensure that:
         //     - a size_type is at least as wide as an int.
+        //     - 'size_type' is an unsigned integer type.
         //
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
-        //   least as wide as an int.
+        //   least as wide as an int.  Then case a few values of different
+        //   signs to it, and assert that the sign is correct.  
         //
         // Testing:
         //   size_type
@@ -557,16 +559,11 @@ int main(int argc, char *argv[])
         ASSERT(sizeof(Types::size_type) >= sizeof(int));
 #endif
 
-        // Must be convertible (with possible change of sign) from a difference
-        // of two pointers.  Use some arbitrary values for this.
-        Types::size_type zero     = std::ptrdiff_t(0);
-        Types::size_type minusOne = std::ptrdiff_t(-1);
-        Types::size_type posValue = std::ptrdiff_t(1048576);
-
         // Must be unsigned
+        Types::size_type zero(0);
+        Types::size_type complementOfZero(~0);
         ASSERT(0 == zero);
-        ASSERT(minusOne > 0);
-        ASSERT(0 <  posValue);
+        ASSERT(complementOfZero > 0);
 
       } break;
       case 1: {

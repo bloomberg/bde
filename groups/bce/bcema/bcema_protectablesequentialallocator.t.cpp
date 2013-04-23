@@ -162,10 +162,10 @@ static void aSsErT(int c, const char *s, int i)
 //                               GLOBAL TYPEDEF
 //-----------------------------------------------------------------------------
 
-typedef bcema_ProtectableSequentialAllocator Obj;
-typedef bdema_TestProtectableBlockDispenser  TestDisp;
-typedef bdema_MemoryBlockDescriptor          Block;
-typedef bsls::Types::size_type               SizeType;
+typedef bcema_ProtectableSequentialAllocator            Obj;
+typedef bdema_TestProtectableBlockDispenser             TestDisp;
+typedef bdema_MemoryBlockDescriptor                     Block;
+typedef bcema_ProtectableSequentialAllocator::size_type SizeType;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -179,14 +179,12 @@ Obj   *g_testingAlloc = 0; // A global variable that must refer to the
 
 extern "C" {
 
-void segfaultHandler(int x)
+void segfaultHandler(int)
 // This is a segmentation fault signal handler.  It uses the global variables
 // above to manage it's state.  Mark that a segmentation fault has occurred in
 // g_fault and, if protection is under test, unprotect the memory pointed to by
 // the allocator under test.
 {
-    (void) x;  // suppress unused variable warning
-
     g_fault = true;
     if (g_inTest) {
         g_testingAlloc->unprotect();
@@ -389,11 +387,12 @@ extern "C" void *workerThread(void *arg)
             // allocator is in an unprotected state.
         {
             int      *oldData = d_data_p;
-            SizeType  oldSize = d_maxSize;
+            int       oldSize = d_maxSize;
             d_maxSize *= GROW_FACTOR;
             d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
-            memcpy(d_data_p, oldData, sizeof(int) * oldSize);
+            bsl::copy(oldData, oldData + oldSize, d_data_p);		
         }
+
 
       public:
 

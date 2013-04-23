@@ -7,9 +7,9 @@ namespace BloombergLP {
 
 namespace {
 
-bsls_Types::Uint64 calculateNumberOfUnitsToDrain(
-                     bsls_Types::Uint64*      fractionalUnitDrainedInNanoUnits,
-                     bsls_Types::Uint64       drainRate,
+bsls::Types::Uint64 calculateNumberOfUnitsToDrain(
+                     bsls::Types::Uint64*     fractionalUnitDrainedInNanoUnits,
+                     bsls::Types::Uint64      drainRate,
                      const bdet_TimeInterval& timeInterval)
     // Return the number of units that would be drained from a leaky bucket
     // over the specified 'timeInterval' at the specified 'drainRate', plus the
@@ -25,17 +25,17 @@ bsls_Types::Uint64 calculateNumberOfUnitsToDrain(
     // using a floating point representation.
 
 {
-    const bsls_Types::Uint64 NANOUNITS_PER_UNIT = 1000000000;
+    const bsls::Types::Uint64 NANOUNITS_PER_UNIT = 1000000000;
 
-    BSLS_ASSERT(static_cast<bsls_Types::Uint64>(timeInterval.seconds()) <=
+    BSLS_ASSERT(static_cast<bsls::Types::Uint64>(timeInterval.seconds()) <=
                                                        ULLONG_MAX / drainRate);
     BSLS_ASSERT(0 != fractionalUnitDrainedInNanoUnits);
     BSLS_ASSERT(*fractionalUnitDrainedInNanoUnits < NANOUNITS_PER_UNIT);
 
-    bsls_Types::Uint64 units  = drainRate * timeInterval.seconds();
+    bsls::Types::Uint64 units  = drainRate * timeInterval.seconds();
     units += (drainRate / NANOUNITS_PER_UNIT) * timeInterval.nanoseconds();
 
-    bsls_Types::Uint64 nanounits = 0;
+    bsls::Types::Uint64 nanounits = 0;
 
     // As long as rate is represented by a whole number, the fractional part
     // of number of units to drain comes from fractional part of seconds of
@@ -59,18 +59,18 @@ bsls_Types::Uint64 calculateNumberOfUnitsToDrain(
 
 // CLASS METHODS
 bdet_TimeInterval btes_LeakyBucket::calculateDrainTime(
-                                                  bsls_Types::Uint64 numUnits,
-                                                  bsls_Types::Uint64 drainRate,
-                                                  bool               ceilFlag)
+                                                 bsls::Types::Uint64 numUnits,
+                                                 bsls::Types::Uint64 drainRate,
+                                                 bool                ceilFlag)
 {
     BSLS_ASSERT(drainRate > 1 || numUnits <= LLONG_MAX);
 
-    const bsls_Types::Uint64 NANOUNITS_PER_UNIT  = 1000000000;
+    const bsls::Types::Uint64 NANOUNITS_PER_UNIT = 1000000000;
 
     bdet_TimeInterval interval(0,0);
 
     interval.addSeconds(numUnits / drainRate);
-    bsls_Types::Uint64 remUnits = numUnits % drainRate;
+    bsls::Types::Uint64 remUnits = numUnits % drainRate;
 
     if(true == ceilFlag) {
         interval.addNanoseconds(
@@ -85,8 +85,8 @@ bdet_TimeInterval btes_LeakyBucket::calculateDrainTime(
 }
 
 bdet_TimeInterval btes_LeakyBucket::calculateTimeWindow(
-                                                  bsls_Types::Uint64 drainRate,
-                                                  bsls_Types::Uint64 capacity)
+                                                 bsls::Types::Uint64 drainRate,
+                                                 bsls::Types::Uint64 capacity)
 {
 
     BSLS_ASSERT(drainRate > 0);
@@ -103,8 +103,8 @@ bdet_TimeInterval btes_LeakyBucket::calculateTimeWindow(
     return window;
 }
 
-bsls_Types::Uint64 btes_LeakyBucket::calculateCapacity(
-                                           bsls_Types::Uint64       drainRate,
+bsls::Types::Uint64 btes_LeakyBucket::calculateCapacity(
+                                           bsls::Types::Uint64      drainRate,
                                            const bdet_TimeInterval& timeWindow)
 {
     BSLS_ASSERT(1 == drainRate ||
@@ -112,9 +112,9 @@ bsls_Types::Uint64 btes_LeakyBucket::calculateCapacity(
                                                                    drainRate,
                                                                    false));
 
-    bsls_Types::Uint64 fractionalUnitsInNanoUnits = 0;
+    bsls::Types::Uint64 fractionalUnitsInNanoUnits = 0;
 
-    bsls_Types::Uint64 capacity = calculateNumberOfUnitsToDrain(
+    bsls::Types::Uint64 capacity = calculateNumberOfUnitsToDrain(
                                                    &fractionalUnitsInNanoUnits,
                                                    drainRate,
                                                    timeWindow);
@@ -126,9 +126,9 @@ bsls_Types::Uint64 btes_LeakyBucket::calculateCapacity(
 }
 
 // CREATORS
-btes_LeakyBucket::btes_LeakyBucket(bsls_Types::Uint64       drainRate,
-                                   bsls_Types::Uint64       capacity,
-                                   const bdet_TimeInterval& currentTime)
+btes_LeakyBucket::btes_LeakyBucket(bsls::Types::Uint64       drainRate,
+                                   bsls::Types::Uint64       capacity,
+                                   const bdet_TimeInterval&  currentTime)
 : d_drainRate(drainRate)
 , d_capacity(capacity)
 , d_unitsReserved(0)
@@ -165,7 +165,7 @@ btes_LeakyBucket::btes_LeakyBucket(bsls_Types::Uint64       drainRate,
 bdet_TimeInterval btes_LeakyBucket::calculateTimeToSubmit(
                                           const bdet_TimeInterval& currentTime)
 {
-    bsls_Types::Uint64 usedUnits = d_unitsInBucket + d_unitsReserved;
+    bsls::Types::Uint64 usedUnits = d_unitsInBucket + d_unitsReserved;
 
     // Return 0-length time interval if units can be submitted right now.
 
@@ -183,7 +183,7 @@ bdet_TimeInterval btes_LeakyBucket::calculateTimeToSubmit(
     }
 
     bdet_TimeInterval timeToSubmit(0,0);
-    bsls_Types::Uint64 backlogUnits;
+    bsls::Types::Uint64 backlogUnits;
 
     // From here, 'd_unitsInBucket + d_unitsReserved' is always greater than
     // 'd_capacity'
@@ -204,8 +204,8 @@ bdet_TimeInterval btes_LeakyBucket::calculateTimeToSubmit(
     return timeToSubmit;
 }
 
-void btes_LeakyBucket::setRateAndCapacity(bsls_Types::Uint64 newRate,
-                                          bsls_Types::Uint64 newCapacity)
+void btes_LeakyBucket::setRateAndCapacity(bsls::Types::Uint64 newRate,
+                                          bsls::Types::Uint64 newCapacity)
 {
     BSLS_ASSERT_SAFE(0 < d_drainRate);
     BSLS_ASSERT_SAFE(0 < d_capacity);
@@ -245,7 +245,7 @@ void btes_LeakyBucket::updateState(const bdet_TimeInterval& currentTime)
     }
 
     if (delta >= bdet_TimeInterval(0, 0)) {
-        bsls_Types::Uint64 units;
+        bsls::Types::Uint64 units;
         units = calculateNumberOfUnitsToDrain(
                                            &d_fractionalUnitDrainedInNanoUnits,
                                            d_drainRate,
@@ -285,15 +285,15 @@ bool btes_LeakyBucket::wouldOverflow(const bdet_TimeInterval& currentTime)
 }
 
 // ACCESSORS
-void btes_LeakyBucket::getStatistics(bsls_Types::Uint64* submittedUnits,
-                                     bsls_Types::Uint64* unusedUnits) const
+void btes_LeakyBucket::getStatistics(bsls::Types::Uint64* submittedUnits,
+                                     bsls::Types::Uint64* unusedUnits) const
 {
 
     BSLS_ASSERT(0 != submittedUnits);
     BSLS_ASSERT(0 != unusedUnits);
 
     *submittedUnits  = d_statSubmittedUnitsAtLastUpdate;
-    bsls_Types::Uint64 fractionalUnits = 0;
+    bsls::Types::Uint64 fractionalUnits = 0;
 
     // 'monitoredInterval' can not be negative, as the 'updateState' method
     // ensures that 'd_lastUpdateTime' always precedes
@@ -302,7 +302,7 @@ void btes_LeakyBucket::getStatistics(bsls_Types::Uint64* submittedUnits,
     bdet_TimeInterval monitoredInterval = d_lastUpdateTime -
                                           d_statisticsCollectionStartTime;
 
-    bsls_Types::Uint64 drainedUnits = calculateNumberOfUnitsToDrain(
+    bsls::Types::Uint64 drainedUnits = calculateNumberOfUnitsToDrain(
                                                             &fractionalUnits,
                                                             d_drainRate,
                                                             monitoredInterval);

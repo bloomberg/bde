@@ -190,10 +190,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
-
-        if (verbose) bsl::cout << "\nBreathing Test"
+        if (verbose) bsl::cout << "\nBREATHING TEST"
                                << "\n==============" << bsl::endl;
 
         typedef bsl::complex<int> Obj;

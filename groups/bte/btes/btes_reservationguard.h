@@ -21,9 +21,9 @@ BDES_IDENT("$Id: $")
 // controlling object can be of any type (typically either a 'btes_RateLimiter'
 // or 'btes_LeakyBucket') that provides the following methods:
 //..
-//  void reserve(bsls_Types::Uint64 numOfUnits);
-//  void submitReserved(bsls_Types::Uint64 numOfUnits);
-//  void cancelReserved(bsls_Types::Uint64 numOfUnits);
+//  void reserve(bsls::Types::Uint64 numOfUnits);
+//  void submitReserved(bsls::Types::Uint64 numOfUnits);
+//  void cancelReserved(bsls::Types::Uint64 numOfUnits);
 //..
 // Use 'btes_ReservationGuard' to ensure that reserved units will be correctly
 // returned to a rate controlling object in a programming scope.  Note that
@@ -40,7 +40,7 @@ BDES_IDENT("$Id: $")
 // 'btes_LeakyBucket' object.  We send data buffer over a network interface
 // using the 'mySendData' function:
 //..
-//  bsls_Types::Uint64 mySendData(size_t dataSize);
+//  bsls::Types::Uint64 mySendData(size_t dataSize);
 //      // Send a specified 'dataSize' amount of data over the network.  Return
 //      // the amount of data actually sent.  Throw an exception if a network
 //      // failure is detected.
@@ -63,17 +63,17 @@ BDES_IDENT("$Id: $")
 // First, we define the size of each data chunk and the total size of the data
 // to send:
 //..
-//  const bsls_Types::Uint64 CHUNK_SIZE = 256;
-//  bsls_Types::Uint64 bytesSent        = 0;
-//  bsls_Types::Uint64 totalSize        = 10 * 1024; // in bytes
+//  const bsls::Types::Uint64 CHUNK_SIZE = 256;
+//  bsls::Types::Uint64 bytesSent        = 0;
+//  bsls::Types::Uint64 totalSize        = 10 * 1024; // in bytes
 //..
 // Then, we create a 'btes_LeakyBucket' object to limit the rate of data
 // transmission:
 //..
-//  bsls_Types::Uint64 rate     = 512;
-//  bsls_Types::Uint64 capacity = 1536;
-//  bdet_TimeInterval  now       = bdetu_SystemTime::now();
-//  btes_LeakyBucket   bucket(rate, capacity, now);
+//  bsls::Types::Uint64 rate     = 512;
+//  bsls::Types::Uint64 capacity = 1536;
+//  bdet_TimeInterval   now      = bdetu_SystemTime::now();
+//  btes_LeakyBucket    bucket(rate, capacity, now);
 //..
 // Next, we send the chunks of data using a loop.  For each iteration, we check
 // whether submitting another byte would cause the leaky bucket to overflow:
@@ -93,7 +93,7 @@ BDES_IDENT("$Id: $")
 // network.  After the data had been sent, we submit the amount of reserved
 // data that was actually sent:
 //..
-//          bsls_Types::Uint64 result;
+//          bsls::Types::Uint64 result;
 //          result = mySendData(CHUNK_SIZE);
 //          bytesSent += result;
 //          guard.submitReserved(result);
@@ -113,7 +113,7 @@ BDES_IDENT("$Id: $")
 //      else {
 //
 //          bdet_TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
-//          bsls_Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+//          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
 //                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
 //          bcemt_ThreadUtil::microSleep(uS);
 //      }
@@ -153,7 +153,7 @@ class btes_ReservationGuard {
                                                 // controlling object in which
                                                 // the units are reserved.
 
-    bsls_Types::Uint64     d_unitsReserved;     // Number of units reserved by
+    bsls::Types::Uint64     d_unitsReserved;    // Number of units reserved by
                                                 // this object.
 
   private:
@@ -164,7 +164,7 @@ class btes_ReservationGuard {
 
   public:
     // CREATORS
-    btes_ReservationGuard(TYPE* rateController, bsls_Types::Uint64 numUnits);
+    btes_ReservationGuard(TYPE* rateController, bsls::Types::Uint64 numUnits);
         // Create a 'btes_ReservationGuard' object guarding the specified
         // 'rateController' and reserving the specified 'numUnits'.
 
@@ -173,13 +173,13 @@ class btes_ReservationGuard {
         // remaining remaining units reserved by this proctor.
 
     // MANIPULATORS
-    void submitReserved(bsls_Types::Uint64 numUnits);
+    void submitReserved(bsls::Types::Uint64 numUnits);
         // Submit the specified 'numUnits' from the reserve units guarded by
         // this object.  After this operation, the number of reserved units
         // guarded by this object will be reduced by 'numUnits'.  The behavior
         // is undefined unless 'numUnits <= unitsReserved()'.
 
-    void cancelReserved(bsls_Types::Uint64 numUnits);
+    void cancelReserved(bsls::Types::Uint64 numUnits);
         // Cancel the specified 'numUnits' from the reserve units guarded by
         // this object.  Subtract the 'numUnits' from 'unitsReserved' and
         // invoke the 'cancelReserved' method on the guarded object for
@@ -188,7 +188,7 @@ class btes_ReservationGuard {
         // is undefined unless 'numUnits <= unitsReserved()'.
 
     // ACCESSORS
-    bsls_Types::Uint64 unitsReserved() const;
+    bsls::Types::Uint64 unitsReserved() const;
         // Return the number of units reserved by this object.
 
     TYPE *ptr() const;
@@ -207,8 +207,8 @@ class btes_ReservationGuard {
 template <class TYPE>
 inline
 btes_ReservationGuard<TYPE>::btes_ReservationGuard(
-                                             TYPE*              rateController,
-                                             bsls_Types::Uint64 numUnits)
+                                            TYPE*               rateController,
+                                            bsls::Types::Uint64 numUnits)
 {
     BSLS_ASSERT_SAFE(0 != rateController);
 
@@ -228,7 +228,7 @@ btes_ReservationGuard<TYPE>::~btes_ReservationGuard()
 // ACCESSORS
 template <class TYPE>
 inline
-bsls_Types::Uint64 btes_ReservationGuard<TYPE>::unitsReserved() const
+bsls::Types::Uint64 btes_ReservationGuard<TYPE>::unitsReserved() const
 {
     return d_unitsReserved;
 }
@@ -243,7 +243,7 @@ TYPE *btes_ReservationGuard<TYPE>::ptr() const
 // MANIPULATORS
 template <class TYPE>
 inline
-void btes_ReservationGuard<TYPE>::cancelReserved(bsls_Types::Uint64 numUnits)
+void btes_ReservationGuard<TYPE>::cancelReserved(bsls::Types::Uint64 numUnits)
 {
     BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
 
@@ -253,7 +253,7 @@ void btes_ReservationGuard<TYPE>::cancelReserved(bsls_Types::Uint64 numUnits)
 
 template <class TYPE>
 inline
-void btes_ReservationGuard<TYPE>::submitReserved(bsls_Types::Uint64 numUnits)
+void btes_ReservationGuard<TYPE>::submitReserved(bsls::Types::Uint64 numUnits)
 {
     BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
 

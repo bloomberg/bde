@@ -175,7 +175,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                                            d_blobBufferFactory_p->bufferSize(),
                                            d_allocator_p),
                                     d_allocator_p);
-	}
+    }
 }
 
 btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
