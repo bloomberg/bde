@@ -142,12 +142,16 @@ struct AddressEntry {
     AddressEntry(void *funcAddress, int index)
     : d_funcAddress(funcAddress)
     , d_index(index)
+        // Create an 'AddressEntry' object and initialize it with the
+        // specified 'funcAddress' and 'index'.
     {}
 
-    bool operator<(const AddressEntry rhs) const
+    bool operator<(const AddressEntry& rhs) const
+        // Return 'true' if the address stored in the object is lower than
+        // the address stored in 'rhs' and 'false' otherwise.  Note that
+        // this is a member function for brevity, it only exists to
+        // facilitate sorting 'AddressEntry' objects in a vector.
     {
-        // Note that this is a member function for brevity, it only exists
-        // to facilitate sorting 'AddressEntry' objects in a vector.
 
         return d_funcAddress < rhs.d_funcAddress;
     }
@@ -162,8 +166,10 @@ bsl::vector<AddressEntry> entries;
 // Next, we define 'findIndex':
 
 static int findIndex(const void *retAddress)
-    // Find the index of the entry in the global vector 'entries' corresponding
-    // to the specified 'retAddress'.
+    // Return the index of the address entry whose function uses an
+    // instruction located at specified 'retAddress'.  The behavior is
+    // undefined unless 'retAddress' is the address of an instruction in
+    // use by a function referred to by an address entry in 'entries'.
 {
     unsigned u = 0;
     while (u < entries.size()-1 && retAddress >= entries[u+1].d_funcAddress) {
@@ -181,8 +187,8 @@ static int findIndex(const void *retAddress)
     return ret;
 }
 
-// Then, we define a volatile global in calculations to discourange optimizers
-// from inlining.
+// Then, we define a volatile global variable that we will use in calculation
+// to discourage compiler optimizers from inlining:
 
 volatile unsigned volatileGlobal = 1;
 

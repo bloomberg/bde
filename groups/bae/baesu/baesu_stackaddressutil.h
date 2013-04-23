@@ -28,8 +28,8 @@ BDES_IDENT("$Id: $")
 //
 ///Example 1: Obtaining Return Addresses and Verifying Their Validity
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we demonstrate how to obtain a collection of
-// function return addresses using 'getStackAddresses'.
+// In the following example we demonstrate how to obtain the sequence of
+// function return addresses from the stack using 'getStackAddresses'.
 //
 // First, we define 'AddressEntry', which will contain a pointer to the
 // beginning of a function and an index corresponding to the function.  The '<'
@@ -37,7 +37,7 @@ BDES_IDENT("$Id: $")
 // order of the function addresses.  The address entries will be populated so
 // that the entry containing '&funcN' when 'N' is an integer will have an index
 // of 'N'.
-//..
+//
 //  struct AddressEntry {
 //      void *d_funcAddress;
 //      int   d_index;
@@ -46,32 +46,38 @@ BDES_IDENT("$Id: $")
 //      AddressEntry(void *funcAddress, int index)
 //      : d_funcAddress(funcAddress)
 //      , d_index(index)
+//          // Create an 'AddressEntry' object and initialize it with the
+//          // specified 'funcAddress' and 'index'.
 //      {}
 //
-//      bool operator<(const AddressEntry rhs) const
+//      bool operator<(const AddressEntry& rhs) const
+//          // Return 'true' if the address stored in the object is lower than
+//          // the address stored in 'rhs' and 'false' otherwise.  Note that
+//          // this is a member function for brevity, it only exists to
+//          // facilitate sorting 'AddressEntry' objects in a vector.
 //      {
-//          // Note that this is a member function for brevity, it only exists
-//          // to facilitate sorting 'AddressEntry' objects in a vector.
 //
 //          return d_funcAddress < rhs.d_funcAddress;
 //      }
 //  };
-//..
+//
 // Then, we define 'entries', a vector of address entries.  This will be
 // populated such that a given entry will contain function address '&funcN' and
 // index 'N'.  The elements will be sorted according to function address.
-//..
+//
 //  bsl::vector<AddressEntry> entries;
-//..
+//
 // Next, we define 'findIndex':
-//..
+//
 //  static int findIndex(const void *retAddress)
-//      // Find the index of the entry in the global vector 'entries'
-//      // corresponding to the specified 'retAddress'.
+//      // Return the index of the address entry whose function uses an
+//      // instruction located at specified 'retAddress'.  The behavior is
+//      // undefined unless 'retAddress' is the address of an instruction in
+//      // use by a function referred to by an address entry in 'entries'.
 //  {
 //      unsigned u = 0;
-//      while (u < entries.size()-1 &&
-//                                  retAddress >= entries[u+1].d_funcAddress) {
+//      while (u < entries.size()-1 && retAddress >=
+//                                                entries[u+1].d_funcAddress) {
 //          ++u;
 //      }
 //      assert(u < entries.size());
@@ -85,12 +91,12 @@ BDES_IDENT("$Id: $")
 //
 //      return ret;
 //  }
-//..
-// Then, we define a volatile global in calculations to discourange optimizers
-// from inlining.
-//..
+//
+// Then, we define a volatile global variable that we will use in calculation
+// to discourage compiler optimizers from inlining:
+//
 //  volatile unsigned volatileGlobal = 1;
-//..
+//
 // Next, we define a set of functions that will be called in a nested fashion
 // -- 'func5' calls 'func4' who calls 'fun3' and so on.  In each function, we
 // will perform some inconsequential instructions to prevent the compiler from
@@ -271,22 +277,22 @@ struct baesu_StackAddressUtil {
     static
     int getStackAddresses(void   **buffer,
                           int      maxFrames);
-        // Get an ordered sequence of return addresses from the current
-        // thread's function call stack and load them into the specified array
-        // 'buffer', which is at least the specified 'maxFrames' in length.  A
-        // return address is an address stored on the stack that points to the
-        // first instruction that will be executed after the called subroutine
-        // returns.  If there are more than 'maxFrames' frames on the stack,
-        // only the return addresses for the 'maxFrames' most recent routine
-        // calls are stored.  When this routine completes, 'buffer' will
-        // contain an ordered sequence of return addresses, sorted such that
-        // recent calls occur in the array before calls which took place before
-        // them.  Return the number of stack frames stored into 'buffer' on
-        // success, and a negative value otherwise.  The behavior is undefined
-        // unless 'maxFrames >= 0' and 'buffer' has room for at least
-        // 'maxFrames' addresses.  Note that this routine may fill 'buffer'
-        // with garbage if the stack is corrupt, or on Windows if some stack
-        // frames represent optimized routines.
+        // Get an sequence of return addresses from the current thread's
+        // function call stack, ordered from most recent call to least recent,
+        // and load them into the specified array '*buffer', which is at least
+        // the specified 'maxFrames' in length.  A return address is an address
+        // stored on the stack that points to the first instruction that will
+        // be executed after the called subroutine returns.  If there are more
+        // than 'maxFrames' frames on the stack, only the return addresses for
+        // the 'maxFrames' most recent routine calls are stored.  When this
+        // routine completes, 'buffer' will contain an ordered sequence of
+        // return addresses, sorted such that recent calls occur in the array
+        // before calls which took place before them.  Return the number of
+        // stack frames stored into 'buffer' on success, and a negative value
+        // otherwise.  The behavior is undefined unless 'maxFrames >= 0' and
+        // 'buffer' has room for at least 'maxFrames' addresses.  Note that
+        // this routine may fill 'buffer' with garbage if the stack is corrupt,
+        // or on Windows if some stack frames represent optimized routines.
 };
 
 }  // close namespace BloombergLP
