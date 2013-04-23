@@ -704,11 +704,13 @@ int main(int argc, char *argv[])
         const ::bsl::hash<const char *> C_STRING_HASH =
                                                    ::bsl::hash<const char *>();
 
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
         ASSERT(C_STRING_HASH(C_STRING_1) == C_STRING_HASH(C_STRING_2));
-#elif  defined(BSL_HASH_CSTRINGS_AS_POINTERS)
+#else
+#if defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
 #endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
 
 //#endif
       } break;
