@@ -146,6 +146,9 @@ struct AddressEntry {
 
     bool operator<(const AddressEntry rhs) const
     {
+        // Note that this is a member function for brevity, it only exists
+        // to facilitate sorting 'AddressEntry' objects in a vector.
+
         return d_funcAddress < rhs.d_funcAddress;
     }
 };
@@ -159,9 +162,8 @@ bsl::vector<AddressEntry> entries;
 // Next, we define 'findIndex':
 
 static int findIndex(const void *retAddress)
-    // Given the specfied 'retAddress' which should point to code within one of
-    // the functions described by the sorted vector 'entries', identify the
-    // index of the function containing that return address.
+    // Find the index of the entry in the global vector 'entries' corresponding
+    // to the specified 'retAddress'.
 {
     unsigned u = 0;
     while (u < entries.size()-1 && retAddress >= entries[u+1].d_funcAddress) {
@@ -179,15 +181,15 @@ static int findIndex(const void *retAddress)
     return ret;
 }
 
-// Have a volatile global in calculations to discourange optimizers from
-// inlining.
+// Then, we define a volatile global in calculations to discourange optimizers
+// from inlining.
 
 volatile unsigned volatileGlobal = 1;
 
-// Then, we define a chain of functions that will call each other and do some
-// random calculation to generate some code, and eventually call 'func1' which
-// will call 'getAddresses' and verify that the addresses returned correspond
-// to the functions we expect them to.
+// Next, we define a set of functions that will be called in a nested fashion
+// -- 'func5' calls 'func4' who calls 'fun3' and so on.  In each function, we
+// will perform some inconsequential instructions to prevent the compiler from
+// inlining the functions.
 //
 // Note that we know the 'if' conditions in these 5 subroutines never evaluate
 // to 'true', however, the optimizer cannot figure that out, and that will
@@ -240,10 +242,10 @@ static unsigned func6()
     }
 }
 
-// Next, we define the macro FUNC_ADDRESS, which will take as an arg a
+// Next, we define the macro FUNC_ADDRESS, which will take a parameter of
 // '&<function name>' and return a pointer to the actual beginning of the
 // function's code, which is a non-trivial and platform-dependent exercise.
-// (Note: this doesn't work on Windows for global routines).
+// Note: this doesn't work on Windows for global routines.
 
 #if   defined(BSLS_PLATFORM_OS_HPUX)
 # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])
@@ -253,8 +255,11 @@ static unsigned func6()
 # define FUNC_ADDRESS(p) ((void *) (p))
 #endif
 
-// Then, we define 'func1', which is the last of the chain of our functions
-// that is called, which will do most of our work.
+// Then, we define 'func1', the last function to be called in the chain of
+// nested function calls.  'func1' uses
+// 'baesu_StackAddressUtil::getStackAddresses' to get an ordered sequence of
+// return addresses from the current thread's function call stack and uses the
+// previously defined 'findIndex' function to verify those address are correct.
 
 unsigned func1()
     // Call 'getAddresses' and verify that the returned set of addresses

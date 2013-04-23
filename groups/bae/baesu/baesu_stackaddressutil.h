@@ -50,6 +50,9 @@ BDES_IDENT("$Id: $")
 //
 //      bool operator<(const AddressEntry rhs) const
 //      {
+//          // Note that this is a member function for brevity, it only exists
+//          // to facilitate sorting 'AddressEntry' objects in a vector.
+//
 //          return d_funcAddress < rhs.d_funcAddress;
 //      }
 //  };
@@ -63,9 +66,8 @@ BDES_IDENT("$Id: $")
 // Next, we define 'findIndex':
 //..
 //  static int findIndex(const void *retAddress)
-//      // Given the specfied 'retAddress' which should point to code within
-//      // one of the functions described by the sorted vector 'entries',
-//      // identify the index of the function containing that return address.
+//      // Find the index of the entry in the global vector 'entries'
+//      // corresponding to the specified 'retAddress'.
 //  {
 //      unsigned u = 0;
 //      while (u < entries.size()-1 &&
@@ -77,18 +79,22 @@ BDES_IDENT("$Id: $")
 //
 //      int ret = entries[u].d_index;
 //
+//      if (veryVerbose) {
+//          P_(retAddress) P_(entries[u].d_funcAddress) P(ret);
+//      }
+//
 //      return ret;
 //  }
 //..
-// Have a volatile global in calculations to discourange optimizers from
-// inlining.
+// Then, we define a volatile global in calculations to discourange optimizers
+// from inlining.
 //..
-//  volatile int volatileGlobal = 1;
+//  volatile unsigned volatileGlobal = 1;
 //..
-// Then, we define a chain of functions that will call each other and do some
-// random calculation to generate some code, and eventually call 'func1' which
-// will call 'getAddresses' and verify that the addresses returned correspond
-// to the functions we expect them to.
+// Next, we define a set of functions that will be called in a nested fashion
+// -- 'func5' calls 'func4' who calls 'fun3' and so on.  In each function, we
+// will perform some inconsequential instructions to prevent the compiler from
+// inlining the functions.
 //
 // Note that we know the 'if' conditions in these 5 subroutines never evaluate
 // to 'true', however, the optimizer cannot figure that out, and that will
@@ -141,10 +147,10 @@ BDES_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Next, we define the macro FUNC_ADDRESS, which will take as an arg a
+// Next, we define the macro FUNC_ADDRESS, which will take a parameter of
 // '&<function name>' and return a pointer to the actual beginning of the
 // function's code, which is a non-trivial and platform-dependent exercise.
-// (Note: this doesn't work on Windows for global routines).
+// Note: this doesn't work on Windows for global routines.
 //..
 //  #if   defined(BSLS_PLATFORM_OS_HPUX)
 //  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])
@@ -154,18 +160,20 @@ BDES_IDENT("$Id: $")
 //  # define FUNC_ADDRESS(p) ((void *) (p))
 //  #endif
 //..
-// Then, we define 'func1', which is the last of the chain of our functions
-// that is called, which will do most of our work.
+// Then, we define 'func1', the last function to be called in the chain of
+// nested function calls.  'func1' uses
+// 'baesu_StackAddressUtil::getStackAddresses' to get an ordered sequence of
+// return addresses from the current thread's function call stack and uses the
+// previously defined 'findIndex' function to verify those address are correct.
 //..
-//  int func1()
+//  unsigned func1()
 //      // Call 'getAddresses' and verify that the returned set of addresses
 //      // matches our expectations.
 //  {
-//..
-// Next, we populate and sort the 'entries' table, a sorted array of
-// 'AddressEntry' objects that will allow 'findIndex' to look up within which
-// function a given return address can be found.
-//..
+//      // Next, we populate and sort the 'entries' table, a sorted array of
+//      // 'AddressEntry' objects that will allow 'findIndex' to look up within
+//      // which function a given return address can be found.
+//
 //      entries.clear();
 //      entries.push_back(AddressEntry(0, 0));
 //      entries.push_back(AddressEntry(FUNC_ADDRESS(&func1), 1));
@@ -175,9 +183,9 @@ BDES_IDENT("$Id: $")
 //      entries.push_back(AddressEntry(FUNC_ADDRESS(&func5), 5));
 //      entries.push_back(AddressEntry(FUNC_ADDRESS(&func6), 6));
 //      bsl::sort(entries.begin(), entries.end());
-//..
-// Then, we obtain the stack addresses with 'getStackAddresses'.
-//..
+//
+//      // Then, we obtain the stack addresses with 'getStackAddresses'.
+//
 //      enum { BUFFER_LENGTH = 100 };
 //      void *buffer[BUFFER_LENGTH];
 //      bsl::memset(buffer, 0, sizeof(buffer));
@@ -189,14 +197,15 @@ BDES_IDENT("$Id: $")
 //      assert(0 != buffer[numAddresses-1]);
 //      assert(0 == buffer[numAddresses]);
 //..
-// Finally, we go through several of the first addresses returned in 'buffer'
-// and verify that each address corresponds to the routine we expect it to.
+// Finally, we go through several of the first addresses returned in
+// 'buffer' and verify that each address corresponds to the routine we
+// expect it to.
 //
 // Note that on some, but not all, platforms there is an extra 'narcissic'
-// frame describing 'getStackAddresses' itself at the beginning of 'buffer'.
-// By starting our iteration through 'buffer' at 'BAESU_IGNORE_FRAMES', we
-// guarantee that the first address we examine will be in 'func1' on all
-// platforms.
+// frame describing 'getStackAddresses' itself at the beginning of
+// 'buffer'.  By starting our iteration through 'buffer' at
+// 'BAESU_IGNORE_FRAMES', we guarantee that the first address we examine
+// will be in 'func1' on all platforms.
 //..
 //      int funcIdx  = 1;
 //      int stackIdx = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES;
@@ -205,8 +214,23 @@ BDES_IDENT("$Id: $")
 //          assert(funcIdx == findIndex(buffer[stackIdx]));
 //      }
 //
+//      if (testStatus || veryVerbose) {
+//          Q(Entries:);
+//          for (unsigned u = 0; u < entries.size(); ++u) {
+//              P_(u); P_((void *) entries[u].d_funcAddress);
+//              P(entries[u].d_index);
+//          }
+//
+//          Q(Stack:);
+//          for (int i = 0; i < numAddresses; ++i) {
+//              P_(i); P(buffer[i]);
+//          }
+//      }
+//
 //      return volatileGlobal;
 //  }
+//
+//  #undef FUNC_ADDRESS
 //
 //  int main()
 //  {
