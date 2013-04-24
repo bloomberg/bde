@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch(test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -440,7 +440,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -531,6 +531,61 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // PERMISSIONS TEST
+        //
+        // Concerns:
+        //   That the file permissions of a file created with 'open' are
+        //   as expected.  The behavior is not specified in the contract,
+        //   and we don't specify security information on Windows.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "PERMISSIONS TEST\n"
+                             "================\n";
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
+#else
+        typedef bdesu_FileUtil::FileDescriptor FD;
+
+        const char *testFile = "tmp.bdesu_fileutil_13.permissions.txt";
+
+        (void) bdesu_FileUtil::remove(testFile, false);
+
+        umask(0);
+
+        FD fd = Obj::open(testFile, true, false);
+        ASSERT(Obj::INVALID_FD != fd);
+
+        const char *str = "To be or not to be\n";
+        const int len   = bsl::strlen(str);
+        ASSERT(len == Obj::write(fd, str, len));
+
+        ASSERT(0 == Obj::close(fd));
+
+# ifdef BSLS_PLATFORM_OS_CYGWIN
+        struct stat info;
+        ASSERT(0 == ::stat(  testFile, &info));
+# else
+        struct stat64 info;
+        ASSERT(0 == ::stat64(testFile, &info));
+# endif
+        info.st_mode &= 0777;
+        const bool eq =
+                (S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH) == info.st_mode;
+        if (veryVerbose || !eq) {
+            bsl::ios_base::fmtflags flags = cout.flags();
+            cout << bsl::oct;
+            P_((S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH));
+            P(info.st_mode);
+            cout.flags(flags);
+        }
+        ASSERT(eq);
+
+        ASSERT(0 == bdesu_FileUtil::remove(testFile, false));
+#endif
       } break;
       case 12: {
         // --------------------------------------------------------------------

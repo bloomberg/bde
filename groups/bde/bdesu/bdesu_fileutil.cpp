@@ -225,10 +225,10 @@ bdesu_FileUtil::open(const char *pathName,
                                          : 0);
     DWORD creationInfo = existFlag ? OPEN_EXISTING : CREATE_ALWAYS;
 
-    // The file locking behavior for the opened file 
+    // The file locking behavior for the opened file
     // ('FILE_SHARE_READ | FILE_SHARE_WRITE') is chosen to match the posix
     // behavior for open (DRQS 30568749).
- 
+
     return CreateFile(pathName,
                       accessMode,
                       FILE_SHARE_READ | FILE_SHARE_WRITE, // do not lock
@@ -679,13 +679,13 @@ bdesu_FileUtil::open(const char *pathName,
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
     return ::open(  pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 #elif defined(BSLS_PLATFORM_OS_HPUX)
     return ::open64(pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 #else
     return open64(  pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 #endif
 }
 
