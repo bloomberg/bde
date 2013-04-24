@@ -1,5 +1,4 @@
 btemt_asyncchannel
-btemt_packedbigendian
 btemt_blobutil
 btemt_channeloutstreambuf
 btemt_channelpool
@@ -8,10 +7,12 @@ btemt_channelpoolconfiguration
 btemt_channelqueuepool
 btemt_channelstatus
 btemt_channeltype
+btemt_hostport
 btemt_internetaddress
 btemt_log
 btemt_message
 btemt_pack
+btemt_packedbigendian
 btemt_query
 btemt_querydispatcher
 btemt_querydispatcherconfiguration
@@ -21,6 +22,7 @@ btemt_queryrouter
 btemt_queryxferutil
 btemt_session
 btemt_sessionpool
+btemt_socks5connector
 btemt_socks5credentialsprovider
 btemt_socks5negotiator
 btemt_socks5sessionfactory

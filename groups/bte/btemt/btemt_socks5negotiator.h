@@ -28,44 +28,27 @@
 //      assert(result == Socks5Negotiator::SUCCESS);
 //  }
 //..
-// Now we will declare and define a SOCKS5 server to facilitate the server-side
-// of the SOCKS5 handshake.
+// Next we define the function that will invoke the negotiator on the
+// previously connected socket, using a specific name and password for
+// authentication.
 //..
-//  //TODO: Some long server declaration and implementation here...
+//  void negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
+//                 const btemt::HostPort&                 destination)
+//  {
+//      SocksConfiguration config;
+//      config.username() = "john.smith";
+//      config.password() = "PassWord123";
 //..
-// Now we will create a 'btemt::TestChannel' pair to simulate channel
-// communication.
+// Finally we will create a 'Socks5Negotiator' and start negotiation.
 //..
-//  TestChannelUtil::TestChannelPtr clientChannel;
-//  TestChannelUtil::TestChannelPtr serverChannel;
-//  TestChannelUtil::allocateChannelPair(&clientChannel, &serverChannel);
-//
-//..
-//  Now we will create a blob buffer factory for allocating new buffers.
-//..
-//  enum { BUFFER_SIZE = 32 };
-//  bcema_BlobBufferFactory bufferFactory(BUFFER_SIZE);
-//..
-//  Now we will create and start a SOCKS5 server.
-//..
-//  Socks5Server server(&serverChannel.ptr(),
-//                      &bufferFactory);
-//  server.start();
-//..
-// Now we will create 'btemt::SocksConfiguration' for client configuration.
-//..
-//  SocksConfiguration config;
-//  config.addr() = "127.0.0.1";
-//  config.port() = 80;
-//..
-// Now we will create a 'Socks5Negotiator' and start negotiation.
-//..
-//  Socks5Negotiator negotiator(clientChannel.ptr(),
-//                              config,
-//                              &socks5Callback,
-//                              &bufferFactory);
-//  negotiator.start();
-//..
+//      Socks5Negotiator negotiator(socket,
+//                                  config,
+//                                  &socks5Callback);
+//      negotiator.start(destination);
+
+#ifndef INCLUDED_BTEMT_HOSTPORT
+#include <btemt_hostport.h>
+#endif
 
 #ifndef INCLUDED_BTEMT_INTERNETADDRESS
 #include <btemt_internetaddress.h>
@@ -112,9 +95,9 @@ namespace btemt {
                         // ======================
 
 class Socks5Negotiator {
-    // Class documentation goes here
+    // Class to connect to a TCP destination using a SOCKS5 connection.
 
-   public:
+  public:
     // PUBLIC TYPES
     enum Status {
         SUCCESS           = 0
@@ -132,11 +115,9 @@ class Socks5Negotiator {
     typedef bdef_Function<
                   void(*)(Status, Socks5Negotiator*)> Socks5NegotiatorCallback;
 
-
   private:
   
     // DATA
-    bslma::Allocator           *d_allocator_p;         // memory (held)
     btemt_AsyncChannel        *d_channel_p;           // channel (held)
     bsl::string                d_host;                // destination address
     int                        d_port;                // destination port
@@ -146,9 +127,9 @@ class Socks5Negotiator {
     bcema_BlobBufferFactory   *d_blobBufferFactory_p; // buffer factory (held)
     ConnectionType             d_connectionType;
     InternetAddress            d_udpAssociateAddress;
-    Socks5CredentialsProvider *d_credentialsProvider_p;
     bool                       d_acquiringCredentials;
     SocksConfiguration         d_configuration;
+    bslma::Allocator          *d_allocator_p;         // memory (held)
 
     // PRIVATE MANIPULATORS
     int sendMethodRequest();
@@ -201,33 +182,31 @@ class Socks5Negotiator {
 
   public:
     // CREATORS
-    Socks5Negotiator(btemt_AsyncChannel              *channel,
-                     const SocksConfiguration&        configuration,
-                     const Socks5NegotiatorCallback&  callback,
-                     Socks5CredentialsProvider       *credentialsProvider,
-                     bcema_BlobBufferFactory         *blobBufferFactory,
-                     ConnectionType                   connectionType,
-                     bslma::Allocator                 *allocator = 0);
+    Socks5Negotiator(const SocksConfiguration&              configuration,
+                     const Socks5NegotiatorCallback&        callback,
+                     bslma::Allocator                       *allocator = 0);
         // Create a 'Socks5Negotiator' that can negotiate a client-side SOCKS5
-        // handshake on the specified 'channel'.  The specified 'configuration'
-        // will be used to establish and negotiate the SOCKS5 connection.
-        // The negotiator will try to negotiate a SOCKS5 connection before
-        // calling the specified 'callback'.  Use the specified
-        // 'blobBufferFactory' for blob creation in this negotiator.
-        // 'blobBufferFactory' *must* outlive this negotiator. Use the
-        // optionally specified 'allocator' to supply memory.
+        // handshake using the specified 'configuration' to authenticate the
+        // SOCKS5 connection. The negotiator will try to negotiate a SOCKS5
+        // connection before calling the specified 'callback'. If the
+        // optionally specified 'allocator' is nott zero use it to allocate
+        // memory, otherwise use the default allocator.
 
     ~Socks5Negotiator();
         // Destroy this object.
 
     // MANIPULATORS
-    void start();
-        // Start SOCKS5 client-side negotiation.
+    void start(bteso_StreamSocket<bteso_IPv4Address> *socket,
+               btemt::HostPort destination);
+        // Start SOCKS5 client-side negotiation on the specified 'socket' to
+        // connect to the specified 'destination'.
 
     const InternetAddress& udpAssociateAddress() const;
 
     void setCredentials(const bdeut_StringRef& username, 
                         const bdeut_StringRef& password);
+        // Set user name and password to authenticate the client to the SOCKS5
+        // server.
 
     // ACCESSORS
     const SocksConfiguration& configuration() const;
