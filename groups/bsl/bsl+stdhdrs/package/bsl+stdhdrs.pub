@@ -9,6 +9,8 @@ set             set.SUNWCCh
 sstream         sstream.SUNWCCh
 stack           stack.SUNWCCh
 string          string.SUNWCCh
+unordered_map   unordered_map.SUNWCCh
+unordered_set   unordered_set.SUNWCCh
 vector          vector.SUNWCCh
 
 # Non-standard container headers
