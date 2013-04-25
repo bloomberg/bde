@@ -1,7 +1,6 @@
 {
   'variables': {
     'bsl+bslhdrs_sources': [
-
     ],
     'bsl+bslhdrs_tests': [
 
