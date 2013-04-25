@@ -1,7 +1,7 @@
-diff -ru bde.old/groups/bsl/bslalg/bslalg.gyp /groups/bsl/bslalg/bslalg.gyp
---- bde.old/groups/bsl/bslalg/bslalg.gyp	2012-10-05 13:13:21.772312000 -0400
-+++ bde/groups/bsl/bslalg/bslalg.gyp	2012-10-05 11:38:06.904064000 -0400
-@@ -241,6 +241,11 @@
+diff -ru a/groups/bsl/bslalg/bslalg.gyp b/groups/bsl/bslalg/bslalg.gyp
+--- a/groups/bsl/bslalg/bslalg.gyp
++++ b/groups/bsl/bslalg/bslalg.gyp
+@@ -243,6 +243,11 @@
                          '<@(bslalg_pkgdeps)', 'bslalg' ],
        'include_dirs': [ '.' ],
        'sources': [ 'bslalg_constructorproxy.t.cpp' ],
@@ -13,9 +13,29 @@ diff -ru bde.old/groups/bsl/bslalg/bslalg.gyp /groups/bsl/bslalg/bslalg.gyp
      },
      {
        'target_name': 'bslalg_containerbase.t',
-diff -ru bde.old/groups/bsl/bsl_deps.gyp bde/groups/bsl/bsl_deps.gyp
---- bde.old/groups/bsl/bsl_deps.gyp	2012-10-05 13:13:21.811300000 -0400
-+++ bde/groups/bsl/bsl_deps.gyp	2012-10-05 11:38:06.906046000 -0400
+diff -ru a/groups/bsl/bsl+bslhdrs/bsl+bslhdrs.gyp b/groups/bsl/bsl+bslhdrs/bsl+bslhdrs.gyp
+--- a/groups/bsl/bsl+bslhdrs/bsl+bslhdrs.gyp
++++ b/groups/bsl/bsl+bslhdrs/bsl+bslhdrs.gyp
+@@ -1,7 +1,6 @@
+ {
+   'variables': {
+     'bsl+bslhdrs_sources': [
+-      'bslhdrs_dummy.cpp',
+     ],
+     'bsl+bslhdrs_tests': [
+ 
+@@ -51,7 +50,7 @@
+     },
+     {
+       'target_name': 'bsl+bslhdrs',
+-      'type': '<(library)',
++      'type': 'none',
+       'dependencies': [ '../bsl_deps.gyp:bsl_grpdeps',
+                         '<@(bsl+bslhdrs_pkgdeps)',
+                         'bsl+bslhdrs_sources', ],
+diff -ru a/groups/bsl/bsl_deps.gyp b/groups/bsl/bsl_deps.gyp
+--- a/groups/bsl/bsl_deps.gyp
++++ b/groups/bsl/bsl_deps.gyp
 @@ -6,6 +6,10 @@
        'dependencies': [
  
@@ -27,10 +47,10 @@ diff -ru bde.old/groups/bsl/bsl_deps.gyp bde/groups/bsl/bsl_deps.gyp
      },
    ],
  }
-diff -ru bde.old/groups/bsl/bsl.gyp bde/groups/bsl/bsl.gyp
---- bde.old/groups/bsl/bsl.gyp	2012-10-05 13:13:21.810306000 -0400
-+++ bde/groups/bsl/bsl.gyp	2012-10-05 11:38:06.908043000 -0400
-@@ -352,8 +352,17 @@
+diff -ru a/groups/bsl/bsl.gyp b/groups/bsl/bsl.gyp
+--- a/groups/bsl/bsl.gyp
++++ b/groups/bsl/bsl.gyp
+@@ -336,8 +336,17 @@
                },
              ],
              'all_dependent_settings': {
@@ -49,10 +69,10 @@ diff -ru bde.old/groups/bsl/bsl.gyp bde/groups/bsl/bsl.gyp
          },
          {
              'target_name': 'bsl_tests_build',
-diff -ru bde.old/groups/bsl/bslma/bslma.gyp bde/groups/bsl/bslma/bslma.gyp
---- bde.old/groups/bsl/bslma/bslma.gyp	2012-10-05 13:13:21.786295000 -0400
-+++ bde/groups/bsl/bslma/bslma.gyp	2012-10-05 12:44:27.667469000 -0400
-@@ -213,6 +213,10 @@
+diff -ru a/groups/bsl/bslma/bslma.gyp b/groups/bsl/bslma/bslma.gyp
+--- a/groups/bsl/bslma/bslma.gyp
++++ b/groups/bsl/bslma/bslma.gyp
+@@ -223,6 +223,10 @@
                          '<@(bslma_pkgdeps)', 'bslma' ],
        'include_dirs': [ '.' ],
        'sources': [ 'bslma_mallocfreeallocator.t.cpp' ],
@@ -62,8 +82,8 @@ diff -ru bde.old/groups/bsl/bslma/bslma.gyp bde/groups/bsl/bslma/bslma.gyp
 +      ],
      },
      {
-       'target_name': 'bslma_managedallocator.t',
-@@ -229,6 +233,10 @@
+       'target_name': 'bslma_newdeleteallocator.t',
+@@ -231,6 +235,10 @@
                          '<@(bslma_pkgdeps)', 'bslma' ],
        'include_dirs': [ '.' ],
        'sources': [ 'bslma_newdeleteallocator.t.cpp' ],
@@ -74,7 +94,7 @@ diff -ru bde.old/groups/bsl/bslma/bslma.gyp bde/groups/bsl/bslma/bslma.gyp
      },
      {
        'target_name': 'bslma_rawdeleterguard.t',
-@@ -253,6 +261,10 @@
+@@ -255,6 +263,10 @@
                          '<@(bslma_pkgdeps)', 'bslma' ],
        'include_dirs': [ '.' ],
        'sources': [ 'bslma_testallocator.t.cpp' ],
@@ -85,10 +105,10 @@ diff -ru bde.old/groups/bsl/bslma/bslma.gyp bde/groups/bsl/bslma/bslma.gyp
      },
      {
        'target_name': 'bslma_testallocatorexception.t',
-diff -ru bde.old/groups/bsl/bsls/bsls.gyp bde/groups/bsl/bsls/bsls.gyp
---- bde.old/groups/bsl/bsls/bsls.gyp	2012-10-05 13:13:21.795305000 -0400
-+++ bde/groups/bsl/bsls/bsls.gyp	2012-10-05 11:38:06.912051000 -0400
-@@ -186,6 +186,11 @@
+diff -ru a/groups/bsl/bsls/bsls.gyp b/groups/bsl/bsls/bsls.gyp
+--- a/groups/bsl/bsls/bsls.gyp
++++ b/groups/bsl/bsls/bsls.gyp
+@@ -188,6 +188,11 @@
        # Mac OS X empty LD_DYLIB_INSTALL_NAME causes executable and shared
        # libraries linking against dylib to store same path for use at runtime
        'xcode_settings': { 'LD_DYLIB_INSTALL_NAME': '' },
@@ -100,7 +120,7 @@ diff -ru bde.old/groups/bsl/bsls/bsls.gyp bde/groups/bsl/bsls/bsls.gyp
      },
  
      {
-@@ -419,6 +424,11 @@
+@@ -421,6 +426,11 @@
                          '<@(bsls_pkgdeps)', 'bsls' ],
        'include_dirs': [ '.' ],
        'sources': [ 'bsls_byteorder.t.cpp' ],
@@ -112,9 +132,9 @@ diff -ru bde.old/groups/bsl/bsls/bsls.gyp bde/groups/bsl/bsls/bsls.gyp
      },
      {
        'target_name': 'bsls_compilerfeatures.t',
-diff -ru bde.old/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp bde/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp
---- bde.old/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp	2012-10-05 13:13:21.767318000 -0400
-+++ bde/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp	2012-10-05 11:38:06.914054000 -0400
+diff -ru a/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp b/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp
+--- a/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp
++++ b/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp
 @@ -21,8 +21,13 @@
        'type': 'none',
        'direct_dependent_settings': {
@@ -130,7 +150,7 @@ diff -ru bde.old/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp bde/groups/bsl/bsl+stdhd
      },
      {
        'target_name': 'bsl+stdhdrs_tests_build',
-@@ -55,7 +60,12 @@
+@@ -57,7 +62,12 @@
                          '<@(bsl+stdhdrs_pkgdeps)',
                          'bsl+stdhdrs_sources', ],
        'export_dependent_settings': [ '<@(bsl+stdhdrs_pkgdeps)' ],
