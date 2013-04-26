@@ -1531,12 +1531,12 @@ class btemt_ChannelPool {
         // (if 'type' is 'SHUTDOWN_RECEIVE'), will fail.
 
     int stopAndRemoveAllChannels();
-        // Terminate all worker threads and remove all communication channels
-        // in this channel pool closing both their read and write parts.
-        // Return 0 on success, and a non-zero value otherwise.  Note that
-        // shutting down a channel will deallocate all system resources
-        // associated with 'channel' and subsequent references to any channel
-        // resource will result in undefined behavior.
+        // Terminate all worker threads, stop all listening sockets, and remove
+        // all communication channels in this channel pool, closing both their
+        // read and write parts.  Return 0 on success, and a non-zero value
+        // otherwise.  Note that shutting down a channel will deallocate all
+        // system resources associated with 'channel' and subsequent references
+        // to any channel resource will result in undefined behavior.
 
     int setWriteCacheHiWatermark(int channelId, int numBytes);
         // Set the write-cache high-watermark for the specified 'channelId' to
