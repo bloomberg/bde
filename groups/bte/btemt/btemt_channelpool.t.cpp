@@ -8611,9 +8611,6 @@ void TestDriver::testCase43()
         mX.totalBytesRead(&numRead);
         mX.totalBytesWritten(&numWritten);
 
-        P(numRead);
-        P(numWritten);
-
         ASSERT(!mX.stopAndRemoveAllChannels());
 
         ASSERT(0 == mX.numChannels());
