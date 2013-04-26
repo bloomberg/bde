@@ -695,6 +695,146 @@ void blobBasedReadCb(int             *needed,
 
 }
 
+//-----------------------------------------------------------------------------
+// CASE 43
+//-----------------------------------------------------------------------------
+
+namespace CASE43 {
+
+bcemt_Mutex        mapMutex;
+bsl::map<int, int> sourceIdToChannelIdMap;
+typedef bsl::map<int, int>::iterator MapIter;
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              sourceId,
+                    int              state,
+                    void            *arg,
+                    int             *id,
+                    bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << sourceId
+                  << " State: " << state << bsl::endl;
+    }
+
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+        {
+            bcemt_LockGuard<bcemt_Mutex> guard(&mapMutex);
+            sourceIdToChannelIdMap[sourceId] = channelId;
+        }
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg,
+                     bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+    *needed = 1;
+
+    msg->removeAll();
+}
+
+const int NT = 5;
+
+bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *> clientSockets(NT);
+bteso_InetStreamSocketFactory<bteso_IPv4Address>     factory;
+
+const int NUM_BYTES = 1024;
+
+struct ConnectData {
+    int               d_index;
+    int               d_numBytes;
+    bteso_IPv4Address d_serverAddress;
+};
+
+void *connectFunction(void *args)
+{
+    ConnectData             data      = *(const ConnectData *) args;
+    const int               INDEX     = data.d_index;
+    const int               NUM_BYTES = data.d_numBytes;
+    const bteso_IPv4Address ADDRESS   = data.d_serverAddress;
+
+    clientSockets[INDEX] = factory.allocate();
+
+    ASSERT(0 == clientSockets[INDEX]->connect(ADDRESS));
+
+    char buffer[NUM_BYTES];
+
+    int numRemaining = NUM_BYTES;
+    do {
+        int rc = clientSockets[INDEX]->read(buffer, numRemaining);
+        if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+            numRemaining -= rc;
+        }
+
+        rc = clientSockets[INDEX]->write(buffer, numRemaining);
+
+        bcemt_ThreadUtil::microSleep(1000 , 0);
+    } while (numRemaining > 0);
+    return 0;
+}
+
+bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *> serverSockets(NT);
+
+struct ListenData {
+    int d_index;
+    int d_numBytes;
+};
+
+void *listenFunction(void *args)
+{
+    ListenData data      = *(const ListenData *) args;
+    const int  INDEX     = data.d_index;
+    const int  NUM_BYTES = data.d_numBytes;
+
+    serverSockets[INDEX] = factory.allocate();
+
+    ASSERT(0 == serverSockets[INDEX]->bind(bteso_IPv4Address()));
+    ASSERT(0 == serverSockets[INDEX]->listen(1));
+
+    bteso_StreamSocket<bteso_IPv4Address> *client;
+    ASSERT(!serverSockets[INDEX]->accept(&client));
+    ASSERT(0 == client->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE));
+
+    char buffer[NUM_BYTES];
+
+    int numRemaining = NUM_BYTES;
+    do {
+        int rc = client->read(buffer, numRemaining);
+        if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+            numRemaining -= rc;
+        }
+
+        rc = client->write(buffer, numRemaining);
+
+        bcemt_ThreadUtil::microSleep(1000 , 0);
+    } while (numRemaining > 0);
+    return 0;
+}
+
+}
+
 
 //-----------------------------------------------------------------------------
 // CASE 42
@@ -8181,6 +8321,10 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase43();
+        // Test that 'stopAndRemoveAllChannels' correctly releases all
+        // resources held by channels.
+
     static void testCase42();
         // Test that 'BTEMT_WRITE_CACHE_LOWWAT' is invoked after the
         // 'enqueueWatermark' is exceeded on the 'write'.
@@ -8322,6 +8466,159 @@ class TestDriver {
                                // --------------
                                // TEST APPARATUS
                                // --------------
+
+void TestDriver::testCase43()
+{
+        // --------------------------------------------------------------------
+        // Testing 'stopAndRemoveAllChannels'
+        //
+        // Concerns:
+        //: 1 All running worker threads are stopped after the call.
+        //:
+        //: 2 Any resources associated with any channel is released.
+        //
+        // Plan:
+        //: 1 Create a channel pool object, mX.
+        //:
+        //: 2 Open a pre-defined number of listening sockets in mX.
+        //:
+        //: 3 Create a number of threads that each connect to one of the
+        //:   listening sockets in mX.
+        //:
+        //: 4 Create a number of threads that each listen on a socket.
+        //:
+        //: 5 Open a channel in mX by connecting a listening sockets created
+        //:   in step 4.
+        //:
+        //: 6 Write large amount of data through mX across all the open
+        //:   channels.
+        //:
+        //: 7 Invoke 'stopAndRemoveAllChannels' and confirm that no channels
+        //:   or threads are outstanding.
+        //:
+        //
+        // Testing:
+        //   int stopAndRemoveAllChannels();
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING 'stopAndRemoveAllChannels'"
+                 << "\n=================================="
+                 << endl;
+
+        using namespace CASE43;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(NT);
+        config.setWriteCacheWatermarks(0, 1024 * 1024 * 1024);
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        bcemt_Barrier   channelCbBarrier(NT + 1);
+        int             channelId;
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                         _1, _2, _3, _4,
+                                                         &channelId,
+                                                         &channelCbBarrier));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        bcemt_Barrier dataCbBarrier(NT + 1);
+
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                     bdef_BindUtil::bind(&blobBasedReadCb,
+                                                         _1, _2, _3, _4,
+                                                         &dataCbBarrier));
+
+        Obj mX(channelCb, dataCb, poolCb, config);  const Obj& X = mX;
+
+        ASSERT(0 == mX.start());
+
+        const int SERVER_ID = 100;
+
+        for (int i = 0; i < NT; ++i) {
+            ASSERT(0 == mX.listen(0, 1, SERVER_ID + i));
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 2);
+
+        bcemt_ThreadUtil::Handle connectThreads[NT];
+        ConnectData              connectData[NT];
+        const int                SIZE = 1024 * 1024; // 1 MB
+
+        for (int i = 0; i < NT; ++i) {
+            connectData[i].d_index    = i;
+            connectData[i].d_numBytes = SIZE;
+            ASSERT(0 == mX.getServerAddress(&connectData[i].d_serverAddress,
+                                            SERVER_ID + i));
+            ASSERT(0 == bcemt_ThreadUtil::create(&connectThreads[i],
+                                                 &connectFunction,
+                                                 (void *) &connectData[i]));
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 2);
+
+        bcemt_ThreadUtil::Handle listenThreads[NT];
+        ListenData               listenData[NT];
+        for (int i = 0; i < NT; ++i) {
+            listenData[i].d_index    = i;
+            listenData[i].d_numBytes = SIZE;
+
+            ASSERT(0 == bcemt_ThreadUtil::create(&listenThreads[i],
+                                                 &listenFunction,
+                                                 (void *) &listenData[i]));
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 2);
+
+        const int CLIENT_ID = 200;
+
+        for (int i = 0; i < NT; ++i) {
+            bteso_IPv4Address serverAddr;
+            ASSERT(0 == serverSockets[i]->localAddress(&serverAddr));
+
+            ASSERT(0 == mX.connect(serverAddr,
+                                   10,
+                                   bdet_TimeInterval(1),
+                                   CLIENT_ID + i));
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 2);
+
+        bcema_PooledBlobBufferFactory f(SIZE);
+        bcema_Blob                    b(&f);
+        b.setLength(SIZE);
+
+        mapMutex.lock();
+        for (int i = 0; i < NT; ++i) {
+            MapIter iter = sourceIdToChannelIdMap.find(SERVER_ID + i);
+            ASSERT(iter != sourceIdToChannelIdMap.end());
+            ASSERT(0 == mX.write(iter->second, b));
+
+            iter = sourceIdToChannelIdMap.find(CLIENT_ID + i);
+            ASSERT(iter != sourceIdToChannelIdMap.end());
+            ASSERT(0 == mX.write(iter->second, b));
+        }
+        mapMutex.unlock();
+
+        ASSERT(0 != mX.numChannels());
+        ASSERT(0 != mX.numThreads());
+
+        bsls::Types::Int64 numRead = 0, numWritten = 0;
+        mX.totalBytesRead(&numRead);
+        mX.totalBytesWritten(&numWritten);
+
+        P(numRead);
+        P(numWritten);
+
+        ASSERT(!mX.stopAndRemoveAllChannels());
+
+        ASSERT(0 == mX.numChannels());
+        ASSERT(0 == mX.numThreads());
+}
 
 void TestDriver::testCase42()
 {
@@ -16135,6 +16432,7 @@ int main(int argc, char **argv)
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
+      CASE(43);
       CASE(42);
       CASE(41);
       CASE(40);

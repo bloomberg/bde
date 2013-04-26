@@ -3489,27 +3489,9 @@ btemt_ChannelPool::btemt_ChannelPool(
 
 btemt_ChannelPool::~btemt_ChannelPool()
 {
-    stop();
     d_managers[0]->deregisterTimer(d_metricsTimerId);
 
-    // Deallocate channels.
-
-    d_channels.removeAll();
-
-    // Deallocate pending connecting sockets.
-
-    ConnectorMap::iterator cBegin = d_connectors.begin(),
-                           cEnd   = d_connectors.end();
-    for (ConnectorMap::iterator cIter = cBegin; cIter != cEnd; ++cIter) {
-        if (cIter->second.d_socket_p) {
-            d_factory.deallocate(cIter->second.d_socket_p);
-        }
-        cIter->second.d_socket_p = 0;
-    }
-
-    // Deallocate servers.
-
-    d_acceptors.clear();
+    stopAndRemoveAllChannels();
 
     // Deallocate event managers.
 
@@ -3952,6 +3934,39 @@ int btemt_ChannelPool::shutdown(int                      channelId,
     channel->notifyChannelDown(channelHandle, type, false);
 
     return SUCCESS;
+}
+
+int btemt_ChannelPool::stopAndRemoveAllChannels()
+{
+    stop();
+
+    // Deallocate channels.
+
+    d_channels.removeAll();
+
+    // Deallocate pending connecting sockets.
+
+    ConnectorMap::iterator cBegin = d_connectors.begin(),
+                           cEnd   = d_connectors.end();
+    for (ConnectorMap::iterator cIter = cBegin; cIter != cEnd; ++cIter) {
+        if (cIter->second.d_socket_p) {
+            d_factory.deallocate(cIter->second.d_socket_p);
+        }
+        cIter->second.d_socket_p = 0;
+    }
+
+    // Deallocate servers.
+
+    d_acceptors.clear();
+
+    // Deregister all events from the event managers.
+
+    int numEventManagers = d_managers.size();
+    for (int i = 0; i < numEventManagers; ++i) {
+        d_managers[i]->deregisterAll();
+    }
+
+    return 0;
 }
 
 int btemt_ChannelPool::setWriteCacheHiWatermark(int channelId, int numBytes)
