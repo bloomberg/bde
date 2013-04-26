@@ -36,12 +36,12 @@ using namespace BloombergLP;
 // to test.  'BSLS_THROW' and 'BSLS_RETHROW' invoke the 'bsls_assert'
 // assert-handler, unfortunately as this is in a non-exception build we cannot
 // throw an exception from the assert handler, and
-// 'bsls_Assert::invokeHandler' is marked 'noreturn' so we cannot simply define
-// an assert-handler that returns.  Instead, this component defines an
+// 'bsls::Assert::invokeHandler' is marked 'noreturn' so we cannot simply
+// define an assert-handler that returns.  Instead, this component defines an
 // assert-handler function that records its arguments and aborts, and also
 // defines 'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT' macros that use
-// set-jump and long-jump to recover from a potential abort, and then
-// verify whether an abort occurred.
+// set-jump and long-jump to recover from a potential abort, and then verify
+// whether an abort occurred.
 //-----------------------------------------------------------------------------
 // [ 3] BSLS_TRY
 // [ 4] BSLS_THROW
@@ -550,7 +550,7 @@ int main(int argc, char *argv[])
             printf("Verify BSLS_RETHROW calls assert in non-exc\n");
         }
         {
-            bsls_Assert::setFailureHandler(assertHandler);
+            bsls::Assert::setFailureHandler(assertHandler);
             BEGIN_ABORT_TEST {
                 BSLS_RETHROW;
             } END_ABORT_TEST_AND_ASSERT(ABORT_OCCURRED);
@@ -686,7 +686,7 @@ int main(int argc, char *argv[])
             printf("Verify BSLS_THROW calls the assert-handler in non-exc\n");
         }
         {
-            bsls_Assert::setFailureHandler(assertHandler);
+            bsls::Assert::setFailureHandler(assertHandler);
             BEGIN_ABORT_TEST {
                 BSLS_THROW(TestExceptionClass());
             } END_ABORT_TEST_AND_ASSERT(ABORT_OCCURRED);
