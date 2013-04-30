@@ -217,11 +217,11 @@ BDES_IDENT("$Id: $")
 //
 //  void traceExample3()
 //  {
-//      // Now, within 'traceExample3', we output the stack addresses in
-//      // hex by streaming the function pointer 'hexStackTrace' to the
-//      // ostream:
-//
-//      *out_p << baesu_StackTraceUtil::hexStackTrace << endl;
+//..
+// Now, within 'traceExample3', we output the stack addresses in hex by
+// streaming the function pointer 'hexStackTrace' to the ostream:
+//..
+//      cout << baesu_StackTraceUtil::hexStackTrace << endl;
 //  }
 //..
 // Finally, the output appears as a collection of hex values streamed out
@@ -259,7 +259,7 @@ struct baesu_StackTraceUtil {
     static
     bsl::ostream& hexStackTrace(bsl::ostream &stream);
         // Write to the specified 'stream' the stack addresses from a stack
-        // trace of the current thread in hex from top to bottom and return
+        // trace of the current thread, in hex from top to bottom, and return
         // 'stream'.
 
     static
@@ -333,18 +333,18 @@ struct baesu_StackTraceUtil {
                                  int               additionalIgnoreFrames = 0,
                                  bslma::Allocator *allocator = 0);
         // Write to the specified 'stream' the stack addresses from a stack
-        // trace of the current thread in hex from top to bottom and return
-        // 'stream', where the optionally specified 'delimiter' is to be
-        // written between stack addresses, where the optionally specified
-        // 'maxFrames' is the upper limit of the number of frames to obtain,
-        // where a negative or unspecified value will be interpreted as a large
-        // finite default value, and the optionally specified
-        // 'additionalIgnoreFrames' is to be added to the number of frames from
-        // the stack top to be ignored and not printed.  Optionally specify
-        // 'allocator' to be used for temporary storage, if none is specified,
-        // a locally created heap bypass allocator will be used.  The behavior
-        // is undefined unless 'delimiter != 0' and
-        // 'additionalIgnoreFrames >= 0'.
+        // trace of the current thread, in hex from top to bottom, and return
+        // 'stream'.  Optionally specify 'delimiter', which is to be written
+        // between stack addresses.  If 'delimiter is not specified, the
+        // addresses are separated by a space.  Optionally specify 'maxFrames',
+        // the upper limit of the number of frames to obtain, where a negative
+        // or unspecified value will be interpreted as a large finite default
+        // value.  Optionally specify 'additionalIgnoreFrames' to be added to
+        // the number of frames from the stack top to be ignored and not
+        // printed.  Optionally specify 'allocator' to be used for temporary
+        // storage; if none is specified, a locally created heap bypass
+        // allocator will be used.  The behavior is undefined unless
+        // 'delimiter != 0' and 'additionalIgnoreFrames >= 0'.
 };
 
 }  // close namespace BloombergLP

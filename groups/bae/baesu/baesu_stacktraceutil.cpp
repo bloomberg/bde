@@ -239,16 +239,14 @@ bsl::ostream& baesu_StackTraceUtil::printHexStackTrace(
                                       int               additionalIgnoreFrames,
                                       bslma::Allocator *allocator)
 {
+    BSLS_ASSERT(0 != delimiter);
+
 #if defined(BSLS_PLATFORM_OS_CYGWIN)
     return stream;
 #else
     enum {
         DEFAULT_MAX_FRAMES = 1024,
     };
-
-    if (!delimiter) {
-        delimiter = ' ';
-    }
 
     if (maxFrames < 0) {
         maxFrames = DEFAULT_MAX_FRAMES;
