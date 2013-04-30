@@ -40,7 +40,7 @@ using bsl::endl;
 // after the advance the next token and the data value is as expected.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] baejsn_Tokenizer(bslma_Allocator *bA = 0);
+// [ 2] baejsn_Tokenizer(bslma::Allocator *bA = 0);
 // [ 2] ~baejsn_Tokenizer();
 //
 // MANIPULATORS
@@ -179,8 +179,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator          globalAllocator("global", veryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 12: {

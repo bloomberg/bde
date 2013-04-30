@@ -99,7 +99,7 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dladdr> Obj;
 typedef baesu_StackTraceFrame                                        Frame;
-typedef bsls_Types::UintPtr                                          UintPtr;
+typedef bsls::Types::UintPtr                                         UintPtr;
 
 //=============================================================================
 // GLOBAL HELPER VARIABLES FOR TESTING
@@ -180,7 +180,7 @@ int funcStaticInlineOne(int i)
 }
 
 static
-const void *addFixedOffset(bsls_Types::UintPtr funcAddress)
+const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
     // Given a function pointer stored in a 'UintPtr', add an offset to the
     // pointer and return it as a 'const void *'.
 {
@@ -251,14 +251,14 @@ const char *ng(const char *str)
     return str ? str : "(null)";
 }
 
-static bsls_Types::Uint64 bigRandSeed = 0;
-static const bsls_Types::Uint64 randA = 6364136223846793005ULL;
-static const bsls_Types::Uint64 randC = 1442695040888963407ULL;
+static bsls::Types::Uint64 bigRandSeed = 0;
+static const bsls::Types::Uint64 randA = 6364136223846793005ULL;
+static const bsls::Types::Uint64 randC = 1442695040888963407ULL;
 
 static
 UintPtr bigRand()
 {
-    typedef bsls_Types::Uint64 Uint64;
+    typedef bsls::Types::Uint64 Uint64;
 
     Uint64 next = randA * bigRandSeed + randC;
     UintPtr lowBits = next >> 32;
@@ -324,8 +324,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
       case 3: {
@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Invalid Input Test\n"
                              "==================\n";
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
 
         baesu_StackTrace stackTrace(&ta);
         stuffRandomAddresses(&stackTrace);
@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
         // a shared library.  We'll leave the testing of symbols in shared
         // libraries to 'baesu_stacktraceutil.t.cpp.
 
-        typedef bsls_Types::UintPtr UintPtr;
+        typedef bsls::Types::UintPtr UintPtr;
 
         for (int ti = 0; ti < 2; ++ti) {
             const bool demangle = ti;

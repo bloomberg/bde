@@ -38,10 +38,10 @@
 //
 // CPU %             BAEA_CPU_UTIL        Sum of User CPU % and System CPU %.
 //
-// Resident Size     BAEA_RESIDENT_SIZE   Number of mega-bytes of physical 
+// Resident Size     BAEA_RESIDENT_SIZE   Number of mega-bytes of physical
 //                                        memory used by the process.
 //
-// Virtual Size      BAEA_VIRTUAL_SIZE    The size of the heap, in 
+// Virtual Size      BAEA_VIRTUAL_SIZE    The size of the heap, in
 //                                        mega-bytes. This value does not
 //                                        include the size of the address
 //                                        space mapped to files (anonymous or
@@ -185,7 +185,7 @@ class baea_PerformanceMonitor {
     // PRIVATE TYPES
 
     // Defines a type alias for the operating system type discovered by the
-    // 'bsls_platform' component.  This type alias is used to specifically
+    // 'bsls::platform' component.  This type alias is used to specifically
     // select a particular template specialization of the 'Collector' template.
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
@@ -263,7 +263,7 @@ typedef bsls::Platform::OsHpUx OsType;
         BAEA_CPU_UTIL,          // weighted CPU % (user + system)
         BAEA_CPU_UTIL_USER,     // weighted user CPU %
         BAEA_CPU_UTIL_SYSTEM,   // weighted system CPU %
-        BAEA_RESIDENT_SIZE,     // number of MBs of physical memory 
+        BAEA_RESIDENT_SIZE,     // number of MBs of physical memory
         BAEA_NUM_THREADS,       // number of threads
         BAEA_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
         BAEA_VIRTUAL_SIZE,      // number of MBs in the heap

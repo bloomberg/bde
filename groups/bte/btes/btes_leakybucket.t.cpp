@@ -44,7 +44,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [17] static bdet_TimeInterval calculateTimeWindow(capacity, drainRate);
-// [16] static bsls_Types::Uint64 calculateCapacity(drainRate, timeWindow);
+// [16] static bsls::Types::Uint64 calculateCapacity(drainRate, timeWindow);
 // [14] calculateDrainTime(numOfUnits, drainRate, ceilFlag);
 //
 // CREATORS
@@ -52,21 +52,21 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 6] void setRateAndCapacity(newRate, newCapacity);
-// [ 5] void submit(bsls_Types::Uint64 numOfUnits);
-// [ 5] void reserve(bsls_Types::Uint64 numOfUnits);
+// [ 5] void submit(bsls::Types::Uint64 numOfUnits);
+// [ 5] void reserve(bsls::Types::Uint64 numOfUnits);
 // [ 7] void updateState(const bdet_TimeInterval& currentTime);
 // [ 8] bool wouldOverflow(currentTime);
-// [10] void submitReserved(bsls_Types::Unit64 numOfUnits);
-// [10] void cancelReserved(bsls_Types::Unit64 numOfUnits);
+// [10] void submitReserved(bsls::Types::Unit64 numOfUnits);
+// [10] void cancelReserved(bsls::Types::Unit64 numOfUnits);
 // [12] void resetStatistics();
 // [13] void reset(const bdet_TimeInterval& currentTime);
 // [15] bdet_TimeInterval calculateTimeToSubmit(currentTime);
 //
 // ACCESSORS
-// [ 4] bsls_Types::Uint64 drainRate() const;
-// [ 4] bsls_Types::Uint64 capacity() const;
-// [ 4] bsls_Types::Uint64 unitsInBucket() const;
-// [ 4] bsls_Types::Uint64 unitsReserved() const;
+// [ 4] bsls::Types::Uint64 drainRate() const;
+// [ 4] bsls::Types::Uint64 capacity() const;
+// [ 4] bsls::Types::Uint64 unitsInBucket() const;
+// [ 4] bsls::Types::Uint64 unitsReserved() const;
 // [ 4] bdet_TimeInterval lastUpdateTime() const;
 // [11] void btes_LeakyBucket::getStatistics(smtUnits, unusedUnits) const;
 //-----------------------------------------------------------------------------
@@ -85,19 +85,19 @@ class mock_LB {
     // used to test the 'testLB' function.
 
     // DATA
-    bsls_Types::Uint64 d_unitsInBucket; // number of units currently in the
-                                        // bucket
+    bsls::Types::Uint64 d_unitsInBucket;  // number of units currently in the
+                                          // bucket
 
-    bdet_TimeInterval  d_lastUpdateTime;      // time of the last update
+    bdet_TimeInterval   d_lastUpdateTime; // time of the last update
 
-    bdet_TimeInterval  d_submitInterval; // minimum interval between submitting
-                                        // units
+    bdet_TimeInterval   d_submitInterval; // minimum interval between
+                                          // submitting units
 
-    bsls_Types::Uint64 d_rate;          // drain rate in units per second.
-                                        // Used for 'setRateAndCapacity' mock
+    bsls::Types::Uint64 d_rate;           // drain rate in units per second.
+                                          // Used for 'setRateAndCapacity' mock
 
-    bsls_Types::Uint64 d_capacity;      // capacity in units.  Used for
-                                        // 'setRateAndCapacity' mock
+    bsls::Types::Uint64 d_capacity;       // capacity in units.  Used for
+                                          // 'setRateAndCapacity' mock
   public:
     // CREATORS
     mock_LB();
@@ -111,8 +111,8 @@ class mock_LB {
         // the specified 'currentTime' and such that 'unitsInBucket == 0'.
 
     // MANIPULATORS
-    void setRateAndCapacity(bsls_Types::Uint64 newRate,
-                            bsls_Types::Uint64 newCapacity);
+    void setRateAndCapacity(bsls::Types::Uint64 newRate,
+                            bsls::Types::Uint64 newCapacity);
         // Set the rate of this 'mock_LB' object to the specified 'newRate' and
         // the capacity to the specified 'newCapacity'.
 
@@ -120,7 +120,7 @@ class mock_LB {
         // Set the 'lastUpdateTime' of this 'mock_LB' object to the specified
         // 'currentTime' and number of units in bucket to 0.
 
-    void submit(bsls_Types::Uint64 numOfUnits);
+    void submit(bsls::Types::Uint64 numOfUnits);
         // Add the specified 'numOfUnits' to the 'unitsInBucket' counter.
 
     bool wouldOverflow(bdet_TimeInterval currentTime);
@@ -139,7 +139,7 @@ class mock_LB {
         // 'submitInterval'.  Otherwise, return zero interval.
 
     // ACCESSORS
-    bsls_Types::Uint64 unitsInBucket() const;
+    bsls::Types::Uint64 unitsInBucket() const;
         // Return the number of units that are currently in the bucket.
 
     bdet_TimeInterval lastUpdateTime() const;
@@ -152,10 +152,10 @@ class mock_LB {
     bdet_TimeInterval submitInterval() const;
         // Return the minimum time interval that must pass between submits.
 
-    bsls_Types::Uint64 rate() const;
+    bsls::Types::Uint64 rate() const;
         // Return the drain rate in units per second.
 
-    bsls_Types::Uint64 capacity() const;
+    bsls::Types::Uint64 capacity() const;
         // Return the capacity in units.
 };
 
@@ -181,8 +181,8 @@ mock_LB::mock_LB(bdet_TimeInterval submitInterval,
 
 // MANIPULATORS
 inline
-void mock_LB::setRateAndCapacity(bsls_Types::Uint64 newRate,
-                                bsls_Types::Uint64 newCapacity)
+void mock_LB::setRateAndCapacity(bsls::Types::Uint64 newRate,
+                                 bsls::Types::Uint64 newCapacity)
 {
     d_rate     = newRate;
     d_capacity = newCapacity;
@@ -196,7 +196,7 @@ void mock_LB::reset(bdet_TimeInterval currentTime)
 }
 
 inline
-void mock_LB::submit(bsls_Types::Uint64 numOfUnits)
+void mock_LB::submit(bsls::Types::Uint64 numOfUnits)
 {
     d_unitsInBucket += numOfUnits;
 }
@@ -231,7 +231,7 @@ bdet_TimeInterval mock_LB::calculateTimeToSubmit(bdet_TimeInterval currentTime)
 
 // ACCESSORS
 inline
-bsls_Types::Uint64 mock_LB::unitsInBucket() const
+bsls::Types::Uint64 mock_LB::unitsInBucket() const
 {
     return d_unitsInBucket;
 }
@@ -249,13 +249,13 @@ bdet_TimeInterval mock_LB::submitInterval() const
 }
 
 inline
-bsls_Types::Uint64 mock_LB::rate() const
+bsls::Types::Uint64 mock_LB::rate() const
 {
     return d_rate;
 }
 
 inline
-bsls_Types::Uint64 mock_LB::capacity() const
+bsls::Types::Uint64 mock_LB::capacity() const
 {
     return d_capacity;
 }
@@ -334,7 +334,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 typedef btes_LeakyBucket    Obj;
 typedef bdet_TimeInterval   Ti;
-typedef bsls_Types::Uint64  Uint64;
+typedef bsls::Types::Uint64 Uint64;
 typedef unsigned int        Uint;
 
 template<class T>
@@ -471,18 +471,18 @@ int main(int argc, char *argv[])
 // interval from unix epoch).  Note that 'unit', the unit of measurement for
 // leaky bucket, corresponds to 'byte' in this example:
 //..
-  bsls_Types::Uint64 rate     = 512;  // bytes/second
-  bsls_Types::Uint64 capacity = 2560; // bytes
-  bdet_TimeInterval  now      = bdetu_SystemTime::now();
-  btes_LeakyBucket   bucket(rate, capacity, now);
+  bsls::Types::Uint64 rate     = 512;  // bytes/second
+  bsls::Types::Uint64 capacity = 2560; // bytes
+  bdet_TimeInterval   now      = bdetu_SystemTime::now();
+  btes_LeakyBucket    bucket(rate, capacity, now);
 //..
 // Then, we define a data buffer to be sent, the size of each data chunk, and
 // the total size of the data to transmit:
 //..
-  char               buffer[5120];
-  unsigned int       chunkSize  = 256;             // in bytes
-  bsls_Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
-  bsls_Types::Uint64 dataSent   = 0;               // in bytes
+  char                buffer[5120];
+  unsigned int        chunkSize  = 256;             // in bytes
+  bsls::Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
+  bsls::Types::Uint64 dataSent   = 0;               // in bytes
 //
 //  // Load 'buffer'.
 //  // ...
@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
           bdet_TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
 
           // Round up the number of microseconds.
-          bsls_Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
                                    (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
           bcemt_ThreadUtil::microSleep(uS);
       }
@@ -717,7 +717,8 @@ int main(int argc, char *argv[])
         // C-4
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             // Rate is 0.
             ASSERT_FAIL(Obj::calculateTimeWindow(0,    0));
@@ -814,7 +815,8 @@ int main(int argc, char *argv[])
         // C-4
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             ASSERT_FAIL(Obj::calculateCapacity(ULLONG_MAX, Ti(2)));
             ASSERT_FAIL(Obj::calculateCapacity(1000, Ti(-1)));
@@ -1473,8 +1475,8 @@ int main(int argc, char *argv[])
         // C-3
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
             Obj x(1, 1, Ti(0));
 
             ASSERT_SAFE_FAIL(x.getStatistics(0,&unusedUnits));
@@ -1582,8 +1584,8 @@ int main(int argc, char *argv[])
         //:   'BSLS_ASSERTTEST_*' macros).  (C-4)
         //
         // Testing:
-        //    void submitReserved(bsls_Types::Unit64 numOfUnits);
-        //    void cancelReserved(bsls_Types::Unit64 numOfUnits);
+        //    void submitReserved(bsls::Types::Unit64 numOfUnits);
+        //    void cancelReserved(bsls::Types::Unit64 numOfUnits);
         // ----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1653,8 +1655,8 @@ int main(int argc, char *argv[])
         // C-4
         if (verbose) cout << endl << "Negative Testing" <<endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             Obj y(CAPACITY, RATE, Ti(0));
             y.reserve(1000);
@@ -1709,8 +1711,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //    bool wouldOverflow(currentTime);
-        //    void submit(bsls_Types::Unit64 numOfUnits);
-        //    void reserve(bsls_Types::Unit64 numOfUnits);
+        //    void submit(bsls::Types::Unit64 numOfUnits);
+        //    void reserve(bsls::Types::Unit64 numOfUnits);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2262,8 +2264,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "Negative Testing" <<endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                bsls::AssertTest::failTestDriver);
             Obj x(1, 1, Ti(0));
 
             ASSERT_SAFE_FAIL(x.setRateAndCapacity(0, 1));
@@ -2341,8 +2343,8 @@ int main(int argc, char *argv[])
         //:   'BSLS_ASSERTTEST_*' macros).  (C-5, C-10)
         //
         // Testing:
-        //   void submit(bsls_Types::Uint64 numOfUnits);
-        //   void reserve(bsls_Types::Uint64 numOfUnits);
+        //   void submit(bsls::Types::Uint64 numOfUnits);
+        //   void reserve(bsls::Types::Uint64 numOfUnits);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2446,7 +2448,8 @@ int main(int argc, char *argv[])
         // C-5, C-10
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard 
+                                          hG(bsls::AssertTest::failTestDriver);
             Obj x1(1000, 1, Ti(0));
             Obj x2(1000, 1, Ti(0));
 
@@ -2507,10 +2510,10 @@ int main(int argc, char *argv[])
         //:     default values  (C-1)
         //
         // Testing:
-        //   bsls_Types::Uint64 drainRate() const;
-        //   bsls_Types::Uint64 capacity() const;
-        //   bsls_Types::Uint64 unitsInBucket() const;
-        //   bsls_Types::Uint64 unitsReserved() const;
+        //   bsls::Types::Uint64 drainRate() const;
+        //   bsls::Types::Uint64 capacity() const;
+        //   bsls::Types::Uint64 unitsInBucket() const;
+        //   bsls::Types::Uint64 unitsReserved() const;
         //   bdet_TimeInterval lastUpdateTime() const;
         //---------------------------------------------------------------------
 
@@ -2668,7 +2671,8 @@ int main(int argc, char *argv[])
         // C-4
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             ASSERT_OPT_FAIL(Obj x(0, 1000, Ti(0)));
             ASSERT_OPT_FAIL(Obj x(1,    0, Ti(0)));

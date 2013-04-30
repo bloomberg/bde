@@ -1,5 +1,5 @@
-// 09/23/2009: Arthur Chiu (achiu21)
-
+//@AUTHOR: Arthur Chiu (achiu21)
+//
 // These dummy headers are trying to accomplish the following: bde_build.pl
 // automatically copy all the .h files to the include directory for a non
 // standard compliant package (bsl+stdhdrs in this case).

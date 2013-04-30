@@ -90,8 +90,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
         if (verbose) {
 #ifdef WCHAR_MIN_PREDEFINED
