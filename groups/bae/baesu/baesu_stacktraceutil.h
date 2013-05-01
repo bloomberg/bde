@@ -219,7 +219,7 @@ BDES_IDENT("$Id: $")
 //  {
 //..
 // Now, within 'traceExample3', we output the stack addresses in hex by
-// streaming the function pointer 'hexStackTrace' to the ostream:
+// streaming the function pointer 'hexStackTrace' to 'cout':
 //..
 //      bsl::cout << baesu_StackTraceUtil::hexStackTrace << endl;
 //  }
