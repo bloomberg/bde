@@ -3379,7 +3379,7 @@ void ArrayPrimitives_Imp::emplace(
 
     while (guard.middle() != guard.end()) {
         ScalarPrimitives::construct(guard.destination(),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                     args_1),
                                     allocator);
         guard.advance();
@@ -3393,7 +3393,7 @@ void ArrayPrimitives_Imp::emplace(
 
         while (toEnd != destBegin) {
             ScalarPrimitives::construct(--destBegin,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
                                         allocator);
             endGuard.moveBegin(-1);
@@ -3434,9 +3434,9 @@ void ArrayPrimitives_Imp::emplace(
 
     while (guard.middle() != guard.end()) {
         ScalarPrimitives::construct(guard.destination(),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                     args_1),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                     args_2),
                                     allocator);
         guard.advance();
@@ -3450,9 +3450,9 @@ void ArrayPrimitives_Imp::emplace(
 
         while (toEnd != destBegin) {
             ScalarPrimitives::construct(--destBegin,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                         args_2),
                                         allocator);
             endGuard.moveBegin(-1);
@@ -3495,11 +3495,11 @@ void ArrayPrimitives_Imp::emplace(
 
     while (guard.middle() != guard.end()) {
         ScalarPrimitives::construct(guard.destination(),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                     args_1),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                     args_2),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_3,
                                     args_3),
                                     allocator);
         guard.advance();
@@ -3513,11 +3513,11 @@ void ArrayPrimitives_Imp::emplace(
 
         while (toEnd != destBegin) {
             ScalarPrimitives::construct(--destBegin,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                         args_2),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3,
                                         args_3),
                                         allocator);
             endGuard.moveBegin(-1);
@@ -3562,13 +3562,13 @@ void ArrayPrimitives_Imp::emplace(
 
     while (guard.middle() != guard.end()) {
         ScalarPrimitives::construct(guard.destination(),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                     args_1),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                     args_2),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_3,
                                     args_3),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_4,
                                     args_4),
                                     allocator);
         guard.advance();
@@ -3582,13 +3582,13 @@ void ArrayPrimitives_Imp::emplace(
 
         while (toEnd != destBegin) {
             ScalarPrimitives::construct(--destBegin,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                         args_2),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3,
                                         args_3),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_4,
                                         args_4),
                                         allocator);
             endGuard.moveBegin(-1);
@@ -3635,15 +3635,15 @@ void ArrayPrimitives_Imp::emplace(
 
     while (guard.middle() != guard.end()) {
         ScalarPrimitives::construct(guard.destination(),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                     args_1),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                     args_2),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_3,
                                     args_3),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_4,
                                     args_4),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args_5, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args_5,
                                     args_5),
                                     allocator);
         guard.advance();
@@ -3657,15 +3657,15 @@ void ArrayPrimitives_Imp::emplace(
 
         while (toEnd != destBegin) {
             ScalarPrimitives::construct(--destBegin,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                         args_2),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3,
                                         args_3),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_4,
                                         args_4),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_5, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_5,
                                         args_5),
                                         allocator);
             endGuard.moveBegin(-1);
@@ -3769,8 +3769,8 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
 
 
         ConstructorProxy<TARGET_TYPE> tempValue(
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
                                                 bslma::Default::allocator());
 
 
@@ -3799,7 +3799,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
         TARGET_TYPE *addr = toEnd + remElements - 1;
         for (; addr != toEnd - 1; --addr) {
             ScalarPrimitives::construct(addr,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
                                         allocator);
             guard.moveBegin(-1);
@@ -3842,10 +3842,10 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
 
 
         ConstructorProxy<TARGET_TYPE> tempValue(
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
                                                 bslma::Default::allocator());
 
 
@@ -3874,9 +3874,9 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
         TARGET_TYPE *addr = toEnd + remElements - 1;
         for (; addr != toEnd - 1; --addr) {
             ScalarPrimitives::construct(addr,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                         args_2),
                                         allocator);
             guard.moveBegin(-1);
@@ -3921,12 +3921,12 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
 
 
         ConstructorProxy<TARGET_TYPE> tempValue(
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
                                                 bslma::Default::allocator());
 
 
@@ -3955,11 +3955,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
         TARGET_TYPE *addr = toEnd + remElements - 1;
         for (; addr != toEnd - 1; --addr) {
             ScalarPrimitives::construct(addr,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                         args_2),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3,
                                         args_3),
                                         allocator);
             guard.moveBegin(-1);
@@ -4006,14 +4006,14 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
 
 
         ConstructorProxy<TARGET_TYPE> tempValue(
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
-                                         args_4),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
+                                          args_4),
                                                 bslma::Default::allocator());
 
 
@@ -4042,13 +4042,13 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
         TARGET_TYPE *addr = toEnd + remElements - 1;
         for (; addr != toEnd - 1; --addr) {
             ScalarPrimitives::construct(addr,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                         args_2),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3,
                                         args_3),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_4,
                                         args_4),
                                         allocator);
             guard.moveBegin(-1);
@@ -4097,16 +4097,16 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
 
 
         ConstructorProxy<TARGET_TYPE> tempValue(
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
-                                         args_4),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_5, 
-                                         args_5),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
+                                          args_4),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_5,
+                                          args_5),
                                                 bslma::Default::allocator());
 
 
@@ -4135,15 +4135,15 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
         TARGET_TYPE *addr = toEnd + remElements - 1;
         for (; addr != toEnd - 1; --addr) {
             ScalarPrimitives::construct(addr,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_1, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_1,
                                         args_1),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_2, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_2,
                                         args_2),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_3, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_3,
                                         args_3),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_4, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_4,
                                         args_4),
-                                        BSLS_COMPILERFEATURES_FORWARD(Args_5, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args_5,
                                         args_5),
                                         allocator);
             guard.moveBegin(-1);
@@ -4207,7 +4207,7 @@ void ArrayPrimitives_Imp::emplace(
 
     while (guard.middle() != guard.end()) {
         ScalarPrimitives::construct(guard.destination(),
-                                    BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                    BSLS_COMPILERFEATURES_FORWARD(Args,
                                     args)...,
                                     allocator);
         guard.advance();
@@ -4221,7 +4221,7 @@ void ArrayPrimitives_Imp::emplace(
 
         while (toEnd != destBegin) {
             ScalarPrimitives::construct(--destBegin,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args,
                                         args)...,
                                         allocator);
             endGuard.moveBegin(-1);
@@ -4258,7 +4258,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
 
 
         ConstructorProxy<TARGET_TYPE> tempValue(
-                                           BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                           BSLS_COMPILERFEATURES_FORWARD(Args,
                                            args)...,
                                                 bslma::Default::allocator());
 
@@ -4288,7 +4288,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
         TARGET_TYPE *addr = toEnd + remElements - 1;
         for (; addr != toEnd - 1; --addr) {
             ScalarPrimitives::construct(addr,
-                                        BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                        BSLS_COMPILERFEATURES_FORWARD(Args,
                                         args)...,
                                         allocator);
             guard.moveBegin(-1);

@@ -2753,8 +2753,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    this->d_dataEnd,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
                                                    this->bslmaAllocator());
         ++this->d_dataEnd;
     }
@@ -2775,10 +2775,10 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    this->d_dataEnd,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
                                                    this->bslmaAllocator());
         ++this->d_dataEnd;
     }
@@ -2802,12 +2802,12 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    this->d_dataEnd,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
                                                    this->bslmaAllocator());
         ++this->d_dataEnd;
     }
@@ -2834,14 +2834,14 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    this->d_dataEnd,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
-                                         args_4),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
+                                          args_4),
                                                    this->bslmaAllocator());
         ++this->d_dataEnd;
     }
@@ -2871,16 +2871,16 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    this->d_dataEnd,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
-                                         args_4),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_5, 
-                                         args_5),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
+                                          args_4),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_5,
+                                          args_5),
                                                    this->bslmaAllocator());
         ++this->d_dataEnd;
     }
@@ -2904,7 +2904,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    this->d_dataEnd,
-                                           BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                           BSLS_COMPILERFEATURES_FORWARD(Args,
                                            args)...,
                                                    this->bslmaAllocator());
         ++this->d_dataEnd;
@@ -3144,8 +3144,8 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    temp.d_dataBegin + index,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
                                                    this->bslmaAllocator());
         guard.moveBegin(-1);
 
@@ -3167,8 +3167,8 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                                   this->end(),
                                                   1,
                                                   this->bslmaAllocator(),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1));
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1));
         this->d_dataEnd += 1;
     }
 
@@ -3223,10 +3223,10 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    temp.d_dataBegin + index,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
                                                    this->bslmaAllocator());
         guard.moveBegin(-1);
 
@@ -3248,10 +3248,10 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                                   this->end(),
                                                   1,
                                                   this->bslmaAllocator(),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2));
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2));
         this->d_dataEnd += 1;
     }
 
@@ -3308,12 +3308,12 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    temp.d_dataBegin + index,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
                                                    this->bslmaAllocator());
         guard.moveBegin(-1);
 
@@ -3335,12 +3335,12 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                                   this->end(),
                                                   1,
                                                   this->bslmaAllocator(),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3));
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3));
         this->d_dataEnd += 1;
     }
 
@@ -3399,14 +3399,14 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    temp.d_dataBegin + index,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
-                                         args_4),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
+                                          args_4),
                                                    this->bslmaAllocator());
         guard.moveBegin(-1);
 
@@ -3428,14 +3428,14 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                                   this->end(),
                                                   1,
                                                   this->bslmaAllocator(),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
-                                         args_4));
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
+                                          args_4));
         this->d_dataEnd += 1;
     }
 
@@ -3496,16 +3496,16 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    temp.d_dataBegin + index,
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
-                                         args_4),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_5, 
-                                         args_5),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
+                                          args_4),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_5,
+                                          args_5),
                                                    this->bslmaAllocator());
         guard.moveBegin(-1);
 
@@ -3527,16 +3527,16 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                                   this->end(),
                                                   1,
                                                   this->bslmaAllocator(),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_1, 
-                                         args_1),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_2, 
-                                         args_2),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_3, 
-                                         args_3),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_4, 
-                                         args_4),
-                                         BSLS_COMPILERFEATURES_FORWARD(Args_5, 
-                                         args_5));
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
+                                          args_1),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
+                                          args_2),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
+                                          args_3),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
+                                          args_4),
+                                          BSLS_COMPILERFEATURES_FORWARD(Args_5,
+                                          args_5));
         this->d_dataEnd += 1;
     }
 
@@ -3590,7 +3590,7 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
                                                    temp.d_dataBegin + index,
-                                           BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                           BSLS_COMPILERFEATURES_FORWARD(Args,
                                            args)...,
                                                    this->bslmaAllocator());
         guard.moveBegin(-1);
@@ -3613,7 +3613,7 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                                   this->end(),
                                                   1,
                                                   this->bslmaAllocator(),
-                                           BSLS_COMPILERFEATURES_FORWARD(Args, 
+                                           BSLS_COMPILERFEATURES_FORWARD(Args,
                                            args)...);
         this->d_dataEnd += 1;
     }
