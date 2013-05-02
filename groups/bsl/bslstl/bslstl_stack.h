@@ -445,7 +445,7 @@ class stack {
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_stack.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_stack.h
     void emplace();
 
     template <class Args_1>
@@ -721,7 +721,7 @@ void stack<VALUE, CONTAINER>::emplace(Args&&... args)
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_stack.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_stack.h
 template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::emplace(

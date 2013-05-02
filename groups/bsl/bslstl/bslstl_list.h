@@ -1199,7 +1199,7 @@ class list
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_list.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
     void emplace_front();
 
     template <class ARGS_1>
@@ -1255,7 +1255,7 @@ class list
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_list.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
     void emplace_back();
 
     template <class ARGS_1>
@@ -1325,7 +1325,7 @@ class list
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_list.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
     iterator emplace(const_iterator position);
 
     template <class ARGS_1>
@@ -2320,7 +2320,7 @@ void list<VALUE, ALLOCATOR>::emplace_front(ARGS&&... args)
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_list.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
 template <class VALUE, class ALLOCATOR>
 inline
 void list<VALUE, ALLOCATOR>::emplace_front(
@@ -2436,7 +2436,7 @@ void list<VALUE, ALLOCATOR>::emplace_back(ARGS&&... args)
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_list.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
 template <class VALUE, class ALLOCATOR>
 inline
 void list<VALUE, ALLOCATOR>::emplace_back(
@@ -2588,7 +2588,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position, ARGS&&... args)
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_list.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
 template <class VALUE, class ALLOCATOR>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position)

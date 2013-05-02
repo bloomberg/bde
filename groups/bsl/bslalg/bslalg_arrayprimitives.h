@@ -608,7 +608,7 @@ struct ArrayPrimitives {
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg/bslalg_arrayprimitives.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg_arrayprimitives.h
     template <class TARGET_TYPE, class ALLOCATOR>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
@@ -1120,7 +1120,7 @@ struct ArrayPrimitives_Imp {
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg/bslalg_arrayprimitives.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg_arrayprimitives.h
     template <class TARGET_TYPE, class ALLOCATOR>
     static void emplace(TARGET_TYPE                             *toBegin,
                         TARGET_TYPE                             *toEnd,
@@ -1874,7 +1874,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg/bslalg_arrayprimitives.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg_arrayprimitives.h
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
@@ -3151,7 +3151,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg/bslalg_arrayprimitives.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslalg_arrayprimitives.h
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void ArrayPrimitives_Imp::emplace(

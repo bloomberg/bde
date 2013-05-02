@@ -563,7 +563,7 @@ struct allocator_traits {
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_allocatortraits.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_allocatortraits.h
     template <class ELEMENT_TYPE, class CTOR_ARGS_0>
     static void construct(ALLOCATOR_TYPE&  allocator,
                           ELEMENT_TYPE    *elementAddr,
@@ -782,7 +782,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  allocator,
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_allocatortraits.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_allocatortraits.h
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class CTOR_ARGS_0>
 inline

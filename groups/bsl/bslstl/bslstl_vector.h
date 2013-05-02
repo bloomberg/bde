@@ -1027,7 +1027,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_vector.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
     void emplace_back(
                               );
 
@@ -1092,7 +1092,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_vector.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
     VALUE_TYPE* emplace(const_iterator position);
 
     template <class Args_1>
@@ -2726,7 +2726,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...args)
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_vector.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
@@ -3026,7 +3026,7 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl/bslstl_vector.h
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position)
