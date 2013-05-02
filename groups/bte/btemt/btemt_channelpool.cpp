@@ -3938,13 +3938,18 @@ int btemt_ChannelPool::shutdown(int                      channelId,
 
 int btemt_ChannelPool::stopAndRemoveAllChannels()
 {
-    stop();
+    const int rc = stop();
+    if (rc) {
+        return rc;                                                    // RETURN
+    }
 
     // Deallocate channels.
 
     d_channels.removeAll();
 
     // Deallocate pending connecting sockets.
+
+    d_connectorsLock.lock();
 
     ConnectorMap::iterator cBegin = d_connectors.begin(),
                            cEnd   = d_connectors.end();
@@ -3955,16 +3960,26 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
         cIter->second.d_socket_p = 0;
     }
 
+    d_connectorsLock.unlock();
+
     // Deallocate servers.
+
+    d_acceptorsLock.lock();
 
     d_acceptors.clear();
 
+    d_acceptorsLock.unlock();
+
     // Deregister all events from the event managers.
+
+    d_managersLock.lock();
 
     int numEventManagers = d_managers.size();
     for (int i = 0; i < numEventManagers; ++i) {
         d_managers[i]->deregisterAll();
     }
+
+    d_managersLock.unlock();
 
     return 0;
 }
@@ -4010,6 +4025,8 @@ int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
 
 int btemt_ChannelPool::start()
 {
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_managersLock);
+
     int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
         bcemt_Attribute attr;
@@ -4029,6 +4046,8 @@ int btemt_ChannelPool::start()
 
 int btemt_ChannelPool::stop()
 {
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_managersLock);
+
     int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
         if (d_managers[i]->disable()) {
