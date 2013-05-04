@@ -134,41 +134,6 @@ pair<InputIter, OutputIter> copy_n(InputIter  first,
     return bslstp_ExAlgorithm_CopyNImp(first, count, result, tag());
 }
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
-
-// Provide an override for 'count' since Sun only provides a 4 argument version
-// while the C++ standard requires a 3 argument version.
-template <class InputIter, class TYPE>
-inline
-typename iterator_traits<InputIter>::difference_type
-count(InputIter first, InputIter last, const TYPE& value)
-{
-    typename iterator_traits<InputIter>::difference_type ret = 0;
-    native_std::count(first, last, value, ret);
-    return ret;
-}
-
-// Provide an override for 'count_if' since Sun only provides a 4 argument
-// version while the C++ standard requires a 3 argument version.
-template <class InputIter, class PREDICATE>
-inline
-typename iterator_traits<InputIter>::difference_type
-count_if(InputIter first, InputIter last, PREDICATE pred)
-{
-    typename iterator_traits<InputIter>::difference_type ret = 0;
-    native_std::count_if(first, last, pred, ret);
-    return ret;
-}
-
-#else
-
-// On all other platforms, use the compiler vendor supplied version of 'count'
-// and 'count_if'.
-using native_std::count;
-using native_std::count_if;
-
-#endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
-
 }  // close namespace bsl
 
 #endif

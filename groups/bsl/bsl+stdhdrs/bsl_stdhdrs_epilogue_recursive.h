@@ -88,15 +88,20 @@
 // Now include those 'bslstl' components corresponding to the 'bsl+stdhdrs'
 // files that have been included.
 
-#ifndef BDE_OMIT_TRANSITIONAL // STP
-// If '<algorithm>' was included, then include SGI extension to algorithms.
+// If '<algorithm>' was included, then inclue the work-arounds to the platform
+// algorithms header.
 #ifdef INCLUDED_NATIVE_ALGORITHM
-# ifndef INCLUDED_BSLSTP_EXALGORITHM
-#   include <bslstp_exalgorithm.h>
+# ifndef INCLUDED_BSLSTL_ALGORITHMWORKAROUND
+#   include <bslstl_algorithmworkaround.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
+# ifndef BDE_OMIT_TRANSITIONAL // STP
+#   ifndef INCLUDED_BSLSTP_EXALGORITHM
+#     include <bslstp_exalgorithm.h>
+#     define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+#   endif
+# endif  // BDE_OMIT_TRANSITIONAL -- STP
 #endif
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 // 'bslstl' containers go here.
 
