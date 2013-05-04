@@ -59,6 +59,14 @@
 // Now include those 'bslstl' components corresponding to the 'bsl+stdhdrs'
 // files that have been included.
 
+// If '<algorithm>' was included, then inclue the work-arounds to the platform
+// algorithms header.
+#ifdef INCLUDED_NATIVE_ALGORITHM
+# ifndef INCLUDED_BSLSTL_ALGORITHMWORKAROUND
+#   include <bslstl_algorithmworkaround.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
 
 // 'bslstl' containers go here.
 

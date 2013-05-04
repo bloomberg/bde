@@ -38,8 +38,13 @@ namespace bsl {
     using native_std::binary_search;
     using native_std::copy;
     using native_std::copy_backward;
-    using native_std::count;
-    using native_std::count_if;
+
+    // 'count' and 'count_if' are provided in 'bslstl_algorithmworkaround' in
+    // order to work-around the Sun standard library, libCstd.
+    //
+    // using native_std::count;
+    // using native_std::count_if;
+
     using native_std::equal;
     using native_std::equal_range;
     using native_std::fill;
