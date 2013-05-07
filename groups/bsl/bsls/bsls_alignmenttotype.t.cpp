@@ -589,21 +589,36 @@ int main(int argc, char *argv[])
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
                            LD));
     #else
+        #if defined(BSLS_PLATFORM_CPU_ARM)
+        LOOP_ASSERT(INT64_ALIGNMENT,
+                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
+                             LL));
+        LOOP_ASSERT(DOUBLE_ALIGNMENT,
+                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
+                             LL));
+        #else
         LOOP_ASSERT(INT64_ALIGNMENT,
                     sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
                              int()));
         LOOP_ASSERT(DOUBLE_ALIGNMENT,
                     sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
                              int()));
+        #endif
 
-        #ifdef BSLS_PLATFORM_OS_LINUX
+        #if defined(BSLS_PLATFORM_OS_LINUX)
+        #if defined(BSLS_PLATFORM_CPU_ARM)
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           int()));
+                          LL));
         #else
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LD));
+                          int()));
+        #endif
+        #else
+        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
+                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
+                          LD));
         #endif
     #endif
 #elif defined(BSLS_PLATFORM_OS_AIX)
