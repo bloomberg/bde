@@ -1161,7 +1161,8 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <class TYPE> struct bcema_SharedPtr_ReferenceType;
+template <class TYPE>
+struct bcema_SharedPtr_ReferenceType;
 
                         // ====================================
                         // struct bcema_SharedPtr_ReferenceType
@@ -1548,7 +1549,7 @@ class bcema_SharedPtr {
     void createInplace(bslma::Allocator *basicAllocator = 0);
         // Create "in-place" in a large enough contiguous memory region both an
         // internal representation for this shared pointer and a
-        // default-constructed instance of 'TYPE', and make this shared pointer
+        // default-constructed object of 'TYPE', and make this shared pointer
         // refer to the newly-created 'TYPE' object.  Optionally specify an
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  If an exception
@@ -1648,7 +1649,7 @@ class bcema_SharedPtr {
         // object, and destroy it using its associated deleter if this shared
         // pointer held the last shared reference to that object.  Note that
         // the allocator argument is *not* implicitly passed to the constructor
-        // for 'TYPE'.  To construct an instance of 'TYPE' with an allocator,
+        // for 'TYPE'.  To construct an object of 'TYPE' with an allocator,
         // pass the allocator as one of the arguments (typically the last
         // argument).
 
@@ -1666,9 +1667,9 @@ class bcema_SharedPtr {
         // that this function returns a pair of null pointers if this shared
         // pointer is empty.
 
-    void swap(bcema_SharedPtr<TYPE>& source);
+    void swap(bcema_SharedPtr<TYPE>& other);
         // Efficiently exchange the states of this shared pointer and the
-        // specified 'source' shared pointer such that each will refer to the
+        // specified 'other' shared pointer such that each will refer to the
         // object formerly referred to by the other and each will manage the
         // object formerly referred to by the other.
 
@@ -1710,7 +1711,7 @@ class bcema_SharedPtr {
         // shared pointer, or 0 if this shared pointer is empty.
 
     bcema_SharedPtrRep *rep() const;
-        // Return the address of the modifiable 'bcema_SharedPtrRep' instance
+        // Return the address of the modifiable 'bcema_SharedPtrRep' object
         // used by this shared pointer, or 0 if this shared pointer is empty.
 
     int numReferences() const;
@@ -2616,10 +2617,10 @@ bsl::pair<TYPE *, bcema_SharedPtrRep *> bcema_SharedPtr<TYPE>::release()
 }
 
 template <class TYPE>
-void bcema_SharedPtr<TYPE>::swap(bcema_SharedPtr<TYPE>& source)
+void bcema_SharedPtr<TYPE>::swap(bcema_SharedPtr<TYPE>& other)
 {
-    bsl::swap(d_ptr_p, source.d_ptr_p);
-    bsl::swap(d_rep_p, source.d_rep_p);
+    bsl::swap(d_ptr_p, other.d_ptr_p);
+    bsl::swap(d_rep_p, other.d_rep_p);
 }
 
 // ACCESSORS
@@ -2713,6 +2714,7 @@ template <class BCE_OTHER_TYPE>
 void bcema_SharedPtr<TYPE>::reset(BCE_OTHER_TYPE *ptr)
 {
     // Wrap 'ptr' in 'auto_ptr' to ensure standard delete behavior.
+
     bsl::auto_ptr<BCE_OTHER_TYPE> ap(ptr);
     SelfType(ap).swap(*this);
 }
