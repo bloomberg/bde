@@ -827,7 +827,7 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
         }
-        cout << "Re-hydrated " << BIG_VECTOR_SIZE
+        cout << "Rehydrated " << BIG_VECTOR_SIZE
              << " owned objects" << endl;
         if (verbose) {
             cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
@@ -906,7 +906,7 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
         }
-        cout << "Re-hydrated " << BIG_VECTOR_SIZE
+        cout << "Rehydrated " << BIG_VECTOR_SIZE
              << " owned objects" << endl;
         if (verbose) {
             cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
@@ -971,7 +971,7 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             new(&mX[i]) POINTER();
         }
-        cout << "Re-hydrated 1 owned object and " << BIG_VECTOR_SIZE
+        cout << "Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
              << " empty shared pointers" << endl;
         if (verbose) {
             cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
@@ -1084,7 +1084,7 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             new(&mX[i]) POINTER(Z[i], &ta);
         }
-        cout << "Re-hydrated 1 owned object and " << BIG_VECTOR_SIZE
+        cout << "Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
              << " shared pointers" << endl;
         if (verbose) {
             cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
@@ -1156,7 +1156,7 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
         }
-        cout << "Re-hydrated " << BIG_VECTOR_SIZE
+        cout << "Rehydrated " << BIG_VECTOR_SIZE
              << " owned objects" << endl;
         if (verbose) {
             cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
