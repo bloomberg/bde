@@ -1317,8 +1317,8 @@ class bcema_SharedPtr {
 
     template <class BCE_OTHER_TYPE>
     explicit bcema_SharedPtr(
-                           bsl::auto_ptr<BCE_OTHER_TYPE>&  autoPtr,
-                           bslma::Allocator               *basicAllocator = 0);
+                           bsl::auto_ptr<BCE_OTHER_TYPE>  autoPtr,
+                           bslma::Allocator              *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'autoPtr' to
         // the parameterized 'BCE_OTHER_TYPE', and that refers to
@@ -1445,7 +1445,7 @@ class bcema_SharedPtr {
         // the assignment.
 
     template <class BCE_OTHER_TYPE>
-    bcema_SharedPtr<TYPE>& operator=(bsl::auto_ptr<BCE_OTHER_TYPE>& rhs);
+    bcema_SharedPtr<TYPE>& operator=(bsl::auto_ptr<BCE_OTHER_TYPE> rhs);
         // Transfer ownership to this shared pointer of the modifiable object
         // managed by the 'rhs' auto pointer to the parameterized
         // 'BCE_OTHER_TYPE', using '::operator delete' to destroy the shared
@@ -2076,8 +2076,8 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(
 template <class TYPE>
 template <class BCE_OTHER_TYPE>
 bcema_SharedPtr<TYPE>::bcema_SharedPtr(
-                                bsl::auto_ptr<BCE_OTHER_TYPE>&  autoPtr,
-                                bslma::Allocator               *basicAllocator)
+                                bsl::auto_ptr<BCE_OTHER_TYPE>  autoPtr,
+                                bslma::Allocator              *basicAllocator)
 : d_ptr_p(autoPtr.get())
 , d_rep_p(0)
 {
@@ -2210,7 +2210,7 @@ bcema_SharedPtr<TYPE>& bcema_SharedPtr<TYPE>::operator=(
 template <class TYPE>
 template <class BCE_OTHER_TYPE>
 bcema_SharedPtr<TYPE>& bcema_SharedPtr<TYPE>::operator=(
-                                            bsl::auto_ptr<BCE_OTHER_TYPE>& rhs)
+                                             bsl::auto_ptr<BCE_OTHER_TYPE> rhs)
 {
     SelfType(rhs).swap(*this);
     return *this;
