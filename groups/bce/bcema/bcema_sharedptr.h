@@ -1425,9 +1425,10 @@ class bcema_SharedPtr {
         // the error.  Note that if 'managedPtr' is empty, then an empty shared
         // pointer is created and 'basicAllocator' is ignored.
 
-    template <class OTHER_TYPE>
-    explicit bcema_SharedPtr(bsl::auto_ptr<OTHER_TYPE>&  autoPtr,
-                             bslma::Allocator           *basicAllocator = 0);
+    template <class BCE_OTHER_TYPE>
+    explicit bcema_SharedPtr(
+                           bsl::auto_ptr<BCE_OTHER_TYPE>  autoPtr,
+                           bslma::Allocator              *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'autoPtr' to
         // the parameterized 'OTHER_TYPE', and that refers to
