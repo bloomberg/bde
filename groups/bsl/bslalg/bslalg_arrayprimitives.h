@@ -781,9 +781,9 @@ struct ArrayPrimitives_Imp {
         // Copy-assign the elements in reverse order from the range starting at
         // the specified 'srcStart' and ending immediately before the specified
         // 'srcEnd' to the range starting at the specified 'dest' and ending
-        // immediately before 'dest + srcEnd - srcStart'.  The behavior is
+        // immediately before 'dest + (srcEnd - srcStart)'.  The behavior is
         // undefined unless each element is both range '[srcStart, srcEnd)' and
-        // range '[dest, dest + srcEnd - srcStart)' is valid.  Note that the
+        // range '[dest, dest + (srcEnd - srcStart))' is valid.  Note that the
         // (template parameter) 'TARGET_TYPE' must be copy-assignable.  Also
         // note that this method is intended to support range assignment when
         // the two ranges may be overlapped, and 'srcStart <= dest'.
@@ -2416,7 +2416,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
     uninitializedFillN((bsls::Types::Int64 *)begin,
                        (bsls::Types::Int64)value,
                        numElements);
@@ -2440,7 +2440,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
     uninitializedFillN(
                       (bsls::Types::Int64 *)begin,
                       (bsls::Types::Int64)value,

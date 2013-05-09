@@ -10132,7 +10132,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work
+#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work
         ASSERT(  (bslmf::IsBitwiseMoveable<vector<char> >::value));
         ASSERT(  (bslmf::IsBitwiseMoveable<vector<T> >::value));
         ASSERT(  (bslmf::IsBitwiseMoveable<vector<Vector_Imp<int> > >::value));

@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete , Incomplete &);
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete*, Incomplete*&);
 
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
         // Some cv-qualified function types are not compilable on AIX.
 
         typedef int F(int);

@@ -127,8 +127,8 @@ int main(int argc, char *argv[])
         //   Dump them out.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Dump out BSLS_PLATFORM__*\n"
-                             "=========================\n";
+        if (verbose) cout << "Dump out BSLS_PLATFORM_*\n"
+                             "========================\n";
 
         if (!verbose) break;
 
