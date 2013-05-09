@@ -317,12 +317,9 @@ typename Allocator<T>::size_type Allocator<T>::max_size() const
     // 'size_type'.
 
     // TBD Should these 'const' variables be declared 'static'?
-    static const bool BSLMA_SIZE_IS_SIGNED =
-                              ~BloombergLP::bslma::Allocator::size_type(0) < 0;
-    static const std::size_t MAX_NUM_BYTES        =
-                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
-    static const std::size_t MAX_NUM_ELEMENTS     =
-                              std::size_t(MAX_NUM_BYTES) / sizeof(T);
+    static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
+    static const std::size_t MAX_NUM_ELEMENTS =
+                                        std::size_t(MAX_NUM_BYTES) / sizeof(T);
 
     return MAX_NUM_ELEMENTS;
 }

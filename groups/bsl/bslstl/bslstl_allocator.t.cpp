@@ -577,9 +577,7 @@ int main(int argc, char *argv[])
             typedef bslma::Allocator::size_type bsize;
 
             enum {
-                BSLMA_SIZE_IS_SIGNED = ~bslma::Allocator::size_type(0) < 0,
-                MAX_NUM_BYTES = ~std::size_t(0) /
-                                                (BSLMA_SIZE_IS_SIGNED ? 2 : 1),
+                MAX_NUM_BYTES = ~std::size_t(0);
                 MAX_ELEMENTS1 = MAX_NUM_BYTES / sizeof(char),
                 MAX_ELEMENTS2 = (std::size_t)MAX_NUM_BYTES / sizeof(char)
             };
