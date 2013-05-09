@@ -7,37 +7,22 @@ SHELL:=/bin/bash
 RSSUITE_TOOLS=/bbsrc/rssuite-tools
 RSSUITE:=$(shell cat $(RSSUITE_TOOLS)/RSSUITE.version)
 PRODUCEMAKE:=/bbsrc/bin/prod/bin/producemake
-UNAME:=$(shell uname)
-ifeq ($(UNAME),HP-UX)
- UPLID:=unix-HP_UX-ia64-B.11.31-acc-6.2
-else ifeq ($(UNAME),SunOS)
- UPLID:=unix-SunOS-sparc-5.10-cc-5.9
-else ifeq ($(UNAME),AIX)
- UPLID:=unix-AIX-powerpc-6.1-xlc-10.1
-else ifeq ($(UNAME),Linux)
- UPLID:=unix-Linux-x86_64-2.6.18-gcc-4.1.2
-else
- $(error Unsupported platform $(UNAME))
-endif
-GROUPS_STATIC_ONLY:=bae bce bde bte
+
+BDE_TOOLS_ETC=/bbshr/bde/bde-tools/etc
+
+include $(BDE_TOOLS_ETC)/debian-rules-uplid
+include $(BDE_TOOLS_ETC)/debian-rules-flavors
+
 GROUPS_RSSUITE:=bsl
 GROUPS:=$(GROUPS_STATIC_ONLY) $(GROUPS_RSSUITE)
-DEFAULT_STATIC_FLAVOR_32bit:=opt_exc_mt
-DEFAULT_STATIC_FLAVOR_64bit:=opt_exc_mt_64
-STATIC_FLAVORS_32bit:=$(shell echo {opt,dbg,opt_dbg}_exc_mt{,_safe})
-STATIC_FLAVORS_64bit:=$(shell echo {opt,dbg,opt_dbg}_exc_mt_64{,_safe} {opt,dbg}_exc_mt_64_pic)
-STATIC_FLAVORS:=$(STATIC_FLAVORS_64bit) $(STATIC_FLAVORS_32bit)
-DYNAMIC_FLAVOR_32bit:=opt_exc_mt_shr
-DYNAMIC_FLAVOR_64bit:=opt_exc_mt_64_shr
-DYNAMIC_FLAVORS:=$(DYNAMIC_FLAVOR_32bit) $(DYNAMIC_FLAVOR_64bit)
-ALL_FLAVORS:=$(STATIC_FLAVORS) $(DYNAMIC_FLAVORS)
+
 comma:= ,
 empty:=
 space:= $(empty) $(empty)
 
 clean:
 	cat debian/control.in | perl -pi -e 's/\$$\{shlib\:RSSUITE\}/$(RSSUITE)/g' > debian/control
-	rm -rf debian/lib{bae,bce,bde,bsl,bte}-dev debian/libbsl-rs debian/bde-core-bdemeta
+	rm -rf debian/libbsl-dev debian/libbsl-rs debian/bde-core-bdemeta/groups/bsl
 	rm -f debian/*files debian/files
 	rm -f debian/build-stamp
 	rm -f debian/binary-stamp
@@ -47,20 +32,24 @@ clean:
 	   -prune -exec rm -rf {} \;
 
 producemake:
+	mkdir -p etc
+	cp $(BDE_TOOLS_ETC)/default.opts etc/
 ifeq ($(STATIC_FLAVORS),)
-	BDE_ROOT=. PATH=$(PATH)                                      \
-	  $(PRODUCEMAKE) -Lgv -r . --nonmake        \
+	BDE_ROOT=. BDE_PATH=. PATH=$(PATH)                           \
+	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
 	  -p $(UPLID)                                                \
 	  -g $(subst $(space),$(comma),$(GROUPS_RSSUITE))            \
 	  -t $(subst $(space),$(comma),$(DYNAMIC_FLAVORS))
 else
-	BDE_ROOT=. PATH=$(PATH)                                      \
-	  $(PRODUCEMAKE) -Lgv -r . --nonmake        \
+ifneq ($(GROUPS_STATIC_ONLY),)
+	BDE_ROOT=. BDE_PATH=. PATH=$(PATH)                           \
+	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
 	  -p $(UPLID)                                                \
 	  -g $(subst $(space),$(comma),$(GROUPS_STATIC_ONLY))        \
 	  -t $(subst $(space),$(comma),$(STATIC_FLAVORS))
-	BDE_ROOT=. PATH=$(PATH)                                      \
-	  $(PRODUCEMAKE) -Lgv -r . --nonmake        \
+endif
+	BDE_ROOT=. BDE_PATH=. PATH=$(PATH)                           \
+	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
 	  -p $(UPLID)                                                \
 	  -g $(subst $(space),$(comma),$(GROUPS_RSSUITE))            \
 	  -t $(subst $(space),$(comma),$(ALL_FLAVORS))
@@ -77,7 +66,7 @@ endif
 # is:
 #    bde+pcre bsl+stdhdrs bsl+apache
 # All other packages need to be installed.
-PACKAGES_NO_INSTALL:=bde+pcre bsl+stdhdrs bsl+apache
+PACKAGES_NO_INSTALL:=bsl+stdhdrs
 
 define GROUP_template
 GROUP_$(1)_DEPENDS:=$(shell cat groups/$(1)/group/$(1).dep)
