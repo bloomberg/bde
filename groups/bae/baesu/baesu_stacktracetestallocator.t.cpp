@@ -286,6 +286,9 @@ static int veryVeryVerbose;
 
 static const bsl::size_t npos = bsl::string::npos;
 
+static const bdef_Function<void (*)()> failAbortFunc(&Obj::failAbort);
+static const bdef_Function<void (*)()> failNoopFunc (&Obj::failNoop);
+
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -1260,7 +1263,7 @@ int main(int argc, char *argv[])
         }
 
 #if defined(BSLS_ASSERT_IS_ACTIVE) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-        bsls::Assert::setFailureHandler(my_assertHandlerLongJmp);
+        bsls::Assert::setFailureHandler(&my_assertHandlerLongJmp);
 
         bool caught = false;
         if (setjmp(my_setJmpBuf)) {
@@ -1960,7 +1963,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                tba.setFailureHandler(Obj::failAbort);
+                tba.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 // Make sure nothing was freed before the failure handler
@@ -2007,7 +2010,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 // Make sure nothing was freed before the failure handler
@@ -2058,7 +2061,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 ASSERT(taBlocks  == ta.numBlocksInUse());
@@ -2101,7 +2104,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
@@ -2146,7 +2149,7 @@ int main(int argc, char *argv[])
 
                 ASSERT((unsigned) ta.numBlocksInUse() == taBlocks);
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
@@ -2188,7 +2191,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 ASSERT(ta.numBlocksInUse() == numBlocks);
@@ -2232,7 +2235,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 ASSERT(ta.numBlocksInUse() == numBlocks);
@@ -2276,7 +2279,7 @@ int main(int argc, char *argv[])
                         ASSERT(my_failureHandlerFlag);
                     }
 
-                    ta.setFailureHandler(Obj::failAbort);
+                    ta.setFailureHandler(&Obj::failAbort);
                     memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                     ASSERT(ta.numBlocksInUse() == numBlocks);
@@ -2441,7 +2444,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(ss.str().empty());
                 if (setjmp(my_setJmpBuf)) {
-                    pta->setFailureHandler(Obj::failAbort);
+                    pta->setFailureHandler(&Obj::failAbort);
                     memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                     // Make sure a report was written.
@@ -2820,11 +2823,7 @@ int main(int argc, char *argv[])
                 FREE_INC           = 7
             };
 
-            ASSERT(ta.failureHandler() == &Obj::failAbort);
-            ta.setFailureHandler(&Obj::failNoop);
-            ASSERT(ta.failureHandler() == &Obj::failNoop);
-            ta.setFailureHandler(Obj::failAbort);
-            ASSERT(ta.failureHandler() == &Obj::failAbort);
+            ta.setFailureHandler(&Obj::failAbort);
 
             bsl::ostringstream oss;
             ta.reportBlocksInUse(&oss);
@@ -3054,11 +3053,7 @@ int main(int argc, char *argv[])
                 ta.setName("my_allocator");
                 ta.setOstream(&oss);
 
-                ASSERT(TA.failureHandler() == &Obj::failAbort);
-                ta.setFailureHandler(&Obj::failNoop);
-                ASSERT(TA.failureHandler() == &Obj::failNoop);
-                ta.setFailureHandler(Obj::failAbort);
-                ASSERT(TA.failureHandler() == &Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
 
                 // No blocks are allocated.  Verify 'release' has no effect.
 
@@ -3110,7 +3105,7 @@ int main(int argc, char *argv[])
 
                 if (setjmp(my_setJmpBuf)) {
                     LOOP_ASSERT(c, !CLEAN_DESTROY && FAILURE_LONGJMP);
-                    ta.setFailureHandler(Obj::failAbort);
+                    ta.setFailureHandler(&Obj::failAbort);
 
                     ASSERT(1 == ta.numBlocksInUse());
                 }
