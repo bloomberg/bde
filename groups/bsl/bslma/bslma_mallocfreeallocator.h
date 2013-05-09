@@ -80,10 +80,9 @@ BSLS_IDENT("$Id: $")
 //      void *allocate(size_type size);
 //          // Return a newly allocated block of memory of (at least) the
 //          // specified positive 'size' (bytes).  If 'size' is 0, a null
-//          // pointer is returned with no effect.  The behavior is undefined
-//          // if size < 0.  Note that the alignment of the address returned is
-//          // the maximum alignment for any fundamental type defined for this
-//          // platform.
+//          // pointer is returned with no effect.  Note that the alignment of
+//          // the address returned is the maximum alignment for any
+//          // fundamental type defined for this platform.
 //
 //      void deallocate(void *address);
 //          // Return the memory at the specified 'address' back to this
