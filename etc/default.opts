@@ -906,7 +906,7 @@ windows         _   MT_LIBTYPE  = L
 
 # Flags used by cscompile/glint and supported by gcc 4.3.2 (split into those supported
 # by gcc 3.4.3, then by those supported by gcc 4+):
-*-*-*-*-gcc _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual -Werror=cast-qual \
+*-*-*-*-gcc _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
     -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
     -Wno-long-long -Wno-unknown-pragmas \
     -Wpacked -Wpointer-arith \
@@ -916,7 +916,7 @@ windows         _   MT_LIBTYPE  = L
 *-*-*-*-gcc-4.2 _  GCCEXTRAWFLAGS  = -Wlogical-op -Wstrict-overflow -Wvla \
     -Wvolatile-register-var -fdiagnostics-show-option
 
-!! *-*-*-*-gcc-clang _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual -Werror=cast-qual \
+!! *-*-*-*-gcc-clang _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
     -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
     -Wno-long-long -Wno-unknown-pragmas \
     -Wpacked -Wpointer-arith \
@@ -935,6 +935,8 @@ unix-*-*-*-gcc-4.2   _  GCCEXTRAWFLAGS  =   \
      -W$(GCCEXTRAWERROR)sign-compare -W$(GCCEXTRAWERROR)format              \
      -W$(GCCEXTRAWERROR)overflow                                            \
      -W$(GCCEXTRAWERROR)larger-than-100000
+
+*-*-*-*-gcc-4.3      _  GCCEXTRAWFLAGS  = -Werror=cast-qual
 
 *                       _   CC64FLAGS   =
 *-*-*-*-gcc             _   CC64FLAGS   = -m32
