@@ -149,8 +149,9 @@ BSLS_IDENT("$Id: $")
 //  template <class ALLOCATOR>
 //  bool IntSet<ALLOCATOR>::remove(int value)
 //  {
+//      IntNodeComparator comparator;
 //      bslalg::RbTreeNode *node =
-//                bslalg::RbTreeUtil::find(d_tree, IntNodeComparator(), value);
+//                bslalg::RbTreeUtil::find(d_tree, comparator, value);
 //..
 // Here we use the 'TreeNodePool' object, 'd_nodePool', to delete a node that
 // was removed from the set.
