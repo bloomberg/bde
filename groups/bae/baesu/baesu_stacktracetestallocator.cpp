@@ -447,6 +447,13 @@ void baesu_StackTraceTestAllocator::setFailureHandler(
     d_failureHandler = func;
 }
 
+void baesu_StackTraceTestAllocator::setFailureHandler(void (*func)())
+{
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+
+    d_failureHandler = func;
+}
+
 void baesu_StackTraceTestAllocator::setName(const char *name)
 {
     BSLS_ASSERT(0 != name);
@@ -522,9 +529,9 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
         traceVec.insert(traceVec.end(), startTrace, endTrace);
 
         // We avoid using:
-        //.. 
+        //..
         //  ++stackTraceVecMap[traceVec];
-        //.. 
+        //..
         // Because 'bsl::map' uses the default allocator to create a temporary
         // object in 'operator[]', and we want to avoid using the default
         // allocator in a test allocator since the client may be debugging

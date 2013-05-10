@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 // want a core dump to occur, it is recommended they do:
 //..
 //    stackTraceTestAllocator.setFailurehandler(
-//                         &baesu_StackTraceTestAllocator::failureHandlerNoop);
+//                                   &baesu_StackTraceTestAllocator::failNoop);
 //..
 // The stack trace test allocator is prepared for the failure handler to
 // return, throw (provided the client will catch the exception) or longjmp
@@ -516,6 +516,12 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
     // supplying (at construction) any other allocator implementing the
     // 'bslam::Allocator' protocol.
 
+  public:
+    // PUBLIC TYPES
+    typedef bdef_Function<void (*)()> FailureHandler;
+            // Function object or pointer type returned by 'failureHandler()'
+            // and set by 'setFailureHandler'.
+
   private:
     // PRIVATE TYPES
     enum AllocatorMagic { STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
@@ -539,7 +545,7 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
 
     const char               *d_name;              // name of this allocator
 
-    bdef_Function<void (*)()> d_failureHandler;    // function we are to call
+    FailureHandler           d_failureHandler;    // function we are to call
                                                    // on errors.  The default
                                                    // handler will call
                                                    // 'abort'.
@@ -656,7 +662,7 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
         // platforms; demangling never happens on some platforms and always
         // happens on others.
 
-    void setFailureHandler(const bdef_Function<void (*)()>& func);
+    void setFailureHandler(const FailureHandler& func);
         // Set the failure handler associated with this allocator object to a
         // copy ofthe specified 'func'.  Upon construction, the function
         // 'failAbort' is associated with this object by default.  Note that
@@ -665,6 +671,15 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
         // failure situations, errors or warnings will be written to the
         // 'ostream' associated with this object prior to the call to the
         // failure handler.
+
+    void setFailureHandler(void (*func)());
+        // Assign the specified 'func' to this test allocator's failure handler
+        // functor object.  Upon construction, the function 'failAbort' is
+        // associated with this object by default.  Note that 'func' will be
+        // called by this object's destructor if memory is leaked, so it is
+        // important that it not throw.  Note that in ALL failure situations,
+        // errors or warnings will be written to the 'ostream' associated with
+        // this object prior to the call to the failure handler.
 
     void setName(const char * name);
         // Set the name of this allocator to the specified 'name'.  If
@@ -678,7 +693,7 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
         // written to 'bsl::cerr'.
 
     // ACCESSORS
-    const bdef_Function<void (*)()>& failureHandler() const;
+    const FailureHandler& failureHandler() const;
         // Return a reference to the function object that is called to
         // facilitate this allocator object's handling of failure.
 
@@ -698,7 +713,7 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
                       // -----------------------------------
 
 inline
-const bdef_Function<void (*)()>&
+const baesu_StackTraceTestAllocator::FailureHandler&
 baesu_StackTraceTestAllocator::failureHandler() const
 {
     return d_failureHandler;

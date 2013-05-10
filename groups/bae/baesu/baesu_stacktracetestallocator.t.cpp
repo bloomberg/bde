@@ -286,9 +286,6 @@ static int veryVeryVerbose;
 
 static const bsl::size_t npos = bsl::string::npos;
 
-static const bdef_Function<void (*)()> failAbortFunc(&Obj::failAbort);
-static const bdef_Function<void (*)()> failNoopFunc (&Obj::failNoop);
-
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -1117,7 +1114,7 @@ int main(int argc, char *argv[])
         {
             baesu_StackTraceTestAllocator stta;
             stta.setName("stta");
-            stta.setFailureHandler(&stta.failNoop);
+            stta.setFailureHandler(stta.failNoop);
 
             bslma::TestAllocator ta("Bslma Test Allocator", &stta);
             ta.setNoAbort(true);
@@ -1766,7 +1763,7 @@ int main(int argc, char *argv[])
                             ASSERT(my_failureHandlerFlag);
                         }
 
-                        ta.setFailureHandler(&Obj::failAbort);
+                        ta.setFailureHandler(Obj::failAbort);
 
                         LOOP_ASSERT(ss.str(), npos != ss.str().find(
                                                 "Error: corrupted block at "));
@@ -1825,7 +1822,7 @@ int main(int argc, char *argv[])
                             ASSERT(my_failureHandlerFlag);
                         }
 
-                        ta.setFailureHandler(&Obj::failAbort);
+                        ta.setFailureHandler(Obj::failAbort);
 
                         LOOP_ASSERT(ss.str(), npos != ss.str().find(
                                                 "Error: corrupted block at "));
@@ -3053,7 +3050,9 @@ int main(int argc, char *argv[])
                 ta.setName("my_allocator");
                 ta.setOstream(&oss);
 
-                ta.setFailureHandler(&Obj::failAbort);
+                const Obj::FailureHandler saveFail = ta.failureHandler();
+                ta.setFailureHandler(Obj::failNoop);
+                ta.setFailureHandler(saveFail);
 
                 // No blocks are allocated.  Verify 'release' has no effect.
 
