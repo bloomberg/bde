@@ -48,11 +48,13 @@ ifneq ($(GROUPS_STATIC_ONLY),)
 	  -g $(subst $(space),$(comma),$(GROUPS_STATIC_ONLY))        \
 	  -t $(subst $(space),$(comma),$(STATIC_FLAVORS))
 endif
+ifneq ($(GROUPS_RSSUITE),)
 	BDE_ROOT=. BDE_PATH=. PATH=$(PATH)                           \
 	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
 	  -p $(UPLID)                                                \
 	  -g $(subst $(space),$(comma),$(GROUPS_RSSUITE))            \
 	  -t $(subst $(space),$(comma),$(ALL_FLAVORS))
+endif
 endif
 
 ##################################################################
