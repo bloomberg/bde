@@ -716,7 +716,7 @@ struct bsls_Platform_Assert;
 
 // MSVC and Windows
 #elif defined(BSLS_PLATFORM_CMP_MSVC) && defined(BSLS_PLATFORM_OS_WINDOWS)
-#   defined BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
 #endif
 
 // Endianness sanity check is done further in this header.
