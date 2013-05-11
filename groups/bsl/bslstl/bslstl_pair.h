@@ -561,20 +561,6 @@ class pair : public Pair_Imp<T1, T2,
 
 }  // namespace bsl
 
-// ===========================================================================
-//                                TYPE TRAITS
-// ===========================================================================
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <typename T1, typename T2>
-struct IsPair<bsl::pair<T1, T2> > : bsl::true_type
-{};
-
-}
-}
-
 namespace bsl {
 
 // FREE OPERATORS
@@ -637,57 +623,6 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
     // no-throw only if 'swap' on each field is no-throw.
 
 }  // close namespace bsl
-
-// ===========================================================================
-//                                TYPE TRAITS
-// ===========================================================================
-
-namespace bsl {
-
-template <typename T1, typename T2>
-struct is_trivially_copyable<pair<T1, T2> >
-    : bsl::integral_constant<bool, is_trivially_copyable<T1>::value
-                                  && is_trivially_copyable<T2>::value>
-{};
-
-template <typename T1, typename T2>
-struct is_trivially_default_constructible<bsl::pair<T1, T2> >
-: bsl::integral_constant<bool, is_trivially_default_constructible<T1>::value
-                            && is_trivially_default_constructible<T2>::value>
-{};
-
-}
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <typename T1, typename T2>
-struct IsBitwiseMoveable<bsl::pair<T1, T2> >
-    : bsl::integral_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
-                                  && bslmf::IsBitwiseMoveable<T2>::value>
-{};
-
-template <typename T1, typename T2>
-struct IsBitwiseEqualityComparable<bsl::pair<T1, T2> >
-: bsl::integral_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
-                            && bslmf::IsBitwiseEqualityComparable<T2>::value
-                            && sizeof(T1) + sizeof(T2) ==
-                                           sizeof(bsl::Pair_Imp<T1, T2, 0, 0>)>
-{};
-
-}  // bslmf
-
-namespace bslma {
-
-template <typename T1, typename T2>
-struct UsesBslmaAllocator<bsl::pair<T1, T2> >
-    : bsl::integral_constant<bool, UsesBslmaAllocator<T1>::value
-                                   || UsesBslmaAllocator<T2>::value>
-{};
-
-}  // bslma
-
-}  // BloombergLP
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1023,6 +958,64 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b)
 }
 
 }  // close namespace bsl
+
+// ===========================================================================
+//                                TYPE TRAITS
+// ===========================================================================
+
+namespace bsl {
+
+template <typename T1, typename T2>
+struct is_trivially_copyable<pair<T1, T2> >
+    : bsl::integral_constant<bool, is_trivially_copyable<T1>::value
+                                  && is_trivially_copyable<T2>::value>
+{};
+
+template <typename T1, typename T2>
+struct is_trivially_default_constructible<bsl::pair<T1, T2> >
+: bsl::integral_constant<bool, is_trivially_default_constructible<T1>::value
+                            && is_trivially_default_constructible<T2>::value>
+{};
+
+}
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename T1, typename T2>
+struct IsPair<bsl::pair<T1, T2> > : bsl::true_type
+{};
+
+// Note that we must explicitly declare bitwise moveable sine 'T1' or 'T2' may
+// be bitwise moveable and not bitwise copyable.
+
+template <typename T1, typename T2>
+struct IsBitwiseMoveable<bsl::pair<T1, T2> >
+    : bsl::integral_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
+                                  && bslmf::IsBitwiseMoveable<T2>::value>
+{};
+
+template <typename T1, typename T2>
+struct IsBitwiseEqualityComparable<bsl::pair<T1, T2> >
+: bsl::integral_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
+                            && bslmf::IsBitwiseEqualityComparable<T2>::value
+                            && sizeof(T1) + sizeof(T2) ==
+                                           sizeof(bsl::Pair_Imp<T1, T2, 0, 0>)>
+{};
+
+}  // bslmf
+
+namespace bslma {
+
+template <typename T1, typename T2>
+struct UsesBslmaAllocator<bsl::pair<T1, T2> >
+    : bsl::integral_constant<bool, UsesBslmaAllocator<T1>::value
+                                   || UsesBslmaAllocator<T2>::value>
+{};
+
+}  // bslma
+
+}  // BloombergLP
 
 #endif
 

@@ -311,28 +311,6 @@ struct equal_to {
 
 }  // close namespace bsl
 
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for 'equal_to'
-//: o 'equal_to' is an stateless POD, trivially constructible, copyable, and
-//:   moveable.
-
-namespace bsl {
-
-template<class VALUE_TYPE>
-struct is_trivially_default_constructible<equal_to<VALUE_TYPE> >
-: bsl::true_type
-{};
-
-template<class VALUE_TYPE>
-struct is_trivially_copyable<equal_to<VALUE_TYPE> >
-: bsl::true_type
-{};
-
-}  // close namespace bsl
-
 namespace bsl {
 
 // ============================================================================
@@ -351,6 +329,28 @@ bool equal_to<VALUE_TYPE>::operator()(const VALUE_TYPE& lhs,
 {
     return lhs == rhs;
 }
+
+}  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for 'equal_to'
+//: o 'equal_to' is a stateless POD, trivially constructible, copyable, and
+//:   moveable.
+
+namespace bsl {
+
+template<class VALUE_TYPE>
+struct is_trivially_default_constructible<equal_to<VALUE_TYPE> >
+: bsl::true_type
+{};
+
+template<class VALUE_TYPE>
+struct is_trivially_copyable<equal_to<VALUE_TYPE> >
+: bsl::true_type
+{};
 
 }  // close namespace bsl
 
