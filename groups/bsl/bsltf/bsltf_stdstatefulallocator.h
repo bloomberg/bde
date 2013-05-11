@@ -154,8 +154,16 @@ BSLS_IDENT("$Id: $")
 #include <bslma_testallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
 #endif
 
 namespace BloombergLP {
@@ -500,10 +508,14 @@ max_size() const
     // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
     // 'size_type' (copied from bslstl_allocator).
 
-    static const bool BSLMA_SIZE_IS_SIGNED =
-                              ~BloombergLP::bslma::Allocator::size_type(0) < 0;
-    static const std::size_t MAX_NUM_BYTES =
-                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
+    // We will calculate MAX_NUM_BYTES based on our knowledge that
+    // 'bslma::Allocator::size_type' is just an alias for 'std::size_t'.  First
+    // demonstrate that is true:
+
+    BSLMF_ASSERT((bsl::is_same<BloombergLP::bslma::Allocator::size_type,
+                                                         std::size_t>::value));
+
+    static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
     static const std::size_t MAX_NUM_ELEMENTS =
                                      std::size_t(MAX_NUM_BYTES) / sizeof(TYPE);
     return MAX_NUM_ELEMENTS;
