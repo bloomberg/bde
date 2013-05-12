@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-MAKE_JOBS:=4
+MAKE_JOBS:=12
 PATH:=/bbshr/bde/bde-tools/bin:/usr/bin:/bin
 TMPDIR:=/tmp
 SHELL:=/bin/bash
@@ -14,14 +14,13 @@ include $(BDE_TOOLS_ETC)/debian-rules-uplid
 include $(BDE_TOOLS_ETC)/debian-rules-flavors
 
 GROUPS_STATIC_ONLY:=bae bce bde bte bbe
-GROUPS:=$(GROUPS_STATIC_ONLY) $(GROUPS_RSSUITE)
+GROUPS:=$(GROUPS_STATIC_ONLY)
 
 comma:= ,
 empty:=
 space:= $(empty) $(empty)
 
 clean:
-	cat debian/control.in | perl -pi -e 's/\$$\{shlib\:RSSUITE\}/$(RSSUITE)/g' > debian/control
 	rm -rf debian/lib{bae,bce,bde,bte,bbe}-dev debian/bde-core-bdemeta
 	rm -f debian/*files debian/files
 	rm -f debian/build-stamp
@@ -36,28 +35,11 @@ producemake:
 	cp $(BDE_TOOLS_ETC)/default.opts etc/
 	echo "* _ USER_CXXFLAGS = -I/bb/include -I/bb/include/stlport" >> etc/default.opts
 	rsync -a /bb/bdemeta/groups/ groups/
-ifeq ($(STATIC_FLAVORS),)
-	BDE_ROOT=. BDE_PATH=/bb/bdemeta:. PATH=$(PATH)               \
-	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
-	  -p $(UPLID)                                                \
-	  -g $(subst $(space),$(comma),$(GROUPS_RSSUITE))            \
-	  -t $(subst $(space),$(comma),$(DYNAMIC_FLAVORS))
-else
-ifneq ($(GROUPS_STATIC_ONLY),)
 	BDE_ROOT=. BDE_PATH=/bb/bdemeta:. PATH=$(PATH)               \
 	  $(PRODUCEMAKE) -Lgv -r . -ddd -vvv --nonmake                         \
 	  -p $(UPLID)                                                \
 	  -g $(subst $(space),$(comma),$(GROUPS_STATIC_ONLY))        \
 	  -t $(subst $(space),$(comma),$(STATIC_FLAVORS))
-endif
-ifneq ($(GROUPS_RSSUITE),)
-	BDE_ROOT=. BDE_PATH=/bb/bdemeta:. PATH=$(PATH)               \
-	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
-	  -p $(UPLID)                                                \
-	  -g $(subst $(space),$(comma),$(GROUPS_RSSUITE))            \
-	  -t $(subst $(space),$(comma),$(ALL_FLAVORS))
-endif
-endif
 
 ##################################################################
 # First we're going to define the rules for the actual build....
@@ -123,8 +105,7 @@ endif
 
 ALL_DEV_PACKAGES+=lib$(1)-dev-binary
 lib$(1)-dev-binary: lib$(1)-dev
-	dpkg-gencontrol -plib$(1)-dev -V"shlib:RSSUITE=$(RSSUITE)" \
-	     -Pdebian/lib$(1)-dev
+	dpkg-gencontrol -plib$(1)-dev -Pdebian/lib$(1)-dev
 	dpkg-deb -b debian/lib$(1)-dev ../
 
 endef
