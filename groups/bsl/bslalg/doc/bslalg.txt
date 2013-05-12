@@ -4,17 +4,24 @@
 
 @MNEMONIC: Basic Standard Library ALgorithms (bslalg)
 
-@DESCRIPTION: The 'bsl' library relies on several traits to identify properties
- of types, such as whether they use a memory allocator to supply memory
- resources, have a trivial default constructor, are POD types, etc.  This
- package provides distinct traits types used to tag user-defined (client) types
- according to these properties and to select implementation of primitive
- algorithms customized to these properties.
+@DESCRIPTION: This package provides facilities for implementing higher-level
+ components (in particular, the standard library containers).  The facilities
+ fall into three broad classes:
 
- In addition to the various traits "tag" types, this package also provide
- implementations of said primitive algorithms (used to implement STL containers
- and other standard components in the 'bslstl' package) that take advantage of
- these traits.
+: o Utilities that provide efficient implementations of primitive operations
+:   on generic data types (e.g., construction, copy-construction), optimized
+:   based on the exposed traits of the type (e.g., bitwise-copyable,
+:   uses-allocator).
+
+: o Primitive data types and fundamental algorithms that form the basis of
+:   standard library containers (e.g., linked lists, hash tables, Red/ Black
+:   trees and deques).
+
+: o Legacy traits types used to tag user-defined (client) types according to
+:   properties such as whether they use a memory allocator to supply memory
+:   resources, have a trivial default constructor, are POD types, etc.  These
+:   traits types have been superceded by the traits in the 'bslmf' package,
+:   and are implemented in terms of 'bslmf'.
 
 /Hierarchical Synopsis
 /---------------------
