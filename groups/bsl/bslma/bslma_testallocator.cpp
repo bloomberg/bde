@@ -505,26 +505,7 @@ void *TestAllocator::allocate(size_type size)
     }
 #endif
 
-    if (size < 0) {
-        ++d_numMismatches;
-        if (!d_quietFlag) {
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-            std::printf("*** Invalid (negative) allocation size %lld ***\n",
-                        static_cast<bsls::Types::Int64>(size));
-#else
-            std::printf("*** Invalid (negative) allocation size %d ***\n",
-                        size);
-#endif
-        }
-        if (d_noAbortFlag) {
-            return 0;                                                 // RETURN
-        }
-        else {
-            std::abort();                                             // ABORT
-        }
-    }
-
-    if (size <= 0) {
+    if (size == 0) {
         return 0;                                                     // RETURN
     }
 
