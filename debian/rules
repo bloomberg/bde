@@ -13,8 +13,7 @@ BDE_TOOLS_ETC=/bbshr/bde/bde-tools/etc
 include $(BDE_TOOLS_ETC)/debian-rules-uplid
 include $(BDE_TOOLS_ETC)/debian-rules-flavors
 
-GROUPS_STATIC_ONLY:=bae bce bde bte bbe
-GROUPS:=$(GROUPS_STATIC_ONLY)
+GROUPS:=bae bce bde bte bbe
 
 comma:= ,
 empty:=
@@ -30,13 +29,18 @@ clean:
 	   -name $(UPLID) \
 	   -prune -exec rm -rf {} \;
 
+# A few levels of hackery to keep producemake happy:
+#   o Copy default.opts into "etc" in the source tree
+#   o Add a line to default.opts adding the -I rules for /bb/include and
+#     /bb/include/stlport to USER_CXXFLAGS.
+#   o Copy all the bsl metadata from /bb/bdemeta/groups/ into groups/
 producemake:
 	mkdir -p etc
 	cp $(BDE_TOOLS_ETC)/default.opts etc/
 	echo "* _ USER_CXXFLAGS = -I/bb/include -I/bb/include/stlport" >> etc/default.opts
 	rsync -a /bb/bdemeta/groups/ groups/
 	BDE_ROOT=. BDE_PATH=/bb/bdemeta:. PATH=$(PATH)               \
-	  $(PRODUCEMAKE) -Lgv -r . -ddd -vvv --nonmake                         \
+	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
 	  -p $(UPLID)                                                \
 	  -g $(subst $(space),$(comma),$(GROUPS_STATIC_ONLY))        \
 	  -t $(subst $(space),$(comma),$(STATIC_FLAVORS))
@@ -114,7 +118,7 @@ $(foreach group,$(GROUPS),$(eval $(call GROUPdev_template,$(group))))
 
 debian/bde-core-bdemeta.stamp:
 	mkdir -p debian/bde-core-bdemeta/DEBIAN
-	find groups -type d \( -name 'package' -or -name 'group' \) \
+	find $(foreach g,$(GROUPS),groups/$(g)) -type d \( -name 'package' -or -name 'group' \) \
 	  -exec mkdir -p debian/bde-core-bdemeta/bb/bdemeta/{} \; \
 	  -exec sh -c "cp "{}"/* debian/bde-core-bdemeta/bb/bdemeta/"{}"/" \;
 	dpkg-gencontrol -pbde-core-bdemeta \
