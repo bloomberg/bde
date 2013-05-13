@@ -134,7 +134,7 @@ void exchangeInts(int *a, int *b)
 // Do some work here, as we need to consume user time.  The more we do the
 // better, so we are intentionally inefficient.
 
-int array[17] = {
+int dataArray[17] = {
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
 };
 
@@ -143,9 +143,9 @@ Int64 osUserCall(RawTimerFunction timerFn)
     for (int k = 0; k < 100; ++k) {
         for (int i = 0; i < 17-1; ++i) {
             for (int j = i+1; j < 17; ++j) {
-                if (   (k%2 == 0 && array[i] < array[j]++)
-                    || (k%2 != 0 && array[i] > array[j]++)) {
-                    exchangeInts(&array[i], &array[j]);
+                if (   (k%2 == 0 && dataArray[i] < dataArray[j]++)
+                    || (k%2 != 0 && dataArray[i] > dataArray[j]++)) {
+                    exchangeInts(&dataArray[i], &dataArray[j]);
                 }
             }
         }

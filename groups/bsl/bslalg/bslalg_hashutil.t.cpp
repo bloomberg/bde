@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
         ASSERT(2343743579U == HashUtil::computeHash((float)3.1415926536));
         ASSERT(3721749206U ==
                         HashUtil::computeHash((double)3.14159265358979323844));
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         ASSERT(2631003531U ==
                            HashUtil::computeHash((void*)0xffab13f1324e5473LL));
 #else
@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
                          "bsls_Types::Uint64");
         time_computeHash((float)3.1415926536, "float");
         time_computeHash((double)3.14159265358979323844, "double");
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         time_computeHash((void*)0xffab13f1324e5473LL, "void*");
 #else
         time_computeHash((void*)0xffab13f1, "void*");

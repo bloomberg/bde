@@ -32,7 +32,7 @@ BSLS_IDENT_RCSID(bslalg_hashutil_cpp,"$Id$ $CSID$")
 //..
 
 // STATIC HELPER FUNCTIONS
-#ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
 static
 unsigned int hash(const char *data, int length)
     // That the memory starting at the specified 'data' of specified 'length'
@@ -101,7 +101,7 @@ namespace bslalg {
                             // ---------------
 
 // CLASS METHODS
-#ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
   #define HASH2(KEY)  hash((const char *) &KEY, sizeof KEY)
 #else
   #define HASH2(KEY)  reverse_hash((const char *) &KEY, sizeof KEY)
