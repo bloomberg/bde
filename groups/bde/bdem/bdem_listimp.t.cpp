@@ -323,10 +323,10 @@ bool isEqual(const ET::Type elemType,
     bool rv = false;
     switch (elemType) {
       case ET::BDEM_INT: {
-        rv = *(int *)value1 == *(int *)value2;
+        rv = *(const int *)value1 == *(const int *)value2;
       } break;
       case ET::BDEM_STRING: {
-        rv = *(bsl::string *)value1 == *(bsl::string *)value2;
+        rv = *(const bsl::string *)value1 == *(const bsl::string *)value2;
       } break;
       case ET::BDEM_CHAR:
       case ET::BDEM_SHORT:

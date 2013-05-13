@@ -348,7 +348,8 @@ static void helpBuildVector()
     str2[BUF_WRITE2] = '\0';
 
     for (i = 0; i < 5; ++i) {
-        ioVec[i].setBuffer((void*)BUFFERS[i].d_sndBuf, BUFFERS[i].d_sndLen);
+        ioVec[i].setBuffer((void*) const_cast<char *>(BUFFERS[i].d_sndBuf),
+                BUFFERS[i].d_sndLen);
         oVec[i].setBuffer(BUFFERS[i].d_sndBuf, BUFFERS[i].d_sndLen);
     }
     ioVec[5].setBuffer(str2, strlen(str2));

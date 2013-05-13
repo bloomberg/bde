@@ -2628,30 +2628,34 @@ bool bcem_AggregateRaw_Util::isConformant(const void           *object,
     if (recordDef) {
         switch (type) {
           case bdem_ElemType::BDEM_LIST: {
-            result = bcem_AggregateRaw_Util::isConformant((bdem_List*)object,
-                                                          recordDef);
+            result = bcem_AggregateRaw_Util::isConformant(
+                    (const bdem_List*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_ROW: {
-            result = bcem_AggregateRaw_Util::isConformant((bdem_Row*)object,
-                                                          recordDef);
+            result = bcem_AggregateRaw_Util::isConformant(
+                    (const bdem_Row*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_TABLE: {
-            result = bcem_AggregateRaw_Util::isConformant((bdem_Table*)object,
-                                                          recordDef);
+            result = bcem_AggregateRaw_Util::isConformant(
+                    (const bdem_Table*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_CHOICE: {
-            result = bcem_AggregateRaw_Util::isConformant((bdem_Choice*)object,
-                                                          recordDef);
+            result = bcem_AggregateRaw_Util::isConformant(
+                    (const bdem_Choice*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM: {
             result = bcem_AggregateRaw_Util::isConformant(
-                                                 (bdem_ChoiceArrayItem*)object,
-                                                 recordDef);
+                    (const bdem_ChoiceArrayItem*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_CHOICE_ARRAY: {
             result = bcem_AggregateRaw_Util::isConformant(
-                                                     (bdem_ChoiceArray*)object,
-                                                     recordDef);
+                    (const bdem_ChoiceArray*)object,
+                    recordDef);
           } break;
           default: {
             result = false;

@@ -13801,7 +13801,7 @@ DEFINE_TEST_CASE(14) {
             int                  LENGTH  = DATA[ti].d_length;
 
             Table mX(&testAllocator); hh(&mX, SPEC); const Table& X = mX;
-            bdex_ByteInStream testInStream((char *) BINARY, LENGTH);
+            bdex_ByteInStream testInStream((const char *) BINARY, LENGTH);
 
             Table U;
             int version;

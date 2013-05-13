@@ -1493,7 +1493,7 @@ int bcem_AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
         return error.code();                                          // RETURN
     }
 
-    bdem_Table            *dstTable     = (bdem_Table *)data();
+    bdem_Table            *dstTable     = (bdem_Table *)d_value_p;
     const bdem_Descriptor *baseTypeDesc =
                                   bdem_ElemAttrLookup::lookupTable()[baseType];
 
@@ -1522,7 +1522,7 @@ int bcem_AggregateRaw::assignToNillableScalarArray(
         return bcem_ErrorCode::BCEM_NON_CONFORMANT;                   // RETURN
     }
 
-    *(bdem_Table *)data() = value;
+    *(bdem_Table *)d_value_p = value;
     return 0;
 }
 
@@ -1562,7 +1562,7 @@ int bcem_AggregateRaw::assignToNillableScalarArray(
         return 0;                                                     // RETURN
     }
 
-    bdem_Table            *dstTable     = (bdem_Table *)data();
+    bdem_Table            *dstTable     = (bdem_Table *)d_value_p;
     const bdem_Descriptor *baseTypeDesc =
                                   bdem_ElemAttrLookup::lookupTable()[baseType];
     typename bsl::vector<TYPE>::const_iterator iter = value.begin();

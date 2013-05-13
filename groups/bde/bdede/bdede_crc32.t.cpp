@@ -2602,7 +2602,7 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
 
             unsigned int crc32t =
-                          crc32trm((char*)DATA[i], bsl::strlen(DATA[i]), '\0');
+                          crc32trm(DATA[i], bsl::strlen(DATA[i]), '\0');
 
             if (crc32t != X.checksum()) {
                 bsl::cout << "CRC32 different: " << crc32t << "(legacy) != "
@@ -2639,7 +2639,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
                 for (int j = 0; j < NUM_DATA; ++j) {
                     unsigned int crc32t =
-                          crc32trm((char*)DATA[j], bsl::strlen(DATA[j]), '\0');
+                          crc32trm(DATA[j], bsl::strlen(DATA[j]), '\0');
                 }
             }
             timer.stop();

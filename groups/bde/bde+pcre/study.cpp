@@ -420,7 +420,7 @@ pcre_extra *extra;
 pcre_study_data *study;
 const uschar *tables;
 const real_pcre *re = (const real_pcre *)external_re;
-uschar *code = (uschar *)re + re->name_table_offset +
+const uschar *code = (const uschar *)re + re->name_table_offset +
   (re->name_count * re->name_entry_size);
 compile_data compile_block;
 

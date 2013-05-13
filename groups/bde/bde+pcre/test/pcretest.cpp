@@ -1146,7 +1146,7 @@ while (!done)
         while (namecount-- > 0)
           {
           fprintf(outfile, "  %s %*s%3d\n", nametable + 2,
-            nameentrysize - 3 - (int)strlen((char *)nametable + 2), "",
+            nameentrysize - 3 - (int)strlen((const char *)nametable + 2), "",
             GET2(nametable, 0));
           nametable += nameentrysize;
           }
@@ -1936,7 +1936,7 @@ while (!done)
 #endif
   if (tables != NULL)
     {
-    free((void *)tables);
+    free(const_cast<unsigned char *>(tables));
     setlocale(LC_CTYPE, "C");
     }
   }

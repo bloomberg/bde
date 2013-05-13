@@ -341,6 +341,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECONST
+#include <bslmf_removeconst.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVEPOINTER
 #include <bslmf_removepointer.h>
 #endif
@@ -1911,12 +1915,27 @@ void ArrayPrimitives_Imp::copyConstruct(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
-    copyConstruct(
-           (void *       *) toBegin,
-           (void * const *) fromBegin,
-           (void * const *) fromEnd,
-           allocator,
-           (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+    typedef typename bsl::remove_const<
+            typename bsl::remove_pointer<TARGET_TYPE>::type>::type NcPtrType;
+
+    typedef typename bsl::remove_const<
+            typename bsl::remove_pointer<
+            typename bsl::remove_pointer<FWD_ITER>::type>::type>::type NcIter;
+
+#if defined(BSLS_PLATFORM_CMP_IBM)  // xlC has problem removing pointer from
+                                    // function pointer types
+    copyConstruct((void *       *) toBegin,
+                  (void * const *) fromBegin,
+                  (void * const *) fromEnd,
+                  allocator,
+                  (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+#else
+    copyConstruct((void *       *) const_cast<NcPtrType **>(toBegin),
+                  (void * const *) const_cast<NcIter * const *>(fromBegin),
+                  (void * const *) const_cast<NcIter * const *>(fromEnd),
+                  allocator,
+                  (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+#endif
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -2276,6 +2295,15 @@ void ArrayPrimitives_Imp::insert(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
+    typedef typename bsl::remove_const<
+            typename bsl::remove_pointer<TARGET_TYPE>::type>::type NcPtrType;
+
+    typedef typename bsl::remove_const<
+            typename bsl::remove_pointer<
+            typename bsl::remove_pointer<FWD_ITER>::type>::type>::type NcIter;
+
+#if defined(BSLS_PLATFORM_CMP_IBM)  // xlC has problem removing pointer from
+                                    // function pointer types
     insert((void *       *) toBegin,
            (void *       *) toEnd,
            (void * const *) fromBegin,
@@ -2283,6 +2311,15 @@ void ArrayPrimitives_Imp::insert(
            numElements,
            allocator,
            (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+#else
+    insert((void *       *) const_cast<NcPtrType **>(toBegin),
+           (void *       *) const_cast<NcPtrType **>(toEnd),
+           (void * const *) const_cast<NcIter * const *>(fromBegin),
+           (void * const *) const_cast<NcIter * const *>(fromEnd),
+           numElements,
+           allocator,
+           (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+#endif
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>

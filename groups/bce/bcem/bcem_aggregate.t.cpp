@@ -2031,7 +2031,7 @@ ERef getERef(ET::Type type, int value)
     // (one of 'A', 'B', 'N') of the specified 'type'.
 {
     CERef T = getCERef(type, value);
-    return ERef((void *) T.data(), T.descriptor());
+    return ERef(const_cast<void *>(T.data()), T.descriptor());
 }
 
 bool isUnset(const CERef& ref)
@@ -2766,18 +2766,18 @@ static bool compareCERefs(const CERef& lhs, const CERef& rhs)
 {
     // Special Handling of list/row and choice/choice-array-item combinations:
     if (ET::BDEM_ROW == lhs.type() && ET::BDEM_LIST == rhs.type()) {
-        return *(Row *) lhs.data() == rhs.theList().row();
+        return *(const Row *) lhs.data() == rhs.theList().row();
     }
     else if (ET::BDEM_LIST == lhs.type() && ET::BDEM_ROW == rhs.type()) {
-        return lhs.theList().row() == *(Row *) rhs.data();
+        return lhs.theList().row() == *(const Row *) rhs.data();
     }
     else if (ET::BDEM_CHOICE_ARRAY_ITEM == lhs.type()
           && ET::BDEM_CHOICE            == rhs.type()) {
-        return *(ChoiceItem *) lhs.data() == rhs.theChoice().item();
+        return *(const ChoiceItem *) lhs.data() == rhs.theChoice().item();
     }
     else if (ET::BDEM_CHOICE            == lhs.type()
           && ET::BDEM_CHOICE_ARRAY_ITEM == rhs.type()) {
-        return lhs.theChoice().item() == *(ChoiceItem *) rhs.data();
+        return lhs.theChoice().item() == *(const ChoiceItem *) rhs.data();
     }
     else {
         return lhs == rhs;
@@ -15521,7 +15521,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 const ERef  EA = getERef(TYPE, 1);
                 const ERef  EB = getERef(TYPE, 2);
-                const ERef NULL_ER((void *) CEN.data(),
+                const ERef NULL_ER(const_cast<void *>(CEN.data()),
                                    CEN.descriptor(),
                                    &NULLNESS_FLAGS,
                                    NULLNESS_BIT_IDX);
