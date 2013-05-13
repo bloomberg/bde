@@ -3447,7 +3447,8 @@ inline
 void *bcema_OldSharedPtr_RepImpl<TYPE, DELETER_FUNCTOR>::getDeleter(
                                          bsl::type_info const & typeInfo) const
 {
-    return (void *)((typeid(DELETER_FUNCTOR) == typeInfo) ? &d_deleter : 0);
+    return (void *)((typeid(DELETER_FUNCTOR) == typeInfo)
+                            ? const_cast<bslma::Allocator **>(&d_deleter) : 0);
 }
 
 template <class TYPE, class DELETER_FUNCTOR>
@@ -3666,8 +3667,8 @@ void *bcema_OldSharedPtr_InplaceRepImpl<TYPE>::getDeleter(
                                          bsl::type_info const & typeInfo) const
 {
     // TBD  d_allocator_p should be moved into the derived classes anyway.
-    return (typeid(bslma::Allocator *) == typeInfo) ? (void *)&d_allocator_p
-                                                    : 0;
+    return (typeid(bslma::Allocator *) == typeInfo)
+        ? (void *) const_cast<bslma::Allocator **>(&d_allocator_p) : 0;
 }
 
 template <class TYPE>

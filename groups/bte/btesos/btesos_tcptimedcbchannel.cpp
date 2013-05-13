@@ -332,7 +332,8 @@ inline
 void btesos_TcpTimedCbChannel_RReg::invoke(int status, int asyncStatus) const {
     BSLS_ASSERT(VFUNC2 == d_callbackType);
     bdef_Function<void (*)(int, int)> *cb =
-        (bdef_Function<void (*)(int, int)> *) (void *) d_cb.d_arena;
+        (bdef_Function<void (*)(int, int)> *)
+        (void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(status, asyncStatus);
 }
 
@@ -340,7 +341,7 @@ inline
 void btesos_TcpTimedCbChannel_RReg::invoke(const char *buffer,
                                           int status, int asyncStatus) const {
     BSLS_ASSERT(VFUNC3 == d_callbackType);
-    BReadCb *cb = (BReadCb *)(void *)d_cb.d_arena;
+    BReadCb *cb = (BReadCb *)(void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(buffer, status, asyncStatus);
 }
 
@@ -3573,9 +3574,11 @@ int btesos_TcpTimedCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + numBytes);
                 }
 
-                bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
-                            (char*)(buffers[idx].buffer()) + offset,
-                            buffers[idx].length() - offset);
+                bsl::memcpy(
+                        &d_writeBuffer[d_writeBufferOffset],
+                        (char*) const_cast<void *>(buffers[idx].buffer())
+                            + offset,
+                        buffers[idx].length() - offset);
 
                 if (idx < numBuffers - 1) {
                     int len = btes_IovecUtil::gather(
@@ -3849,7 +3852,8 @@ int btesos_TcpTimedCbChannel::timedBufferedWritev(
                 }
 
                 bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
-                            (char*)(buffers[idx].buffer()) + offset,
+                            (char*) const_cast<void *>(buffers[idx].buffer())
+                                + offset,
                             buffers[idx].length() - offset);
 
                 if (idx < numBuffers - 1) {

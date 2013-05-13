@@ -400,7 +400,7 @@ void bcema_FixedPool::setBackoffLevel(int backoffLevel)
 inline
 void *bcema_FixedPool::addressFromIndex(int index) const
 {
-    const Node * const node = d_nodes[index];
+    Node * node = const_cast<Node *>(d_nodes[index]);
 
     BSLS_ASSERT(node);
     return (char *)node + d_dataOffset;

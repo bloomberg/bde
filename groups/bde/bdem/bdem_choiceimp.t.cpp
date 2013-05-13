@@ -720,10 +720,12 @@ static const void *getValueN(char spec)
 static bool compare(const void *p, const void *q, char spec)
 {
     switch (spec) {
-      case 'A': return *(SmallString *) p == *(SmallString *) q;
-      case 'B': return *(SmallStringAlloc *) p == *(SmallStringAlloc *) q;
-      case 'C': return *(LargeString *) p == *(LargeString *) q;
-      case 'D': return *(LargeStringAlloc *) p == *(LargeStringAlloc *) q;
+      case 'A': return *(const SmallString *) p == *(const SmallString *) q;
+      case 'B': return *(const SmallStringAlloc *) p
+                                              == *(const SmallStringAlloc *) q;
+      case 'C': return *(const LargeString *) p == *(const LargeString *) q;
+      case 'D': return *(const LargeStringAlloc *) p
+                                              == *(const LargeStringAlloc *) q;
       default: ASSERT(0); return false;
     }
 }
@@ -2867,19 +2869,19 @@ int main(int argc, char *argv[])
 
             else if (getDescriptor(SPEC) == &my_SmallStringAllocDescriptor)
             {
-               SmallStringAlloc s1((char*)VALUE,&sampleAlloc);
+               SmallStringAlloc s1((const char*)VALUE,&sampleAlloc);
                mX.makeSelection(0, &SSA_1);
             }
 
             else if (getDescriptor(SPEC) == &my_LargeStringDescriptor)
             {
-               LargeString s1((char*)VALUE);
+               LargeString s1((const char*)VALUE);
                mX.makeSelection(0, &LS_1);
             }
 
             else
             {
-               LargeStringAlloc s1((char*)VALUE, &sampleAlloc);
+               LargeStringAlloc s1((const char*)VALUE, &sampleAlloc);
                mX.makeSelection(0, &LSA_1);
             }
 
@@ -3001,7 +3003,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == U.size());
         ASSERT(0 == U.selector());
         ASSERT(my_ElemTypes::MY_SMALL_STRING == U.selectionType(0));
-        ASSERT(SS_UNSET    == *(SmallString *) U.selectionPointer());
+        ASSERT(SS_UNSET    == *(const SmallString *) U.selectionPointer());
         ASSERT(bdem_ConstElemRef(&SS_UNSET, &my_SmallStringDescriptor) ==
                U.selection());
         ASSERT(!U.selection().isNull());
@@ -3011,7 +3013,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == U.size());
         ASSERT(0 == U.selector());
         ASSERT(my_ElemTypes::MY_SMALL_STRING == U.selectionType(0));
-        ASSERT(SS_UNSET == *(SmallString *) U.selectionPointer());
+        ASSERT(SS_UNSET == *(const SmallString *) U.selectionPointer());
         ASSERT(bdem_ConstElemRef(&SS_UNSET, &my_SmallStringDescriptor) !=
                U.selection());
 
@@ -3057,7 +3059,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == X.size());
         ASSERT(0 == X.selector());
         ASSERT(my_ElemTypes::MY_SMALL_STRING == X.selectionType(0));
-        ASSERT(SS_1 == *(SmallString *) X.selectionPointer());
+        ASSERT(SS_1 == *(const SmallString *) X.selectionPointer());
         ASSERT(bdem_ConstElemRef(&SS_1, &my_SmallStringDescriptor) ==
                X.selection());
         ASSERT(!X.selection().isNull());
@@ -3067,7 +3069,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == X.size());
         ASSERT(0 == X.selector());
         ASSERT(my_ElemTypes::MY_SMALL_STRING == X.selectionType(0));
-        ASSERT(SS_UNSET == *(SmallString *) X.selectionPointer());
+        ASSERT(SS_UNSET == *(const SmallString *) X.selectionPointer());
         ASSERT(bdem_ConstElemRef(&SS_1, &my_SmallStringDescriptor) !=
                X.selection());
 
@@ -3113,7 +3115,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == Y.size());
         ASSERT(0 == Y.selector());
         ASSERT(my_ElemTypes::MY_SMALL_STRING_ALLOC == Y.selectionType(0));
-        ASSERT(SSA_1 == *(SmallStringAlloc *) Y.selectionPointer());
+        ASSERT(SSA_1 == *(const SmallStringAlloc *) Y.selectionPointer());
         ASSERT(bdem_ConstElemRef(&SSA_1, &my_SmallStringAllocDescriptor) ==
            Y.selection());
         ASSERT(!Y.selection().isNull());
@@ -3123,7 +3125,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == Y.size());
         ASSERT(0 == Y.selector());
         ASSERT(my_ElemTypes::MY_SMALL_STRING_ALLOC == Y.selectionType(0));
-        ASSERT(SSA_UNSET == *(SmallStringAlloc *) Y.selectionPointer());
+        ASSERT(SSA_UNSET == *(const SmallStringAlloc *) Y.selectionPointer());
         ASSERT(bdem_ConstElemRef(&SS_1, &my_SmallStringAllocDescriptor) !=
                Y.selection());
 
@@ -3169,7 +3171,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == Z.size());
         ASSERT(0 == Z.selector());
         ASSERT(my_ElemTypes::MY_LARGE_STRING == Z.selectionType(0));
-        ASSERT(LS_1 == *(LargeString *) Z.selectionPointer());
+        ASSERT(LS_1 == *(const LargeString *) Z.selectionPointer());
         ASSERT(bdem_ConstElemRef(&LS_1, &my_LargeStringDescriptor) ==
                Z.selection());
         ASSERT(!Z.selection().isNull());
@@ -3179,7 +3181,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == Z.size());
         ASSERT(0 == Z.selector());
         ASSERT(my_ElemTypes::MY_LARGE_STRING == Z.selectionType(0));
-        ASSERT(LS_UNSET == *(LargeString *) Z.selectionPointer());
+        ASSERT(LS_UNSET == *(const LargeString *) Z.selectionPointer());
         ASSERT(bdem_ConstElemRef(&LS_1, &my_LargeStringDescriptor) !=
                Z.selection());
 
@@ -3225,7 +3227,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == W.size());
         ASSERT(0 == W.selector());
         ASSERT(my_ElemTypes::MY_LARGE_STRING_ALLOC == W.selectionType(0));
-        ASSERT(LSA_1 == *(LargeStringAlloc *) W.selectionPointer());
+        ASSERT(LSA_1 == *(const LargeStringAlloc *) W.selectionPointer());
         ASSERT(bdem_ConstElemRef(&LSA_1, &my_LargeStringAllocDescriptor) ==
            W.selection());
         ASSERT(!W.selection().isNull());
@@ -3235,7 +3237,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == W.size());
         ASSERT(0 == W.selector());
         ASSERT(my_ElemTypes::MY_LARGE_STRING_ALLOC == W.selectionType(0));
-        ASSERT(LSA_UNSET == *(LargeStringAlloc *) W.selectionPointer());
+        ASSERT(LSA_UNSET == *(const LargeStringAlloc *) W.selectionPointer());
         ASSERT(bdem_ConstElemRef(&LSA_1, &my_LargeStringAllocDescriptor) !=
                W.selection());
 
@@ -3367,30 +3369,36 @@ int main(int argc, char *argv[])
         if (verbose)
             bsl::cout << "\nTesting 'getValueA'." << bsl::endl;
         {
-            ASSERT(SS_1  == *(SmallString *)getValueA(SPECIFICATIONS[0]));
-            ASSERT(SSA_1 == *(SmallStringAlloc *)getValueA(SPECIFICATIONS[1]));
-            ASSERT(LS_1  == *(LargeString *)getValueA(SPECIFICATIONS[2]));
-            ASSERT(LSA_1 == *(LargeStringAlloc *)getValueA(SPECIFICATIONS[3]));
+            ASSERT(SS_1  == *(const SmallString *)getValueA(SPECIFICATIONS[0]));
+            ASSERT(SSA_1
+                   == *(const SmallStringAlloc *)getValueA(SPECIFICATIONS[1]));
+            ASSERT(LS_1 == *(const LargeString *)getValueA(SPECIFICATIONS[2]));
+            ASSERT(LSA_1
+                   == *(const LargeStringAlloc *)getValueA(SPECIFICATIONS[3]));
         }
 
         if (verbose)
             bsl::cout << "\nTesting 'getValueB'." << bsl::endl;
         {
-            ASSERT(SS_2  == *(SmallString *)getValueB(SPECIFICATIONS[0]));
-            ASSERT(SSA_2 == *(SmallStringAlloc *)getValueB(SPECIFICATIONS[1]));
-            ASSERT(LS_2  == *(LargeString *)getValueB(SPECIFICATIONS[2]));
-            ASSERT(LSA_2 == *(LargeStringAlloc *)getValueB(SPECIFICATIONS[3]));
+            ASSERT(SS_2 == *(const SmallString *)getValueB(SPECIFICATIONS[0]));
+            ASSERT(SSA_2
+                   == *(const SmallStringAlloc *)getValueB(SPECIFICATIONS[1]));
+            ASSERT(LS_2 == *(const LargeString *)getValueB(SPECIFICATIONS[2]));
+            ASSERT(LSA_2
+                   == *(const LargeStringAlloc *)getValueB(SPECIFICATIONS[3]));
         }
 
         if (verbose)
             bsl::cout << "\nTesting 'getValueN'." << bsl::endl;
         {
-            ASSERT(SS_UNSET  == *(SmallString *) getValueN(SPECIFICATIONS[0]));
-            ASSERT(SSA_UNSET ==
-                           *(SmallStringAlloc *) getValueN(SPECIFICATIONS[1]));
-            ASSERT(LS_UNSET  == *(LargeString *) getValueN(SPECIFICATIONS[2]));
-            ASSERT(LSA_UNSET ==
-                           *(LargeStringAlloc *) getValueN(SPECIFICATIONS[3]));
+            ASSERT(SS_UNSET
+                    == *(const SmallString *) getValueN(SPECIFICATIONS[0]));
+            ASSERT(SSA_UNSET
+                  == *(const SmallStringAlloc *) getValueN(SPECIFICATIONS[1]));
+            ASSERT(LS_UNSET
+                    == *(const LargeString *) getValueN(SPECIFICATIONS[2]));
+            ASSERT(LSA_UNSET
+                  == *(const LargeStringAlloc *) getValueN(SPECIFICATIONS[3]));
         }
 
         if (verbose)
@@ -3655,7 +3663,7 @@ int main(int argc, char *argv[])
             ASSERT(my_ElemTypes::MY_SMALL_STRING == X.selectionType(0));
             mX.makeSelection(0);
             ASSERT(X.selection().isNull());
-            ASSERT(SS_UNSET == * (SmallString *) X.selection().data());
+            ASSERT(SS_UNSET == * (const SmallString *) X.selection().data());
             mX.selection().makeNull();
             ASSERT(X.selection().isNull());
 
@@ -3663,7 +3671,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numSelections());
             ASSERT(0 == X.selector());
             ASSERT(my_ElemTypes::MY_SMALL_STRING == X.selectionType(0));
-            ASSERT(SS_1    == *(SmallString *) X.selectionPointer());
+            ASSERT(SS_1    == *(const SmallString *) X.selectionPointer());
             if (veryVerbose) { bsl::cout << "\tX:" << bsl::endl;
             X.print(bsl::cout, 1, 4); }
 
@@ -3681,12 +3689,12 @@ int main(int argc, char *argv[])
             ASSERT(2 == X.numSelections());
             ASSERT(1 == X.selector());
             ASSERT(my_ElemTypes::MY_SMALL_STRING_ALLOC == X.selectionType(1));
-            ASSERT(SSA_1 == *(SmallStringAlloc *) X.selectionPointer());
+            ASSERT(SSA_1 == *(const SmallStringAlloc *) X.selectionPointer());
 
             // verify allocators used
             ASSERT(&sampleAlloc == SSA_1.get_allocator());
             ASSERT(&alloc ==
-                  (*(SmallStringAlloc *)X.selectionPointer()).get_allocator());
+            (*(const SmallStringAlloc *)X.selectionPointer()).get_allocator());
 
             if (veryVerbose) { bsl::cout << "\tX:" << bsl::endl;
             X.print(bsl::cout, 1, 4); }
@@ -3704,7 +3712,7 @@ int main(int argc, char *argv[])
             ASSERT(3 == X.numSelections());
             ASSERT(2 == X.selector());
             ASSERT(my_ElemTypes::MY_LARGE_STRING == X.selectionType(2));
-            ASSERT(LS_1    == *(LargeString *) X.selectionPointer());
+            ASSERT(LS_1    == *(const LargeString *) X.selectionPointer());
             if (veryVerbose) {
                 bsl::cout << "\tX:" << bsl::endl;
                 X.print(bsl::cout, 1, 4);
@@ -3723,7 +3731,7 @@ int main(int argc, char *argv[])
             ASSERT(4 == X.numSelections());
             ASSERT(3 == X.selector());
             ASSERT(my_ElemTypes::MY_LARGE_STRING_ALLOC == X.selectionType(3));
-            ASSERT(LSA_1    == *(LargeStringAlloc *) X.selectionPointer());
+            ASSERT(LSA_1 == *(const LargeStringAlloc *) X.selectionPointer());
             if (veryVerbose) {
                 bsl::cout << "\tX:" << bsl::endl;
                 X.print(bsl::cout, 1, 4);
@@ -3732,7 +3740,7 @@ int main(int argc, char *argv[])
             // verify allocators used
             ASSERT(&sampleAlloc == LSA_1.get_allocator());
             ASSERT(&alloc ==
-               (*(LargeStringAlloc *) X.selectionPointer()).get_allocator());
+           (*(const LargeStringAlloc *) X.selectionPointer()).get_allocator());
 
             if (veryVerbose) {
                 bsl::cout << "\tCopy Construct mY from mX" << bsl::endl;
@@ -3744,7 +3752,7 @@ int main(int argc, char *argv[])
             ASSERT(3 == Y.selector());
             ASSERT(!Y.selection().isNull());
             ASSERT(my_ElemTypes::MY_LARGE_STRING_ALLOC == Y.selectionType(3));
-            ASSERT(LSA_1    == *(LargeStringAlloc *) Y.selectionPointer());
+            ASSERT(LSA_1 == *(const LargeStringAlloc *) Y.selectionPointer());
 
             ASSERT(Y == X);
             ASSERT(!(Y != X));

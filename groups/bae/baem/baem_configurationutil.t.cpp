@@ -204,8 +204,8 @@ typedef baem_MetricDescription::UserDataKey Key;
 //..
                 const baem_MetricDescription& description = 
                                                 *gIt->metricId().description();
-                unsigned int *thresholdPtr = 
-                         (unsigned int *)description.userData(d_thresholdKey);
+                const unsigned int *thresholdPtr = 
+                    (const unsigned int *)description.userData(d_thresholdKey);
                 if (thresholdPtr && gIt->total() > *thresholdPtr) {
                     bsl::cout << "WARNING: " << gIt->metricId() 
                               << " = "       << gIt->total() 

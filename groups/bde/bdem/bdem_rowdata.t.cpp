@@ -1446,41 +1446,41 @@ ERef getERef(ET::Type type, char valueSpec)
     return ERef(const_cast<void *>(T.data()), T.descriptor());
 }
 
-static const void *getValueA(char spec)
+static void *getValueA(char spec)
     // Return the 'A' value corresponding to the specified 'spec'.  Valid
     // input consists of uppercase letters where the index of each letter is
     // in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef".
 {
     ASSERT('U' != spec || 'V' != spec || 'e' != spec || 'f' != spec);
 
-    return getCERef(getElemType(spec), '1').data();
+    return const_cast<void *>(getCERef(getElemType(spec), '1').data());
 }
 
-static const void *getValueB(char spec)
+static void *getValueB(char spec)
     // Return the 'B' value corresponding to the specified 'spec'.
 {
     ASSERT('U' != spec || 'V' != spec || 'e' != spec || 'f' != spec);
 
-    return getCERef(getElemType(spec), '2').data();
+    return const_cast<void *>(getCERef(getElemType(spec), '2').data());
 }
 
-static const void *getValueU(char spec)
+static void *getValueU(char spec)
     // Return the 'N' value corresponding to the specified 'spec'.
 {
     ASSERT('U' != spec || 'V' != spec || 'e' != spec || 'f' != spec);
 
-    return getCERef(getElemType(spec), 'u').data();
+    return const_cast<void *>(getCERef(getElemType(spec), 'u').data());
 }
 
-static const void *getValueN(char spec)
+static void *getValueN(char spec)
     // Return the 'N' value corresponding to the specified 'spec'.
 {
     ASSERT('U' != spec || 'V' != spec || 'e' != spec || 'f' != spec);
 
-    return getCERef(getElemType(spec), 'n').data();
+    return const_cast<void *>(getCERef(getElemType(spec), 'n').data());
 }
 
-static const void *getValue(char type, char valueSpec)
+static void *getValue(char type, char valueSpec)
 {
     switch (valueSpec) {
       case 'u': return getValueU(type);
@@ -1629,11 +1629,14 @@ static int compareUsingVersion(const Obj& src, const Obj& dst, int version)
     return true;
 }
 
-static int compare(const void *p, const void *q, char spec)
+static int compare(const void *cp, const void *cq, char spec)
     // Compare the specified 'p' and 'q' void pointers by casting them to the
     // data type corresponding to the specified 'spec' value.  Return true if
     // the two values are equal and false otherwise.
 {
+    void * p = const_cast<void *>(cp);
+    void * q = const_cast<void *>(cq);
+
     switch (spec) {
       case 'A': return *(char *) p == *(char *) q;
       case 'B': return *(short *) p == *(short *) q;

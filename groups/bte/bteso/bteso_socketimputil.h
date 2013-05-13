@@ -1490,7 +1490,7 @@ int bteso_SocketImpUtil_Imp<ADDRESS>::writeTo(
     bteso_SocketImpUtil_Address<ADDRESS> sockAddress(toAddress);
 
     if (!numBytes) return 0;
-    rc = static_cast<int>(::sendto(socket, (char *) buffer, numBytes, 0,
+    rc = static_cast<int>(::sendto(socket, (const char *) buffer, numBytes, 0,
                                    (sockaddr *)&sockAddress.d_address,
                                    sizeof sockAddress.d_address));
     int errorNumber = rc >= 0 ? 0 : bteso_SocketImpUtil_Util::getErrorCode();

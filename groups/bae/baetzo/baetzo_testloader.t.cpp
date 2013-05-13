@@ -1424,24 +1424,27 @@ int main(int argc, char *argv[])
         {
             int                       rc;
 
-            bdesb_FixedMemInStreamBuf bufNewYork((char*) AMERICA_NEW_YORK_DATA,
-                                                sizeof(AMERICA_NEW_YORK_DATA));
+            bdesb_FixedMemInStreamBuf bufNewYork(
+                    (const char*) AMERICA_NEW_YORK_DATA,
+                    sizeof(AMERICA_NEW_YORK_DATA));
             bsl::istream              streamNewYork(&bufNewYork);
             baetzo_Zoneinfo           newYork;
             rc = baetzo_ZoneinfoBinaryReader::read(&newYork, streamNewYork);
             ASSERT(0 == rc);
             newYork.setIdentifier(AMERICA_NEW_YORK_ID);
 
-            bdesb_FixedMemInStreamBuf bufRome((char*) EUROPE_ROME_DATA,
-                                              sizeof(EUROPE_ROME_DATA));
+            bdesb_FixedMemInStreamBuf bufRome(
+                    (const char*) EUROPE_ROME_DATA,
+                    sizeof(EUROPE_ROME_DATA));
             bsl::istream              streamRome(&bufRome);
             baetzo_Zoneinfo           rome;
             rc = baetzo_ZoneinfoBinaryReader::read(&rome, streamRome);
             ASSERT(0 == rc);
             rome.setIdentifier(EUROPE_ROME_ID);
 
-            bdesb_FixedMemInStreamBuf bufSaigon((char*) ASIA_SAIGON_DATA,
-                                                sizeof(ASIA_SAIGON_DATA));
+            bdesb_FixedMemInStreamBuf bufSaigon(
+                    (const char*) ASIA_SAIGON_DATA,
+                    sizeof(ASIA_SAIGON_DATA));
             bsl::istream              streamSaigon(&bufSaigon);
             baetzo_Zoneinfo           saigon;
             rc = baetzo_ZoneinfoBinaryReader::read(&saigon, streamSaigon);

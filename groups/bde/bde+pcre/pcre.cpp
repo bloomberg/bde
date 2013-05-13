@@ -2396,7 +2396,7 @@ for (;; ptr++)
         posix_class *= 3;
         for (i = 0; i < 3; i++)
           {
-          BOOL blankclass = strncmp((char *)ptr, "blank", 5) == 0;
+          BOOL blankclass = strncmp((const char *)ptr, "blank", 5) == 0;
           int taboffset = posix_class_maps[posix_class + i];
           if (taboffset < 0) break;
           if (local_negate)
@@ -3478,7 +3478,7 @@ for (;; ptr++)
 
           for (i = 0; i < cd->names_found; i++)
             {
-            if (strncmp((char *)name, (char *)slot+2, namelen) == 0) break;
+            if (strncmp((const char *)name, (char *)slot+2, namelen) == 0) break;
             slot += cd->name_entry_size;
             }
           if (i >= cd->names_found)
@@ -4515,7 +4515,7 @@ if (erroroffset == NULL)
 #ifdef SUPPORT_UTF8
 utf8 = (options & PCRE_UTF8) != 0;
 if (utf8 && (options & PCRE_NO_UTF8_CHECK) == 0 &&
-     (*erroroffset = valid_utf8((uschar *)pattern, -1)) >= 0)
+     (*erroroffset = valid_utf8((const uschar *)pattern, -1)) >= 0)
   {
   *errorptr = ERR44;
   return NULL;
@@ -9178,11 +9178,11 @@ back the character offset. */
 #ifdef SUPPORT_UTF8
 if (match_block.utf8 && (options & PCRE_NO_UTF8_CHECK) == 0)
   {
-  if (valid_utf8((uschar *)subject, length) >= 0)
+  if (valid_utf8((const uschar *)subject, length) >= 0)
     return PCRE_ERROR_BADUTF8;
   if (start_offset > 0 && start_offset < length)
     {
-    int tb = ((uschar *)subject)[start_offset];
+    int tb = ((const uschar *)subject)[start_offset];
     if (tb > 127)
       {
       tb &= 0xc0;

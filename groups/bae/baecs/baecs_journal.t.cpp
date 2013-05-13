@@ -485,7 +485,7 @@ int case5(Obj* mX, const char* data) {
       cout << "Checking getRecordData..." << endl;
    }
    int datalen = strlen(data)+1;
-   ASSERT(0 == mX->addRecord(&handle, (void*)data, datalen));
+   ASSERT(0 == mX->addRecord(&handle, const_cast<char *>(data), datalen));
    ASSERT(datalen == mX->getRecordData(b1, handle));
    ASSERT(datalen == mX->getRecordData(b2, handle));
 
@@ -529,7 +529,7 @@ int case5(Obj* mX, const char* data) {
    BSLS_ASSERT(mydatalen <= datalen);
 
    // Test reuse of the handle
-   ASSERT(0 == mX->addRecord(&handle, (void*)mydata, mydatalen));
+   ASSERT(0 == mX->addRecord(&handle, const_cast<char *>(mydata), mydatalen));
    b1 = new bcema_Blob;
    ASSERT(mydatalen == mX->getRecordData(b1, handle));
    ASSERT(0 != b1->length());
@@ -2671,9 +2671,9 @@ int main(int argc, char *argv[]) {
              mX.userData()[i] = '0' + (i - loopStart);
           }
 
-          mX.addRecord(&h1, (void*)BUF1, (int)strlen(BUF1)+1);
-          mX.addRecord(&dum, (void*)BUF2, (int)strlen(BUF2)+1);
-          mX.addRecord(&dum, (void*)BUF3, (int)strlen(BUF3)+1);
+          mX.addRecord(&h1, const_cast<char *>(BUF1), (int)strlen(BUF1)+1);
+          mX.addRecord(&dum, const_cast<char *>(BUF2), (int)strlen(BUF2)+1);
+          mX.addRecord(&dum, const_cast<char *>(BUF3), (int)strlen(BUF3)+1);
           mX.confirmRecord(h1);
           mX.commit();
 
@@ -2825,9 +2825,9 @@ int main(int argc, char *argv[]) {
           const char *BUF3 = "klm";
 
           ASSERT(0 == mX.create(argv[3], MODE_RW_AUTOCOMMIT));
-          mX.addRecord(&h1, (void*)BUF1, (int)strlen(BUF1)+1);
-          mX.addRecord(&dum, (void*)BUF2, (int)strlen(BUF2)+1);
-          mX.addRecord(&dum, (void*)BUF3, (int)strlen(BUF3)+1);
+          mX.addRecord(&h1, const_cast<char *>(BUF1), (int)strlen(BUF1)+1);
+          mX.addRecord(&dum, const_cast<char *>(BUF2), (int)strlen(BUF2)+1);
+          mX.addRecord(&dum, const_cast<char *>(BUF3), (int)strlen(BUF3)+1);
           mX.confirmRecord(h1);
           cout << 'A' << endl;
           bcemt_ThreadUtil::sleep(bdet_TimeInterval(4));
@@ -3018,7 +3018,8 @@ int main(int argc, char *argv[]) {
              ASSERT(0 == mX.create(filename, MODE_RW_AUTOCOMMIT));
 
              H dum;
-             ASSERT(0 == mX.addRecord(&dum, (void*)BUF1, strlen(BUF1)+1));
+             ASSERT(0 == mX.addRecord(&dum, const_cast<char *>(BUF1),
+                                      strlen(BUF1)+1));
              if (0 != case5(&mX, BUF2)) {
                 cout << "(Error occured in first case5 run)" << endl;
              }
@@ -3833,7 +3834,8 @@ int main(int argc, char *argv[]) {
 
           for (int i = 0; i < NUM_RECORDS; ++i) {
               baecs_Journal::RecordHandle handle;
-              mX.addRecord(&handle, (void*)"foo", (unsigned)3);
+              char foo[] = "foo";
+              mX.addRecord(&handle, foo, (unsigned)3);
               ASSERT(baecs_Journal::BAECS_INVALID_RECORD_HANDLE != handle);
               mX.commit();
           }

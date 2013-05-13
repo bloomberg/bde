@@ -1376,7 +1376,7 @@ void executeSimpleCategoryTest(const char *typeName)
         ASSERTV(typeName, Category::BDEAT_SIMPLE_CATEGORY ==
                                                   bdeat_typeCategorySelect(X));
 
-        ASSERTV(&obj == (TYPE*) X.object());
+        ASSERTV(&obj == (const TYPE*) X.object());
         ASSERTV(false == X.isByteArrayValue());
         ASSERTV(0     == X.className());
     }
@@ -1479,7 +1479,8 @@ void elementAccessor(baea_SerializableObjectProxy        *proxy,
                      int                                  index)
 {
     (void) index;  // remove warning
-    test::Simple *simpleObject = (test::Simple *)object.object();
+    test::Simple *simpleObject
+        = (test::Simple *) const_cast<void *>(object.object());
     proxy->loadSimple(&simpleObject->status());
 }
 //..

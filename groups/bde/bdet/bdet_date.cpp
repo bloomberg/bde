@@ -74,7 +74,7 @@ bsl::ostream& bdet_Date::print(bsl::ostream& stream,
         snprintf(buffer,
                  sizeof buffer,
                  "*BAD*DATE:%p->d_date=%d",
-                 (void *)this,
+                 this,
                  d_date);
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)

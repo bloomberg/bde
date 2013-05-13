@@ -383,7 +383,8 @@ void *case9ThreadW(void *arg)
 
         if (obj) {
             MTLOOP_ASSERT(mH.threshold(), 78  == mH.threshold());
-            MTLOOP2_ASSERT(obj, mH.category(), obj == (void *) mH.category());
+            MTLOOP2_ASSERT(obj, mH.category(),
+                           obj == (const void *) mH.category());
             results.push_back(obj);
         }
     }
@@ -430,7 +431,8 @@ void *case9ThreadQ(void *arg)
         } while(0 == obj);
 
         MTLOOP_ASSERT(mH.threshold(), 78  == mH.threshold());
-        MTLOOP2_ASSERT(obj, mH.category(), obj == (void *) mH.category());
+        MTLOOP2_ASSERT(obj, mH.category(),
+                       obj == (const void *) mH.category());
 
         results.push_back(obj);
     }

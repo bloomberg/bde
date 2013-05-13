@@ -564,7 +564,9 @@ static inline
 void fillBuffers(VECBUFFER *vecBuffers, int numBuffers, char ch)
 {
     for (int i = 0; i < numBuffers; ++i) {
-        memset((char*)vecBuffers[i].buffer(), ch, vecBuffers[i].length());
+        memset((char*) const_cast<void *>(vecBuffers[i].buffer()),
+               ch,
+               vecBuffers[i].length());
     }
 }
 

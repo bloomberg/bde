@@ -2816,7 +2816,8 @@ bool bdef_Function_RepUtil::inplaceBitwiseMoveableManager(
         // that 'source' is left in a empty state but must be zero-initialized
         // by the caller upon return.
 
-        const bdef_Function_Rep *sourceRep = (bdef_Function_Rep *) source;
+        const bdef_Function_Rep *sourceRep
+            = (const bdef_Function_Rep *) source;
 
         BSLS_ASSERT_SAFE(sourceRep->d_allocator_p == rep->d_allocator_p);
         bsl::memcpy((FUNC *)&rep->d_arena,
