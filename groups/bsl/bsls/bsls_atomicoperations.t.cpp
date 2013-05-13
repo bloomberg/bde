@@ -117,8 +117,8 @@ const int INT_SWAPTEST_VALUE2 = 0xff33ff33;
 const bsls::Types::Int64 INT64_SWAPTEST_VALUE1 = 0x33ff33ff33ff33ffLL;
 const bsls::Types::Int64 INT64_SWAPTEST_VALUE2 = 0xff33ff33ff33ff33LL;
 
-const void* POINTER_SWAPTEST_VALUE1 = (void*)0x33ff33ff;
-const void* POINTER_SWAPTEST_VALUE2 = (void*)0xff33ff33;
+void* POINTER_SWAPTEST_VALUE1 = (void*)0x33ff33ff;
+void* POINTER_SWAPTEST_VALUE2 = (void*)0xff33ff33;
 
 extern "C" {
 typedef void* (*THREAD_ENTRY)(void *arg);
@@ -1730,7 +1730,7 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const void* VAL  = VALUES[i].d_value;
+                void* VAL  = VALUES[i].d_value;
 
                 Types::Pointer x;
                 const Types::Pointer& X = x;
@@ -2332,9 +2332,9 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const void *VAL    = VALUES[i].d_value;
-                const void *SWPVAL = VALUES[i].d_swapValue;
-                void       *result = 0;
+                void *VAL    = VALUES[i].d_value;
+                void *SWPVAL = VALUES[i].d_swapValue;
+                void *result = 0;
 
                 Types::Pointer x;
                 const Types::Pointer& X = x;
@@ -2381,12 +2381,12 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const void *VAL    = VALUES[i].d_value;
-                const void *CMPVAL = VALUES[i].d_cmpValue;
-                const void *SWPVAL = VALUES[i].d_swapValue;
-                const void *EXPVAL = VALUES[i].d_expValue;
-                const void *EXPRES = VALUES[i].d_expResult;
-                void       *result = 0;
+                void *VAL    = VALUES[i].d_value;
+                void *CMPVAL = VALUES[i].d_cmpValue;
+                void *SWPVAL = VALUES[i].d_swapValue;
+                void *EXPVAL = VALUES[i].d_expValue;
+                void *EXPRES = VALUES[i].d_expResult;
+                void *result = 0;
 
                 Types::Pointer x;
                 const Types::Pointer& X = x;
@@ -3978,9 +3978,9 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const void *VAL    = VALUES[i].d_value;
-                const void *SWPVAL = VALUES[i].d_swapValue;
-                void       *result = 0;
+                void *VAL    = VALUES[i].d_value;
+                void *SWPVAL = VALUES[i].d_swapValue;
+                void *result = 0;
 
                 Types::Pointer x;
                 const Types::Pointer& X = x;
@@ -4027,12 +4027,12 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const void *VAL    = VALUES[i].d_value;
-                const void *CMPVAL = VALUES[i].d_cmpValue;
-                const void *SWPVAL = VALUES[i].d_swapValue;
-                const void *EXPVAL = VALUES[i].d_expValue;
-                const void *EXPRES = VALUES[i].d_expResult;
-                void       *result = 0;
+                void *VAL    = VALUES[i].d_value;
+                void *CMPVAL = VALUES[i].d_cmpValue;
+                void *SWPVAL = VALUES[i].d_swapValue;
+                void *EXPVAL = VALUES[i].d_expValue;
+                void *EXPRES = VALUES[i].d_expResult;
+                void *result = 0;
 
                 Types::Pointer x;
                 const Types::Pointer& X = x;
@@ -4871,7 +4871,7 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const void* VAL  = VALUES[i].d_value;
+                void* VAL  = VALUES[i].d_value;
 
                 Types::Pointer x;
                 const Types::Pointer& X = x;
@@ -4912,9 +4912,9 @@ int main(int argc, char *argv[]) {
         const bsls::Types::Int64 YVB=-1LL;
         const bsls::Types::Int64 YVC=0xFFFFFFFFLL;
 
-        const void *PVA=(void*)0xffff8888;
-        const void *PVB=(void*)0xffffffff;
-        const void *PVC=(void*)0x78888888;
+        void *PVA=(void*)0xffff8888;
+        void *PVB=(void*)0xffffffff;
+        void *PVC=(void*)0x78888888;
 
         int lresult;
         bsls::Types::Int64 llresult;

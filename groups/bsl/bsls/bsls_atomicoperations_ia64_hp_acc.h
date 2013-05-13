@@ -74,8 +74,7 @@ struct Atomic_TypeTraits<AtomicOperations_IA64_HP_ACC>
 
     struct Pointer
     {
-        void const * volatile d_value
-                                  __attribute__((__aligned__(sizeof(void *))));
+        void * volatile d_value __attribute__((__aligned__(sizeof(void *))));
     };
 };
 

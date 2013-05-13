@@ -1022,53 +1022,53 @@ struct AtomicOperations {
         // *** atomic functions for pointer ***
 
     static void initPointer(AtomicTypes::Pointer *atomicPtr,
-                            const void *initialValue = 0);
+                            void                 *initialValue = 0);
         // Initialize the specified 'atomicPtr' and set its value to the
         // specified 'initialValue'.
 
-    static const void *getPtr(AtomicTypes::Pointer const *atomicPtr);
+    static void *getPtr(AtomicTypes::Pointer const *atomicPtr);
         // Atomically retrieve the value of the specified 'atomicPtr',
         // providing the sequential consistency memory ordering guarantee.
 
-    static const void *getPtrRelaxed(AtomicTypes::Pointer const *atomicPtr);
+    static void *getPtrRelaxed(AtomicTypes::Pointer const *atomicPtr);
         // Atomically retrieve the value of the specified 'atomicPtr',
         // without providing any memory ordering guarantees.
 
-    static const void *getPtrAcquire(AtomicTypes::Pointer const *atomicPtr);
+    static void *getPtrAcquire(AtomicTypes::Pointer const *atomicPtr);
         // Atomically retrieve the value of the specified 'atomicPtr',
         // providing the acquire memory ordering guarantee.
 
     static void setPtr(AtomicTypes::Pointer *atomicPtr,
-                       const void           *value);
+                       void                 *value);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', providing the sequential consistency memory
         // ordering guarantee.
 
     static void setPtrRelaxed(AtomicTypes::Pointer *atomicPtr,
-                              const void           *value);
+                              void                 *value);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', without providing any memory ordering guarantees.
 
     static void setPtrRelease(AtomicTypes::Pointer *atomicPtr,
-                              const void           *value);
+                              void                 *value);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', providing the release memory ordering guarantee.
 
     static void *swapPtr(AtomicTypes::Pointer *atomicPtr,
-                         const void           *swapValue);
+                         void                 *swapValue);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', and return its previous value, providing the
         // sequential consistency memory ordering guarantee.
 
     static void *swapPtrAcqRel(AtomicTypes::Pointer *atomicPtr,
-                               const void           *swapValue);
+                               void                 *swapValue);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', and return its previous value, providing the
         // acquire/release memory ordering guarantee.
 
     static void *testAndSwapPtr(AtomicTypes::Pointer *atomicPtr,
-                                const void           *compareValue,
-                                const void           *swapValue);
+                                void                 *compareValue,
+                                void                 *swapValue);
         // Conditionally set the value of the specified 'atomicPtr' to the
         // specified 'swapValue' if and only if the value of 'atomicPtr' equals
         // the value of the specified 'compareValue', and return the initial
@@ -1076,8 +1076,8 @@ struct AtomicOperations {
         // ordering guarantee.  The whole operation is performed atomically.
 
     static void *testAndSwapPtrAcqRel(AtomicTypes::Pointer *atomicPtr,
-                                      const void           *compareValue,
-                                      const void           *swapValue);
+                                      void                 *compareValue,
+                                      void                 *swapValue);
         // Conditionally set the value of the specified 'atomicPtr' to the
         // specified 'swapValue' if and only if the value of 'atomicPtr' equals
         // the value of the specified 'compareValue', and return the initial
@@ -1424,70 +1424,68 @@ Types::Int64
 
 inline
 void AtomicOperations::initPointer(AtomicTypes::Pointer *atomicPtr,
-                                   const void           *initialValue)
+                                   void                 *initialValue)
 {
     Imp::initPointer(atomicPtr, initialValue);
 }
 
 inline
-const void *AtomicOperations::getPtr(AtomicTypes::Pointer const *atomicPtr)
+void *AtomicOperations::getPtr(AtomicTypes::Pointer const *atomicPtr)
 {
     return Imp::getPtr(atomicPtr);
 }
 
 inline
-const void *
-    AtomicOperations::getPtrRelaxed(AtomicTypes::Pointer const *atomicPtr)
+void * AtomicOperations::getPtrRelaxed(AtomicTypes::Pointer const *atomicPtr)
 {
     return Imp::getPtrRelaxed(atomicPtr);
 }
 
 inline
-const void *
-    AtomicOperations::getPtrAcquire(AtomicTypes::Pointer const *atomicPtr)
+void * AtomicOperations::getPtrAcquire(AtomicTypes::Pointer const *atomicPtr)
 {
     return Imp::getPtrAcquire(atomicPtr);
 }
 
 inline
 void AtomicOperations::setPtr(AtomicTypes::Pointer *atomicPtr,
-                              const void           *value)
+                              void                 *value)
 {
     Imp::setPtr(atomicPtr, value);
 }
 
 inline
 void AtomicOperations::setPtrRelaxed(AtomicTypes::Pointer *atomicPtr,
-                                     const void           *value)
+                                     void                 *value)
 {
     Imp::setPtrRelaxed(atomicPtr, value);
 }
 
 inline
 void AtomicOperations::setPtrRelease(AtomicTypes::Pointer *atomicPtr,
-                                     const void           *value)
+                                     void                 *value)
 {
     Imp::setPtrRelease(atomicPtr, value);
 }
 
 inline
 void *AtomicOperations::swapPtr(AtomicTypes::Pointer *atomicPtr,
-                                const void           *swapValue)
+                                void                 *swapValue)
 {
     return Imp::swapPtr(atomicPtr, swapValue);
 }
 
 inline
 void *AtomicOperations::swapPtrAcqRel(AtomicTypes::Pointer *atomicPtr,
-                                      const void           *swapValue)
+                                      void                 *swapValue)
 {
     return Imp::swapPtrAcqRel(atomicPtr, swapValue);
 }
 
 inline
 void *AtomicOperations::testAndSwapPtr(AtomicTypes::Pointer *atomicPtr,
-                                       const void           *compareValue,
-                                       const void           *swapValue)
+                                       void                 *compareValue,
+                                       void                 *swapValue)
 {
     return Imp::testAndSwapPtr(atomicPtr, compareValue, swapValue);
 }
@@ -1495,8 +1493,8 @@ void *AtomicOperations::testAndSwapPtr(AtomicTypes::Pointer *atomicPtr,
 inline
 void *AtomicOperations::testAndSwapPtrAcqRel(
                                             AtomicTypes::Pointer *atomicPtr,
-                                            const void           *compareValue,
-                                            const void           *swapValue)
+                                            void                 *compareValue,
+                                            void                 *swapValue)
 {
     return Imp::testAndSwapPtrAcqRel(atomicPtr, compareValue, swapValue);
 }

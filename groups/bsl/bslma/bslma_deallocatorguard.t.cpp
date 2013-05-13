@@ -324,8 +324,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("Testing constructor.\n");
         int di;
         for (di = 0; di < NUM_DATA; ++di) {
-            TestAllocator a;                   const TestAllocator &A = a;
-            void *addr = (void *) DATA[di];    const void *ADDR = addr;
+            TestAllocator a;
+            const TestAllocator &A = a;
+            void *addr = const_cast<void *>(DATA[di]);
+            const void *ADDR = addr;
             {
                 const bslma::DeallocatorGuard<TestAllocator> X(addr, &a);
             }
@@ -370,7 +372,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == X.lastDeallocateAddress());
         ASSERT(!X.isDeallocateCalled());
         for (int di = 0; di < NUM_DATA; ++di) {
-            void *addr = (void *) DATA[di];    const void *ADDR = addr;
+            void *addr = const_cast<void *>(DATA[di]);
+            const void *ADDR = addr;
             mX.deallocate(addr);
             if (veryVerbose) { T_ P(ADDR); }
             LOOP_ASSERT(di, ADDR == X.lastDeallocateAddress());
