@@ -586,8 +586,6 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
-#include <cstdio>
-
 namespace bsl {
 
                           // ==================
