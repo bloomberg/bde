@@ -1193,83 +1193,112 @@ class list
         // at least one element.
 
     // 23.3.5.4 modifiers:
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-    template <class... Args>
-    void emplace_front(Args&&... args);
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    void emplace_front(ARGS&&... args);
         // Insert a new element at the front of this list and construct it
         // using "emplace-construction" from the specified 'args'.
-#else
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
     void emplace_front();
-        // Insert a new element at the front of this list and construct it
-        // using "default-insertion".
-    template <class ARG1>
-    void emplace_front(const ARG1& a1);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified argument 'a1'.
-    template <class ARG1, class ARG2>
-    void emplace_front(const ARG1& a1, const ARG2& a2);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1' and
-        // 'a2'.
-    template <class ARG1, class ARG2, class ARG3>
-    void emplace_front(const ARG1& a1, const ARG2& a2, const ARG3& a3);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', and 'a3'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4>
-    void emplace_front(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                       const ARG4& a4);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', 'a3', and 'a4'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-    void emplace_front(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                       const ARG4& a4, const ARG5& a5);
-        // Insert a new element at the front of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', 'a3', 'a4', and 'a5'.
+
+    template <class ARGS_1>
+    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1);
+
+    template <class ARGS_1,
+              class ARGS_2>
+    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2);
+
+    template <class ARGS_1,
+              class ARGS_2,
+              class ARGS_3>
+    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3);
+
+    template <class ARGS_1,
+              class ARGS_2,
+              class ARGS_3,
+              class ARGS_4>
+    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4);
+
+    template <class ARGS_1,
+              class ARGS_2,
+              class ARGS_3,
+              class ARGS_4,
+              class ARGS_5>
+    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5);
+
+#else
+    template <class... ARGS>
+    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+// }}} END GENERATED CODE
 #endif
+
     void pop_front();
         // Remove and destroy the first element of this list.  The behavior is
         // undefined unless this list contains at least one element.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-    template <class... Args>
-    void emplace_back(Args&&... args);
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    void emplace_back(ARGS&&... args);
         // Insert a new element at the back of this list and construct it
         // using "emplace-construction" from the specified 'args'.
-#else
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
     void emplace_back();
-        // Insert a new element at the back of this list and construct it
-        // using "default-insertion".
-    template <class ARG1>
-    void emplace_back(const ARG1& a1);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified argument 'a1'.
-    template <class ARG1, class ARG2>
-    void emplace_back(const ARG1& a1, const ARG2& a2);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1' and
-        // 'a2'.
-    template <class ARG1, class ARG2, class ARG3>
-    void emplace_back(const ARG1& a1, const ARG2& a2, const ARG3& a3);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', and 'a3'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4>
-    void emplace_back(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                       const ARG4& a4);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', 'a3', and 'a4'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-    void emplace_back(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                       const ARG4& a4, const ARG5& a5);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified arguments 'a1',
-        // 'a2', 'a3', 'a4', and 'a5'.
+
+    template <class ARGS_1>
+    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1);
+
+    template <class ARGS_1,
+              class ARGS_2>
+    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2);
+
+    template <class ARGS_1,
+              class ARGS_2,
+              class ARGS_3>
+    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3);
+
+    template <class ARGS_1,
+              class ARGS_2,
+              class ARGS_3,
+              class ARGS_4>
+    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4);
+
+    template <class ARGS_1,
+              class ARGS_2,
+              class ARGS_3,
+              class ARGS_4,
+              class ARGS_5>
+    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5);
+
+#else
+    template <class... ARGS>
+    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+// }}} END GENERATED CODE
 #endif
 
     void pop_back();
@@ -1289,45 +1318,63 @@ class list
     void push_back(VALUE&& value);
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-    template <class... Args>
-    iterator emplace(const_iterator position, Args&&... args);
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    iterator emplace(const_iterator position, ARGS&&... args);
         // Insert a new element into this list before the element at the
         // specified 'position' using "emplace-construction" from the specified
         // 'args'.
-#else
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
     iterator emplace(const_iterator position);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "default-insertion".
-    template <class ARG1>
-    iterator emplace(const_iterator position, const ARG1& a1);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // argument 'a1'.
-    template <class ARG1, class ARG2>
-    iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // arguments 'a1' and 'a2'.
-    template <class ARG1, class ARG2, class ARG3>
-    iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2,
-                     const ARG3& a3);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // arguments 'a1', 'a2', and 'a3'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4>
-    iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2,
-                     const ARG3& a3, const ARG4& a4);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // arguments 'a1', 'a2', 'a3', and 'a4'.
-    template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-    iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2,
-                     const ARG3& a3, const ARG4& a4, const ARG5& a5);
-        // Insert a new element into this list before the element at the
-        // specified 'position' using "emplace-construction" from the specified
-        // arguments 'a1', 'a2', 'a3', 'a4', and 'a5'.
+
+    template <class ARGS_1>
+    iterator emplace(const_iterator position,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1);
+
+    template <class ARGS_1,
+              class ARGS_2>
+    iterator emplace(const_iterator position,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2);
+
+    template <class ARGS_1,
+              class ARGS_2,
+              class ARGS_3>
+    iterator emplace(const_iterator position,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3);
+
+    template <class ARGS_1,
+              class ARGS_2,
+              class ARGS_3,
+              class ARGS_4>
+    iterator emplace(const_iterator position,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4);
+
+    template <class ARGS_1,
+              class ARGS_2,
+              class ARGS_3,
+              class ARGS_4,
+              class ARGS_5>
+    iterator emplace(const_iterator position,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5);
+
+#else
+    template <class... ARGS>
+    iterator emplace(const_iterator position,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+// }}} END GENERATED CODE
 #endif
 
     iterator insert(const_iterator position, const VALUE& value);
@@ -2264,71 +2311,111 @@ VALUE& list<VALUE, ALLOCATOR>::back()
 }
 
 // 23.3.5.4 modifiers:
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class ALLOCATOR>
-template <class... Args>
+template <class... ARGS>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(Args&&... args)
+void list<VALUE, ALLOCATOR>::emplace_front(ARGS&&... args)
 {
-    emplace(begin(), std::forward<Args>(args)...);
+    emplace(begin(), std::forward<ARGS>(args)...);
 }
-#else
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
 template <class VALUE, class ALLOCATOR>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front()
+void list<VALUE, ALLOCATOR>::emplace_front(
+                               )
 {
     emplace(begin());
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1>
+template <class ARGS_1>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1)
+void list<VALUE, ALLOCATOR>::emplace_front(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1)
 {
-    emplace(begin(), a1);
+    emplace(begin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2>
+template <class ARGS_1,
+          class ARGS_2>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1, const ARG2& a2)
+void list<VALUE, ALLOCATOR>::emplace_front(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2)
 {
-    emplace(begin(), a1, a2);
+    emplace(begin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3>
+template <class ARGS_1,
+          class ARGS_2,
+          class ARGS_3>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3)
+void list<VALUE, ALLOCATOR>::emplace_front(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3)
 {
-    emplace(begin(), a1, a2, a3);
+    emplace(begin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4>
+template <class ARGS_1,
+          class ARGS_2,
+          class ARGS_3,
+          class ARGS_4>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3,
-                                          const ARG4& a4)
+void list<VALUE, ALLOCATOR>::emplace_front(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4)
 {
-    emplace(begin(), a1, a2, a3, a4);
+    emplace(begin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4));
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
+template <class ARGS_1,
+          class ARGS_2,
+          class ARGS_3,
+          class ARGS_4,
+          class ARGS_5>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3,
-                                          const ARG4& a4,
-                                          const ARG5& a5)
+void list<VALUE, ALLOCATOR>::emplace_front(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5)
 {
-    emplace(begin(), a1, a2, a3, a4, a5);
+    emplace(begin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
+                     BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5));
 }
+
+#else
+template <class VALUE, class ALLOCATOR>
+template <class... ARGS>
+inline
+void list<VALUE, ALLOCATOR>::emplace_front(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    emplace(begin(), BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+}
+// }}} END GENERATED CODE
 #endif
 
 template <class VALUE, class ALLOCATOR>
@@ -2340,71 +2427,111 @@ void list<VALUE, ALLOCATOR>::pop_front()
     erase(begin());
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class ALLOCATOR>
-template <class... Args>
+template <class... ARGS>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(Args&&... args)
+void list<VALUE, ALLOCATOR>::emplace_back(ARGS&&... args)
 {
-    emplace(end(), std::forward<Args>(args)...);
+    emplace(end(), std::forward<ARGS>(args)...);
 }
-#else
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
 template <class VALUE, class ALLOCATOR>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back()
+void list<VALUE, ALLOCATOR>::emplace_back(
+                               )
 {
     emplace(end());
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1>
+template <class ARGS_1>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1)
+void list<VALUE, ALLOCATOR>::emplace_back(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1)
 {
-    emplace(end(), a1);
+    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2>
+template <class ARGS_1,
+          class ARGS_2>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1, const ARG2& a2)
+void list<VALUE, ALLOCATOR>::emplace_back(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2)
 {
-    emplace(end(), a1, a2);
+    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3>
+template <class ARGS_1,
+          class ARGS_2,
+          class ARGS_3>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3)
+void list<VALUE, ALLOCATOR>::emplace_back(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3)
 {
-    emplace(end(), a1, a2, a3);
+    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4>
+template <class ARGS_1,
+          class ARGS_2,
+          class ARGS_3,
+          class ARGS_4>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3,
-                                          const ARG4& a4)
+void list<VALUE, ALLOCATOR>::emplace_back(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4)
 {
-    emplace(end(), a1, a2, a3, a4);
+    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4));
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
+template <class ARGS_1,
+          class ARGS_2,
+          class ARGS_3,
+          class ARGS_4,
+          class ARGS_5>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1,
-                                          const ARG2& a2,
-                                          const ARG3& a3,
-                                          const ARG4& a4,
-                                          const ARG5& a5)
+void list<VALUE, ALLOCATOR>::emplace_back(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5)
 {
-    emplace(end(), a1, a2, a3, a4, a5);
+    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5));
 }
+
+#else
+template <class VALUE, class ALLOCATOR>
+template <class... ARGS>
+inline
+void list<VALUE, ALLOCATOR>::emplace_back(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+}
+// }}} END GENERATED CODE
 #endif
 
 template <class VALUE, class ALLOCATOR>
@@ -2446,22 +2573,24 @@ void list<VALUE, ALLOCATOR>::push_back(VALUE&& value)
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class ALLOCATOR>
-template <class... Args>
+template <class... ARGS>
 typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position, Args&&... args)
+list<VALUE, ALLOCATOR>::emplace(const_iterator position, ARGS&&... args)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           std::forward<Args>(args)...);
+                           std::forward<ARGS>(args)...);
     proctor.release();
     return insert_node(position, p);
 }
-#else
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_list.h
 template <class VALUE, class ALLOCATOR>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position)
@@ -2475,97 +2604,126 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position)
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1>
+template <class ARGS_1>
 typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position, const ARG1& a1)
+list<VALUE, ALLOCATOR>::emplace(const_iterator position,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           a1);
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
     proctor.release();
     return insert_node(position, p);
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2>
+template <class ARGS_1,
+          class ARGS_2>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                               const ARG1& a1,
-                               const ARG2& a2)
-{
-    NodePtr p = allocate_node();
-    NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(),
-                       BloombergLP::bsls::Util::addressOf(p->d_value), a1, a2);
-    proctor.release();
-    return insert_node(position, p);
-}
-
-template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3>
-typename list<VALUE, ALLOCATOR>::iterator
-list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                               const ARG1& a1,
-                               const ARG2& a2,
-                               const ARG3& a3)
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           a1,
-                           a2,
-                           a3);
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
     proctor.release();
     return insert_node(position, p);
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4>
+template <class ARGS_1,
+          class ARGS_2,
+          class ARGS_3>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                               const ARG1& a1,
-                               const ARG2& a2,
-                               const ARG3& a3,
-                               const ARG4& a4)
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           a1,
-                           a2,
-                           a3,
-                           a4);
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
     proctor.release();
     return insert_node(position, p);
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
+template <class ARGS_1,
+          class ARGS_2,
+          class ARGS_3,
+          class ARGS_4>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                               const ARG1& a1,
-                               const ARG2& a2,
-                               const ARG3& a3,
-                               const ARG4& a4,
-                               const ARG5& a5)
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           a1,
-                           a2,
-                           a3,
-                           a4,
-                           a5);
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4));
     proctor.release();
     return insert_node(position, p);
 }
 
+template <class VALUE, class ALLOCATOR>
+template <class ARGS_1,
+          class ARGS_2,
+          class ARGS_3,
+          class ARGS_4,
+          class ARGS_5>
+typename list<VALUE, ALLOCATOR>::iterator
+list<VALUE, ALLOCATOR>::emplace(const_iterator position,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5)
+{
+    NodePtr p = allocate_node();
+    NodeProctor proctor(this, p);
+    AllocTraits::construct(allocator(),
+                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5));
+    proctor.release();
+    return insert_node(position, p);
+}
+
+#else
+template <class VALUE, class ALLOCATOR>
+template <class... ARGS>
+typename list<VALUE, ALLOCATOR>::iterator
+list<VALUE, ALLOCATOR>::emplace(const_iterator position,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    NodePtr p = allocate_node();
+    NodeProctor proctor(this, p);
+    AllocTraits::construct(allocator(),
+                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+    proctor.release();
+    return insert_node(position, p);
+}
+// }}} END GENERATED CODE
 #endif
 
 template <class VALUE, class ALLOCATOR>

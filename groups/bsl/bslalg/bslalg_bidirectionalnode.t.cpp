@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
 
             const int KA_INT = 0xa0a0a0a0;
 
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
             Obj * const KA = (Obj *) KA_INT;
 #else
             bsls::Types::Uint64 KA_UNSIGNED = 0xa0a0a0a0;

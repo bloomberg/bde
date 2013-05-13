@@ -328,7 +328,7 @@ struct hash<StringThing> {
     {
         enum { SHIFT_DOWN = sizeof(size_t) * 8 - 8 };
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         const size_t MULTIPLIER = 0x5555555555555555ULL; // 16 '5's
 #else
         const size_t MULTIPLIER = 0x55555555;            //  8 '5's

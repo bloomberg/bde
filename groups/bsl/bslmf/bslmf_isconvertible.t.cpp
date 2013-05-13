@@ -1082,7 +1082,7 @@ int main(int argc, char *argv[])
         ASSERT(false ==
              (bsl::is_convertible<const volatile int, volatile  int&>::value));
 
-#if !defined(BSLS_PLATFORM__CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_SUN)
         // Sun 5.2 and 5.5 both get this wrong when the cv-unqualified types
         // are the same.
         ASSERT(false == (bsl::is_convertible<volatile int,
