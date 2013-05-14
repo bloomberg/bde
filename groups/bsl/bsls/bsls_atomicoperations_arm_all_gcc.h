@@ -73,6 +73,14 @@ struct Atomic_TypeTraits<AtomicOperations_ARM_ALL_GCC>
 struct AtomicOperations_ARM_ALL_GCC
     : AtomicOperations_Default32<AtomicOperations_ARM_ALL_GCC>
 {
+private:
+    // PRIVATE TYPES
+    struct Int64_Words {
+        int w1;
+        int w2;
+    };
+
+public:
     typedef Atomic_TypeTraits<AtomicOperations_ARM_ALL_GCC> AtomicTypes;
 
         // *** atomic functions for int ***
@@ -125,25 +133,28 @@ struct AtomicOperations_ARM_ALL_GCC
             asm volatile ("dmb" ::: "memory")           \
 
 #       define BSLS_ATOMICOPERATIONS_INSTR_BARRIER()    \
-            asm volatile ("isb" ::: "memory")           \
+            asm volatile ("isb")                        \
 
 #   else
 
-#       define BSLS_ATOMICOPERATIONS_BARRIER()                  \
-            int temp_reg;                                       \
-            asm volatile (                                      \
-                    "mcr p15, 0, %[temp_reg], c7, c10, 5 \n\t"  \
-                    :                                           \
-                    : [temp_reg] "r" (temp_reg)                 \
-                    : )                                         \
+#       define BSLS_ATOMICOPERATIONS_BARRIER()                      \
+            do {                                                    \
+                int temp_reg = 0;                                   \
+                asm volatile (                                      \
+                        "mcr p15, 0, %[temp_reg], c7, c10, 5 \n\t"  \
+                        :                                           \
+                        : [temp_reg] "r" (temp_reg)                 \
+                        : "memory");                                \
+            } while (0)                                             \
 
-#       define BSLS_ATOMICOPERATIONS_INSTR_BARRIER()            \
-            int temp_reg;                                       \
-            asm volatile (                                      \
-                    "mcr p15, 0, %[temp_reg], c7, c5, 4 \n\t"   \
-                    :                                           \
-                    : [temp_reg] "r" (temp_reg)                 \
-                    : )                                         \
+#       define BSLS_ATOMICOPERATIONS_INSTR_BARRIER()                \
+            do {                                                    \
+                int temp_reg = 0;                                   \
+                asm volatile (                                      \
+                        "mcr p15, 0, %[temp_reg], c7, c5, 4 \n\t"   \
+                        :                                           \
+                        : [temp_reg] "r" (temp_reg));               \
+            } while (0)                                             \
 
 #   endif
 #else
@@ -272,12 +283,15 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
     Types::Int64 result;
 
     asm volatile (
-        "       ldrexd  %[res], %H[res], [%1]       \n\t"
+        "       ldrexd  r2, r3, [%2]       \n\t"
+        "       mov     %[res1], r2        \n\t"
+        "       mov     %[res2], r3        \n\t"
 
-                : [res] "=&r" (result)
-                :       "r"   (atomicInt),
-                        "Qo"  (*atomicInt)
-                : "memory");
+                : [res1] "=&r" (((Int64_Words &) result).w1),
+                  [res2] "=&r" (((Int64_Words &) result).w2)
+                :        "r"   (atomicInt),
+                         "Qo"  (*atomicInt)
+                : "r2", "r3");
 
     BSLS_ATOMICOPERATIONS_BARRIER();
 
@@ -312,17 +326,23 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
     BSLS_ATOMICOPERATIONS_BARRIER();
 
     asm volatile (
-        "1:     ldrexd  %[old], %H[old], [%3]           \n\t"
-        "       strexd  %[rc], %[val], %H[val], [%3]    \n\t"
-        "       teq     %[rc], #0                       \n\t"
-        "       bne     1b                              \n\t"
+        "1:     ldrexd  r2, r3, [%4]           \n\t"
+        "       mov     %[old1], r2            \n\t"
+        "       mov     %[old2], r3            \n\t"
+        "       mov     r2, %[val1]            \n\t"
+        "       mov     r3, %[val2]            \n\t"
+        "       strexd  %[rc], r2, r3, [%4]    \n\t"
+        "       teq     %[rc], #0              \n\t"
+        "       bne     1b                     \n\t"
 
-                : [rc]  "=&r" (rc),
-                  [old] "=&r" (oldValue),
-                        "+Qo" (*atomicInt)
-                :       "r"   (atomicInt),
-                  [val] "Ir"  (swapValue)
-                : "cc", "memory");
+                : [rc]   "=&r" (rc),
+                  [old1] "=&r" (((Int64_Words &) oldValue).w1),
+                  [old2] "=&r" (((Int64_Words &) oldValue).w2),
+                         "+Qo" (*atomicInt)
+                :        "r"   (atomicInt),
+                  [val1] "Ir"  (((Int64_Words &) swapValue).w1),
+                  [val2] "Ir"  (((Int64_Words &) swapValue).w2)
+                : "r2", "r3", "cc", "memory");
 
     BSLS_ATOMICOPERATIONS_INSTR_BARRIER();
 
@@ -351,21 +371,28 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
     BSLS_ATOMICOPERATIONS_BARRIER();
 
     asm volatile (
-        "1:     ldrexd  %[old], %H[old], [%3]           \n\t"
-        "       mov     %[rc], #0                       \n\t"
-        "       teq     %[old], %[cmp]                  \n\t"
-        "       teqeq   %H[old], %H[cmp]                \n\t"
-        "       strexdeq %[rc], %[val], %H[val], [%3]   \n\t"
-        "       teq     %[rc], #0                       \n\t"
-        "       bne     1b                              \n\t"
+        "1:     ldrexd  r2, r3, [%4]           \n\t"
+        "       mov     %[old1], r2            \n\t"
+        "       mov     %[old2], r3            \n\t"
+        "       mov     r2, %[val1]            \n\t"
+        "       mov     r3, %[val2]            \n\t"
+        "       mov     %[rc], #0              \n\t"
+        "       teq     %[old1], %[cmp1]       \n\t"
+        "       teqeq   %[old2], %[cmp2]       \n\t"
+        "       strexdeq %[rc], r2, r3, [%4]   \n\t"
+        "       teq     %[rc], #0              \n\t"
+        "       bne     1b                     \n\t"
 
-                : [rc]  "=&r" (rc),
-                  [old] "=&r" (oldValue),
-                        "+Qo" (*atomicInt)
-                :       "r"   (atomicInt),
-                  [cmp] "r"   (compareValue),
-                  [val] "r"   (swapValue)
-                : "cc", "memory");
+                : [rc]   "=&r" (rc),
+                  [old1] "=&r" (((Int64_Words &) oldValue).w1),
+                  [old2] "=&r" (((Int64_Words &) oldValue).w2),
+                         "+Qo" (*atomicInt)
+                :        "r"   (atomicInt),
+                  [cmp1] "r"   (((Int64_Words &) compareValue).w1),
+                  [cmp2] "r"   (((Int64_Words &) compareValue).w2),
+                  [val1] "Ir"  (((Int64_Words &) swapValue).w1),
+                  [val2] "Ir"  (((Int64_Words &) swapValue).w2)
+                : "r2", "r3", "cc", "memory");
 
     BSLS_ATOMICOPERATIONS_INSTR_BARRIER();
 
