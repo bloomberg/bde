@@ -513,6 +513,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example 1"
                           << "\n=======================" << endl;
 
+        ASSERT(true);
         TestCase1::testCase1(argc, false);
 
       } break;

@@ -108,7 +108,6 @@ int main(int argc, char *argv[])
         //   BSL_MAKE_VERSION(major, minor)
         //--------------------------------------------------------------------
 
-#if 0
         if (verbose) std::printf("\nTEST BSL_MAKE_VERSION MACRO"
                                  "\n===========================\n");
 
@@ -144,7 +143,6 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(LINE, EXP == BSL_MAKE_VERSION(MAJOR, MINOR));
         }
-#endif
 
       } break;
 
