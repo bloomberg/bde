@@ -17,25 +17,15 @@
  
 /Hierarchical Synopsis
 /---------------------
- 'baelu' currently has one components having one level of dependency.  The
- table below shows the hierarchical ordering of the components.  The package
- prefix and underscore ('baelu_') are omitted from the full component names for
- layout efficiency.  The three-column layout is structured to guide the eye,
- but has no particular significance.
+ The 'baelu' package currently has 1 component.
 ..
-Level
------
-
-  1   loggermanagerconfiguration
+  1. baelu_severity
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bael'.
-..
-baelu_loggermanagerconfiguration - non-primitive utilities on
-                                   'bael_LoggerManagerConfiguration'.
-..
+: 'baelu_severity':
+:      Provide a suite of utility functions on 'bael_Severity' levels.
 
 /Usage
 /----

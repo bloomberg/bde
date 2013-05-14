@@ -28,9 +28,9 @@
 /Hierarchical Synopsis
 /---------------------
  The 'bcema' package currently has 23 components having 5 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   5. bcema_blobutil
      bcema_pooledblobbufferfactory

@@ -25,25 +25,27 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bce' package group currently has 13 packages having 6 levels of
- physical dependency.  The table below shows the hierarchical ordering of the
- packages.  The order of packages within each level is not architecturally
- significant, just alphabetical.
+ The 'bce' package group currently has 13 packages having 8 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
 ..
-  6. bcecs
-     bcefu
+  8. bcecs
      bcep
 
-  5. bcec
-     bcef
+  7. bcec
+     bcefu
+
+  6. bcef
+     bcefi
+
+  5. bcefr
      bcem
      bcesb
 
-  4. bcefi
-     bcema
+  4. bcema
 
-  3. bcefr
-     bcemt
+  3. bcemt
 
   2. bces
 

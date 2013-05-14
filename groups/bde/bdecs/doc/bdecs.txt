@@ -13,9 +13,9 @@
 /Hierarchical Synopsis
 /---------------------
  The 'bdecs' package currently has 6 components having 3 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   3. bdecs_calendarcache
 

@@ -45,53 +45,59 @@ bdem.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdem' package currently has 43 components having 15 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ The 'bdem' package currently has 49 components having 15 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   15. bdem_binding
 
-  14. bdem_aggregateutil
-      bdem_schemaaggregateutil
+  14. bdem_schemaaggregateutil
 
-  13. bdem_aggregate
-      bdem_convert
+  13. bdem_aggregateutil
+      bdem_bdemdecoderutil
       bdem_schemaenumerationutil
       bdem_schemautil
 
-  12. bdem_schema
+  12. bdem_aggregate
+      bdem_bdemencoderutil
+      bdem_convert
+      bdem_schema
+
+  11. bdem_recorddef
       bdem_table
 
-  11. bdem_choicearray
-      bdem_recorddef
-
-  10. bdem_choice
+  10. bdem_choicearray
       bdem_fielddef
+
+   9. bdem_choice
+      bdem_fieldspec
       bdem_list
 
-   9. bdem_choicearrayitem
+   8. bdem_choicearrayitem
       bdem_fielddefattributes
       bdem_row
 
-   8. bdem_elemattrlookup
+   7. bdem_elemattrlookup
 
-   7. bdem_listimp
+   6. bdem_listimp
       bdem_tableimp
 
-   6. bdem_choicearrayimp
+   5. bdem_berdecoderutil
+      bdem_choicearrayimp
       bdem_choiceimp
       bdem_rowdata
 
-   5. bdem_berdecoder
+   4. bdem_berdecoder
+      bdem_berencoderutil
       bdem_choiceheader
       bdem_elemref
 
-   4. bdem_berencoder
+   3. bdem_berencoder
       bdem_properties
       bdem_rowlayout
 
-   3. bdem_allocatormanager
+   2. bdem_allocatormanager
       bdem_beruniversaltagnumber
       bdem_berutil
       bdem_descriptor
@@ -99,14 +105,14 @@ bdem.txt
       bdem_functiontemplates
       bdem_selectbdemtype
 
-   2. bdem_aggregateoption
+   1. bdem_aggregateoption
+      bdem_bdemdecoderoptions
+      bdem_bdemencoderoptions
       bdem_berconstants
       bdem_berdecoderoptions
       bdem_berencoderoptions
       bdem_configschema
       bdem_elemtype
-
-   1. bdem_fieldspec
 ..
  Note that all the aggregates at levels 8, 9, and 10, are intended to be
  *peers* and could have been implemented with *no* physical dependencies on
@@ -131,6 +137,18 @@ bdem.txt
 : 'bdem_allocatormanager':
 :      Provide an allocator manager based on a 'bdem' allocation strategy.
 :
+: 'bdem_bdemdecoderoptions':
+:      Provide value-semantic attribute classes
+:
+: 'bdem_bdemdecoderutil':
+:      Provide a 'bdem'-compatible decoder utility.
+:
+: 'bdem_bdemencoderoptions':
+:      Provide value-semantic attribute classes
+:
+: 'bdem_bdemencoderutil':
+:      Provide a 'bdem'-compatible encoder utility.
+:
 : 'bdem_berconstants':
 :      Provide namespace for storing BER-related constants
 :
@@ -140,11 +158,17 @@ bdem.txt
 : 'bdem_berdecoderoptions':
 :      TODO: Provide purpose
 :
+: 'bdem_berdecoderutil':
+:      Provide a BER decoder utility.
+:
 : 'bdem_berencoder':
 :      Provide a BER encoder class.
 :
 : 'bdem_berencoderoptions':
 :      Provide value-semantic attribute classes
+:
+: 'bdem_berencoderutil':
+:      Provide a BER encoder utility.
 :
 : 'bdem_beruniversaltagnumber':
 :      Enumerate the set of 'BER' universal tag numbers.
@@ -199,6 +223,9 @@ bdem.txt
 :
 : 'bdem_fielddefattributes':
 :      Provide the attributes for the definition of a field.
+:
+: 'bdem_fieldspec':
+:      Provide a specification for the type of a field.
 :
 : 'bdem_functiontemplates':
 :      Provide function templates for common operations on elements.

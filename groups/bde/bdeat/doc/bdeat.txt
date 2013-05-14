@@ -23,9 +23,9 @@
 /Hierarchical Synopsis
 /---------------------
  The 'bdeat' package currently has 16 components having 5 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   5. bdeat_arrayiterators
      bdeat_symbolicconverter

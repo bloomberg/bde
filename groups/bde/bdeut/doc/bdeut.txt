@@ -10,31 +10,50 @@
  big-endian types, nullable types, utility types for tokenizing strings, and a
  variant type.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bdeut' package currently has 9 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdeut_strtokeniter
+     bdeut_strtokenrefiter
+
+  1. bdeut_bigendian
+     bdeut_nullableallocatedvalue
+     bdeut_nullablevalue
+     bdeut_nullinputiterator
+     bdeut_nulloutputiterator
+     bdeut_stringref
+     bdeut_variant
+..
+
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the public components in 'bdeut'.  For
- the sake of brevity, we sometimes blur the distinction between a component and
- the primary types that the component provides.
-..
-  'bdeut_bigendian'              - big-endian integer types
-
-  'bdeut_nullableallocatedvalue' - a template for nullable allocated
-                                   (out-of-place) values
-
-  'bdeut_nullablevalue'          - a template for nullable (in-place) values
-
-  'bdeut_nullinputiterator'      - a pure input iterator for an empty range
-
-  'bdeut_nulloutputiterator'     - a bit-bucket for functions that take output
-                                   iterators
-
-  'bdeut_stringref'              - reference to a 'const' string
-
-  'bdeut_strtokeniter'           - access to user-described tokens in
-                                   'const char *' strings
-
-  'bdeut_strtokenrefiter'        - access to user-described tokens via string
-                                   references
-
-  'bdeut_variant'                - a variant (discriminated 'union'-like) type
-..
+: 'bdeut_bigendian':
+:      Provide big-endian integer types.
+:
+: 'bdeut_nullableallocatedvalue':
+:      Provide a template for nullable allocated values.
+:
+: 'bdeut_nullablevalue':
+:      Provide a template for nullable types.
+:
+: 'bdeut_nullinputiterator':
+:      Provide a pure input iterator for an empty range.
+:
+: 'bdeut_nulloutputiterator':
+:      Provide a bit-bucket for functions that take output iterators.
+:
+: 'bdeut_stringref':
+:      Provide a reference to a 'const' string.
+:
+: 'bdeut_strtokeniter':
+:      Provide access to user-described tokens in 'const char *' strings.
+:
+: 'bdeut_strtokenrefiter':
+:      Provide access to user-described tokens via string references.
+:
+: 'bdeut_variant':
+:      Provide a variant (discriminated 'union'-like) type.

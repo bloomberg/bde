@@ -54,10 +54,10 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdefi' package currently has 7 components having 1 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ The 'bdefi' package currently has 7 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   1. bdefi_vfunc0
      bdefi_vfunc1

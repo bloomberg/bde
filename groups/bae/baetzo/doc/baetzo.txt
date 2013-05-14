@@ -16,62 +16,86 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'baetzo' package has 16 components having seven levels of dependency.  The
- table below shows the hierarchical ordering of the components.  The package
- prefix and underscore ('baetzo_') are omitted from the full component names
- for layout efficiency.  The ordering within each level is simply alphabetical
- and has no architectural significance.
+ The 'baetzo' package currently has 17 components having 8 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  Level 7: timezoneutil
+  8. baetzo_windowstimezoneutil
 
-  Level 6: timezoneutilimp
+  7. baetzo_timezoneutil
 
-  Level 5: defaultzoneinfocache
+  6. baetzo_timezoneutilimp
 
-  Level 4: datafileloader       testloader            zoneinfocache
+  5. baetzo_defaultzoneinfocache
 
-  Level 3: loader               zoneinfobinaryreader  zoneinfoutil
+  4. baetzo_datafileloader
+     baetzo_testloader
+     baetzo_zoneinfocache
 
-  Level 2: localtimeperiod      zoneinfo
+  3. baetzo_loader
+     baetzo_zoneinfobinaryreader
+     baetzo_zoneinfoutil
 
-  Level 1: dstpolicy            errorcode
-           localtimedescriptor  localtimevalidity
-           zoneinfobinaryheader
+  2. baetzo_localtimeperiod
+     baetzo_zoneinfo
+
+  1. baetzo_dstpolicy
+     baetzo_errorcode
+     baetzo_localtimedescriptor
+     baetzo_localtimevalidity
+     baetzo_zoneinfobinaryheader
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'baetzo'.
-..
-  'baetzo_datafileloader'       - concrete 'baetzo_Loader' for Zoneinfo files
-
-  'baetzo_defaultzoneinfocache' - utilities to set/fetch time zone cache object
-
-  'baetzo_dstpolicy'            - enumeration of DST policies
-
-  'baetzo_errorcode'            - symbolic 'baetzo' return codes
-
-  'baetzo_loader'               - protocol for reading Zoneinfo files
-
-  'baetzo_localtimedescriptor'  - attributes of a local time value
-
-  'baetzo_localtimeperiod'      - description of local time over a time period
-
-  'baetzo_localtimevalidity'    - enumeration of local time validity status
-
-  'baetzo_testloader'           - test imp. of 'baetzo_Loader' protocol
-
-  'baetzo_timezoneutil'         - utilities for time zone conversion
-
-  'baetzo_timezoneutilimp'      - imp. utilities for time zone conversion
-
-  'baetzo_zoneinfo'             - value type for Zoneinfo time zone information
-
-  'baetzo_zoneinfobinaryheader' - attributes of Zoneinfo binary-file header
-
-  'baetzo_zoneinfobinaryreader' - utilities for reading Zoneinfo binary data
-
-  'baetzo_zoneinfocache'        - cache of time zone information
-
-  'baetzo_zoneinfoutil'         - utilities for 'baetzo_zoneinfo' objects
-..
+: 'baetzo_datafileloader':
+:      provide a concrete 'baetzo_Loader' for Zoneinfo binary files
+:
+: 'baetzo_defaultzoneinfocache':
+:      Provide facilities to manage a default Zoneinfo cache object.
+:
+: 'baetzo_dstpolicy':
+:      Enumerate the set of daylight-saving time (DST) policy values.
+:
+: 'baetzo_errorcode':
+:      Enumerate the set of named errors for the 'baetzo' package.
+:
+: 'baetzo_loader':
+:      Provide a protocol for obtaining information about a time zone.
+:
+: 'baetzo_localtimedescriptor':
+:      Provide an attribute class for characterizing local time values.
+:
+: 'baetzo_localtimeperiod':
+:      Provide a type describing local time over a time period.
+:
+: 'baetzo_localtimevalidity':
+:      Enumerate the set of local time validity codes.
+:
+: 'baetzo_testloader':
+:      Provide a test implementation of the 'baetzo_Loader' protocol.
+:
+: 'baetzo_timezoneutil':
+:      Provide utilities for converting times among different time zones.
+:
+: 'baetzo_timezoneutilimp':
+:      Implement utilities for converting times between time zones.
+:
+: 'baetzo_windowstimezoneutil':
+:      Provide utilities to map Zoneinfo identifiers to other systems.
+:
+: 'baetzo_zoneinfo':
+:      Provide a value type to represent a time zone.
+:
+: 'baetzo_zoneinfobinaryheader':
+:      Provide an attribute class for Zoneinfo binary-file header data
+:
+: 'baetzo_zoneinfobinaryreader':
+:      Provide utilities for reading the Zoneinfo binary data format.
+:
+: 'baetzo_zoneinfocache':
+:      Provide a cache for time-zone information.
+:
+: 'baetzo_zoneinfoutil':
+:      Provide utility operations on 'baetzo_Zoneinfo' objects.

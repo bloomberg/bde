@@ -18,34 +18,42 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bte' depends upon the 'bce' and 'bde' package groups:
+ The 'bte' package group currently has 6 packages having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
 ..
-    Level 3:   bte
+  5. btemt
 
-    Level 2:   bce
+  4. btesos
 
-    Level 1:   bde
-.. 
+  3. btesc
+     bteso
 
- 'bte' currently has has six packages forming five levels of dependency.  Note
- that 'bte' contains the required source control package 'btescm' (as does
- every package group, appropriately named).  See {BP BDE_SCM <GO>} for a
- detailed specification for this package, and see the 'bde' package group
- documentation for a brief description of the 'bdescm' package services, which
- are identical in concept to 'btescm'.  'btescm' is not discussed any further
- in this document.  The table below shows the hierarchical ordering of the
- packages.
+  2. btes
+
+  1. btescm
 ..
-   Level 5: btemt
 
-   Level 4: btesos
-
-   Level 3: btesc    bteso
-
-   Level 2: btes
-
-   Level 1: btescm 
-..
+/Package Synopsis
+/----------------
+: 'btemt':
+:      Provide framework for multi-threaded TCP/IP transport.
+:
+: 'btes':
+:      Provide transport-specific system level services.
+:
+: 'btesc':
+:      Provide abstract interfaces for transport channels and factories.
+:
+: 'btescm':
+:      Provide versioning information for 'bte' library components.
+:
+: 'bteso':
+:      Provide low-level support for sockets and event managers.
+:
+: 'btesos':
+:      Provide concrete TCP/IPv4 channels derived from 'btesc' protocols.
 
 /Package Overview
 /----------------
@@ -55,20 +63,20 @@
 
 /btemt
 /- - -
- 'btemt' provides a multi-threaded framework that supports TCP/IPv4 transport.
- In functionality, 'btemt' is similar to 'ptdispatch' except that there is no
- support for 'fstsnd' at this time.
- 
+ {'btemt'} provides a multi-threaded framework that supports TCP/IPv4
+ transport.  In functionality, 'btemt' is similar to 'ptdispatch' except that
+ there is no support for 'fstsnd' at this time.
+
 /btes
 /- -
- 'btes' provides "system level" services that are required by this transport
+ {'btes'} provides "system level" services that are required by this transport
  package group in a form that is portable across all suported platforms.
  Currently, the package supplies objects and utilities to implement the Unix
  'iovec' ("scatter/gather") buffer structure in a platform-neutral form.
 
 /btesc
 /- - -
- 'bteso' provides a suite of protocols (i.e., pure abstract interfaces)
+ {'bteso'} provides a suite of protocols (i.e., pure abstract interfaces)
  abstracting the general behavior of communications "channels".  All
  abstractions in this package consider stream-based (as opposed to
  message-based) transport.  The three general abstractions are called
@@ -86,11 +94,11 @@
 
 /bteso
 /- - -
- 'bteso' provides relatively low-level support for sockets as well as a number
- of concrete event managers.
+ {'bteso'} provides relatively low-level support for sockets as well as a
+ number of concrete event managers.
 
 /btesos
 /- - -
- 'btesos' provides concrete impementations of 'btesc' channels using TCP/IPv4
+ {'btesos'} provides concrete impementations of 'btesc' channels using TCP/IPv4
  sockets.  Timed and untimed, and blocking and non-blocking versions of generic
  channels, acceptors, and connectors are provided.

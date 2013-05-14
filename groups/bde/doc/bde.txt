@@ -12,51 +12,56 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bde' package group currently has 28 packages having 9 levels of
- physical dependency.  The table below shows the hierarchical ordering of the
- packages.  The order of packages within each level is not architecturally
- significant, just alphabetical.
+ The 'bde' package group currently has 29 packages having 10 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
 ..
-  9. bdempu
+  10. bdempu
 
-  8. bdem
+   9. bdem
 
-  7. bdecs
-     bdepu
-     bdesu
+   8. bdecs
+      bdepu
+      bdesu
 
-  6. bdeat
-     bdec
-     bdetu
+   7. bdeat
+      bdec
+      bdec2
+      bdetu
 
-  5. bdec2
-     bdefu
-     bdet
-     bdeut
+   6. bdea
+      bdeci
+      bdede
+      bdet
+      bdeut
 
-  4. bdea
-     bdealg
-     bdeci
-     bdede
-     bdef
-     bdefi
-     bdex
+   5. bdefu
+      bdeu
 
-  3. bdefr
-     bdeimp
-     bdema
-     bdemf
-     bdepcre
-     bdesb
-     bdeu
+   4. bdealg
+      bdef
+      bdefi
+      bdex
 
-  2. bdescm
+   3. bdefr
+      bdeimp
+      bdema
+      bdemf
+      bdepcre
+      bdesb
 
-  1. bdes
+   2. bdescm
+
+   1. bde+pcre
+      bdes
 ..
 
 /Package Synopsis
 /----------------
+: 'bde+pcre':
+:      Provide third-party Perl-compatible regular expressions (PCRE).
+:
 : 'bdea':
 :      Provide space-efficient array-related classes.
 :

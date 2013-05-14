@@ -16,9 +16,9 @@
 /Hierarchical Synopsis
 /---------------------
  The 'bdede' package currently has 10 components having 2 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   2. bdede_base64decoder
      bdede_charconvertucs2

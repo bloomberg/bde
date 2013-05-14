@@ -11,25 +11,62 @@
  non-blocking versions of generic channels, acceptors, and connectors are
  provided.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'btesos' package currently has 12 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. btesos_tcpacceptor
+     btesos_tcpcbacceptor
+     btesos_tcpcbconnector
+     btesos_tcpconnector
+     btesos_tcptimedacceptor
+     btesos_tcptimedcbacceptor
+     btesos_tcptimedcbconnector
+     btesos_tcptimedconnector
+
+  1. btesos_tcpcbchannel
+     btesos_tcpchannel
+     btesos_tcptimedcbchannel
+     btesos_tcptimedchannel
+..
+
 /Component Synopsis
 /------------------
- The following is a list of the components in 'btesos'.
-..
-  btesos_tcpcbchannel
-  btesos_tcptimedcbchannel
-  btesos_tcptimedcbacceptor
-  btesos_tcptimedcbconnector
-  btesos_tcpchannel
-  btesos_tcptimedchannel
-  btesos_tcptimedacceptor
-  btesos_tcptimedconnector
-
-  btesos_tcpcbacceptor
-  btesos_tcpcbconnector
-  btesos_tcpacceptor
-  btesos_tcpconnector
-..
-
-@Usage
- The usage examples for the 'btesos' package are under construction.  Please
- see the individual usage examples in the various components for now.
+: 'btesos_tcpacceptor':
+:      Provide a blocking acceptor of TCP-based connections
+:
+: 'btesos_tcpcbacceptor':
+:      Provide a non-blocking acceptor of TCP connections.
+:
+: 'btesos_tcpcbchannel':
+:      Provide stream-based communication channel over TCP sockets.
+:
+: 'btesos_tcpcbconnector':
+:      Provide a non-blocking connector to TCP servers.
+:
+: 'btesos_tcpchannel':
+:      Provide synchronous TCP-based communication channel.
+:
+: 'btesos_tcpconnector':
+:      Provide a synchronous connector to TCP-based servers
+:
+: 'btesos_tcptimedacceptor':
+:      Provide a blocking acceptor of TCP-based connections with timeout
+:
+: 'btesos_tcptimedcbacceptor':
+:      Provide a non-blocking acceptor of TCP connections with timeout.
+:
+: 'btesos_tcptimedcbchannel':
+:      Provide timed stream-based communication channel over TCP sockets.
+:
+: 'btesos_tcptimedcbconnector':
+:      Provide a non-blocking connector (with timeout) to TCP servers.
+:
+: 'btesos_tcptimedchannel':
+:      Provide synchronous TCP-based communication channel with timeouts.
+:
+: 'btesos_tcptimedconnector':
+:      Provide a synchronous connector (with timeout) to TCP-based servers

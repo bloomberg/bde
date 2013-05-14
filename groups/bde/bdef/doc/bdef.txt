@@ -40,9 +40,9 @@
 /Hierarchical Synopsis
 /---------------------
  The 'bdef' package currently has 12 components having 4 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   4. bdef_bind
 

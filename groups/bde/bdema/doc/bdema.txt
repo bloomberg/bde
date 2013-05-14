@@ -19,9 +19,9 @@
 /Hierarchical Synopsis
 /---------------------
  The 'bdema' package currently has 35 components having 7 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   7. bdema_multipoolallocator
      bdema_strallocator
