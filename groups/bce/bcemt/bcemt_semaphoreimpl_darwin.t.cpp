@@ -16,6 +16,7 @@
 #include <bdetu_systemtime.h>
 
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_vector.h>
 #include <bsl_deque.h>
@@ -882,24 +883,23 @@ int main(int argc, char *argv[]) {
                                      (void*)(producerData+i));
         }
         for(int j=0; j<samples; j++) {
-            bsls_PlatformUtil::Int64 timeStart = bsls_TimeUtil::getTimer();
-            bsls_PlatformUtil::Int64 timeStartCPU = ::clock();
+            bsls::Types::Int64 timeStart = bsls_TimeUtil::getTimer();
+            bsls::Types::Int64 timeStartCPU = ::clock();
             int* consumerCount = new int[numConsumers];
             for(int i=0; i<numConsumers; i++) {
                 consumerCount[i] = consumerData[i].count;
             }
-            bsls_PlatformUtil::Int64 throughput;
-            bsls_PlatformUtil::Int64 throughputCPU;
+            bsls::Types::Int64 throughput;
+            bsls::Types::Int64 throughputCPU;
             for(int i=0; i<seconds; i++) {
                 bcemt_ThreadUtil::microSleep(1000000);
-                bsls_PlatformUtil::Int64 totalMessages = 0;
+                bsls::Types::Int64 totalMessages = 0;
                 for(int i=0; i<numConsumers;i++) {
                     totalMessages += (consumerData[i].count-consumerCount[i]);
                 }
-                bsls_PlatformUtil::Int64 elapsed_us =
+                bsls::Types::Int64 elapsed_us =
                                     (bsls_TimeUtil::getTimer()-timeStart)/1000;
-                bsls_PlatformUtil::Int64 elapsed_usCPU =
-                                                        ::clock()-timeStartCPU;
+                bsls::Types::Int64 elapsed_usCPU = ::clock()-timeStartCPU;
                 throughput = (totalMessages*1000000/elapsed_us);
                 throughputCPU = (totalMessages*1000000/elapsed_usCPU);
                 cout << "testing: "

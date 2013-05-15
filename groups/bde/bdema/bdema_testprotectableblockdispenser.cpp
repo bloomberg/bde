@@ -98,9 +98,9 @@ void printAlign(const Align *align)
     // Print on a single line the specified 'align' (in hex) followed by the
     // (hex) value of each byte.
 {
-    std::printf("%p:\t", (void *)align);
+    std::printf("%p:\t", align);
 
-    unsigned char *addr = (unsigned char *) align;
+    const unsigned char *addr = (const unsigned char *) align;
 
     for (int i = 0; i < (int)(sizeof *align / 4); ++i) {
         if (i > 0) {
@@ -113,13 +113,13 @@ void printAlign(const Align *align)
     std::printf("\n");
 }
 
-void print16bytes(void *address)
+void print16bytes(const void *address)
     // Print on a single line the specified 'address' (in hex) followed by the
     // (hex) value of the block of 16 bytes it addresses.
 {
     std::printf("%p:\t", address);
 
-    unsigned char *addr = (unsigned char *) address;
+    const unsigned char *addr = (const unsigned char *) address;
 
     for (int i = 0; i < 4; ++i) {
         if (i > 0) {
@@ -156,11 +156,11 @@ void printBadBlock(const Align                        *align,
         if (DEALLOCATED_MEMORY == magicNumber)  {
             std::printf(
                   "*** Deallocating previously deallocated memory at %p ***\n",
-                   (void *)align);
+                   align);
         }
         else {
             std::printf("*** Invalid magic number %08x at address %p ***\n",
-            magicNumber, (void *)align);
+            magicNumber, align);
         }
     }
     else {
@@ -168,7 +168,7 @@ void printBadBlock(const Align                        *align,
         if (numBytes <= 0) {
             std::printf(
                "*** Invalid (non-positive) byte count %d at address %p *** \n",
-               numBytes, (void *)align);
+               numBytes, align);
         }
         if (numBytes != block.size()) {
 
@@ -179,12 +179,12 @@ void printBadBlock(const Align                        *align,
 #else
             std::printf(
   "*** byte count %d doesn't match descriptor count %d at address %p *** \n",
-                        numBytes, block.size(), (void *)align);
+                        numBytes, block.size(), align);
 #endif
 
         }
     }
-    unsigned char *address = (unsigned char *) ++align;
+    const unsigned char *address = (const unsigned char *) ++align;
     for (int i = 0; i < 4; ++i) {
         print16bytes(address);
         address += 16;

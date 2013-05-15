@@ -347,8 +347,8 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
-#include <bsls_atomic.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 namespace BloombergLP {
@@ -373,8 +373,10 @@ class bdepcre_RegEx {
 
     // CLASS DATA
     static
-    bsls::AtomicInt  s_depthLimit;   // process-wide default maximum evaluation
-                                     // recursion depth
+    bsls::AtomicOperations::AtomicTypes::Int s_depthLimit;  // process-wide
+                                                            // default maximum
+                                                            // evaluation
+                                                            // recursion depth
 
     // PRIVATE DATA
     int               d_flags;        // prepare/match flags
@@ -578,15 +580,15 @@ class bdepcre_RegEx {
 inline
 int bdepcre_RegEx::defaultDepthLimit()
 {
-    return s_depthLimit;
+    return bsls::AtomicOperations::getIntRelaxed(&s_depthLimit);
 }
 
 inline
 int bdepcre_RegEx::setDefaultDepthLimit(int depthLimit)
 {
-    int previous = s_depthLimit;
+    int previous = defaultDepthLimit();
 
-    s_depthLimit = depthLimit;
+    bsls::AtomicOperations::setIntRelaxed(&s_depthLimit, depthLimit);
 
     return previous;
 }

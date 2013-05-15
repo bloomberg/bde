@@ -581,10 +581,10 @@ void *workerThread(void *arg) {
 
     barrier.wait();
     for (int i = 0; i < NUM_OBJECTS; ++i) {
-        volatile int *buffer = (int*)mX->allocate();
+        int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
             printf("Thread %d: Allocated %p\n", bcemt_ThreadUtil::self(),
-                   (void *)buffer);
+                   buffer);
         }
         LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
         LOOP_ASSERT(i, buffer);
@@ -996,7 +996,7 @@ int main(int argc, char *argv[]) {
               } break;
               case 1: {
                 const LeftChild *pLCC = pMDC;
-                ASSERT((void*) pLCC == (void*) pMDC);
+                ASSERT((const void*) pLCC == (const void*) pMDC);
                 pool.deleteObjectRaw(pLCC);
               } break;
               case 2: {
@@ -1004,12 +1004,12 @@ int main(int argc, char *argv[]) {
               } break;
               case 3: {
                 const LeftChild *pLCC = pMDC;
-                ASSERT((void*) pLCC == (void*) pMDC);
+                ASSERT((const void*) pLCC == (const void*) pMDC);
                 pool.deleteObject(pLCC);
               } break;
               case 4: {
                 const RightChild *pRCC = pMDC;
-                ASSERT((void*) pRCC != (void*) pMDC);
+                ASSERT((const void*) pRCC != (const void*) pMDC);
                 pool.deleteObject(pRCC);
               } break;
               case 5: {

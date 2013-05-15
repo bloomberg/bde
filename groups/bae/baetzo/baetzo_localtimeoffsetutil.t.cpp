@@ -713,14 +713,14 @@ int main(int argc, char *argv[])
             baetzo_ZoneinfoCache testCache(&testLoader);
             baetzo_DefaultZoneinfoCache::setDefaultCache(&testCache);
 
-            static bslma_TestAllocator staticGlobalAllocator(
+            static bslma::TestAllocator staticGlobalAllocator(
                                                           "global",
                                                           veryVeryVeryVerbose);
 
-            bslma_Default::setGlobalAllocator(&staticGlobalAllocator);
+            bslma::Default::setGlobalAllocator(&staticGlobalAllocator);
 
-            bslma_TestAllocator da("default", veryVeryVeryVerbose);
-            bslma_Default::setDefaultAllocator(&da);
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::Default::setDefaultAllocator(&da);
 
             ASSERT(0 == staticGlobalAllocator.numBlocksInUse());
             ASSERT(0 == da.numBlocksInUse());
@@ -1077,7 +1077,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\t'loadLocalTimePeriod'" << endl;
             {

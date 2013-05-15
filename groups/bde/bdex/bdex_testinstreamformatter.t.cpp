@@ -1466,7 +1466,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
 
-            bdesb_FixedMemInStreamBuf sb((char *)"", 0);
+            bdesb_FixedMemInStreamBuf sb("", 0);
             bdex_TestInStreamFormatter testInStream(&sb);
             testInStream.setSuppressVersionCheck(1);
 

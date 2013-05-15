@@ -2291,7 +2291,7 @@ int bdeat_typeCategoryManipulateArray(
 {
     if (object->isByteArrayValue()) {
         bsl::vector<char>* arrayPtr =
-            (bsl::vector<char>*)object->object();
+            (bsl::vector<char>*) const_cast<void *>(object->object());
         return manipulator(arrayPtr, bdeat_TypeCategory::Array());    // RETURN
     }
     else {

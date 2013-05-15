@@ -174,14 +174,16 @@ int genericGather(char        *buffer,
     int numCopied = 0;
     while(numBuffers-- && 0 < length) {
         if (buffers->length() < length) {
-            bsl::memcpy(buffer, (char*)buffers->buffer(), buffers->length());
+            bsl::memcpy(buffer,
+                        (const char*)buffers->buffer(),
+                        buffers->length());
             numCopied += buffers->length();
             length -= buffers->length();
             buffer += buffers->length();
             ++buffers;
         }
         else {
-            bsl::memcpy(buffer, (char*)buffers->buffer(), length);
+            bsl::memcpy(buffer, (const char*)buffers->buffer(), length);
             numCopied += length;
             length = 0;
         }
@@ -245,14 +247,18 @@ int genericScatter(const IOVEC *buffers,
     int numCopied = 0;
     while(numBuffers-- && 0 < length) {
         if (buffers->length() < length) {
-            bsl::memcpy((char*)buffers->buffer(), buffer, buffers->length());
+            bsl::memcpy((char*) const_cast<void *>(buffers->buffer()),
+                        buffer,
+                        buffers->length());
             numCopied += buffers->length();
             length -= buffers->length();
             buffer += buffers->length();
             ++buffers;
         }
         else {
-            bsl::memcpy((char*)buffers->buffer(), buffer, length);
+            bsl::memcpy((char*) const_cast<void *>(buffers->buffer()),
+                        buffer,
+                        length);
             numCopied += length;
             length = 0;
         }

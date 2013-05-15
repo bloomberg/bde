@@ -4,6 +4,7 @@
 #include <bdet_datetimeinterval.h>
 #include <bdetu_epoch.h>
 
+#include <bsl_cstdio.h>      // snprintf() on recent compilers
 #include <bsl_cstdlib.h>     // atoi(), getenv(), putenv(),
 #include <bsl_cstring.h>     // strcmp()
 #include <bsl_iostream.h>

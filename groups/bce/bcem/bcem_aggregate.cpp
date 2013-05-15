@@ -260,7 +260,8 @@ bcema_SharedPtr<void> bcem_Aggregate::dataPtr() const
         return bcema_SharedPtr<void>();                               // RETURN
     }
     d_valueRep_p->acquireRef();
-    return bcema_SharedPtr<void>((void *)d_aggregateRaw.data(), d_valueRep_p);
+    return bcema_SharedPtr<void>(const_cast<void *>(d_aggregateRaw.data()),
+                                 d_valueRep_p);
 }
 
 void bcem_Aggregate::init(
@@ -921,7 +922,7 @@ bool bcem_Aggregate::isUnset() const
         isUnsetFlag = true;
       } break;
       case bdem_ElemType::BDEM_TABLE: {
-        const bdem_Table *table = (bdem_Table *) data();
+        const bdem_Table *table = (const bdem_Table *) data();
         if (recordConstraint()) {
             isUnsetFlag = 0 == table->numRows();
         }
@@ -930,7 +931,7 @@ bool bcem_Aggregate::isUnset() const
         }
       } break;
       case bdem_ElemType::BDEM_CHOICE: {
-        const bdem_Choice *choice = (bdem_Choice *) data();
+        const bdem_Choice *choice = (const bdem_Choice *) data();
         if (recordConstraint()) {
             isUnsetFlag = choice->selector() < 0;
         }
@@ -940,11 +941,11 @@ bool bcem_Aggregate::isUnset() const
         }
       } break;
       case bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM: {
-        const bdem_ChoiceArrayItem *item = (bdem_ChoiceArrayItem *) data();
+        const bdem_ChoiceArrayItem *item = (const bdem_ChoiceArrayItem *) data();
         isUnsetFlag = item->selector() < 0;
       } break;
       case bdem_ElemType::BDEM_CHOICE_ARRAY: {
-        const bdem_ChoiceArray *choiceArray = (bdem_ChoiceArray *) data();
+        const bdem_ChoiceArray *choiceArray = (const bdem_ChoiceArray *) data();
         if (recordConstraint()) {
             isUnsetFlag = 0 == choiceArray->length();
         }
@@ -1053,7 +1054,7 @@ bcem_Aggregate::cloneData(bslma::Allocator *basicAllocator) const
 
         // Perform a row-to-list assignment to make a copy of this row.
 
-        parentList = *(bdem_Row *)data();
+        parentList = *(const bdem_Row *)data();
 
         // Get a shared pointer to the row within the parent list
 
@@ -1074,7 +1075,7 @@ bcem_Aggregate::cloneData(bslma::Allocator *basicAllocator) const
 
         // Perform an item-to-choice assignment to make a copy of this item.
 
-        parentChoice = *(bdem_ChoiceArrayItem *)data();
+        parentChoice = *(const bdem_ChoiceArrayItem *)data();
 
         // Get a shared pointer to the item within the parent choice
 
